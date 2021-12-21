@@ -20,9 +20,9 @@ sourceHtmlSha256: "cf026bb5a44dd88362bc6cd9e6ae77cb60b51d1acc54b9e032b514177521a
 
 ```bash
 docker run --name zabbix-mysql-server --hostname zabbix-mysql-server \
--e MYSQL_ROOT_PASSWORD=[已脱敏] \
+-e MYSQL_ROOT_PASSWORD="123456" \
 -e MYSQL_USER="zabbix" \
--e MYSQL_PASSWORD=[已脱敏] \
+-e MYSQL_PASSWORD="123456" \
 -e MYSQL_DATABASE="zabbix" \
 -p 3306:3306 \
 -d mysql:5.7 --character-set-server=utf8 --collation-server=utf8_bin
@@ -34,7 +34,7 @@ docker run --name zabbix-server-mysql --hostname zabbix-server-mysql \
 -e DB_SERVER_HOST="mysql" \
 -e MYSQL_USER="zabbix" \
 -e MYSQL_DATABASE="zabbix" \
--e MYSQL_PASSWORD=[已脱敏] \
+-e MYSQL_PASSWORD="123456" \
 -v /etc/localtime:/etc/localtime:ro \
 -v /data/docker/zabbix/alertscripts:/usr/lib/zabbix/alertscripts \
 -v /data/docker/zabbix/externalscripts:/usr/lib/zabbix/externalscripts \
@@ -48,7 +48,7 @@ docker run --name zabbix-web-nginx-mysql --hostname zabbix-web-nginx-mysql \
 --link zabbix-server-mysql:zabbix-server \
 -e DB_SERVER_HOST="mysql" \
 -e MYSQL_USER="zabbix" \
--e MYSQL_PASSWORD=[已脱敏] \
+-e MYSQL_PASSWORD="123456" \
 -e MYSQL_DATABASE="zabbix" \
 -e ZBX_SERVER_HOST="zabbix-server" \
 -e PHP_TZ="Asia/Shanghai" \
@@ -57,7 +57,7 @@ docker run --name zabbix-web-nginx-mysql --hostname zabbix-web-nginx-mysql \
 -d zabbix/zabbix-web-nginx-mysql
 ```
 
-浏览器访问 <http://203.0.113.1:8000> 默认登录 username: Admin password=[已脱敏]
+浏览器访问 <http://203.0.113.1:8000> 默认登录 username: Admin password: [已脱敏]
 
 2、部署zabbix-agent
 
