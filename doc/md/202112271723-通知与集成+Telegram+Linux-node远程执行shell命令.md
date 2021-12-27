@@ -39,7 +39,7 @@ module.exports = {
         return (
             {
                 adminUsers:[ADMIN_ID], //admin users' telegram id, should be numbers
-                botToken=[已脱敏], // bot token
+                botToken: 'YOUR_BOT_TOEKN', // bot token
 
             }
         );
