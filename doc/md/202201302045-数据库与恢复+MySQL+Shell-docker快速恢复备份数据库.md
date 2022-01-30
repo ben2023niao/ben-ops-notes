@@ -26,7 +26,7 @@ docker run \
 -p 3306:3306 \
 -v /home/mysql/data:/var/lib/mysql \
 -v /home/mysql/conf.d:/etc/mysql/conf.d \
--e MYSQL_ROOT_PASSWORD=[已脱敏] \
+-e MYSQL_ROOT_PASSWORD=ok5nnbwzfe653c39 \
 -d mysql:5.7
 
 cd /home/mysql
