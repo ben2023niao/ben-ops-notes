@@ -21,8 +21,8 @@ docker run -itd -p 6080:80 \
 -e RESOLUTION=1920x1080 \
 -e USER=android \
 -e PASSWORD=[已脱敏] \
--e HTTP_PASSWORD=[已脱敏] \
--e VNC_PASSWORD=[已脱敏] \
+-e HTTP_PASSWORD=android \
+-e VNC_PASSWORD=android \
 -v /opt/ziben:/opt/ \
 --name taihe_android_apk \
 dorowu/ubuntu-desktop-lxde-vnc:bionic
