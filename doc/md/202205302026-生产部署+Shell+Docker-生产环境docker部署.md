@@ -27,7 +27,7 @@ sourceHtmlSha256: "852a96dfeaaa26561cb4719dcd9403624d79aaf757e162981649639799a19
 --restart=always: 守护进程，容器挂掉将自动重启
 -port : 填写宝塔面板运行的端口号
 -username: 填写宝塔面板的用户名
--password=[已脱敏]
+-password : [已脱敏]
 
 docker run -itd --net=host --restart=always --name baota-pingan cyberbolt/baota:latest -port 8888 -username pingan -password abc123456
 
