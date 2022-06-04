@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>EXE自动化构建发布(CocosCreator)｜基础设施与自动化 / 自动化｜BEN.OPS</title>
+  <meta name="description" content="EXE自动化构建发布(CocosCreator)。本文属于基础设施与自动化 / 自动化，需要一台机器作为构建机，在它上面安装 Jenkins 。 Jenkins 基于Java开发，跨平台支持非常好，几乎是所有平台都能运行 Jenkins 。不过对于CocosCreator项目来说，就只能选择 Windows或Ma…">
+  <meta name="keywords" content="自动化，Shell，Go，Nginx，安全运维，源码与配置，基础设施与自动化，基础设施与自动化 / 自动化，EXE自动化构建发布(CocosCreator)">
+  <meta name="author" content="Ben">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-93c632252e62.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-93c632252e62.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202206041425-%E8%87%AA%E5%8A%A8%E5%8C%96%2BShell%2BGo-EXE%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%8F%91%E5%B8%83%28CocosCreator%29.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="EXE自动化构建发布(CocosCreator)">
+  <meta property="og:description" content="EXE自动化构建发布(CocosCreator)。本文属于基础设施与自动化 / 自动化，需要一台机器作为构建机，在它上面安装 Jenkins 。 Jenkins 基于Java开发，跨平台支持非常好，几乎是所有平台都能运行 Jenkins 。不过对于CocosCreator项目来说，就只能选择 Windows或Ma…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-93c632252e62.html">
+  <meta property="article:published_time" content="2022-06-04T14:25:13.714000+08:00">
+  <meta property="article:modified_time" content="2022-06-04 14:25">
+  <meta property="article:section" content="基础设施与自动化 / 自动化">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/1f1bf016402a18aaaf.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="EXE自动化构建发布(CocosCreator)">
+  <meta name="twitter:description" content="EXE自动化构建发布(CocosCreator)。本文属于基础设施与自动化 / 自动化，需要一台机器作为构建机，在它上面安装 Jenkins 。 Jenkins 基于Java开发，跨平台支持非常好，几乎是所有平台都能运行 Jenkins 。不过对于CocosCreator项目来说，就只能选择 Windows或Ma…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/1f1bf016402a18aaaf.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-93c632252e62.html#article","headline":"EXE自动化构建发布(CocosCreator)","description":"EXE自动化构建发布(CocosCreator)。本文属于基础设施与自动化 / 自动化，需要一台机器作为构建机，在它上面安装 Jenkins 。 Jenkins 基于Java开发，跨平台支持非常好，几乎是所有平台都能运行 Jenkins 。不过对于CocosCreator项目来说，就只能选择 Windows或Ma…","datePublished":"2022-06-04T14:25:13.714000+08:00","dateModified":"2022-06-04 14:25","inLanguage":"zh-CN","articleSection":["基础设施与自动化","自动化"],"keywords":["自动化","Shell","Go","Nginx","安全运维","源码与配置","基础设施与自动化","基础设施与自动化 / 自动化","EXE自动化构建发布(CocosCreator)"],"wordCount":2790,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-93c632252e62.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-93c632252e62.html","author":{"@type":"Person","name":"Ben","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/1f1bf016402a18aaaf.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"基础设施与自动化 / 自动化","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"EXE自动化构建发布(CocosCreator)","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-93c632252e62.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>基础设施与自动化 / 自动化</span> › <span>EXE自动化构建发布(CocosCreator)</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">基础设施与自动化 / 自动化</div>
+      <h1>EXE自动化构建发布(CocosCreator)</h1>
+      <p class="lede">EXE自动化构建发布(CocosCreator)。本文属于基础设施与自动化 / 自动化，需要一台机器作为构建机，在它上面安装 Jenkins 。 Jenkins 基于Java开发，跨平台支持非常好，几乎是所有平台都能运行 Jenkins 。不过对于CocosCreator项目来说，就只能选择 Windows或Ma…</p>
+      <div class="meta">
+        <time class="badge" datetime="2022-06-04T14:25:13.714000+08:00">发布于 2022-06-04</time>
+        <span class="badge">作者 Ben</span>
+        <span class="badge">2,790 字</span>
+        <span class="badge">8 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>原文：<a href="https://xn--6o0a585a.gitbook.io/devops/zi-dong-hua/exe-zi-dong-hua-gou-jian-fa-bu-cocoscreator.html" rel="noopener noreferrer">EXE自动化构建发布(CocosCreator)</a></p>
+<p>来源：GitBook 网页 HTML｜页面时间：2022-06-04 14:25｜日期依据：GitBook 页面更新时间</p>
+</blockquote>
+<h2 id="Jenkins实现CocosCreator的自动化构建和发布">Jenkins实现CocosCreator的自动化构建和发布</h2>
+<h2 id="一-安装Jenkins">一、安装Jenkins</h2>
+<p>需要一台机器作为构建机，在它上面安装<code>Jenkins</code>。<code>Jenkins</code>基于Java开发，跨平台支持非常好，几乎是所有平台都能运行<code>Jenkins</code>。不过对于CocosCreator项目来说，就只能选择<code>Windows或Mac机器</code>了，本文主要以<code>win10系统</code>为例。</p>
+<p>1、到Jenkins官网(<a href="https://links.jianshu.com/go?to=https%3A%2F%2Fjenkins.io%2F" rel="noopener noreferrer">https://jenkins.io/</a>)下载msi格式的Windows安装包，当前最新版本是2.277.1，正常安装；
+2、安装完成后，打开浏览器输入地址：<code>http://localhost:8080/jenkins</code>，按页面提示从本地复制密码并输入；
+3、安装默认推荐的插件；
+4、创建第一个管理员用户。这是指Jenkins系统的管理员，因为<code>Jenkins</code>是个分布式平台，支持任意多个用户并行操作，不同用户有不同权限，所以在<code>Jenkins</code>第一次安装后需要立即创建一个管理员；
+5、如果看到如下界面，代表<code>Jenkins</code>已经安装成功。</p>
+<p><img alt="文档配图 1" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/1f1bf016402a18aaaf.png"/></p>
+<h2 id="二-自动化脚本">二、自动化脚本</h2>
+<p>本质上<code>Jenkins</code>是个<code>可视化的Web管理工具</code>，执行的各种任务其实都是通过命令完成的，我们要做什么任务，就为这个任务提供相应的命令。例如，<code>Windows平台</code>是<code>批处理命令</code>。</p>
+<p>所以我们首先学会使用命令行来构建CocosCreator项目，之后才能在<code>Jenkins</code>中实现一键自动化构建和发布。</p>
+<h4 id="1cocoscreator">(1)命令行构建CocosCreator</h4>
+<p>CocosCreator.exe本身支持命令行，简单使用有以下参数就够了。</p>
+<ul>
+<li>–path - 指定项目路径</li>
+<li>–build - 指定构建项目使用的参数</li>
+<li>–compile - 指定编译项目使用的参数
+在<code>--build</code> 或<code>--compile</code>后如果没有指定参数，则会使用Creator 构建面板当前的平台、模板等设置来作为默认参数。如果指定了其他参数设置，则会使用指定的参数来覆盖默认参数。</li>
+</ul>
+<p>此次我们使用默认配置即可，所以在命令行中进入我们需要构建的Creator工程目录，输入命令：</p>
+<p>即可在当前路径使用默认参数完成构建。</p>
+<h4 id="2cocoscreator">(2)命令行发布CocosCreator项目</h4>
+<p>构建完成后，如果是支持浏览器的H5游戏，我们还需要把构建后的版本上传到<code>Web服务器</code>，完成发布。Windows上有个免费的远程文件传输工具pscp，支持命令行把指定文件或目录上传到远程服务器。pscp的参数含义如下：</p>
+<ul>
+<li>-l 远程服务器的用户名</li>
+<li>-pw 远程服务器的密码</li>
+<li>-r 拷贝整个目录
+如果Creator构建使用的是<code>web-mobile</code>方式，则构建后的版本目录默认是 <code>build\web-mobile\</code>，假设远程服务器已配置好 <code>nginx</code>来提供Web服务，端口是8000，IP地址是192.168.1.100，存放目录是 /usr/share/nginx/Hello，登录用户名是root，密码是123456，那么输入命令：</li>
+</ul>
+<p>这样一个命令就把构建后的版本上传到了远程服务器，之后在浏览器中打开 203.0.113.1:8000，即可运行游戏的H5版本了。</p>
+<h4 id="3">(3)批处理</h4>
+<p>我们把这2个命令组合起来形成一个批处理文件，放在工程目录下，以后只要一个双击就完成了CocosCreator项目的构建和发布，非常方便。</p>
+<h2 id="三-配置Jenkins任务">三、配置Jenkins任务</h2>
+<p>上面介绍了如何编写Creator项目构建和发布的<code>Windows批处理</code>，接下来我们将要在<code>Jenkins</code>中部署该任务，以实现真正的<code>自动化</code>。步骤如下：</p>
+<h4 id="1creator">(1)创建Creator项目</h4>
+<p>首先用Creator新建一个HelloWorld项目，并通过Creator构建面板中试着构建一遍，确认工程本身没有问题；</p>
+<h4 id="2">(2)准备远程传输文件工具</h4>
+<p>为保持目录整洁，在Creator工程目录下新建一个tools目录，把<code>pscp.exe</code>放到该目录下（后面远程传输文件会用到），形成的目录结构如下：</p>
+<p><img alt="文档配图 2" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/4fcf1d385529915a32.png"/></p>
+<h4 id="3jenkins">(3)创建Jenkins任务</h4>
+<p>登录<code>Jenkins</code>，新建一个名称为“HelloWorld”的任务，任务类型选择“自由风格的软件项目”，点击确定，就创建好了一个任务。在该任务视图中点击左侧的“配置”，按如下配置：</p>
+<ul>
+<li>General：可以不填，全部留空即可；</li>
+<li>源码管理：选择“无”；</li>
+<li>构建触发器：全部不填；</li>
+<li>构建：增加一个“Windows批处理命令”，填写上篇文章介绍过的命令，如下：</li>
+</ul>
+<p>注：此处我的Creator工程路径是 <code>e:\dev\CocosCreator\HelloWorld</code>，CocosCreator安装目录是：<code>c:\CocosCreator\CocosCreator.exe</code>，构建后版本上传到web服务器的目标路径是<code>/usr/share/nginx/hello</code>，读者可根据情况自行调整。</p>
+<p>构建后操作：留空即可；</p>
+<h4 id="4">(4)开始构建</h4>
+<p>保存上述配置后，回到任务视图，点击左侧的“立即构建”，即开始执行任务，也就是开始调用Creator进行HelloWorld工程的构建。</p>
+<p><img alt="文档配图 3" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/cb9a3da383d5409437.png"/></p>
+<p>提示：如果是第一次使用Jenkins构建Creator项目，通常会失败，在进行到如下这一步停止，一直转圈：</p>
+<p>原因是<code>Jenkins</code>服务调用了Creator进行构建，而默认情况下<code>Jenkins</code>服务的权限不够，所以我们还需要给<code>Jenkins</code>服务提高权限。
+打开<code>Win10的“服务”面板</code>，找到<code>Jenkins</code>服务，我的做法是把登录账户设为当前管理员账户。对于这个问题，<code>Jenkins</code>官方文档也给出了答案，如下图：</p>
+<p><img alt="文档配图 4" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/2917e4023f2ff11c1b.png"/></p>
+<p>再次构建，就应该能顺利完成了，如果<code>Jenkins</code>成功执行了任务，将会在最后一行输出：</p>
+<p>这样，通过<code>Jenkins</code>的开放式Web页面，任何人（例如：研发团队里的策划、美术）都可以一键完成Creator项目的构建和发布，程序员可以安心地写代码了。</p>
+<h2 id="四-增加Git管理">四、增加Git管理</h2>
+<p>上面讲述了<code>Jenkins</code>如何一键构建和发布Creator项目，不过构建的都是本地代码。本篇文章讲述如何通过<code>Jenkins</code>中结合<code>代码Git管理</code>，使<code>本地提交代码</code>、<code>抓取最新代码</code>、<code>推送代码</code>至<code>Git服务器</code>等一套流程全跑通，并自动使用Git仓库中的最新代码进行CocosCreator的构建和发布。本文使用的环境为：<code>本机Win10系统</code>+<code>本机Jenkins</code>+<code>远程GitLab仓库</code>，步骤如下：</p>
+<h4 id="1jenkinsgitgitlab">(1)Jenkins安装Git和GitLab插件</h4>
+<p>打开浏览器 -&gt; 登录<code>Jenkins</code> -&gt; 系统管理 -&gt; 管理插件，切换到“可选插件”，搜索<code>"git"</code>关键字，找到<code>“GitLab Plugin”</code>和<code>“Git Plugin”</code>，点击下方的“直接安装”。如果在“可选插件”里没有搜到，可能默认你已经安装了，可以在“已安装”里查看。如下所示：</p>
+<p><img alt="文档配图 5" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/e777a0080096588a61.png"/></p>
+<p>等待安装完成。</p>
+<h4 id="2gitlab">(2)配置GitLab插件</h4>
+<p>要让<code>Jenkins</code>连接上<code>GitLab</code>仓库，通常需要<code>Git密钥</code>或<code>token</code>。
+<code>登录GitLab</code> -&gt; <code>点击“setting”</code>——<code>“Account”</code>，复制<code>Private token</code>备用，如下所示：</p>
+<p><img alt="文档配图 6" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/a7ff6c3fc5414210a2.png"/></p>
+<p><code>打开浏览器</code> -&gt; <code>登录Jenkins</code> -&gt; <code>系统管理</code> -&gt; <code>系统设置</code>，点击<code>配置</code>下拉框，点击<code>Gitlab</code>选项，如下所示：</p>
+<p><img alt="文档配图 7" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/86f34459fe65795f17.png"/></p>
+<p>在<code>Gitlab</code>弹出框里，<code>kind</code>选择<code>GitLab API Token</code>，将先前复制的<code>Private token</code>粘贴到<code>API token</code>输入框中，然后点击<code>Add</code>，即配置好了。如下所示：</p>
+<p><img alt="文档配图 8" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/69d880c9e2bdf6452c.png"/></p>
+<p>选择刚刚新建的<code>Credentials</code>，并根据自己情况填完整<code>Connection name</code> 和 <code>GitLab host URL</code>。设置完后，还要测试一下能否连接成功，点击<code>test connection</code>,要看到返回<code>Success</code>才行，如下所示：</p>
+<p><img alt="文档配图 9" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/ca4cf3df3aa4120e7d.png"/></p>
+<p>然后点击页面底下的<code>apply</code>,再点击<code>save</code>，保存<code>GitLab</code>配置。</p>
+<h4 id="3git">(3)配置Git插件</h4>
+<p><code>打开浏览器</code> -&gt; <code>登录Jenkins</code> -&gt; <code>系统管理</code> -&gt; <code>系统设置</code>，点击<code>配置</code>下拉框，选择<code>Git plugin</code>选项，设置<code>Git</code>插件的全局配置，如下所示：</p>
+<p><img alt="文档配图 10" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/e777a0080096588a61.png"/></p>
+<p>然后点击<code>apply</code>——<code>save</code>，保存<code>Git</code>配置。</p>
+<h4 id="4_1">(4)编写脚本</h4>
+<p>好了，现在把该配置的都配好了，<code>Jenkins</code>已经准备好了连接<code>Git仓库</code>，还剩最后一步，就是给<code>Jenkins</code>任务编写脚本。假设Creator工程路径是<code>e:\dev\CocosCreator\HelloWorld</code>，<code>git分支</code>是<code>master</code>，<code>pscp软件</code>在<code>tools子目录</code>下，按照 <code>commit</code> -&gt; <code>pull</code> -&gt; <code>push</code> 的<code>Git流程</code>，脚本命令如下：</p>
+<p>如下图所示：</p>
+<p><img alt="文档配图 11" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/a9f0d054465284a199.png"/></p>
+<p>现在，只要<code>本地代码有修改</code>或<code>Git仓库里有新代码提交</code>，直接运行这个任务，就自动完成了所有的构建和发布工作，并把最新代码提交到<code>Git仓库</code>。</p>
+<h2 id="五-增加SSH远程操作">五、增加SSH远程操作</h2>
+<p>前面讲述了如何实现<code>CocosCreator</code>的自动化构建和发布，不过使用次数多了会发现一个问题：就是如果我们在Creator的构建选项中选定了<code>MD5</code>，则每次构建都会生成<code>新的文件名</code>，那么每一次上传新版本到服务器时，因为<code>新文件不会覆盖旧文件</code>，就会导致<code>发布目录下的文件越来越多</code>。所以我们还希望在每一次上传新版本前把<code>旧文件删除掉</code>，这就需要<code>Jenkins</code>能远程登录到服务器，并执行删除命令。</p>
+<p>要让Jenkins支持远程登录需要安装SSH插件，并在<code>Jenkins</code>上设置好<code>Credentials</code>，然后在相应的<code>Jenkins</code>任务中使用该<code>Credentials</code>即可。步骤如下：</p>
+<h4 id="1credentials">(1)新建Credentials</h4>
+<p>在<code>Jenkins</code>界面，依次点击： <code>Credentials</code> -&gt; <code>System</code> -&gt; <code>Add domain</code>。
+<code>Domain Name</code>: 填写你的服务器地址，如：203.0.113.1；
+<code>Description</code>: 随便写一点描述，如 This is the Credential for CocosCreator；
+如下图所示：</p>
+<p><img alt="文档配图 12" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/6ec123585437b555c1.png"/></p>
+<p>点击 ok，再点击 <code>“adding some credentials?”</code>进入页面后，可以选择 <code>Username with password</code>或者 <code>SSH Username with private key</code>, 根据自己情况选择，为简单起见，这里我们选择 <code>Username with password</code>：
+<code>Username</code>: 远程登录的用户名，如：root
+<code>Password</code>: 远程登录的密码，如：123456
+<code>ID</code>: 空
+<code>Description</code>: 空
+如下图所示：</p>
+<p><img alt="文档配图 13" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/c6e39007c1400e9c84.png"/></p>
+<p>点击 ok，<code>Credential</code>就创建好了。</p>
+<h4 id="2ssh">(2)SSH插件配置</h4>
+<p>再进入<code>Jenkins</code>系统管理 -&gt; 系统设置，左上"配置"下拉菜单选择 <code>ssh remote hosts</code>，增加一个<code>remote host</code>，选择使用刚才创建好的 <code>Credential</code>，如下图所示：</p>
+<p><img alt="文档配图 14" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/65a3a762671b0a5646.png"/></p>
+<h4 id="3jenkins_1">(3)Jenkins任务配置</h4>
+<p>在<code>Jenkins</code>任务配置的构建，选择增加<code>“Execute shell script on remote host using ssh”</code>，在<code>SSH site</code>选择使用刚才新建好的<code>SSH site</code>，并编写删除操作的shell命令：</p>
+<p>如下图所示：</p>
+<p><img alt="文档配图 15" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/c55a5319d2062f8025.png"/></p>
+<h4 id="4_2">(4)执行命令</h4>
+<p>一切都准备就绪，为了让 <code>Creator构建</code> -&gt; <code>删除旧文件</code> -&gt; <code>上传新文件</code> 按顺序执行，我们再把前面所用过的命令拆分为3部分，这样Jenkins就会按顺序执行了。</p>
+<h2 id="六-增加用户权限管理">六、增加用户权限管理</h2>
+<p>随着<code>Jenkins</code>的使用深入，会发现需要给不同的用户配置不同的使用权限，虽然<code>Jenkins</code>自带用户权限管理，但比较简单，不支持用户组和项目的划分，因此需要第三方插件来实现更精细的权限管理，使用比较广泛的是<code>Role Strategy Plugin</code>插件，可以满足所有关于用户和权限的管理需求。官网：<a href="https://links.jianshu.com/go?to=https%3A%2F%2Fwiki.jenkins.io%2Fpages%2Fviewpage.action%3FpageId%3D57182927" rel="noopener noreferrer">https://wiki.jenkins.io/pages/viewpage.action?pageId=57182927</a></p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#Jenkins实现CocosCreator的自动化构建和发布">Jenkins实现CocosCreator的自动化构建和发布</a></li><li style="margin-left:0.0rem"><a href="#一-安装Jenkins">一、安装Jenkins</a></li><li style="margin-left:0.0rem"><a href="#二-自动化脚本">二、自动化脚本</a></li><li style="margin-left:0.0rem"><a href="#三-配置Jenkins任务">三、配置Jenkins任务</a></li><li style="margin-left:0.0rem"><a href="#四-增加Git管理">四、增加Git管理</a></li><li style="margin-left:0.0rem"><a href="#五-增加SSH远程操作">五、增加SSH远程操作</a></li><li style="margin-left:0.0rem"><a href="#六-增加用户权限管理">六、增加用户权限管理</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：基础设施与自动化 / 自动化</li>
+          <li>日期：2022-06-04</li>
+          <li>标签：<span class="tag">自动化</span><span class="tag">Shell</span><span class="tag">Go</span><span class="tag">Nginx</span><span class="tag">安全运维</span><span class="tag">源码与配置</span></li>
+          <li><a href="https://xn--6o0a585a.gitbook.io/devops/zi-dong-hua/exe-zi-dong-hua-gou-jian-fa-bu-cocoscreator.html" rel="noopener noreferrer">查看原始来源</a></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202206041425-%E8%87%AA%E5%8A%A8%E5%8C%96%2BShell%2BGo-EXE%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%8F%91%E5%B8%83%28CocosCreator%29.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>EXE自动化构建发布(CocosCreator)。本文属于基础设施与自动化 / 自动化，需要一台机器作为构建机，在它上面安装 Jenkins 。 Jenkins 基于Java开发，跨平台支持非常好，几乎是所有平台都能运行 Jenkins 。不过对于CocosCreator项目来说，就只能选择 Windows或Ma…</p>
+      <p>关键词：自动化、Shell、Go、Nginx、安全运维、源码与配置、基础设施与自动化、基础设施与自动化 / 自动化、EXE自动化构建发布(CocosCreator)</p>
+    </section>
+    
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-93c632252e62.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
