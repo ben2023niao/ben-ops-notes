@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>ELK 分析 Laravel 日志｜容器与云原生 / Docker｜BEN.OPS</title>
+  <meta name="description" content="ELK 分析 Laravel 日志。本文属于容器与云原生 / Docker，首先进入到容器中，然后进入到指定目录修改 elasticsearch.yml 文件 在elasticsearch.yml的文件末尾加上 es自带的分词器对中文分词不是很友好，所以下载开源的IK分词器来解决这个问题。 首先进入到plugin…">
+  <meta name="keywords" content="Docker，Shell，安全运维，源码与配置，容器与云原生，容器与云原生 / Docker，ELK 分析 Laravel 日志">
+  <meta name="author" content="Ben">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b74008801daa.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b74008801daa.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202206051644-Docker%2BShell%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4-ELK%20%E5%88%86%E6%9E%90%20Laravel%20%E6%97%A5%E5%BF%97.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="ELK 分析 Laravel 日志">
+  <meta property="og:description" content="ELK 分析 Laravel 日志。本文属于容器与云原生 / Docker，首先进入到容器中，然后进入到指定目录修改 elasticsearch.yml 文件 在elasticsearch.yml的文件末尾加上 es自带的分词器对中文分词不是很友好，所以下载开源的IK分词器来解决这个问题。 首先进入到plugin…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b74008801daa.html">
+  <meta property="article:published_time" content="2022-06-05T16:44:36.355000+08:00">
+  <meta property="article:modified_time" content="2022-06-05 16:44">
+  <meta property="article:section" content="容器与云原生 / Docker">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/e2425b0411fa9ec585.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ELK 分析 Laravel 日志">
+  <meta name="twitter:description" content="ELK 分析 Laravel 日志。本文属于容器与云原生 / Docker，首先进入到容器中，然后进入到指定目录修改 elasticsearch.yml 文件 在elasticsearch.yml的文件末尾加上 es自带的分词器对中文分词不是很友好，所以下载开源的IK分词器来解决这个问题。 首先进入到plugin…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/e2425b0411fa9ec585.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b74008801daa.html#article","headline":"ELK 分析 Laravel 日志","description":"ELK 分析 Laravel 日志。本文属于容器与云原生 / Docker，首先进入到容器中，然后进入到指定目录修改 elasticsearch.yml 文件 在elasticsearch.yml的文件末尾加上 es自带的分词器对中文分词不是很友好，所以下载开源的IK分词器来解决这个问题。 首先进入到plugin…","datePublished":"2022-06-05T16:44:36.355000+08:00","dateModified":"2022-06-05 16:44","inLanguage":"zh-CN","articleSection":["容器与云原生","Docker"],"keywords":["Docker","Shell","安全运维","源码与配置","容器与云原生","容器与云原生 / Docker","ELK 分析 Laravel 日志"],"wordCount":756,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b74008801daa.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b74008801daa.html","author":{"@type":"Person","name":"Ben","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/e2425b0411fa9ec585.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"容器与云原生 / Docker","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"ELK 分析 Laravel 日志","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b74008801daa.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>容器与云原生 / Docker</span> › <span>ELK 分析 Laravel 日志</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">容器与云原生 / Docker</div>
+      <h1>ELK 分析 Laravel 日志</h1>
+      <p class="lede">ELK 分析 Laravel 日志。本文属于容器与云原生 / Docker，首先进入到容器中，然后进入到指定目录修改 elasticsearch.yml 文件 在elasticsearch.yml的文件末尾加上 es自带的分词器对中文分词不是很友好，所以下载开源的IK分词器来解决这个问题。 首先进入到plugin…</p>
+      <div class="meta">
+        <time class="badge" datetime="2022-06-05T16:44:36.355000+08:00">发布于 2022-06-05</time>
+        <span class="badge">作者 Ben</span>
+        <span class="badge">756 字</span>
+        <span class="badge">3 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>原文：<a href="https://xn--6o0a585a.gitbook.io/devops/docker/centos7/bu-shu-es/elk-fen-xi-laravel-ri-zhi.html" rel="noopener noreferrer">ELK 分析 Laravel 日志</a></p>
+<p>来源：GitBook 网页 HTML｜页面时间：2022-06-05 16:44｜日期依据：GitBook 页面更新时间</p>
+</blockquote>
+<p><img alt="文档配图 1" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/e2425b0411fa9ec585.png"/></p>
+<h2 id="注意-ES-和-Kibana-以及IK分词器-版本要一致-7-2-0"><strong>注意 ES 和 Kibana 以及IK分词器 版本要一致 7.2.0</strong></h2>
+<pre><code class="language-bash">docker pull elasticsearch:7.2.0
+docker pull kibana:7.2.0
+
+#docker pull logstash:7.2.0 #通过改Laravel框架来搞
+
+#ik分词器版本 elasticsearch-analysis-ik-7.2.0.zip
+wget https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.2.0/elasticsearch-analysis-ik-7.2.0.zip
+</code></pre>
+<h4 id="1-es-httplocalhost9200">1 启动es 在浏览器中打开<a href="https://link.segmentfault.com/?enc=zBew536jmGij%2FKODPSlNQQ%3D%3D.u1JyRrr%2FR7cVh8nkLhJKExsV7VBtj6rtSQbpS83%2FkdU%3D" rel="noopener noreferrer">http://localhost:9200</a> 检查</h4>
+<h4 id="2-es">2 修改es配置，解决跨域问题</h4>
+<p>首先进入到容器中，然后进入到指定目录修改<code>elasticsearch.yml</code>文件</p>
+<p>在elasticsearch.yml的文件末尾加上</p>
+<p>修改配置后重启容器</p>
+<h4 id="3-ik">3 安装ik分词器</h4>
+<p>es自带的分词器对中文分词不是很友好，所以下载开源的IK分词器来解决这个问题。
+首先进入到plugins目录中下载分词器，下载完成后然后解压，再重启es即可。具体步骤如下:
+<strong>注意：</strong>elasticsearch的版本和ik分词器的版本需要保持一致，不然在重启的时候会失败。
+可以在 <a href="https://github.com/medcl/elasticsearch-analysis-ik/releases" rel="noopener noreferrer">https://github.com/medcl/elasticsearch-analysis-ik/releases</a> 查看所有版本</p>
+<p>不添加<code>"analyzer": "ik_max_word",</code>则是每个字分词，可以在下面kibana安装完成以后尝试一下</p>
+<p>然后可以在kibana界面的<code>dev tools</code>中验证是否安装成功；</p>
+<h4 id="4-dockerkibana">4 docker安装kibana</h4>
+<p>启动kibana容器使用<code>--link</code>连接到elasticsearch容器</p>
+<p>启动以后可以打开浏览器输入 <a href="https://link.segmentfault.com/?enc=2UDcDiGMQNP9cSy5wQa%2FKQ%3D%3D.LNC5f45%2FKsC2jjJaW7MBPNDLOBjGkWafsIafy5xgfW4%3D" rel="noopener noreferrer">http://localhost:5601</a> 就可以打开kibana的界面了</p>
+<h2 id="原理">原理</h2>
+<p><img alt="文档配图 2" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/2c233e762b4a2680da.png"/></p>
+<p>所需依赖
+<code>elasticsearch/elasticsearch</code>
+<code>betterde/logger</code>（如果需要）</p>
+<p>原理分析
+Laravel 使用 monolog/monolog 作为默认日志处理模块。monolog 自带了很多 Handler 其中就有 ElasticsearchHandler。</p>
+<p>生命周期 在 Illuminate\Foundation\Application 的构造函数中注册基本的服务提供者，其中就有 Illuminate\Log\LogServiceProvider。在 Illuminate\Log\LogServiceProvider 中将 Illuminate\Log\LogManager 注册到容器，此时还没有 Logger。当使用 Illuminate\Support\Facades\Log::info() 的时候，LogManager 会调用内部一系列方法根据配置文件创建 Logger 和其所需的 Handlers 最终调用 Logger 的 info ()、error ()、debug () 等方法，实现记录日志的功能。</p>
+<p>所以只需要通过修改 <code>config/logging.php</code> 和 <code>.env</code> 文件就可以实现将日志直接写入 Elasticcsearch</p>
+<p><code>config/logging.php</code></p>
+<p>.env 增加 <code>LOG_CHANNEL=elastic</code></p>
+<p>发现当在写入日志的时候，Laravel 是单条同步进行的，对于使用原创存储来说这将影响一定的性能。所以需要在整个生命周期中临时保存所有的日志信息，在请求结束前触发同步或异步将日志批量写入存储。</p>
+<p>为此直接使用扩展包 <code>betterde/logger</code> 解决</p>
+<h3 id="1-安装依赖">1 安装依赖</h3>
+<h3 id="2-配置">2 配置</h3>
+<p>将如下配置追加到 <code>config/logging.php</code> 的 <code>channels</code> 中</p>
+<p>将 <code>\Betterde\Logger\Http\Middleware\BulkCollectionLog</code> 中间件添加到 <code>App\Http\Kernel.php</code> 文件中</p>
+<p>在 <code>.env</code> 文件中添加如下配置项</p>
+<p>修改 <code>config/logger.php</code> 配置文件</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#注意-ES-和-Kibana-以及IK分词器-版本要一致-7-2-0">注意 ES 和 Kibana 以及IK分词器 版本要一致 7.2.0</a></li><li style="margin-left:0.0rem"><a href="#原理">原理</a></li><li style="margin-left:0.8rem"><a href="#1-安装依赖">1 安装依赖</a></li><li style="margin-left:0.8rem"><a href="#2-配置">2 配置</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：容器与云原生 / Docker</li>
+          <li>日期：2022-06-05</li>
+          <li>标签：<span class="tag">Docker</span><span class="tag">Shell</span><span class="tag">安全运维</span><span class="tag">源码与配置</span></li>
+          <li><a href="https://xn--6o0a585a.gitbook.io/devops/docker/centos7/bu-shu-es/elk-fen-xi-laravel-ri-zhi.html" rel="noopener noreferrer">查看原始来源</a></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202206051644-Docker%2BShell%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4-ELK%20%E5%88%86%E6%9E%90%20Laravel%20%E6%97%A5%E5%BF%97.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>ELK 分析 Laravel 日志。本文属于容器与云原生 / Docker，首先进入到容器中，然后进入到指定目录修改 elasticsearch.yml 文件 在elasticsearch.yml的文件末尾加上 es自带的分词器对中文分词不是很友好，所以下载开源的IK分词器来解决这个问题。 首先进入到plugin…</p>
+      <p>关键词：Docker、Shell、安全运维、源码与配置、容器与云原生、容器与云原生 / Docker、ELK 分析 Laravel 日志</p>
+    </section>
+    
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b74008801daa.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
