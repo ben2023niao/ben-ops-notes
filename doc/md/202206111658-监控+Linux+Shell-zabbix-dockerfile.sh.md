@@ -31,8 +31,8 @@ docker build -t debian-mysql5.7 .
 docker run --hostname mysql --name debian-mysql-5.7 -t \
 > -e MYSQL_USER="zabbix" \
 > -e MYSQL_DATABASE="zabbix" \
-> -e MYSQL_PASSWORD=[已脱敏] \
-> -e MYSQL_ROOT_PASSWORD=[已脱敏] \
+> -e MYSQL_PASSWORD="passwd" \
+> -e MYSQL_ROOT_PASSWORD="passwd" \
 > -v /data/mysql:/var/lib/mysql:rw \
 > -d debian-mysql5.7
 
@@ -52,8 +52,8 @@ docker run --name zabbix-server -t \
 > -e DB_SERVER_HOST="debian-mysql-5.7" \
 > -e MYSQL_DATABASE="zabbix" \
 > -e MYSQL_USER="zabbix" \
-> -e MYSQL_PASSWORD=[已脱敏] \
-> -e MYSQL_ROOT_PASSWORD=[已脱敏] \
+> -e MYSQL_PASSWORD="passwd" \
+> -e MYSQL_ROOT_PASSWORD="passwd" \
 > -e ZBX_JAVAGATEWAY="zabbix-java-gateway" \
 > --link debian-mysql-5.7:mysql \
 > --link zabbix-java-gateway:zabbix-java-gateway \
@@ -77,8 +77,8 @@ docker run --name zabbix-web -t \
 > -e DB_SERVER_HOST="debian-mysql-5.7" \
 > -e MYSQL_DATABASE="zabbix" \
 > -e MYSQL_USER="zabbix" \
-> -e MYSQL_PASSWORD=[已脱敏] \
-> -e MYSQL_ROOT_PASSWORD=[已脱敏] \
+> -e MYSQL_PASSWORD="passwd" \
+> -e MYSQL_ROOT_PASSWORD="passwd" \
 > --link debian-mysql-5.7:mysql \
 > --link zabbix-server:zabbix-server \
 > -d zabbix-web

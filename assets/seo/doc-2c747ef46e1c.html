@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>搭建Nginx｜容器与云原生 / Docker｜BEN.OPS</title>
+  <meta name="description" content="搭建Nginx。本文属于容器与云原生 / Docker，-p 宿主机端口映射的镜像端口，左边是宿主机端口，右边是镜像端口， 80 是Nginx访问端口 启动后输入 docker ps -a 即可查看运行的容器： 浏览器访问 http://ip 即可,出现以下页面说明运行成功 我们首先需要在宿主机创建用于存放ngi…">
+  <meta name="keywords" content="Docker，Shell，Nginx，MySQL，自动化，源码与配置，容器与云原生，容器与云原生 / Docker，搭建Nginx">
+  <meta name="author" content="Ben">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2c747ef46e1c.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2c747ef46e1c.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202206111619-%E5%AE%B9%E5%99%A8%E4%B8%8E%E4%BA%91%E5%8E%9F%E7%94%9F%2BDocker%2BShell-%E6%90%AD%E5%BB%BANginx.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="搭建Nginx">
+  <meta property="og:description" content="搭建Nginx。本文属于容器与云原生 / Docker，-p 宿主机端口映射的镜像端口，左边是宿主机端口，右边是镜像端口， 80 是Nginx访问端口 启动后输入 docker ps -a 即可查看运行的容器： 浏览器访问 http://ip 即可,出现以下页面说明运行成功 我们首先需要在宿主机创建用于存放ngi…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2c747ef46e1c.html">
+  <meta property="article:published_time" content="2022-06-11T16:19:38.787000+08:00">
+  <meta property="article:modified_time" content="2022-06-11 16:19">
+  <meta property="article:section" content="容器与云原生 / Docker">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="搭建Nginx">
+  <meta name="twitter:description" content="搭建Nginx。本文属于容器与云原生 / Docker，-p 宿主机端口映射的镜像端口，左边是宿主机端口，右边是镜像端口， 80 是Nginx访问端口 启动后输入 docker ps -a 即可查看运行的容器： 浏览器访问 http://ip 即可,出现以下页面说明运行成功 我们首先需要在宿主机创建用于存放ngi…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2c747ef46e1c.html#article","headline":"搭建Nginx","description":"搭建Nginx。本文属于容器与云原生 / Docker，-p 宿主机端口映射的镜像端口，左边是宿主机端口，右边是镜像端口， 80 是Nginx访问端口 启动后输入 docker ps -a 即可查看运行的容器： 浏览器访问 http://ip 即可,出现以下页面说明运行成功 我们首先需要在宿主机创建用于存放ngi…","datePublished":"2022-06-11T16:19:38.787000+08:00","dateModified":"2022-06-11 16:19","inLanguage":"zh-CN","articleSection":["容器与云原生","Docker"],"keywords":["Docker","Shell","Nginx","MySQL","自动化","源码与配置","容器与云原生","容器与云原生 / Docker","搭建Nginx"],"wordCount":847,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2c747ef46e1c.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2c747ef46e1c.html","author":{"@type":"Person","name":"Ben","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"容器与云原生 / Docker","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"搭建Nginx","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2c747ef46e1c.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>容器与云原生 / Docker</span> › <span>搭建Nginx</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">容器与云原生 / Docker</div>
+      <h1>搭建Nginx</h1>
+      <p class="lede">搭建Nginx。本文属于容器与云原生 / Docker，-p 宿主机端口映射的镜像端口，左边是宿主机端口，右边是镜像端口， 80 是Nginx访问端口 启动后输入 docker ps -a 即可查看运行的容器： 浏览器访问 http://ip 即可,出现以下页面说明运行成功 我们首先需要在宿主机创建用于存放ngi…</p>
+      <div class="meta">
+        <time class="badge" datetime="2022-06-11T16:19:38.787000+08:00">发布于 2022-06-11</time>
+        <span class="badge">作者 Ben</span>
+        <span class="badge">847 字</span>
+        <span class="badge">3 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>原文：<a href="https://xn--6o0a585a.gitbook.io/devops/docker/centos7/da-jian-nginx.html" rel="noopener noreferrer">搭建Nginx</a></p>
+<p>来源：GitBook 网页 HTML｜页面时间：2022-06-11 16:19｜日期依据：GitBook 页面更新时间</p>
+</blockquote>
+<p><strong>1. 前提是Docker已经安装好了</strong></p>
+<p><strong>2.拉取Nginx镜像</strong></p>
+<pre><code class="language-bash">docker pull nginx
+#使用命令查看拉取到的镜像
+docker images
+</code></pre>
+<p><strong>3. 运行Nginx镜像</strong></p>
+<pre><code class="language-bash">docker run -d -p 80:80 --name nginx nginx
+</code></pre>
+<p>参数说明</p>
+<ul>
+<li><code>-d</code> 以守护模式运行镜像，也就是后台运行</li>
+<li><code>-p</code> 宿主机端口映射的镜像端口，左边是宿主机端口，右边是镜像端口，<code>80</code>是Nginx访问端口</li>
+<li><code>--name</code>给容器起一个唯一的别名</li>
+</ul>
+<p>启动后输入<code>docker ps -a</code>即可查看运行的容器：</p>
+<p><strong>4. 访问Nginx</strong></p>
+<p>浏览器访问<code>http://ip</code>即可,出现以下页面说明运行成功</p>
+<p><strong>5. 配置Nginx</strong></p>
+<ul>
+<li>我们首先需要在宿主机创建用于存放nginx日志、配置文件和相关静态资源的目录，并将其挂载到容器内对应路径。</li>
+<li>后续更新我们只需要更改宿主机目录下的配置文件或者静态文件就可以更新容器内资源，这样可以确保容器挂掉只需要重新启动一个容器挂载上数据去就完美无缺的还原，这也是容器轻量快速方便的原因。不只是nginx容器，其余的像mysql容器也一定要记得挂载/data数据文件，防止容器宕掉丢失数据。</li>
+</ul>
+<pre><code>mkdir -p /home/service/nginx/log
+mkdir -p /home/service/nginx/conf
+mkdir -p /home/service/nginx/conf.d
+mkdir -p /home/service/nginx/static
+mkdir -p /home/service/nginx/ssl
+</code></pre>
+<p>然后从Nginx容器中复制一份配置文件到宿主机刚刚创建的conf目录</p>
+<p>可以看到已经有了</p>
+<p>查看一下内容</p>
+<p>上图可以看出，这个配置文件还引入了其他的配置文件，所以我们需要把<code>include</code>引入的文件也复制一份到宿主机，但是我们不知道那些文件叫什么，所以我们需要进入容器内查看</p>
+<p>可以看到里面有个default.conf文件</p>
+<p>我们需要把这个文件复制到宿主机，使用<code>exit</code>命令退出容器</p>
+<p>还记得我们前面访问nginx的时候那个页面吗？是的，那个页面也要复制到宿主机</p>
+<p><strong>6. 修改配置文件</strong></p>
+<p>开始修改宿主机上复制出来的conf文件，首先修改<code>nginx.conf</code>，修改配置文件修改后的结果：</p>
+<p>查看<code>default.conf</code></p>
+<p><strong>停止上次的nginx容器并删除容器</strong></p>
+<p><strong>重新启动一个nginx镜像</strong></p>
+<p><code>-v</code>的意思就是把宿主机目录挂载到冒号后面的容器目录</p>
+<p><code>--link</code>用于连接容器，后面是零一个容器的唯一name，这样nginx就可以在配置文件使用<code>jenkins:端口</code>配置了</p>
+<p><strong>此处多监听了一个443端口，用于以后配置https</strong>
+修改一下nginx默认的<code>index.html</code>，更有辨识度</p>
+<p><strong>7.配置Https访问</strong></p>
+<p>我是在阿里云申请了免费的一年ssl证书，大家可以百度一下，下载的是nginx的</p>
+<p>并且在其中加入了许多优化的配置,<code>nginx.conf</code> ：</p>
+<blockquote>
+<p>注意：这里更新的是宿主机上的nginx.conf</p>
+<p>然后进入容器重启nginx即可
+也可以不用进入容器重启，直接重启容器也可以
+<code>docker restart nginx</code></p>
+</blockquote>
+<p>配置完成</p>
+      </article>
+      <aside class="aside">
+        
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：容器与云原生 / Docker</li>
+          <li>日期：2022-06-11</li>
+          <li>标签：<span class="tag">Docker</span><span class="tag">Shell</span><span class="tag">Nginx</span><span class="tag">MySQL</span><span class="tag">自动化</span><span class="tag">源码与配置</span></li>
+          <li><a href="https://xn--6o0a585a.gitbook.io/devops/docker/centos7/da-jian-nginx.html" rel="noopener noreferrer">查看原始来源</a></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202206111619-%E5%AE%B9%E5%99%A8%E4%B8%8E%E4%BA%91%E5%8E%9F%E7%94%9F%2BDocker%2BShell-%E6%90%AD%E5%BB%BANginx.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>搭建Nginx。本文属于容器与云原生 / Docker，-p 宿主机端口映射的镜像端口，左边是宿主机端口，右边是镜像端口， 80 是Nginx访问端口 启动后输入 docker ps -a 即可查看运行的容器： 浏览器访问 http://ip 即可,出现以下页面说明运行成功 我们首先需要在宿主机创建用于存放ngi…</p>
+      <p>关键词：Docker、Shell、Nginx、MySQL、自动化、源码与配置、容器与云原生、容器与云原生 / Docker、搭建Nginx</p>
+    </section>
+    
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2c747ef46e1c.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

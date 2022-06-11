@@ -21,8 +21,8 @@ sourceHtmlSha256: "ad0b4768d91eca79b616528664be70d27647c7e07d5183d85af2263e712c1
 docker run --name mysql-server -t \
       -e MYSQL_DATABASE="zabbix" \
       -e MYSQL_USER="zabbix" \
-      -e MYSQL_PASSWORD=[已脱敏] \
-      -e MYSQL_ROOT_PASSWORD=[已脱敏] \
+      -e MYSQL_PASSWORD="zabbix" \
+      -e MYSQL_ROOT_PASSWORD="zabbix" \
       -d mysql:5.7  \
 --character-set-server=utf8 --collation-server=utf8_bin
 
@@ -30,8 +30,8 @@ docker run --name zabbix-server-mysql -t \
       -e DB_SERVER_HOST="mysql-server" \
       -e MYSQL_DATABASE="zabbix" \
       -e MYSQL_USER="zabbix" \
-      -e MYSQL_PASSWORD=[已脱敏] \
-      -e MYSQL_ROOT_PASSWORD=[已脱敏] \
+      -e MYSQL_PASSWORD="zabbix" \
+      -e MYSQL_ROOT_PASSWORD="zabbix" \
       --link mysql-server:mysql \
       -p 10051:10051 \
       -d zabbix/zabbix-server-mysql:latest
@@ -40,8 +40,8 @@ docker run --name zabbix-web-nginx-mysql -t \
       -e DB_SERVER_HOST="mysql-server" \
       -e MYSQL_DATABASE="zabbix" \
       -e MYSQL_USER="zabbix" \
-      -e MYSQL_PASSWORD=[已脱敏] \
-      -e MYSQL_ROOT_PASSWORD=[已脱敏] \
+      -e MYSQL_PASSWORD="zabbix" \
+      -e MYSQL_ROOT_PASSWORD="zabbix" \
       --link mysql-server:mysql \
       --link zabbix-server-mysql:zabbix-server \
       -p 8888:80 \

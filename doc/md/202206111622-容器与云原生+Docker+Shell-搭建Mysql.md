@@ -50,7 +50,7 @@ default-character-set=utf8
 
 > 命令讲解
 > `-p` 3306:3306：将容器的3306端口映射到主机的3306端口
-> `-e` MYSQL_ROOT_PASSWORD=[已脱敏]
+> `-e` MYSQL_ROOT_PASSWORD=123456：初始化root用户的密码
 > `-e` TZ=Asia/Shanghai 修改容器默认时区为上海
 > `-v`=/mysqltest/config/my.cnf:/etc/my.cnf：映射配置文件
 > `-v`=/mysqltest/data:/var/lib/mysql：映射数据目录

@@ -26,7 +26,7 @@ db:
   command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8 --collation-server=utf8_unicode_ci
   restart: always
   environment:
-    MYSQL_ROOT_PASSWORD=[已脱敏]
+    MYSQL_ROOT_PASSWORD: 123456
   ports:
    - '3307:3306'
   volumes:
