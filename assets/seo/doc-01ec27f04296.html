@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Linux系统安全检查脚本｜可观测性 / 监控｜BEN.OPS</title>
+  <meta name="description" content="Linux系统安全检查脚本。本文属于可观测性 / 监控，1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46…">
+  <meta name="keywords" content="可观测性，监控，Linux，入侵检测，权限管理，日志分析，知识笔记，可观测性 / 监控，Linux系统安全检查脚本">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-01ec27f04296.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-01ec27f04296.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%2B%E7%9B%91%E6%8E%A7%2BLinux%2B%E5%85%A5%E4%BE%B5%E6%A3%80%E6%B5%8B-Linux%E7%B3%BB%E7%BB%9F%E5%AE%89%E5%85%A8%E6%A3%80%E6%9F%A5%E8%84%9A%E6%9C%AC.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Linux系统安全检查脚本">
+  <meta property="og:description" content="Linux系统安全检查脚本。本文属于可观测性 / 监控，1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-01ec27f04296.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="可观测性 / 监控">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Linux系统安全检查脚本">
+  <meta name="twitter:description" content="Linux系统安全检查脚本。本文属于可观测性 / 监控，1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-01ec27f04296.html#article","headline":"Linux系统安全检查脚本","description":"Linux系统安全检查脚本。本文属于可观测性 / 监控，1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["可观测性","监控"],"keywords":["可观测性","监控","Linux","入侵检测","权限管理","日志分析","知识笔记","可观测性 / 监控","Linux系统安全检查脚本"],"wordCount":2230,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-01ec27f04296.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-01ec27f04296.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"可观测性 / 监控","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Linux系统安全检查脚本","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-01ec27f04296.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>可观测性 / 监控</span> › <span>Linux系统安全检查脚本</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">可观测性 / 监控</div>
+      <h1>Linux系统安全检查脚本</h1>
+      <p class="lede">Linux系统安全检查脚本。本文属于可观测性 / 监控，1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,230 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<pre><code class="language-bash">#!/bin/bash
+echo "【Linux系统安全检查脚本】"
+echo "【本脚本仅为安全审计脚本，未对服务器做任何修改。】"
+echo ---------------------------------------主机安全检查-----------------------
+echo "【系统版本】"
+uname -a
+echo --------------------------------------------------------------------------
+echo "【本机的ip地址是：】"
+ifconfig | grep --color "\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}"
+echo --------------------------------------------------------------------------
+echo "【1.应对登录操作系统和数据库系统的用户进行身份标识和鉴别】"
+echo "【查看文件中各用户名状态，记录密码一栏为空的用户名。】"
+echo "【engxz:$1$gSm3LWDj$nhwcJzNceekFLBHVsndmj/:15629:0:99999:7:::】"
+echo "【其中第一个:和第二个:之间若为空，则说明存在空口令】"
+echo "cat /ect/shadow&gt;&gt;"
+cat /etc/shadow
+echo --------------------------------------------------------------------------
+echo "【2.操作系统和数据库系统管理用户身份标识应具有不易被冒用的特点，口令应有复杂度要求并定期更换】"
+echo "【打开/etc/login.defs查看密码最小长度和有效期】"
+echo "【PASS_MAX_DAYS 99999 最大天数】"
+echo "【PASS_MIN_DAYS 0 最短天数】"
+echo "【PASS_MIN_LEN 5 最小长度】"
+echo "【PASS_WARN_AGE 7 口令失效前多少天提示】"
+echo "cat /etc/login.defs&gt;&gt;"
+more /etc/login.defs | grep -E "PASS_MAX_DAYS"
+more /etc/login.defs | grep -E "PASS_MIN_DAYS"
+more /etc/login.defs | grep -E "PASS_MIN_LEN"
+more /etc/login.defs | grep -E "PASS_WARN_AGE"
+echo "【复杂度策略查看（对root无效）】"
+echo "【找到 password requisite pam_cracklib.so，如下：】"
+echo "【password requisite pam_cracklib.so retry=5 difok=3 minlen=10 ucredit=-1 lcredit=-3 dcredit=-3 dictpath=/usr/share/cracklib/pw_dict】"
+echo "【参数含义：尝试次数：5】"
+echo "【最少不同字符：3】"
+echo "【最小密码长度：10】"
+echo "【最少大写字母：1】"
+echo "【最少小写字母：3】"
+echo "【最少数字：3】"
+echo "【密码字典：/usr/share/cracklib/pw_dict】"
+echo "more /etc/pam.d/system-auth | grep pam_cracklib.so&gt;&gt;"
+more /etc/pam.d/system-auth | grep pam_cracklib.so
+echo "more /etc/pam.d/password | grep pam_cracklib.so&gt;&gt;"
+more /etc/pam.d/password | grep pam_cracklib.so
+echo --------------------------------------------------------------------------
+echo "【3.应启用登录失败处理功能，可采取结束会话、限制非法登录次数和自动退出等措施】"
+echo "【SSH远程登录失败次数：】"
+echo "cat /etc/pam.d/sshd | grep pam_tally.so&gt;&gt;"
+echo "【预期结果：在auth行下方：auth required pam_tally.so deny=5 unlock_time=600 no_lock_time 在account行下方：account required pam_tally.so】"
+cat /etc/pam.d/sshd | grep pam_tally.so
+echo "【本地登录失败次数限制：】"
+echo "【存在account required /lib/security/pam_tally.so deny=3 no magic_root reset】"
+echo "cat /etc/pam.d/system-auth | grep pam_tally.so&gt;&gt;"
+cat /etc/pam.d/system-auth | grep pam_tally.so
+echo "【或者存在auth required pam_env.so】"
+echo "【auth required pam_tally2.so even_deny_root deny=3 unlock_time=120失败三次后锁定120秒】"
+echo "【此行，必须在第二行】"
+echo "cat /etc/pam.d/system-auth | grep pam_env.so&gt;&gt;"
+cat /etc/pam.d/system-auth | grep pam_env.s
+echo "【查看SSH是否配置了允许尝试的次数】"
+echo "cat /etc/ssh/sshd_config | grep MaxAuthTries&gt;&gt;"
+cat /etc/ssh/sshd_config | grep MaxAuthTries
+echo --------------------------------------------------------------------------
+echo "【4.当对服务器进行远程管理时，应采取必要措施，防止鉴别信息在网络传输过程中被窃听】"
+echo "【是否开启了SSH服务】"
+echo "service ssh status&gt;&gt;"
+service sshd status
+echo "【是否开启了Telnet服务】"
+echo "service telnet status&gt;&gt;"
+service telnet status
+echo "【是否禁用Telnet服务:disable yes】"
+echo "cat /etc/xinetd.d/telnet&gt;&gt;"
+cat /etc/xinetd.d/telnet
+echo --------------------------------------------------------------------------
+echo "【5.应为操作系统和数据库系统的不同用户分配不同的用户名，确保用户名具有唯一性】"
+echo "【查看/etc/passwd，用户名后是密码，密码后是UID，不能存在同样的UID，UID为0的只有root。】"
+cat /etc/passwd
+echo --------------------------------------------------------------------------
+echo "【7.应启用访问控制功能，依据安全策略控制用户对资源的访问。】"
+echo "【基本原则是配置文件不能大于(644)，可执行文件不能大于(755)】"
+echo "ls -l /etc/passwd&gt;&gt; (644)】"
+ls -l /etc/passwd
+echo "ls -l /etc/shadow&gt;&gt; (400)】"
+ls -l /etc/shadow
+echo "ls -l /etc/xinetd.conf&gt;&gt; (600)】"
+ls -l /etc/xinetd.conf
+echo "ls -l /etc/group&gt;&gt; (644)】"
+ls -l /etc/group
+echo "ls -l /etc/security&gt;&gt; (600)】"
+ls -l /etc/security
+echo "【查看权限过大的文件】"
+echo "find / -perm 777】"
+find / -perm 777
+echo "【查看具有SUID属性的文件】"
+echo "find / -perm -4000】"
+find / -perm -4000
+echo "【查看具有SGID属性的文件】"
+echo "find / -perm -2000】"
+find / -perm -2000
+echo --------------------------------------------------------------------------
+echo "【8.应根据管理用户的角色分配权限，实现管理用户的权限分离，仅授予管理用户所需的最小权限】"
+echo "【主机用户不存在多余账户， 用户权限实现不存在多余权限，只有root用户uid为0。】"
+awk -F":" '{if($2!~/^!|^*/){print "("$1")" " 是一个未被锁定的账户，请管理员检查是否需要锁定它或者删除它。"}}' /etc/shadow
+echo "【查看passwd文件中有哪些特权用户】"
+awk -F: '$3==0 {print $1}' /etc/passwd
+echo "【查看系统中root用户外连情况】"
+lsof -u root |egrep "ESTABLISHED|SYN_SENT|LISTENING】"
+echo "【禁止非wheel组用户切换到root】"
+echo "【auth required /lib/security/$ISA/pam_wheel.so use_uid 找到此行并去掉行首的#】"
+echo "cat /etc/pam.d/su | grep wheel&gt;&gt;"
+cat /etc/pam.d/su | grep wheel
+echo "cat /etc/login.defs | grep SU_WHEEL_ONLY&gt;&gt;"
+cat /etc/login.defs | grep SU_WHEEL_ONLY
+echo "【查看是否禁止root直接登录】"
+echo "cat /etc/ssh/sshd_config | grep PermitRootLogin&gt;&gt;"
+cat /etc/ssh/sshd_config | grep PermitRootLogin
+echo --------------------------------------------------------------------------
+echo "【14.审计范围应覆盖到服务器上的每个操作系统用户和数据库用户】"
+echo "【查看syslog和audit日志服务是否开启】"
+echo "【预期结果：syslogd (pid 3451) 正在运行...】"
+echo "【rsyslogd(pid 1699) 正在运行...】"
+echo "【auditd (pid 3427) 正在运行...】"
+echo "service syslog status&gt;&gt;"
+service syslog status
+echo "service rsyslog status&gt;&gt;"
+service rsyslog status
+echo "service auditd status&gt;&gt;"
+service auditd status
+echo "【查看安全审计守护进程是否正常】"
+echo "ps –ef | grep auditd&gt;&gt;"
+ps –ef | grep auditd
+echo "ps –ef | grep syslogd&gt;&gt;"
+ps –ef | grep syslogd
+echo --------------------------------------------------------------------------
+echo "【15.审计内容应包括重要用户行为、系统资源的异常使用和重要系统命令的使用等系统内重要的安全相关事件】"
+echo "【16.审计记录应包括事件的日期、时间、类型、主体标识、客体标识和结果等】"
+echo "cat /etc/audit/audit.conf&gt;&gt;"
+cat /etc/audit/audit.conf
+echo "cat /etc/rsyslog.conf&gt;&gt;"
+cat /etc/rsyslog.conf
+echo "cat /etc/syslog.conf&gt;&gt;"
+cat /etc/syslog.conf
+echo --------------------------------------------------------------------------
+echo "【22.应能够检测到对重要服务器进行入侵的行为，能够记录入侵的源IP、攻击的类型、攻击的目的、 攻击的时间，并在发生严重入侵事件时提供报警】"
+echo "【查看是否开启了iptable防火墙和其他防护机制并配置正确，防火墙不能使用缺省配置】"
+echo "service iptables status&gt;&gt;"
+service iptables status
+echo "iptables --list&gt;&gt;"
+iptables --list
+echo --------------------------------------------------------------------------
+echo "【24.操作系统应遵循最小安装的原则，仅安装需要的组件和应用程序，并通过设置升级服务器等方式保 持系统补丁及时得到更新】"
+echo "【查看正在运行的服务】"
+echo "service --status-all | grep -E "running|start|+"&gt;&gt;"
+echo "【查看是否存在危险的服务,如echo、shell、login、finger、r等,或者非必要的服务如talk、ntalk、pop-2、sendmail、imapd、ftp、pop3等】"
+service --status-all | grep -E "running|start|+"
+echo "【查看是否存在无属主文件】"
+echo "find / -nouser&gt;&gt;"
+find / -nouser
+echo --------------------------------------------------------------------------
+echo "【28.应通过设定终端接入方式、网络地址范围等条件限制终端登录】"
+echo "【查看 /etc/hosts.deny存储所有禁止访问本机的IP】"
+echo "【查看 /etc/hosts.allow存储所有允许访问本机的IP】"
+echo "【第一条:是否存在前面没有#的ALL:ALL】"
+echo "【第二条:是否存在允许ip或者域名等】"
+echo "【例:sshd: 203.0.113.1/203.0.113.1】"
+echo "cat /etc/hosts.deny&gt;&gt;"
+cat /etc/hosts.deny
+echo "cat /etc/hosts.allow&gt;&gt;"
+cat /etc/hosts.allow
+echo --------------------------------------------------------------------------
+echo "【29.应根据安全策略设置登录终端的操作超时锁定】"
+echo "【查看/etc/profile是否设置:TIMEOUT = 600 秒】"
+echo "cat /etc/profile | grep -E "TMOUT"&gt;&gt;"
+cat /etc/profile | grep -E "TMOUT"
+echo --------------------------------------------------------------------------
+echo "【30.应对重要服务器进行监视，包括监视服务器的CPU、硬盘、内存、网络等资源的使用情况】"
+echo "【了解系统账户的资源分配情况，查看各个分区磁盘占用情况：】"
+echo "df –k&gt;&gt;"
+df -k
+echo --------------------------------------------------------------------------
+echo "【31.应限制单个用户对系统资源的最大或最小使用限度】"
+echo "【查看/etc/security/limits.conf 中的参数nproc可设置最大进程数】"
+echo "【soft nproc 2047 进程的最大数目】"
+echo "【hard nproc 16384】"
+echo "【soft nofile 1024 打开文件的最大数目】"
+echo "【hard nofile 65536】"
+echo "【查看是否有@student – maxlogins 1类似设置，数字代表此用户可同时登录的个数】"
+echo "cat /etc/security/limits.conf&gt;&gt;"
+cat /etc/security/limits.conf
+echo --------------------------------------------------------------------------
+</code></pre>
+      </article>
+      <aside class="aside">
+        
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：可观测性 / 监控</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">可观测性</span><span class="tag">监控</span><span class="tag">Linux</span><span class="tag">入侵检测</span><span class="tag">权限管理</span><span class="tag">日志分析</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/07-监控技巧/birdben/72068432.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%2B%E7%9B%91%E6%8E%A7%2BLinux%2B%E5%85%A5%E4%BE%B5%E6%A3%80%E6%B5%8B-Linux%E7%B3%BB%E7%BB%9F%E5%AE%89%E5%85%A8%E6%A3%80%E6%9F%A5%E8%84%9A%E6%9C%AC.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Linux系统安全检查脚本。本文属于可观测性 / 监控，1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46…</p>
+      <p>关键词：可观测性、监控、Linux、入侵检测、权限管理、日志分析、知识笔记、可观测性 / 监控、Linux系统安全检查脚本</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6bff213f657a.html"><small>上一篇</small>Linux登录安全</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2d7e3e358819.html"><small>下一篇</small>Linux系统负载</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-01ec27f04296.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

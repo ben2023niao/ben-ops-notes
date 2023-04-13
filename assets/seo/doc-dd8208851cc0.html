@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Nginx负载均衡｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="Nginx负载均衡。本文属于安全与堡垒机 / 高级安全，在服务器集群中， Nginx 起到一个代理服务器的角色（即反向代理），为了避免单独一个服务器压力过大，将来自用户的请求转发给不同的服务器。 负载均衡用于从 “upstream” 模块定义的后端服务器列表中选取一台服务器接受用户的请求。一个最基本的 upstr…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，Nginx，知识笔记，安全与堡垒机 / 高级安全，Nginx负载均衡">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dd8208851cc0.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dd8208851cc0.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BNginx%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-Nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Nginx负载均衡">
+  <meta property="og:description" content="Nginx负载均衡。本文属于安全与堡垒机 / 高级安全，在服务器集群中， Nginx 起到一个代理服务器的角色（即反向代理），为了避免单独一个服务器压力过大，将来自用户的请求转发给不同的服务器。 负载均衡用于从 “upstream” 模块定义的后端服务器列表中选取一台服务器接受用户的请求。一个最基本的 upstr…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dd8208851cc0.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Nginx负载均衡">
+  <meta name="twitter:description" content="Nginx负载均衡。本文属于安全与堡垒机 / 高级安全，在服务器集群中， Nginx 起到一个代理服务器的角色（即反向代理），为了避免单独一个服务器压力过大，将来自用户的请求转发给不同的服务器。 负载均衡用于从 “upstream” 模块定义的后端服务器列表中选取一台服务器接受用户的请求。一个最基本的 upstr…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dd8208851cc0.html#article","headline":"Nginx负载均衡","description":"Nginx负载均衡。本文属于安全与堡垒机 / 高级安全，在服务器集群中， Nginx 起到一个代理服务器的角色（即反向代理），为了避免单独一个服务器压力过大，将来自用户的请求转发给不同的服务器。 负载均衡用于从 “upstream” 模块定义的后端服务器列表中选取一台服务器接受用户的请求。一个最基本的 upstr…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","Nginx","知识笔记","安全与堡垒机 / 高级安全","Nginx负载均衡"],"wordCount":1784,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dd8208851cc0.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dd8208851cc0.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Nginx负载均衡","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dd8208851cc0.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>Nginx负载均衡</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>Nginx负载均衡</h1>
+      <p class="lede">Nginx负载均衡。本文属于安全与堡垒机 / 高级安全，在服务器集群中， Nginx 起到一个代理服务器的角色（即反向代理），为了避免单独一个服务器压力过大，将来自用户的请求转发给不同的服务器。 负载均衡用于从 “upstream” 模块定义的后端服务器列表中选取一台服务器接受用户的请求。一个最基本的 upstr…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,784 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="什么是Nginx负载均衡">什么是Nginx负载均衡</h2>
+<p>在服务器集群中，<strong><a href="https://haicoder.net/nginx/nginx-tutorial.html" rel="noopener noreferrer">Nginx</a></strong> 起到一个代理服务器的角色（即反向代理），为了避免单独一个服务器压力过大，将来自用户的请求转发给不同的服务器。</p>
+<h2 id="Nginx负载均衡策略">Nginx负载均衡策略</h2>
+<p>负载均衡用于从 “upstream” 模块定义的后端服务器列表中选取一台服务器接受用户的请求。一个最基本的 upstream 模块是这样的，模块内的 server 是服务器列表：</p>
+<pre><code>#动态服务器组
+upstream dynamic_zuoyu {
+ server localhost:8080; #tomcat 7.0
+ server localhost:8081; #tomcat 8.0
+ server localhost:8082; #tomcat 8.5
+ server localhost:8083; #tomcat 9.0
+}
+</code></pre>
+<p>在 upstream 模块配置完成后，要让指定的访问反向代理到服务器列表：</p>
+<pre><code class="language-nginx">#其他页面反向代理到tomcat容器
+location ~ .*$ {
+ index index.jsp index.html;
+ proxy_pass http://dynamic_zuoyu;
+}
+</code></pre>
+<p>这就是最基本的负载均衡实例，但这不足以满足实际需求；目前 Nginx 服务器的 upstream 模块支持 6 种方式的分配。</p>
+<h2 id="负载均衡策略">负载均衡策略</h2>
+<h3 id="轮询">轮询</h3>
+<p>最基本的配置方法，上面的例子就是轮询的方式，它是 upstream 模块默认的负载均衡默认策略。每个请求会按时间顺序逐一分配到不同的后端服务器。有如下参数：</p>
+<p>| fail_timeout | 与max_fails结合使用 |</p>
+<p>| --- | --- |</p>
+<p>| max_fails | 设置在 fail_timeout 参数设置的时间内最大失败次数，如果在这个时间内，所有针对该服务器的请求都失败了，那么认为该服务器会被认为是停机了。 |</p>
+<p>| fail_time | 服务器会被认为停机的时间长度，默认为 10s。 |</p>
+<p>| backup | 标记该服务器为备用服务器。当主服务器停止时，请求会被发送到它这里。 |</p>
+<p>| down | 标记服务器永久停机了。 |</p>
+<p>注意：</p>
+<ol>
+<li>在轮询中，如果服务器 down 掉了，会自动剔除该服务器。</li>
+<li>缺省配置就是轮询策略。</li>
+<li>此策略适合服务器配置相当，无状态且短平快的服务使用。</li>
+</ol>
+<h3 id="weight">weight</h3>
+<p>权重方式，在轮询策略的基础上指定轮询的几率。例子如下：</p>
+<pre><code>#动态服务器组
+upstream dynamic_zuoyu {
+ server localhost:8080 weight=2; #tomcat 7.0
+ server localhost:8081; #tomcat 8.0
+ server localhost:8082 backup; #tomcat 8.5
+ server localhost:8083 max_fails=3 fail_timeout=20s; #tomcat 9.0
+}
+</code></pre>
+<p>在该例子中，weight 参数用于指定轮询几率，weight 的默认值为1 ；weight 的数值与访问比率成正比，比如 Tomcat 7.0 被访问的几率为其他服务器的两倍。</p>
+<p>注意：</p>
+<ol>
+<li>权重越高分配到需要处理的请求越多。</li>
+<li>此策略可以与 least_conn 和 ip_hash 结合使用。</li>
+<li>此策略比较适合服务器的硬件配置差别比较大的情况。</li>
+</ol>
+<h3 id="ip_hash">ip_hash</h3>
+<p>指定负载均衡器按照基于客户端 IP 的分配方式，这个方法确保了相同的客户端的请求一直发送到相同的服务器，以保证 session 会话。这样每个访客都固定访问一个后端服务器，可以解决 session 不能跨服务器的问题。</p>
+<pre><code>#动态服务器组
+upstream dynamic_zuoyu {
+ ip_hash; #保证每个访客固定访问一个后端服务器
+ server localhost:8080 weight=2; #tomcat 7.0
+ server localhost:8081; #tomcat 8.0
+ server localhost:8082; #tomcat 8.5
+ server localhost:8083 max_fails=3 fail_timeout=20s; #tomcat 9.0
+}
+</code></pre>
+<p>注意：</p>
+<ol>
+<li>在 nginx 版本 1.3.1 之前，不能在 ip_hash 中使用权重（weight）。</li>
+<li>ip_hash 不能与 backup 同时使用。</li>
+<li>此策略适合有状态服务，比如 session。</li>
+<li>当有服务器需要剔除，必须手动 down 掉。</li>
+</ol>
+<h3 id="least_conn">least_conn</h3>
+<p>把请求转发给连接数较少的后端服务器。轮询算法是把请求平均的转发给各个后端，使它们的负载大致相同；但是，有些请求占用的时间很长，会导致其所在的后端负载较高。</p>
+<p>这种情况下，least_conn 这种方式就可以达到更好的负载均衡效果。</p>
+<pre><code>#动态服务器组
+upstream dynamic_zuoyu {
+ least_conn; #把请求转发给连接数较少的后端服务器
+ server localhost:8080 weight=2; #tomcat 7.0
+ server localhost:8081; #tomcat 8.0
+ server localhost:8082 backup; #tomcat 8.5
+ server localhost:8083 max_fails=3 fail_timeout=20s; #tomcat 9.0
+}
+</code></pre>
+<p>注意：</p>
+<ol>
+<li>此负载均衡策略适合请求处理时间长短不一造成服务器过载的情况。</li>
+</ol>
+<h3 id="fair">fair</h3>
+<p>fair 属于第三方的负载均衡策略，其实现需要安装第三方插件。fair 按照服务器端的响应时间来分配请求，响应时间短的优先分配。</p>
+<pre><code>#动态服务器组
+upstream dynamic_zuoyu {
+ server localhost:8080; #tomcat 7.0
+ server localhost:8081; #tomcat 8.0
+ server localhost:8082; #tomcat 8.5
+ server localhost:8083; #tomcat 9.0
+ fair; #实现响应时间短的优先分配
+}
+</code></pre>
+<h3 id="url_hash">url_hash</h3>
+<p>url_hash 也属于第三方的负载均衡策略，其实现需要安装第三方插件。</p>
+<p>url_hash 按访问 url 的 hash 结果来分配请求，使每个 url 定向到同一个后端服务器，要配合缓存命中来使用。同一个资源多次请求，可能会到达不同的服务器上，导致不必要的多次下载，缓存命中率不高，以及一些资源时间的浪费。</p>
+<p>而使用 url_hash，可以使得同一个 url（也就是同一个资源请求）会到达同一台服务器，一旦缓存住了资源，再此收到请求，就可以从缓存中读取。</p>
+<pre><code>#动态服务器组
+upstream dynamic_zuoyu {
+ hash $request_uri; #实现每个url定向到同一个后端服务器
+ server localhost:8080; #tomcat 7.0
+ server localhost:8081; #tomcat 8.0
+ server localhost:8082; #tomcat 8.5
+ server localhost:8083; #tomcat 9.0
+}
+</code></pre>
+<h2 id="总结">总结</h2>
+<ol>
+<li>轮询 (默认)：每一个来自网络中的请求，轮流分配给内部的服务器，从 1 到 N 然后重新开始。此种负载均衡算法适合服务器组内部的服务器都具有相同的配置并且平均服务请求相对均衡的情况。</li>
+<li>加权轮询（weight）：根据服务器的不同处理能力，给每个服务器分配不同的权值，使其能够接受相应权值数的服务请求。例如：服务器 A 的权值被设计成 1，B 的权值是 3，C 的权值是
+6，则服务器 A、B、C 将分别接受到 10%、30%、60% 的服务请求。此种均衡算法能确保高性能的服务器得到更多的使用率，避免低性能的服务器负载过重。</li>
+<li>ip-hash（ip_hash）：我们都知道，每个请求的客户端都有相应的 ip 地址，该均衡策略中，nginx 将会根据相应的 hash 函数，对每个请求的 ip 作为关键字，得到的 hash 值将会决定将请求分发给相应 Server 进行处理。</li>
+<li>最少连接数（least_conn）：最少连接，也就是说 nginx 会判断后端集群服务器中哪个 Server 当前的 Active Connection 数是最少的，那么对于每个新进来的请求，nginx 将该其分发给对应的 Server。</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#什么是Nginx负载均衡">什么是Nginx负载均衡</a></li><li style="margin-left:0.0rem"><a href="#Nginx负载均衡策略">Nginx负载均衡策略</a></li><li style="margin-left:0.0rem"><a href="#负载均衡策略">负载均衡策略</a></li><li style="margin-left:0.8rem"><a href="#轮询">轮询</a></li><li style="margin-left:0.8rem"><a href="#weight">weight</a></li><li style="margin-left:0.8rem"><a href="#ip_hash">ip_hash</a></li><li style="margin-left:0.8rem"><a href="#least_conn">least_conn</a></li><li style="margin-left:0.8rem"><a href="#fair">fair</a></li><li style="margin-left:0.8rem"><a href="#url_hash">url_hash</a></li><li style="margin-left:0.0rem"><a href="#总结">总结</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">Nginx</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68656859.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BNginx%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-Nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Nginx负载均衡。本文属于安全与堡垒机 / 高级安全，在服务器集群中， Nginx 起到一个代理服务器的角色（即反向代理），为了避免单独一个服务器压力过大，将来自用户的请求转发给不同的服务器。 负载均衡用于从 “upstream” 模块定义的后端服务器列表中选取一台服务器接受用户的请求。一个最基本的 upstr…</p>
+      <p>关键词：安全与堡垒机、高级安全、Nginx、知识笔记、安全与堡垒机 / 高级安全、Nginx负载均衡</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-669fe33a0ab6.html"><small>上一篇</small>Nginx解决跨域方案二</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8cbcd9d9593e.html"><small>下一篇</small>Nginx限制IP访问</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dd8208851cc0.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

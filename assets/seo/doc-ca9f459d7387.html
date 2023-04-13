@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>显著提高大型 Java 项目启动速度的尝试｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="显著提高大型 Java 项目启动速度的尝试。本文属于安全与堡垒机 / 高级安全，线上的业务 jar 包基本上普遍比较庞大，动不动一个 jar 包上百 M，启动时间在分钟级，拖慢了我们在故障时快速扩容的响应。于是做了一些分析，看看 Java 程序启动慢到底慢在哪里，如何去优化，目前的效果是大部分大型应用启动时间可以…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，Linux，Java，知识笔记，安全与堡垒机 / 高级安全，显著提高大型 Java 项目启动速度的尝试">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ca9f459d7387.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ca9f459d7387.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2BJava-%E6%98%BE%E8%91%97%E6%8F%90%E9%AB%98%E5%A4%A7%E5%9E%8B%20Java%20%E9%A1%B9%E7%9B%AE%E5%90%AF%E5%8A%A8%E9%80%9F%E5%BA%A6%E7%9A%84%E5%B0%9D%E8%AF%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="显著提高大型 Java 项目启动速度的尝试">
+  <meta property="og:description" content="显著提高大型 Java 项目启动速度的尝试。本文属于安全与堡垒机 / 高级安全，线上的业务 jar 包基本上普遍比较庞大，动不动一个 jar 包上百 M，启动时间在分钟级，拖慢了我们在故障时快速扩容的响应。于是做了一些分析，看看 Java 程序启动慢到底慢在哪里，如何去优化，目前的效果是大部分大型应用启动时间可以…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ca9f459d7387.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/69e10d8bae227dcd64.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="显著提高大型 Java 项目启动速度的尝试">
+  <meta name="twitter:description" content="显著提高大型 Java 项目启动速度的尝试。本文属于安全与堡垒机 / 高级安全，线上的业务 jar 包基本上普遍比较庞大，动不动一个 jar 包上百 M，启动时间在分钟级，拖慢了我们在故障时快速扩容的响应。于是做了一些分析，看看 Java 程序启动慢到底慢在哪里，如何去优化，目前的效果是大部分大型应用启动时间可以…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/69e10d8bae227dcd64.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ca9f459d7387.html#article","headline":"显著提高大型 Java 项目启动速度的尝试","description":"显著提高大型 Java 项目启动速度的尝试。本文属于安全与堡垒机 / 高级安全，线上的业务 jar 包基本上普遍比较庞大，动不动一个 jar 包上百 M，启动时间在分钟级，拖慢了我们在故障时快速扩容的响应。于是做了一些分析，看看 Java 程序启动慢到底慢在哪里，如何去优化，目前的效果是大部分大型应用启动时间可以…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","Linux","Java","知识笔记","安全与堡垒机 / 高级安全","显著提高大型 Java 项目启动速度的尝试"],"wordCount":4630,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ca9f459d7387.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ca9f459d7387.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/69e10d8bae227dcd64.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"显著提高大型 Java 项目启动速度的尝试","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ca9f459d7387.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>显著提高大型 Java 项目启动速度的尝试</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>显著提高大型 Java 项目启动速度的尝试</h1>
+      <p class="lede">显著提高大型 Java 项目启动速度的尝试。本文属于安全与堡垒机 / 高级安全，线上的业务 jar 包基本上普遍比较庞大，动不动一个 jar 包上百 M，启动时间在分钟级，拖慢了我们在故障时快速扩容的响应。于是做了一些分析，看看 Java 程序启动慢到底慢在哪里，如何去优化，目前的效果是大部分大型应用启动时间可以…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">4,630 字</span>
+        <span class="badge">14 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>原文地址 <a href="https://juejin.cn/post/7117815437559070734" rel="noopener noreferrer">https://juejin.cn/post/7117815437559070734</a></p>
+<p>线上的业务 jar 包基本上普遍比较庞大，动不动一个 jar 包上百 M，启动时间在分钟级，拖慢了我们在故障时快速扩容的响应。于是做了一些分析，看看 Java 程序启动慢到底慢在哪里，如何去优化，目前的效果是大部分大型应用启动时间可以缩短 30%~50%</p>
+<p>主要有下面这些内容</p>
+<ul>
+<li>修改 async-profiler 源码，只抓取启动阶段 main 线程的 wall 时间火焰图（✅）</li>
+<li>重新实现 JarIndex（✅）</li>
+<li>结合 JarIndex 重新自定义类加载器，启动提速 30%+（✅）</li>
+<li>SpringBean 加载耗时 timeline 可视化分析（✅）</li>
+<li>SpringBean 的可视化依赖分析（✅）</li>
+<li>基于依赖拓扑的 SpringBean 的异步加载（❌）</li>
+</ul>
+<h2 id="优化效果">优化效果</h2>
+<p>我们来看下实际的效果，项目 1 稍微小型一点，启动耗时从 70s 降低到 46s</p>
+<p><strong><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/69e10d8bae227dcd64.png"/></strong></p>
+<p>第二个 jar 包更大一点，效果更明显，启动耗时从 220s 减少到 123s</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/7d5a2019c0d4965ba6.png"/></p>
+<h2 id="无观测不优化">无观测不优化</h2>
+<p>秉承着无观测不优化的想法，首先我们要知道启动慢到底慢在了哪里。我之前分享过很多次关于火焰图的使用，结果很多人遇到问题就开始考虑火焰图，但是一个启动慢其实是一个时序问题，不是一个 hot CPU 热点问题。很多时候慢，不一定是 cpu 占用过高，很有可能是等锁、等 IO 或者傻傻的 sleep。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/34275eaa2543936ea7.png"/></p>
+<p>在 Linux 中有一个杀手级的工具 bootchart 来分析 linux 内核启动的问题，它把启动过程中所有的 IO、CPU 占用情况都做了详细的划分，我们可以很清楚的看到各个时间段，时间耗在了哪里，基于这个 chart，你就可以看看哪些过程可以延后处理、异步处理等。</p>
+<p>在 Java 中，暂时没有类似的工具，但是又想知道时间到底耗在了哪里要怎么做呢，至少大概知道耗在了什么地方。在生成热点调用火焰图的时候，我们通过 arthas 的几个简单的命令就可以生成，它底层用的是 async-profiler 这个开源项目，它的作者 apangin 做过一系列关于 jvm profiling 相关的分享，感兴趣的同学可以去看看。</p>
+<h2 id="async-profiler-底层原理简介">async-profiler 底层原理简介</h2>
+<p>async-profiler 是一个非常强大的工具，使用 jvmti 技术来实现。它的 NB 之处在于它利用了 <a href="http://libjvm.so" rel="noopener noreferrer">libjvm.so</a> 中 JVM 内部的 API <code>AsyncGetCallTrace</code> 来获取 Java 函数堆栈，精简后的伪代码如下：</p>
+<p><strong>async-profiler</strong></p>
+<pre><code class="language-c">static bool vm_init(JavaVM *vm) {
+ std::cout &lt;&lt; "vm_init" &lt;&lt; std::endl;
+
+ // 从 libjvm.so 中获取 AsyncGetCallTrace 的函数指针句柄
+ void *libjvm = dlopen("libjvm.so", RTLD_LAZY);
+ _asyncGetCallTrace = (AsyncGetCallTrace) dlsym(libjvm, "AsyncGetCallTrace");
+}
+// 事件回调
+void recordSample(void *ucontext, uint64_t counter, jint event_type, Event *event) {
+ std::cout &lt;&lt; "Profiler::recordSample: " &lt;&lt; std::endl;
+ ASGCT_CallFrame frames[maxFramesToCapture];
+ ASGCT_CallTrace trace;
+ trace.frames = frames;
+ trace.env = getJNIEnv(g_jvm);
+ // 调用 AsyncGetCallTrace 获取堆栈
+ _asyncGetCallTrace(&amp;trace, maxFramesToCapture, ucontext);
+}
+</code></pre>
+<p>你可能要说获取个堆栈还需要搞这么复杂，jstack 等工具不是实现的很好了吗？其实不然。</p>
+<p>jstack 等工具获取函数堆栈需要 jvm 进入到 safepoint，对于采样非常频繁的场景，会严重的影响 jvm 的性能，具体的原理不是本次内容的重点这里先不展开。</p>
+<p>async-profiler 除了可以生成热点调用的火焰图，它还提供了 <code>Wall-clock profiling</code> 的功能，这个功能其实就是固定时间采样所有的线程（不管线程当前是 Running、Sleeping 还是 Blocked），它在文档中也提到了，这种方式的 profiling 适合用来分析应用的启动过程，我们姑且用这个不太精确的方式来粗略测量启动阶段耗时在了哪些函数里。</p>
+<p>但是这个工具会抓取所有的线程的堆栈，按这样的方式抓取的 wall-clock 火焰图没法看，不信你看。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/19c61318b176658dbc.png"/></p>
+<p>就算你找到了 main 线程，在函数耗时算占比的时候也不太方便，我们关心的其实只是 main 线程（也就是加载 jar 包，执行 spring 初始化的线程），于是我做了一些简单的修改，让 async-profiler 只取抓取 main 线程的堆栈。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/9a8938ed03f1fff3be.png"/></p>
+<p>重新编译运行</p>
+<p><strong>重新编译运行</strong></p>
+<pre><code>java
+-agentpath:/path/to/libasyncProfiler.so=start,event=wall,interval=1ms,threads,file=profile.html
+-jar xxx.jar
+</code></pre>
+<p>这样生成的火焰图就清爽多了，这样就知道时间耗在了什么函数上。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/50836600c4f8d1a8b6.png"/></p>
+<p>接下来就是分析这个 wall-clock 的火焰图，点开几个调用栈仔细分析，发现很多时间花费在类和资源文件查找和加载（挺失望的，java 连这部分都做不好）
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/88e102ba8013079712.png"/></p>
+<p>继续分析代码看看类加载在做什么。</p>
+<h2 id="Java-垃圾般实现的类查找加载">Java 垃圾般实现的类查找加载</h2>
+<p>Java 的类加载不出意外最终都走到了 <a href="http://java.net" rel="noopener noreferrer">java.net</a>.URLClassLoader#findClass 这里。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/78246e8806b20a75b5.png"/></p>
+<p>这里的 ucp 指的是 URLClassPath，也就是 classpath 路径的集合。对于 SpringBoot 的应用来说，classpath 已经在 META-INF 里写清楚了。</p>
+<pre><code>Spring-Boot-Classes: BOOT-INF/classes/
+Spring-Boot-Lib: BOOT-INF/lib/
+</code></pre>
+<p>此次测试的程序 <code>BOOT-INF/lib/</code> 有 300 多个依赖的 jar 包，当加载某个类时，除了 <code>BOOT-INF/classes/</code> 之外 Java 居然要遍历那 300 个 jar 包去查看这些 jar 包中是否包含某个类。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/c078a619976ed61802.png"/></p>
+<p>我在 loader.getResource 上注入了一下打印，看看这些函数调用了多少次。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/689b14bb636f78b45a.png"/></p>
+<p>可以看到太丧心病狂了，加载一个类，居然要调用 <code>loader.getResource</code> 去 jar 包中尝试几百次。我就按二分之一 150 来算，如果加载一万个类，要调用这个函数 150W 次。</p>
+<p>请忽略源码中的 LookupCache 特性，这个特性看起来是为了加速 jar 包查找的，但是这个特性看源码是一个 oracle 商业版的才有的特性，在目前的 jdk 中是无法启用的。（推测，如果理解不对请告知我）</p>
+<p>于是有了一些粗浅的想法，为何不告诉 java 这个类在那个 jar 里？做索引这么天然的想法为什么不实现。</p>
+<p>以下面为例，项目依赖三个 jar 包，foo.jar、bar.jar、baz.jar，其中分别包含了特定包名的类，理想情况下我们可以生成一个索引文件，如下所示。</p>
+<p>foo.jar
+com/foo1
+com/foo2</p>
+<p>bar.jar
+com/bar
+com/bar/barbar</p>
+<p>baz.jar
+com/baz</p>
+<p>这就是我们接下来要介绍的 JarIndex 技术。</p>
+<h2 id="JarIndex-技术">JarIndex 技术</h2>
+<p>其实 Jar 在文件格式上是支持索引技术的，称为 JarIndex，通过 <code>jar -i</code> 就可以在 <code>META-INF/</code> 目录下生成 <code>INDEX.LIST</code> 文件。别高兴的太早，这个 JarIndex 目前无法真正起到作用，有下面几个原因：</p>
+<ul>
+<li>INDEX.LIST 文件生成不正确，尤其是目前最流行的 fatjar 中包含 jar 列表的情况</li>
+<li>classloader 不支持（那不是白忙活吗）</li>
+</ul>
+<p>首先来看 INDEX.LIST 文件生成不正确的问题，随便拿一个 jar 文件，使用 <code>jar -i</code> 生成一下试试。</p>
+<pre><code>JarIndex-Version: 1.0
+
+encloud-api_origin.jar
+BOOT-INF
+BOOT-INF/classes
+BOOT-INF/classes/com
+BOOT-INF/classes/com/encloud
+....
+META-INF
+META-INF/maven
+META-INF/maven/com.encloud
+META-INF/maven/com.encloud/encloud-api
+BOOT-INF/lib
+org
+org/springframework
+org/springframework/boot
+org/springframework/boot/loader
+org/springframework/boot/loader/jar
+org/springframework/boot/loader/data
+org/springframework/boot/loader/archive
+org/springframework/boot/loader/util
+</code></pre>
+<p>可以看到在 BOOT-INF/lib 目录中的类索引并没有在这里生成，这里面可是有 300 多个 jar 包。</p>
+<p>同时生成不对的地方还有，org 目录下只有文件夹并没有 class 文件，org 这一行不应该在 INDEX.LIST 文件中。</p>
+<p>第二个缺陷才是最致命的，目前的 classloader 不支持 JarIndex 这个特性。</p>
+<p>所以我们要做两个事情，生成正确的 JarIndex，同时修改 SpringBoot 的 classloader 让其支持 JarIndex。</p>
+<h2 id="生成正确的-JarIndex">生成正确的 JarIndex</h2>
+<p>这个简单，就是遍历 jar 包里的类，将其所在的包名抽取出来。SpringBoot 应用有三个地方存放了 class：</p>
+<ul>
+<li>BOOT-INF/classes</li>
+<li>BOOT-INF/lib</li>
+<li>jar 包根目录下 <code>org/springframework/boot/loader</code></li>
+</ul>
+<p>生成的时候需要考虑到上面的情况，剩下的就简单了。遍历这些目录，将所有的包含 class 文件的包名过滤过来就行。</p>
+<p>大概生成的结果是：</p>
+<pre><code>JarIndex-Version: 1.0
+
+encloud-api.jar
+
+/BOOT-INF/classes
+com/encloud
+com/encloud/app/controller
+com/encloud/app/controller/v2
+
+/
+org/springframework/boot/loader
+org/springframework/boot/loader/archive
+org/springframework/boot/loader/data
+org/springframework/boot/loader/jar
+org/springframework/boot/loader/util
+
+/BOOT-INF/lib/spring-core-4.3.9.RELEASE.jar
+org/springframework/asm
+org/springframework/cglib
+org/springframework/cglib/beans
+org/springframework/cglib/core
+
+/BOOT-INF/lib/guava-19.0.jar
+com/google/common/annotations
+com/google/common/base
+com/google/common/base/internal
+com/google/common/cache
+
+... other jar ...
+</code></pre>
+<p>除了加载类需要查找，其实还有不少资源文件需要查找，比如 spi 等扫描过程中需要，顺带把资源文件的索引也生成一下写入到 RES_INDEX.LIST 中，原理类似，这里展开。</p>
+<h2 id="自定义-classloder">自定义 classloder</h2>
+<p>生成了 INDEX.LIST 文件，接下来就是要实现了一个 classloader 能支持一步到位通过索引文件去对应的 jar 包中去加载 class，核心的代码如下：</p>
+<p><strong>自定义 classloder</strong></p>
+<pre><code class="language-python">public class JarIndexLaunchedURLClassLoader extends URLClassLoader {
+ public JarIndexLaunchedURLClassLoader(boolean exploded, Archive rootArchive, URL[] urls, ClassLoader parent) {
+ super(urls, parent);
+ initJarIndex(urls); // 根据 INDEX.LIST 创建包名到 jar 文件的映射关系
+ }
+
+ @Override
+ protected Class&lt;?&gt; loadClass(String name, boolean resolve) throws ClassNotFoundException {
+ Class&lt;?&gt; loadedClass = findLoadedClass(name);
+ if (loadedClass != null) return loadedClass;
+ // 如果是 loader 相关的类，则直接加载，不用找了，就在 jar 包的根目录下
+ if (name.startsWith("org.springframework.boot.loader.") || name.startsWith("com.seewo.psd.bootx.loader.")) {
+ Class&lt;?&gt; result = loadClassInLaunchedClassLoader(name);
+ if (resolve) {
+ resolveClass(result);
+ }
+ return result;
+
+ }
+ // skip java.*, org.w3c.dom.* com.sun.* ，这些包交给 java 默认的 classloader 去处理
+ if (!name.startsWith("java") &amp;&amp; !name.contains("org.w3c.dom.")
+ &amp;&amp; !name.contains("xml") &amp;&amp; !name.startsWith("com.sun")) {
+ int lastDot = name.lastIndexOf('.');
+ if (lastDot &gt;= 0) {
+ String packageName = name.substring(0, lastDot);
+ String packageEntryName = packageName.replace('.', '/');
+ String path = name.replace('.', '/').concat(".class");
+ // 通过 packageName 找到对应的 jar 包
+ List&lt;JarFileResourceLoader&gt; loaders = package2LoaderMap.get(packageEntryName);
+ if (loaders != null) {
+ for (JarFileResourceLoader loader : loaders) {
+ ClassSpec classSpec = loader.getClassSpec(path); // 从 jar 包中读取文件
+ if (classSpec == null) {
+ continue;
+ }
+ // 文件存在，则加载这个 class
+ Class&lt;?&gt; definedClass = defineClass(name, classSpec.getBytes(), 0, classSpec.getBytes().length, classSpec.getCodeSource());
+ definePackageIfNecessary(name);
+ return definedClass;
+ }
+ }
+ }
+ }
+ // 执行到这里，说明需要父类加载器来加载类（兜底）
+ definePackageIfNecessary(name);
+ return super.loadClass(name, resolve);
+ }
+}
+</code></pre>
+<p>到这里我们基本上就实现了一个支持 JarIndex 的类加载器，这里的改动经实测效果已经效果非常明显。
+除此之外，我还发现查找一个已加载的类是一个非常高频执行的操作，于是可以在 JarIndexLaunchedURLClassLoader 之前再加一层缓存（思想来自 sofa-boot）</p>
+<p><strong>JarIndexLaunchedURLClassLoader</strong></p>
+<pre><code class="language-python">public class CachedLaunchedURLClassLoader extends JarIndexLaunchedURLClassLoader {
+ private final Map&lt;String, LoadClassResult&gt; classCache = new ConcurrentHashMap&lt;&gt;(3000);
+ @Override
+ protected Class&lt;?&gt; loadClass(String name, boolean resolve) throws ClassNotFoundException {
+ return loadClassWithCache(name, resolve);
+ }
+ private Class&lt;?&gt; loadClassWithCache(String name, boolean resolve) throws ClassNotFoundException {
+ LoadClassResult result = classCache.get(name);
+ if (result != null) {
+ if (result.getEx() != null) {
+ throw result.getEx();
+ }
+ return result.getClazz();
+ }
+ try {
+ Class&lt;?&gt; clazz = super.findLoadedClass(name);
+ if (clazz == null) {
+ clazz = super.loadClass(name, resolve);
+ }
+ if (clazz == null) {
+ classCache.put(name, LoadClassResult.NOT_FOUND);
+ }
+ return clazz;
+ } catch (ClassNotFoundException exception) {
+ classCache.put(name, new LoadClassResult(exception));
+ throw exception;
+ }
+}
+</code></pre>
+<p>注意：这里为了简单示例直接用 ConcurrentHashMap 来缓存 class，更好的做法是用 guava-cache 等可以带过期淘汰的 map，避免类被永久缓存。</p>
+<h2 id="如何不动-SpringBoot-的代码实现-classloader-的替换">如何不动 SpringBoot 的代码实现 classloader 的替换</h2>
+<p>接下的一个问题是如何不修改 SpringBoot 的情况下，把 SpringBoot 的 Classloader 替换为我们写的呢？</p>
+<p>大家都知道，SpringBoot 的 jar 包启动类其实并不是我们项目中写的 main 函数，其实是</p>
+<p><code>org.springframework.boot.loader.JarLauncher</code>，这个类才是真正的 jar 包的入口。</p>
+<pre><code class="language-python">package org.springframework.boot.loader;
+public class JarLauncher extends ExecutableArchiveLauncher {
+ public static void main(String[] args) throws Exception {
+ new JarLauncher().launch(args);
+ }
+}
+</code></pre>
+<p>那我们只要替换这个入口类就可以接管后面的流程了。如果只是替换那很简单，修改生成好的 jar 包就可以了，但是这样后面维护的成本比较高，如果在打包的时候就替换就好了。SpringBoot 的打包是用 spring-boot-maven-plugin 插件</p>
+<pre><code>&lt;plugin&gt;
+ &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+ &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
+&lt;/plugin&gt;
+</code></pre>
+<p>最终生成的<code>META-INF/MANIFEST.MF</code>文件如下</p>
+<pre><code>$ cat META-INF/MANIFEST.MF
+Manifest-Version: 1.0
+Implementation-Title: encloud-api
+Implementation-Version: 2.0.0-SNAPSHOT
+Archiver-Version: Plexus Archiver
+Built-By: arthur
+Implementation-Vendor-Id: com.encloud
+Spring-Boot-Version: 1.5.4.RELEASE
+Implementation-Vendor: Pivotal Software, Inc.
+Main-Class: org.springframework.boot.loader.JarLauncher
+Start-Class: com.encloud.APIBoot
+Spring-Boot-Classes: BOOT-INF/classes/
+Spring-Boot-Lib: BOOT-INF/lib/
+Created-By: Apache Maven 3.8.5
+Build-Jdk: 1.8.0_332
+Implementation-URL: http://projects.spring.io/spring-boot/parent/enclo
+ ud-api/
+</code></pre>
+<p>为了实现我们的需求，就要看 spring-boot-maven-plugin 这个插件到底是如何写入 <code>Main-Class</code> 这个类的，经过漫长的 maven 插件源码的调试，发现这个插件居然提供了扩展点，可以支持修改 <code>Main-Class</code>，它提供了一个 layoutFactory 可以自定义</p>
+<pre><code>&lt;plugin&gt;
+ &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+ &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
+ &lt;executions&gt;
+ &lt;execution&gt;
+ &lt;goals&gt;
+ &lt;goal&gt;repackage&lt;/goal&gt;
+ &lt;/goals&gt;
+ &lt;configuration&gt;
+ &lt;layoutFactory implementation="com.seewo.psd.bootx.loader.tools.MyLayoutFactory"/&gt;
+ &lt;/configuration&gt;
+ &lt;/execution&gt;
+ &lt;/executions&gt;
+ &lt;dependencies&gt;
+ &lt;dependency&gt;
+ &lt;groupId&gt;com.seewo.psd.bootx&lt;/groupId&gt;
+ &lt;artifactId&gt;bootx-loader-tools&lt;/artifactId&gt;
+ &lt;version&gt;0.1.1&lt;/version&gt;
+ &lt;/dependency&gt;
+ &lt;/dependencies&gt;
+&lt;/plugin&gt;
+</code></pre>
+<p>实现这个</p>
+<pre><code class="language-python">package com.seewo.psd.bootx.loader.tools;
+import org.springframework.boot.loader.tools.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.Locale;
+public class MyLayoutFactory implements LayoutFactory {
+ private static final String NESTED_LOADER_JAR = "META-INF/loader/spring-boot-loader.jar";
+ private static final String NESTED_LOADER_JAR_BOOTX = "META-INF/loader/bootx-loader.jar";
+
+ public static class Jar implements RepackagingLayout, CustomLoaderLayout {
+ @Override
+ public void writeLoadedClasses(LoaderClassesWriter writer) throws IOException {
+ // 拷贝 springboot loader 相关的文件到 jar 根目录
+ writer.writeLoaderClasses(NESTED_LOADER_JAR);
+ // 拷贝 bootx loader 相关的文件到 jar 根目录
+ writer.writeLoaderClasses(NESTED_LOADER_JAR_BOOTX);
+ }
+ @Override
+ public String getLauncherClassName() {
+ // 替换为我们自己的 JarLauncher
+ return "com.seewo.psd.bootx.loader.JarLauncher";
+ }
+ }
+}
+</code></pre>
+<p>接下来实现我们自己的 JarLauncher</p>
+<pre><code class="language-python">package com.seewo.psd.bootx.loader;
+import java.net.URL;
+public class JarLauncher extends org.springframework.boot.loader.JarLauncher {
+ @Override
+ protected ClassLoader createClassLoader(URL[] urls) throws Exception {
+ return new CachedLaunchedURLClassLoader(urls, getClass().getClassLoader());
+ }
+ public static void main(String[] args) throws Exception {
+ new JarLauncher().launch(args);
+ }
+}
+</code></pre>
+<p>重新编译就可以实现替换</p>
+<pre><code>$ cat META-INF/MANIFEST.MF
+Manifest-Version: 1.0
+...
+Main-Class: com.seewo.psd.bootx.loader.JarLauncher
+...
+</code></pre>
+<p>到这里，我们就基本完成所有的工作，不用改一行业务代码，只用改几行 maven 打包脚本，就可以实现支持 JarIndex 的类加载实现。</p>
+<h2 id="优化效果-2">优化效果</h2>
+<p>我们来看下实际的效果，项目 1 稍微小型一点，启动耗时从 70s 降低到 46s</p>
+<p><strong><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/69e10d8bae227dcd64.png"/></strong></p>
+<p>第二个 jar 包更大一点，效果更明显，启动耗时从 220s 减少到 123s</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/7d5a2019c0d4965ba6.png"/></p>
+<h2 id="未完待续">未完待续</h2>
+<p>其实优化到这里，还远远没有达到我想要的目标，为什么启动需要这么长时间，解决了类查找的问题，那我们来深挖一下 Spring 的初始化。</p>
+<p>Spring bean 的初始化是串行进行的，于是我先来做一个可视化 timeline，看看到底是哪些 Bean 耗时很长。</p>
+<h2 id="Spring-Bean-初始化时序可视化">Spring Bean 初始化时序可视化</h2>
+<p>因为不会写前端，这里偷一下懒，利用 APM 的工具，把数据上报到 jaeger，这样我们就可以得到一个包含调用关系的timeline 的界面了。jaeger 的网址在这里：<a href="https://link.juejin.cn?target=https://www.jaegertracing.io/" rel="noopener noreferrer" title="https://www.jaegertracing.io/">www.jaegertracing.io/</a></p>
+<p>首先我们继承 DefaultListableBeanFactory 来对 createBean 的过程做记录。</p>
+<pre><code class="language-python">public class BeanLoadTimeCostBeanFactory extends DefaultListableBeanFactory {
+ private static ThreadLocal&lt;Stack&lt;BeanCreateResult&gt;&gt; parentStackThreadLocal = new ThreadLocal&lt;&gt;();
+ @Override
+ protected Object createBean(String beanName, RootBeanDefinition rbd, Object[] args) throws BeanCreationException {
+ // 记录 bean 初始化开始
+ Object object = super.createBean(beanName, rbd, args);
+ // 记录 bean 初始化结束
+ return object;
+ }
+</code></pre>
+<p>接下来我们实现 ApplicationContextInitializer，在 initialize 方法中替换 beanFactory 为我们自己写的。</p>
+<pre><code class="language-python">public class BeanLoadTimeCostApplicationContextInitializer implements ApplicationContextInitializer&lt;ConfigurableApplicationContext&gt;, Ordered {
+ public BeanLoadCostApplicationContextInitializer() {
+ System.out.println("in BeanLoadCostApplicationContextInitializer()");
+ }
+ @Override
+ public void initialize(ConfigurableApplicationContext applicationContext) {
+ if (applicationContext instanceof GenericApplicationContext) {
+ System.out.println("BeanLoadCostApplicationContextInitializer run");
+ BeanLoadTimeCostBeanFactory beanFactory = new BeanLoadTimeCostBeanFactory();
+ Field field = GenericApplicationContext.class.getDeclaredField("beanFactory");
+ field.setAccessible(true);
+ field.set(applicationContext, beanFactory);
+ }
+ }
+}
+</code></pre>
+<p>接下来将记录的状态上报到 jaeger 中，实现可视化堆栈显示。</p>
+<pre><code class="language-c">public void reportBeanCreateResult(BeanCreateResult beanCreateResult) {
+ Span span = GlobalTracer.get().buildSpan(beanCreateResult.getBeanClassName()).withStartTimestamp(beanCreateResult.getBeanStartTime() * 1000).start();
+ try (Scope ignore = GlobalTracer.get().scopeManager().activate(span)) {
+ for (BeanCreateResult item : beanCreateResult.getChildren()) {
+ Span childSpan = GlobalTracer.get().buildSpan(item.getBeanClassName()).withStartTimestamp(item.getBeanStartTime() * 1000).start();
+ try (Scope ignore2 = GlobalTracer.get().scopeManager().activate(childSpan)) {
+ printBeanStat(item);
+ } finally {
+ childSpan.finish(item.getBeanEndTime() * 1000);
+ }
+ }
+ } finally {
+ span.finish(beanCreateResult.getBeanEndTime() * 1000);
+ }
+}
+</code></pre>
+<p>通过这种方式，我们可以很轻松的看到 spring 启动阶段 bean 加载的 timeline，生成的图如下所示。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/544673b52a781bc252.png"/>|</p>
+<p>这对我们进一步优化 bean 的加载提供了思路，可以看到 bean 的依赖关系和加载耗时具体耗在了哪个 bean。通过这种方式可以在 SpringBean 串行加载的前提下，把 bean 的加载尽可能的优化。</p>
+<h2 id="SpringBean-的依赖分析">SpringBean 的依赖分析</h2>
+<p>更好一点的方案是基于 SpringBean 的依赖关系做并行加载。这个特性 2011 年前就有人提给了 Spring，具体看这个 issue：<a href="https://link.juejin.cn?target=https://github.com/spring-projects/spring-framework/issues/13410" rel="noopener noreferrer" title="https://github.com/spring-projects/spring-framework/issues/13410">github.com/spring-proj…</a></p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/3709cb016fa28b1b75.png"/></p>
+<p>就在去年，还有人去这个 issue 下去恭祝这个 issue 10 周年快乐。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/a25a5529f61540ba37.png"/></p>
+<p>做并行加载确实有一些难度，真实项目的 Spring Bean 依赖关系非常复杂，我把 Spring Bean 的依赖关系导入到 neo4j 图数据库，然后进行查询</p>
+<pre><code>MATCH (n)
+RETURN n;
+</code></pre>
+<p>得到的图如下所示。一方面 Bean 的数量特别多，还有复杂的依赖关系，以及循环依赖。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/69d2fd1eaadb1b4472.png"/></p>
+<p>基于此依赖关系，我们是有机会去做 SpringBean 的并行加载的，这部分还没实现，希望后面有机会可以完整的实现这块的逻辑，个人感觉可以做到 10s 内启动完一个超大的项目。</p>
+<h2 id="Java-启动优化的其它技术">Java 启动优化的其它技术</h2>
+<p>Java 启动的其它技术还有 Heap Archive、CDS，以及 GraalVM 的 AOT 编译，不过这几个技术目前都有各自的缺陷，还无法完全解决目前我们遇到的问题。</p>
+<h2 id="后记">后记</h2>
+<p>这篇文章中用到的技术只是目前比较粗浅的尝试，如果大家有更好的优化，可以跟我交流，非常感谢。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#优化效果">优化效果</a></li><li style="margin-left:0.0rem"><a href="#无观测不优化">无观测不优化</a></li><li style="margin-left:0.0rem"><a href="#async-profiler-底层原理简介">async-profiler 底层原理简介</a></li><li style="margin-left:0.0rem"><a href="#Java-垃圾般实现的类查找加载">Java 垃圾般实现的类查找加载</a></li><li style="margin-left:0.0rem"><a href="#JarIndex-技术">JarIndex 技术</a></li><li style="margin-left:0.0rem"><a href="#生成正确的-JarIndex">生成正确的 JarIndex</a></li><li style="margin-left:0.0rem"><a href="#自定义-classloder">自定义 classloder</a></li><li style="margin-left:0.0rem"><a href="#如何不动-SpringBoot-的代码实现-classloader-的替换">如何不动 SpringBoot 的代码实现 classloader 的替换</a></li><li style="margin-left:0.0rem"><a href="#优化效果-2">优化效果</a></li><li style="margin-left:0.0rem"><a href="#未完待续">未完待续</a></li><li style="margin-left:0.0rem"><a href="#Spring-Bean-初始化时序可视化">Spring Bean 初始化时序可视化</a></li><li style="margin-left:0.0rem"><a href="#SpringBean-的依赖分析">SpringBean 的依赖分析</a></li><li style="margin-left:0.0rem"><a href="#Java-启动优化的其它技术">Java 启动优化的其它技术</a></li><li style="margin-left:0.0rem"><a href="#后记">后记</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">Linux</span><span class="tag">Java</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68651112.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2BJava-%E6%98%BE%E8%91%97%E6%8F%90%E9%AB%98%E5%A4%A7%E5%9E%8B%20Java%20%E9%A1%B9%E7%9B%AE%E5%90%AF%E5%8A%A8%E9%80%9F%E5%BA%A6%E7%9A%84%E5%B0%9D%E8%AF%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>显著提高大型 Java 项目启动速度的尝试。本文属于安全与堡垒机 / 高级安全，线上的业务 jar 包基本上普遍比较庞大，动不动一个 jar 包上百 M，启动时间在分钟级，拖慢了我们在故障时快速扩容的响应。于是做了一些分析，看看 Java 程序启动慢到底慢在哪里，如何去优化，目前的效果是大部分大型应用启动时间可以…</p>
+      <p>关键词：安全与堡垒机、高级安全、Linux、Java、知识笔记、安全与堡垒机 / 高级安全、显著提高大型 Java 项目启动速度的尝试</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a14218a6736b.html"><small>上一篇</small>时钟置换算法(改进型)</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-81805aa65173.html"><small>下一篇</small>普通版微擎教程</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ca9f459d7387.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>背景｜Web 安全 / WAF与信息泄露｜BEN.OPS</title>
+  <meta name="description" content="背景。本文属于Web 安全 / WAF与信息泄露，对于腾讯的业务来说，有两个方面决定着WAF能否发挥效果，一个是合适处理海量流量的架构，另一个关键因素则是规则系统。架构决定着WAF能否承受住海量流量的挑战，这个在之前的篇章中简单介绍过（详情见 主流WAF架构分析与探索 、 WAF应用层实现的架构漫谈 ）。而规则系…">
+  <meta name="keywords" content="Web 安全，WAF与信息泄露，MySQL，Nginx，Apache，PHP，SQL注入，WAF，Web 安全 / WAF与信息泄露，背景">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-488669e4334b.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-488669e4334b.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWAF%E4%B8%8E%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%2BMySQL%2BNginx-%E8%83%8C%E6%99%AF.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="背景">
+  <meta property="og:description" content="背景。本文属于Web 安全 / WAF与信息泄露，对于腾讯的业务来说，有两个方面决定着WAF能否发挥效果，一个是合适处理海量流量的架构，另一个关键因素则是规则系统。架构决定着WAF能否承受住海量流量的挑战，这个在之前的篇章中简单介绍过（详情见 主流WAF架构分析与探索 、 WAF应用层实现的架构漫谈 ）。而规则系…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-488669e4334b.html">
+  <meta property="article:published_time" content="2023-04-14T16:00:00">
+  <meta property="article:modified_time" content="2023-04-14 16:00">
+  <meta property="article:section" content="Web 安全 / WAF与信息泄露">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="背景">
+  <meta name="twitter:description" content="背景。本文属于Web 安全 / WAF与信息泄露，对于腾讯的业务来说，有两个方面决定着WAF能否发挥效果，一个是合适处理海量流量的架构，另一个关键因素则是规则系统。架构决定着WAF能否承受住海量流量的挑战，这个在之前的篇章中简单介绍过（详情见 主流WAF架构分析与探索 、 WAF应用层实现的架构漫谈 ）。而规则系…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-488669e4334b.html#article","headline":"背景","description":"背景。本文属于Web 安全 / WAF与信息泄露，对于腾讯的业务来说，有两个方面决定着WAF能否发挥效果，一个是合适处理海量流量的架构，另一个关键因素则是规则系统。架构决定着WAF能否承受住海量流量的挑战，这个在之前的篇章中简单介绍过（详情见 主流WAF架构分析与探索 、 WAF应用层实现的架构漫谈 ）。而规则系…","datePublished":"2023-04-14T16:00:00","dateModified":"2023-04-14 16:00","inLanguage":"zh-CN","articleSection":["Web 安全","WAF与信息泄露"],"keywords":["Web 安全","WAF与信息泄露","MySQL","Nginx","Apache","PHP","SQL注入","WAF","Web 安全 / WAF与信息泄露","背景"],"wordCount":1620,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-488669e4334b.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-488669e4334b.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"Web 安全 / WAF与信息泄露","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"背景","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-488669e4334b.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>Web 安全 / WAF与信息泄露</span> › <span>背景</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">Web 安全 / WAF与信息泄露</div>
+      <h1>背景</h1>
+      <p class="lede">背景。本文属于Web 安全 / WAF与信息泄露，对于腾讯的业务来说，有两个方面决定着WAF能否发挥效果，一个是合适处理海量流量的架构，另一个关键因素则是规则系统。架构决定着WAF能否承受住海量流量的挑战，这个在之前的篇章中简单介绍过（详情见 主流WAF架构分析与探索 、 WAF应用层实现的架构漫谈 ）。而规则系…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T16:00:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,620 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>原文 by <a href="https://security.tencent.com/index.php/blog/msg/65" rel="noopener noreferrer">tsrc博客</a></p>
+<h2 id="背景">背景</h2>
+<p>对于腾讯的业务来说，有两个方面决定着WAF能否发挥效果，一个是合适处理海量流量的架构，另一个关键因素则是规则系统。架构决定着WAF能否承受住海量流量的挑战，这个在之前的篇章中简单介绍过（详情见<a href="http://security.tencent.com/index.php/blog/msg/56" rel="noopener noreferrer">主流WAF架构分析与探索</a> 、<a href="http://security.tencent.com/index.php/blog/msg/63" rel="noopener noreferrer">WAF应用层实现的架构漫谈</a>）。而规则系统则决定着WAF能否发挥完善的防护功能。</p>
+<p>SQL注入是由于开发人员没有对用户的输入进行相关的过滤，而使用户的输入可以被带入到SQL语句中执行，所引发的一种高危漏洞。可能造成信息泄露，数据库数据泄露，入侵等重大影响的后果。腾讯WAF对此种类型漏洞的防护目标就是确保不造成上述重大影响。</p>
+<p>本文介绍腾讯WAF如何针对SQL注入这种攻击进行防护。同时，最近TSRC与白帽子小伙伴们举办了一场SQL注入绕过挑战赛，发现了WAF规则系统一些不足之处，这里将详细介绍。</p>
+<p>感谢各位参与的白帽子小伙伴的大力支持。</p>
+<h2 id="关键字防护">关键字防护</h2>
+<p>SQL注入最简单、粗暴但实用的方式就是检测一些关键字，通过把这些能造成影响的关键字加入黑名单，可以阻断大部分的利用代码。这类关键字主要包含几种：</p>
+<p>1、 SQL语句的关键保留字，如select from，union select，drop table，into outfile等。</p>
+<p>2、 MySQL等DBMS的内建函数，如version(),load_file()，sleep()，benchmark()等</p>
+<p>3、 MySQL等DBMS内建变量，如@@version等。</p>
+<p>4、 MySQL所识别的内联注释，如 <code>/*!union*/</code> <code>/*!select*/</code> 或 <code>/*!50000union*/</code>等</p>
+<h2 id="真假条件防护">真假条件防护</h2>
+<p>上述的关键字方法能过滤掉很多的利用代码，但还不全。SQL注入技术中有一种是通过利用注入条件的真假的方式来获取相关信息的，例如CGI：  <code>http://host/SQLi.php?id=1</code>对应的SQL语句为 <code>select * from t_table where id=1</code></p>
+<p><code>http://host/SQLi.php?id=1 or 1=1   =&gt; select* from t_table where id=1 or 1=1</code></p>
+<p><code>http://host/SQLi.php?id=1 and 1=2  =&gt;select *from t_table where id=1 and 1=2</code></p>
+<p>通过判断真假来获取MySQL的相关信息。对于这种方式如果通过简单的添加关键字会造成误报而影响业务的情况。这种情况下我们需要分析此类型的应用，例如：</p>
+<p>op a = b
+1、 op可以是and，or，&lt;，&gt;=，||，&amp;&amp;等
+2、 分隔符可以是空格，/**/注释等
+3、 a与b可以是数字，字符串，表名，函数，sql语句结果等等</p>
+<p>通过穷举此类应用方式来阻断相关的利用</p>
+<h2 id="绕过防护">绕过防护</h2>
+<h3 id="URL编码">URL编码</h3>
+<p>浏览器中输入URL是会由浏览器进行一次URL编码，而攻击可能会通过多次编码来对WAF进行绕过，例如：
+<code>Id.php?id=1%2520union/**/select 解码后实际为Id.php?id=1 union/**/select</code></p>
+<p>如果只经过一次解码，则变成 <code>Id.php?id=1%20union/**/select</code></p>
+<p>可能绕过正则表达式的检测</p>
+<p>通过循环多次URL解码解决此类问题</p>
+<h3 id="特殊字符">特殊字符</h3>
+<p>% 00（%和00之间没有空格，编辑需要）如果直接URL解码，结果是C语言中的NULL字符。如果WAF使用string等数据结构来存储用户的请求，则解码之后会截断字符串，造成后面的内容不经过检测。例如
+<code>Id.php?id=1%20union/**/select</code></p>
+<p>解码后可能变成：</p>
+<p><code>Id.php?id=1[NULL]%20union/**/select</code></p>
+<p>后面的%20union/**/select就躲过了WAF的检查，从而绕过WAF。解决方式：</p>
+<p>1、对% 00进行特殊处理
+2、不要使用string等存储用户的请求内容</p>
+<p>%a0是不换行空格，用于在字处理程序中标示禁止自动换行。使用正则表达式的\s无法匹配到这个字符，但在mysql中%a0与普通的空格一样，可以当成分隔符来使用。即对于Mysql来说，如下请求经过URL解码之后是一样的
+<code>Id.php?id=1%20union/**/select</code>
+<code>Id.php?id=1/**/union/**/select</code>
+<code>Id.php?id=1%a0union/**/select</code>
+对于这种字符，可以进行特殊处理后再进行匹配</p>
+<p>% 0b（%和0b之间没有空格，编辑需要）是垂直制表符，%09是水平制表符。在正则表达式中，\s与\t 均可匹配%09水平制表符，但匹配不了% 0b（%和0b之间没有空格，编辑需要）垂直制表符，需要使用\v匹配。如果正则表达式中，mysql的分隔符没有考虑到这种情况，也存在绕过的风险。</p>
+<p>半个中文字符。RE2等正则引擎默认使用UTF8编码，UTF8编码是3-4字符的编码，如果出现%e4等半个中文，即1个字符的时候，UTF8解码不出，用正则表达式的任意匹配符（.）是匹配不出来的。针对这种字符，可以考虑特殊处理或者变更引擎的编码。</p>
+<h3 id="畸形HTTP请求">畸形HTTP请求</h3>
+<p>当向Web服务器发送畸形的，非RFC2616标准的HTTP请求时，Web服务器出于兼容的目的，会尽可能解析畸形HTTP请求。而如果Web服务器的兼容方式与WAF不一致，则可能会出现绕过的情况。例如
+<code>GET id.php?id=1%20union/**/select</code>
+这个请求没有协议字段，没有Host字段。但apache对这个请求的处理，默认会设置协议为HTTP/0.9，Host则默认使用Apache默认的servername
+在这种情况下，可以选择：
+1、尽可能与Web服务器保持一致
+2、拒绝非标准的HTTP请求（在后端防护的Web服务器有多种类型时，如apache，nginx，lighthttpd等，由于每种web服务器的兼容性不一致，所以要实现1的WAF尽可能与Web服务器保持一致存在一定的困难）</p>
+<h2 id="其他">其他</h2>
+<p>由于WAF实现的复杂性，与所防护的Web服务器的不一致性等原因，绕过的方式有很多种。以上所介绍的也仅是我们所遇到的绕过中比较典型的部分，特别与大家分享。期待与各位大牛交流相关技术，共同提高。</p>
+<p>再次感谢各位白帽子的参与与支持。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#背景">背景</a></li><li style="margin-left:0.0rem"><a href="#关键字防护">关键字防护</a></li><li style="margin-left:0.0rem"><a href="#真假条件防护">真假条件防护</a></li><li style="margin-left:0.0rem"><a href="#绕过防护">绕过防护</a></li><li style="margin-left:0.8rem"><a href="#URL编码">URL编码</a></li><li style="margin-left:0.8rem"><a href="#特殊字符">特殊字符</a></li><li style="margin-left:0.8rem"><a href="#畸形HTTP请求">畸形HTTP请求</a></li><li style="margin-left:0.0rem"><a href="#其他">其他</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：Web 安全 / WAF与信息泄露</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">Web 安全</span><span class="tag">WAF与信息泄露</span><span class="tag">MySQL</span><span class="tag">Nginx</span><span class="tag">Apache</span><span class="tag">PHP</span><span class="tag">SQL注入</span><span class="tag">WAF</span></li>
+          <li><span>来源：01-Web安全/07-WAF与信息泄露/Bypass-WAF/waf 之SQL注入防御思路分享.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWAF%E4%B8%8E%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%2BMySQL%2BNginx-%E8%83%8C%E6%99%AF.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>背景。本文属于Web 安全 / WAF与信息泄露，对于腾讯的业务来说，有两个方面决定着WAF能否发挥效果，一个是合适处理海量流量的架构，另一个关键因素则是规则系统。架构决定着WAF能否承受住海量流量的挑战，这个在之前的篇章中简单介绍过（详情见 主流WAF架构分析与探索 、 WAF应用层实现的架构漫谈 ）。而规则系…</p>
+      <p>关键词：Web 安全、WAF与信息泄露、MySQL、Nginx、Apache、PHP、SQL注入、WAF、Web 安全 / WAF与信息泄露、背景</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6a1f5a73618b.html"><small>上一篇</small>框架的选择</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f27a33def4aa.html"><small>下一篇</small>问题一：Web反向代理</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-488669e4334b.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

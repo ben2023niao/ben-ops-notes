@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>问题一：Web反向代理｜网络工程 / 代理与隧道｜BEN.OPS</title>
+  <meta name="description" content="问题一：Web反向代理。本文属于网络工程 / 代理与隧道，关于代理，可能我了解的就是简单的web代理，再加上渗透时需要用到的内网转发，最后可能就是上次去了解的nginx反向代理，下面问题是微信群里一大佬的面试题，本着学习的态度，还是来好好学习下各方面的代理知识。 正向socks/http代理，反向socks/ht…">
+  <meta name="keywords" content="网络工程，代理与隧道，Linux，Nginx，知识笔记，网络工程 / 代理与隧道，问题一：Web反向代理">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f27a33def4aa.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f27a33def4aa.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-%E7%BD%91%E7%BB%9C%E5%B7%A5%E7%A8%8B%2B%E4%BB%A3%E7%90%86%E4%B8%8E%E9%9A%A7%E9%81%93%2BLinux%2BNginx-%E9%97%AE%E9%A2%98%E4%B8%80%EF%BC%9AWeb%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="问题一：Web反向代理">
+  <meta property="og:description" content="问题一：Web反向代理。本文属于网络工程 / 代理与隧道，关于代理，可能我了解的就是简单的web代理，再加上渗透时需要用到的内网转发，最后可能就是上次去了解的nginx反向代理，下面问题是微信群里一大佬的面试题，本着学习的态度，还是来好好学习下各方面的代理知识。 正向socks/http代理，反向socks/ht…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f27a33def4aa.html">
+  <meta property="article:published_time" content="2023-04-14T16:00:00">
+  <meta property="article:modified_time" content="2023-04-14 16:00">
+  <meta property="article:section" content="网络工程 / 代理与隧道">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/b33ac04a92f2d403ca.jpeg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="问题一：Web反向代理">
+  <meta name="twitter:description" content="问题一：Web反向代理。本文属于网络工程 / 代理与隧道，关于代理，可能我了解的就是简单的web代理，再加上渗透时需要用到的内网转发，最后可能就是上次去了解的nginx反向代理，下面问题是微信群里一大佬的面试题，本着学习的态度，还是来好好学习下各方面的代理知识。 正向socks/http代理，反向socks/ht…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/b33ac04a92f2d403ca.jpeg">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f27a33def4aa.html#article","headline":"问题一：Web反向代理","description":"问题一：Web反向代理。本文属于网络工程 / 代理与隧道，关于代理，可能我了解的就是简单的web代理，再加上渗透时需要用到的内网转发，最后可能就是上次去了解的nginx反向代理，下面问题是微信群里一大佬的面试题，本着学习的态度，还是来好好学习下各方面的代理知识。 正向socks/http代理，反向socks/ht…","datePublished":"2023-04-14T16:00:00","dateModified":"2023-04-14 16:00","inLanguage":"zh-CN","articleSection":["网络工程","代理与隧道"],"keywords":["网络工程","代理与隧道","Linux","Nginx","知识笔记","网络工程 / 代理与隧道","问题一：Web反向代理"],"wordCount":2842,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f27a33def4aa.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f27a33def4aa.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/b33ac04a92f2d403ca.jpeg"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"网络工程 / 代理与隧道","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"问题一：Web反向代理","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f27a33def4aa.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>网络工程 / 代理与隧道</span> › <span>问题一：Web反向代理</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">网络工程 / 代理与隧道</div>
+      <h1>问题一：Web反向代理</h1>
+      <p class="lede">问题一：Web反向代理。本文属于网络工程 / 代理与隧道，关于代理，可能我了解的就是简单的web代理，再加上渗透时需要用到的内网转发，最后可能就是上次去了解的nginx反向代理，下面问题是微信群里一大佬的面试题，本着学习的态度，还是来好好学习下各方面的代理知识。 正向socks/http代理，反向socks/ht…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T16:00:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,842 字</span>
+        <span class="badge">9 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>原文 by <a href="http://foreversong.cn/archives/774" rel="noopener noreferrer">一些关于代理的知识</a></p>
+<p>关于代理，可能我了解的就是简单的web代理，再加上渗透时需要用到的内网转发，最后可能就是上次去了解的nginx反向代理，下面问题是微信群里一大佬的面试题，本着学习的态度，还是来好好学习下各方面的代理知识。</p>
+<p>整理后的问题如下：</p>
+<ol>
+<li>
+<p>Web反向代理</p>
+</li>
+<li>
+<p>正向端口转发，反向端口转发，动态端口转发</p>
+</li>
+<li>
+<p>正向socks/http代理，反向socks/http代理</p>
+</li>
+<li>
+<p>正向vpn,反向bridge vpn</p>
+</li>
+<li>
+<p>透明代理、匿名代理、混淆代理、高匿代理有什么区别</p>
+</li>
+</ol>
+<p>对于上述问题一般是怎样理解的，分别有哪些代表性的工具？</p>
+<p>下面针对问题来详细分析。</p>
+<h2 id="问题一-Web反向代理">问题一：Web反向代理</h2>
+<p>这应该就是指利用服务器来处理接受Internet上的连接请求，然后将请求转发给内部网络上的服务器，并将从服务器上得到的结果返回给Internet上请求连接的客户端，此时代理服务器对外就表现为一个反向代理服务器。</p>
+<p>最常见的架构可能就是Nginx反向代理，一方面保护和隐藏真实服务器，另一方面实现负载均衡。
+<img alt="问题一：Web反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/b33ac04a92f2d403ca.jpeg"/></p>
+<h2 id="问题二-正向端口转发-反向端口转发-动态端口转发">问题二：正向端口转发，反向端口转发，动态端口转发</h2>
+<p>首先先阐述什么是正向和反向端口转发
+<img alt="问题一：Web反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/77765e3a2b346beb74.jpeg"/></p>
+<p>正向代理中，proxy 和 client 同属一个 LAN，对 server 透明； 反向代理中，proxy 和 server 同属一个 LAN，对 client 透明。 实际上 proxy 在两种代理中做的事都是代为收发请求和响应，不过从结构上来看正好左右互换了下，所以把前者那种代理方式叫做正向代理，后者叫做反向代理。</p>
+<p>正向端口转发的流程：</p>
+<p><code>Lhost－－&gt;proxy－－&gt;Rhost</code>
+Lhost 为了访问到 Rhost，向 proxy 发送了一个请求并且指定目标是 Rhost，然后 proxy 向 Rhost 转交请求并将获得的内容返回给 Lhost，简单来说正向代理就是 proxy 代替了我们去访问 Rhost。</p>
+<p>反向端口转发的流程：</p>
+<p><code>Lhost&lt;---&gt;proxy&lt;---&gt;firewall&lt;---&gt;Rhost</code>
+Lhost 只向 proxy 发送普通的请求，具体让他转到哪里，proxy 自己判断，然后将返回的数据递交回来，这样的好处就是在某些防火墙只允许 proxy 数据进出的时候可以有效的进行穿透</p>
+<p>这里作一个简单区分。正向代理代理的是客户端，反向代理代理的是服务端，这里用于端口转发同样适用。</p>
+<p>下面来阐释什么是正向和反向的端口转发：</p>
+<h3 id="①正向的端口转发">①正向的端口转发</h3>
+<p>顾名思义就是把本地主机端口通过待登录主机端口转发到远程主机端口上去。</p>
+<p><code>ssh -L 50000:www.google.com:80 user@host</code></p>
+<p>当成功执行上面的命令之后，访问本地的50000端口，就等同于访问 www.google.com 的 80 端口。但和直接访问有着本质的区别：这次是通过登录主机来安全转发数据的，没有人知道你和远程主机之间传输了何种数据。就算你不能和远程主机建立连接（而登录主机能访问），那就能突破（绕过）防火墙的限制。</p>
+<h3 id="②反向的端口转发">②反向的端口转发</h3>
+<p>这里就是指把登录主机端口通过本地主机端口转发到远程主机上。</p>
+<p>举例：ssh -R 203.0.113.1:8080:localhost:80 user@host。</p>
+<p>当成功执行上面的命令之后，访问登录主机的 8080 端口就相当于访问远程主机的80端口！</p>
+<p>设想这样一种情况：你在本机开发了一个web应用，想拿给别人测试，但现在你却处在内网，外网是无法直接访问内网的主机的，怎么办！？很多人可能会说，找台有公网IP的主机，重新部署一下就行了。这样可行，但太麻烦。然而自从你了解了的反向端口转发功能之后，一切都变得简单了。只需在本地主机上执行一下上面例子的命令即可实现外网访问内网web应用。</p>
+<h3 id="下面来介绍什么是动态端口转发">下面来介绍什么是动态端口转发</h3>
+<p>这里常见的应用就是ssh的动态绑定。因此动态端口转发也就离不开ssh的一些相关应用，例如翻墙。
+<img alt="问题一：Web反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/c0afa79db6a287b03a.jpeg"/></p>
+<p>首先，墙内的客户机跟墙外的代理服务器，建立好SSH连接，并设定动态绑定，此时墙内客户机上的SSH会监听本地的一个端口7001。
+客户机上的程序，将对www.youtube.com:80的请求告知7001端口的SSH，SSH将此请求通过SSH加密连接发送到墙外服务器的SSH上。
+由于建立的动态绑定，服务器会将www.youtube.com:80的请求发送给www.youtube.com上的80端口，并在收到回复后，通过原路返回给客户机的SSH，客户机的SSH返回给应用程序。
+在这里SSH客户端已经不仅仅是个客户端了，它同时打开了7001端口侦听本机应用程序的请求。这是SSH跟传统用法最大的区别。而服务端的SSH也不仅仅是处理客户端的请求，而是将请求转发到对应的主机和端口，这里的“动态”二字体现在服务端的SSH的转发目标是不固定的，是根据客户端的请求而定的。</p>
+<h2 id="问题三-正向socks-http代理-反向socks-http代理">问题三：正向socks/http代理，反向socks/http代理</h2>
+<p><img alt="问题一：Web反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/16cbef557958e4fefd.jpeg"/></p>
+<p>谷歌上搜了很长时间，一直没找到能够令自己满意的答案，大多都是在阐述http代理和socks代理的区别，有点跑题了！这里先说一下两者之间的区别吧。SOCKS工作在比HTTP代理更低的层次：SOCKS使用握手协议来通知代理软件其客户端试图进行的连接SOCKS，然后尽可能透明地进行操作，而常规代理可能会解释和重写报头（例如，使用另一种底层协议，例如FTP；然而，HTTP代理只是将HTTP请求转发到所需的HTTP服务器）。虽然HTTP代理有不同的使用模式，CONNECT方法允许转发TCP连接；然而，SOCKS代理还可以转发UDP流量和反向代理，而HTTP代理不能。HTTP代理通常更了解HTTP协议，执行更高层次的过滤。</p>
+<p>回到主题上，正向socks/http代理应该就是我们最常见的这种浏览器代理，通过代理服务器来进行抓包或者传送流量给对方服务器，常见工具的话就是burp或者fd。</p>
+<p>反向代理是先在服务器A（比如攻击机）上运行 SOCKS代理的服务端程序监听指定端口，然后在客户机（比如靶机）上运行客户端程序连接服务器的指定端口。这样就建立了一条从靶机到攻击机的反向 SOCKS 隧道，攻击机的应用程序（比如 wget nmap curl …）使用该隧道后，程序的所有流量都会先经过靶机转发出去。</p>
+<p>应该不是很难理解，就是从客户机上创建了一个隧道反向连接到我们的服务器，服务器的流量就可以通过从这个隧道出去，实现流量的匿名。常见的工具就是proxychains了吧。</p>
+<h2 id="问题四-正向vpn-反向bridge-vpn">问题四：正向vpn,反向bridge vpn</h2>
+<p>正向vpn应该比较好理解，就是一般常见的vpn结构，我们客户机连接到墙外的服务器，然后通过这个创建的隧道进行流量的传输。</p>
+<p>反向桥接vpn这里举一个例子开头，在参加ctf线下赛时，我们时常需要下载官方提供的vpn软件，然后通过注册的账号密码来登录这个vpn，登录成功后会显示我们本机被分配的一个内网ip，最后通过vpn客户端我们才能访问比赛题目。</p>
+<p>这里用到两种技术，一种是反向vpn，一种是桥接模式。对于桥接模式应该比较好理解，就是指本地物理网卡和虚拟网卡通过VMnet0虚拟交换机进行桥接，物理网卡和虚拟网卡在拓扑图上处于同等地位，那么物理网卡和虚拟网卡就相当于处于同一个网段，虚拟交换机就相当于一台现实网络中的交换机。借助这种架构方式，我们可以通过互联网将客户端和服务端联系起来，使得用户可以在任意联网的机器上，接入运行服务端机器所在的局域网网络，服务器端无需外网IP及防火墙特殊设置即可实现远程接入。</p>
+<p>那么反向vpn最常见的应用可能就是vpn pivoting。下面来简单的介绍一下vpn pivoting。
+<img alt="问题一：Web反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/696a767df403134aff.jpeg"/></p>
+<p>这是vpn pivoting的一个工作架构。攻击机会虚拟出一个网络接口与目标机进行对接，任何应用如果想要访问目标机里的网络，那么就会通过这个虚拟的网络接口进行流量的传输，通过vpn隧道到达目标机的网络，这时候目标机的vpn软件会监听这个隧道的流量，然后通过TUN/TAP驱动将流量传输到网络接口，从而让攻击机能够访问到目标机的网络。</p>
+<h2 id="问题五-透明代理-匿名代理-混淆代理-高匿代理有什么区别">问题五：透明代理、匿名代理、混淆代理、高匿代理有什么区别</h2>
+<p>这4种代理，主要是在代理服务器端的配置不同，导致其向目标地址发送请求时，REMOTE_ADDR， HTTP_VIA，HTTP_X_FORWARDED_FOR三个变量不同。</p>
+<p>1、透明代理(Transparent Proxy)</p>
+<pre><code>REMOTE_ADDR = Proxy IP
+HTTP_VIA = Proxy IP
+HTTP_X_FORWARDED_FOR = Your IP
+</code></pre>
+<p>透明代理虽然可以直接“隐藏”你的IP地址，但是还是可以从HTTP_X_FORWARDED_FOR来查到你是谁。</p>
+<p>2、匿名代理(Anonymous Proxy)</p>
+<pre><code>REMOTE_ADDR = proxy IP
+HTTP_VIA = proxy IP
+HTTP_X_FORWARDED_FOR = proxy IP
+</code></pre>
+<p>匿名代理比透明代理进步了一点：别人只能知道你用了代理，无法知道你是谁。</p>
+<p>还有一种比纯匿名代理更先进一点的：混淆代理，见下节。</p>
+<p>3、混淆代理(Distorting Proxies)</p>
+<pre><code>REMOTE_ADDR = Proxy IP
+HTTP_VIA = Proxy IP
+HTTP_X_FORWARDED_FOR = Random IP address
+</code></pre>
+<p>如上，与匿名代理相同，如果使用了混淆代理，别人还是能知道你在用代理，但是会得到一个假的IP地址，伪装的更逼真：-）</p>
+<p>4、高匿代理(Elite proxy或High Anonymity Proxy)</p>
+<pre><code>REMOTE_ADDR = Proxy IP
+HTTP_VIA = not determined
+HTTP_X_FORWARDED_FOR = not determined
+</code></pre>
+<p>可以看出来，高匿代理让别人根本无法发现你是在用代理，所以是最好的选择。</p>
+<p>上述如有不当之处，敬请指出~
+<img alt="问题一：Web反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/594294681c35545a7e.png"/></p>
+<h2 id="参考文章">参考文章：</h2>
+<p>http://www.zerokeeper.com/experience/network-port-forwarding-and-penetration.html</p>
+<p>http://www.pchou.info/linux/2015/11/01/ssh-tunnel.html</p>
+<p>https://zh.wikipedia.org/zh-hans/SOCKS</p>
+<p>http://www.evilclay.com/2017/06/11/SOCKS4%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E5%AE%9E%E9%AA%8C/</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#问题一-Web反向代理">问题一：Web反向代理</a></li><li style="margin-left:0.0rem"><a href="#问题二-正向端口转发-反向端口转发-动态端口转发">问题二：正向端口转发，反向端口转发，动态端口转发</a></li><li style="margin-left:0.8rem"><a href="#①正向的端口转发">①正向的端口转发</a></li><li style="margin-left:0.8rem"><a href="#②反向的端口转发">②反向的端口转发</a></li><li style="margin-left:0.8rem"><a href="#下面来介绍什么是动态端口转发">下面来介绍什么是动态端口转发</a></li><li style="margin-left:0.0rem"><a href="#问题三-正向socks-http代理-反向socks-http代理">问题三：正向socks/http代理，反向socks/http代理</a></li><li style="margin-left:0.0rem"><a href="#问题四-正向vpn-反向bridge-vpn">问题四：正向vpn,反向bridge vpn</a></li><li style="margin-left:0.0rem"><a href="#问题五-透明代理-匿名代理-混淆代理-高匿代理有什么区别">问题五：透明代理、匿名代理、混淆代理、高匿代理有什么区别</a></li><li style="margin-left:0.0rem"><a href="#参考文章">参考文章：</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：网络工程 / 代理与隧道</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">网络工程</span><span class="tag">代理与隧道</span><span class="tag">Linux</span><span class="tag">Nginx</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：02-主机与渗透/03-代理与端口转发/代理知识.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-%E7%BD%91%E7%BB%9C%E5%B7%A5%E7%A8%8B%2B%E4%BB%A3%E7%90%86%E4%B8%8E%E9%9A%A7%E9%81%93%2BLinux%2BNginx-%E9%97%AE%E9%A2%98%E4%B8%80%EF%BC%9AWeb%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>问题一：Web反向代理。本文属于网络工程 / 代理与隧道，关于代理，可能我了解的就是简单的web代理，再加上渗透时需要用到的内网转发，最后可能就是上次去了解的nginx反向代理，下面问题是微信群里一大佬的面试题，本着学习的态度，还是来好好学习下各方面的代理知识。 正向socks/http代理，反向socks/ht…</p>
+      <p>关键词：网络工程、代理与隧道、Linux、Nginx、知识笔记、网络工程 / 代理与隧道、问题一：Web反向代理</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-488669e4334b.html"><small>上一篇</small>背景</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-bd5343838ea5.html"><small>下一篇</small>高级PHP应用程序漏洞审核技术</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f27a33def4aa.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

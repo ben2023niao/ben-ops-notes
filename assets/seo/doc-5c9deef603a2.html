@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>1.网络路径扫描｜Web 安全 / WAF与信息泄露｜BEN.OPS</title>
+  <meta name="description" content="1.网络路径扫描。本文属于Web 安全 / WAF与信息泄露，服务器IP段遍历目录 DirBuster OpenDoor 服务器IP段遍历目录 DirBuster OpenDoor 子域名定期收集 （Layer, subDomainBrute.py ） 子域名定期收集 （Layer, subDomainBrute…">
+  <meta name="keywords" content="Web 安全，WAF与信息泄露，Linux，Windows，MySQL，Nginx，Apache，PHP，Web 安全 / WAF与信息泄露，1.网络路径扫描">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c9deef603a2.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c9deef603a2.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWAF%E4%B8%8E%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%2BLinux%2BWindows-1.%E7%BD%91%E7%BB%9C%E8%B7%AF%E5%BE%84%E6%89%AB%E6%8F%8F.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="1.网络路径扫描">
+  <meta property="og:description" content="1.网络路径扫描。本文属于Web 安全 / WAF与信息泄露，服务器IP段遍历目录 DirBuster OpenDoor 服务器IP段遍历目录 DirBuster OpenDoor 子域名定期收集 （Layer, subDomainBrute.py ） 子域名定期收集 （Layer, subDomainBrute…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c9deef603a2.html">
+  <meta property="article:published_time" content="2023-04-14T16:00:00">
+  <meta property="article:modified_time" content="2023-04-14 16:00">
+  <meta property="article:section" content="Web 安全 / WAF与信息泄露">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="1.网络路径扫描">
+  <meta name="twitter:description" content="1.网络路径扫描。本文属于Web 安全 / WAF与信息泄露，服务器IP段遍历目录 DirBuster OpenDoor 服务器IP段遍历目录 DirBuster OpenDoor 子域名定期收集 （Layer, subDomainBrute.py ） 子域名定期收集 （Layer, subDomainBrute…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c9deef603a2.html#article","headline":"1.网络路径扫描","description":"1.网络路径扫描。本文属于Web 安全 / WAF与信息泄露，服务器IP段遍历目录 DirBuster OpenDoor 服务器IP段遍历目录 DirBuster OpenDoor 子域名定期收集 （Layer, subDomainBrute.py ） 子域名定期收集 （Layer, subDomainBrute…","datePublished":"2023-04-14T16:00:00","dateModified":"2023-04-14 16:00","inLanguage":"zh-CN","articleSection":["Web 安全","WAF与信息泄露"],"keywords":["Web 安全","WAF与信息泄露","Linux","Windows","MySQL","Nginx","Apache","PHP","Web 安全 / WAF与信息泄露","1.网络路径扫描"],"wordCount":1756,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c9deef603a2.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c9deef603a2.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"Web 安全 / WAF与信息泄露","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"1.网络路径扫描","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c9deef603a2.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>Web 安全 / WAF与信息泄露</span> › <span>1.网络路径扫描</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">Web 安全 / WAF与信息泄露</div>
+      <h1>1.网络路径扫描</h1>
+      <p class="lede">1.网络路径扫描。本文属于Web 安全 / WAF与信息泄露，服务器IP段遍历目录 DirBuster OpenDoor 服务器IP段遍历目录 DirBuster OpenDoor 子域名定期收集 （Layer, subDomainBrute.py ） 子域名定期收集 （Layer, subDomainBrute…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T16:00:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,756 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>原文 by wooyun wiki</p>
+<h2 id="1-网络路径扫描">1.网络路径扫描</h2>
+<ul>
+<li>
+<p>服务器IP段遍历目录 <a href="https://www.owasp.org/index.php/Category:OWASP_DirBuster_Project" rel="noopener noreferrer">DirBuster</a> <a href="https://github.com/stanislav-web/OpenDoor" rel="noopener noreferrer">OpenDoor</a></p>
+</li>
+<li>
+<p>子域名定期收集 （Layer, <a href="https://github.com/lijiejie/subDomainsBrute" rel="noopener noreferrer">subDomainBrute.py</a>）</p>
+</li>
+<li>
+<p>常见的子域名前缀 oa、zabbix、nagios、cacti、erp、sap、crm</p>
+</li>
+<li>
+<p>常见的管理后台路径关键字 axis2、solr、resin、hudson、jenkins、zenoss、splunk</p>
+</li>
+<li>
+<p>网站地图（产品大全--新上线）</p>
+</li>
+<li>
+<p>页面报错导致物理路径泄露(可以把类似 action=xx 的值替换成不存在的val，可能导致出错）</p>
+</li>
+</ul>
+<h2 id="2-开发环境配置文件-BBScan-weakfilescan">2.开发环境配置文件(<a href="https://github.com/lijiejie/BBScan" rel="noopener noreferrer">BBScan</a>、<a href="https://github.com/ring04h/weakfilescan" rel="noopener noreferrer">weakfilescan</a>)</h2>
+<ul>
+<li>
+<p>svn /.svn/entries</p>
+</li>
+<li>
+<p>git  /.git/config</p>
+</li>
+<li>
+<p>DS_Store 是MAC中用来存储这个文件夹的显示属性的 /.DS_store</p>
+</li>
+<li>
+<p>WEB-INF /WEB-INF/web.xml（1个项目有1个WEB-INF目录，WEB-INF是要放在项目根目录下的，但需要限制访问）</p>
+</li>
+<li>
+<p>JetBrains  /.idea/workspace.xml</p>
+</li>
+<li>
+<p>.bashrc .bash_history .bash_profile .bash_logout bash相关文件</p>
+</li>
+<li>
+<p>error.log access.log  .mysql_history 访问日志以及mysql操作日志</p>
+</li>
+<li>
+<p>github 上项目泄漏邮箱帐号密码（通过公司部署在外网的outlook web app 可以直接登录内部邮箱）</p>
+</li>
+</ul>
+<p>SVN导致的漏洞主要有两类：</p>
+<ul>
+<li>
+<p>SVN未设置密码并允许匿名访问。</p>
+</li>
+<li>
+<p>发布代码时使用了SVN co并且未限制对服务器上的.svn文件夹的访问。</p>
+</li>
+</ul>
+<p>SVN未设置密码并允许匿名访问将导致重要的源代码、数据库连接信息和服务器配置信息等敏感信息泄露，进而可能将导致服务器沦陷。</p>
+<p>发布代码时使用了SVN co时服务器将导出一个带.svn文件夹的目录树，.svn文件夹中有包含了用于版本信息追踪的“entries”文件。如此时未限制对服务器上的.svn文件夹的访问便可被用于摸清站点结构。svn更新至1.7+ <code>.svn/entries</code>目录就不包含文件目录列表了。</p>
+<p>更严重的问题在于，SVN产生的.svn目录下还包含了以.svn-base结尾的源代码文件副本（低版本SVN具体路径为text-base目录，高版本SVN为pristine目录），类似  <code>/.svn/pristine/bd/bda5088fa8e29d1bxxxxxxxxxxxxx.svn-base</code></p>
+<p>尝试请求 <code>*.php.svn-base</code>， 如果服务器没有当成php 做解析，黑客则可以直接获得文件源代码。如果被当作 php 解析了，可能看到php错误信息(看到真实路径)或内容为空白，存在文件解析漏洞，找地方上传 xxx.php.gif 也许就可以直接得到webshell了。</p>
+<p>WEB-INF是Java的WEB应用的安全目录。如果想在页面中直接访问其中的文件，必须通过web.xml文件对要访问的文件进行相应映射才能访问。一般情况，jsp引擎默认都是禁止客户端访问WEB-INF目录的，Nginx 配合Tomcat做均衡负载或集群等情况时，Nginx不会去考虑配置其他类型引擎（Nginx不是jsp引擎）导致的安全问题而引入到自身的安全规范中来（这样耦合性太高了），这就是漏洞产生的原因。WEB-INF下某目录放着编译后的.class文件，经反编译可能造成源码泄漏。</p>
+<h2 id="3-文件下载">3.文件下载</h2>
+<ul>
+<li>
+<p>能把脚本代码文件下载的条件，比如 nginx 没有启用 fastcgi 来解析 php，那么访问 php 文件将会直接下载文件，即造成源码泄露；或者apache sh 等脚本没有放在设定的 cgi-script 目录内，也会直接下载。注意：linux 操作系统对大小写敏感，windows/OS X 不敏感。</p>
+</li>
+<li>
+<p>对于可下载压缩包的探测，自动化角度来说，更多地是看返回的Content-Type 头，但会出现不少误报，比如在返回头命中的情况下(e.g application/x-compress）返回的是HTML页面。注意加上 Range:bytes=0-9999 请求头，避免压缩包太大，只取返回的部分数据即可。</p>
+</li>
+</ul>
+<h2 id="4-关于服务器的host绑定的不安全因素">4.关于服务器的host绑定的不安全因素</h2>
+<p>很多网站为了方便管理和节省服务器成本,将内网管理站点和外网站点放置在同一服务器下,使用一机多站来进行隔离.很多情况下一台服务器安装两块网卡,分别接入外网和内网,方便公网访问公开站点,内网访问管理站点.并绑定host.</p>
+<p>例如:</p>
+<p>xxx.com为公开站点,并且指向IP为公网网卡.</p>
+<p>admin.xxx.com为管理站点,并且指向内网网卡.</p>
+<p>看上去好像管理站点admin.xxx.com必须在内网才能访问但是却忽略了host绑定的问题.</p>
+<p>但是当我们将外网IP地址强制绑定到admin.xxx.com的时候web服务器又没有做来源检查,那么我们就可以通过外网访问到本来应该只有内网才能访问的管理站点了.并且由于是内网站点很多情况下管理员为了方便都是弱密码,或者直接未授权访问等</p>
+<h2 id="5-暴力破解">5.暴力破解</h2>
+<ul>
+<li>
+<p>UCenter 默认口令</p>
+</li>
+<li>
+<p>WordPress 用户密码爆破</p>
+</li>
+<li>
+<p>无验证码/验证码设计缺陷（多次登录不变，只有几个值，且不会失效）</p>
+</li>
+<li>
+<p>没有登录失败次数限制（即使有限制，也只是说对一个用户的尝试限制，如果我们一次性跑多个用户，
+每个用户只尝试下限值，则不会触发防护，而且可能可以爆破出一些用户的密码）</p>
+</li>
+<li>
+<p>对于远程服务需要合适的字典档或者结合对方的一些敏感信息来生成字典档，通过程序不断遍历字典档的用户名密码来尝试</p>
+</li>
+<li>
+<p>对于本地程序需要 ollydbg, winhex, ida, uedit32 等逆向和二进制修改工具的配合</p>
+</li>
+<li>
+<p>对于md5加密串的破解，需要借助一些数据库如 cmd5.com、somd5.com，或者借助高性能并发计算设备破解，比如多路GPU，http://hashcat.net/, oclHashcat</p>
+</li>
+</ul>
+<pre><code>hashcat64.exe -m 200myql.hashpass.dict //破解MySQL323类型
+hashcat64.exe -m 300myql.hashpass.dict //破解MySQL4.1/MySQL5类型
+</code></pre>
+<ul>
+<li>John the Ripper除了能够破解linux 外，还能破解多种格式的密码。</li>
+</ul>
+<pre><code>Echo 81F5E21E35407D884A6CD4A731AEBFB6AF209E1B&gt;hashes.txt
+John –format =mysql-sha1 hashes.txt
+john --list=formats | grep mysql //查看支持mysql密码破解的算法
+</code></pre>
+<p>在加密算法的选择和使用上，有以下最佳实践：</p>
+<ul>
+<li>
+<p>不要使用ECB模式；</p>
+</li>
+<li>
+<p>不要使用流密码（比如RC4）；</p>
+</li>
+<li>
+<p>使用HMAC-SHA1代替MD5（甚至是代替SHA1）；</p>
+</li>
+<li>
+<p>不要使用相同的key做不同的事情；</p>
+</li>
+<li>
+<p>salts与IV 需要随机产生；</p>
+</li>
+<li>
+<p>不要自己实现加密算法，尽量使用安全专家已经实现好的库；</p>
+</li>
+<li>
+<p>不要依赖系统的保密性；</p>
+</li>
+</ul>
+<p>当你不知道如何选择时，有 如下建议：</p>
+<ul>
+<li>
+<p>使用CBC 模式的AES256 用于加密；</p>
+</li>
+<li>
+<p>使用 HMAC-SHA512 用于完整性检查；</p>
+</li>
+<li>
+<p>使用带salt 的SHA-256 或 SHA-512 用于 Hashing；</p>
+</li>
+</ul>
+<h2 id="Reference">Reference</h2>
+<p><a href="https://mp.weixin.qq.com/s?__biz=MzIzODQxMjM2NQ==&amp;mid=2247483953&amp;idx=1&amp;sn=7fb23e8b7367908c3291874d90b2f526&amp;chksm=e938f513de4f7c056da0c947b5d790a4a534a68ab3ce2ac871c2584f4596ad3f948c7883eeb4&amp;mpshare=1&amp;scene=1&amp;srcid=07070P2FodKKYpDHvlfC2wyP#rd" rel="noopener noreferrer">2.5代指纹追踪技术—跨浏览器指纹识别</a></p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-网络路径扫描">1.网络路径扫描</a></li><li style="margin-left:0.0rem"><a href="#2-开发环境配置文件-BBScan-weakfilescan">2.开发环境配置文件( BBScan 、 weakfilescan )</a></li><li style="margin-left:0.0rem"><a href="#3-文件下载">3.文件下载</a></li><li style="margin-left:0.0rem"><a href="#4-关于服务器的host绑定的不安全因素">4.关于服务器的host绑定的不安全因素</a></li><li style="margin-left:0.0rem"><a href="#5-暴力破解">5.暴力破解</a></li><li style="margin-left:0.0rem"><a href="#Reference">Reference</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：Web 安全 / WAF与信息泄露</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">Web 安全</span><span class="tag">WAF与信息泄露</span><span class="tag">Linux</span><span class="tag">Windows</span><span class="tag">MySQL</span><span class="tag">Nginx</span><span class="tag">Apache</span><span class="tag">PHP</span></li>
+          <li><span>来源：01-Web安全/07-WAF与信息泄露/信息泄露/信息泄露.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWAF%E4%B8%8E%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%2BLinux%2BWindows-1.%E7%BD%91%E7%BB%9C%E8%B7%AF%E5%BE%84%E6%89%AB%E6%8F%8F.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>1.网络路径扫描。本文属于Web 安全 / WAF与信息泄露，服务器IP段遍历目录 DirBuster OpenDoor 服务器IP段遍历目录 DirBuster OpenDoor 子域名定期收集 （Layer, subDomainBrute.py ） 子域名定期收集 （Layer, subDomainBrute…</p>
+      <p>关键词：Web 安全、WAF与信息泄露、Linux、Windows、MySQL、Nginx、Apache、PHP、Web 安全 / WAF与信息泄露、1.网络路径扫描</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1159d873c58f.html"><small>上一篇</small>1. 架构层绕过WAF</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2369eb22e8d6.html"><small>下一篇</small>1.订单金额修改</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c9deef603a2.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

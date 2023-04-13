@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>mongodb容器化单机部署｜DevOps 与 SRE / 优化方案｜BEN.OPS</title>
+  <meta name="description" content="mongodb容器化单机部署。本文属于DevOps 与 SRE / 优化方案，docker-install-mongo.sh 展开源码">
+  <meta name="keywords" content="DevOps 与 SRE，优化方案，MongoDB，Docker，Nginx，知识笔记，DevOps 与 SRE / 优化方案，mongodb容器化单机部署，DevOps，SRE">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-479fcaf1704c.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-479fcaf1704c.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BMongoDB%2BDocker-mongodb%E5%AE%B9%E5%99%A8%E5%8C%96%E5%8D%95%E6%9C%BA%E9%83%A8%E7%BD%B2.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="mongodb容器化单机部署">
+  <meta property="og:description" content="mongodb容器化单机部署。本文属于DevOps 与 SRE / 优化方案，docker-install-mongo.sh 展开源码">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-479fcaf1704c.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="DevOps 与 SRE / 优化方案">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/7b7f6603557bc21fe8.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="mongodb容器化单机部署">
+  <meta name="twitter:description" content="mongodb容器化单机部署。本文属于DevOps 与 SRE / 优化方案，docker-install-mongo.sh 展开源码">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/7b7f6603557bc21fe8.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-479fcaf1704c.html#article","headline":"mongodb容器化单机部署","description":"mongodb容器化单机部署。本文属于DevOps 与 SRE / 优化方案，docker-install-mongo.sh 展开源码","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["DevOps 与 SRE","优化方案"],"keywords":["DevOps 与 SRE","优化方案","MongoDB","Docker","Nginx","知识笔记","DevOps 与 SRE / 优化方案","mongodb容器化单机部署","DevOps","SRE"],"wordCount":1413,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-479fcaf1704c.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-479fcaf1704c.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/7b7f6603557bc21fe8.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"DevOps 与 SRE / 优化方案","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"mongodb容器化单机部署","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-479fcaf1704c.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>DevOps 与 SRE / 优化方案</span> › <span>mongodb容器化单机部署</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">DevOps 与 SRE / 优化方案</div>
+      <h1>mongodb容器化单机部署</h1>
+      <p class="lede">mongodb容器化单机部署。本文属于DevOps 与 SRE / 优化方案，docker-install-mongo.sh 展开源码</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,413 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>MMP读写集群部署还要改项目代码
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/7b7f6603557bc21fe8.png"/></p>
+<p>所以用最简单的方式来部署 mongodb</p>
+<pre><code class="language-bash">docker run -d \
+-p 27017:27017 \
+-v /etc/localtime:/etc/localtime \
+-v /opt/mongodb/mongo_configdb:/data/configdb \
+-v /opt/mongodb/mongo_db:/data/db \
+--name docker_mongodb mongo:3.2
+
+# 交互界面进入 mongo
+docker exec -it docker_mongodb mongo admin
+# 创建一个 admin 管理员账号
+db.createUser({
+user: "root",
+pwd: "[已脱敏]",
+roles: [ { role: "root", db: "admin" } ]
+})
+# 创建一个 performance 项目库账号
+use performance
+db.createUser({
+user: "user-xxx",
+pwd: "[已脱敏]",
+roles: [ { role: "dbOwner", db: "performance" } ]
+})
+
+url: 'mongodb://203.0.113.1:27017/performance', # 配置文件内未开启认证时:
+url: 'mongodb://user-xxx:[密码已脱敏]@203.0.113.1:27017/performance’,  # 开启认证后:
+</code></pre>
+<p><strong>docker-install-mongo.sh</strong> 展开源码</p>
+<pre><code class="language-bash">#!/bin/bash
+if [[ $EUID -ne 0 ]]; then
+ echo "This script must be run as root"
+ exit 1
+fi
+function init_ulimits(){ #[ulimits 配置]
+cat &gt; /etc/security/limits.conf &lt;&lt;EOF
+* soft noproc 20480
+* hard noproc 20480
+root soft nofile 65535
+root hard nofile 65535
+* soft nofile 65535
+* hard nofile 65535
+EOF
+ulimit -n 65535
+ulimit -u 20480
+echo "[ulimits 配置] ==&gt; OK"
+}
+function init_tomcat() { #[tomcat 用户ssh密钥配置]
+useradd tomcat
+usermod -aG sudo tomcat
+mkdir -p /home/tomcat/.ssh
+echo 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAxV6WVONrWBPUNIhw4IrtZSF8F7gUrRlXgZ0CXeAQIFSFXve8qAQ86lIWWDSKjygGfl6FKUoxYzhRzxfhRiKjAwi3BH7d1lKlFwzOBvOPeS57K5znWXPz+E09/Vj1xJ9MHqzl3/Ece0M/2srPtVTgB1Ico8AFi9pPaYZSy3bue36OKVFnC9kVvkriiIe/k/vux5KF/TcXCkc91IVMGCqp8H8NqaJnQWmFB1RYMz9JUe6G9V400iTn9cJmcfS7r5jfT+ZI3K0s6FiCDvQ5LsRNcZhD4uy6YdkG3QBOPOuSwR1sHOcfADyMkWPAXezasI7nfAj7VuuMiqvVt2Ju5A1low== tomcat@jump' &gt; /home/tomcat/.ssh/authorized_keys
+chown -R tomcat.tomcat /home/tomcat/
+echo "[tomcat 用户ssh密钥配置] ==&gt; OK"
+}
+function init_kernel(){ #[内核 优化]
+cat &gt; /etc/sysctl.conf &lt;&lt;EOF
+fs.file-max = 65535
+net.ipv4.tcp_max_tw_buckets = 5000
+#表示系统同时保持TIME_WAIT套接字的最大数量，如果超过这个数字，TIME_WAIT套接字将立刻被清除并打印警告信息。减少它的最大数量，避免Squid服务器被大量的TIME_WAIT套接字拖死。
+net.ipv4.tcp_max_orphans = 3276800
+#系统中最多有多少个TCP套接字不被关联到任何一个用户文件句柄上。
+net.ipv4.tcp_fin_timeout = 30
+#表示如果套接字由本端要求关闭，这个参数决定了它保持在FIN-WAIT-2状态的时间。
+net.ipv4.tcp_keepalive_time = 1200
+#表示当keepalive起用的时候，TCP发送keepalive消息的频度。缺省是2小时，改为20分钟。
+net.ipv4.tcp_keepalive_probes = 3
+net.ipv4.tcp_keepalive_intvl = 30
+net.ipv4.tcp_syncookies = 1
+net.ipv4.tcp_tw_reuse = 1
+#表示开启重用，允许将TIME-WAIT sockets重新用于新的TCP连接。
+net.ipv4.tcp_timestamps = 0
+#时间戳可以避免序列号的卷绕。一个1Gbps的链路肯定会遇到以前用过的序列号，时间戳能够让内核接受这种“异常”的数据包，这里需要将其关掉。
+net.ipv4.tcp_tw_recycle = 1
+#表示开启TCP连接中TIME-WAIT sockets的快速回收。
+net.ipv4.ip_local_port_range = 1024 65000
+#表示用于向外连接的端口范围。缺省情况下很小：32768到61000，改为1024到65000。
+net.ipv4.tcp_mem = 786432 1048576 1572864
+#同样有3个值
+#net.ipv4.tcp_mem[0]:低于此值，TCP没有内存压力
+#net.ipv4.tcp_mem[1]:在此值下，进入内存压力阶段
+#net.ipv4.tcp_mem[2]:高于此值，TCP拒绝分配socket。
+#可根据物理内存大小进行调整，如果内存足够大的话，可适当往上调。建议94500000 915000000 927000000。
+net.core.wmem_default = 8388608
+#发送套接字缓冲区大小的缺省值（以字节为单位）
+net.core.rmem_default = 8388608
+#接收套接字缓冲区大小的缺省值（以字节为单位）
+net.core.rmem_max = 16777216
+#接收套接字缓冲区大小的最大值（以字节为单位）
+net.core.wmem_max = 16777216
+#发送套接字缓冲区大小的最大值（以字节为单位）
+net.ipv4.tcp_wmem = 8192 436600 873200
+#TCP写buffer,可参考的优化值: 8192 436600 873200
+net.ipv4.tcp_rmem = 32768 436600 873200
+#TCP读buffer,可参考的优化值: 32768 436600 873200
+net.core.somaxconn = 65408
+#web应用中listen函数的backlog默认会给我们内核参数的net.core.somaxconn限制到128，而nginx定义的NGX_LISTEN_BACKLOG默认为511，所以有必要调整这个值。
+net.core.netdev_max_backlog = 262144
+#每个网络接口接收数据包的速率比内核处理这些包的速率快时，允许送到队列的数据包的最大数目。
+net.ipv4.tcp_max_syn_backlog = 8192
+#表示SYN队列的长度，默认为1024，加大队列长度为8192，可以容纳更多等待连接的网络连接数。
+net.ipv4.tcp_retries2 = 5
+net.ipv4.conf.lo.arp_ignore = 0
+net.ipv4.conf.lo.arp_announce = 0
+net.ipv4.conf.all.arp_ignore = 0
+EOF
+sysctl -p &gt;/dev/null 2&gt;&amp;1
+echo "[内核 优化] ==&gt; OK"
+}
+check_yum=`whereis yum | sed "s/yum://g" | md5sum | awk '{print $1}'`
+check_apt=`whereis apt | sed "s/apt://g" | md5sum | awk '{print $1}'`
+if [[ "$check_yum" != '68b329da9893e34099c7d8ad5cb9c940' ]];then install=yum ;fi
+if [[ "$check_apt" != '68b329da9893e34099c7d8ad5cb9c940' ]];then install=apt ;fi ;echo "[服务器包管理器]                       ==&gt; $install"
+if [[ "$install" == 'apt' ]];then #全自动配置mongo集群
+apt-get update &gt;&gt; /dev/null ;echo "[apt update]                                 ==&gt; OK"
+timedatectl set-timezone Asia/Shanghai ;echo "[设置上海时区Asia/Shanghai]                  ==&gt; OK"
+apt-get install -y net-tools vim wget curl zip unzip
+apt-get install -y docker* &gt;&gt; /dev/null ;echo "[net-tools vim wget curl zip unzip docker* ] ==&gt; OK"
+systemctl start docker;systemctl enable docker;systemctl is-enabled docker;docker ps ;echo "[start docker]                               ==&gt; OK"
+docker run -d \
+-p 27017:27017 \
+-v /etc/localtime:/etc/localtime \
+-v /opt/mongodb/mongo_configdb:/data/configdb \
+-v /opt/mongodb/mongo_db:/data/db \
+--name docker_mongodb mongo:3.2
+
+docker ps
+cat &gt; echo.txt &lt;&lt; EOF
+# 交互界面进入 mongo
+docker exec -it docker_mongodb mongo admin
+# 创建一个 admin 管理员账号
+db.createUser({
+user: "root",
+pwd: "[已脱敏]",
+roles: [ { role: "root", db: "admin" } ]
+})
+
+# 创建一个 performance 项目库账号
+use performance
+db.createUser({
+user: "user-xxx",
+pwd: "[已脱敏]",
+roles: [ { role: "dbOwner", db: "performance" } ]
+})
+
+# 配置文件内未开启认证时:
+url: 'mongodb://203.0.113.1:27017/performance',
+# 开启认证后:
+url: 'mongodb://user-xxx:[密码已脱敏]@203.0.113.1:27017/performance’,
+EOF
+cat echo.txt
+fi
+</code></pre>
+      </article>
+      <aside class="aside">
+        
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：DevOps 与 SRE / 优化方案</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">DevOps 与 SRE</span><span class="tag">优化方案</span><span class="tag">MongoDB</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/03-优化方案/birdben/84414429.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BMongoDB%2BDocker-mongodb%E5%AE%B9%E5%99%A8%E5%8C%96%E5%8D%95%E6%9C%BA%E9%83%A8%E7%BD%B2.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>mongodb容器化单机部署。本文属于DevOps 与 SRE / 优化方案，docker-install-mongo.sh 展开源码</p>
+      <p>关键词：DevOps 与 SRE、优化方案、MongoDB、Docker、Nginx、知识笔记、DevOps 与 SRE / 优化方案、mongodb容器化单机部署、DevOps、SRE</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-04819add8f8b.html"><small>上一篇</small>mongodb备份与恢复</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-91824c895f50.html"><small>下一篇</small>monitor 监控中心模块</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-479fcaf1704c.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

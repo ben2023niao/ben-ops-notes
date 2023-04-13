@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>页面置换算法｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="操作系统中的页面置换算法主要包括最佳置换算法（OPT，Optimal）、先进先出置换算法（FIFO）、最近最久未使用置换算法（LRU，Least Recently Used）、时钟置换算法和改进型的时钟置换算法。 每次选择淘汰的页面将是以后永不使用，或者在最长时间内不再被访问的页面，这样可以保证最低的缺页率。">
+  <meta name="keywords" content="安全与堡垒机，高级安全，知识笔记，安全与堡垒机 / 高级安全，页面置换算法">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a30857dc1627.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a30857dc1627.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="页面置换算法">
+  <meta property="og:description" content="操作系统中的页面置换算法主要包括最佳置换算法（OPT，Optimal）、先进先出置换算法（FIFO）、最近最久未使用置换算法（LRU，Least Recently Used）、时钟置换算法和改进型的时钟置换算法。 每次选择淘汰的页面将是以后永不使用，或者在最长时间内不再被访问的页面，这样可以保证最低的缺页率。">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a30857dc1627.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/48e102cd17402d26ae.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="页面置换算法">
+  <meta name="twitter:description" content="操作系统中的页面置换算法主要包括最佳置换算法（OPT，Optimal）、先进先出置换算法（FIFO）、最近最久未使用置换算法（LRU，Least Recently Used）、时钟置换算法和改进型的时钟置换算法。 每次选择淘汰的页面将是以后永不使用，或者在最长时间内不再被访问的页面，这样可以保证最低的缺页率。">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/48e102cd17402d26ae.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a30857dc1627.html#article","headline":"页面置换算法","description":"操作系统中的页面置换算法主要包括最佳置换算法（OPT，Optimal）、先进先出置换算法（FIFO）、最近最久未使用置换算法（LRU，Least Recently Used）、时钟置换算法和改进型的时钟置换算法。 每次选择淘汰的页面将是以后永不使用，或者在最长时间内不再被访问的页面，这样可以保证最低的缺页率。","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","知识笔记","安全与堡垒机 / 高级安全","页面置换算法"],"wordCount":1689,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a30857dc1627.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a30857dc1627.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/48e102cd17402d26ae.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"页面置换算法","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a30857dc1627.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>页面置换算法</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>页面置换算法</h1>
+      <p class="lede">操作系统中的页面置换算法主要包括最佳置换算法（OPT，Optimal）、先进先出置换算法（FIFO）、最近最久未使用置换算法（LRU，Least Recently Used）、时钟置换算法和改进型的时钟置换算法。 每次选择淘汰的页面将是以后永不使用，或者在最长时间内不再被访问的页面，这样可以保证最低的缺页率。</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,689 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>操作系统中的页面置换算法主要包括最佳置换算法（OPT，Optimal）、先进先出置换算法（FIFO）、最近最久未使用置换算法（LRU，Least Recently Used）、时钟置换算法和改进型的时钟置换算法。</p>
+<h2 id="最佳置换算法-OPT-Optimal">最佳置换算法（OPT，Optimal）</h2>
+<h3 id="算法思想">算法思想</h3>
+<p>每次选择淘汰的页面将是以后永不使用，或者在最长时间内不再被访问的页面，这样可以保证最低的缺页率。</p>
+<h3 id="举例说明">举例说明</h3>
+<p>假设系统为进程分配了三个内存块，并考虑到有以下页面号引用串（会依次访问这些页面）：7,0,1,2,0,3,0,4,2,3,0,3,2,1,2,0,1,7,0,1。</p>
+<ol>
+<li>第一个访问的是 7 号页，内存中没有此页，由缺页中断机构将 7 号页调入内存。此时有三个可用的内存块，不需要置换。即第一次(7) ：7</li>
+<li>
+<p>同理，第二个访问的是 0 号页，和第一次一样，第三次访问的是 1 号页，同样 1 号页也会被调入内存，1 号内被调入内存后，此时分配给该进程内存空间已占满。</p>
+<ul>
+<li>第二次(0)：7 0</li>
+<li>第三次(1)：7 0 1
+3. 第四个访问的页是 2 号页，此时内存已经用完，需要将一个页调出内存，根据最佳置换算法，淘汰一个以后永不使用或最长时间不使用的，此时内存中的页有 7、0、1，查看待访问页号序列中这三个页号的先后位置，下图可以看到，0 号页和 1 号页在不久又会被访问到，而 7 号页需要被访问的时间最久。所以该算法会淘汰 7 号页。</li>
+</ul>
+</li>
+</ol>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/48e102cd17402d26ae.png"/></p>
+<p><code>第一次(7) ：7
+第二次(0)：7 0
+第三次(1)：7 0 1
+第四次(2)：0 1 2</code></p>
+<p>按照此算法依次执行，最后的结果如下：</p>
+<p><code>第一次(7) ：7
+第二次(0)：7 0
+第三次(1)：7 0 1
+第四次(2)：0 1 2
+第五次(0)：0 1 2（命中）
+第六次(3) ：0 3 1
+第七次(0) ：0 3 1（命中）
+第八次(4) ：3 2 4
+第九次(2) ：3 2 4（命中）
+第十次(3) ：3 2 4（命中）
+第十一次(0) ：3 2 0
+第十二次(3) ：3 2 0（命中）
+.....</code></p>
+<p>结果图：
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/c87c0ffb0b5e8dac5c.png"/></p>
+<p>整个过程缺页中断发生了 9 次，页面置换发生了 6 次。缺页率 = 9 / 20 = 45%。</p>
+<p>注：缺页时未必发生页面置换，若还有可用的空闲内存空间就不用进行页面置换。</p>
+<p>最佳置换算法可以保证最低的缺页率，但是实际上，只有进程执行的过程中才能知道接下来会访问到的是哪个页面。操作系统无法提前预判页面的访问序列。因此，最佳置换算法是无法实现的。</p>
+<h2 id="先进先出置换算法-FIFO">先进先出置换算法（FIFO）</h2>
+<h3 id="算法思想-2">算法思想</h3>
+<p>每次选择淘汰的页面是最早进入内存的页面。</p>
+<h3 id="举例说明-2">举例说明</h3>
+<p>该算法很简单，每次淘汰最在内存中待时间最久的各个，下面分别给出系统为进程分为配三个内存块和四个内存块的执行情况图。访问序列为 3,2,1,0,3,2,4,3,2,1,0,4。</p>
+<p>分配三个内存块的情况：</p>
+<p><code>第一次(3) ：3
+第二次(2) ：3 2
+第三次(1) ：3 2 1
+第四次(0) ：2 1 0
+第五次(3) ：1 0 3
+第六次(2) ：0 3 2
+第七次(4) ：3 2 4
+第八次(3) ：3 2 4（命中）
+第九次(2) ：3 2 4（命中）
+第十次(1) ：2 4 1
+第十一次(0) ：4 1 0
+第十二次(4) ：4 1 0（命中）</code></p>
+<p>分配三个内存块时，缺页次数：9 次。</p>
+<p>分配四个内存块的情况：</p>
+<p><code>第一次(3) ：3
+第二次(2) ：3 2
+第三次(1) ：3 2 1
+第四次(0) ：3 2 1 0
+第五次(3) ：3 2 1 0（命中）
+第六次(2) ：3 2 1 0 （命中）
+第七次(4) ：2 1 0 4
+第八次(3) ：1 0 4 3
+第九次(2) ：0 4 3 2
+第十次(1) ：4 3 2 1
+第十一次(0) ：3 2 1 0
+第十二次(4) ：2 1 0 4</code></p>
+<p>分配四个内存块时，缺页次数：10 次。当为进程分配的物理块数增大时，缺页次数不减反增的异常现象称为贝莱迪（Belay）异常。</p>
+<p>只有 FIFO 算法会产生 Belay 异常。另外，FIFO 算法虽然实现简单，但是该算法与进程实际运行时的规律不适应。因为先进入的页面也有可能最经常被访问。因此，算法性能差。</p>
+<h2 id="最近最久未使用置换算法-LRU">最近最久未使用置换算法（LRU）</h2>
+<h3 id="算法思想-3">算法思想</h3>
+<p>每次淘汰的页面是最近最久未使用的页面。</p>
+<h3 id="实现方法">实现方法</h3>
+<p>赋予每个页面对应的页表项中，用访问字段记录该页面自上次被访问以来所经历的时间 t。当需要淘汰一个页面时，选择现有页面中 t 最大的页面，即最近最久未使用。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/2b0a3636f0339b9f9b.png"/></p>
+<h3 id="举例说明-3">举例说明</h3>
+<p>加入某系统为某进程分配了四个内存块，并考虑到有以下页面号引用串：1,8,1,7,8,2,7,2,1,8,3,8,2,1,3,1,7,1,3,7</p>
+<p>这里先直接给出答案：</p>
+<p><code>第一次(1) ：1
+第二次(8) ：1 8
+第三次(1) ：8 1 （命中）（由于1号页又被访问过了，所以放到最后）
+第四次(7) ：8 1 7
+第五次(8) ：1 7 8（命中）
+第六次(2) ：1 7 8 2
+第七次(7) ：1 8 2 7（命中）
+第八次(2) ：1 8 7 2（命中）
+第九次(1) ：8 7 2 1（命中）
+第十次(8) ：7 2 1 8（命中）
+第十一次(3) ：2 1 8 3
+第十二次(8) ：2 1 3 8（命中）
+第十三次(2) ：1 3 8 2（命中）
+第十四次(1) ：3 8 2 1（命中）
+第十五次(3) ：8 2 1 3（命中）
+第十六次(1) ：8 2 3 1（命中）
+第十七次(7) ：2 3 1 7
+....</code></p>
+<p>这里前 10 次都 1、8、7、2 这四个页，四个内存块号正好可以满足，当第 11 次要访问的 3 号页进入内存时，需要从 1、8、7、2 这四个页淘汰一个页，按照该算法，从页号为3的开始，从右往左一次找到这 4 个页第一次出现的地方，在最左边的就是最近最少使用的页。</p>
+<p>如下图所示，所以该算法最终淘汰的是 7 号页。同时直接从第十次的访问结果 7 2 1 8 也可以直接看出，7 号页在最前面，是最久没有被访问过的，所以淘汰应该是 7 号页。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/e2140f93053a96b20e.png"/>
+结果图
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/1605a3b27544395c3d.png"/></p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#最佳置换算法-OPT-Optimal">最佳置换算法（OPT，Optimal）</a></li><li style="margin-left:0.8rem"><a href="#算法思想">算法思想</a></li><li style="margin-left:0.8rem"><a href="#举例说明">举例说明</a></li><li style="margin-left:0.0rem"><a href="#先进先出置换算法-FIFO">先进先出置换算法（FIFO）</a></li><li style="margin-left:0.8rem"><a href="#算法思想-2">算法思想</a></li><li style="margin-left:0.8rem"><a href="#举例说明-2">举例说明</a></li><li style="margin-left:0.0rem"><a href="#最近最久未使用置换算法-LRU">最近最久未使用置换算法（LRU）</a></li><li style="margin-left:0.8rem"><a href="#算法思想-3">算法思想</a></li><li style="margin-left:0.8rem"><a href="#实现方法">实现方法</a></li><li style="margin-left:0.8rem"><a href="#举例说明-3">举例说明</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68657125.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>操作系统中的页面置换算法主要包括最佳置换算法（OPT，Optimal）、先进先出置换算法（FIFO）、最近最久未使用置换算法（LRU，Least Recently Used）、时钟置换算法和改进型的时钟置换算法。 每次选择淘汰的页面将是以后永不使用，或者在最长时间内不再被访问的页面，这样可以保证最低的缺页率。</p>
+      <p>关键词：安全与堡垒机、高级安全、知识笔记、安全与堡垒机 / 高级安全、页面置换算法</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-286d9a968a0d.html"><small>上一篇</small>非K8S 模块：上线流程</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7c39eeba9a04.html"><small>下一篇</small>项目 nginx 日志优化分析</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a30857dc1627.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>spug-安全工作｜DevOps 与 SRE / 高效运维｜BEN.OPS</title>
+  <meta name="description" content="spug-安全工作。本文属于DevOps 与 SRE / 高效运维，写在前面，没有绝对的安全，如果环境允许的话尽量把 Spug 部署在内网且禁止公网访问，如果必须通过公网访问则尽可能通过防火墙等手段限制指定 IP 访问。 Spug 在登录安全方面提供了连续3次错误密码自动禁用账户的功能，尽可能的避免了被暴力破解登…">
+  <meta name="keywords" content="DevOps 与 SRE，高效运维，Docker，Nginx，Java，SQL注入，日志分析，知识笔记，DevOps 与 SRE / 高效运维，spug-安全工作，DevOps，SRE">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6cb6e3f59a33.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6cb6e3f59a33.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E9%AB%98%E6%95%88%E8%BF%90%E7%BB%B4%2BDocker%2BNginx-spug-%E5%AE%89%E5%85%A8%E5%B7%A5%E4%BD%9C.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="spug-安全工作">
+  <meta property="og:description" content="spug-安全工作。本文属于DevOps 与 SRE / 高效运维，写在前面，没有绝对的安全，如果环境允许的话尽量把 Spug 部署在内网且禁止公网访问，如果必须通过公网访问则尽可能通过防火墙等手段限制指定 IP 访问。 Spug 在登录安全方面提供了连续3次错误密码自动禁用账户的功能，尽可能的避免了被暴力破解登…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6cb6e3f59a33.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="DevOps 与 SRE / 高效运维">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="spug-安全工作">
+  <meta name="twitter:description" content="spug-安全工作。本文属于DevOps 与 SRE / 高效运维，写在前面，没有绝对的安全，如果环境允许的话尽量把 Spug 部署在内网且禁止公网访问，如果必须通过公网访问则尽可能通过防火墙等手段限制指定 IP 访问。 Spug 在登录安全方面提供了连续3次错误密码自动禁用账户的功能，尽可能的避免了被暴力破解登…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6cb6e3f59a33.html#article","headline":"spug-安全工作","description":"spug-安全工作。本文属于DevOps 与 SRE / 高效运维，写在前面，没有绝对的安全，如果环境允许的话尽量把 Spug 部署在内网且禁止公网访问，如果必须通过公网访问则尽可能通过防火墙等手段限制指定 IP 访问。 Spug 在登录安全方面提供了连续3次错误密码自动禁用账户的功能，尽可能的避免了被暴力破解登…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["DevOps 与 SRE","高效运维"],"keywords":["DevOps 与 SRE","高效运维","Docker","Nginx","Java","SQL注入","日志分析","知识笔记","DevOps 与 SRE / 高效运维","spug-安全工作","DevOps","SRE"],"wordCount":951,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6cb6e3f59a33.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6cb6e3f59a33.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"DevOps 与 SRE / 高效运维","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"spug-安全工作","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6cb6e3f59a33.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>DevOps 与 SRE / 高效运维</span> › <span>spug-安全工作</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">DevOps 与 SRE / 高效运维</div>
+      <h1>spug-安全工作</h1>
+      <p class="lede">spug-安全工作。本文属于DevOps 与 SRE / 高效运维，写在前面，没有绝对的安全，如果环境允许的话尽量把 Spug 部署在内网且禁止公网访问，如果必须通过公网访问则尽可能通过防火墙等手段限制指定 IP 访问。 Spug 在登录安全方面提供了连续3次错误密码自动禁用账户的功能，尽可能的避免了被暴力破解登…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">951 字</span>
+        <span class="badge">3 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="安全性实践指南">安全性实践指南</h2>
+<p>写在前面，没有绝对的安全，如果环境允许的话尽量把 <code>Spug</code> 部署在内网且禁止公网访问，如果必须通过公网访问则尽可能通过防火墙等手段限制指定 IP 访问。</p>
+<p><code>Spug</code> 在登录安全方面提供了连续3次错误密码自动禁用账户的功能，尽可能的避免了被暴力破解登录的可能性。在 <code>Token</code> 安全方便提供了基于访问来源 IP 的 安全策略，当同一个 <code>Token</code> 访问来源 IP 发生变化时 <code>Token</code> 将自动失效，强制重新登录（v3.0.2之后可以通过系统设置关闭该特性）。</p>
+<h3 id="注意">注意</h3>
+<p><code>Token</code> 安全策略中的来源 IP 依赖 Nginx 转发请求时携带的 HTTP 头 <code>X-Real-IP</code> 和 <code>X-Forwarded-For</code>（v2.3.12+）， 所以请务必确保 <code>Spug</code> 能获取到用户的真实 IP 而不是上级的代理 IP，如果你使用的推荐的 Docker 部署方式，则这些工作默认已经做好了。 如果要在 Docker 容器暴露的 80 端口上再增加反向代理层，请正确配置 <code>X-Forwarded-For</code>，例如 <code>Nginx</code> 增加 <code>proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</code>。</p>
+<p>在无法验证访问者的真实 IP 的情况下（<code>Spug</code>获取到的IP是内网IP），会在登录时弹出一个警告信息，如果 Spug 部署在内网且仅在内网使用（通过内网地址访问 Spug），则可以在 v2.3.14 版本后通过 系统管理 / 系统设置 / 安全设置 / 访问IP校验 来关闭这一特性。</p>
+<h2 id="发布过程中不同主机执行不同操作">发布过程中不同主机执行不同操作</h2>
+<p>假设一个应用需要发布到不同的三台主机上，但发布需要在主机上执行一些比如更新数据库等一次性且不能重复执行的操作，这时候可以考虑使用 <code>Spug</code> 的全局变量 <code>SPUG_HOST_ID</code> 或 <code>SPUG_HOST_NAME</code> 来指定只在某个主机上执行这些操作，例如：</p>
+<pre><code>if [ "$SPUG_HOST_NAME" = "203.0.113.1" ]; then
+ echo "exec sql"
+fi
+</code></pre>
+<h2 id="默认PATH环境变量导致命令找不到问题">默认PATH环境变量导致命令找不到问题</h2>
+<p>默认的 <code>PATH</code> 变量可能并不完整，如果出现一些命令找不到等报错情况可以使用类似如下写法来解决这个问题：</p>
+<pre><code># 添加jdk至PATH变量
+PATH=$PATH:/usr/local/jdk1.8.0_231/bin
+java -jar xxx.jar
+</code></pre>
+<h2 id="项目数据的持久存储">项目数据的持久存储</h2>
+<p>一些项目会在运行过程中生产需要持久存储的数据，例如用户上传的图片或需要留存的日志文件等。当使用常规发布时每个版本都是全新的目录，默认情况下这些文件会 在新版本中不可见。这种情况可以考虑把这些动态生成且需要持久存储的数据放在发布目录之外，通过软链接的形式链接至项目内，这样实际文件存储在一个公共的地 方每次更新时只需要额外做一个软链接的映射就可以解决问题了。</p>
+<h2 id="命令执行中的报错处理">命令执行中的报错处理</h2>
+<p>从 v3 开始 <code>Spug</code> 移除了 <code>set -e</code> 特性，保持了与默认执行脚本行为一致。 如果你对执行中命令错误敏感，例如期望任何一个命令执行失败则中断 后续的命令，则可以在你编写的命令开头加上 <code>set -e</code> 即可。</p>
+<h2 id="使用-su-切换身份执行">使用 <code>su</code> 切换身份执行</h2>
+<p>默认情况下直接使用 <code>su</code> 命令将会导致执行到该命令时卡住无法继续执行，可通过如下方式使用 <code>su</code> 以使其正常工作：</p>
+<pre><code>su - ubuntu &lt;&lt; EOF
+echo '以ubuntu用户身份执行'
+EOF
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#安全性实践指南">安全性实践指南</a></li><li style="margin-left:0.8rem"><a href="#注意">注意</a></li><li style="margin-left:0.0rem"><a href="#发布过程中不同主机执行不同操作">发布过程中不同主机执行不同操作</a></li><li style="margin-left:0.0rem"><a href="#默认PATH环境变量导致命令找不到问题">默认PATH环境变量导致命令找不到问题</a></li><li style="margin-left:0.0rem"><a href="#项目数据的持久存储">项目数据的持久存储</a></li><li style="margin-left:0.0rem"><a href="#命令执行中的报错处理">命令执行中的报错处理</a></li><li style="margin-left:0.0rem"><a href="#使用-su-切换身份执行">使用 su 切换身份执行</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：DevOps 与 SRE / 高效运维</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">DevOps 与 SRE</span><span class="tag">高效运维</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">Java</span><span class="tag">SQL注入</span><span class="tag">日志分析</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/11-高效运维/birdben/68650055.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E9%AB%98%E6%95%88%E8%BF%90%E7%BB%B4%2BDocker%2BNginx-spug-%E5%AE%89%E5%85%A8%E5%B7%A5%E4%BD%9C.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>spug-安全工作。本文属于DevOps 与 SRE / 高效运维，写在前面，没有绝对的安全，如果环境允许的话尽量把 Spug 部署在内网且禁止公网访问，如果必须通过公网访问则尽可能通过防火墙等手段限制指定 IP 访问。 Spug 在登录安全方面提供了连续3次错误密码自动禁用账户的功能，尽可能的避免了被暴力破解登…</p>
+      <p>关键词：DevOps 与 SRE、高效运维、Docker、Nginx、Java、SQL注入、日志分析、知识笔记、DevOps 与 SRE / 高效运维、spug-安全工作、DevOps、SRE</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d69ae90946ad.html"><small>上一篇</small>spug-使用手册</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-75b4c86eaa84.html"><small>下一篇</small>spug-源代码</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6cb6e3f59a33.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

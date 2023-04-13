@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Linux启动过程｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="Linux启动过程。本文属于安全与堡垒机 / 高级安全，第三步：Boot Loader grub 引导菜单 第五步：init 进程依据 inittab 文件夹来设定运行级别 第六步：init 进程执行 rc.sysinit 第九步：执行 /etc/rc.d/rc.local 第十步：执行 /bin/login 程…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，Linux，知识笔记，安全与堡垒机 / 高级安全，Linux启动过程">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f9e8a7b56242.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f9e8a7b56242.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-Linux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Linux启动过程">
+  <meta property="og:description" content="Linux启动过程。本文属于安全与堡垒机 / 高级安全，第三步：Boot Loader grub 引导菜单 第五步：init 进程依据 inittab 文件夹来设定运行级别 第六步：init 进程执行 rc.sysinit 第九步：执行 /etc/rc.d/rc.local 第十步：执行 /bin/login 程…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f9e8a7b56242.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/3e369ffd54a3a5e0d6.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Linux启动过程">
+  <meta name="twitter:description" content="Linux启动过程。本文属于安全与堡垒机 / 高级安全，第三步：Boot Loader grub 引导菜单 第五步：init 进程依据 inittab 文件夹来设定运行级别 第六步：init 进程执行 rc.sysinit 第九步：执行 /etc/rc.d/rc.local 第十步：执行 /bin/login 程…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/3e369ffd54a3a5e0d6.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f9e8a7b56242.html#article","headline":"Linux启动过程","description":"Linux启动过程。本文属于安全与堡垒机 / 高级安全，第三步：Boot Loader grub 引导菜单 第五步：init 进程依据 inittab 文件夹来设定运行级别 第六步：init 进程执行 rc.sysinit 第九步：执行 /etc/rc.d/rc.local 第十步：执行 /bin/login 程…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","Linux","知识笔记","安全与堡垒机 / 高级安全","Linux启动过程"],"wordCount":1361,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f9e8a7b56242.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f9e8a7b56242.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/3e369ffd54a3a5e0d6.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Linux启动过程","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f9e8a7b56242.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>Linux启动过程</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>Linux启动过程</h1>
+      <p class="lede">Linux启动过程。本文属于安全与堡垒机 / 高级安全，第三步：Boot Loader grub 引导菜单 第五步：init 进程依据 inittab 文件夹来设定运行级别 第六步：init 进程执行 rc.sysinit 第九步：执行 /etc/rc.d/rc.local 第十步：执行 /bin/login 程…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,361 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="Linux启动过程详解">Linux启动过程详解</h2>
+<p>第一步：开机自检，加载 BIOS</p>
+<p>第二步：读取 MBR</p>
+<p>第三步：Boot Loader　grub 引导菜单</p>
+<p>第四步：加载 kernel 内核</p>
+<p>第五步：init 进程依据 inittab 文件夹来设定运行级别</p>
+<p>第六步：init 进程执行 rc.sysinit</p>
+<p>第七步：启动内核模块</p>
+<p>第八步：执行不同运行级别的脚本程序</p>
+<p>第九步：执行 /etc/rc.d/rc.local</p>
+<p>第十步：执行 /bin/login 程序，启动 mingetty，进入登录状态</p>
+<h3 id="Linux启动过程图解">Linux启动过程图解<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/3e369ffd54a3a5e0d6.png"/></h3>
+<h3 id="剖析启动过程">剖析启动过程</h3>
+<p><strong>第一步：开机自检，加载 BIOS</strong></p>
+<p>当我们打开计算机电源的时候，随后会听到滴的一声，自检开始，这个过程中主要是检测我们的计算机硬件设备比如：CPU，内存，主板，显卡，CMOS 等设备是否有故障存在。</p>
+<p><strong>第二步：读取MBR</strong></p>
+<p>BIOS 自检，首先会在一个 Boot Sequence 程序中搜索可以让系统启动的引导设备（比如我们有时在 BIOS 中设置为从硬盘启动，或者从 CD-ROM 启动等等）。</p>
+<p>这时如果 BIOS 找不到可以引导的设备及相关程序后，便会启动失败，如果顺序的找到了相关设备硬盘，那么 BIOS 将把控制权交给启动设备中的 MBR（Master Boot Record）主引导记录。</p>
+<p>MBR 在大小为 512 字节，存放预启动信息、分区表等信息。</p>
+<p><strong>第三步：Boot Loader　grub引导菜单</strong></p>
+<p>在 MBR 程序中找到其前 446 字节的 Boot　Loader。</p>
+<p>Boot Loader 就是在操作系统内核运行之前运行的一段小程序。通过这段小程序，我们可以初始化硬件设备、建立内存空间的映射图，从而将系统的软硬件环境带到一个合适的状态，以便为最终调用操作系统内核做好一切准备。</p>
+<p>Boot Loader 有若干种，其中 Grub、Lilo 和 spfdisk 是常见的 Loader。</p>
+<p>系统读取内存中的 grub 配置信息（一般为 menu.lst 或 grub.lst），并依照此配置信息来启动不同的操作系统。</p>
+<p><strong>第四步：加载kernel内核</strong></p>
+<p>根据 grub 设定的内核映像所在路径，系统读取内存映像，并进行解压缩操作。此时，屏幕一般会输出 “Uncompressing Linux” 的提示。当解压缩内核完成后，屏幕输出 “OK, booting the kernel”。</p>
+<p>系统将解压后的内核放置在内存之中，并调用 start_kernel() 函数来启动一系列的初始化函数并初始化各种设备，完成 Linux 核心环境的建立。至此，Linux 内核已经建立起来了，基于 Linux 的程序应该可以正常运行了。</p>
+<p><strong>第五步：init进程依据inittab文件夹来设定运行级别</strong></p>
+<p>内核被加载后，第一个运行的程序便是 /sbin/init，该文件会读取 /etc/inittab 文件，并依据此文件来进行初始化工作。</p>
+<p>其实 /etc/inittab 文件最主要的作用就是设定 Linux 的运行等级，其设定形式是 “：id:5:initdefault:”，这就表明 Linux 需要运行在等级 5 上。Linux 的运行等级设定如下：</p>
+<p>| 启动级别 | 说明 |</p>
+<p>| --- | --- |</p>
+<p>| 0 | halt，关机 |</p>
+<p>| 1 | single user mode，单用户模式 |</p>
+<p>| 2 | Multi-user,without NFS 无网络支持的多用户模式，类似于下面的 run level3 |</p>
+<p>| 3 | Full multi-user mode，有网络支持的多用户模式 |</p>
+<p>| 4 | unused 保留，未使用 |</p>
+<p>| 5 | X11 ，有网络支持有 X-Window 支持的多用户模式 |</p>
+<p>| 6 | reboot，重新引导系统，即重启 |</p>
+<p>通过命令</p>
+<p><code>cat /etc/inittab</code></p>
+<p>可以查看 /etc/inittab 相关设定。</p>
+<p><strong>第六步：init进程执行rc.sysinit</strong></p>
+<p>在设定了运行等级后，Linux 系统执行的第一个用户层文件就是 /etc/rc.d/rc.sysinit 脚本程序，它做的工作非常多，包括设定 PATH、设定网络配置（/etc/sysconfig/network）、启动 swap 分区、设定 /proc 等等。如果你有兴趣，可以到 /etc/rc.d 中查看一下 rc.sysinit 文件，里面的脚本够你看几天的。</p>
+<p><strong>第七步：启动内核模块</strong></p>
+<p>具体是依据 /etc/modules.conf 文件或 /etc/modules.d 目录下的文件来装载内核模块。</p>
+<p><strong>第八步：执行不同运行级别的脚本程序</strong></p>
+<p>根据运行级别的不同，系统会运行 rc0.d 到 rc6.d 中的相应的脚本程序，来完成相应的初始化工作和启动相应的服务。</p>
+<p><strong>第九步：执行/etc/rc.d/rc.local</strong></p>
+<p>你如果打开了此文件，里面有一句话，读过之后，你就会对此命令的作用一目了然：</p>
+<p>`# This script will be executed <em>after</em> all the other init scripts.</p>
+<h2 id="You-can-put-your-own-initialization-stuff-in-here-if-you-don-t">You can put your own initialization stuff in here if you don’t</h2>
+<h2 id="want-to-do-the-full-Sys-V-style-init-stuff">want to do the full Sys V style init stuff.`</h2>
+<p>rc.local 就是在一切初始化工作后，Linux 留给用户进行个性化的地方。你可以把你想设置和启动的东西放到这里。</p>
+<p><strong>第十步：执行/bin/login程序，启动mingetty,进入登录状态</strong></p>
+<h3 id="简述开机系统启动过程">简述开机系统启动过程</h3>
+<ol>
+<li>开机 BIOS 自检</li>
+<li>MBR 引导，硬盘 0 柱面 0 磁道 1 扇区的前 446byte</li>
+<li>grub 引导菜单</li>
+</ol>
+<p><code>cat /etc/grub.conf</code></p>
+<ol>
+<li>加载内核 kernel</li>
+<li>启动 init 进程</li>
+</ol>
+<p><code>[root@dingjian rc.d]# ps -ef|grep init
+root 1 0 0 Oct23 ? 00:00:02 init [3]</code></p>
+<ol>
+<li>读取 inittab 文件，执行 rc.sysinit.rc 等脚本</li>
+</ol>
+<p><code>/etc/inittab
+/etc/rc.d/rc.sysinit
+/etc/rc.d/rc3.d/ &lt;==文本模式</code></p>
+<ol>
+<li>启动 mingetty，进入系统登陆界面。</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#Linux启动过程详解">Linux启动过程详解</a></li><li style="margin-left:0.8rem"><a href="#Linux启动过程图解">Linux启动过程图解</a></li><li style="margin-left:0.8rem"><a href="#剖析启动过程">剖析启动过程</a></li><li style="margin-left:0.0rem"><a href="#You-can-put-your-own-initialization-stuff-in-here-if-you-don-t">You can put your own initialization stuff in here if you don’t</a></li><li style="margin-left:0.0rem"><a href="#want-to-do-the-full-Sys-V-style-init-stuff">want to do the full Sys V style init stuff.`</a></li><li style="margin-left:0.8rem"><a href="#简述开机系统启动过程">简述开机系统启动过程</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">Linux</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68656947.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-Linux%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Linux启动过程。本文属于安全与堡垒机 / 高级安全，第三步：Boot Loader grub 引导菜单 第五步：init 进程依据 inittab 文件夹来设定运行级别 第六步：init 进程执行 rc.sysinit 第九步：执行 /etc/rc.d/rc.local 第十步：执行 /bin/login 程…</p>
+      <p>关键词：安全与堡垒机、高级安全、Linux、知识笔记、安全与堡垒机 / 高级安全、Linux启动过程</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-804719d79606.html"><small>上一篇</small>Linux加密解密</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-52d6bdbc441f.html"><small>下一篇</small>Linux文件处理awk命令详解</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f9e8a7b56242.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

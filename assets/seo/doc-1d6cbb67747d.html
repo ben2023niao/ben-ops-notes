@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>DNS实战一 DNS快速入门及原理详解｜网络工程 / DNS｜BEN.OPS</title>
+  <meta name="description" content="DNS实战一 DNS快速入门及原理详解。本文属于网络工程 / DNS，网域名称系统（英文：Domain Name System，缩写：DNS）是互联网的一项服务。它作为将域名和IP地址相互映射的一个分布式数据库，能够使人更方便地访问互联网。在日常生活中人们习惯记忆域名，但机器间互相只认IP地址，域名与IP地址之间…">
+  <meta name="keywords" content="网络工程，DNS，Windows，MySQL，PHP，SQL注入，知识笔记，网络工程 / DNS，DNS实战一 DNS快速入门及原理详解">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1d6cbb67747d.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1d6cbb67747d.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E7%BD%91%E7%BB%9C%E5%B7%A5%E7%A8%8B%2BDNS%2BWindows%2BMySQL-DNS%E5%AE%9E%E6%88%98%E4%B8%80%20DNS%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E5%8F%8A%E5%8E%9F%E7%90%86%E8%AF%A6%E8%A7%A3.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="DNS实战一 DNS快速入门及原理详解">
+  <meta property="og:description" content="DNS实战一 DNS快速入门及原理详解。本文属于网络工程 / DNS，网域名称系统（英文：Domain Name System，缩写：DNS）是互联网的一项服务。它作为将域名和IP地址相互映射的一个分布式数据库，能够使人更方便地访问互联网。在日常生活中人们习惯记忆域名，但机器间互相只认IP地址，域名与IP地址之间…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1d6cbb67747d.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="网络工程 / DNS">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/e01a94874ce7a1d65d.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DNS实战一 DNS快速入门及原理详解">
+  <meta name="twitter:description" content="DNS实战一 DNS快速入门及原理详解。本文属于网络工程 / DNS，网域名称系统（英文：Domain Name System，缩写：DNS）是互联网的一项服务。它作为将域名和IP地址相互映射的一个分布式数据库，能够使人更方便地访问互联网。在日常生活中人们习惯记忆域名，但机器间互相只认IP地址，域名与IP地址之间…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/e01a94874ce7a1d65d.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1d6cbb67747d.html#article","headline":"DNS实战一 DNS快速入门及原理详解","description":"DNS实战一 DNS快速入门及原理详解。本文属于网络工程 / DNS，网域名称系统（英文：Domain Name System，缩写：DNS）是互联网的一项服务。它作为将域名和IP地址相互映射的一个分布式数据库，能够使人更方便地访问互联网。在日常生活中人们习惯记忆域名，但机器间互相只认IP地址，域名与IP地址之间…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["网络工程","DNS"],"keywords":["网络工程","DNS","Windows","MySQL","PHP","SQL注入","知识笔记","网络工程 / DNS","DNS实战一 DNS快速入门及原理详解"],"wordCount":2367,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1d6cbb67747d.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1d6cbb67747d.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/e01a94874ce7a1d65d.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"网络工程 / DNS","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"DNS实战一 DNS快速入门及原理详解","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1d6cbb67747d.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>网络工程 / DNS</span> › <span>DNS实战一 DNS快速入门及原理详解</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">网络工程 / DNS</div>
+      <h1>DNS实战一 DNS快速入门及原理详解</h1>
+      <p class="lede">DNS实战一 DNS快速入门及原理详解。本文属于网络工程 / DNS，网域名称系统（英文：Domain Name System，缩写：DNS）是互联网的一项服务。它作为将域名和IP地址相互映射的一个分布式数据库，能够使人更方便地访问互联网。在日常生活中人们习惯记忆域名，但机器间互相只认IP地址，域名与IP地址之间…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,367 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="1-DNS概述">1. DNS概述</h2>
+<blockquote>
+<p>网域名称系统（英文：Domain Name System，缩写：DNS）是互联网的一项服务。它作为将域名和IP地址相互映射的一个分布式数据库，能够使人更方便地访问互联网。在日常生活中人们习惯记忆域名，但机器间互相只认IP地址，域名与IP地址之间是多对一的关系，一个ip地址不一定只对应一个域名，且一个域名只可以对应一个ip地址，它们之间的转换工作称为域名解析，域名解析需要由专门的域名解析服务器来完成，整个过程是自动进行的。</p>
+</blockquote>
+<hr/>
+<h3 id="2-DNS理论基础">2. DNS理论基础</h3>
+<blockquote>
+<p>当你的网站制作完成后上传到你的虚拟主机时，你可以直接在浏览器中输入IP地址浏览你的网站，也可以输入域名查询你的网站，虽然得出的内容是一样的但是调用的过程不一样，输入IP地址是直接从主机上调用内容，输入域名是通过域名解析服务器指向对应的主机的IP地址，再从主机调用网站的内容。</p>
+</blockquote>
+<ul>
+<li>早期的hosts映射</li>
+</ul>
+<p>每台计算机保存一个hosts文件，每台计算机保存一个hosts文件，里面列出所有计算机名字和对应的IP地址，然后定期从一个维护此文件的站点更新里面的记录。当我们访问某个计算机名字时，先在hosts文件找到对应的IP，然后就可以建立连接。</p>
+<p>早期的ARPANET就是这样做的，但是随着网络规模的扩大，这种方法渐渐吃不消了。主要有以下三个原因：
+- hosts文件变得非常大；
+- 主机名字会冲突；
+- 集中的维护站点会不堪重负（需要给几百万机器提供hosts文件，想想就可怕）。
+- <img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/e01a94874ce7a1d65d.png"/>
+- 域名系统</p>
+<p>为了解决上面的问题，1983年Paul Mockapetris提出了域名系统（DNS, Domain Name System)，这是一种层次的、基于域的命名方案，并且用一个分布式数据库系统加以实现。当我们需要访问一个域名（其实就是前面说的计算机的名字）时，应用程序会向DNS服务器发起一个DNS请求，DNS服务器返回该域名对应的IP地址。通过下面三种手段解决了上面的问题：</p>
+<p>这样访问一个域名的过程可以简化为下图：
+- 用户计算机上并没有存储所有的名字到IP的映射，这样避免了hosts文件过于庞大（现在各操作系统中hosts文件默认都是空的）。
+- 规定了域名的命名规则，保证主机名字不会重复。
+- DNS服务器不再是单一的一台机器，而是一个层次的、合理组织的服务器集群。
+- <img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/45027e9bfd3b3aa10f.png"/>
+- ## 3. DNS域名解析过程</p>
+<blockquote>
+<p>看完下面的文章还不懂的去撞墙，哈哈！</p>
+</blockquote>
+<pre><code>- [3.1 从理论到实践，全方位认识DNS（理论篇）](https://www.cloudxns.net/Support/detail/id/737.html)
+- [3.2 DNS原理总结及其解析过程详解](http://blog.csdn.net/yipiankongbai/article/details/25031461)
+- [3.3 一张图看懂DNS域名解析全过程](http://www.maixj.net/ict/dns-chaxun-9208)
+- [3.4 DNS解析过程详解](http://blog.csdn.net/crazw/article/details/8986504)
+</code></pre>
+<ul>
+<li><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/f8caa4bb2a168e9898.png"/></li>
+<li>
+<h2 id="4-DNS的分类">4. DNS的分类</h2>
+</li>
+</ul>
+<p><strong>主DNS服务器</strong>：存储着原始资料的DNS服务器。</p>
+<p><strong>从DNS服务器</strong>：和主DNS服务器建立信任关系后，使用自动更新方式从主DNS服务器同步数据的DNS服务器，也称辅助DNS服务器。</p>
+<p><strong>缓存服务器</strong>：不负责本地解析，采用递归方式转发客户机查询请求，并返回结果给客户机的DNS服务器。同时缓存查询回来的结果，也叫递归服务器。</p>
+<p><strong>转发器</strong>：这台DNS发现非本机负责的查询请求时，不再向根域发起请求，而是直接转发给指定的一台或多台服务器。自身并不缓存查询结果。</p>
+<p><strong><em>主DNS服务器和从DNS服务器类似于Mysql主从的关系，所有的写入操作都在主DNS上做，而从DNS服务器建立信任关系后可以实时更新。一般主DNS只作管理用，而从DNS提供解析服务。也可以在从DNS服务器上加一层缓存，减轻压力。</em></strong></p>
+<h3 id="5-DNS记录类型">5. DNS记录类型</h3>
+<pre><code>搭建网站：
+要将域名指向主机服务商提供的IP地址，请选择「A记录」；要将域名指向主机服务商提供的另一个域名，请选择「CNAME记录」。
+建立邮箱：
+需要设置「MX记录」，根据邮箱服务商提供的MX记录填写。
+A记录：（IPV4主机地址）
+将域名指向一个IPv4地址（例如：203.0.113.1），需要增加A记录
+CNAME记录：（正式名称，定义别名记录）
+如果将域名指向一个域名，实现与被指向域名相同的访问效果，需要增加CNAME记录
+MX记录：（域的邮件交换器，要跟着一个优先级值，越小越高）
+建立电子邮箱服务，将指向邮件服务器地址，需要设置MX记录
+NS记录：（域的授权名称服务器）
+域名解析服务器记录，如果要将子域名指定某个域名服务器来解析，需要设置NS记录
+TXT记录：
+可任意填写（可为空），通常用做SPF记录（反垃圾邮件）使用
+AAAA记录：（IPV6主机地址）
+将主机名（或域名）指向一个IPv6地址（例如：ff03:0:0:0:0:0:0:c1），需要添加AAAA记录
+PTR记录：
+解析IP的指针，反向记录，把IP解析成域名，原理和A记录一样，如（xx.1.128.192.）从后往前看。
+SRV记录：
+记录了哪台计算机提供了哪个服务。格式为：服务的名字.协议的类型（例如：_example-server._tcp）
+301跳转：从一个地址301重定向到另一个地址。注:仅已备案域名可使用。
+302跳转：从一个地址302重定向到另一个地址。注:仅已备案域名可使用。
+显性URL：
+将域名指向一个http（s)协议地址，访问域名时，自动跳转至目标地址（例如：将www.net.cn显性转发到www.hichina.com后，访问www.net.cn时，地址栏显示的地址为：www.hichina.com）。
+隐性URL：
+与显性URL类似，但隐性转发会隐藏真实的目标地址（例如：将www.net.cn隐性转发到www.hichina.com后，访问www.net.cn时，地址栏显示的地址仍然为：www.net.cn）。
+当然在国内，域名得备案才能用！
+</code></pre>
+<hr/>
+<h3 id="6-DNS命名规范">6. DNS命名规范</h3>
+<pre><code>1. 26个英文字母
+2. “0,1,2,3,4,5,6,7,8,9”十个数字
+3. “-” (英文中的连词号)
+4. 最多63字节长度
+</code></pre>
+<pre><code>- 不按照DNS命名规范，会有很多预想不到的错误和坑。如果域名不规范而又难以修改，可以在master-view文件上配置check-names ignore;等以后标准流程规范化后修改。
+</code></pre>
+<h3 id="7-dig-nslookup-host介绍">7. dig、nslookup、host介绍</h3>
+<ul>
+<li>```
+安装dnsutils</li>
+</ul>
+<p>Ubuntu:</p>
+<h2 id="sudo-apt-get-install-dnsutils">sudo apt-get install dnsutils</h2>
+<p>Debian:</p>
+<h2 id="apt-get-update">apt-get update</h2>
+<h2 id="apt-get-install-dnsutils">apt-get install dnsutils</h2>
+<p>Fedora / Centos:</p>
+<h2 id="yum-install-bind-utils">yum install bind-utils</h2>
+<p>Host命令是大多数系统、软件库调用的解析命令，比如php中。Host功能虽然简单，但它是最准确的。</p>
+<p>anzhihe@test1:~$ host baidu.com
+baidu.com has address 203.0.113.1
+baidu.com has address 203.0.113.1
+baidu.com has address 203.0.113.1
+baidu.com has address 203.0.113.1
+baidu.com mail is handled by 20 jpmx.baidu.com.
+baidu.com mail is handled by 20 mx50.baidu.com.
+baidu.com mail is handled by 20 mx1.baidu.com.
+baidu.com mail is handled by 10 mx.n.shifen.com.
+Nslookup能够反映出是哪个dnsserver返回的结果，但是没有MX记录。</p>
+<p>anzhihe@test1:~$ nslookup baidu.com
+Server: 203.0.113.1
+Address: 203.0.113.1#53</p>
+<p>Non-authoritative answer:
+Name: baidu.com
+Address: 203.0.113.1
+Name: baidu.com
+Address: 203.0.113.1
+Name: baidu.com
+Address: 203.0.113.1
+Name: baidu.com
+Address: 203.0.113.1
+Dig返回整个解析过程的详细路径，类似traceroute，生产中常用。</p>
+<p>anzhihe@test1:~$ dig baidu.com</p>
+<p>; &lt;&lt;&gt;&gt; DiG 9.10.3-P4-Ubuntu &lt;&lt;&gt;&gt; baidu.com
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 21190
+;; flags: qr rd ra; QUERY: 1, ANSWER: 4, AUTHORITY: 0, ADDITIONAL: 1
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;baidu.com. IN A</p>
+<p>;; ANSWER SECTION:
+baidu.com. 74 IN A 203.0.113.1
+baidu.com. 74 IN A 203.0.113.1
+baidu.com. 74 IN A 203.0.113.1
+baidu.com. 74 IN A 203.0.113.1</p>
+<p>;; Query time: 77 msec
+;; SERVER: 203.0.113.1#53(203.0.113.1)
+;; WHEN: Thu Mar 16 11:28:31 CST 2017
+;; MSG SIZE rcvd: 102</p>
+<pre><code>    - Windows中查看DNS信息
+
+    调出cmd窗口，在窗口处输入命令ipconfig /displaydns 来进行查看系统内的dns缓存。
+
+    执行命令ipconfig /flushdns 命令来进行清空dns缓存。参考：
+
+    - [1 从理论到实践，全方位认识DNS（理论篇）](https://www.cloudxns.net/Support/detail/id/737.html)
+    - [2 DNS原理总结及其解析过程详解](http://blog.csdn.net/yipiankongbai/article/details/25031461)
+    - [3 一张图看懂DNS域名解析全过程](http://www.maixj.net/ict/dns-chaxun-9208)
+    - [4 DNS解析过程详解](http://blog.csdn.net/crazw/article/details/8986504)
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-DNS概述">1. DNS概述</a></li><li style="margin-left:0.8rem"><a href="#2-DNS理论基础">2. DNS理论基础</a></li><li style="margin-left:0.0rem"><a href="#4-DNS的分类">4. DNS的分类</a></li><li style="margin-left:0.8rem"><a href="#5-DNS记录类型">5. DNS记录类型</a></li><li style="margin-left:0.8rem"><a href="#6-DNS命名规范">6. DNS命名规范</a></li><li style="margin-left:0.8rem"><a href="#7-dig-nslookup-host介绍">7. dig、nslookup、host介绍</a></li><li style="margin-left:0.0rem"><a href="#sudo-apt-get-install-dnsutils">sudo apt-get install dnsutils</a></li><li style="margin-left:0.0rem"><a href="#apt-get-update">apt-get update</a></li><li style="margin-left:0.0rem"><a href="#apt-get-install-dnsutils">apt-get install dnsutils</a></li><li style="margin-left:0.0rem"><a href="#yum-install-bind-utils">yum install bind-utils</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：网络工程 / DNS</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">网络工程</span><span class="tag">DNS</span><span class="tag">Windows</span><span class="tag">MySQL</span><span class="tag">PHP</span><span class="tag">SQL注入</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/01-DNS实战/birdben/84417259.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E7%BD%91%E7%BB%9C%E5%B7%A5%E7%A8%8B%2BDNS%2BWindows%2BMySQL-DNS%E5%AE%9E%E6%88%98%E4%B8%80%20DNS%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E5%8F%8A%E5%8E%9F%E7%90%86%E8%AF%A6%E8%A7%A3.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>DNS实战一 DNS快速入门及原理详解。本文属于网络工程 / DNS，网域名称系统（英文：Domain Name System，缩写：DNS）是互联网的一项服务。它作为将域名和IP地址相互映射的一个分布式数据库，能够使人更方便地访问互联网。在日常生活中人们习惯记忆域名，但机器间互相只认IP地址，域名与IP地址之间…</p>
+      <p>关键词：网络工程、DNS、Windows、MySQL、PHP、SQL注入、知识笔记、网络工程 / DNS、DNS实战一 DNS快速入门及原理详解</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e05d64912aab.html"><small>上一篇</small>DNS实战</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fd73ebb63f58.html"><small>下一篇</small>DNS实战三 DNS主从部署</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1d6cbb67747d.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

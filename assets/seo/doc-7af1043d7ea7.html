@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>写时拷贝｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="copy-on-write，写时拷贝，是计算机程序设计领域的一种优化策略，其核心思想是，当有多个调用者都需要请求相同资源时，一开始资源只会有一份，多个调用者共同读取这一份资源，当某个调用者需要修改数据的时候，才会分配一块内存，将数据拷贝过去，供这个调用者使用，而其他调用者依然还是读取最原始的那份数据。每次有调用者…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，Linux，Redis，Java，权限管理，知识笔记，安全与堡垒机 / 高级安全，写时拷贝">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7af1043d7ea7.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7af1043d7ea7.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2BRedis-%E5%86%99%E6%97%B6%E6%8B%B7%E8%B4%9D.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="写时拷贝">
+  <meta property="og:description" content="copy-on-write，写时拷贝，是计算机程序设计领域的一种优化策略，其核心思想是，当有多个调用者都需要请求相同资源时，一开始资源只会有一份，多个调用者共同读取这一份资源，当某个调用者需要修改数据的时候，才会分配一块内存，将数据拷贝过去，供这个调用者使用，而其他调用者依然还是读取最原始的那份数据。每次有调用者…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7af1043d7ea7.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/2a1a585b54a677ef33.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="写时拷贝">
+  <meta name="twitter:description" content="copy-on-write，写时拷贝，是计算机程序设计领域的一种优化策略，其核心思想是，当有多个调用者都需要请求相同资源时，一开始资源只会有一份，多个调用者共同读取这一份资源，当某个调用者需要修改数据的时候，才会分配一块内存，将数据拷贝过去，供这个调用者使用，而其他调用者依然还是读取最原始的那份数据。每次有调用者…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/2a1a585b54a677ef33.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7af1043d7ea7.html#article","headline":"写时拷贝","description":"copy-on-write，写时拷贝，是计算机程序设计领域的一种优化策略，其核心思想是，当有多个调用者都需要请求相同资源时，一开始资源只会有一份，多个调用者共同读取这一份资源，当某个调用者需要修改数据的时候，才会分配一块内存，将数据拷贝过去，供这个调用者使用，而其他调用者依然还是读取最原始的那份数据。每次有调用者…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","Linux","Redis","Java","权限管理","知识笔记","安全与堡垒机 / 高级安全","写时拷贝"],"wordCount":1882,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7af1043d7ea7.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7af1043d7ea7.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/2a1a585b54a677ef33.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"写时拷贝","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7af1043d7ea7.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>写时拷贝</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>写时拷贝</h1>
+      <p class="lede">copy-on-write，写时拷贝，是计算机程序设计领域的一种优化策略，其核心思想是，当有多个调用者都需要请求相同资源时，一开始资源只会有一份，多个调用者共同读取这一份资源，当某个调用者需要修改数据的时候，才会分配一块内存，将数据拷贝过去，供这个调用者使用，而其他调用者依然还是读取最原始的那份数据。每次有调用者…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,882 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>copy-on-write，写时拷贝，是计算机程序设计领域的一种优化策略，其核心思想是，当有多个调用者都需要请求相同资源时，一开始资源只会有一份，多个调用者共同读取这一份资源，当某个调用者需要修改数据的时候，才会分配一块内存，将数据拷贝过去，供这个调用者使用，而其他调用者依然还是读取最原始的那份数据。每次有调用者需要修改数据时，就会重复一次拷贝流程，供调用者修改使用。</p>
+<p>使用 copy-on-write 可以避免或者减少数据的拷贝操作，极大的提高性能，其应用十分广泛，例如 <strong><a href="https://haicoder.net/linux/linux-tutorial.html" rel="noopener noreferrer">Linux</a></strong> 的 fork 调用，Linux 的文件管理系统，一些数据库服务，<strong><a href="https://haicoder.net/java/java-development.html" rel="noopener noreferrer">Java</a></strong> 中的 CopyOnWriteArrayList，C98/C03 中的 std::string 等等。</p>
+<h2 id="Linux中的fork">Linux中的fork()</h2>
+<p>Linux 在启动过程中，会初始化内核，而内核初始化的最后一步，是创建一个 PID 为 1 的超级进程，又叫做根进程。系统中所有的其他进程，都是由这个根进程直接或者间接产生的，而产生进程的方式，就是利用 fork 系统调用，fork 是类 Unix 操作系统上创建进程的主要方法。</p>
+<p>fork() 的函数原型很简单：</p>
+<p><code>pid_t fork();</code></p>
+<p>我们来看一个简单的例子：</p>
+<pre><code class="language-c">#include &lt;unistd.h&gt;
+#include &lt;stdio.h&gt;
+int main() {
+ int pid = fork();
+ if (pid == -1) {
+ return -1;
+ }
+ if (pid &gt; 0) {
+ printf("Hi, father: %d\n", getpid());
+ return 0;
+ } else {
+ printf("Hi, child: %d\n", getpid());
+ return 0;
+ }
+}
+</code></pre>
+<p>通过 gcc 编译之后执行，输出：</p>
+<p>`Hi, father: 7562</p>
+<p>Hi, child: 7563`</p>
+<p>从输出来看，if 和 else 居然都执行了，因为用 fork() 有个神奇的地方，一次调用，两次返回。</p>
+<p>调用 fork() 之后，会出现两个进程，一个是子进程，一个是父进程，在子进程中，fork() 返回 0，在父进程中，fork() 返回新创建的子进程的进程 ID，我们可以通过 fork() 函数的返回值来判断当前进程是子进程还是父进程。两个进程都会从调用 fork() 的地方继续执行。</p>
+<h3 id="fork-中的copy-on-write">fork()中的copy-on-write</h3>
+<p>fork 进程之后，父进程中的数据怎么办？常规思路是，给子进程重新开辟一块物理内存，将父进程的数据拷贝到子进程中，拷贝完之后，父进程和子进程之间的数据段和堆栈是相互独立的。这样做会带来两个问题：</p>
+<ul>
+<li>拷贝本身会有 CPU 和内存的开销；</li>
+<li>fork 出来的子进程在此后多会执行 exec() 系统调用。</li>
+</ul>
+<p>也就是说，绝大部分情况下，fork 一个子进程会耗费 CPU 和内存资源，但是马上又被子进程抛弃不用了，那么资源的开销就显得毫无意义，于是出于效率考虑，Linux 引入了 copy-on-write 技术。</p>
+<p>在 fork() 调用之后，只会给子进程分配虚拟内存地址，而父子进程的虚拟内存地址虽然不同，但是映射到物理内存上都是同一块区域，子进程的代码段、数据段、堆栈都是指向父进程的物理空间
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/2a1a585b54a677ef33.png"/></p>
+<p>并且此时父进程中所有对应的内存页都会被标记为只读，父子进程都可以正常读取内存数据，当其中某个进程需要更新数据时，检测到内存页是 read-only 的，内存管理单元（MMU）便会抛出一个页面异常中断，（page-fault），在处理异常时，内核便会把触发异常的内存页拷贝一份（其他内存页还是共享的一份），让父子进程各自持有一份。</p>
+<p>这样做的好处不言而喻，能极大的提高 fork 操作时的效率，但是坏处是，如果 fork 之后，两个进程各自频繁的更新数据，则会导致大量的分页错误，这样就得不偿失了。</p>
+<h2 id="Java中的CopyOnWrite容器">Java中的CopyOnWrite容器</h2>
+<p>Java 中有两个容器：CopyOnWriteArrayList 和 CopyOnWriteArraySet，从名字就可以看出，其实现思想也是参考了 copy-on-write 技术。</p>
+<p>当我们往一个 CopyOnWrite 的容器中添加数据的时候，并不会直接添加到当前容器中，而是会拷贝出一个新的容器，然后往新的容器里添加数据，在添加过程中，所有的读操作都会指向旧的容器，添加操作完成之后，再将原容器的引用指向新的容器。为了避免同时有多个线程更新数据，从而拷贝出多个容器的副本，会在拷贝容器的时候进行加锁。</p>
+<p>这样做的好处是对 CopyOnWrite 容器进行读操作的时候并不需要加锁，因为当前容器不会添加任何元素。所以 CopyOnWrite 容器也是一种读写分离的思想，读和写不同的容器。</p>
+<h2 id="C-中的std-string">C++中的std::string</h2>
+<p>C98/C03 中的 std::string 使用了 copy-on-write 技术，在 C++11 标准中为了提高并行性取消了这一策略。</p>
+<p>C++ 在分配一个 string 对象时，会在数据区的前面多分配一点空间，用于存储 string 的引用计数。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/7e4cb6bb50adfdeccc.png"/></p>
+<p>当触发一个 string 的拷贝构造函数或者赋值函数时，便会对这个引用计数加一。需要修改内容时，如果引用计数不为零，表示有人在共享这块内存，那么自己需要先做一份拷贝，然后把引用计数减去一，再把数据拷贝过来。</p>
+<h2 id="Redis中的COW">Redis中的COW</h2>
+<p><strong><a href="https://haicoder.net/redis/redis-birth.html" rel="noopener noreferrer">Redis</a></strong> 中，执行 BGSAVE 命令，来生成 RDB 文件时，本质就是调用了 Linux 的系统调用 fork() 命令，Linux 下 fork() 系统调用，实现了 copy-on-write 写时复制。</p>
+<h2 id="Copy-On-Write技术实现原理">Copy On Write技术实现原理</h2>
+<p>fork() 之后，kernel 把父进程中所有的内存页的权限都设为 read-only，然后子进程的地址空间指向父进程。当父子进程都只读内存时，相安无事。当其中某个进程写内存时，CPU 硬件检测到内存页是 read-only 的，于是触发页异常中断（page-fault），陷入 kernel 的一个中断例程。中断例程中，kernel 就会把触发的异常的页复制一份，于是父子进程各自持有独立的一份。</p>
+<h2 id="Copy-On-Write技术好处">Copy On Write技术好处</h2>
+<p>COW 技术可减少分配和复制大量资源时带来的瞬间延时。</p>
+<p>COW 技术可减少不必要的资源分配。比如 fork 进程时，并不是所有的页面都需要复制，父进程的代码段和只读数据段都不被允许修改，所以无需复制。</p>
+<h2 id="Copy-On-Write技术缺点">Copy On Write技术缺点</h2>
+<p>如果在 fork() 之后，父子进程都还需要继续进行写操作，那么会产生大量的分页错误(页异常中断 page-fault)，这样就得不偿失。</p>
+<h2 id="总结">总结</h2>
+<p>fork 出的子进程共享父进程的物理空间，当父子进程有内存写入操作时，read-only 内存页发生中断，将触发的异常的内存页复制一份(其余的页还是共享父进程的)。</p>
+<p>fork 出的子进程功能实现和父进程是一样的。如果有需要，我们会用 exec() 把当前进程映像替换成新的进程文件，完成自己想要实现的功能。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#Linux中的fork">Linux中的fork()</a></li><li style="margin-left:0.8rem"><a href="#fork-中的copy-on-write">fork()中的copy-on-write</a></li><li style="margin-left:0.0rem"><a href="#Java中的CopyOnWrite容器">Java中的CopyOnWrite容器</a></li><li style="margin-left:0.0rem"><a href="#C-中的std-string">C++中的std::string</a></li><li style="margin-left:0.0rem"><a href="#Redis中的COW">Redis中的COW</a></li><li style="margin-left:0.0rem"><a href="#Copy-On-Write技术实现原理">Copy On Write技术实现原理</a></li><li style="margin-left:0.0rem"><a href="#Copy-On-Write技术好处">Copy On Write技术好处</a></li><li style="margin-left:0.0rem"><a href="#Copy-On-Write技术缺点">Copy On Write技术缺点</a></li><li style="margin-left:0.0rem"><a href="#总结">总结</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">Linux</span><span class="tag">Redis</span><span class="tag">Java</span><span class="tag">权限管理</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68657082.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2BRedis-%E5%86%99%E6%97%B6%E6%8B%B7%E8%B4%9D.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>copy-on-write，写时拷贝，是计算机程序设计领域的一种优化策略，其核心思想是，当有多个调用者都需要请求相同资源时，一开始资源只会有一份，多个调用者共同读取这一份资源，当某个调用者需要修改数据的时候，才会分配一块内存，将数据拷贝过去，供这个调用者使用，而其他调用者依然还是读取最原始的那份数据。每次有调用者…</p>
+      <p>关键词：安全与堡垒机、高级安全、Linux、Redis、Java、权限管理、知识笔记、安全与堡垒机 / 高级安全、写时拷贝</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-07b900c2437d.html"><small>上一篇</small>内核态与用户态</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-52831fdfa958.html"><small>下一篇</small>分布式监控系统Zabbix学习一</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7af1043d7ea7.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

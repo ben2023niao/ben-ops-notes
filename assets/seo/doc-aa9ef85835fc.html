@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Falco 之 K8S 入侵检测｜安全与堡垒机 / 安全运维｜BEN.OPS</title>
+  <meta name="description" content="Falco 之 K8S 入侵检测。本文属于安全与堡垒机 / 安全运维，Falco规则文件是包含三种类型元素的YAML文件： Rules就是生成告警的条件以及一下描述性输出字符串。Macros 是可以在规则或者其他宏中重复使用的规则条件片段。Lists 类似Python 列表，定义了一个变量集合。 Falco 使用…">
+  <meta name="keywords" content="安全与堡垒机，安全运维，Kubernetes，Apache，PHP，Java，入侵检测，知识笔记，安全与堡垒机 / 安全运维，Falco 之 K8S 入侵检测，K8S">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aa9ef85835fc.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aa9ef85835fc.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BKubernetes%2BApache-Falco%20%E4%B9%8B%20K8S%20%E5%85%A5%E4%BE%B5%E6%A3%80%E6%B5%8B.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Falco 之 K8S 入侵检测">
+  <meta property="og:description" content="Falco 之 K8S 入侵检测。本文属于安全与堡垒机 / 安全运维，Falco规则文件是包含三种类型元素的YAML文件： Rules就是生成告警的条件以及一下描述性输出字符串。Macros 是可以在规则或者其他宏中重复使用的规则条件片段。Lists 类似Python 列表，定义了一个变量集合。 Falco 使用…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aa9ef85835fc.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 安全运维">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/22d586fad63a295e1f.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Falco 之 K8S 入侵检测">
+  <meta name="twitter:description" content="Falco 之 K8S 入侵检测。本文属于安全与堡垒机 / 安全运维，Falco规则文件是包含三种类型元素的YAML文件： Rules就是生成告警的条件以及一下描述性输出字符串。Macros 是可以在规则或者其他宏中重复使用的规则条件片段。Lists 类似Python 列表，定义了一个变量集合。 Falco 使用…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/22d586fad63a295e1f.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aa9ef85835fc.html#article","headline":"Falco 之 K8S 入侵检测","description":"Falco 之 K8S 入侵检测。本文属于安全与堡垒机 / 安全运维，Falco规则文件是包含三种类型元素的YAML文件： Rules就是生成告警的条件以及一下描述性输出字符串。Macros 是可以在规则或者其他宏中重复使用的规则条件片段。Lists 类似Python 列表，定义了一个变量集合。 Falco 使用…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","安全运维"],"keywords":["安全与堡垒机","安全运维","Kubernetes","Apache","PHP","Java","入侵检测","知识笔记","安全与堡垒机 / 安全运维","Falco 之 K8S 入侵检测","K8S"],"wordCount":1189,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aa9ef85835fc.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aa9ef85835fc.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/22d586fad63a295e1f.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 安全运维","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Falco 之 K8S 入侵检测","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aa9ef85835fc.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 安全运维</span> › <span>Falco 之 K8S 入侵检测</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 安全运维</div>
+      <h1>Falco 之 K8S 入侵检测</h1>
+      <p class="lede">Falco 之 K8S 入侵检测。本文属于安全与堡垒机 / 安全运维，Falco规则文件是包含三种类型元素的YAML文件： Rules就是生成告警的条件以及一下描述性输出字符串。Macros 是可以在规则或者其他宏中重复使用的规则条件片段。Lists 类似Python 列表，定义了一个变量集合。 Falco 使用…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,189 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>效果图
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/22d586fad63a295e1f.png"/>
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/2d05ce498820b475c1.png"/></p>
+<p>Falco规则文件是包含三种类型元素的YAML文件：</p>
+<p>Rules 、Macros、Lists</p>
+<p>Rules就是生成告警的条件以及一下描述性输出字符串。Macros 是可以在规则或者其他宏中重复使用的规则条件片段。Lists 类似Python 列表，定义了一个变量集合。</p>
+<p>Falco 使用了Sysdig， 在rule的 condition里面,任何 Sysdig 过滤器都可以在 Falco 中使用。</p>
+<p>参考如下：</p>
+<pre><code>https://github.com/draios/sysdig/wiki/sysdig-user-guide#filtering
+</code></pre>
+<p>这是一个rule的 condition条件示例，在容器内运行 bash shell 时发出警报：</p>
+<p><a href="http://container.id" rel="noopener noreferrer">container.id</a> != host and <a href="http://proc.name" rel="noopener noreferrer">proc.name</a> = bash</p>
+<p>第一个子句检查事件是否发生在容器中（Sysdig 事件有一个container字段，该字段等于”host”事件是否发生在host主机上）。第二个子句检查进程名称是否为bash。</p>
+<p>举个完整的列子</p>
+<pre><code>- list: my_programs
+ items: [ls, cat, bash]
+
+- macro: access_file
+ condition: evt.type=open
+
+- rule: program_accesses_file
+ desc: track whenever a set of programs opens a file
+ condition: proc.name in (my_programs) and (access_file)
+ output: a tracked program opened a file (user=%user.name command=%proc.cmdline file=%fd.name)
+ priority: INFO
+</code></pre>
+<p>web应用进程java，php，apache，httpd，tomcat 中运行其他进程falco demo，图片来自，字节沙龙
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/3311f555a4b6e9d63f.png"/>
+web应用进程java，php，apache，httpd，tomcat 中读取查看敏感文件falco demo，图片来自，字节沙龙
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/80a4c94f8e14969e89.png"/></p>
+<pre><code class="language-bash">#下面，我们修改falco 的配置，/etc/falco/falco.yaml
+
+json_output: true
+json_include_output_property: true
+http_output:
+ enabled: true
+ url: "http://localhost:2801"
+#启动falco
+systemctl enable falco &amp;&amp; systemctl start falco
+</code></pre>
+<p><a href="https://github.com/falcosecurity/falcosidekick.git" rel="noopener noreferrer">https://github.com/falcosecurity/falcosidekick.git</a></p>
+<p>falcosidekick 是一个管道工具，接受 Falco的事件并将它们发送到不同的持久化工具中。我们使用falcosidekick把falco post 过来的数据写入es ，也可以写入kafka。我们也读取kafka里面的东西完成告警， 也可以用 Prometheus 和falco-exporter 完成告警。如下图。</p>
+<pre><code>elasticsearch:
+ hostport: "http://203.0.113.1:9200"
+ index: "falco"
+ type: "event"
+ minimumpriority: ""
+ suffix: "daily"
+ mutualtls: false
+ checkcert: true
+ username: ""
+ password: ""
+
+kafka:
+ hostport: ""
+ topic: ""
+ # minimumpriority: "debug"
+</code></pre>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/29e2bd99620d101cd9.png"/></p>
+<h2 id="批量部署-更新规则">批量部署&amp;更新规则</h2>
+<p>我们在生产环境中需要批量部署和更新规则需求，所以我们可以使用saltstack 或者 ansible 下发对应shell脚本来完成我们的需求。</p>
+<p>批量部署</p>
+<pre><code class="language-bash">#!/bin/bash
+if [ -n "$(uname -a | grep Ubuntu)" ]; then # 按实际情况修改
+ curl -s https://falco.org/repo/falcosecurity-3672BA8F.asc | apt-key add -
+ echo "deb https://download.falco.org/packages/deb stable main" | tee -a /etc/apt/sources.list.d/falcosecurity.list
+ apt-get update -y
+ apt-get install -y falco
+else
+ rpm --import https://falco.org/repo/falcosecurity-3672BA8F.asc
+ curl -s -o /etc/yum.repos.d/falcosecurity.repo https://falco.org/repo/falcosecurity-rpm.repo
+ yum -y install falco
+fi
+
+systemctl enable falco &amp;&amp; systemctl start falco
+</code></pre>
+<p>批量更新规则</p>
+<pre><code class="language-bash">#!/bin/bash
+BDATE=`date +%Y%m%d%H%M%S`
+URL=http://203.0.113.1:8888/falco_update.tar.gz
+
+if [ -d /etc/falco_bak ]
+then
+ cp -r /etc/falco /etc/falco_bak/${BDATE}
+ rm -rf /etc/falco_bak/falco_update.tar.gz
+else
+ mkdir /etc/falco_bak
+ cp -r /etc/falco /etc/falco_bak/${BDATE}
+fi
+
+curl -o /etc/falco_bak/falco_update.tar.gz ${URL} &amp;&amp; rm -rf /etc/falco
+tar -xzvf /etc/falco_bak/falco_update.tar.gz -C /etc &amp;&amp; systemctl restart falco
+</code></pre>
+<p>把规则falco_update.tar.gz，提前准备好，使用saltstack 推下去即可.saltstack demo 如下：</p>
+<pre><code>[root@localhost ~]$ cat /srv/salt/top.sls
+base:
+ '*':
+ - exec_shell_install
+
+[root@localhost ~]$ cat /srv/salt/exec_shell_install.sls
+
+exec_shell_install:
+ cmd.script:
+ - source: salt://falco_install.sh
+ - user: root
+
+[root@localhost ~]$ salt '*' state.highstate
+</code></pre>
+<p>也可以使用ansible 推下去即可.ansible demo 如下：</p>
+<pre><code>[root@server81 work]# ansible servers -m shell -a "mkdir -p /var/falco_sh"
+[root@server81 ansible]# ansible servers -m copy -a "src=/root/ansible/falco_install.sh  dest=/var/falco_sh/falco_install.sh mode=0755"
+203.0.113.1 | CHANGED =&gt; {
+[root@server81 ansible]# ansible servers -m shell -a "/var/falco_sh/falco_install.sh"
+203.0.113.1 | CHANGED | rc=0 &gt;&gt;
+</code></pre>
+<h2 id="可视化">可视化</h2>
+<p>Kibana是一个开源的分析与可视化平台，设计出来用于和Elasticsearch一起使用的。你可以用kibana搜索、查看存放在Elasticsearch中的数据。Kibana与Elasticsearch的交互方式是各种不同的图表、表格、地图等，直观的展示数据，从而达到高级的数据分析与可视化的目的。
+Elasticsearch、Logstash和Kibana这三个技术就是我们常说的ELK技术栈，可以说这三个技术的组合是大数据领域中一个很巧妙的设计。一种很典型的MVC思想，模型持久层，视图层和控制层。Logstash担任控制层的角色，负责搜集和过滤数据。Elasticsearch担任数据持久层的角色，负责储存数据。而我们这章的主题Kibana担任视图层角色，拥有各种维度的查询和分析，并使用图形化的界面展示存放在Elasticsearch中的数据。</p>
+<p>因为我们使用了， es 推荐使用kibana 做一下可视化， 也可以使用grafana 做可视化。demo 如下图：
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/22d586fad63a295e1f.png"/></p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#批量部署-更新规则">批量部署&amp;更新规则</a></li><li style="margin-left:0.0rem"><a href="#可视化">可视化</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 安全运维</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">安全运维</span><span class="tag">Kubernetes</span><span class="tag">Apache</span><span class="tag">PHP</span><span class="tag">Java</span><span class="tag">入侵检测</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/04-安全运维/birdben/68655530.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BKubernetes%2BApache-Falco%20%E4%B9%8B%20K8S%20%E5%85%A5%E4%BE%B5%E6%A3%80%E6%B5%8B.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Falco 之 K8S 入侵检测。本文属于安全与堡垒机 / 安全运维，Falco规则文件是包含三种类型元素的YAML文件： Rules就是生成告警的条件以及一下描述性输出字符串。Macros 是可以在规则或者其他宏中重复使用的规则条件片段。Lists 类似Python 列表，定义了一个变量集合。 Falco 使用…</p>
+      <p>关键词：安全与堡垒机、安全运维、Kubernetes、Apache、PHP、Java、入侵检测、知识笔记、安全与堡垒机 / 安全运维、Falco 之 K8S 入侵检测、K8S</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-01325bf262b1.html"><small>上一篇</small>Falco 之 Docker 入侵检测</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-007726e36ca1.html"><small>下一篇</small>Falco 介绍/安装</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aa9ef85835fc.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

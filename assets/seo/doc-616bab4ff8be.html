@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>多级页表｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="多级页表。本文属于安全与堡垒机 / 高级安全，假设某计算机系统按字节寻址，支持 32 位逻辑地址，采用分页存储管理，页面大小为 4KB，页表项长度为 4B。4KB = 212B，因此页内地址要用 12 位表示，剩余 20 位表示页号。 因此，该系统中用户进程最多有 220 页。相应的，一个进程的页表中，最多会有…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，知识笔记，安全与堡垒机 / 高级安全，多级页表">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-616bab4ff8be.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-616bab4ff8be.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E5%A4%9A%E7%BA%A7%E9%A1%B5%E8%A1%A8.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="多级页表">
+  <meta property="og:description" content="多级页表。本文属于安全与堡垒机 / 高级安全，假设某计算机系统按字节寻址，支持 32 位逻辑地址，采用分页存储管理，页面大小为 4KB，页表项长度为 4B。4KB = 212B，因此页内地址要用 12 位表示，剩余 20 位表示页号。 因此，该系统中用户进程最多有 220 页。相应的，一个进程的页表中，最多会有…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-616bab4ff8be.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/ebcf9c4c5f13ea7154.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="多级页表">
+  <meta name="twitter:description" content="多级页表。本文属于安全与堡垒机 / 高级安全，假设某计算机系统按字节寻址，支持 32 位逻辑地址，采用分页存储管理，页面大小为 4KB，页表项长度为 4B。4KB = 212B，因此页内地址要用 12 位表示，剩余 20 位表示页号。 因此，该系统中用户进程最多有 220 页。相应的，一个进程的页表中，最多会有…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/ebcf9c4c5f13ea7154.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-616bab4ff8be.html#article","headline":"多级页表","description":"多级页表。本文属于安全与堡垒机 / 高级安全，假设某计算机系统按字节寻址，支持 32 位逻辑地址，采用分页存储管理，页面大小为 4KB，页表项长度为 4B。4KB = 212B，因此页内地址要用 12 位表示，剩余 20 位表示页号。 因此，该系统中用户进程最多有 220 页。相应的，一个进程的页表中，最多会有…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","知识笔记","安全与堡垒机 / 高级安全","多级页表"],"wordCount":2046,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-616bab4ff8be.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-616bab4ff8be.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/ebcf9c4c5f13ea7154.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"多级页表","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-616bab4ff8be.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>多级页表</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>多级页表</h1>
+      <p class="lede">多级页表。本文属于安全与堡垒机 / 高级安全，假设某计算机系统按字节寻址，支持 32 位逻辑地址，采用分页存储管理，页面大小为 4KB，页表项长度为 4B。4KB = 212B，因此页内地址要用 12 位表示，剩余 20 位表示页号。 因此，该系统中用户进程最多有 220 页。相应的，一个进程的页表中，最多会有…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,046 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="单级页表存在的问题">单级页表存在的问题<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/ebcf9c4c5f13ea7154.png"/></h2>
+<p>假设某计算机系统按字节寻址，支持 32 位逻辑地址，采用分页存储管理，页面大小为 4KB，页表项长度为 4B。4KB = 212B，因此页内地址要用 12 位表示，剩余 20 位表示页号。</p>
+<p>因此，该系统中用户进程最多有 220 页。相应的，一个进程的页表中，最多会有 220 个页表项，所以一个页表最大需要 220 * 4B = 222B。一个页框（内存块）大小为 4B，所以需要 222/212 = 210 个页框存储该页表。而页表的存储是需要连续存储的，因为根据页号查询页表的方法：K 号页对应的页表项的位置 = 页表起始地址 + K * 4B（页表项长度），所以这就要求页表的存储必须是连续的。</p>
+<p>回想一下，当初为什么使用页表，就是要将进程划分为一个个页面可以不用连续的存放在内存中，但是此时页表就需要 1024 个连续的页框，似乎和当时的目标有点背道而驰了…</p>
+<p>此外，根据局部性原理可知，很多时候，进程在一段时间内只需要访问某几个页面就可以正常运行了。因此也没有必要让整个页面都常驻内存。所以，单级页表存在以上两个问题。</p>
+<h2 id="两级页表">两级页表</h2>
+<p>如何解决页表过大需要连续存储的问题呢？这个问题可以参考进程太大需要连续存储的答案。因为页表必须连续存放，所以可以将页表再分页。</p>
+<p>解决方案：可以将长长的页表进行分组，使每个页面中刚好可以放下一个分组（如上面的例子中，页面的大小 4KB），每个页表项 4B，所以每个页面中可以存放 1K 个（1024）个页表项，因此每 1K 个连续的页表项为一组，每组刚好占一个页面，再讲各组离散的放在各个内存块中）。这样就需要为离散的页表再建立一张页表，称为页目录表，或外层页表，或顶层页表。</p>
+<p>还是上面的例子，32 位的逻辑地址空间，页表项大小为 4B，页面大小 4KB，则页内地址占 12 位，单级页表结构逻辑结构图如下图所示：
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/05cb43029e9fe22382.png"/>
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/5fa630bf41c91ef88f.png"/>
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/0bad26969ccf3b9850.png"/></p>
+<h2 id="虚拟存储技术">虚拟存储技术</h2>
+<p>在解决了页必须连续存放的问题后，再看如何第二个问题：没有必要让整个页表常驻内存，因为进程一段时间内可能只需要访问某几个特定的页面。</p>
+<p>解决方案：可以在需要访问页面时才把页面调入内存——虚拟存储技术（后面再说）。可以在页表中增加一个标示位，用于表示该页表是否已经调入内存。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/83d81b4f6c73b8338b.png"/></p>
+<h2 id="几个问题">几个问题</h2>
+<ol>
+<li>若采用多级页表机制，则各级页表的大小不能超过一个页面。</li>
+</ol>
+<p>举例说明，某系统按字节编址，采用 40 位逻辑地址，页面大小为 4KB，页表项大小为 4B，假设采用纯页式存储，则要采用（）级页表，页内偏移量为（）位？</p>
+<p>页面大小 = 4KB，按字节编址，因此页内偏移量为 12 位。</p>
+<p>页号 = 40 - 12 = 28位。</p>
+<p>页面大小 = 4KB，页表项大小 = 4B，则每个页面可存放 1024 个页表项。因此各级页表最多包含 1024 个页表项，需要 10 个二进制位才能映射到 1024 个页表项，因此每级页表对应的页号应为 10 位二进制。共 28 位的页号至少要分为 3 级。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/22c5151cd4b26866c2.png"/>
+1. 两级页表的访问次数分析（假设没有页表）：</p>
+<pre><code>1. 第一次访问：访问内存中的页目录表。
+2. 访问内存中的二级目录。
+3. 访问目标内存单元。
+</code></pre>
+<p>从上面可以看出，两级页表虽然解决了页表需要连续存储的问题，但是同时也增加了内存的访问次数。</p>
+<h2 id="使用二级页表的优势">使用二级页表的优势</h2>
+<ol>
+<li>使用多级页表可以使得页表在内存中离散存储。多级页表实际上是增加了索引，有了索引就可以定位到具体的项。举个例子：比如虚拟地址空间大小为 4G，每个页大小依然为 4K，如果使用一级页表的话，共有 2^20 个页表项，如果每一个页表项占 4B，那么存放所有页表项需要 4M，为了能够随机访问，那么就需要连续 4M 的内存空间来存放所有的页表项。</li>
+</ol>
+<p>随着虚拟地址空间的增大，存放页表所需要的连续空间也会增大，在操作系统内存紧张或者内存碎片较多时，这无疑会带来额外的开销。但是如果使用多级页表，我们可以使用一页来存放页目录项，页表项存放在内存中的其他位置，不用保证页目录项和页表项连续。
+2. 使用多级页表可以节省页表内存。使用一级页表，需要连续的内存空间来存放所有的页表项。多级页表通过只为进程实际使用的那些虚拟地址内存区请求页表来减少内存使用量。举个例子：一个进程的虚拟地址空间是 4GB，假如进程只使用 4MB 内存空间。对于一级页表，我们需要 4M 空间来存放这 4GB 虚拟地址空间对应的页表，然后可以找到进程真正使用的 4M 内存空间。也就是说，虽然进程实际上只使用了 4MB 的内存空间，但是为了访问它们我们需要为所有的虚拟地址空间建立页表。</p>
+<p>但是如果使用二级页表的话，一个页目录项可以定位 4M 内存空间，存放一个页目录项占 4K，还需要一页用于存放进程使用的 4M（4M=1024*4K，也就是用 1024 个页表项可以映射 4M 内存空间）内存空间对应的页表，总共需要 4K（页表）+4K（页目录）=8K 来存放进程使用的这 4M 内存空间对应页表和页目录项，这比使用一级页表节省了很多内存空间。</p>
+<p>当然，在这种情况下，使用多级页表确实是可以节省内存的。但是，我们需要注意另一种情况，如果进程的虚拟地址空间是 4GB，而进程真正使用的内存也是 4GB，如果是使用一级页表，则只需要 4MB 连续的内存空间存放页表，我们就可以寻址这 4GB 内存空间。而如果使用的是二级页表的话，我们需要 4MB 内存存放页表，还需要 4KB 内存来存放页目录项，此时多级页表反倒是多占用了内存空间。注意在大多数情况都是进程的 4GB 虚拟地址空间都是没有使用的，实际使用的都是小于 4GB 的，所以我们说多级页表可以节省页表内存。</p>
+<p>那么使用多级页表比使用以及页表有没有什么劣势呢？</p>
+<p>当然是有的。比如：使用以及页表时，读取内存中一页内容需要 2 次访问内存，第一次是访问页表项，第二次是访问要读取的一页数据。但如果是使用二级页表的话，就需要 3 次访问内存了，第一次访问页目录项，第二次访问页表项，第三次访问要读取的一页数据。访存次数的增加也就意味着访问数据所花费的总时间增加。</p>
+<h2 id="总结">总结</h2>
+<p>多级页表优势：</p>
+<ol>
+<li>可以离散存储页表。</li>
+<li>在某种意义上节省页表内存空间。</li>
+</ol>
+<p>多级页表劣势：</p>
+<ol>
+<li>增加寻址次数，从而延长访存时间。</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#单级页表存在的问题">单级页表存在的问题</a></li><li style="margin-left:0.0rem"><a href="#两级页表">两级页表</a></li><li style="margin-left:0.0rem"><a href="#虚拟存储技术">虚拟存储技术</a></li><li style="margin-left:0.0rem"><a href="#几个问题">几个问题</a></li><li style="margin-left:0.0rem"><a href="#使用二级页表的优势">使用二级页表的优势</a></li><li style="margin-left:0.0rem"><a href="#总结">总结</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68657172.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E5%A4%9A%E7%BA%A7%E9%A1%B5%E8%A1%A8.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>多级页表。本文属于安全与堡垒机 / 高级安全，假设某计算机系统按字节寻址，支持 32 位逻辑地址，采用分页存储管理，页面大小为 4KB，页表项长度为 4B。4KB = 212B，因此页内地址要用 12 位表示，剩余 20 位表示页号。 因此，该系统中用户进程最多有 220 页。相应的，一个进程的页表中，最多会有…</p>
+      <p>关键词：安全与堡垒机、高级安全、知识笔记、安全与堡垒机 / 高级安全、多级页表</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aa71b12b4685.html"><small>上一篇</small>复活被墙的IP</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3d5b4858e0ef.html"><small>下一篇</small>多线程与多进程</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-616bab4ff8be.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

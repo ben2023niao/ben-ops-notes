@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Shell脚本初始化服务配置｜Linux 与 Shell / 日常运维｜BEN.OPS</title>
+  <meta name="description" content="Shell脚本初始化服务配置。本文属于Linux 与 Shell / 日常运维，生产实践： 使用shell针对服务进行个性化配置 学习技巧： Shell 判断、循环、function，配置crontab、rsync、系统内核参数 Shell 判断、循环、function，配置crontab、rsync、系统内核参数">
+  <meta name="keywords" content="Linux 与 Shell，日常运维，Docker，备份恢复，知识笔记，Linux 与 Shell / 日常运维，Shell脚本初始化服务配置，Shell，Linux">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9feb5c97da40.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9feb5c97da40.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2BDocker%2B%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D-Shell%E8%84%9A%E6%9C%AC%E5%88%9D%E5%A7%8B%E5%8C%96%E6%9C%8D%E5%8A%A1%E9%85%8D%E7%BD%AE.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Shell脚本初始化服务配置">
+  <meta property="og:description" content="Shell脚本初始化服务配置。本文属于Linux 与 Shell / 日常运维，生产实践： 使用shell针对服务进行个性化配置 学习技巧： Shell 判断、循环、function，配置crontab、rsync、系统内核参数 Shell 判断、循环、function，配置crontab、rsync、系统内核参数">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9feb5c97da40.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="Linux 与 Shell / 日常运维">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Shell脚本初始化服务配置">
+  <meta name="twitter:description" content="Shell脚本初始化服务配置。本文属于Linux 与 Shell / 日常运维，生产实践： 使用shell针对服务进行个性化配置 学习技巧： Shell 判断、循环、function，配置crontab、rsync、系统内核参数 Shell 判断、循环、function，配置crontab、rsync、系统内核参数">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9feb5c97da40.html#article","headline":"Shell脚本初始化服务配置","description":"Shell脚本初始化服务配置。本文属于Linux 与 Shell / 日常运维，生产实践： 使用shell针对服务进行个性化配置 学习技巧： Shell 判断、循环、function，配置crontab、rsync、系统内核参数 Shell 判断、循环、function，配置crontab、rsync、系统内核参数","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["Linux 与 Shell","日常运维"],"keywords":["Linux 与 Shell","日常运维","Docker","备份恢复","知识笔记","Linux 与 Shell / 日常运维","Shell脚本初始化服务配置","Shell","Linux"],"wordCount":1264,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9feb5c97da40.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9feb5c97da40.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"Linux 与 Shell / 日常运维","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Shell脚本初始化服务配置","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9feb5c97da40.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>Linux 与 Shell / 日常运维</span> › <span>Shell脚本初始化服务配置</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">Linux 与 Shell / 日常运维</div>
+      <h1>Shell脚本初始化服务配置</h1>
+      <p class="lede">Shell脚本初始化服务配置。本文属于Linux 与 Shell / 日常运维，生产实践： 使用shell针对服务进行个性化配置 学习技巧： Shell 判断、循环、function，配置crontab、rsync、系统内核参数 Shell 判断、循环、function，配置crontab、rsync、系统内核参数</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,264 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<ul>
+<li>
+<p><strong>生产实践：</strong></p>
+<p>使用shell针对服务进行个性化配置</p>
+</li>
+<li>
+<p><strong>学习技巧：</strong></p>
+<p><a href="https://chegva.com/tag/shell/" rel="noopener noreferrer" title="View all posts in Shell">Shell</a> 判断、循环、function，配置crontab、rsync、系统内核参数</p>
+</li>
+<li>
+<p><strong>脚本内容：</strong></p>
+</li>
+</ul>
+<p>使用shell脚本在业务初始化时执行服务个性化配置，提高机器快速扩容效率。</p>
+<pre><code class="language-bash">#!/bin/bash
+set -x
+
+hostname=`hostname`
+baseurl=""
+# select baseurl
+function select_baseurl() {
+ if [[ $hostname == *dictchunk* ]] ; then
+ baseurl="https://git.chegva.com/anzhihe/rt-init/raw/master/dict-chunk"
+ elif [[ $hostname == *public-rtchunk* ]] ; then
+ baseurl="https://git.chegva.com/anzhihe/rt-init/raw/master/pub-rt-chunk"
+ elif [[ $hostname == *gs-rtchunk* ]]; then
+ baseurl="https://git.chegva.com/anzhihe/rt-init/raw/master/rt-chunk"
+ else
+ echo "无需baseurl配置，请忽略！"
+ fi
+}
+# add network rto
+function add_rto() {
+ gateway=`ip r |grep default|awk '{print $3}'`
+ if [ -z $gateway ];then
+ echo "gateway is null"
+ exit 1
+ fi
+ localIP=`hostname |xargs host |awk '{print $NF}'`
+ if [[ $localIP == 100\.69* || $localIP == 100\.70* || $localIP == 100\.89* || $localIP == 100\.90* ]];then
+ echo "gz ip: $localIP"
+ ip r add 203.0.113.1/16 via $gateway rto_min 50ms
+ ip r add 203.0.113.1/16 via $gateway rto_min 50ms
+ ip r add 203.0.113.1/18 via $gateway rto_min 50ms
+ ip r add 203.0.113.1/16 via $gateway rto_min 50ms
+ if [[ $? -eq 0 ]];then
+ echo "ip r add 203.0.113.1/16  via $gateway rto_min 50ms" &gt;&gt; /etc/rc.local
+ echo "ip r add 203.0.113.1/16  via $gateway rto_min 50ms" &gt;&gt; /etc/rc.local
+ echo "ip r add 203.0.113.1/18  via $gateway rto_min 50ms" &gt;&gt; /etc/rc.local
+ echo "ip r add 203.0.113.1/16  via $gateway rto_min 50ms" &gt;&gt; /etc/rc.local
+ fi
+ elif [[ $localIP == 10\.88* || $localIP == 10\.89* || $localIP == 10\.90* ]];then
+ echo "bj ip: $localIP"
+ ip r add 203.0.113.1/16 via $gateway rto_min 50ms
+ ip r add 203.0.113.1/16 via $gateway rto_min 50ms
+ ip r add 203.0.113.1/16 via $gateway rto_min 50ms
+
+ if [[ $? -eq 0 ]];then
+ echo "ip r add 203.0.113.1/16  via $gateway rto_min 50ms" &gt;&gt; /etc/rc.local
+ echo "ip r add 203.0.113.1/16  via $gateway rto_min 50ms" &gt;&gt; /etc/rc.local
+ echo "ip r add 203.0.113.1/16  via $gateway rto_min 50ms" &gt;&gt; /etc/rc.local
+ fi
+ elif [[ $localIP == 10\.85* || $localIP == 10\.86* || $localIP == 10\.87* ]];then
+ echo "sh ip: $localIP"
+ ip r add 203.0.113.1/16 via $gateway rto_min 50ms
+ ip r add 203.0.113.1/16 via $gateway rto_min 50ms
+ ip r add 203.0.113.1/16 via $gateway rto_min 50ms
+
+ if [[ $? -eq 0 ]];then
+ echo "ip r add 203.0.113.1/16  via $gateway rto_min 50ms" &gt;&gt; /etc/rc.local
+ echo "ip r add 203.0.113.1/16  via $gateway rto_min 50ms" &gt;&gt; /etc/rc.local
+ echo "ip r add 203.0.113.1/16  via $gateway rto_min 50ms" &gt;&gt; /etc/rc.local
+ fi
+ else
+ echo "not bj or gz sh ip, exit"
+ exit 0
+ fi
+}
+# add kernel para
+function add_kernel_para() {
+ ## 关闭coredump
+ sysctl -w kernel.core_pattern="|/bin/false"
+ echo "kernel.core_pattern = |/bin/false" &gt;&gt; /etc/sysctl.conf
+
+ ## 备份sysctl.conf
+ cp /etc/sysctl.conf /tmp/sysctl.conf.bak
+
+ #hostname=`hostname`
+ if [[ $hostname == *\.docker ]] ; then
+ echo "docker机器跳过"
+ exit 1
+ fi
+ # if [[ $hostname == *\.us01 ]] ; then
+ #  echo "美东机器跳过"
+ #  exit 1
+ # fi
+ ncs="net.core.somaxconn"
+ sysctl -w ${ncs}=4096
+ if grep -o "${ncs}" /etc/sysctl.conf &gt; /dev/null
+ then
+ oldvalue=$(grep ${ncs} /etc/sysctl.conf|tail -1 | awk -F "=| " '{ print $NF }')
+ if [ $oldvalue -ne 4096 ]
+ then
+ sed -i "s|\("${ncs}" *= *\).*|\14096|" /etc/sysctl.conf
+ else
+ echo "${ncs} 无需改动"
+ fi
+ else
+ echo "新加vm配置"
+ echo "${ncs} = 4096" &gt;&gt; /etc/sysctl.conf
+ fi
+ nitmsb="net.ipv4.tcp_max_syn_backlog"
+ sysctl -w ${nitmsb}=4096
+ if grep -o "$nitmsb" /etc/sysctl.conf &gt; /dev/null
+ then
+ oldvalue=$(grep ${nitmsb} /etc/sysctl.conf|tail -1 | awk -F "=| " '{ print $NF }')
+ if [ $oldvalue -ne 4096 ]
+ then
+ sed -i "s|\("${nitmsb}" *= *\).*|\14096|" /etc/sysctl.conf
+ else
+ echo "${nitmsb} 无需改动"
+ fi
+ else
+ echo "新加vm配置"
+ echo "${nitmsb} = 4096" &gt;&gt; /etc/sysctl.conf
+ fi
+}
+# add system crontab
+function add_cron() {
+ if [[ $hostname == *dictchunk* ]] ; then
+ if grep -q "archive_trp_clean.sh" /var/spool/cron/anzhihe; then
+ echo "archive_trp_clean定时任务已经添加！"
+ else
+ echo "00 04 * * * cd /home/anzhihe/DDict/dict-chunk/ &amp;&amp; bash archive_trp_clean.sh" &gt;&gt; /var/spool/cron/anzhihe
+ echo "添加ddict crontab完成"
+ fi
+
+ elif [[ $hostname == *public-rtchunk* || $hostname == *gs-rtchunk* ]] ; then
+ curl -sq $baseurl/clear_unitdb_log.sh -w "\n" &gt; /home/anzhihe/opbin/clear_unitdb_log.sh
+ chown anzhihe.anzhihe /home/anzhihe/opbin/clear_unitdb_log.sh
+ chmod 744 /home/anzhihe/opbin/clear_unitdb_log.sh
+
+ if grep -q "clear_unitdb_log.sh" /var/spool/cron/anzhihe; then
+ echo "clear_unitdb_log定时任务已经添加！"
+ else
+ echo "*/5 * * * * cd /home/anzhihe/opbin;./clear_unitdb_log.sh &gt;&gt; clear_unitdb_log 2&gt;&amp;1" &gt;&gt; /var/spool/cron/anzhihe
+ echo "添加rt crontab完成"
+ fi
+ else
+ echo "no cron need to add "
+ fi
+}
+# add rsyncd config
+function add_rsyncd_config() {
+ curl -sq $baseurl/rsyncd.password -w "\n" &gt; /etc/rsyncd.password
+ curl -sq $baseurl/rsync.password -w "\n" &gt; /etc/rsync.password
+
+ chmod 600 /etc/rsyncd.password /etc/rsync.password
+ chown root.root /etc/rsyncd.password
+ chown anzhihe.anzhihe /etc/rsync.password
+
+ if [[ $hostname == *\.gz01 ]] ; then
+ idc="gz"
+ elif [[ $hostname == *\.ys || $hostname == *\.py02 ]] ; then
+ idc="sh"
+ elif [[ $hostname == *\.us01 || $hostname == *\.ru01 ]]; then
+ idc="us01"
+ # 配置us01 ntp
+ #cp -f /etc/ntp.conf /etc/ntp.conf.bak-`date +%Y%m%d`
+ #cp -f /usr/local/sys/configure/all_etc/ntp_md.conf /etc/ntp.conf
+ #systemctl restart ntpd
+ else
+ echo "机器不在合理机房"
+ exit 1
+ fi
+ if [ `ps -elf|grep -v grep |grep -c /usr/bin/rsync` -lt 1 ]; then
+ curl -sq $baseurl/${idc}.rsyncd.conf -w "\n" &gt; /etc/rsyncd.conf
+ /usr/bin/rsync --daemon &amp;&amp; echo "rsync已启动。"
+ echo "/usr/bin/rsync --daemon" &gt;&gt; /etc/rc.d/rc.local
+#    else
+#       curl -sq $baseurl/${idc}.rsyncd-append.conf -w "\n" &gt;&gt; /etc/rsyncd.conf
+ fi
+ echo "添加rsync配置完成..."
+}
+function main() {
+ if [[ $hostname == *chunk* ]]; then
+ select_baseurl
+ add_kernel_para
+ add_cron
+ add_rsyncd_config
+ else
+ echo "非存储机器略过..."
+ exit 0
+ fi
+}
+
+main
+</code></pre>
+<p>参考：<a href="https://chegva.com/2587.html" rel="noopener noreferrer">Cobbler批量装机系统初始化脚本</a></p>
+      </article>
+      <aside class="aside">
+        
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：Linux 与 Shell / 日常运维</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">Linux 与 Shell</span><span class="tag">日常运维</span><span class="tag">Docker</span><span class="tag">备份恢复</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/08-运维技巧/birdben/84417228.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2BDocker%2B%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D-Shell%E8%84%9A%E6%9C%AC%E5%88%9D%E5%A7%8B%E5%8C%96%E6%9C%8D%E5%8A%A1%E9%85%8D%E7%BD%AE.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Shell脚本初始化服务配置。本文属于Linux 与 Shell / 日常运维，生产实践： 使用shell针对服务进行个性化配置 学习技巧： Shell 判断、循环、function，配置crontab、rsync、系统内核参数 Shell 判断、循环、function，配置crontab、rsync、系统内核参数</p>
+      <p>关键词：Linux 与 Shell、日常运维、Docker、备份恢复、知识笔记、Linux 与 Shell / 日常运维、Shell脚本初始化服务配置、Shell、Linux</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2c2411baafc6.html"><small>上一篇</small>Shell脚本eval使用方法</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9e60c8e548e4.html"><small>下一篇</small>Shell脚本并发执行</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9feb5c97da40.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>01-Web安全｜Web 安全｜BEN.OPS</title>
+  <meta name="description" content="01-Web安全。本文属于Web 安全，按 Web 基础、注入、客户端漏洞、文件执行、业务逻辑、PHP、WAF 七个方向组织。">
+  <meta name="keywords" content="Web 安全，MySQL，Nginx，Apache，PHP，SQL注入，XSS，CSRF，01-Web安全，WAF">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-df8374b3f9f2.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-df8374b3f9f2.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BMySQL%2BNginx%2BApache-01-Web%E5%AE%89%E5%85%A8.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="01-Web安全">
+  <meta property="og:description" content="01-Web安全。本文属于Web 安全，按 Web 基础、注入、客户端漏洞、文件执行、业务逻辑、PHP、WAF 七个方向组织。">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-df8374b3f9f2.html">
+  <meta property="article:published_time" content="2023-04-14T16:00:00">
+  <meta property="article:modified_time" content="2023-04-14 16:00">
+  <meta property="article:section" content="Web 安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="01-Web安全">
+  <meta name="twitter:description" content="01-Web安全。本文属于Web 安全，按 Web 基础、注入、客户端漏洞、文件执行、业务逻辑、PHP、WAF 七个方向组织。">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-df8374b3f9f2.html#article","headline":"01-Web安全","description":"01-Web安全。本文属于Web 安全，按 Web 基础、注入、客户端漏洞、文件执行、业务逻辑、PHP、WAF 七个方向组织。","datePublished":"2023-04-14T16:00:00","dateModified":"2023-04-14 16:00","inLanguage":"zh-CN","articleSection":["Web 安全"],"keywords":["Web 安全","MySQL","Nginx","Apache","PHP","SQL注入","XSS","CSRF","01-Web安全","WAF"],"wordCount":250,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-df8374b3f9f2.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-df8374b3f9f2.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"Web 安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"01-Web安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-df8374b3f9f2.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>Web 安全</span> › <span>01-Web安全</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">Web 安全</div>
+      <h1>01-Web安全</h1>
+      <p class="lede">01-Web安全。本文属于Web 安全，按 Web 基础、注入、客户端漏洞、文件执行、业务逻辑、PHP、WAF 七个方向组织。</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T16:00:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">250 字</span>
+        <span class="badge">1 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>按 Web 基础、注入、客户端漏洞、文件执行、业务逻辑、PHP、WAF 七个方向组织。</p>
+<h2 id="01-Web基础">01-Web基础</h2>
+<ul>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BApache%2BPHP-%E4%B8%80%E3%80%81%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1%E7%AE%80%E4%BB%8B.md" rel="noopener noreferrer">HTTP协议</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BApache%2BPHP-JavaScript%20%E8%B7%A8%E5%9F%9F%E6%96%B9%E6%B3%95.md" rel="noopener noreferrer">JS跨域</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BApache%2BPHP-0x00%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83.md" rel="noopener noreferrer">apache安全配置</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BMySQL%2BApache-Web%E5%9F%BA%E7%A1%80%E8%AF%B4%E6%98%8E-MAIN%20DEFAULTS.md" rel="noopener noreferrer">htaccess文件利用</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BLinux%2BNginx-0x00%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83.md" rel="noopener noreferrer">nginx安全配置</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BPHP%2BJava-%E4%B8%80%E3%80%81HTML-CSS-JavaScript.md" rel="noopener noreferrer">前端基础</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BPHP%2BJava-%E4%B8%80%E3%80%81%20%E4%BB%80%E4%B9%88%E6%98%AF%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5.md" rel="noopener noreferrer">同源策略</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BDNS%2BNginx-%E4%B8%80%E3%80%81%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E9%85%8D%E7%BD%AE.md" rel="noopener noreferrer">后端基础</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BMySQL%2BPHP-%E4%B8%80%E3%80%81php-%20addslashes%28%29%E3%80%81mysqlescapestring%28%29.md" rel="noopener noreferrer">常见函数</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BWindows%2BDNS-0x00%20%E5%BC%95%E8%A8%80.md" rel="noopener noreferrer">IPv6协议安全</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BWindows%2B%E6%BC%8F%E6%B4%9E-IPv6%20%E5%8D%8F%E8%AE%AE%E7%9B%B8%E5%85%B3%E7%9A%84%E8%B5%84%E6%96%99.md" rel="noopener noreferrer">IPv6协议相关</a></li>
+</ul>
+<h2 id="02-注入与请求伪造">02-注入与请求伪造</h2>
+<ul>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%B3%A8%E5%85%A5%E4%B8%8E%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%2BMySQL%2BPHP-%E4%B8%80%E3%80%81%E6%9F%A5%E8%AF%A2%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BF%A1%E6%81%AF.md" rel="noopener noreferrer">MYSQL注入</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%B3%A8%E5%85%A5%E4%B8%8E%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%2BDNS%2BMySQL-%E4%B8%80%E3%80%81sqlmap%20tips.md" rel="noopener noreferrer">sqlmap tips</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%B3%A8%E5%85%A5%E4%B8%8E%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%2BMySQL%2BPHP-0x02%20%E8%87%AA%E5%AE%9A%E4%B9%89payload%E8%84%9A%E6%9C%AC.md" rel="noopener noreferrer">sqlmap 进阶</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%B3%A8%E5%85%A5%E4%B8%8E%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%2BPHP%2BJava-%E4%B8%80%E3%80%81XML%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86.md" rel="noopener noreferrer">XXE漏洞</a></li>
+</ul>
+<h2 id="03-XSS与客户端">03-XSS与客户端</h2>
+<ul>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BXSS%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%2BPHP%2BJava-%E4%B8%80%E3%80%81%E8%B7%A8%E7%AB%99%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%E6%BC%8F%E6%B4%9E.md" rel="noopener noreferrer">CSRF</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BXSS%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%2BJava%2BCSRF-0x01%20%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D.md" rel="noopener noreferrer">Flash CSRF</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BXSS%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%2BJava%2BXSS-0x01%20HTML%E4%B8%AD%E5%B5%8C%E5%85%A5FLASH.md" rel="noopener noreferrer">Flash XSS</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BXSS%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%2BPHP%2BJava-1%E3%80%81%E7%9B%B8%E5%85%B3%E8%83%8C%E6%99%AF%E4%BB%8B%E7%BB%8D.md" rel="noopener noreferrer">url跳转</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BXSS%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%2BJava%2BXSS-0x00%20%E8%83%8C%E6%99%AF.md" rel="noopener noreferrer">DOMXSS</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BXSS%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%2BPHP%2BJava-%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E8%B7%A8%E7%AB%99%E8%84%9A%E6%9C%AC%E6%BC%8F%E6%B4%9E.md" rel="noopener noreferrer">反射XSS</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BXSS%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%2BPHP%2BJava-%E5%AD%98%E5%82%A8XSS%20%E6%98%AF%E4%BB%80%E4%B9%88.md" rel="noopener noreferrer">存储XSS</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BXSS%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%2BPHP%2BJava-%E4%B8%80%E3%80%81html%2C%20js%20%E7%9A%84%E8%87%AA%E8%A7%A3%E7%A0%81%E6%9C%BA%E5%88%B6.md" rel="noopener noreferrer">解码顺序</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BXSS%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%2BPHP%2BJava-0x00%20%E7%9B%B8%E5%85%B3%E8%83%8C%E6%99%AF%E4%BB%8B%E7%BB%8D.md" rel="noopener noreferrer">clickjacking</a></li>
+</ul>
+<h2 id="04-文件与执行">04-文件与执行</h2>
+<ul>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%96%87%E4%BB%B6%E4%B8%8E%E6%89%A7%E8%A1%8C%2BLinux%2BDNS-%E4%B8%80%E3%80%81%E5%91%BD%E4%BB%A4%E6%B3%A8%E5%85%A5.md" rel="noopener noreferrer">命令执行</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%96%87%E4%BB%B6%E4%B8%8E%E6%89%A7%E8%A1%8C%2BApache%2BPHP-%E4%B8%80%E3%80%81%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E.md" rel="noopener noreferrer">文件上传</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%96%87%E4%BB%B6%E4%B8%8E%E6%89%A7%E8%A1%8C%2BLinux%2BWindows-%E4%B8%80%E3%80%81%E6%9C%AC%E5%9C%B0%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB.md" rel="noopener noreferrer">文件包含</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%96%87%E4%BB%B6%E4%B8%8E%E6%89%A7%E8%A1%8C%2BCVE%2BLinux-%E4%B8%80%E3%80%81%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E.md" rel="noopener noreferrer">文件解析</a></li>
+</ul>
+<h2 id="05-SSRF与业务逻辑">05-SSRF与业务逻辑</h2>
+<ul>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BSSRF%E4%B8%8E%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%2BWindows%2BRedis-1.%20%E6%8F%8F%E8%BF%B0.md" rel="noopener noreferrer">SSRF 利用</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BSSRF%E4%B8%8E%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%2BDNS%2BPHP-%E4%B8%80%E3%80%81%E5%AE%9A%E4%B9%89.md" rel="noopener noreferrer">SSRF 基础</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BSSRF%E4%B8%8E%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%2BJava%2BXSS-0x01%20%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81%E5%AE%89%E5%85%A8.md" rel="noopener noreferrer">业务安全</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BSSRF%E4%B8%8E%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%2BCSRF%2B%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86-1.%E8%AE%A2%E5%8D%95%E9%87%91%E9%A2%9D%E4%BF%AE%E6%94%B9.md" rel="noopener noreferrer">支付安全</a></li>
+</ul>
+<h2 id="06-PHP安全">06-PHP安全</h2>
+<ul>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BPHP%2BXXE-%E4%B8%80%E3%80%81XXE%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8.md" rel="noopener noreferrer">php filter</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BLinux%2BWindows-0x00%20%E5%89%8D%E8%A8%80.md" rel="noopener noreferrer">php open_basedir</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BMySQL%2BPHP-RASP%E6%A6%82%E5%BF%B5.md" rel="noopener noreferrer">php rasp 实现</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BPHP%2B%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81-%E4%B8%80%E3%80%81%E5%8F%98%E5%BD%A2webshell.md" rel="noopener noreferrer">php 变形shell检测</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BMySQL%2BPHP-%E4%B8%80%E3%80%81%E9%AA%8C%E8%AF%81%E8%BF%87%E6%BB%A4%E7%94%A8%E6%88%B7%E7%9A%84%E8%BE%93%E5%85%A5.md" rel="noopener noreferrer">php 安全编码</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BMySQL%2BPHP-PHP%E5%BC%B1%E7%B1%BB%E5%9E%8B%E7%AE%80%E4%BB%8B.md" rel="noopener noreferrer">php 弱类型问题</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BMySQL%2BApache-%E6%A1%86%E6%9E%B6%E7%9A%84%E9%80%89%E6%8B%A9.md" rel="noopener noreferrer">php 框架审计</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BPHP%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-php5.2%E4%BB%A5%E5%89%8D.md" rel="noopener noreferrer">php 版本特点</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BNginx%2BPHP-1%20%E8%83%8C%E6%99%AF%E6%A6%82%E8%BF%B0.md" rel="noopener noreferrer">php 防getshell思路</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BMySQL%2BApache-%E9%AB%98%E7%BA%A7PHP%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E6%BC%8F%E6%B4%9E%E5%AE%A1%E6%A0%B8%E6%8A%80%E6%9C%AF.md" rel="noopener noreferrer">php 高级代码审计</a></li>
+</ul>
+<h2 id="07-WAF与信息泄露">07-WAF与信息泄露</h2>
+<ul>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWAF%E4%B8%8E%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%2BMySQL%2BPHP-0x01%20WAF%E7%9A%84%E5%B8%B8%E8%A7%81%E7%89%B9%E5%BE%81.md" rel="noopener noreferrer">bypass sqli</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWAF%E4%B8%8E%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%2BDNS%2BNginx-WAF%E4%B8%8E%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%E8%AF%B4%E6%98%8E-0x00%20Overview.md" rel="noopener noreferrer">bypass waf Cookbook</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWAF%E4%B8%8E%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%2BDNS%2BMySQL-1.%20%E6%9E%B6%E6%9E%84%E5%B1%82%E7%BB%95%E8%BF%87WAF.md" rel="noopener noreferrer">bypass waf（四个层次）</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWAF%E4%B8%8E%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%2BMySQL%2BNginx-%E8%83%8C%E6%99%AF.md" rel="noopener noreferrer">waf 之SQL注入防御思路分享</a></li>
+<li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWAF%E4%B8%8E%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%2BLinux%2BWindows-1.%E7%BD%91%E7%BB%9C%E8%B7%AF%E5%BE%84%E6%89%AB%E6%8F%8F.md" rel="noopener noreferrer">信息泄露</a></li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#01-Web基础">01-Web基础</a></li><li style="margin-left:0.0rem"><a href="#02-注入与请求伪造">02-注入与请求伪造</a></li><li style="margin-left:0.0rem"><a href="#03-XSS与客户端">03-XSS与客户端</a></li><li style="margin-left:0.0rem"><a href="#04-文件与执行">04-文件与执行</a></li><li style="margin-left:0.0rem"><a href="#05-SSRF与业务逻辑">05-SSRF与业务逻辑</a></li><li style="margin-left:0.0rem"><a href="#06-PHP安全">06-PHP安全</a></li><li style="margin-left:0.0rem"><a href="#07-WAF与信息泄露">07-WAF与信息泄露</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：Web 安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">Web 安全</span><span class="tag">MySQL</span><span class="tag">Nginx</span><span class="tag">Apache</span><span class="tag">PHP</span><span class="tag">SQL注入</span><span class="tag">XSS</span><span class="tag">CSRF</span></li>
+          <li><span>来源：01-Web安全/README.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BMySQL%2BNginx%2BApache-01-Web%E5%AE%89%E5%85%A8.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>01-Web安全。本文属于Web 安全，按 Web 基础、注入、客户端漏洞、文件执行、业务逻辑、PHP、WAF 七个方向组织。</p>
+      <p>关键词：Web 安全、MySQL、Nginx、Apache、PHP、SQL注入、XSS、CSRF、01-Web安全、WAF</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e059a5ea88fe.html"><small>上一篇</small>（CVE-2020-12440）Nginx \&lt;= 1.8.0 请求走私</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6b8e0c5ea317.html"><small>下一篇</small>02-主机与渗透</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-df8374b3f9f2.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

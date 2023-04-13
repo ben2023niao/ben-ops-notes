@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Linux文件处理awk命令详解｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="Linux文件处理awk命令详解。本文属于安全与堡垒机 / 高级安全，Linux 中的 awk 是一个强大的文本分析工具，简单来说 awk 就是把文件逐行读入，（空格，制表符）为默认分隔符将每行切片，切开的部分再进行各种分析处理。 awk 是一个强大的文本分析工具，相对于 grep 的查找， sed 的编辑，aw…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，Linux，知识笔记，安全与堡垒机 / 高级安全，Linux文件处理awk命令详解">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-52d6bdbc441f.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-52d6bdbc441f.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-Linux%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86awk%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Linux文件处理awk命令详解">
+  <meta property="og:description" content="Linux文件处理awk命令详解。本文属于安全与堡垒机 / 高级安全，Linux 中的 awk 是一个强大的文本分析工具，简单来说 awk 就是把文件逐行读入，（空格，制表符）为默认分隔符将每行切片，切开的部分再进行各种分析处理。 awk 是一个强大的文本分析工具，相对于 grep 的查找， sed 的编辑，aw…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-52d6bdbc441f.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Linux文件处理awk命令详解">
+  <meta name="twitter:description" content="Linux文件处理awk命令详解。本文属于安全与堡垒机 / 高级安全，Linux 中的 awk 是一个强大的文本分析工具，简单来说 awk 就是把文件逐行读入，（空格，制表符）为默认分隔符将每行切片，切开的部分再进行各种分析处理。 awk 是一个强大的文本分析工具，相对于 grep 的查找， sed 的编辑，aw…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-52d6bdbc441f.html#article","headline":"Linux文件处理awk命令详解","description":"Linux文件处理awk命令详解。本文属于安全与堡垒机 / 高级安全，Linux 中的 awk 是一个强大的文本分析工具，简单来说 awk 就是把文件逐行读入，（空格，制表符）为默认分隔符将每行切片，切开的部分再进行各种分析处理。 awk 是一个强大的文本分析工具，相对于 grep 的查找， sed 的编辑，aw…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","Linux","知识笔记","安全与堡垒机 / 高级安全","Linux文件处理awk命令详解"],"wordCount":1669,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-52d6bdbc441f.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-52d6bdbc441f.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Linux文件处理awk命令详解","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-52d6bdbc441f.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>Linux文件处理awk命令详解</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>Linux文件处理awk命令详解</h1>
+      <p class="lede">Linux文件处理awk命令详解。本文属于安全与堡垒机 / 高级安全，Linux 中的 awk 是一个强大的文本分析工具，简单来说 awk 就是把文件逐行读入，（空格，制表符）为默认分隔符将每行切片，切开的部分再进行各种分析处理。 awk 是一个强大的文本分析工具，相对于 grep 的查找， sed 的编辑，aw…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,669 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="Linux文件处理awk命令详解教程">Linux文件处理awk命令详解教程</h2>
+<p><strong><a href="https://haicoder.net/linux/linux-tutorial.html" rel="noopener noreferrer">Linux</a></strong> 中的 awk 是一个强大的文本分析工具，简单来说 awk 就是把文件逐行读入，（空格，制表符）为默认分隔符将每行切片，切开的部分再进行各种分析处理。</p>
+<h2 id="Linux-awk命令说明">Linux awk命令说明</h2>
+<p>awk 是一个强大的文本分析工具，相对于 <strong><a href="https://haicoder.net/linux/linux-grep.html" rel="noopener noreferrer">grep</a></strong> 的查找，<strong><a href="https://haicoder.net/linux/linux-sed.html" rel="noopener noreferrer">sed</a></strong> 的编辑，awk 在其对数据分析并生成报告时，显得尤为强大。</p>
+<p>awk 有 3 个不同版本: awk、nawk 和 gawk，未作特别说明，一般指 gawk，gawk 是 AWK 的 GNU 版本。</p>
+<p>awk 其名称得自于它的创始人 Alfred Aho 、Peter Weinberger 和 Brian Kernighan 姓氏的首个字母。实际上 AWK 的确拥有自己的语言： AWK 程序设计语言 ， 三位创建者已将它正式定义为 “样式扫描和处理语言”。</p>
+<p>它允许您创建简短的程序，这些程序读取输入文件、为数据排序、处理数据、对输入执行计算以及生成报表，还有无数其他的功能。</p>
+<h2 id="Linux-awk命令详解">Linux awk命令详解</h2>
+<h3 id="功能">功能</h3>
+<p>对文本进行分析与处理。</p>
+<h3 id="语法">语法</h3>
+<p><code>awk '{pattern + action}' input-file(s)</code></p>
+<h3 id="参数">参数</h3>
+<p>| 参数 | 描述 |</p>
+<p>| --- | --- |</p>
+<p>| field-separator | awk 命令分隔符。 |</p>
+<p>| commands | 命令。 |</p>
+<p>| input-file | 要处理的文件。 |</p>
+<h3 id="说明">说明</h3>
+<p>尽管操作可能会很复杂，但语法总是这样，其中 pattern 表示 AWK 在数据中查找的内容，而 action 是在找到匹配内容时所执行的一系列命令。花括号（{}）不需要在程序中始终出现，但它们用于根据特定的模式对一系列指令进行分组。 pattern 就是要表示的正则表达式，用斜杠括起来。</p>
+<p>awk 语言的最基本功能是在文件或者字符串中基于指定规则浏览和抽取信息，awk 抽取信息后，才能进行其他文本操作。完整的 awk 脚本通常用来格式化文本文件中的信息。</p>
+<p>通常，awk 是以文件的一行为处理单位的。awk 每接收文件的一行，然后执行相应的命令，来处理文本。</p>
+<h2 id="Linux-awk命令功能详解">Linux awk命令功能详解</h2>
+<p>| 命令 | 描述 |</p>
+<p>| --- | --- |</p>
+<p>| $0 | 表示整个当前行。 |</p>
+<p>| $1 | 每行第一个字段。 |</p>
+<p>| NF | 字段数量变量。 |</p>
+<p>| NR | 每行的记录号，多文件记录递增。 |</p>
+<p>| FNR | 与 NR 类似，不过多文件记录不递增，每个文件都从 1 开始。 |</p>
+<p>| \t | 制表符。 |</p>
+<p>| \n | 换行符。 |</p>
+<p>| FS | BEGIN 时定义分隔符。 |</p>
+<p>| RS | 输入的记录分隔符， 默认为换行符(即文本是按一行一行输入)。 |</p>
+<p>| ~ | 匹配，与 == 相比不是精确比较。 |</p>
+<p>| !~ | 不匹配，不精确比较。 |</p>
+<p>| == | 等于，必须全部相等，精确比较。 |</p>
+<p>| != | 不等于，精确比较。 |</p>
+<p>| &amp;&amp; | 逻辑与。 |</p>
+<p>| || | 逻辑或。 |</p>
+<p>| + | 匹配时表示 1 个或 1 个以上。 |</p>
+<p>| <code>/[0-9][0-9]+/</code> | 两个或两个以上数字。 |</p>
+<p>| <code>/[0-9][0-9]*/</code> | 一个或一个以上数字。 |</p>
+<p>| FILENAME | 文件名。 |</p>
+<p>| OFS | 输出字段分隔符， 默认也是空格，可以改为制表符等。 |</p>
+<p>| ORS | 输出的记录分隔符，默认为换行符,即处理结果也是一行一行输出到屏幕。 |</p>
+<p>| -F’[:#/]’ | 定义三个分隔符。 |</p>
+<h2 id="awk内建变量">awk内建变量</h2>
+<p>| 变量 | 描述 |</p>
+<p>| --- | --- |</p>
+<p>| $n | 当前记录的第n个字段，字段间由FS分隔 |</p>
+<p>| $0 | 完整的输入记录 |</p>
+<p>| ARGC | 命令行参数的数目 |</p>
+<p>| ARGIND | 命令行中当前文件的位置(从0开始算) |</p>
+<p>| ARGV | 包含命令行参数的数组 |</p>
+<p>| CONVFMT | 数字转换格式(默认值为%.6g)ENVIRON环境变量关联数组 |</p>
+<p>| ERRNO | 最后一个系统错误的描述 |</p>
+<p>| FIELDWIDTHS | 字段宽度列表(用空格键分隔) |</p>
+<p>| FILENAME | 当前文件名 |</p>
+<p>| FNR | 各文件分别计数的行号 |</p>
+<p>| FS | 字段分隔符(默认是任何空格) |</p>
+<p>| IGNORECASE | 如果为真，则进行忽略大小写的匹配 |</p>
+<p>| NF | 一条记录的字段的数目 |</p>
+<p>| NR | 已经读出的记录数，就是行号，从1开始 |</p>
+<p>| OFMT | 数字的输出格式(默认值是%.6g) |</p>
+<p>| OFS | 输出记录分隔符（输出换行符），输出时用指定的符号代替换行符 |</p>
+<p>| ORS | 输出记录分隔符(默认值是一个换行符) |</p>
+<p>| RLENGTH | 由match函数所匹配的字符串的长度 |</p>
+<p>| RS | 记录分隔符(默认是一个换行符) |</p>
+<p>| RSTART | 由match函数所匹配的字符串的第一个位置 |</p>
+<p>| SUBSEP | 数组下标分隔符(默认值是/034) |</p>
+<h2 id="调用awk三种方式">调用awk三种方式</h2>
+<h3 id="命令行方式">命令行方式</h3>
+<p><code>awk [-F field-separator] 'commands' input-file(s)</code></p>
+<p>其中，commands 是真正 awk 命令，[-F 域分隔符] 是可选的。 input-file(s) 是待处理的文件。</p>
+<p>在 awk 中，文件的每一行中，由域分隔符分开的每一项称为一个域。通常，在不指名 -F 域分隔符的情况下，默认的域分隔符是空格。</p>
+<h3 id="shell脚本方式">shell脚本方式</h3>
+<p>将所有的 awk 命令插入一个文件，并使 awk 程序可执行，然后 awk 命令解释器作为脚本的首行，一遍通过键入脚本名称来调用。相当于 shell 脚本首行的：</p>
+<p><code>#!/bin/sh</code></p>
+<p>可以换成：</p>
+<p><code>#!/bin/awk</code></p>
+<h3 id="awk文件">awk文件</h3>
+<p>将所有的 awk 命令插入一个单独文件，然后调用：</p>
+<p><code>awk -f awk-script-file input-file(s)</code></p>
+<p>其中，-f 选项加载 awk-script-file 中的 awk 脚本，input-file(s) 跟上面的是一样的。</p>
+<h2 id="Linux-awk命令常用实例">Linux awk命令常用实例</h2>
+<h3 id="实例">实例</h3>
+<p>| 实例 | 描述 |</p>
+<p>| --- | --- |</p>
+<p>| awk ‘{print $1,$4}’ file | 以空格或者 tab 分隔显示第一列和第四列 |</p>
+<p>| awk -F : ‘{ print $1,$2 }’ file | 以冒号分隔，显示第一列和第二列 |</p>
+<p>| awk -va=1 ‘{print $1,$1+a}’ file | 通过 v 参数设置变量 |</p>
+<p>| awk ‘$1&gt;2’ file | 过滤出第一列大于 2 的列 |</p>
+<p>| awk ‘$1==2 {print $1,$3}’ file | 过滤第一列等于 2 的列 |</p>
+<p>| awk ‘$1&gt;2 &amp;&amp; $2==“Hello” {print $1,$2,$3}’ file | 过滤第一列大于 2 并且第二列等于 ‘Hello’ 的行 |</p>
+<p>| awk ‘$2 ~ /th/ {print $2,$4}’ file | 输出第二列包含 “th”，并打印第二列与第四列 |</p>
+<p>| awk '/haicoder/ ’ file | 输出包含 “haicoder” 的行 |</p>
+<p>| awk ‘BEGIN{IGNORECASE=1} /haicoder/’ log.txt | 忽略大小写 |</p>
+<p>| awk ‘length&gt;80’ file | 从文件总取出长度大于 80 的行 |</p>
+<p>| awk -F ‘:’ ‘BEGIN {print “start1,start7”} {print $1 “,” $7} END {print “end1,end7”}’ file | 显示文件的第 1 列和第 7 列，用逗号分隔显示，所有行开始前添加列名 start1，start7，最后一行添加，end1，end7 |</p>
+<p>| awk -F : ‘{ print NR " " NF " " $0 }’ file | 统计文件中，每行的行号，每行的列数，对应的完整行内容 |</p>
+<p>| awk ‘BEGIN { print length(“Hello HaiCoder”) }’ | 输出字符串长度 |</p>
+<p>| awk -F ‘:’ ‘{ print toupper($1) }’ file | 第一列转成大写 |</p>
+<p>| awk -F ‘:’ ‘{ if ($1 &gt; “d”) { print $1 } else { print “-” } }’ file | 输出第一个字段的第一个字符大于 d 的行 |</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#Linux文件处理awk命令详解教程">Linux文件处理awk命令详解教程</a></li><li style="margin-left:0.0rem"><a href="#Linux-awk命令说明">Linux awk命令说明</a></li><li style="margin-left:0.0rem"><a href="#Linux-awk命令详解">Linux awk命令详解</a></li><li style="margin-left:0.8rem"><a href="#功能">功能</a></li><li style="margin-left:0.8rem"><a href="#语法">语法</a></li><li style="margin-left:0.8rem"><a href="#参数">参数</a></li><li style="margin-left:0.8rem"><a href="#说明">说明</a></li><li style="margin-left:0.0rem"><a href="#Linux-awk命令功能详解">Linux awk命令功能详解</a></li><li style="margin-left:0.0rem"><a href="#awk内建变量">awk内建变量</a></li><li style="margin-left:0.0rem"><a href="#调用awk三种方式">调用awk三种方式</a></li><li style="margin-left:0.8rem"><a href="#命令行方式">命令行方式</a></li><li style="margin-left:0.8rem"><a href="#shell脚本方式">shell脚本方式</a></li><li style="margin-left:0.8rem"><a href="#awk文件">awk文件</a></li><li style="margin-left:0.0rem"><a href="#Linux-awk命令常用实例">Linux awk命令常用实例</a></li><li style="margin-left:0.8rem"><a href="#实例">实例</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">Linux</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68656958.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-Linux%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86awk%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Linux文件处理awk命令详解。本文属于安全与堡垒机 / 高级安全，Linux 中的 awk 是一个强大的文本分析工具，简单来说 awk 就是把文件逐行读入，（空格，制表符）为默认分隔符将每行切片，切开的部分再进行各种分析处理。 awk 是一个强大的文本分析工具，相对于 grep 的查找， sed 的编辑，aw…</p>
+      <p>关键词：安全与堡垒机、高级安全、Linux、知识笔记、安全与堡垒机 / 高级安全、Linux文件处理awk命令详解</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f9e8a7b56242.html"><small>上一篇</small>Linux启动过程</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-52a28629422b.html"><small>下一篇</small>Linux文件处理sed命令详解</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-52d6bdbc441f.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

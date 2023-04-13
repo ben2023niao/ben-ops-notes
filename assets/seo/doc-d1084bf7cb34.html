@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>新人熟悉业务架构｜基础设施与业务架构 / 架构熟悉｜BEN.OPS</title>
+  <meta name="description" content="新人熟悉业务架构。本文属于基础设施与业务架构 / 架构熟悉，访问域名过程 客户端-pc-h5-apk-app --&gt; 业务域名 业务域名 --&gt; DNS服务器返回 A CNAME 等记录 --&gt; 客户端-pc-h5-apk-app 客户端-pc-h5-apk-app --&gt; 根据缓存策略缓存DNS解析信息 --&gt;…">
+  <meta name="keywords" content="基础设施与业务架构，架构熟悉，DNS，Redis，MySQL，Kubernetes，Nginx，Apache，基础设施与业务架构 / 架构熟悉，新人熟悉业务架构">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d1084bf7cb34.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d1084bf7cb34.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E4%B8%9A%E5%8A%A1%E6%9E%B6%E6%9E%84%2B%E6%9E%B6%E6%9E%84%E7%86%9F%E6%82%89%2BDNS%2BRedis-%E6%96%B0%E4%BA%BA%E7%86%9F%E6%82%89%E4%B8%9A%E5%8A%A1%E6%9E%B6%E6%9E%84.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="新人熟悉业务架构">
+  <meta property="og:description" content="新人熟悉业务架构。本文属于基础设施与业务架构 / 架构熟悉，访问域名过程 客户端-pc-h5-apk-app --&gt; 业务域名 业务域名 --&gt; DNS服务器返回 A CNAME 等记录 --&gt; 客户端-pc-h5-apk-app 客户端-pc-h5-apk-app --&gt; 根据缓存策略缓存DNS解析信息 --&gt;…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d1084bf7cb34.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="基础设施与业务架构 / 架构熟悉">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/8c137fcbd5fd5e0fc4.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="新人熟悉业务架构">
+  <meta name="twitter:description" content="新人熟悉业务架构。本文属于基础设施与业务架构 / 架构熟悉，访问域名过程 客户端-pc-h5-apk-app --&gt; 业务域名 业务域名 --&gt; DNS服务器返回 A CNAME 等记录 --&gt; 客户端-pc-h5-apk-app 客户端-pc-h5-apk-app --&gt; 根据缓存策略缓存DNS解析信息 --&gt;…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/8c137fcbd5fd5e0fc4.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d1084bf7cb34.html#article","headline":"新人熟悉业务架构","description":"新人熟悉业务架构。本文属于基础设施与业务架构 / 架构熟悉，访问域名过程 客户端-pc-h5-apk-app --> 业务域名 业务域名 --> DNS服务器返回 A CNAME 等记录 --> 客户端-pc-h5-apk-app 客户端-pc-h5-apk-app --> 根据缓存策略缓存DNS解析信息 -->…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["基础设施与业务架构","架构熟悉"],"keywords":["基础设施与业务架构","架构熟悉","DNS","Redis","MySQL","Kubernetes","Nginx","Apache","基础设施与业务架构 / 架构熟悉","新人熟悉业务架构"],"wordCount":1884,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d1084bf7cb34.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d1084bf7cb34.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/8c137fcbd5fd5e0fc4.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"基础设施与业务架构 / 架构熟悉","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"新人熟悉业务架构","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d1084bf7cb34.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>基础设施与业务架构 / 架构熟悉</span> › <span>新人熟悉业务架构</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">基础设施与业务架构 / 架构熟悉</div>
+      <h1>新人熟悉业务架构</h1>
+      <p class="lede">新人熟悉业务架构。本文属于基础设施与业务架构 / 架构熟悉，访问域名过程 客户端-pc-h5-apk-app --&gt; 业务域名 业务域名 --&gt; DNS服务器返回 A CNAME 等记录 --&gt; 客户端-pc-h5-apk-app 客户端-pc-h5-apk-app --&gt; 根据缓存策略缓存DNS解析信息 --&gt;…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,884 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>访问域名过程
+客户端-pc-h5-apk-app   --&gt; 业务域名</p>
+<p>业务域名 --&gt;  DNS服务器返回 A CNAME 等记录 --&gt; 客户端-pc-h5-apk-app</p>
+<pre><code>                                                                                             --&gt; A 记录                          --&gt;  直接请求源服务器 web服务(nginx apache) --&gt;  服务器判断是否有证书 ssl --&gt; 根据(nginx apache)配置路由到后台
+                                                                                             --&gt; A 记录+txt等证书记录 --&gt;  直接请求源服务器 web服务(nginx apache)                                                   --&gt; 根据(nginx apache)配置路由到后台
+</code></pre>
+<p>客户端-pc-h5-apk-app  --&gt; 根据缓存策略缓存DNS解析信息
+                                                                                                 --&gt; CNAME记录                 --&gt;  直接请求cdn  --&gt; HYU  TFSs <em>自建CDN       --&gt; CDN验证判断证书ssl           --&gt; 根据压缩和缓存等规则返回 html css js 以及图片静态资源  --&gt; 客户端-pc-h5-apk-app</em>                                                                                                                                                                                       域名   |
+                                                                                                                                                                                       异常   |
+                                                                                                                                                                                       切入  V
+                                                                                                                                                                          --&gt; <em>CLF                        --&gt; CDN验证判断证书ssl           --&gt; 根据压缩和缓存等规则返回 html css js 以及图片静态资源  --&gt; 客户端-pc-h5-apk-app</em></p>
+<p>获取到前台代码
+浏览器工作流程：构建DOM -&gt; 构建CSSOM -&gt; 构建渲染树 -&gt; 布局 -&gt; 绘制
+客户端-pc-h5-apk-app  --&gt; 解析HTML --&gt; 生成DOM树 --&gt; 解析CSS --&gt; 生成cssom树 --&gt; DOM树和CSSOM树结合生成渲染树<strong>(Render Tree) --&gt; Painting(重绘):根据渲染树以及回流得到的几何信息，得到节点的绝对像素 --&gt; Display: 将像素发送给GPU调用操作系统Native GUI的API绘制页面上。</strong>                                                                                                                                                  A                                                                            |
+                                                                                                                                                  |                                                                             V
+                                                                                                           <strong>Layout(回流)</strong>:根据生成的渲染树，进行回流(Layout)，得到节点的几何信息（位置，大小）</p>
+<ul>
+<li>CSSOM会阻塞渲染，只有当CSSOM构建完毕后才会进入下一个阶段构建渲染树。(页面白屏环节原因)</li>
+<li>通常情况下DOM和CSSOM是并行构建的，但是当浏览器遇到一个不带defer或async属性的script标签时，DOM构建将暂停，如果此时又恰巧浏览器尚未完成CSSOM的下载和构建，由于JavaScript可以修改CSSOM，所以需要等CSSOM构建完毕后再执行JS，最后才重新DOM构建。</li>
+</ul>
+<p>(页面白屏原理)</p>
+<h6 id="_2"></h6>
+<p>静态链路
+获取前台代码
+客户端-pc-h5-apk-app  --&gt; 业务域名 --&gt;  CDN安全/ssl/地区等规则 --&gt; CDN静态加速(X-Forwarded-Fo) --&gt; netscaler防火墙 --&gt; (前端)香港服务器210/220/230机房 提供静态资源 --&gt; netscaler防火墙 --&gt; CDN --&gt; 客户端-pc-h5-apk-app
+常见问题
+ 根据DNS解析强制缓存解析记录      gzip压缩级别/限流/防盗缓存静态资源/苹果签/上架/报毒问题                        机房互通内网/带宽/公网Ip/端口/防火墙/                            证书过期/刷新缓存/地区时区
+ ###########################################################################################################################################################################################################################  动态链路
+根据前台代码和后台接口交互
+客户端-pc-h5-apk-app --&gt; 业务域名 --&gt; 渲染出前台代码 --&gt; api域名 --&gt; DNS解析  --&gt; CDN动态加速/安全/ssl/地区等规则(X-Forwarded-Fo) --&gt; netscaler防火墙 --&gt; (后端)菲律宾服务器190/140/240机房 提供动态接口服务  --&gt; netscaler防火墙 --&gt; CDN --&gt; 客户端-pc-h5-apk-app
+常见问题
+设备/版本/语法兼容        爬虫/接口防刷/token验证/有效期/数据验证校验拦截   cdn政策时期抽风/ssl兼容/ipv6/刷流量                                                                           机房安全/续费/实名制/DHCP内网固定ip稳定性问题/多网卡互通/内外网/磁盘恢复</p>
+<h6 id="_3"></h6>
+<p>动态链路
+用户登录(token+redis)
+客户端-pc-h5-apk-app(生成一个唯一标识ID) --&gt; 业务域名 --&gt; api域名 --&gt; CDN --&gt; netscaler防火墙 --&gt; 后端服务器nginx(检查ssl/请求方法/跨域/token/ip/地区/url资源地址/伪静态等) --&gt; 根据负载算法proxy到upstream配置的vip --&gt; mysql数据库查询用户是否存在</p>
+<p>用户存在 --&gt; 携带传递ID和token --&gt; 中间件redis集群是否命中用户uuid --&gt; 还在有效期内就正常登录/失效就掉线重新登录</p>
+<pre><code>var uuid = "user-token:" + UUID.randomUUID();
+ redisTemplate.opsForValue().set(uuid, byUsernameAndPassword.getId().toString(), 30, TimeUnit.MINUTES);
+ return new Result&lt;&gt;(true, uuid);
+</code></pre>
+<p>用户不存在 --&gt; mysql返回json --&gt; 前台js代码提示用户不存在并引导注册
+前端在请求头中放入Token,之后从请求头中获取Token,从Redis中获取token是否存在,存在返回为true并且重新设置有效期,不存在就返回false设置响应状态为401 参考代码</p>
+<pre><code>@Override
+public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+ var token = [已脱敏]"token");
+ if (token != null &amp;&amp; redisTemplate.opsForValue().get(token) != null) {
+ redisTemplate.expire(token, 30, TimeUnit.MINUTES);
+ return true;
+ }
+ response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+ return false;
+}
+</code></pre>
+<pre><code>正常登录过程还要做 验证码/3方短信/邮箱等逻辑
+</code></pre>
+<pre><code>常见问题
+</code></pre>
+<pre><code>前端框架漏洞 redis DB库没区分导致冲突 目录遍历 redis安全没做导致被黑 防火墙/CDN限制到真实用户ip 3方短信/验证码异常 密码弱加密被破解 前后端拦截检查不到位被sql注入/空字符绕过等 xss漏洞注入导致Cookie、SessionID等泄漏
+</code></pre>
+<p>CSRFnginx配置 * 被伪造跨站 携带上用户Cookie登录/json劫持等  XML格式数据的XEE攻击  SSLStrip 攻击 OpenSSL Heartbleed 安全漏洞 CCS 注入漏洞 证书有效性验证漏洞 文件换后缀/类型上传
+业务漏洞是跟具体的应用程序相关，比如参数篡改（连续编号 ID / 订单、1 元支付）、重放攻击（伪装支付）、权限控制（越权操作）等。</p>
+<p>HTTP/1.1（RFC2616）规范定义了 HTTP TRACE 方法，主要是用于客户端通过向 Web 服务器提交 TRACE 请求来进行测试或获得诊断信息。当 Web 服务器启用 TRACE 时，提交的请求头会在服务器响应的内容（Body）中完整的返回，
+其中 HTTP 头很可能包括 Session Token、Cookies 或其它认证信息。攻击者可以利用此漏洞来欺骗合法用户并得到他们的私人信息。</p>
+<p><strong>解决方案</strong></p>
+<p>禁用 HTTP TRACE 方法。
+强制 HTTP/2.0 协议</p>
+<pre><code>###########################################################################################################################################################################################################################
+运维组织架构
+ 业务运维部
+</code></pre>
+<pre><code>                      业务值班组
+                      产品业务组
+                      支付业务组
+
+          技术平台部
+                     基础平台组
+                     应用开发组
+                     数据库组(dba）
+                     新平台组(k8s)
+</code></pre>
+<h6 id="_4"></h6>
+<p>SLA指标</p>
+<p>核心SLA目标为99.7%
+全产品核心SLA目标为98.00%
+       单产品核心SLA目标为99.93%
+              运维部核心SLA目标为99.30%
+              产品业务组核心SLA目标为99.60%
+              网站业务核心SLA目标为99.70%
+              游戏业务核心SLA目标为99.90%</p>
+<p>非核心SLA目标为98%
+全产品非核心SLA目标为95.00%
+       单产品非核心SLA目标为99.5%
+              运维部非核心SLA目标为98.00%
+              产品业务组非核心SLA目标为98.00%
+              网站业务非核心SLA目标为98.00%
+              游戏业务非核心SLA目标为98.00%</p>
+<p>产品业务组KPI
+产品核心SLA  产品非核心SLA  产品速度  产品速度  培训类  优化类  项目类  组长评价  产品评价
+激励选项
+外部表扬  特殊贡献
+扣分选项
+星芒工单质量  失误率  遭受投诉  推诿责任</p>
+<h6 id="_5"></h6>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/8c137fcbd5fd5e0fc4.png"/>
+<strong>故障上报模板：</strong></p>
+<p>| <strong>故障信息结案模板</strong> |</p>
+<p>| --- |</p>
+<p>| 【故障描述】：星芒系统无法进行登陆.【影响业务】：全产品全部无法提交工单。【开始时间】：hh:hh【结束时间】：hh:hh【处理进度】：系统功能恢复【故障原因】：XXXXXXXXXXX【故障描述】：星芒系统无法进行登陆 |</p>
+<h6 id="_6"></h6>
+<p>SLA指标</p>
+<p><a href="https://confluence.bssrv.com/pages/viewpage.action?pageId=36905976&amp;src=contextnavpagetreemode" rel="noopener noreferrer">配置netscaler</a></p>
+      </article>
+      <aside class="aside">
+        
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：基础设施与业务架构 / 架构熟悉</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">基础设施与业务架构</span><span class="tag">架构熟悉</span><span class="tag">DNS</span><span class="tag">Redis</span><span class="tag">MySQL</span><span class="tag">Kubernetes</span><span class="tag">Nginx</span><span class="tag">Apache</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/06-熟悉业务架构/birdben/66979597.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E4%B8%9A%E5%8A%A1%E6%9E%B6%E6%9E%84%2B%E6%9E%B6%E6%9E%84%E7%86%9F%E6%82%89%2BDNS%2BRedis-%E6%96%B0%E4%BA%BA%E7%86%9F%E6%82%89%E4%B8%9A%E5%8A%A1%E6%9E%B6%E6%9E%84.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>新人熟悉业务架构。本文属于基础设施与业务架构 / 架构熟悉，访问域名过程 客户端-pc-h5-apk-app --&gt; 业务域名 业务域名 --&gt; DNS服务器返回 A CNAME 等记录 --&gt; 客户端-pc-h5-apk-app 客户端-pc-h5-apk-app --&gt; 根据缓存策略缓存DNS解析信息 --&gt;…</p>
+      <p>关键词：基础设施与业务架构、架构熟悉、DNS、Redis、MySQL、Kubernetes、Nginx、Apache、基础设施与业务架构 / 架构熟悉、新人熟悉业务架构</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ed8d289a4c57.html"><small>上一篇</small>文件权限配置不当 提权</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-14e944f0c458.html"><small>下一篇</small>新版微擎自定义菜单设置</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d1084bf7cb34.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

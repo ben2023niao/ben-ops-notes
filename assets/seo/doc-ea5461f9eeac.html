@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>进程间通信方式｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="进程间通信方式。本文属于安全与堡垒机 / 高级安全，进程通信(Interprocess Communication，DC02)是一个进程与另一个进程间共享消息的一种通信方式。消息(message)是发送进程形成的一个消息块，将消息内容传送给接收进程。 DC02 机制是消息从一个进程的地址空间拷贝到另一个进程的地址…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，Linux，权限管理，知识笔记，安全与堡垒机 / 高级安全，进程间通信方式">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ea5461f9eeac.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ea5461f9eeac.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2B%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86-%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="进程间通信方式">
+  <meta property="og:description" content="进程间通信方式。本文属于安全与堡垒机 / 高级安全，进程通信(Interprocess Communication，DC02)是一个进程与另一个进程间共享消息的一种通信方式。消息(message)是发送进程形成的一个消息块，将消息内容传送给接收进程。 DC02 机制是消息从一个进程的地址空间拷贝到另一个进程的地址…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ea5461f9eeac.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="进程间通信方式">
+  <meta name="twitter:description" content="进程间通信方式。本文属于安全与堡垒机 / 高级安全，进程通信(Interprocess Communication，DC02)是一个进程与另一个进程间共享消息的一种通信方式。消息(message)是发送进程形成的一个消息块，将消息内容传送给接收进程。 DC02 机制是消息从一个进程的地址空间拷贝到另一个进程的地址…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ea5461f9eeac.html#article","headline":"进程间通信方式","description":"进程间通信方式。本文属于安全与堡垒机 / 高级安全，进程通信(Interprocess Communication，DC02)是一个进程与另一个进程间共享消息的一种通信方式。消息(message)是发送进程形成的一个消息块，将消息内容传送给接收进程。 DC02 机制是消息从一个进程的地址空间拷贝到另一个进程的地址…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","Linux","权限管理","知识笔记","安全与堡垒机 / 高级安全","进程间通信方式"],"wordCount":2819,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ea5461f9eeac.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ea5461f9eeac.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"进程间通信方式","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ea5461f9eeac.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>进程间通信方式</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>进程间通信方式</h1>
+      <p class="lede">进程间通信方式。本文属于安全与堡垒机 / 高级安全，进程通信(Interprocess Communication，DC02)是一个进程与另一个进程间共享消息的一种通信方式。消息(message)是发送进程形成的一个消息块，将消息内容传送给接收进程。 DC02 机制是消息从一个进程的地址空间拷贝到另一个进程的地址…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,819 字</span>
+        <span class="badge">9 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="概述">概述</h2>
+<p>进程通信(Interprocess Communication，DC02)是一个进程与另一个进程间共享消息的一种通信方式。消息(message)是发送进程形成的一个消息块，将消息内容传送给接收进程。</p>
+<p>DC02 机制是消息从一个进程的地址空间拷贝到另一个进程的地址空间。</p>
+<h2 id="进程通信的目的">进程通信的目的</h2>
+<p><strong>数据传输：</strong> 一个进程需要将其数据发送给另一进程，发送的数据量在一个字节到几 M 字节之间。</p>
+<p><strong>共享数据：</strong> 多个进程操作共享数据。</p>
+<p><strong>事件通知：</strong> 一个进程需要向另一个或一组进程发送消息，通知它（它们）发生了某种事件（如进程终止时要通知父进程）。</p>
+<p><strong>资源共享：</strong> 多个进程之间共享同样的资源。为了作到这一点，需要内核提供锁和同步机制。</p>
+<p><strong>进程控制：</strong> 有些进程希望完全控制另一个进程的执行（如 Debug 进程），此时控制进程希望能够拦截另一个进程的所有陷入和异常，并能够及时知道它的状态改变。</p>
+<h2 id="Linux进程间通信-DC02-的发展">Linux进程间通信（DC02）的发展</h2>
+<p><strong><a href="https://haicoder.net/linux/linux-tutorial.html" rel="noopener noreferrer">Linux</a></strong> 下的进程通信手段基本上是从 Unix 平台上的进程通信手段继承而来的。而对 Unix 发展做出重大贡献的两大主力 AT&amp;T 的贝尔实验室及 BSD（加州大学伯克利分校的伯克利软件发布中心）在进程间通信方面的侧重点有所不同。</p>
+<p>前者对 Unix 早期的进程间通信手段进行了系统的改进和扩充，形成了 “system V DC02”，通信进程局限在单个计算机内；后者则跳过了该限制，形成了基于套接口（socket）的进程间通信机制。Linux 则把两者继承了下来。</p>
+<ul>
+<li>早期 UNIX 进程间通信</li>
+<li>基于 System V 进程间通信</li>
+<li>基于 Socket 进程间通信</li>
+<li>POSIX 进程间通信</li>
+</ul>
+<p>UNIX 进程间通信方式包括：管道、FIFO、信号。</p>
+<p>System V 进程间通信方式包括：System V 消息队列、System V 信号灯、System V 共享内存</p>
+<p>POSIX 进程间通信包括：posix 消息队列、posix 信号灯、posix 共享内存。</p>
+<p>由于 Unix 版本的多样性，电子电气工程协会（IEEE）开发了一个独立的 Unix 标准，这个新的 ANSI Unix 标准被称为计算机环境的可移植性操作系统界面（PSOIX）。现有大部分 Unix 和流行版本都是遵循 POSIX 标准的，而 Linux 从一开始就遵循 POSIX 标准。</p>
+<p>BSD 并不是没有涉足单机内的进程间通信（socket 本身就可以用于单机内的进程间通信）。事实上，很多 Unix 版本的单机 DC02 留有 BSD 的痕迹，如 4.4BSD 支持的匿名内存映射、4.3+BSD 对可靠信号语义的实现等等。</p>
+<h2 id="Linux使用的进程间通信方式">Linux使用的进程间通信方式</h2>
+<ol>
+<li>管道（pipe）,流管道(s_pipe)和有名管道（FIFO）</li>
+<li>信号（signal）</li>
+<li>消息队列</li>
+<li>共享内存</li>
+<li>信号量</li>
+<li>套接字（socket)</li>
+</ol>
+<h3 id="管道-pipe">管道( pipe )</h3>
+<p>管道这种通讯方式有两种限制，一是半双工的通信，数据只能单向流动，二是只能在具有亲缘关系的进程间使用。进程的亲缘关系通常是指父子进程关系。</p>
+<p>流管道 s_pipe: 去除了第一种限制,可以双向传输。</p>
+<p>管道可用于具有亲缘关系进程间的通信，命名管道：name_pipe 克服了管道没有名字的限制，因此，除具有管道所具有的功能外，它还允许无亲缘关系进程间的通信。</p>
+<h3 id="信号量-semophore">信号量( semophore )</h3>
+<p>信号量是一个计数器，可以用来控制多个进程对共享资源的访问。它常作为一种锁机制，防止某进程正在访问共享资源时，其他进程也访问该资源。因此，主要作为进程间以及同一进程内不同线程之间的同步手段。</p>
+<p>信号是比较复杂的通信方式，用于通知接受进程有某种事件发生，除了用于进程间通信外，进程还可以发送信号给进程本身；linux 除了支持 Unix 早期信号语义函数 signal 外，还支持语义符合 Posix.1 标准的信号函数 sigaction（实际上，该函数是基于 BSD 的，BSD 为了实现可靠信号机制，又能够统一对外接口，用 sigaction 函数重新实现了 signal 函数）；</p>
+<h3 id="消息队列-message-queue">消息队列( message queue )</h3>
+<p>消息队列是由消息的链表，存放在内核中并由消息队列标识符标识。消息队列克服了信号传递信息少、管道只能承载无格式字节流以及缓冲区大小受限等缺点。</p>
+<p>消息队列是消息的链接表，包括 Posix 消息队列 system V 消息队列。有足够权限的进程可以向队列中添加消息，被赋予读权限的进程则可以读走队列中的消息。消息队列克服了信号承载信息量少，管道只能承载无格式字节流以及缓冲区大小受限等缺点。</p>
+<h3 id="信号-singal">信号 ( singal )</h3>
+<p>信号是一种比较复杂的通信方式，用于通知接收进程某个事件已经发生。</p>
+<p>主要作为进程间以及同一进程不同线程之间的同步手段。</p>
+<h3 id="共享内存-shared-memory">共享内存( shared memory )</h3>
+<p>共享内存就是映射一段能被其他进程所访问的内存，这段共享内存由一个进程创建，但多个进程都可以访问。共享内存是最快的 DC02 方式，它是针对其他进程间通信方式运行效率低而专门设计的。它往往与其他通信机制，如信号量，配合使用，来实现进程间的同步和通信。</p>
+<p>使得多个进程可以访问同一块内存空间，是最快的可用 DC02 形式。是针对其他通信机制运行效率较低而设计的。往往与其它通信机制，如信号量结合使用，来达到进程间的同步及互斥。</p>
+<h3 id="套接字-socket">套接字( socket )</h3>
+<p>套解口也是一种进程间通信机制，与其他通信机制不同的是，它可用于不同机器间的进程通信</p>
+<p>更为一般的进程间通信机制，可用于不同机器之间的进程间通信。起初是由 Unix 系统的 BSD 分支开发出来的，但现在一般可以移植到其它类 Unix 系统上：Linux 和 System V 的变种都支持套接字。</p>
+<h2 id="进程间通信各种方式效率比较">进程间通信各种方式效率比较</h2>
+<p>| 类型 | 无连接 | 可靠 | 流控制 | 优先级 |</p>
+<p>| --- | --- | --- | --- | --- |</p>
+<p>| 普通PIPE | N | Y | Y | N |</p>
+<p>| 流PIPE | N | Y | Y | N |</p>
+<p>| 命名PIPE(FIFO) | N | Y | Y | N |</p>
+<p>| 消息队列 | N | Y | Y | Y |</p>
+<p>| 信号量 | N | Y | Y | Y |</p>
+<p>| 共享存储 | N | Y | Y | Y |</p>
+<p>| UNIX流SOCKET | N | Y | Y | N |</p>
+<p>| UNIX数据包SOCKET | Y | Y | N | N |</p>
+<p>注:无连接: 指无需调用某种形式的OPEN,就有发送消息的能力流控制，如果系统资源短缺或者不能接收更多消息,则发送进程能进行流量控制。</p>
+<h2 id="通信方式的比较和优缺点">通信方式的比较和优缺点</h2>
+<ol>
+<li>管道：速度慢，容量有限，只有父子进程能通讯</li>
+<li>FIFO：任何进程间都能通讯，但速度慢</li>
+<li>消息队列：容量受到系统限制，且要注意第一次读的时候，要考虑上一次没有读完数据的问题</li>
+<li>信号量：不能传递复杂消息，只能用来同步</li>
+<li>共享内存区：能够很容易控制容量，速度快，但要保持同步，比如一个进程在写的时候，另一个进程要注意读写的问题，相当于线程中的线程安全，当然，共享内存区同样可以用作线程间通讯，不过没这个必要，线程间本来就已经共享了同一进程内的一块内存</li>
+</ol>
+<p>如果用户传递的信息较少或是需要通过信号来触发某些行为，前文提到的软中断信号机制不失为一种简捷有效的进程间通信方式。</p>
+<p>但若是进程间要求传递的信息量比较大或者进程间存在交换数据的要求，那就需要考虑别的通信方式了。</p>
+<p>无名管道简单方便．但局限于单向通信的工作方式．并且只能在创建它的进程及其子孙进程之间实现管道的共享。</p>
+<p>有名管道虽然可以提供给任意关系的进程使用，但是由于其长期存在于系统之中，使用不当容易出错，所以普通用户一般不建议使用。</p>
+<p>消息缓冲可以不再局限于父子进程，而允许任意进程通过共享消息队列来实现进程间通信，并由系统调用函数来实现消息发送和接收之间的同步，从而使得用户在使用消息缓冲进行通信时不再需要考虑同步问题，使用方便，但是信息的复制需要额外消耗 CPU 的时间，不适宜于信息量大或操作频繁的场合。</p>
+<p>共享内存针对消息缓冲的缺点改而利用内存缓冲区直接交换信息，无须复制，快捷、信息量大是其优点。</p>
+<p>但是共享内存的通信方式是通过将共享的内存缓冲区直接附加到进程的虚拟地址空间中来实现的，因此，这些进程之间的读写操作的同步问题操作系统无法实现。必须由各进程利用其他同步工具解决。另外，由于内存实体存在于计算机系统中，所以只能由处于同一个计算机系统中的诸进程共享。不方便网络通信。</p>
+<p>共享内存块提供了在任意数量的进程之间进行高效双向通信的机制。每个使用者都可以读取写入数据，但是所有程序之间必须达成并遵守一定的协议，以防止诸如在读取信息之前覆写内存空间等竞争状态的出现。</p>
+<p>不幸的是，Linux 无法严格保证提供对共享内存块的独占访问，甚至是在您通过使用 DC02_PRIVATE 创建新的共享内存块的时候也不能保证访问的独占性。 同时，多个使用共享内存块的进程之间必须协调使用同一个键值。</p>
+<h2 id="进程间通信方式的选择">进程间通信方式的选择</h2>
+<ul>
+<li>PIPE 和 FIFO(有名管道)用来实现进程间相互发送非常短小的、频率很高的消息，这两种方式通常适用于两个进程间的通信。</li>
+<li>共享内存用来实现进程间共享的、非常庞大的、读写操作频率很高的数据；这种方法适用于多进程间的通信。</li>
+<li>其他考虑用 socket。主要应用在分布式开发中。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#概述">概述</a></li><li style="margin-left:0.0rem"><a href="#进程通信的目的">进程通信的目的</a></li><li style="margin-left:0.0rem"><a href="#Linux进程间通信-DC02-的发展">Linux进程间通信（DC02）的发展</a></li><li style="margin-left:0.0rem"><a href="#Linux使用的进程间通信方式">Linux使用的进程间通信方式</a></li><li style="margin-left:0.8rem"><a href="#管道-pipe">管道( pipe )</a></li><li style="margin-left:0.8rem"><a href="#信号量-semophore">信号量( semophore )</a></li><li style="margin-left:0.8rem"><a href="#消息队列-message-queue">消息队列( message queue )</a></li><li style="margin-left:0.8rem"><a href="#信号-singal">信号 ( singal )</a></li><li style="margin-left:0.8rem"><a href="#共享内存-shared-memory">共享内存( shared memory )</a></li><li style="margin-left:0.8rem"><a href="#套接字-socket">套接字( socket )</a></li><li style="margin-left:0.0rem"><a href="#进程间通信各种方式效率比较">进程间通信各种方式效率比较</a></li><li style="margin-left:0.0rem"><a href="#通信方式的比较和优缺点">通信方式的比较和优缺点</a></li><li style="margin-left:0.0rem"><a href="#进程间通信方式的选择">进程间通信方式的选择</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">Linux</span><span class="tag">权限管理</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68657034.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2B%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86-%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>进程间通信方式。本文属于安全与堡垒机 / 高级安全，进程通信(Interprocess Communication，DC02)是一个进程与另一个进程间共享消息的一种通信方式。消息(message)是发送进程形成的一个消息块，将消息内容传送给接收进程。 DC02 机制是消息从一个进程的地址空间拷贝到另一个进程的地址…</p>
+      <p>关键词：安全与堡垒机、高级安全、Linux、权限管理、知识笔记、安全与堡垒机 / 高级安全、进程间通信方式</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-728726dcbe54.html"><small>上一篇</small>进程调度算法</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fa3472c75dbd.html"><small>下一篇</small>进阶指南</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ea5461f9eeac.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

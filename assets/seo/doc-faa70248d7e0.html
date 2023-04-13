@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>HTTP GET与POST对比｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="HTTP GET与POST对比。本文属于安全与堡垒机 / 高级安全，HTTP 中的 GET 一般用于获取/查询资源信息，也就是从指定的资源请求数据。 而 POST 一般用于向指定的资源提交要被处理的数据，也就是更新资源信息。 下面的表格比较了两种 HTTP 方法：GET 和 POST。 | 后退按钮/刷新 | 无…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，PHP，CSRF，日志分析，知识笔记，安全与堡垒机 / 高级安全，HTTP GET与POST对比">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-faa70248d7e0.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-faa70248d7e0.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BPHP%2BCSRF-HTTP%20GET%E4%B8%8EPOST%E5%AF%B9%E6%AF%94.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="HTTP GET与POST对比">
+  <meta property="og:description" content="HTTP GET与POST对比。本文属于安全与堡垒机 / 高级安全，HTTP 中的 GET 一般用于获取/查询资源信息，也就是从指定的资源请求数据。 而 POST 一般用于向指定的资源提交要被处理的数据，也就是更新资源信息。 下面的表格比较了两种 HTTP 方法：GET 和 POST。 | 后退按钮/刷新 | 无…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-faa70248d7e0.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="HTTP GET与POST对比">
+  <meta name="twitter:description" content="HTTP GET与POST对比。本文属于安全与堡垒机 / 高级安全，HTTP 中的 GET 一般用于获取/查询资源信息，也就是从指定的资源请求数据。 而 POST 一般用于向指定的资源提交要被处理的数据，也就是更新资源信息。 下面的表格比较了两种 HTTP 方法：GET 和 POST。 | 后退按钮/刷新 | 无…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-faa70248d7e0.html#article","headline":"HTTP GET与POST对比","description":"HTTP GET与POST对比。本文属于安全与堡垒机 / 高级安全，HTTP 中的 GET 一般用于获取/查询资源信息，也就是从指定的资源请求数据。 而 POST 一般用于向指定的资源提交要被处理的数据，也就是更新资源信息。 下面的表格比较了两种 HTTP 方法：GET 和 POST。 | 后退按钮/刷新 | 无…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","PHP","CSRF","日志分析","知识笔记","安全与堡垒机 / 高级安全","HTTP GET与POST对比"],"wordCount":1447,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-faa70248d7e0.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-faa70248d7e0.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"HTTP GET与POST对比","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-faa70248d7e0.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>HTTP GET与POST对比</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>HTTP GET与POST对比</h1>
+      <p class="lede">HTTP GET与POST对比。本文属于安全与堡垒机 / 高级安全，HTTP 中的 GET 一般用于获取/查询资源信息，也就是从指定的资源请求数据。 而 POST 一般用于向指定的资源提交要被处理的数据，也就是更新资源信息。 下面的表格比较了两种 HTTP 方法：GET 和 POST。 | 后退按钮/刷新 | 无…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,447 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="HTTP-GET与POST对比">HTTP GET与POST对比</h2>
+<p><strong><a href="https://haicoder.net/http/http-tutorial.html" rel="noopener noreferrer">HTTP</a></strong> 中的 <strong><a href="https://haicoder.net/http/http-get.html" rel="noopener noreferrer">GET</a></strong> 一般用于获取/查询资源信息，也就是从指定的资源请求数据。 而 <strong><a href="https://haicoder.net/http/http-post.html" rel="noopener noreferrer">POST</a></strong> 一般用于向指定的资源提交要被处理的数据，也就是更新资源信息。</p>
+<h2 id="GET与POST比较">GET与POST比较</h2>
+<p>下面的表格比较了两种 HTTP 方法：GET 和 POST。</p>
+<p>|  | GET | POST |</p>
+<p>| --- | --- | --- |</p>
+<p>| 后退按钮/刷新 | 无害 | 数据会被重新提交（浏览器应该告知用户数据会被重新提交） |</p>
+<p>| 书签 | 可收藏为书签 | 不可收藏为书签 |</p>
+<p>| 缓存 | 能被缓存 | 不能缓存 |</p>
+<p>| 编码类型 | application/x-www-form-urlencoded | application/x-www-form-urlencoded 或 multipart/form-data。为二进制数据使用多重编码。 |</p>
+<p>| 历史 | 参数保留在浏览器历史中。 | 参数不会保存在浏览器历史中。 |</p>
+<p>| 对数据长度的限制 | 是的。当发送数据时，GET 方法向 URL 添加数据；URL 的长度是受限制的（URL 的最大长度是 2048 个字符） | 无限制 |</p>
+<p>| 对数据类型的限制 | 只允许 ASCII 字符 | 没有限制，也允许二进制数据 |</p>
+<p>| 安全性 | 与 POST 相比，GET 的安全性较差，因为所发送的数据是 URL 的一部分。在发送密码或其他敏感信息时绝不要使用 GET | POST 比 GET 更安全，因为参数不会被保存在浏览器历史或 web 服务器日志中 |</p>
+<p>| 可见性 | 数据在 URL 中对所有人都是可见的 | 数据不会显示在 URL 中 |</p>
+<h2 id="GET和POST的区别">GET和POST的区别</h2>
+<p>GET 请求的数据会附在 URL 之后（就是把数据放置在 HTTP 协议头中），以 <code>?</code> 分割 URL 和传输数据，参数之间以 <code>&amp;</code> 相连，如：</p>
+<p><code>login.action?name=hyddd&amp;password=[已脱敏]</code></p>
+<p>如果数据是英文字母或数字，则原样发送；如果是空格，转换为 <code>+</code>；如果是中文或其他字符，则直接把字符串用 BASE64 加密，得出如：%E4%BD%A0%E5%A5%BD，其中 ％XX 中的 XX 为该符号以 16 进制表示的 ASCII 码值。而与之对应的，POST 把提交的数据放置在 HTTP 包的包体中。</p>
+<p>POST 的安全性要比 GET 的安全性高。注意：这里所说的安全性和上面 GET 提到的 “安全” 不是同个概念。上面 “安全” 的含义仅仅是不作数据修改，而这里安全的含义是真正的 Security 的含义。比如：通过 GET 提交数据，用户名和密码将明文出现在 URL 上，因为：(1)登录页面有可能被浏览器缓存，(2)其他人查看浏览器的历史纪录，那么别人就可以拿到你的账号和密码了，除此之外，使用 GET 提交数据还可能会造成 Cross-site request forgery 攻击（CSRF,跨站请求伪造，也被称为：one click attack/session riding）。</p>
+<p>银行网站A，它以GET请求来完成银行转账的操作，如：<code>&lt;http://www.mybank.com/Transfer.php?toBankId=11&amp;money=1000&gt;</code>
+危险网站B，它里面有一段HTML的代码如下：<code>&lt; img src=&lt;http://www.mybank.com/Transfer.php?toBankId=11&amp;money=1000/&gt;&gt;</code></p>
+<p>首先，你登录了银行网站 A，然后访问危险网站 B，噢，这时你会发现你的银行账户少了 1000 块。</p>
+<p>为什么会这样呢？原因是银行网站 A 违反了 HTTP 规范，使用 GET 请求更新资源。在访问危险网站 B 之前，你已经登录了银行网站 A，而 B 中的 <code>&lt;img …/&gt;</code> 以 GET 的方式请求第三方资源（这里的第三方就是指银行网站 A 了。原本这是一个合法的请求，但这里被不法分子利用了），所以你的浏览器会带上你的银行网站 A 的 <strong>Cookie</strong> 发出 Get 请求，去获取资源 <code>“&lt;http://www.mybank.com/Transfer.php?toBankId=11&amp;money=1000&gt;”</code>，结果银行网站服务器收到请求后，认为这是一个更新资源操作（转账操作），所以就立刻进行转账操作。</p>
+<p>为了杜绝上面的问题，银行改用 POST 请求完成转账操作。</p>
+<h2 id="GET和POST的误区">GET和POST的误区</h2>
+<p>误区一：POST 可以比 GET 提交更多更长的数据？</p>
+<p>由于使用 GET 方法提交数据时，数据会以 <code>&amp;</code> 符号作为分隔符的形式，在 URL 后面添加需要提交的参数，有人会说，浏览器地址栏输入的参数是有限的，而 POST 不用再地址栏输入，所以 POST 就比 GET 可以提交更多的数据。难道真的是这样的么？</p>
+<p>而实际上，URL 不存在参数上限的问题，HTTP 协议规范没有对 URL 长度进行限制。这个限制是特定的浏览器及服务器对它的限制。IE 对 URL 长度的限制是 2083 字节(2K+35)。对于其他浏览器，如 Netscape、FireFox 等，理论上没有长度限制，其限制取决于操作系统的支持。所以 POST 也是没有大小长度限制的，HTTP 协议规范也没有进行大小限制。起限制作用的是服务器的处理能力。总归一句话，这个限制是针对所有 HTTP 请求的，与 GET、POST 没有多少关系。</p>
+<h2 id="GET和POST区别总结">GET和POST区别总结</h2>
+<ol>
+<li>GET 使用 URL 或 Cookie 传参，而 POST 将数据放在 BODY 中，这个是因为 HTTP 协议用法的约定。并非它们的本身区别。</li>
+<li>GET 方式提交的数据有长度限制，则 POST 的数据则可以非常大，这个是因为它们使用的操作系统和浏览器设置的不同引起的区别。也不是 GET 和 POST 本身的区别。</li>
+<li>POST 比 GET 安全，因为数据在地址栏上不可见，这个说法没毛病，但依然不是 GET 和 POST 本身的区别。</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#HTTP-GET与POST对比">HTTP GET与POST对比</a></li><li style="margin-left:0.0rem"><a href="#GET与POST比较">GET与POST比较</a></li><li style="margin-left:0.0rem"><a href="#GET和POST的区别">GET和POST的区别</a></li><li style="margin-left:0.0rem"><a href="#GET和POST的误区">GET和POST的误区</a></li><li style="margin-left:0.0rem"><a href="#GET和POST区别总结">GET和POST区别总结</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">PHP</span><span class="tag">CSRF</span><span class="tag">日志分析</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68657199.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BPHP%2BCSRF-HTTP%20GET%E4%B8%8EPOST%E5%AF%B9%E6%AF%94.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>HTTP GET与POST对比。本文属于安全与堡垒机 / 高级安全，HTTP 中的 GET 一般用于获取/查询资源信息，也就是从指定的资源请求数据。 而 POST 一般用于向指定的资源提交要被处理的数据，也就是更新资源信息。 下面的表格比较了两种 HTTP 方法：GET 和 POST。 | 后退按钮/刷新 | 无…</p>
+      <p>关键词：安全与堡垒机、高级安全、PHP、CSRF、日志分析、知识笔记、安全与堡垒机 / 高级安全、HTTP GET与POST对比</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6cd47e5325a1.html"><small>上一篇</small>H3C SecParh堡垒机 (任意用户登录+远程命令执行漏洞)</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-679818218ecc.html"><small>下一篇</small>HTTP-interview-http-resp-header</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-faa70248d7e0.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

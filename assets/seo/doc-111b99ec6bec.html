@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>XSS 跨窗口劫持演示+原理讲解｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="XSS 跨窗口劫持演示+原理讲解。本文属于安全与堡垒机 / 高级安全，将 XSS 注入到父窗口和子窗口，延长攻击时间演示： http://www.etherdream.com/FunnyScript/XSSGhost/ XSS 的本质仍是一段脚本。和其他文档元素一样，页面关了一切都销毁。除非能将脚本蔓延到页面以外…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，XSS，备份恢复，监控告警，知识笔记，安全与堡垒机 / 高级安全，XSS 跨窗口劫持演示+原理讲解">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-111b99ec6bec.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-111b99ec6bec.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BXSS%2B%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D-XSS%20%E8%B7%A8%E7%AA%97%E5%8F%A3%E5%8A%AB%E6%8C%81%E6%BC%94%E7%A4%BA%2B%E5%8E%9F%E7%90%86%E8%AE%B2%E8%A7%A3.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="XSS 跨窗口劫持演示+原理讲解">
+  <meta property="og:description" content="XSS 跨窗口劫持演示+原理讲解。本文属于安全与堡垒机 / 高级安全，将 XSS 注入到父窗口和子窗口，延长攻击时间演示： http://www.etherdream.com/FunnyScript/XSSGhost/ XSS 的本质仍是一段脚本。和其他文档元素一样，页面关了一切都销毁。除非能将脚本蔓延到页面以外…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-111b99ec6bec.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/49f76d1a46db95b3e0.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="XSS 跨窗口劫持演示+原理讲解">
+  <meta name="twitter:description" content="XSS 跨窗口劫持演示+原理讲解。本文属于安全与堡垒机 / 高级安全，将 XSS 注入到父窗口和子窗口，延长攻击时间演示： http://www.etherdream.com/FunnyScript/XSSGhost/ XSS 的本质仍是一段脚本。和其他文档元素一样，页面关了一切都销毁。除非能将脚本蔓延到页面以外…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/49f76d1a46db95b3e0.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-111b99ec6bec.html#article","headline":"XSS 跨窗口劫持演示+原理讲解","description":"XSS 跨窗口劫持演示+原理讲解。本文属于安全与堡垒机 / 高级安全，将 XSS 注入到父窗口和子窗口，延长攻击时间演示： http://www.etherdream.com/FunnyScript/XSSGhost/ XSS 的本质仍是一段脚本。和其他文档元素一样，页面关了一切都销毁。除非能将脚本蔓延到页面以外…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","XSS","备份恢复","监控告警","知识笔记","安全与堡垒机 / 高级安全","XSS 跨窗口劫持演示+原理讲解"],"wordCount":2171,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-111b99ec6bec.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-111b99ec6bec.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/49f76d1a46db95b3e0.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"XSS 跨窗口劫持演示+原理讲解","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-111b99ec6bec.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>XSS 跨窗口劫持演示+原理讲解</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>XSS 跨窗口劫持演示+原理讲解</h1>
+      <p class="lede">XSS 跨窗口劫持演示+原理讲解。本文属于安全与堡垒机 / 高级安全，将 XSS 注入到父窗口和子窗口，延长攻击时间演示： http://www.etherdream.com/FunnyScript/XSSGhost/ XSS 的本质仍是一段脚本。和其他文档元素一样，页面关了一切都销毁。除非能将脚本蔓延到页面以外…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,171 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<pre><code>&lt;script src="xss_ghost.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+ XssGhost.init({
+ id: 'test-1', // 相同 id 的 payload 不会重复运行
+ payload: function() {
+ console.log('xss run');
+ }
+ });
+&lt;/script&gt;
+</code></pre>
+<p>将 XSS 注入到父窗口和子窗口，延长攻击时间演示：<a href="http://www.etherdream.com/FunnyScript/XSSGhost/" rel="noopener noreferrer">http://www.etherdream.com/FunnyScript/XSSGhost/</a></p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/49f76d1a46db95b3e0.png"/>
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/637b84b2dbabf4ffcf.png"/>
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/08b55294d1c6fa478d.png"/>
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/5b02ff5d7ecf0a57e9.png"/>
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/f90c60ea1efb559c78.png"/></p>
+<p>XSS劫持原理讲解</p>
+<p>XSS 的本质仍是一段脚本。和其他文档元素一样，页面关了一切都销毁。除非能将脚本蔓延到页面以外的地方，那样才能获得更长的生命力。</p>
+<p>庆幸的是，从 DOM 诞生的那一天起，就已为我们准备了这个特殊的功能，让脚本拥有突破当前页面的能力。</p>
+<p>下面开始我们的续命黑魔法。</p>
+<h2 id="反向注入">反向注入</h2>
+<p>一个不合理的标准，往往会埋下各种隐患。</p>
+<p>浏览器提供了一个 opener 属性，供弹出的窗口访问来源页。但该规范设计的并不合理，导致通过超链接弹出的页面，也能使用 opener。</p>
+<p>但按理来说，只有通过脚本弹出的子页面，才能拥有 opener 属性，这样可以相互访问和操作。</p>
+<p>然而事实上，通过超链接点开的页面居然也有！这为 XSS 打开了一扇大门 —— XSS 不仅可以操控当前页面，甚至还能传染给同源的父页面。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/3671811734a617f440.png"/></p>
+<p>XSS 一旦感染到父页面里，战斗力就大幅提升了。</p>
+<p>可以想象，只要看了一个带有 XSS 的帖子，即使立即关了，那么帖子列表页也会遭到感染。</p>
+<p>更有趣的是，opener 这个属性不受同源策略限制。即使父页面不同源，但父页面的 opener 仍然可以访问。</p>
+<p>我们可以顺着 opener.opener.opener... 一直往上试探，只要是和当前页面同源的，仍然能够进行操控 —— 尽管中间隔着其他不同源的页面。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/081643c1969c996881.png"/></p>
+<p>网站的主页面显然比详细页更受用户的信任，停留的时间也会更长，因此攻击力可成倍的增加。</p>
+<h2 id="正向注入">正向注入</h2>
+<p>如果说反向注入是苟且偷生的话，那么正向注入就是当家做主翻身的机会了。</p>
+<p>尽管我们能够控制父页面，但从父页面点开的网页仍然不受操控。如果具有控制子页面的能力，那就更完美了。</p>
+<p>不幸的是，我们无法控制超链接打开的新页面。唯一能够操控的新页面，那就是 window.open 的弹框页。幸运的是，在绝大多数浏览器上，它们看起来的效果是一样的。</p>
+<p>因此，我们可以在用户的点击瞬间，屏蔽掉默认的超链接行为，用弹框页取而代之，即可把 XSS 注入到 window.open 返回的新页面里了。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/13c398381d5b11de85.png"/>
+类似的，通过子页面递归打开的新页面，同样也无法逃脱。于是子子孙孙尽在我们的掌控之中。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/d74bad02893cf09ff1.png"/></p>
+<p>反向注入，让我们占据已有的地盘；正向注入，把我们的势力扩大蔓延出去。两者结合，即可占据半壁江山了。</p>
+<blockquote>
+<p>值得注意的是，正向注入中有个细节问题。并非所有的超链接都是弹出型的（_blank），也有不少是在当前页面跳转的。若是想劫持的狠点，可以忽略这个问题；如果不想被细心的用户发现，那么可以判断下当前超链接以及<code>&lt;base&gt;</code>的 target 属性，决定是否劫持。</p>
+</blockquote>
+<h2 id="页面监督">页面监督</h2>
+<p>上面提到，如果是在当前页面里跳转，那么还能继续感染吗？或者说，某个页面刷新之后，是否就丢失了？</p>
+<p>答案是肯定的。如果我们不采取一些措施，任凭占据的地盘不断丢失，那么我们的势力范围就会越来越小，直到消亡。</p>
+<p>相比进攻，防守则更为困难。我们不知何时会失去，因此必须定时去检查。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/34a941e588b5a53181.png"/>
+一旦发现对方已摆脱我们的控制，那么必须立即重新注入，以恢复我们的势力。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/64e28044e40a2ea423.png"/></p>
+<p>对于新页面的 XSS 来说，当然是注入的越早越好。越前面拥有越高的优先级，甚至可以拦截页面的正常业务功能。</p>
+<p>为了能尽快获知页面刷新、跳转等行为，我们还可跟踪 <code>unload</code> 事件，在页面即将丢失的瞬间，将消息通知出去，让对方尽快来拯救自己。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/2e7a208c7f8efd7c12.png"/></p>
+<p>这样，就不必等待定时器了，可以最快的速度恢复。甚至能赶在页面的第一个脚本之前，运行我们的 XSS。</p>
+<p>当然，并非任何情况都能收回的。如果跳转到了不同源的页面，那显然是无能为力了 —— 不过，就此而放弃它吗？回答是：决不妥协！</p>
+<p>尽管页面已经和我们分道扬镳了，但所在的窗体仍然被我们掌控。我们可以跳转、关闭它，甚至还有可能出现奇迹：<strong>只要页面跳转回我们的站点，又可被我们所收复！</strong></p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/39d235e7007e7b8bd7.png"/></p>
+<h2 id="互相联结">互相联结</h2>
+<p>不难发现，只要还有一个页面存在，就有可能收回曾经被占领的地盘。因此，我们要将可控的页面都联结起来，让每个页面都知晓并监督所有成员。</p>
+<p>当有新成员加入时，通知给大家，记录在各自的页面里。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/5bee9a2b768c85c4bf.png"/></p>
+<p>这样即使其中一个页面意外关闭了，也不会丢失重要的信息 —— 信息已被分布储存在各个页面里了。</p>
+<p>因此，页面开的越多，相互联结就越牢固。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/7903d93b836cd4011c.png"/></p>
+<p>所以，把超链接都变成新页面中打开，还是有很大的优势的。</p>
+<p>如果只剩最后一个页面，那么一旦刷新之后就没人来拯救了，于是就会消亡。</p>
+<h2 id="降域尝试">降域尝试</h2>
+<p>一些网站为了方便通信，将 document.domain 降到根域。例如支付宝网站的绝大部分页面，都是 <a href="http://alipay.com" rel="noopener noreferrer">alipay.com</a>。这样原本不同源的子站，这时也能够相互操控了。</p>
+<p>因此，遇到不同源的页面，可以尝试降低自身的域，再次发起操作，或许就能成功注入了。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/dd2bf1d4bc031a2f24.png"/></p>
+<h2 id="表单劫持">表单劫持</h2>
+<p>之前说到正向注入，是通过劫持超链接点击实现的。事实上，除了超链接外，还有个进入新页面的方式，那就是表单提交。</p>
+<p>相比超链接，表单显得棘手一些。我们不仅得打开一个新页面，还要把表单里的数据也提交上去。如果把整个表单的元素克隆到新页面提交，一些数据又会丢失。</p>
+<p>不过，仔细研究一下表单元素，会发现有一个非常简单的方法：原来 window.open 第二个参数可以赋予新窗口一个 name，然后将 name 赋予表单的 target 属性，即可在我们创建的新窗口里提交。这样就可以把 XSS 注入进去了。</p>
+<h2 id="框架注入">框架注入</h2>
+<p>不同页面之间可以正反注入。同个页面中，可能存在多个框架页，因此还可以尝试框架页之间的上下注入。</p>
+<p>也许，XSS 位于页面中某个小框架。如果只局限于自身页面，那么是毫无发展空间的。因此得跳出圈子，向更广阔的 parent 页面注入。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/58db6b9123f7656e5d.png"/></p>
+<p>类似的，如果主页面仅仅是个外壳，实际内容运行在某个框架里，那么得注入到子框架中，才能获取更有意义的信息。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/6cc5ec8ce252e5f6dc.png"/>
+同样，我们还可以将上下注入结合，即可让 XSS 从某个框架页里破壳而出，感染到所有的框架页里。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/bf321d1bf1b7b397f1.png"/></p>
+<h2 id="后记">后记</h2>
+<p>尽管这些特征从 DOM 诞生起就已存在了，不过要写出一个完善的脚本并不容易。直到如今的 IE 11，不同窗体间的操作，仍有各种奇怪问题，更不用说那些非主流 IE 了。</p>
+<p>不过好在除 IE 外的其他主流浏览器，都能很好的运行。下面分享一个 Demo，其中实现了上述部分功能：</p>
+<p><a href="http://www.etherdream.com/FunnyScript/XSSGhost/" rel="noopener noreferrer">https://www.etherdream.com/FunnyScript/XSSGhost/</a></p>
+<p>当我们顺着超链接往前点，一旦进入有 XSS 的页面，先前的父页面都遭到感染。更严重的是，被感染的页面打开的子页面，也都无一幸免。即使刷新，也会被其他页面监控到，从而立即恢复。</p>
+<p>正如幽灵鬼魂一般挥之不去。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#反向注入">反向注入</a></li><li style="margin-left:0.0rem"><a href="#正向注入">正向注入</a></li><li style="margin-left:0.0rem"><a href="#页面监督">页面监督</a></li><li style="margin-left:0.0rem"><a href="#互相联结">互相联结</a></li><li style="margin-left:0.0rem"><a href="#降域尝试">降域尝试</a></li><li style="margin-left:0.0rem"><a href="#表单劫持">表单劫持</a></li><li style="margin-left:0.0rem"><a href="#框架注入">框架注入</a></li><li style="margin-left:0.0rem"><a href="#后记">后记</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">XSS</span><span class="tag">备份恢复</span><span class="tag">监控告警</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68653340.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BXSS%2B%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D-XSS%20%E8%B7%A8%E7%AA%97%E5%8F%A3%E5%8A%AB%E6%8C%81%E6%BC%94%E7%A4%BA%2B%E5%8E%9F%E7%90%86%E8%AE%B2%E8%A7%A3.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>XSS 跨窗口劫持演示+原理讲解。本文属于安全与堡垒机 / 高级安全，将 XSS 注入到父窗口和子窗口，延长攻击时间演示： http://www.etherdream.com/FunnyScript/XSSGhost/ XSS 的本质仍是一段脚本。和其他文档元素一样，页面关了一切都销毁。除非能将脚本蔓延到页面以外…</p>
+      <p>关键词：安全与堡垒机、高级安全、XSS、备份恢复、监控告警、知识笔记、安全与堡垒机 / 高级安全、XSS 跨窗口劫持演示+原理讲解</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-266ba9ad01eb.html"><small>上一篇</small>WiFi流量劫持—— 浏览任意页面即可中毒！</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-05484c967ca3.html"><small>下一篇</small>XSS攻击</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-111b99ec6bec.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>绕过SNI审查｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="绕过SNI审查。本文属于安全与堡垒机 / 高级安全，在SSL初期一个服务器只对应一个域名（如下图），一个服务器也只有一个数字证书。但随着虚拟主机的出现，一个物理服务器上可能会管理多个域名，所以一个物理服务器会同时管理多个证书（如下图）。为了让物理服务器区分客户端究竟是要访问它所管理的哪一个虚拟服务器，需要一个域标…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，Nginx，备份恢复，知识笔记，安全与堡垒机 / 高级安全，绕过SNI审查">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4375edf3e8d0.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4375edf3e8d0.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BNginx%2B%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D-%E7%BB%95%E8%BF%87SNI%E5%AE%A1%E6%9F%A5.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="绕过SNI审查">
+  <meta property="og:description" content="绕过SNI审查。本文属于安全与堡垒机 / 高级安全，在SSL初期一个服务器只对应一个域名（如下图），一个服务器也只有一个数字证书。但随着虚拟主机的出现，一个物理服务器上可能会管理多个域名，所以一个物理服务器会同时管理多个证书（如下图）。为了让物理服务器区分客户端究竟是要访问它所管理的哪一个虚拟服务器，需要一个域标…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4375edf3e8d0.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/83d86ddf5354ba9f4f.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="绕过SNI审查">
+  <meta name="twitter:description" content="绕过SNI审查。本文属于安全与堡垒机 / 高级安全，在SSL初期一个服务器只对应一个域名（如下图），一个服务器也只有一个数字证书。但随着虚拟主机的出现，一个物理服务器上可能会管理多个域名，所以一个物理服务器会同时管理多个证书（如下图）。为了让物理服务器区分客户端究竟是要访问它所管理的哪一个虚拟服务器，需要一个域标…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/83d86ddf5354ba9f4f.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4375edf3e8d0.html#article","headline":"绕过SNI审查","description":"绕过SNI审查。本文属于安全与堡垒机 / 高级安全，在SSL初期一个服务器只对应一个域名（如下图），一个服务器也只有一个数字证书。但随着虚拟主机的出现，一个物理服务器上可能会管理多个域名，所以一个物理服务器会同时管理多个证书（如下图）。为了让物理服务器区分客户端究竟是要访问它所管理的哪一个虚拟服务器，需要一个域标…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","Nginx","备份恢复","知识笔记","安全与堡垒机 / 高级安全","绕过SNI审查"],"wordCount":719,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4375edf3e8d0.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4375edf3e8d0.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/83d86ddf5354ba9f4f.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"绕过SNI审查","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4375edf3e8d0.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>绕过SNI审查</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>绕过SNI审查</h1>
+      <p class="lede">绕过SNI审查。本文属于安全与堡垒机 / 高级安全，在SSL初期一个服务器只对应一个域名（如下图），一个服务器也只有一个数字证书。但随着虚拟主机的出现，一个物理服务器上可能会管理多个域名，所以一个物理服务器会同时管理多个证书（如下图）。为了让物理服务器区分客户端究竟是要访问它所管理的哪一个虚拟服务器，需要一个域标…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">719 字</span>
+        <span class="badge">3 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>此文章仅为学习SNI相关知识留作记录</p>
+<h2 id="SNI-Server-Name-Indication">SNI（Server Name Indication）</h2>
+<h3 id="SNI作用">SNI作用</h3>
+<p>在SSL初期一个服务器只对应一个域名（如下图），一个服务器也只有一个数字证书。但随着虚拟主机的出现，一个物理服务器上可能会管理多个域名，所以一个物理服务器会同时管理多个证书（如下图）。为了让物理服务器区分客户端究竟是要访问它所管理的哪一个虚拟服务器，需要一个域标明客户端所访问的域名，这就是<strong>SNI（Server Name Indication）</strong>。</p>
+<p><img alt="技术分享图片" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/83d86ddf5354ba9f4f.png"/><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/17f71970f1e158bc75.png"/></p>
+<h3 id="SNI抓包验证">SNI抓包验证</h3>
+<ul>
+<li>以访问百度为例，抓取Client Hello包可以查看到其中的SNI信息，即 <code>[hm.baidu.com](http://hm.baidu.com)</code>，这表示客户端要访问的域名。</li>
+</ul>
+<p><img alt="技术分享图片" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/7cde25695b9717493b.png"/><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/3939700112c817377a.png"/></p>
+<h2 id="SNI审查及如何绕过SNI审查">SNI审查及如何绕过SNI审查</h2>
+<h3 id="SNI审查">SNI审查</h3>
+<p>所谓SNI审查即使用上述的SNI信息过滤以限制某部分的网站的访问，是防火墙措施的一种。</p>
+<p>由于是以域名作为过滤关键字，其好处是一次可以过滤一系列网站，相较于ip过滤有着更高的效率。目前使用SNI审查的网站有P站，steam社区等。使用SNI审查的网站有一个特征，使用<code>ping</code>命令访问其ip地址发现是连通的，但是却无法访问。</p>
+<h3 id="绕过SNI审查">绕过SNI审查</h3>
+<p>绕过思路：绕过的方法很简单，只要伪造错误的SNI，或者直接隐藏SNI，这里采用第二种方法。</p>
+<p>我们这里使用nginx，利用其反向代理的功能绕过SNI审查来上P站，使用nginx的原因是当nginx反向代理时会默认隐藏SNI的值。</p>
+<h4 id="_1">操作步骤</h4>
+<ul>
+<li>首先在nginx上配置一个服务器，打开nginx目录下conf/nginx.conf文件，添加如下配置</li>
+</ul>
+<pre><code class="language-nginx">server {
+ listen 443 ssl;
+ server_name www.pixiv.net;
+ #这里需要自签一个数字证书,下面为其公钥和私钥
+ ssl_certificate cert.pem;
+ ssl_certificate_key cert.key;
+ location / {
+ proxy_pass https://203.0.113.1:443;
+ proxy_set_header Host $http_host;
+ }
+</code></pre>
+<p>上述代码完成了反向代理P站的配置。意为将一个host为<code>[www.pixiv.net](http://www.pixiv.net)</code>的网站代理到<code>203.0.113.1</code>（其中<code>203.0.113.1</code>为P站可访问的ip地址）。</p>
+<ul>
+<li>使用POSTMAN验证反向代理成果</li>
+</ul>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/8b6c036e6bc96b9adb.png"/><img alt="技术分享图片" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/6385914788921b2045.png"/></p>
+<p>成功获取到P站的html页面。</p>
+<ul>
+<li>抓包验证是否成功隐藏SNI信息</li>
+</ul>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/6151cc087a553aab6e.png"/><img alt="技术分享图片" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/8ec1efbc2cc4e8a8cf.png"/></p>
+<p>从上图我们可以看见当我们连接<code>203.0.113.1</code>时成功隐藏了我们的SNI信息，这样就绕过了SNI审核。</p>
+<p>参考资料：
+[1] <a href="https://blog.csdn.net/makenothing/article/details/53292335" rel="noopener noreferrer">SNI(Server Name Indication)_浴血重生-学习空间-CSDN博客_sni</a>
+[2] <a href="https://2heng.xin/2017/09/19/pixiv/" rel="noopener noreferrer">PIXIV网页版及客户端访问恢复指南 | 樱花庄的白猫</a>!</p>
+<p><a href="http://www.bubuko.com/infodetail-3630653.html" rel="noopener noreferrer" title="绕过SNI审查,bubuko.com">绕过SNI审查</a></p>
+<p>原文：<a href="https://www.cnblogs.com/greapi/p/13281770.html" rel="noopener noreferrer">https://www.cnblogs.com/greapi/p/13281770.html</a></p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#SNI-Server-Name-Indication">SNI（Server Name Indication）</a></li><li style="margin-left:0.8rem"><a href="#SNI作用">SNI作用</a></li><li style="margin-left:0.8rem"><a href="#SNI抓包验证">SNI抓包验证</a></li><li style="margin-left:0.0rem"><a href="#SNI审查及如何绕过SNI审查">SNI审查及如何绕过SNI审查</a></li><li style="margin-left:0.8rem"><a href="#SNI审查">SNI审查</a></li><li style="margin-left:0.8rem"><a href="#绕过SNI审查">绕过SNI审查</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">Nginx</span><span class="tag">备份恢复</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68649363.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BNginx%2B%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D-%E7%BB%95%E8%BF%87SNI%E5%AE%A1%E6%9F%A5.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>绕过SNI审查。本文属于安全与堡垒机 / 高级安全，在SSL初期一个服务器只对应一个域名（如下图），一个服务器也只有一个数字证书。但随着虚拟主机的出现，一个物理服务器上可能会管理多个域名，所以一个物理服务器会同时管理多个证书（如下图）。为了让物理服务器区分客户端究竟是要访问它所管理的哪一个虚拟服务器，需要一个域标…</p>
+      <p>关键词：安全与堡垒机、高级安全、Nginx、备份恢复、知识笔记、安全与堡垒机 / 高级安全、绕过SNI审查</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2f1841097609.html"><small>上一篇</small>终端常用快捷键</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a08335d979d9.html"><small>下一篇</small>绕过URL跳转限制</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4375edf3e8d0.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

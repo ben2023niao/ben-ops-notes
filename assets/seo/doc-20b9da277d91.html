@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>ZeroSSL免费申请IP的SSL证书｜DevOps 与 SRE / 优化方案｜BEN.OPS</title>
+  <meta name="description" content="ZeroSSL免费申请IP的SSL证书。本文属于DevOps 与 SRE / 优化方案，一般来说，我们使用域名访问给域名加上SSL证书是建站的常规操作，但是有一些应用可能不需要使用域名访问，或者是不想绑定域名，而只是想用单纯的IP来实现访问。在现在全网都是HTTPS加密访问的背景下，有没有可能给IP地址也加上SS…">
+  <meta name="keywords" content="DevOps 与 SRE，优化方案，DNS，Nginx，Apache，PHP，监控告警，知识笔记，DevOps 与 SRE / 优化方案，ZeroSSL免费申请IP的SSL证书，DevOps，SRE">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-20b9da277d91.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-20b9da277d91.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BDNS%2BNginx-ZeroSSL%E5%85%8D%E8%B4%B9%E7%94%B3%E8%AF%B7IP%E7%9A%84SSL%E8%AF%81%E4%B9%A6.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="ZeroSSL免费申请IP的SSL证书">
+  <meta property="og:description" content="ZeroSSL免费申请IP的SSL证书。本文属于DevOps 与 SRE / 优化方案，一般来说，我们使用域名访问给域名加上SSL证书是建站的常规操作，但是有一些应用可能不需要使用域名访问，或者是不想绑定域名，而只是想用单纯的IP来实现访问。在现在全网都是HTTPS加密访问的背景下，有没有可能给IP地址也加上SS…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-20b9da277d91.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="DevOps 与 SRE / 优化方案">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/3a9a12464ac2b3b7ec.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ZeroSSL免费申请IP的SSL证书">
+  <meta name="twitter:description" content="ZeroSSL免费申请IP的SSL证书。本文属于DevOps 与 SRE / 优化方案，一般来说，我们使用域名访问给域名加上SSL证书是建站的常规操作，但是有一些应用可能不需要使用域名访问，或者是不想绑定域名，而只是想用单纯的IP来实现访问。在现在全网都是HTTPS加密访问的背景下，有没有可能给IP地址也加上SS…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/3a9a12464ac2b3b7ec.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-20b9da277d91.html#article","headline":"ZeroSSL免费申请IP的SSL证书","description":"ZeroSSL免费申请IP的SSL证书。本文属于DevOps 与 SRE / 优化方案，一般来说，我们使用域名访问给域名加上SSL证书是建站的常规操作，但是有一些应用可能不需要使用域名访问，或者是不想绑定域名，而只是想用单纯的IP来实现访问。在现在全网都是HTTPS加密访问的背景下，有没有可能给IP地址也加上SS…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["DevOps 与 SRE","优化方案"],"keywords":["DevOps 与 SRE","优化方案","DNS","Nginx","Apache","PHP","监控告警","知识笔记","DevOps 与 SRE / 优化方案","ZeroSSL免费申请IP的SSL证书","DevOps","SRE"],"wordCount":1137,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-20b9da277d91.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-20b9da277d91.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/3a9a12464ac2b3b7ec.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"DevOps 与 SRE / 优化方案","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"ZeroSSL免费申请IP的SSL证书","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-20b9da277d91.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>DevOps 与 SRE / 优化方案</span> › <span>ZeroSSL免费申请IP的SSL证书</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">DevOps 与 SRE / 优化方案</div>
+      <h1>ZeroSSL免费申请IP的SSL证书</h1>
+      <p class="lede">ZeroSSL免费申请IP的SSL证书。本文属于DevOps 与 SRE / 优化方案，一般来说，我们使用域名访问给域名加上SSL证书是建站的常规操作，但是有一些应用可能不需要使用域名访问，或者是不想绑定域名，而只是想用单纯的IP来实现访问。在现在全网都是HTTPS加密访问的背景下，有没有可能给IP地址也加上SS…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,137 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>一般来说，我们使用域名访问给域名加上SSL证书是建站的常规操作，但是有一些应用可能不需要使用域名访问，或者是不想绑定域名，而只是想用单纯的IP来实现访问。在现在全网都是HTTPS加密访问的背景下，有没有可能给IP地址也加上SSL证书实现访问呢？</p>
+<p>有。但大多数面对IP的SSL证书都是收费的。而zeroSSL提供<a href="https://wzfou.com/tag/mianfei-ssl/" rel="noopener noreferrer">免费SSL证书</a>是支持纯IP颁发的，本篇文章就来分享一下<a href="https://wzfou.com/tag/zerossl/" rel="noopener noreferrer">zeroSSL</a>免费的纯IP SSL证书申请以及如何在自己的服务器（<a href="https://wzfou.com/tag/baota-mianban/" rel="noopener noreferrer">宝塔面板</a>或者Nginx）安装配置zeroSSL免费SSL证书。更多的免费SSL请参考专题页面：<a href="https://wzfou.com/mianfei-ssl/" rel="noopener noreferrer">免费SSL证书收集整理汇总</a>。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/3a9a12464ac2b3b7ec.png"/></p>
+<p>相关的<a href="https://wzfou.com/ssl/" rel="noopener noreferrer">SSL证书</a>建站教程有：</p>
+<ol>
+<li><a href="https://wzfou.com/letsencrypt/" rel="noopener noreferrer">简单三步给网站申请安装letsencrypt免费SSL证书-acme.sh自动续期</a></li>
+<li><a href="https://wzfou.com/https-ssl/" rel="noopener noreferrer">八个HTTPS和SSL优化使用心得-减少等待时间和降低Https性能损耗</a></li>
+<li><a href="https://wzfou.com/ssl-jiankong/" rel="noopener noreferrer">三个免费的SSL证书在线监控和到期提醒服务-再也不用担心证书过期</a></li>
+</ol>
+<p><strong>PS：更新记录。</strong></p>
+<blockquote>
+<p>1、BuyPass提供了免费180天的SSL证书，同样支持acme.sh脚本安装与自动续期：<a href="https://wzfou.com/buypass-ssl/" rel="noopener noreferrer">BuyPass免费SSL证书申请与使用教程-acme.sh自动申请和续期SSL证书</a>。2022.8.20</p>
+<p>2、ZeroSSL可以像letsencrypt那样提供免费90天的SSL证书且可免费无限续期：<a href="https://wzfou.com/zerossl-ssl/" rel="noopener noreferrer">ZeroSSL免费SSL证书申请与使用-支持自动续期和免费泛域名SSL证书</a>。2022.6.9</p>
+</blockquote>
+<h2 id="一-ZeroSSL证书申请">一、ZeroSSL证书申请</h2>
+<p>网站：</p>
+<ol>
+<li><a href="https://wzfou.com/go/zerossl" rel="noopener noreferrer">https://zerossl.com</a></li>
+</ol>
+<h3 id="1-1-手动申请">1.1 手动申请</h3>
+<p>进入到<a href="https://wzfou.com/tag/zerossl/" rel="noopener noreferrer">ZeroSSL</a>官网，注册一个账号，然后点击免费SSL证书申请。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/0b6406f9b434a77d03.png"/></p>
+<p>填写你的IP地址，然后选择免费SSL证书时长。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/6c56e2e0e79826c72e.png"/></p>
+<p>选择自动生成CSR。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/41c9b248aceb1562e3.png"/></p>
+<h4 id="12">1.2 验证域名</h4>
+<p>ZeroSSL免费SSL证书提供了两种域名验证方式，最简单的就是Web验证，但是前提是你要让你的IP地址实现Web访问。如果没有，你可以选择使用域名DNS添加TXT记录验证。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/421a9f5a825d74e410.png"/></p>
+<p>选择网站Web访问的话，直接下载验证文件，然后上传到IP地址默认的Web目录下，要求是路径保持如下：</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/9d0fe1f1bc7256e280.png"/></p>
+<p>用你的浏览器打开IP，保证可以访问到验证文件。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/3105e3c51859a5a228.png"/></p>
+<p>最后，回到ZeroSSL验证页面，点击完成验证。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/c55752115d004900ff.png"/></p>
+<h3 id="二-ZeroSSL证书安装">二、ZeroSSL证书安装</h3>
+<h4 id="21">2.1 下载证书文件</h4>
+<p>ZeroSSL证书验证成功后，你就可以下载证书文件了。<a href="https://wzfou.com/tag/zerossl-ssl-crt/" rel="noopener noreferrer">ZeroSSL SSL证书</a>提供了多种形式，包括了Nginx、Apache等。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/aebe0a7fe23154e20f.png"/></p>
+<p>这里以Nginx为例，下载下来了ZeroSSL证书文件有三个：ca_bundle.crt和certificate.crt以及私钥key。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/15c60566ab7185146f.png"/></p>
+<h4 id="22-ssl">2.2 合并SSL证书</h4>
+<p>对于Nginx服务器，需要将ca_bundle.crt和certificate.crt合并，方法是打开certificate.crt，然后将ca_bundle.crt的内容复制粘贴放在后面。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/47871f49005a0924ae.png"/>
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/5ab27c5720befb502b.png"/></p>
+<h4 id="23-ssl">2.3 安装SSL证书</h4>
+<p>如果你用的是宝塔面板，可以直接在后台点击安装SSL证书，然后将证书和密钥文件分别上传保存即可。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/65b88499b6a457dee8.png"/></p>
+<p>如果你用的是<a href="https://wzfou.com/oneinstack/" rel="noopener noreferrer">Oneinstack一键包</a>和<a href="https://wzfou.com/tag/lnmp-yzb/" rel="noopener noreferrer">LNMP一键安装包</a>，则需要打开你的Nginx配置文件（不是域名Nginx配置文件），参考以下格式修改，注意要将SSL证书的路径改成你自己的：
+server
+ {
+ listen 443 ssl http2;
+ #listen [::]:443 ssl http2;
+ server_name _;
+ index index.html index.htm index.php;
+ root /home/wwwroot/default;</p>
+<p>ssl_certificate /usr/local/nginx/conf/ssl/ipssl/wzfouip.crt;
+ ssl_certificate_key /usr/local/nginx/conf/ssl/ipssl/wzfouip.key;
+ ssl_session_timeout 5m;
+ ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+ ssl_prefer_server_ciphers on;
+ ssl_ciphers "TLS13-AES-256-GCM-SHA384:TLS13-CHACHA20-POLY1305-SHA256:TLS13-AES-128-GCM-SHA256:TLS13-AES-128-CCM-8-SHA256:TLS13-AES-128-CCM-SHA256:EECDH+CHACHA20:EECDH+CHACHA20-draft:EECDH+AES128:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5";
+ ssl_session_cache builtin:1000 shared:SSL:10m;</p>
+<h2 id="openssl-dhparam--out-usr-local-nginx-conf-ssl-dhparam-pem-2048">openssl dhparam -out /usr/local/nginx/conf/ssl/dhparam.pem 2048</h2>
+<p>ssl_dhparam /usr/local/nginx/conf/ssl/dhparam.pem;</p>
+<p>access_log /home/wwwlogs/access.log;
+ }</p>
+<p>证书安装后，记得执行一次:nginx -t来检查一下是否有没有语法错误，没有的话直接重启Nginx完成SSL证书安装。打开IP地址你就可以看到IP SSL证书已经成功安装了。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/82fa0e6258c8f45c9a.png"/></p>
+<h3 id="三-总结">三、总结</h3>
+<p>就目前来看，纯IP的<a href="https://wzfou.com/tag/zerossl-mianfei-ssl/" rel="noopener noreferrer">ZeroSSL免费SSL证书</a>暂时没有很好的工具来自动续期，Github有开发者使用golang写了个工具可以实现更新：<a href="https://github.com/tinkernels/zerossl-ip-cert" rel="noopener noreferrer">https://github.com/tinkernels/zerossl-ip-cert</a>，但是不好操作，所以比较简单的方法就是自己手动申请续期。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-ZeroSSL证书申请">一、ZeroSSL证书申请</a></li><li style="margin-left:0.8rem"><a href="#1-1-手动申请">1.1 手动申请</a></li><li style="margin-left:0.8rem"><a href="#二-ZeroSSL证书安装">二、ZeroSSL证书安装</a></li><li style="margin-left:0.0rem"><a href="#openssl-dhparam--out-usr-local-nginx-conf-ssl-dhparam-pem-2048">openssl dhparam -out /usr/local/nginx/conf/ssl/dhparam.pem 2048</a></li><li style="margin-left:0.8rem"><a href="#三-总结">三、总结</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：DevOps 与 SRE / 优化方案</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">DevOps 与 SRE</span><span class="tag">优化方案</span><span class="tag">DNS</span><span class="tag">Nginx</span><span class="tag">Apache</span><span class="tag">PHP</span><span class="tag">监控告警</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/03-优化方案/birdben/72064861.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BDNS%2BNginx-ZeroSSL%E5%85%8D%E8%B4%B9%E7%94%B3%E8%AF%B7IP%E7%9A%84SSL%E8%AF%81%E4%B9%A6.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>ZeroSSL免费申请IP的SSL证书。本文属于DevOps 与 SRE / 优化方案，一般来说，我们使用域名访问给域名加上SSL证书是建站的常规操作，但是有一些应用可能不需要使用域名访问，或者是不想绑定域名，而只是想用单纯的IP来实现访问。在现在全网都是HTTPS加密访问的背景下，有没有可能给IP地址也加上SS…</p>
+      <p>关键词：DevOps 与 SRE、优化方案、DNS、Nginx、Apache、PHP、监控告警、知识笔记、DevOps 与 SRE / 优化方案、ZeroSSL免费申请IP的SSL证书、DevOps、SRE</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c45fa6bd3c55.html"><small>上一篇</small>Zabbix监控K8S</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4a5c39760215.html"><small>下一篇</small>__init__.py</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-20b9da277d91.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

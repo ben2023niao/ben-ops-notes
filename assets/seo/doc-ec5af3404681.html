@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>inode节点｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="inode节点。本文属于安全与堡垒机 / 高级安全，操作系统的文件数据除了实际内容之外，通常含有非常多的属性，例如 Linux 操作系统的文件权限与文件属性。文件系统通常会将这两部分内容分别存放在 inode 和 block 中。 文件是存储在硬盘上的，硬盘的最小存储单位叫做扇区 sector，每个扇区存储 51…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，Linux，Windows，权限管理，知识笔记，安全与堡垒机 / 高级安全，inode节点">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ec5af3404681.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ec5af3404681.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2BWindows-inode%E8%8A%82%E7%82%B9.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="inode节点">
+  <meta property="og:description" content="inode节点。本文属于安全与堡垒机 / 高级安全，操作系统的文件数据除了实际内容之外，通常含有非常多的属性，例如 Linux 操作系统的文件权限与文件属性。文件系统通常会将这两部分内容分别存放在 inode 和 block 中。 文件是存储在硬盘上的，硬盘的最小存储单位叫做扇区 sector，每个扇区存储 51…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ec5af3404681.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/076edf557cdf5b7144.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="inode节点">
+  <meta name="twitter:description" content="inode节点。本文属于安全与堡垒机 / 高级安全，操作系统的文件数据除了实际内容之外，通常含有非常多的属性，例如 Linux 操作系统的文件权限与文件属性。文件系统通常会将这两部分内容分别存放在 inode 和 block 中。 文件是存储在硬盘上的，硬盘的最小存储单位叫做扇区 sector，每个扇区存储 51…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/076edf557cdf5b7144.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ec5af3404681.html#article","headline":"inode节点","description":"inode节点。本文属于安全与堡垒机 / 高级安全，操作系统的文件数据除了实际内容之外，通常含有非常多的属性，例如 Linux 操作系统的文件权限与文件属性。文件系统通常会将这两部分内容分别存放在 inode 和 block 中。 文件是存储在硬盘上的，硬盘的最小存储单位叫做扇区 sector，每个扇区存储 51…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","Linux","Windows","权限管理","知识笔记","安全与堡垒机 / 高级安全","inode节点"],"wordCount":2181,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ec5af3404681.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ec5af3404681.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/076edf557cdf5b7144.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"inode节点","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ec5af3404681.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>inode节点</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>inode节点</h1>
+      <p class="lede">inode节点。本文属于安全与堡垒机 / 高级安全，操作系统的文件数据除了实际内容之外，通常含有非常多的属性，例如 Linux 操作系统的文件权限与文件属性。文件系统通常会将这两部分内容分别存放在 inode 和 block 中。 文件是存储在硬盘上的，硬盘的最小存储单位叫做扇区 sector，每个扇区存储 51…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,181 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>操作系统的文件数据除了实际内容之外，通常含有非常多的属性，例如 <strong><a href="https://haicoder.net/linux/linux-tutorial.html" rel="noopener noreferrer">Linux</a></strong> 操作系统的文件权限与文件属性。文件系统通常会将这两部分内容分别存放在 inode 和 block 中。</p>
+<h2 id="inode和block概述">inode和block概述</h2>
+<p>文件是存储在硬盘上的，硬盘的最小存储单位叫做扇区 sector，每个扇区存储 512 字节。操作系统读取硬盘的时候，不会一个个扇区地读取，这样效率太低，而是一次性连续读取多个扇区，即一次性读取一个块 block。这种由多个扇区组成的块，是文件存取的最小单位。块的大小，最常见的是 4KB，即连续八个 sector 组成一个 block。</p>
+<p>文件数据存储在块中，那么还必须找到一个地方存储文件的元信息，比如文件的创建者、文件的创建日期、文件的大小等等。这种存储文件元信息的区域就叫做 inode，中文译名为索引节点，也叫 i 节点。因此，一个文件必须占用一个 inode，但至少占用一个 lock。</p>
+<ul>
+<li>元信息 → inode</li>
+<li>数据 → block</li>
+</ul>
+<h2 id="inode内容">inode内容</h2>
+<p>inode 包含很多的文件元信息，但不包含文件名，例如：字节数、属主 UserID、属组 GroupID、读写执行权限、时间戳等。</p>
+<p>而文件名存放在目录当中，但 Linux 系统内部不使用文件名，而是使用 inode 号码识别文件。对于系统来说文件名只是 inode 号码便于识别的别称。</p>
+<h3 id="stat">stat</h3>
+<p>要查看 inode 信息，我们可以使用 stat 命令。我们首先在终端上使用 echo 命令，创建一个文件，并写入内容：</p>
+<p><code>echo "this is test file" &gt; test.txt</code></p>
+<p>接着，我们使用 stat 命令，查看文件的 inode 信息，具体命令如下：</p>
+<p><code>stat test.txt</code></p>
+<p>执行完毕后，如下图所示：
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/076edf557cdf5b7144.png"/></p>
+<p>三个主要的时间属性：</p>
+<ul>
+<li>ctime：change time 是最后一次改变文件或目录（属性）的时间，例如执行 chmod，chown 等命令。</li>
+<li>atime：access time 是最后一次访问文件或目录的时间。</li>
+<li>mtime：modify time 是最后一次修改文件或目录（内容）的时间。</li>
+</ul>
+<h3 id="file">file</h3>
+<p>使用 file 命令，查看文件的类型：</p>
+<p><code>file test.txt</code></p>
+<p>执行完毕后，如下图所示：
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/79166b07a7bdbcdf84.png"/></p>
+<h3 id="inode号码">inode号码</h3>
+<p>表面上，用户通过文件名打开文件，实际上，系统内部将这个过程分为三步：</p>
+<ol>
+<li>系统找到这个文件名对应的 inode 号码；</li>
+<li>通过 inode 号码，获取 inode 信息；</li>
+<li>根据 inode 信息，找到文件数据所在的 block，并读出数据。</li>
+</ol>
+<p>其实系统还要根据 inode 信息，看用户是否具有访问的权限，有就指向对应的数据 block，没有就返回权限拒绝。</p>
+<h3 id="ls--i">ls -i</h3>
+<p>直接查看文件 i 节点号，也可以通过 stat 查看文件 inode 信息查看 i 节点号。</p>
+<p><code>ls -i test.txt</code></p>
+<p>执行完毕后，如下图所示：
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/530e357ce7f32188ec.png"/></p>
+<h3 id="inode大小">inode大小</h3>
+<p>inode 也会消耗硬盘空间，所以格式化的时候，操作系统自动将硬盘分成两个区域。一个是数据区，存放文件数据；另一个是 inode 区，存放 inode 所包含的信息。每个 inode 的大小，一般是 128 字节或 256 字节。通常情况下不需要关注单个 inode 的大小，而是需要重点关注 inode 总数。inode 总数在格式化的时候就确定了。</p>
+<h3 id="df--i">df -i</h3>
+<p>查看硬盘分区的 inode 总数和已使用情况</p>
+<p><code>df -i</code></p>
+<p>执行完毕后，如下图所示：
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/f3cfe4f68dfac281f2.png"/></p>
+<h3 id="特有现象">特有现象</h3>
+<p>由于 inode 号码与文件名分离，导致一些 Unix/Linux 系统具备以下几种特有的现象。</p>
+<ol>
+<li>文件名包含特殊字符，可能无法正常删除。这时直接删除 inode，能够起到删除文件的作用：</li>
+</ol>
+<p><code>find ./* -inum 节点号 -delete</code>
+2. 移动文件或重命名文件，只是改变文件名，不影响 inode 号码；
+3. 打开一个文件以后，系统就以 inode 号码来识别这个文件，不再考虑文件名。</p>
+<p>这种情况使得软件更新变得简单，可以在不关闭软件的情况下进行更新，不需要重启。因为系统通过 inode 号码，识别运行中的文件，不通过文件名。</p>
+<p>更新的时候，新版文件以同样的文件名，生成一个新的 inode，不会影响到运行中的文件。等到下一次运行这个软件的时候，文件名就自动指向新版文件，旧版文件的 inode 则被回收。</p>
+<h3 id="inode耗尽故障">inode耗尽故障</h3>
+<p>由于硬盘分区的 inode 总数在格式化后就已经固定，而每个文件必须有一个 inode，因此就有可能发生 inode 节点用光，但硬盘空间还剩不少，却无法创建新文件。同时这也是一种攻击的方式，所以一些公用的文件系统就要做磁盘限额，以防止影响到系统的正常运行。</p>
+<p>至于修复，很简单，只要找出哪些大量占用i节点的文件删除就可以了。</p>
+<p>demo:</p>
+<pre><code class="language-bash">先准备一个比较小的硬盘分区 /dev/sdb1，并格式化挂载，这里挂载到了 /data 目录下。
+
+[root@localhost ~]# df -hT /data/
+Filesystem Type Size Used Avail Use% Mounted on
+/dev/sdb1 xfs 29M 1.8M 27M 6% /data
+先测试可以正常创建文件。
+
+[root@localhost ~]# touch /data/test{1..5}.txt
+[root@localhost ~]# ls /data/
+test1.txt test2.txt test3.txt test4.txt test5.txt
+查看 i 节点的使用情况。
+
+[root@localhost ~]# df -i /data/
+Filesystem Inodes IUsed IFree IUse% Mounted on
+/dev/sdb1 16384 8 16376 1% /data
+编写一个测试程序，创建大量空文件，用于耗尽此分区中的 i 节点数。
+
+[root@localhost ~]# vim killinode.sh
+#!/bin/bash
+i=1
+while [ $i -le 16376 ]
+do
+touch /data/file$i
+let i++
+done
+运行测试程序，结束后查看 i 节点占用情况，磁盘分区空间使用情况。
+
+[root@localhost ~]# sh killinode.sh
+[root@localhost ~]# df -i /data/
+Filesystem Inodes IUsed IFree IUse% Mounted on
+/dev/sdb1 16384 16384 0 100% /data
+[root@localhost ~]# df -hT /data/
+Filesystem Type Size Used Avail Use% Mounted on
+/dev/sdb1 xfs 29M 11M 19M 36% /data
+虽然还有很多剩余空间，但是 i 节点耗尽了，也无法创建创建新文件，这就是 i 节点耗尽故障。
+
+[root@localhost ~]# touch /data/newfile.txt
+touch: cannot touch ‘/data/newfile.txt’: No space left on device
+</code></pre>
+<h2 id="硬链接与软链接">硬链接与软链接</h2>
+<h3 id="硬链接">硬链接</h3>
+<p>通过文件系统的 inode 链接来产生的新的文件名，而不是产生新的文件，称为硬链接。</p>
+<p>一般情况下，每个 inode 号码对应一个文件名，但是 Linux 允许多个文件名指向同一个 inode 号码。意味着可以使用不同的文件名访问相同的内容。</p>
+<p><code>ln 源文件 目标</code></p>
+<p>运行该命令以后，源文件与目标文件的 inode 号码相同，都指向同一个 inode。inode 信息中的链接数这时就会增加 1。</p>
+<p>当一个文件拥有多个硬链接时，对文件内容修改，会影响到所有文件名；但是删除一个文件名，不影响另一个文件名的访问。删除一个文件名，只会使得 inode 中的链接数减 1。</p>
+<p>需要注意的是不能对目录做硬链接。</p>
+<p>通过 mkdir 命令创建一个新目录，其硬链接数应该有 2 个，因为常见的目录本身为 1 个硬链接，而目录下面的隐藏目录.（点号）是该目录的又一个硬链接，也算是 1 个连接数。</p>
+<h3 id="软链接">软链接</h3>
+<p>类似于 Windows 的快捷方式功能的文件，可以快速连接到目标文件或目录，称为软链接。</p>
+<p><code>ln -s 源文件或目录 目标文件或目录</code></p>
+<p>软链接就是再创建一个独立的文件，而这个文件会让数据的读取指向它连接的那个文件的文件名。例如，文件 A 和文件B的 inode 号码虽然不一样，但是文件 A 的内容是文件B的路径。读取文件 A 时，系统会自动将访问者导向文件 B。这时，文件 A 就称为文件B的软链接 soft link 或者符号链接 symbolic link。</p>
+<p>这意味着，文件 A 依赖于文件 B 而存在，如果删除了文件 B，打开文件 A 就会报错。这是软链接与硬链接最大的不同：文件 A 指向文件 B 的文件名，而不是文件 B 的 inode 号码，文件 B 的 inode 链接数不会因此发生变化。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#inode和block概述">inode和block概述</a></li><li style="margin-left:0.0rem"><a href="#inode内容">inode内容</a></li><li style="margin-left:0.8rem"><a href="#stat">stat</a></li><li style="margin-left:0.8rem"><a href="#file">file</a></li><li style="margin-left:0.8rem"><a href="#inode号码">inode号码</a></li><li style="margin-left:0.8rem"><a href="#ls--i">ls -i</a></li><li style="margin-left:0.8rem"><a href="#inode大小">inode大小</a></li><li style="margin-left:0.8rem"><a href="#df--i">df -i</a></li><li style="margin-left:0.8rem"><a href="#特有现象">特有现象</a></li><li style="margin-left:0.8rem"><a href="#inode耗尽故障">inode耗尽故障</a></li><li style="margin-left:0.0rem"><a href="#硬链接与软链接">硬链接与软链接</a></li><li style="margin-left:0.8rem"><a href="#硬链接">硬链接</a></li><li style="margin-left:0.8rem"><a href="#软链接">软链接</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">Linux</span><span class="tag">Windows</span><span class="tag">权限管理</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68656978.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2BWindows-inode%E8%8A%82%E7%82%B9.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>inode节点。本文属于安全与堡垒机 / 高级安全，操作系统的文件数据除了实际内容之外，通常含有非常多的属性，例如 Linux 操作系统的文件权限与文件属性。文件系统通常会将这两部分内容分别存放在 inode 和 block 中。 文件是存储在硬盘上的，硬盘的最小存储单位叫做扇区 sector，每个扇区存储 51…</p>
+      <p>关键词：安全与堡垒机、高级安全、Linux、Windows、权限管理、知识笔记、安全与堡垒机 / 高级安全、inode节点</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f87d61bbda5f.html"><small>上一篇</small>init_spug</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8dc3630ef0d9.html"><small>下一篇</small>install.sh</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ec5af3404681.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

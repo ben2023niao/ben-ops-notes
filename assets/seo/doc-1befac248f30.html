@@ -1,0 +1,867 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>iptables 自动化防护虚拟机脚本｜DevOps 与 SRE / 优化方案｜BEN.OPS</title>
+  <meta name="description" content="iptables 自动化防护虚拟机脚本。本文属于DevOps 与 SRE / 优化方案，使用案例 新IP 203.0.113.1 添加TCP 443端口OUTPUT规则">
+  <meta name="keywords" content="DevOps 与 SRE，优化方案，DNS，Zabbix，知识笔记，DevOps 与 SRE / 优化方案，iptables 自动化防护虚拟机脚本，DevOps，SRE">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1befac248f30.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1befac248f30.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BDNS%2BZabbix-iptables%20%E8%87%AA%E5%8A%A8%E5%8C%96%E9%98%B2%E6%8A%A4%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%84%9A%E6%9C%AC.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="iptables 自动化防护虚拟机脚本">
+  <meta property="og:description" content="iptables 自动化防护虚拟机脚本。本文属于DevOps 与 SRE / 优化方案，使用案例 新IP 203.0.113.1 添加TCP 443端口OUTPUT规则">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1befac248f30.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="DevOps 与 SRE / 优化方案">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="iptables 自动化防护虚拟机脚本">
+  <meta name="twitter:description" content="iptables 自动化防护虚拟机脚本。本文属于DevOps 与 SRE / 优化方案，使用案例 新IP 203.0.113.1 添加TCP 443端口OUTPUT规则">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1befac248f30.html#article","headline":"iptables 自动化防护虚拟机脚本","description":"iptables 自动化防护虚拟机脚本。本文属于DevOps 与 SRE / 优化方案，使用案例 新IP 203.0.113.1 添加TCP 443端口OUTPUT规则","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["DevOps 与 SRE","优化方案"],"keywords":["DevOps 与 SRE","优化方案","DNS","Zabbix","知识笔记","DevOps 与 SRE / 优化方案","iptables 自动化防护虚拟机脚本","DevOps","SRE"],"wordCount":5943,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1befac248f30.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1befac248f30.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"DevOps 与 SRE / 优化方案","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"iptables 自动化防护虚拟机脚本","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1befac248f30.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>DevOps 与 SRE / 优化方案</span> › <span>iptables 自动化防护虚拟机脚本</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">DevOps 与 SRE / 优化方案</div>
+      <h1>iptables 自动化防护虚拟机脚本</h1>
+      <p class="lede">iptables 自动化防护虚拟机脚本。本文属于DevOps 与 SRE / 优化方案，使用案例 新IP 203.0.113.1 添加TCP 443端口OUTPUT规则</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">5,943 字</span>
+        <span class="badge">17 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p><strong>iptables.sh</strong> 展开源码</p>
+<pre><code class="language-bash">#!/bin/bash
+IPT="/sbin/iptables"
+iptables_init(){
+echo '#iptables 初始化配置'
+echo '#删除已有规则'
+echo "$IPT --delete-chain"
+echo "$IPT --flush"
+
+echo '#不允许进和转发，只允许出/回环网卡。最安全的'
+echo "$IPT -P INPUT DROP"
+echo "$IPT -P FORWARD DROP"
+echo "$IPT -P OUTPUT ACCEPT"
+echo "$IPT -A INPUT -i lo -j ACCEPT"
+
+echo '#允许所有人ping'
+echo "$IPT -A INPUT -p icmp -m icmp --icmp-type any -j ACCEPT"
+
+echo '#允许关联的状态包已建立的或相关连接的通行'
+echo "$IPT -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT"
+echo "$IPT -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT"
+echo '#想要进入的封包是否为刚刚我发出去的回应?如果是刚刚我发出去的回应,那麼就可以予以接受放行.'
+echo '#ESTABLISHED：已建立的链接状态. RELATED：该封包为本机发出的封包有关.'
+}
+iptables_ssh(){
+echo '#获取SSH端口'
+if grep "^Port" /etc/ssh/sshd_config&gt;/dev/null;then
+sshdport=`grep "^Port" /etc/ssh/sshd_config | sed "s/Port\s//g" `
+else
+sshdport=22
+echo '#允许SSH端口的连接,脚本自动侦测目前的SSH端口,否则默认为22端口'
+fi
+echo '#获取SSH端口 $sshdport'
+
+#INPUT
+echo "$IPT -A INPUT -p tcp -m tcp --dport $sshdport -j ACCEPT"
+echo '# 限制 ssh 端口单个IP的最大连接数为 3'
+echo "$IPT -I INPUT -p tcp --dport $sshdport -m connlimit --connlimit-above 3 -j DROP"
+
+#OUTPUT
+}
+iptables_dns_udp_53(){
+if [ -s /etc/resolv.conf ];then
+nameserver1=`cat /etc/resolv.conf |grep nameserver |awk 'NR==1{print $2 }'`
+nameserver2=`cat /etc/resolv.conf |grep nameserver |awk 'NR==2{print $2 }'`
+fi
+echo '#允许DNS'
+echo '#获取DNS-1服务器 $nameserver1'
+local comment='dns-name-server-1'
+[ ! -z "$nameserver1" ] &amp;&amp; echo "$IPT -A OUTPUT -p udp -m udp -d $nameserver1 --dport 53 -m comment --comment $comment -j ACCEPT"
+echo '#获取DNS-2服务器 $nameserver2'
+local comment='dns-name-server-2'
+[ ! -z "$nameserver2" ] &amp;&amp; echo "$IPT -A OUTPUT -p udp -m udp -d $nameserver2 --dport 53 -m comment --comment $comment -j ACCEPT"
+}
+tcp_10050(){
+echo "#tcp_10050"
+#INPUT
+local comment='zabbix-agent'
+local state='ZABBIX'
+echo "$IPT -A INPUT -p tcp -m state --state NEW -m tcp --dport 10050 -m comment --comment $comment -j $state"
+#OUTPUT
+}
+tcp_10051(){
+echo "#tcp_10051"
+#INPUT
+
+#OUTPUT
+cat &gt; tcp.txt &lt;&lt; EOF
+203.0.113.1/32
+203.0.113.1/32
+EOF
+for tcp in `cat tcp.txt`
+do
+local comment='zabbix-proxy'
+echo "$IPT -A OUTPUT -d $tcp -p tcp -m tcp --dport 10051 -m comment --comment $comment -j ACCEPT"
+done
+}
+tcp_2631(){
+echo "#tcp_2631"
+#INPUT
+local comment='sshd-service'
+local state='SSHD'
+echo "$IPT -A INPUT -p tcp -m state --state NEW -m tcp --dport $sshdport -m comment --comment $comment -j $state"
+
+local comment='netscaler'
+local state='NETSCALER'
+echo "$IPT -A INPUT -p tcp -m state --state NEW -m tcp --dport $sshdport -m comment --comment $comment -j $state"
+
+#OUTPUT
+cat &gt; tcp.txt &lt;&lt; EOF
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+EOF
+for tcp in `cat tcp.txt`
+do
+local comment='ssh'
+
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='squid-proxy';fi
+
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='rsync' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='rsync' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='rsync' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='rsync' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='rsync' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='rsync' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='rsync' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='rsync' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='rsync' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='rsync' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='rsync' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='rsync' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='rsync' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='rsync' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='rsync' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='rsync' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='rsync' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='rsync' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='rsync' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='rsync' ;fi
+
+echo "$IPT -A OUTPUT -d $tcp -p tcp -m tcp --dport $sshdport -m comment --comment $comment -j ACCEPT"
+done
+}
+tcp_3128(){
+echo "#tcp_3128"
+#INPUT
+local comment='squid'
+local state='SQUID'
+echo "$IPT -A INPUT -p tcp -m state --state NEW -m tcp --dport 3128 -m comment --comment $comment -j $state"
+
+#OUTPUT
+echo "$IPT -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 3128 -m comment --comment $comment -j ACCEPT"
+}
+tcp_443(){
+echo "#tcp_443"
+#INPUT
+
+#OUTPUT
+cat &gt; tcp.txt &lt;&lt; EOF
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+EOF
+for tcp in `cat tcp.txt`
+do
+local comment='wms'
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='BS_OPTP' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='BS_git' ;fi
+echo "$IPT -A OUTPUT -d $tcp -p tcp -m tcp --dport 443 -m comment --comment $comment -j ACCEPT"
+done
+}
+tcp_4315(){
+echo "#tcp_4315"
+#INPUT
+
+#OUTPUT
+cat &gt; tcp.txt &lt;&lt; EOF
+203.0.113.1/32
+203.0.113.1/32
+EOF
+for tcp in `cat tcp.txt`
+do
+local comment='WMS-DB'
+echo "$IPT -A OUTPUT -d $tcp -p tcp -m tcp --dport 4315 -m comment --comment $comment -j ACCEPT"
+done
+}
+tcp_4316(){
+echo "#tcp_4316"
+#INPUT
+
+#OUTPUT
+local comment='INTER-WMS-DB'
+echo "$IPT -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 4316 -m comment --comment $comment -j ACCEPT"
+}
+tcp_4505(){
+echo "#tcp_4505"
+#INPUT
+
+#OUTPUT
+local comment='salt-mom'
+echo "$IPT -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 4505:4506 -m comment --comment $comment -j ACCEPT"
+}
+tcp_4506(){
+echo "#tcp_4506"
+#INPUT
+
+#OUTPUT
+local comment='salt-mom'
+echo "$IPT -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 4505:4506 -m comment --comment $comment -j ACCEPT"
+}
+tcp_5044(){
+echo "#tcp_5044"
+#INPUT
+
+#OUTPUT
+cat &gt; tcp.txt &lt;&lt; EOF
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+EOF
+for tcp in `cat tcp.txt`
+do
+local comment='RSYNC'
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='logship' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='logship' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='logship' ;fi
+echo "$IPT -A OUTPUT -d $tcp -p tcp -m tcp --dport 5044 -m comment --comment $comment -j ACCEPT"
+done
+}
+tcp_80(){
+echo "#tcp_80"
+#INPUT
+local comment='netscaler'
+local state='NETSCALER'
+echo "$IPT -A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -m comment --comment 'netscaler' -j $state"
+
+#OUTPUT
+
+cat &gt; tcp.txt &lt;&lt; EOF
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+EOF
+for tcp in `cat tcp.txt`
+do
+local comment='CMDB'
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='yum-repo' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='wms' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='wms' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='gcp-proxy' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='SSHD' ;fi
+echo "$IPT -A OUTPUT -d $tcp -p tcp -m tcp --dport 80 -m comment --comment $comment -j ACCEPT"
+done
+}
+tcp_8080(){
+echo "#tcp_8080"
+#INPUT
+local comment='netscaler'
+local state='NETSCALER'
+echo "$IPT -A INPUT -p tcp -m state --state NEW -m tcp --dport 8080 -m comment --comment $comment -j $state"
+#OUTPUT
+local comment='CMDB'
+echo "$IPT -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 8080 -m comment --comment $comment -j ACCEPT"
+}
+tcp_8086(){
+echo "#tcp_8086"
+#INPUT
+
+#OUTPUT
+local comment='telegraf-influxdb'
+echo "$IPT -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 8086 -m comment --comment $comment -j ACCEPT"
+}
+tcp_87(){
+echo "#tcp_87"
+#INPUT
+local comment='netscaler'
+local state='NETSCALER'
+echo "$IPT -A INPUT -p tcp -m state --state NEW -m tcp --dport 87 -m comment --comment $comment -j $state"
+#OUTPUT
+}
+tcp_873(){
+echo "#tcp_873"
+#INPUT
+local comment='rsync'
+local state='RSYNC'
+echo "$IPT -A INPUT -p tcp -m state --state NEW -m tcp --dport 873 -m comment --comment $comment -j $state"
+
+#OUTPUT
+cat &gt; tcp.txt &lt;&lt; EOF
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+EOF
+for tcp in `cat tcp.txt`
+do
+local comment='RSYNC'
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='SSHD' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='SSHD' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='DT-SSHD' ;fi
+echo "$IPT -A OUTPUT -d $tcp -p tcp -m tcp --dport 873 -m comment --comment $comment -j ACCEPT"
+done
+}
+tcp_8888(){
+echo "#tcp_8888"
+#INPUT
+local comment='netscaler'
+local state='NETSCALER'
+echo "$IPT -A INPUT -p tcp -m state --state NEW -m tcp --dport 8888 -m comment --comment $comment -j $state"
+#OUTPUT
+}
+tcp_999(){
+echo "#tcp_999"
+#INPUT
+local comment='netscaler'
+local state='NETSCALER'
+echo "$IPT -A INPUT -p tcp -m state --state NEW -m tcp --dport 9999 -m comment --comment $comment -j $state"
+#OUTPUT
+}
+tcp_NETSCALER(){
+echo "#tcp_NETSCALER"
+#INPUT
+local comment='netscaler'
+local state='NETSCALER'
+cat &gt; tcp.txt &lt;&lt; EOF
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/24
+203.0.113.1/24
+203.0.113.1/24
+203.0.113.1/24
+203.0.113.1/24
+203.0.113.1/32
+203.0.113.1/24
+203.0.113.1/24
+203.0.113.1/24
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+EOF
+for tcp in `cat tcp.txt`
+do
+local comment='NETSCALER'
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='public_software_management' ;fi
+echo "$IPT -A $state -s $tcp -m comment --comment $comment -j ACCEPT"
+done
+}
+tcp_RSYNC(){
+echo "#tcp_RSYNC"
+#INPUT
+local comment='rsync'
+local state='RSYNC'
+echo "$IPT -A $state -s 203.0.113.1/32 -m comment --comment $comment -j ACCEPT"
+echo "$IPT -A $state -s 203.0.113.1/32 -m comment --comment $comment -j ACCEPT"
+}
+tcp_SQUID(){
+echo "#tcp_SQUID"
+#INPUT
+local state='SQUID'
+local comment='squid-proxy'
+echo "$IPT -A $state -s 203.0.113.1/32 -m comment --comment $comment -j ACCEPT"
+echo "$IPT -A $state -j RETURN"
+}
+tcp_SSHD(){
+echo "#tcp_SSHD"
+#INPUT
+local comment='sshd-service'
+local state='SSHD'
+cat &gt; tcp.txt &lt;&lt; EOF
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+EOF
+for tcp in `cat tcp.txt`
+do
+local comment='jenkins'
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='RSYNC' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='SHTerm' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='SHTerm' ;fi
+echo "$IPT -A $state -s $tcp -m comment --comment $comment -j ACCEPT"
+done
+echo "$IPT -A $state -j RETURN"
+}
+tcp_ZABBIX(){
+echo "#tcp_ZABBIX"
+#INPUT
+local state='ZABBIX'
+local comment='PH190-zabbix-proxy'
+echo "$IPT -A $state -s 203.0.113.1/32 -m comment --comment $comment -j ACCEPT"
+echo "$IPT -A $state -j RETURN"
+}
+#备份之前 iptables
+mkdir back
+iptables-save &gt; back/iptables_back_$(date +%Y:%m:%d-%H:%M:%S).txt
+#生成当前 iptables
+echo &gt; iptables_new.sh
+iptables_init &gt;&gt; iptables_new.sh
+iptables_ssh &gt;&gt; iptables_new.sh
+iptables_dns_udp_53 &gt;&gt; iptables_new.sh
+tcp_10050 &gt;&gt; iptables_new.sh
+tcp_10051 &gt;&gt; iptables_new.sh
+tcp_2631 &gt;&gt; iptables_new.sh
+tcp_3128 &gt;&gt; iptables_new.sh
+tcp_443 &gt;&gt; iptables_new.sh
+tcp_4315 &gt;&gt; iptables_new.sh
+tcp_4316 &gt;&gt; iptables_new.sh
+tcp_4505 &gt;&gt; iptables_new.sh
+tcp_4506 &gt;&gt; iptables_new.sh
+tcp_5044 &gt;&gt; iptables_new.sh
+tcp_80 &gt;&gt; iptables_new.sh
+tcp_8080 &gt;&gt; iptables_new.sh
+tcp_8086 &gt;&gt; iptables_new.sh
+tcp_87 &gt;&gt; iptables_new.sh
+tcp_873 &gt;&gt; iptables_new.sh
+tcp_8888 &gt;&gt; iptables_new.sh
+tcp_999 &gt;&gt; iptables_new.sh
+tcp_NETSCALER &gt;&gt; iptables_new.sh
+tcp_RSYNC &gt;&gt; iptables_new.sh
+tcp_SQUID &gt;&gt; iptables_new.sh
+tcp_SSHD &gt;&gt; iptables_new.sh
+tcp_ZABBIX &gt;&gt; iptables_new.sh
+# 保存规则并重启IPTABLES
+#bash iptables_new.sh &amp;&amp; iptables save &amp;&amp; service iptables restart
+#清理临时文件
+rm -f tcp.txt
+</code></pre>
+<p><strong>使用案例 新IP 203.0.113.1 添加TCP 443端口OUTPUT规则</strong></p>
+<pre><code>tcp_443(){  #找到 iptables.sh 的对应函数端口
+echo "#tcp_443"
+#INPUT
+#OUTPUT 添加 443 端口OUTPUT 规则的新IP 203.0.113.1
+cat &gt; tcp.txt &lt;&lt; EOF
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+203.0.113.1/32
+EOF
+for tcp in `cat tcp.txt`
+do
+local comment='wms'
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='new-443-output';fi #添加 新IP 203.0.113.1 备注
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='BS_OPTP' ;fi
+if [ "$tcp" = '203.0.113.1/32' ];then local comment='BS_git' ;fi
+echo "$IPT -A OUTPUT -d $tcp -p tcp -m tcp --dport 443 -m comment --comment $comment -j ACCEPT"
+done
+}
+</code></pre>
+<p><strong>运行脚本生成 iptalbes 规则</strong></p>
+<pre><code>[root@ph190svr002184 iptables]# ls
+iptables.sh
+[root@ph190svr002184 iptables]# bash iptables.sh
+[root@ph190svr002184 iptables]# ls
+back iptables_new.sh iptables.sh
+[root@ph190svr002184 iptables]# tree .
+.
+├── back
+│   └── iptables_back_2022:11:15-10:44:23.txt
+├── iptables_new.sh
+└── iptables.sh
+
+1 directory, 3 files
+[root@ph190svr002184 iptables]# tail -10 iptables_new.sh
+/sbin/iptables -A SSHD -s 203.0.113.1/32 -m comment --comment jenkins -j ACCEPT
+/sbin/iptables -A SSHD -s 203.0.113.1/32 -m comment --comment jenkins -j ACCEPT
+/sbin/iptables -A SSHD -s 203.0.113.1/32 -m comment --comment jenkins -j ACCEPT
+/sbin/iptables -A SSHD -s 203.0.113.1/32 -m comment --comment jenkins -j ACCEPT
+/sbin/iptables -A SSHD -s 203.0.113.1/32 -m comment --comment jenkins -j ACCEPT
+/sbin/iptables -A SSHD -s 203.0.113.1/32 -m comment --comment jenkins -j ACCEPT
+/sbin/iptables -A SSHD -j RETURN
+#tcp_ZABBIX
+/sbin/iptables -A ZABBIX -s 203.0.113.1/32 -m comment --comment PH190-zabbix-proxy -j ACCEPT
+/sbin/iptables -A ZABBIX -j RETURN
+</code></pre>
+<p><strong>生成的 iptables 防护规则</strong></p>
+<pre><code>#iptables 初始化配置
+#删除已有规则
+/sbin/iptables --delete-chain
+/sbin/iptables --flush
+#不允许进和转发，只允许出/回环网卡。最安全的
+/sbin/iptables -P INPUT DROP
+/sbin/iptables -P FORWARD DROP
+/sbin/iptables -P OUTPUT ACCEPT
+/sbin/iptables -A INPUT -i lo -j ACCEPT
+#允许所有人ping
+/sbin/iptables -A INPUT -p icmp -m icmp --icmp-type any -j ACCEPT
+#允许关联的状态包已建立的或相关连接的通行
+/sbin/iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+/sbin/iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+#想要进入的封包是否为刚刚我发出去的回应?如果是刚刚我发出去的回应,那麼就可以予以接受放行.
+#ESTABLISHED：已建立的链接状态. RELATED：该封包为本机发出的封包有关.
+#获取SSH端口
+#允许SSH端口的连接,脚本自动侦测目前的SSH端口,否则默认为22端口
+#获取SSH端口 $sshdport
+/sbin/iptables -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
+# 限制 ssh 端口单个IP的最大连接数为 3
+/sbin/iptables -I INPUT -p tcp --dport 22 -m connlimit --connlimit-above 3 -j DROP
+#允许DNS
+#获取DNS-1服务器 $nameserver1
+#获取DNS-2服务器 $nameserver2
+#tcp_10050
+/sbin/iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 10050 -m comment --comment zabbix-agent -j ZABBIX
+#tcp_10051
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 10051 -m comment --comment zabbix-proxy -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 10051 -m comment --comment zabbix-proxy -j ACCEPT
+#tcp_2631
+/sbin/iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -m comment --comment sshd-service -j SSHD
+/sbin/iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -m comment --comment netscaler -j NETSCALER
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 22 -m comment --comment ssh -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 22 -m comment --comment ssh -j ACCEPT
+#tcp_3128
+/sbin/iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 3128 -m comment --comment squid -j SQUID
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 3128 -m comment --comment squid -j ACCEPT
+#tcp_443
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 443 -m comment --comment wms -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 443 -m comment --comment wms -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 443 -m comment --comment BS_OPTP -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 443 -m comment --comment BS_git -j ACCEPT
+#tcp_4315
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 4315 -m comment --comment WMS-DB -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 4315 -m comment --comment WMS-DB -j ACCEPT
+#tcp_4316
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 4316 -m comment --comment INTER-WMS-DB -j ACCEPT
+#tcp_4505
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 4505:4506 -m comment --comment salt-mom -j ACCEPT
+#tcp_4506
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 4505:4506 -m comment --comment salt-mom -j ACCEPT
+#tcp_5044
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 5044 -m comment --comment logship -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 5044 -m comment --comment logship -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 5044 -m comment --comment logship -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 5044 -m comment --comment RSYNC -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 5044 -m comment --comment RSYNC -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 5044 -m comment --comment RSYNC -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 5044 -m comment --comment RSYNC -j ACCEPT
+#tcp_80
+/sbin/iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -m comment --comment 'netscaler' -j NETSCALER
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 80 -m comment --comment yum-repo -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 80 -m comment --comment wms -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 80 -m comment --comment gcp-proxy -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 80 -m comment --comment wms -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 80 -m comment --comment SSHD -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 80 -m comment --comment CMDB -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 80 -m comment --comment CMDB -j ACCEPT
+#tcp_8080
+/sbin/iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 8080 -m comment --comment netscaler -j NETSCALER
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 8080 -m comment --comment CMDB -j ACCEPT
+#tcp_8086
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 8086 -m comment --comment telegraf-influxdb -j ACCEPT
+#tcp_87
+/sbin/iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 87 -m comment --comment netscaler -j NETSCALER
+#tcp_873
+/sbin/iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 873 -m comment --comment rsync -j RSYNC
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 873 -m comment --comment SSHD -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 873 -m comment --comment DT-SSHD -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 873 -m comment --comment SSHD -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 873 -m comment --comment RSYNC -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 873 -m comment --comment RSYNC -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 873 -m comment --comment RSYNC -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 873 -m comment --comment RSYNC -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 873 -m comment --comment RSYNC -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 873 -m comment --comment RSYNC -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 873 -m comment --comment RSYNC -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 873 -m comment --comment RSYNC -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 873 -m comment --comment RSYNC -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 873 -m comment --comment RSYNC -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 873 -m comment --comment RSYNC -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 873 -m comment --comment RSYNC -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 873 -m comment --comment RSYNC -j ACCEPT
+/sbin/iptables -A OUTPUT -d 203.0.113.1/32 -p tcp -m tcp --dport 873 -m comment --comment RSYNC -j ACCEPT
+#tcp_8888
+/sbin/iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 8888 -m comment --comment netscaler -j NETSCALER
+#tcp_999
+/sbin/iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 9999 -m comment --comment netscaler -j NETSCALER
+#tcp_NETSCALER
+/sbin/iptables -A NETSCALER -s 203.0.113.1/32 -m comment --comment NETSCALER -j ACCEPT
+/sbin/iptables -A NETSCALER -s 203.0.113.1/32 -m comment --comment NETSCALER -j ACCEPT
+/sbin/iptables -A NETSCALER -s 203.0.113.1/24 -m comment --comment NETSCALER -j ACCEPT
+/sbin/iptables -A NETSCALER -s 203.0.113.1/24 -m comment --comment NETSCALER -j ACCEPT
+/sbin/iptables -A NETSCALER -s 203.0.113.1/24 -m comment --comment NETSCALER -j ACCEPT
+/sbin/iptables -A NETSCALER -s 203.0.113.1/24 -m comment --comment NETSCALER -j ACCEPT
+/sbin/iptables -A NETSCALER -s 203.0.113.1/24 -m comment --comment NETSCALER -j ACCEPT
+/sbin/iptables -A NETSCALER -s 203.0.113.1/32 -m comment --comment NETSCALER -j ACCEPT
+/sbin/iptables -A NETSCALER -s 203.0.113.1/24 -m comment --comment NETSCALER -j ACCEPT
+/sbin/iptables -A NETSCALER -s 203.0.113.1/24 -m comment --comment NETSCALER -j ACCEPT
+/sbin/iptables -A NETSCALER -s 203.0.113.1/24 -m comment --comment NETSCALER -j ACCEPT
+/sbin/iptables -A NETSCALER -s 203.0.113.1/32 -m comment --comment NETSCALER -j ACCEPT
+/sbin/iptables -A NETSCALER -s 203.0.113.1/32 -m comment --comment NETSCALER -j ACCEPT
+/sbin/iptables -A NETSCALER -s 203.0.113.1/32 -m comment --comment public_software_management -j ACCEPT
+#tcp_RSYNC
+/sbin/iptables -A RSYNC -s 203.0.113.1/32 -m comment --comment rsync -j ACCEPT
+/sbin/iptables -A RSYNC -s 203.0.113.1/32 -m comment --comment rsync -j ACCEPT
+#tcp_SQUID
+/sbin/iptables -A SQUID -s 203.0.113.1/32 -m comment --comment squid-proxy -j ACCEPT
+/sbin/iptables -A SQUID -j RETURN
+#tcp_SSHD
+/sbin/iptables -A SSHD -s 203.0.113.1/32 -m comment --comment RSYNC -j ACCEPT
+/sbin/iptables -A SSHD -s 203.0.113.1/32 -m comment --comment SHTerm -j ACCEPT
+/sbin/iptables -A SSHD -s 203.0.113.1/32 -m comment --comment SHTerm -j ACCEPT
+/sbin/iptables -A SSHD -s 203.0.113.1/32 -m comment --comment jenkins -j ACCEPT
+/sbin/iptables -A SSHD -s 203.0.113.1/32 -m comment --comment jenkins -j ACCEPT
+/sbin/iptables -A SSHD -s 203.0.113.1/32 -m comment --comment jenkins -j ACCEPT
+/sbin/iptables -A SSHD -s 203.0.113.1/32 -m comment --comment jenkins -j ACCEPT
+/sbin/iptables -A SSHD -s 203.0.113.1/32 -m comment --comment jenkins -j ACCEPT
+/sbin/iptables -A SSHD -s 203.0.113.1/32 -m comment --comment jenkins -j ACCEPT
+/sbin/iptables -A SSHD -s 203.0.113.1/32 -m comment --comment jenkins -j ACCEPT
+/sbin/iptables -A SSHD -s 203.0.113.1/32 -m comment --comment jenkins -j ACCEPT
+/sbin/iptables -A SSHD -s 203.0.113.1/32 -m comment --comment jenkins -j ACCEPT
+/sbin/iptables -A SSHD -j RETURN
+#tcp_ZABBIX
+/sbin/iptables -A ZABBIX -s 203.0.113.1/32 -m comment --comment PH190-zabbix-proxy -j ACCEPT
+/sbin/iptables -A ZABBIX -j RETURN
+</code></pre>
+      </article>
+      <aside class="aside">
+        
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：DevOps 与 SRE / 优化方案</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">DevOps 与 SRE</span><span class="tag">优化方案</span><span class="tag">DNS</span><span class="tag">Zabbix</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/03-优化方案/birdben/72069646.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BDNS%2BZabbix-iptables%20%E8%87%AA%E5%8A%A8%E5%8C%96%E9%98%B2%E6%8A%A4%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%84%9A%E6%9C%AC.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>iptables 自动化防护虚拟机脚本。本文属于DevOps 与 SRE / 优化方案，使用案例 新IP 203.0.113.1 添加TCP 443端口OUTPUT规则</p>
+      <p>关键词：DevOps 与 SRE、优化方案、DNS、Zabbix、知识笔记、DevOps 与 SRE / 优化方案、iptables 自动化防护虚拟机脚本、DevOps、SRE</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0f90cd6a3e63.html"><small>上一篇</small>iphone手机QQ聊天记录恢复</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7f0f2d4b324c.html"><small>下一篇</small>iptables 防火墙脚本</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1befac248f30.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

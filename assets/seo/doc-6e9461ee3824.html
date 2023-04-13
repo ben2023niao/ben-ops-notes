@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>一、验证过滤用户的输入｜Web 安全 / PHP安全｜BEN.OPS</title>
+  <meta name="description" content="一、验证过滤用户的输入。本文属于Web 安全 / PHP安全，即使是最普通的字母数字输入也可能是危险的，列举几个容易引起安全问题的字符： ! $ ^ &amp; * ( ) ~ [ ] \ | { } &#x27; &quot; ; ? - ` 在数据库中可能有特殊意义的字符： &#x27; &quot; ; \ 还有一些非打印字符： 字符\x00或者说ASC…">
+  <meta name="keywords" content="Web 安全，PHP安全，MySQL，PHP，SQL注入，知识笔记，Web 安全 / PHP安全，一、验证过滤用户的输入">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6e9461ee3824.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6e9461ee3824.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BMySQL%2BPHP-%E4%B8%80%E3%80%81%E9%AA%8C%E8%AF%81%E8%BF%87%E6%BB%A4%E7%94%A8%E6%88%B7%E7%9A%84%E8%BE%93%E5%85%A5.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="一、验证过滤用户的输入">
+  <meta property="og:description" content="一、验证过滤用户的输入。本文属于Web 安全 / PHP安全，即使是最普通的字母数字输入也可能是危险的，列举几个容易引起安全问题的字符： ! $ ^ &amp; * ( ) ~ [ ] \ | { } &#x27; &quot; ; ? - ` 在数据库中可能有特殊意义的字符： &#x27; &quot; ; \ 还有一些非打印字符： 字符\x00或者说ASC…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6e9461ee3824.html">
+  <meta property="article:published_time" content="2023-04-14T16:00:00">
+  <meta property="article:modified_time" content="2023-04-14 16:00">
+  <meta property="article:section" content="Web 安全 / PHP安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/2c7b5ae0047a73c680.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="一、验证过滤用户的输入">
+  <meta name="twitter:description" content="一、验证过滤用户的输入。本文属于Web 安全 / PHP安全，即使是最普通的字母数字输入也可能是危险的，列举几个容易引起安全问题的字符： ! $ ^ &amp; * ( ) ~ [ ] \ | { } &#x27; &quot; ; ? - ` 在数据库中可能有特殊意义的字符： &#x27; &quot; ; \ 还有一些非打印字符： 字符\x00或者说ASC…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/2c7b5ae0047a73c680.jpg">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6e9461ee3824.html#article","headline":"一、验证过滤用户的输入","description":"一、验证过滤用户的输入。本文属于Web 安全 / PHP安全，即使是最普通的字母数字输入也可能是危险的，列举几个容易引起安全问题的字符： ! $ ^ & * ( ) ~ [ ] \\ | { } ' \" ; ? - ` 在数据库中可能有特殊意义的字符： ' \" ; \\ 还有一些非打印字符： 字符\\x00或者说ASC…","datePublished":"2023-04-14T16:00:00","dateModified":"2023-04-14 16:00","inLanguage":"zh-CN","articleSection":["Web 安全","PHP安全"],"keywords":["Web 安全","PHP安全","MySQL","PHP","SQL注入","知识笔记","Web 安全 / PHP安全","一、验证过滤用户的输入"],"wordCount":3252,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6e9461ee3824.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6e9461ee3824.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/2c7b5ae0047a73c680.jpg"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"Web 安全 / PHP安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"一、验证过滤用户的输入","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6e9461ee3824.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>Web 安全 / PHP安全</span> › <span>一、验证过滤用户的输入</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">Web 安全 / PHP安全</div>
+      <h1>一、验证过滤用户的输入</h1>
+      <p class="lede">一、验证过滤用户的输入。本文属于Web 安全 / PHP安全，即使是最普通的字母数字输入也可能是危险的，列举几个容易引起安全问题的字符： ! $ ^ &amp; * ( ) ~ [ ] \ | { } &#x27; &quot; ; ? - ` 在数据库中可能有特殊意义的字符： &#x27; &quot; ; \ 还有一些非打印字符： 字符\x00或者说ASC…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T16:00:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">3,252 字</span>
+        <span class="badge">10 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>原文 by 瞌睡龙</p>
+<h2 id="一-验证过滤用户的输入">一、验证过滤用户的输入</h2>
+<p>即使是最普通的字母数字输入也可能是危险的，列举几个容易引起安全问题的字符：
+! $ ^ &amp; * ( ) ~ [ ] \ | { } ' " ; &lt; &gt; ? - `</p>
+<p>在数据库中可能有特殊意义的字符：
+' " ; \</p>
+<p>还有一些非打印字符：
+字符\x00或者说ASCII 0，NULL或FALSE
+字符\x10和\x13，或者说ASCII 10和13，\n \r
+字符\x1a或者说ASCII 26，表示文件的结束
+输入错误的参数类型，也可能导致程序出现意想不到的错误。
+输入过多的参数值，可能导致溢出等错误。</p>
+<h2 id="二-PHP中验证用户的输入">二、PHP中验证用户的输入</h2>
+<p>这里特别要注意php.ini中的register_globals的设定，在早期的php版本中是默认开启的，这会导致很严重的安全问题：</p>
+<pre><code class="language-php">&lt;?php
+// set admin flag
+if ($auth-&gt;isAdmin()) {
+$admin = TRUE;
+}
+// ...
+if ($admin) {
+// do administrative tasks
+}
+?&gt;
+</code></pre>
+<p>上面这段代码看起来是安全的，但是如果register_globals开启了的话，在访问的url中加入<code>?admin=1</code>即可绕过前半部分的逻辑判断。
+更安全的代码应该给$admin赋默认FALSE值：</p>
+<pre><code class="language-php">&lt;?php
+// create then set admin flag
+$admin = FALSE;
+if ($auth-&gt;isAdmin()) {
+    $admin = TRUE;
+}
+// ...
+if ($admin) {
+    // do administrative tasks
+}
+?&gt;
+</code></pre>
+<p>早期人们开发调试的时候发现使用register_globals有极大的便利，所以早期的php版本中默认开启。但是随着越来越多的安全问题，从php 4.2.0开始，register_globals变为了默认关闭。当你发现register_globals是on的时候，你可能会在脚本当中加入如下代码使其关闭：
+<code>ini_set('register_globals', 0);</code>
+但实际上，当所有的全局变量已经创建了之后，以上代码并不会起到作用。但是你可以在文档的根目录下的.htaccess的文件中加上下面这一行：  <code>php_flag register_globals 0</code></p>
+<p>变量声明：强烈建议总是事先声明变量。
+检查输入的类型，长度和格式：
+字符串检查：在PHP中，字符串几乎可以是任何事情，但有些值并不是严格的字符串类型，可以用is_string()函数来确定。
+有些时候你不介意数字作为字符串，可以用empty()函数。
+数字类型检查：使用is_int()函数或者is_integer()或is_long()，例如：</p>
+<pre><code class="language-php">$year = $_POST['year'];
+if (!is_int($year))
+exit("$year is an invalid value for year!");
+</code></pre>
+<p>也可以使用gettype()函数判断类型后做处理：</p>
+<pre><code class="language-php">if (gettype($year) != 'integer') {
+exit("$year is an invalid value for year!");
+}
+</code></pre>
+<p>至少还有三种方式可以吧$year变量转变为整数：</p>
+<pre><code class="language-php">$year = intval($_POST['year']);
+$year = ( int ) $_POST['year'];
+if (!settype($year, 'integer')) {exit("$year is an invalid value for year!");}
+</code></pre>
+<p>如果允许浮点型与零的值，可以使用is_numeric()函数来做判断。 判断一个值是否为布尔型的时候使用is_bool()函数。
+下表是对各种类型变量使用各函数判断的结果：
+<img alt="phpsec1" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/2c7b5ae0047a73c680.jpg"/></p>
+<p>检查字符串的长度使用strlen()变量：</p>
+<pre><code class="language-php">if (strlen($year) != 4)
+    exit("$year is an invalid value for year!");
+</code></pre>
+<p>概括总结一下PHP中类型，长度，格式等验证：</p>
+<pre><code class="language-php">&lt;?php
+// set up array of expected values and types
+$expected = array(
+    'carModel' =&gt; 'string',
+    'year' =&gt; 'int',
+    'imageLocation' =&gt; 'filename'
+);
+// check each input value for type and length
+foreach ($expected AS $key =&gt; $type) {
+    if (empty($_GET[$key])) {
+        ${$key} = NULL;
+        continue;
+    }
+    switch ($type) {
+        case 'string':
+            if (is_string($_GET[$key]) &amp;&amp; strlen($_GET[$key]) &lt; 256) {
+                ${$key} = $_GET[$key];
+            }
+            break;
+        case 'int':
+            if (is_int($_GET[$key])) {
+                ${$key} = $_GET[$key];
+            }
+            break;
+        case 'filename':
+            // limit filenames to 64 characters
+            if (is_string($_GET[$key]) &amp;&amp; strlen($_GET[$key]) &lt; 64) {
+                // escape any non-ASCII
+                ${$key} = str_replace('%', '_', rawurlencode($_GET[$key]));
+                // disallow double dots
+                if (strpos(${$key}, '..') === TRUE) {
+                    ${$key} = NULL;
+                }
+            }
+            break;
+    }
+    if (!isset(${$key})) {
+        ${$key} = NULL;
+    }
+}
+// use the now-validated input in your application
+</code></pre>
+<p>对于一些可能有害的字符，可以用如下的几种方式进行保护：</p>
+<ul>
+<li>
+<p>使用 \ 对其进行转义。</p>
+</li>
+<li>
+<p>使用引号把他引起来。</p>
+</li>
+<li>
+<p>使用%nn的方式编码，如urlencode()函数。</p>
+</li>
+</ul>
+<p>可以尝试在php.ini中开启magic_quotes_gpc，这样对于所有由用户GET、POST、COOKIE中传入的特殊字符都会转义。
+也可以使用addslashes()函数，但是开启magic_quotes_gpc所造成的影响可能远超过益处。addslashes()也只对最常见的四个字符做了转义：单引号、双引号、反斜线、空字符。同时为了使数据还原，需要使用stripslashes()函数，也可能破坏一些多字节的转义。
+推荐使用mysql_real_escape_string()函数，虽然只是用来设计转义插入数据库的数据，但是他能转义更多的字符。
+如：NULL、\x00、\n、\r、\、'、"和\x1a。使用用例：</p>
+<pre><code class="language-php">&lt;?php
+$expected = array(
+    'carModel',
+    'year',
+    'bodyStyle'
+);
+foreach ($expected AS $key) {
+    if (!empty($_GET[$key])) {
+        ${$key} = mysql_real_escape_string($_GET[$key]);
+    }
+}
+?&gt;
+</code></pre>
+<p>使用mysql_real_escape_string()函数也不是万能的，转义一些并非是要写入mysql的数据库的数据可能不会产生作用或者出现错误。
+可以根据自己的实际需要，自己使用str_replace()函数写一个针对特殊字符的转义。</p>
+<h2 id="三-对于文件的路径与名称的过滤">三、对于文件的路径与名称的过滤</h2>
+<p>文件名中不能包含二进制数据，否则可能引起问题。
+一些系统允许Unicode多字节编码的文件名，但是尽量避免，应当使用ASCII的字符。
+虽然Unix系统几乎可以在文件名设定中使用任何符号，但是应当尽量使用 <code>-</code> 和 <code>_</code> ， 避免使用其他字符，同时需要限定文件名的长度。
+php中的文件操作通常使用fopen()函数与file_get_contents()函数。</p>
+<pre><code class="language-php">&lt;?php
+$applicationPath = '/home/www/myphp/code/';
+$scriptname      = $_POST['scriptname'];
+highlight_file($applicationPath . $scriptname);
+?&gt;
+</code></pre>
+<p>上面代码的问题在于用户POST输入的scriptname没有做任何过滤，如果用户输入../../../../etc/passwd，则有可能读取到系统的passwd文件。</p>
+<pre><code class="language-php">&lt;?php
+$uri = $_POST['uri'];
+if (strpos($uri, '..'))
+    exit('That is not a valid URI.');
+$importedData = file_get_contents($uri);
+</code></pre>
+<p>如果发现 .. 字符串就不执行会不会出现问题呢？如果前面并没有路径限制的话，仍然会出现问题：
+使用file协议，当用户输入<code>file:///etc/passwd</code>的时候，会把passwd的内容带入$importedData变量中。</p>
+<h2 id="四-防止SQL注入">四、防止SQL注入</h2>
+<h3 id="SQL注入是如何产生的">SQL注入是如何产生的：</h3>
+<p>1、接收一个由用户提交的变量，假设变量为$variety：
+<code>$variety = $_POST['variety'];</code>
+2、接收的变量带入构造一个数据库查询语句：
+<code>$query = "SELECT * FROM wines WHERE variety='$variety'";</code>
+3、把构造好的语句提交给MySQL服务器查询，MySQL返回查询结果。
+当由用户输入<code>lagrein' or 1=1#</code>时，产生的结果将会完全不同。</p>
+<h3 id="防止SQL注入的几种方式">防止SQL注入的几种方式：</h3>
+<p>检查用户输入的类型，当用户输入的为数字时可以使用如下方式：
+使用is_int()函数（或is_integer()或is_long()函数）
+使用gettype()函数
+使用intval()函数
+使用settype()函数
+检查用户输入字符串的长度使用strlen()函数。
+检查日期或时间是否是有效的，可以使用strtotime()函数
+对于一个已经存在的程序来说，可以写一个通用函数来过滤：</p>
+<pre><code class="language-php">function safe($string)
+{
+    return "'" . mysql_real_escape_string($string) . "'";
+}
+</code></pre>
+<p>调用方式：</p>
+<pre><code class="language-php">$variety = safe($_POST['variety']);
+$query   = "SELECT * FROM wines WHERE variety=" . $variety;
+</code></pre>
+<p>对于一个刚开始写的程序，应当设计的更安全一些，PHP5中，增加了MySQL支持，提供了mysqli扩展：
+PHP手册地址：http://php.net/mysqli</p>
+<pre><code class="language-php">&lt;?php
+// retrieve the user's input
+$animalName = $_POST['animalName'];
+// connect to the database
+$connect    = mysqli_connect('localhost', 'username', 'password', 'database');
+if (!$connect)
+    exit('connection failed:  ' . mysqli_connect_error());
+// create a query statement resource
+$stmt = mysqli_prepare($connect, "SELECT intelligence FROM animals WHERE name = ?");
+if ($stmt) {
+    // bind the substitution to the statement
+    mysqli_stmt_bind_param($stmt, "s", $animalName);
+    // execute the statement
+    mysqli_stmt_execute($stmt);
+    // retrieve the result...
+    mysqli_stmt_bind_result($stmt, $intelligence);
+    // ...and display it
+    if (mysqli_stmt_fetch($stmt)) {
+        print "A $animalName has $intelligence intelligence.\n";
+    } else {
+        print 'Sorry, no records found.';
+    }
+    // clean up statement resource
+    mysqli_stmt_close($stmt);
+}
+mysqli_close($connect);
+?&gt;
+</code></pre>
+<p>mysqli扩展提供了所有的查询功能。
+mysqli扩展也提供了面向对象的版本：</p>
+<pre><code class="language-php">&lt;?php
+$animalName = $_POST['animalName'];
+$mysqli     = new mysqli('localhost', 'username', 'password', 'database');
+if (!$mysqli)
+    exit('connection failed:  ' . mysqli_connect_error());
+$stmt = $mysqli-&gt;prepare("SELECT intelligence FROM animals WHERE name = ?");
+if ($stmt) {
+    $stmt-&gt;bind_param("s", $animalName);
+    $stmt-&gt;execute();
+    $stmt-&gt;bind_result($intelligence);
+    if ($stmt-&gt;fetch()) {
+        print "A $animalName has $intelligence intelligence.\n";
+    } else {
+        print 'Sorry, no records found.';
+    }
+    $stmt-&gt;close();
+}
+$mysqli-&gt;close();
+?&gt;
+</code></pre>
+<h2 id="四-防止XSS攻击">四、防止XSS攻击</h2>
+<p>xss攻击一个常用的方法就是注入HTML元素执行js脚本，php中已经内置了一些防御的函数（如htmlentities或者htmlspecialchars）：</p>
+<pre><code class="language-php">&lt;?php
+function safe($value)
+{
+    htmlentities($value, ENT_QUOTES, 'utf-8');
+    // other processing
+    return $value;
+}
+// retrieve $title and $message from user input
+$title   = $_POST['title'];
+$message = $_POST['message'];
+// and display them safely
+print '&lt;h1&gt;' . safe($title) . '&lt;/h1&gt;
+       &lt;p&gt;' . safe($message) . '&lt;/p&gt;';
+?&gt;
+</code></pre>
+<h3 id="过滤用户提交的URL">过滤用户提交的URL</h3>
+<p>如果允许用户输入一个URL用来调用一个图片或者链接，你需要保证他不传入<code>javascript:</code>或者<code>vbscript:</code>或<code>data:</code>等非http协议。
+可以使用php的内置函数parse_url()函数来分割URL，然后做判断。
+设置允许信任的域：</p>
+<pre><code class="language-php">&lt;?php
+$trustedHosts      = array(
+    'example.com',
+    'another.example.com'
+);
+$trustedHostsCount = count($trustedHosts);
+function safeURI($value)
+{
+    $uriParts = parse_url($value);
+    for ($i = 0; $i &lt; $trustedHostsCount; $i++) {
+        if ($uriParts['host'] === $trustedHosts[$i]) {
+            return $value;
+        }
+    }
+    $value .= ' [' . $uriParts['host'] . ']';
+    return $value;
+}
+// retrieve $uri from user input
+$uri = $_POST['uri'];
+// and display it safely
+echo safeURI($uri);
+?&gt;
+</code></pre>
+<h2 id="五-防止远程执行">五、防止远程执行</h2>
+<p>远程执行通常是使用了php代码执行如eval()函数，或者是调用了命令执行如exec()，passthru()，proc_open()，shell_exec()，system()或popen()。php为开发者提供了非常多的方法可以来调用允许php脚本，我们就需要注意对用户可控的数据进行过滤。</p>
+<h3 id="调用的几种方式">调用的几种方式：</h3>
+<p>include()和require()函数，eval()函数，preg_replace()采用e模式调用，编写脚本模板。</p>
+<pre><code class="language-php">&lt;?php
+print Hello . world;
+?&gt;
+</code></pre>
+<p>上面代码将会输出Helloworld，php在解析的时候会检查是否存在一个名为Hello的函数。
+如果没有找到的话，他会自己创建一个并把它的名字作为它的值，world也是一样。</p>
+<p>攻击者可以上传一个看似很普通的图片，PDF等，但是实际上呢？
+linux下可以使用如下命令插入php代码进入图片中：
+<code>$ echo '&lt;?php phpinfo();?&gt;' &gt;&gt; locked.gif</code>
+把代码插入到了locked.gif图片中，并且此时用file命令查看文件格式仍为图片：
+<code>$ file -i locked.giflocked.gif: image/gif</code>
+任何的图像编辑或图像处理的程序包括PHP的getimagesize()函数，都会认为它是一个GIF图像。
+但当把图片的后缀改为php或者以php的方式解析时，插入的phpinfo()函数便会执行。</p>
+<h3 id="Shell命令执行">Shell命令执行</h3>
+<p>PHP提供了一些可以直接执行系统命令的函数，如exec()函数或者 `（反引号）。
+PHP的安全模式会提供一些保护，但是也有一些方式可以绕过安全模式：
+1、上传一个Perl脚本，或者Python或Ruby等，服务器支持的环境，来执行其他语言的脚本可绕过PHP的安全模式。
+2、利用系统的缓冲溢出漏洞，绕过安全模式。
+下表列出了跟Shell相关的一些字符：
+<img alt="phpsec2" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/2dd6e8a8e8713e1022.png"/></p>
+<p>如下PHP脚本：</p>
+<pre><code class="language-php">&lt;?php
+// get the word count of the requested file
+$filename = $_GET['filename'];
+$command  = "/usr/bin/wc $filename";
+$words    = shell_exec($command);
+print "$filename contains $words words.";
+?&gt;
+</code></pre>
+<p>用户可以输入如下的URL来攻击读取passwd文件：
+wordcount.php?filename=%2Fdev%2Fnull%20%7C%20cat%20-%20%2Fetc%2Fpasswd</p>
+<p>字符串拼接之后，将会执行 /usr/bin/wc /dev/null | cat - /etc/passwd这条命令
+如果能够不使用命令执行函数与eval()函数，可以在php.ini中禁止：<code>disable_functions = "eval,phpinfo"</code>
+PHP中还有一个preg_replace()函数，可能引起代码执行漏洞。
+mixed preg_replace ( mixed $pattern , mixed $replacement , mixed $subject [, int $limit ] )</p>
+<p>在 subject 中搜索 pattern 模式的匹配项并替换为 replacement 。如果指定了 limit ，则仅替换 limit 个匹配。
+如果省略 limit 或者其值为 -1，则所有的匹配项都会被替换。
+特别注意：
+/e 修正符使 preg_replace() 将 replacement 参数当作 PHP 代码（在适当的逆向引用替换完之后）。
+提示：要确保 replacement 构成一个合法的 PHP 代码字符串，否则 PHP 会在报告在包含 preg_replace() 的行中出现语法解析错误。</p>
+<pre><code class="language-php">&lt;?php
+function test($str)
+{
+    //......
+    //......
+    return $str;
+}
+echo preg_replace("/\s*\[p hp](.+?)\[\/php\]\s*/ies", 'test("\1")', $_GET["h"]);
+?&gt;
+</code></pre>
+<p>当用户输入 <code>?h=[p hp]phpinfo()[/php]</code></p>
+<p>经过正则匹配后， replacement 参数变为<code>'test("phpinfo()")'</code>，此时phpinfo仅是被当做一个字符串参数了。
+但是当我们提交<code>?h=[p hp]{${phpinfo()}}[/php]</code> 时，phpinfo()就会被执行。</p>
+<p>在php中，双引号里面如果包含有变量，php解释器会将其替换为变量解释后的结果；单引号中的变量不会被处理。
+注意：双引号中的函数不会被执行和替换。
+在这里我们需要通过<code>{${}}</code>构造出了一个特殊的变量，<code>'test("{${phpinfo()}}")'</code>，达到让函数被执行的效果， <code>${phpinfo()}</code> 会被解释执行。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-验证过滤用户的输入">一、验证过滤用户的输入</a></li><li style="margin-left:0.0rem"><a href="#二-PHP中验证用户的输入">二、PHP中验证用户的输入</a></li><li style="margin-left:0.0rem"><a href="#三-对于文件的路径与名称的过滤">三、对于文件的路径与名称的过滤</a></li><li style="margin-left:0.0rem"><a href="#四-防止SQL注入">四、防止SQL注入</a></li><li style="margin-left:0.8rem"><a href="#SQL注入是如何产生的">SQL注入是如何产生的：</a></li><li style="margin-left:0.8rem"><a href="#防止SQL注入的几种方式">防止SQL注入的几种方式：</a></li><li style="margin-left:0.0rem"><a href="#四-防止XSS攻击">四、防止XSS攻击</a></li><li style="margin-left:0.8rem"><a href="#过滤用户提交的URL">过滤用户提交的URL</a></li><li style="margin-left:0.0rem"><a href="#五-防止远程执行">五、防止远程执行</a></li><li style="margin-left:0.8rem"><a href="#调用的几种方式">调用的几种方式：</a></li><li style="margin-left:0.8rem"><a href="#Shell命令执行">Shell命令执行</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：Web 安全 / PHP安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">Web 安全</span><span class="tag">PHP安全</span><span class="tag">MySQL</span><span class="tag">PHP</span><span class="tag">SQL注入</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：01-Web安全/06-PHP安全/php 安全编码.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BMySQL%2BPHP-%E4%B8%80%E3%80%81%E9%AA%8C%E8%AF%81%E8%BF%87%E6%BB%A4%E7%94%A8%E6%88%B7%E7%9A%84%E8%BE%93%E5%85%A5.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>一、验证过滤用户的输入。本文属于Web 安全 / PHP安全，即使是最普通的字母数字输入也可能是危险的，列举几个容易引起安全问题的字符： ! $ ^ &amp; * ( ) ~ [ ] \ | { } &#x27; &quot; ; ? - ` 在数据库中可能有特殊意义的字符： &#x27; &quot; ; \ 还有一些非打印字符： 字符\x00或者说ASC…</p>
+      <p>关键词：Web 安全、PHP安全、MySQL、PHP、SQL注入、知识笔记、Web 安全 / PHP安全、一、验证过滤用户的输入</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c852d5c0ac2.html"><small>上一篇</small>一、跨站请求伪造漏洞</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ebbad7d3f1f5.html"><small>下一篇</small>判断什么端口能出来</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6e9461ee3824.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

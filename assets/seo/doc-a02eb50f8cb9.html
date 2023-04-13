@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>渗透常规思路｜安全与堡垒机 / 安全运维｜BEN.OPS</title>
+  <meta name="description" content="渗透常规思路。本文属于安全与堡垒机 / 安全运维，分享的思路就像一本书的索引一样，并不是每个点都有详细的技巧和各种原理分析，而是咱们如何下手如何一步步深入，在每个点上咱们知道了思路可以在每个点上查阅资料来攻破，继续前进。好比武功的招式套路，在总体套路不变的前提的下招招精进，也可以重组创新。">
+  <meta name="keywords" content="安全与堡垒机，安全运维，CVE，Windows，Apache，PHP，SQL注入，XSS，安全与堡垒机 / 安全运维，渗透常规思路">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a02eb50f8cb9.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a02eb50f8cb9.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BCVE%2BWindows-%E6%B8%97%E9%80%8F%E5%B8%B8%E8%A7%84%E6%80%9D%E8%B7%AF.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="渗透常规思路">
+  <meta property="og:description" content="渗透常规思路。本文属于安全与堡垒机 / 安全运维，分享的思路就像一本书的索引一样，并不是每个点都有详细的技巧和各种原理分析，而是咱们如何下手如何一步步深入，在每个点上咱们知道了思路可以在每个点上查阅资料来攻破，继续前进。好比武功的招式套路，在总体套路不变的前提的下招招精进，也可以重组创新。">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a02eb50f8cb9.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 安全运维">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="渗透常规思路">
+  <meta name="twitter:description" content="渗透常规思路。本文属于安全与堡垒机 / 安全运维，分享的思路就像一本书的索引一样，并不是每个点都有详细的技巧和各种原理分析，而是咱们如何下手如何一步步深入，在每个点上咱们知道了思路可以在每个点上查阅资料来攻破，继续前进。好比武功的招式套路，在总体套路不变的前提的下招招精进，也可以重组创新。">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a02eb50f8cb9.html#article","headline":"渗透常规思路","description":"渗透常规思路。本文属于安全与堡垒机 / 安全运维，分享的思路就像一本书的索引一样，并不是每个点都有详细的技巧和各种原理分析，而是咱们如何下手如何一步步深入，在每个点上咱们知道了思路可以在每个点上查阅资料来攻破，继续前进。好比武功的招式套路，在总体套路不变的前提的下招招精进，也可以重组创新。","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","安全运维"],"keywords":["安全与堡垒机","安全运维","CVE","Windows","Apache","PHP","SQL注入","XSS","安全与堡垒机 / 安全运维","渗透常规思路"],"wordCount":1846,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a02eb50f8cb9.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a02eb50f8cb9.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 安全运维","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"渗透常规思路","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a02eb50f8cb9.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 安全运维</span> › <span>渗透常规思路</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 安全运维</div>
+      <h1>渗透常规思路</h1>
+      <p class="lede">渗透常规思路。本文属于安全与堡垒机 / 安全运维，分享的思路就像一本书的索引一样，并不是每个点都有详细的技巧和各种原理分析，而是咱们如何下手如何一步步深入，在每个点上咱们知道了思路可以在每个点上查阅资料来攻破，继续前进。好比武功的招式套路，在总体套路不变的前提的下招招精进，也可以重组创新。</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,846 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>分享的思路就像一本书的索引一样，并不是每个点都有详细的技巧和各种原理分析，而是咱们如何下手如何一步步深入，在每个点上咱们知道了思路可以在每个点上查阅资料来攻破，继续前进。好比武功的招式套路，在总体套路不变的前提的下招招精进，也可以重组创新。</p>
+<p>外围招式解释</p>
+<p>霸王拳：最基础但练得好最后也非常厉害</p>
+<p>1．  主要由于服务器配置等原因造成的信息泄露</p>
+<p>常用google ,bing，百度等搜索工具，轻量级的搜索出一些遗留后门，不想被发现的后台入口，中量级的搜索出一些用户信息泄露，源代码泄露，未授权访问等等，重量级的则可能是mdb文件下载，CMS 未被锁定install页面，网站配置密码filetype:lst password，php远程文件包含漏洞等重要信息。包括Robots.txt不想让百度知道的，可能没有设置forbidden访问权限，让我们知道了路径可以进入哦。</p>
+<p>2．  端口探测——服务</p>
+<p>该项也是针对服务器的配置来说的，在服务器配置的时候可能出现一些ftp，3389.1433等常规服务端口，则可以根据弱口令尝试，或者一些服务的基础漏洞(CVE)来使用metasploit进行处理。常用工具NMAP –A IP.</p>
+<p>3．  爬虫爬网站目录</p>
+<p>该项是使用爬虫扫描器，对网站域名进行扫描，网站根目录下的文件，说不定能发现惊喜哦。</p>
+<p>4．  Web框架漏洞</p>
+<p>Web整体框架：①Struts2框架漏洞，直接利用。②ThinkPHP任意代码执行。</p>
+<p>后台框架：</p>
+<p>其实也可以算绕过验证进入后台分类中；</p>
+<p>①Siteservercms，cookie绕过，在sebug上可以找到相关漏洞修补信息。</p>
+<p>②worldpress</p>
+<p>③ewebeditor , fckeditor编辑器上传页面直接访问，根据编辑器版本，随处可查利用信息。</p>
+<p>5．  暴力，撞库进后台</p>
+<p>无论是前端的用户登录还是后台的管理进入，暴力破解都不失为一种以时间和字典为消耗的方法，还是有概率进入的，呵呵。不过相比而言，根据外围探测拿到的信息，也许可以帮助我们很轻松的进入后台。</p>
+<p>撞库，也许你只拿到了一部分敏感信息，但是网络上现在裤子满天飞的状况下，撞一撞找一找，不过大部分都是东拼西凑的，说不定密码就出来了，这个可比暴力破解快得多。</p>
+<p>6．  弱口令</p>
+<p>最常见最危险也最掉以轻心，对于长期不更新的政府类网站的威胁很大。</p>
+<ol start="7">
+<li>中间件配置不当引起的问题</li>
+</ol>
+<p>① IIS写漏洞  常规工具“老兵”</p>
+<p>② 目录可访问</p>
+<ol start="8">
+<li>操作系统、中间件文件解析引起的问题</li>
+</ol>
+<p>Apache test.php.xx     IIS  test.asp;.jpg    windows  .asp.</p>
+<ol start="9">
+<li>php引起的一系列问题</li>
+</ol>
+<p>① ../../etc/passwd  直接深入</p>
+<p>② php引起的目录遍历</p>
+<p>③ PHP 引起的远程文件包含（google搜索也可以直接利用）</p>
+<p>外围到内部之间的中间层（应用）</p>
+<p>招式解释
+太极：遇强则强，遇弱则弱，全是应用惹的祸</p>
+<p>一．用户未登陆的情况下</p>
+<p>1、注入</p>
+<p>注入的类型实在太多，利用花样种种，很多类型实战中测试</p>
+<p>①  页面调用时候的sql注入，一般直接穿山甲，sqlmap跑出来dbs和表，用来进后台用或者泄露用户信息。（DBS是否完整，网站结构库，直接利用）</p>
+<p>②  万能密码之类的sql注入，进入前端应用或者后台管理。</p>
+<p>③  本站没有注入不代表就不能深入，试试旁注呢，呵呵。只是流程不一样了。思路需要养成。</p>
+<p>2、XSS</p>
+<p>XSS的类型不算多存储型，反射型，但是利用就是只有你想不到，没有你做不到。</p>
+<p>①   XSS盲打打后台，多半也是想进后台种种方法无果的情况下。概率有限。</p>
+<p>②   XSS DDoS。</p>
+<p>3、信息泄露，订单遍历</p>
+<p>用户访问权限问题。</p>
+<p>4、密码找回漏洞（密码邮件/短信重置）</p>
+<p>Burp可修改字段的情况下，找回其他用户密码，说不定admin的密码就被你找回了。</p>
+<p>5、后台</p>
+<p>后台也是一种业务，只是一种专政的隐藏的业务哈。</p>
+<p>如何进入后台呢？在找到后台地址的前提下。和应用无关的：暴力破解，撞库，信息收集利用，弱口令，未授权访问。</p>
+<p>①  万能密码之类的sql注入，post型注入用sqlmap dump dbs.</p>
+<p>②  利用web前端的sql注入</p>
+<p>③  密码找回运气好的话前端应用的admin密码和后台密码一致。（有什么查询密码88）</p>
+<p>④  XSS盲打 cookie （成功率）</p>
+<p>⑤  后台框架  siteservercms等知名后台cms   sebug</p>
+<p>1、首先获取免费版软件，然后安装使用查看是否有test(admin)账户，能否直接利用，保存cookie提交看能否使用。
+2、看版本，Sebug等上面有无直接利用方法
+3、代码审计  （北京2014绿盟安全夺旗北京分公司利用此方法成功转账）</p>
+<p>二．在模拟用户注册登陆情况下</p>
+<p>1、认证绕过</p>
+<p>①  万能密码</p>
+<p>②  Cookie欺骗</p>
+<p>2、越权访问</p>
+<p>①  平行越权，其他用户信息读取、修改；</p>
+<p>②  纵向越权，主要体现在修改密码能否通过特殊字段标记的修改管理员密码。</p>
+<p>3、注入</p>
+<p>Cookie post get 型，登陆后user相关应用</p>
+<p>4、XSS 影响力、类型实在太多</p>
+<p>① user提交的东西让后台管理员去审核</p>
+<p>5、上传点</p>
+<p>①  一句话木马  ②  Webshell上传</p>
+<p>在很多情况下，没有注入的，后台进不去，上传点是最好的阵地。</p>
+<p>网站十分重视对上传文件的保护，熟悉上传流程，被阻断在哪里，在哪里突破。</p>
+<p>6、短信、邮箱DDoS7、支付漏洞
+ ①  0元任意付
+ ②  -1元退款
+ ③  数量整型/长整型溢出</p>
+<p>内部（管理后台）
+ 招式解释：迷踪步
+ 既然已经进入了管理后台了，很有成就感，那么下一步的目标就是控制这台服务器，控制整个网段。。。现在一般的web渗透也都到此为止了。</p>
+<p>1.上传webshell
+假如你在web前端没有地方或者没办法上传webshell，那么在后台上传是一个最好的选择，这也是帮助你从业务层面上控制服务器的最佳方法。
+ ①   后台可修改上传文件类型，欢天喜地，修改下白名单| 黑名单，上传成功，有时候不能被解析很常见，再找原因。
+ ②   后台不能修改上传文件类型，大部分哦~不过一般来说对后台的上传校验比前端要宽松一些。
+ 没事，咱们该怎么绕过就怎么绕过，不能绕过就88…….</p>
+<p>2.一句话木马</p>
+<p>3.管理员的分权
+ 假如说管理员进行了分权，拿到了管理员不是权限最高的主管理员的话还需要进行管理员提权操作。</p>
+      </article>
+      <aside class="aside">
+        
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 安全运维</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">安全运维</span><span class="tag">CVE</span><span class="tag">Windows</span><span class="tag">Apache</span><span class="tag">PHP</span><span class="tag">SQL注入</span><span class="tag">XSS</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/04-安全运维/birdben/68656592.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BCVE%2BWindows-%E6%B8%97%E9%80%8F%E5%B8%B8%E8%A7%84%E6%80%9D%E8%B7%AF.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>渗透常规思路。本文属于安全与堡垒机 / 安全运维，分享的思路就像一本书的索引一样，并不是每个点都有详细的技巧和各种原理分析，而是咱们如何下手如何一步步深入，在每个点上咱们知道了思路可以在每个点上查阅资料来攻破，继续前进。好比武功的招式套路，在总体套路不变的前提的下招招精进，也可以重组创新。</p>
+      <p>关键词：安全与堡垒机、安全运维、CVE、Windows、Apache、PHP、SQL注入、XSS、安全与堡垒机 / 安全运维、渗透常规思路</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b853a538ea67.html"><small>上一篇</small>浏览器自动化</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-47ce1e7528a1.html"><small>下一篇</small>游戏下线流程规范</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a02eb50f8cb9.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

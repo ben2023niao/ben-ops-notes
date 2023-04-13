@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>DNS域名解析过程｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="DNS域名解析过程。本文属于安全与堡垒机 / 高级安全，就是所谓的 “.”，其实我们的网址 [www.baidu.com](http://www.baidu.com) 在配置当中应该是 [www.baidu.com](http://www.baidu.com) .（最后有一点），一般我们在浏览器里输入时会省略后面…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，DNS，知识笔记，安全与堡垒机 / 高级安全，DNS域名解析过程">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4a0a9c8b5412.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4a0a9c8b5412.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BDNS%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-DNS%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90%E8%BF%87%E7%A8%8B.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="DNS域名解析过程">
+  <meta property="og:description" content="DNS域名解析过程。本文属于安全与堡垒机 / 高级安全，就是所谓的 “.”，其实我们的网址 [www.baidu.com](http://www.baidu.com) 在配置当中应该是 [www.baidu.com](http://www.baidu.com) .（最后有一点），一般我们在浏览器里输入时会省略后面…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4a0a9c8b5412.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/808ee3f8fff2bc0470.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DNS域名解析过程">
+  <meta name="twitter:description" content="DNS域名解析过程。本文属于安全与堡垒机 / 高级安全，就是所谓的 “.”，其实我们的网址 [www.baidu.com](http://www.baidu.com) 在配置当中应该是 [www.baidu.com](http://www.baidu.com) .（最后有一点），一般我们在浏览器里输入时会省略后面…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/808ee3f8fff2bc0470.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4a0a9c8b5412.html#article","headline":"DNS域名解析过程","description":"DNS域名解析过程。本文属于安全与堡垒机 / 高级安全，就是所谓的 “.”，其实我们的网址 [www.baidu.com](http://www.baidu.com) 在配置当中应该是 [www.baidu.com](http://www.baidu.com) .（最后有一点），一般我们在浏览器里输入时会省略后面…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","DNS","知识笔记","安全与堡垒机 / 高级安全","DNS域名解析过程"],"wordCount":2789,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4a0a9c8b5412.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4a0a9c8b5412.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/808ee3f8fff2bc0470.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"DNS域名解析过程","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4a0a9c8b5412.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>DNS域名解析过程</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>DNS域名解析过程</h1>
+      <p class="lede">DNS域名解析过程。本文属于安全与堡垒机 / 高级安全，就是所谓的 “.”，其实我们的网址 [www.baidu.com](http://www.baidu.com) 在配置当中应该是 [www.baidu.com](http://www.baidu.com) .（最后有一点），一般我们在浏览器里输入时会省略后面…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,789 字</span>
+        <span class="badge">8 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="DNS基本概念">DNS基本概念</h2>
+<h3 id="根域">根域</h3>
+<p>就是所谓的 “.”，其实我们的网址 <code>[www.baidu.com](http://www.baidu.com)</code> 在配置当中应该是 <code>[www.baidu.com](http://www.baidu.com)</code>.（最后有一点），一般我们在浏览器里输入时会省略后面的点，而这也已经成为了习惯。根域服务器我们知道有 13 台，但是这是错误的观点。</p>
+<p>根域服务器只是具有 13 个 IP 地址，但机器数量却不是 13 台，因为这些 IP 地址借助了任播的技术，所以我们可以在全球设立这些 IP 的镜像站点，你访问到的这个 IP 并不是唯一的那台主机。</p>
+<h3 id="域的划分">域的划分</h3>
+<p>根域下来就是顶级域或者叫一级域，有两种划分方式，一种互联网刚兴起时的按照行业性质划分的 com.，net. 等，一种是按国家划分的如 cn.，jp.，等。具体多少你可以自己去查，我们这里不关心。</p>
+<p>每个域都会有域名服务器，也叫权威域名服务器。<a href="http://Baidu.com" rel="noopener noreferrer">Baidu.com</a> 就是一个顶级域名，而 <code>[www.baidu.com](http://www.baidu.com)</code> 却不是顶级域名，他是在 <a href="http://baidu.com" rel="noopener noreferrer">baidu.com</a> 这个域里的一叫做 www 的主机。</p>
+<p>一级域之后还有二级域，三级域，只要我买了一个顶级域，并且我搭建了自己 BIND 服务器（或者其他软件搭建的）注册到互联网中，那么我就可以随意在前面多加几个域了（当然长度是有限制的）。</p>
+<p>比如 a.<code>[www.baidu.com](http://www.baidu.com)</code>，在这个网址中，<code>[www.baidu.com](http://www.baidu.com)</code> 变成了一个二级域而不是一台主机，主机名是 a。</p>
+<h3 id="域名服务器">域名服务器</h3>
+<p>能提供域名解析的服务器，上面的记录类型可以是 A(address)记录，NS 记录（name server），MX（mail），CNAME 等。</p>
+<p>A 记录是什么意思呢，就是记录一个 IP 地址和一个主机名字，比如我这个域名服务器所在的域 <a href="http://test.baidu.com" rel="noopener noreferrer">test.baidu.com</a>，我们知道这是一个二级的域名，然后我在里面有一条 A 记录,记录了主机为 a 的 IP，查到了就返回给你了。</p>
+<p>如果我现在要想 <a href="http://baidu.com" rel="noopener noreferrer">baidu.com</a> 这个域名服务器查询 <a href="http://a.test.baidu.com" rel="noopener noreferrer">a.test.baidu.com</a>，那么这个顶级域名服务器就会发现你请求的这个网址在 <a href="http://test.baidu.com" rel="noopener noreferrer">test.baidu.com</a> 这个域中，我这里记录了这个二级域的域名服务器 <a href="http://test.baidu.com" rel="noopener noreferrer">test.baidu.com</a> 的 NS 的 IP。我返回给你这个地址你再去查主机为 a 的主机把。</p>
+<p>这些域内的域名服务器都称为权威服务器，直接提供 DNS 查询服务。（这些服务器可不会做递归哦）</p>
+<h2 id="DNS解析过程">DNS解析过程</h2>
+<p>那么我们的 DNS 是怎么解析一个域名的呢？</p>
+<ol>
+<li>现在我有一台计算机，通过 ISP 接入了互联网，那么 ISP 就会给我分配一个 DNS 服务器，这个 DNS 服务器不是权威服务器，而是相当于一个代理的 dns 解析服务器，他会帮你迭代权威服务器返回的应答，然后把最终查到 IP 返回给你。</li>
+<li>现在的我计算机要向这台 ISPDNS 发起请求查询 <code>[www.baidu.com](http://www.baidu.com)</code> 这个域名了，(这里其实准确来说不是 ISPDNS，而应该是用户自己电脑网络设置里的 DNS，并不一定是 ISPDNS。比如也有可能你手工设置了 203.0.113.1)。</li>
+<li>ISPDNS 拿到请求后，先检查一下自己的缓存中有没有这个地址，有的话就直接返回。这个时候拿到的 ip 地址，会被标记为非权威服务器的应答。</li>
+<li>如果缓存中没有的话，ISPDNS 会从配置文件里面读取 13 个根域名服务器的地址（这些地址是不变的，直接在 BIND 的配置文件中）。</li>
+<li>然后像其中一台发起请求。</li>
+<li>根服务器拿到这个请求后，知道他是 com. 这个顶级域名下的，所以就会返回 com 域中的 NS 记录，一般来说是 13 台主机名和 IP。</li>
+<li>然后 ISPDNS 向其中一台再次发起请求，com 域的服务器发现你这请求是 <a href="http://baidu.com" rel="noopener noreferrer">baidu.com</a> 这个域的，我一查发现了这个域的 NS，那我就返回给你，你再去查。（目前百度有 4 台 <a href="http://baidu.com" rel="noopener noreferrer">baidu.com</a> 的顶级域名服务器）。</li>
+<li>ISPDNS 不厌其烦的再次向 <a href="http://baidu.com" rel="noopener noreferrer">baidu.com</a> 这个域的权威服务器发起请求，<a href="http://baidu.com" rel="noopener noreferrer">baidu.com</a> 收到之后，查了下有 www 的这台主机，就把这个 IP 返回给你了，</li>
+<li>然后 ISPDNS 拿到了之后，将其返回给了客户端，并且把这个保存在高速缓存中。</li>
+</ol>
+<p>下面我们来用 nslookup 这个工具详细来说一下解析步骤：
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/808ee3f8fff2bc0470.png"/></p>
+<p>从上图我们可以看到:</p>
+<ol>
+<li>第一行 Server 是：DNS 服务器的主机名 – 203.0.113.1</li>
+<li>第二行A ddress 是： 它的 IP 地址 – 203.0.113.1#53</li>
+<li>下面的 Name 是：解析的 URL – <code>[www.jsjzx.com](http://www.jsjzx.com)</code></li>
+<li>Address 是：解析出来的 IP – 192.168.110</li>
+</ol>
+<p>但是也有像百度这样的 DNS 比较复杂的解析:
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/5de059da1d7e5bec09.png"/>
+你会发现百度有一个 cname = <code>[www.a.shifen.com](http://www.a.shifen.com)</code> 的别名。这是怎么一个过程呢？我们用 dig 工具来跟踪一下，Dig 工具会在本地计算机做迭代，然后记录查询的过程。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/a3c943e491a7a798aa.png"/>
+第一步是向我这台机器的 ISPDNS 获取到根域服务区的 13 个 IP 和主机名 [b-j].<a href="http://root-servers.net" rel="noopener noreferrer">root-servers.net</a>.。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/86d7e294a55ab3c553.png"/>
+第二步是向其中的一台根域服务器（Servername 就是末行小括号里面的）发送 <code>[www.baidu.com](http://www.baidu.com)</code> 的查询请求，他返回了 com. 顶级域的服务器 IP（未显示）和名称，
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/00df68e779310c801a.png"/>
+第三步，便向 com. 域的一台服务器 203.0.113.1 请求 <code>[www.baidu.com](http://www.baidu.com)</code>，他返回了 <a href="http://baidu.com" rel="noopener noreferrer">baidu.com</a> 域的服务器 IP（未显示）和名称，百度有四台顶级域的服务器
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/e095c3aac77db420f1.png"/>
+第四步呢，向百度的顶级域服务器（203.0.113.1）请求 <code>[www.baidu.com](http://www.baidu.com)</code>，他发现这个 www 有个别名，而不是一台主机，别名是 <code>[www.a.shifen.com](http://www.a.shifen.com)</code>。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/50c1e22a28b3ae548c.png"/></p>
+<p>按照一般的逻辑，当 dns 请求到别名的时候，查询会终止，而是重新发起查询别名的请求，所以此处应该返回的是 <code>[www.a.shifen.com](http://www.a.shifen.com)</code> 而已。但是为什么返回 <a href="http://a.shifen.com" rel="noopener noreferrer">a.shifen.com</a> 的这个域的 NS 呢？</p>
+<p>我们可以尝试下面的这个命令：dig +trace <a href="http://shifen.com" rel="noopener noreferrer">shifen.com</a> 看看有什么结果：
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/48f06dcac90c22d39f.png"/>
+你会发现第三步时 <a href="http://shifen.com" rel="noopener noreferrer">shifen.com</a> 这个顶级域的域名服务器和 <a href="http://baidu.com" rel="noopener noreferrer">baidu.com</a> 这个域的域名服务器是同一台主机（即：<a href="http://dns.baidu.com" rel="noopener noreferrer">dns.baidu.com</a>）！当我拿到 <code>[www.baidu.com](http://www.baidu.com)</code> 的别名 <code>[www.a.shifen.com](http://www.a.shifen.com)</code> 的时候，我本来需要重新到 com 域查找 <a href="http://shifen.com" rel="noopener noreferrer">shifen.com</a> 域的 NS，但是因为这两个域在同一台 NS 上，所以直接向本机发起了，</p>
+<p><a href="http://shifen.com" rel="noopener noreferrer">shifen.com</a> 域发现请求的 <code>[www.a.shifen.com](http://www.a.shifen.com)</code> 是属于 <a href="http://a.shifen.com" rel="noopener noreferrer">a.shifen.com</a> 这个域的，于是就把 <a href="http://a.shifen.com" rel="noopener noreferrer">a.shifen.com</a> 的这个 NS 和 IP 返回，让我到 <a href="http://a.shifen.com" rel="noopener noreferrer">a.shifen.com</a> 这个域的域名服务器上查询 <code>[www.a.shifen.com](http://www.a.shifen.com)</code>。</p>
+<p>于是我便从 ns X .<a href="http://a.shifen.com" rel="noopener noreferrer">a.shifen.com</a> 中一台拿到了一条 A 记录，最终的最终也便是 <code>[www.baidu.com](http://www.baidu.com)</code> 的 IP 地址了。【此处也可以用 dig +trace <code>[www.a.shifen.com](http://www.a.shifen.com)</code>】跟踪一下，用一个图来说明一下(图中第三步的全世界只有 13 台是错误的)
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/cea17f9b9b34ec9b02.png"/></p>
+<p>以下内容为在虚拟机中搭建 local dns 服务器得到的实验数据，纠正上述结论。在上面的分析中，我们用 dig 工具进行了追踪，但是 dig 没有继续追踪当我们从 <a href="http://baidu.com" rel="noopener noreferrer">baidu.com</a> 拿到 cname 和 <a href="http://ns2.a.shifen.com" rel="noopener noreferrer">ns2.a.shifen.com</a> 的 IP 之后的事情。</p>
+<p>我们就所以然的下结论认为 local dns 会向 <a href="http://ns2.a.shifen.com" rel="noopener noreferrer">ns2.a.shifen.com</a> 请求 <code>[www.a.shifen.com](http://www.a.shifen.com)</code>。其实这个想法是错误，在自己的本地搭建一个 local dns，抓取整个解析过程中是所有包，看看就明白拉。</p>
+<p>实际的结果是虽然 <a href="http://dns.baidu.com" rel="noopener noreferrer">dns.baidu.com</a> 返回了 <a href="http://a.shifen.com" rel="noopener noreferrer">a.shifen.com</a> 域的服务器地址和 IP，但是 local dns 并不是直接向上述返回的 IP 请求 <code>[www.a.shifen.com](http://www.a.shifen.com)</code>，而是再一次去请求 com 域，得到 <a href="http://shifen.com" rel="noopener noreferrer">shifen.com</a> 域的服务器（也就是 <a href="http://baidu.com" rel="noopener noreferrer">baidu.com</a> 的那四台），然后又请求 <code>[www.a.shifen.com](http://www.a.shifen.com)</code>，返回 <a href="http://a.shifen.com" rel="noopener noreferrer">a.shifen.com</a> 的域的服务器，最后才是去请求 <code>[www.a.shifen.com](http://www.a.shifen.com)</code>，</p>
+<p>虽然上面已经返回了 IP，但是实验的结果就是再走一遍 <a href="http://shifen.com" rel="noopener noreferrer">shifen.com</a> 域的查询。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/3629fc8ace90ae8013.png"/>
+上图就是 localdns 在解析 <code>[www.baidu.com](http://www.baidu.com)</code> 的抓包全过程。蓝色那条就是在收到 cname 和响应的 <a href="http://a.shifen.com" rel="noopener noreferrer">a.shifen.com</a> 的域名服务器 IP 地址之后，继续向 com 域请求 <a href="http://shifen.com" rel="noopener noreferrer">shifen.com</a>。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/56bdf1857c1f2589c0.png"/></p>
+<p>这个图充分说明了返回 cname 的同时也返回了 <a href="http://ns2.a.shifen.com" rel="noopener noreferrer">ns2.a.shifen.com</a> 的 IP。</p>
+<h2 id="相关术语">相关术语</h2>
+<p>| 类型 | 编码 | 内容 |</p>
+<p>| --- | --- | --- |</p>
+<p>| A | 1 | 将 DNS 域名映射到 IPv4 地址，基本作用是说明一个域名对应了哪些 IPv4 地址 |</p>
+<p>| NS | 2 | 权威名称服务器记录，用于说明这个区域有哪些 DNS 服务器负责解析 |</p>
+<p>| CNAME | 5 | 别名记录，主机别名对应的规范名称 |</p>
+<p>| SOA | 6 | 起始授权机构记录，NS 记录说明了有多台服务器在进行解析，但哪一个才是主服务器，NS 并没有说明，SOA 记录了说明在众多 NS 记录里哪一台才是主要的服务器 |</p>
+<p>| PTR | 12 | IP 地址反向解析，是 A 记录的逆向记录，作用是把 IP 地址解析为域名 |</p>
+<p>| MX | 15 | 邮件交换记录，指定负责接收和发送到域中的电子邮件的主机 |</p>
+<p>| TXT | 16 | 文本资源记录，用来为某个主机名或域名设置的说明 |</p>
+<p>| AAAA | 28 | 将 DNS 域名映射到 IPv6 地址，基本作用是说明一个域名对应了哪些 IPv6 地址 |</p>
+<h2 id="总结">总结</h2>
+<p>因此总结一下便是：</p>
+<ol>
+<li>本机向 local dns 请求 <code>[www.baidu.com](http://www.baidu.com)</code></li>
+<li>local dns 向根域请求 <code>[www.baidu.com](http://www.baidu.com)</code>，根域返回 com. 域的服务器 IP</li>
+<li>向 com. 域请求 <code>[www.baidu.com](http://www.baidu.com)</code>，com. 域返回 <a href="http://baidu.com" rel="noopener noreferrer">baidu.com</a> 域的服务器 IP</li>
+<li>向 <a href="http://baidu.com" rel="noopener noreferrer">baidu.com</a> 请求 <code>[www.baidu.com](http://www.baidu.com)</code>，返回 cname <code>[www.a.shifen.com](http://www.a.shifen.com)</code> 和 <a href="http://a.shifen.com" rel="noopener noreferrer">a.shifen.com</a> 域的服务器 IP</li>
+<li>向 root 域请求 <code>[www.a.shifen.com](http://www.a.shifen.com)</code></li>
+<li>向 com. 域请求 <code>[www.a.shifenc.om](http://www.a.shifenc.om)</code></li>
+<li>向 <a href="http://shifen.com" rel="noopener noreferrer">shifen.com</a> 请求</li>
+<li>向 <a href="http://a.shifen.com" rel="noopener noreferrer">a.shifen.com</a> 域请求</li>
+<li>拿到 <code>[www.a.shifen.com](http://www.a.shifen.com)</code> 的 IP</li>
+<li>local dns 返回本机 <code>[www.baidu.com](http://www.baidu.com)</code> cname <code>[www.a.shifen.com](http://www.a.shifen.com)</code> 以及 <code>[www.a.shifen.com](http://www.a.shifen.com)</code> 的 IP</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#DNS基本概念">DNS基本概念</a></li><li style="margin-left:0.8rem"><a href="#根域">根域</a></li><li style="margin-left:0.8rem"><a href="#域的划分">域的划分</a></li><li style="margin-left:0.8rem"><a href="#域名服务器">域名服务器</a></li><li style="margin-left:0.0rem"><a href="#DNS解析过程">DNS解析过程</a></li><li style="margin-left:0.0rem"><a href="#相关术语">相关术语</a></li><li style="margin-left:0.0rem"><a href="#总结">总结</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">DNS</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68657311.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BDNS%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-DNS%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90%E8%BF%87%E7%A8%8B.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>DNS域名解析过程。本文属于安全与堡垒机 / 高级安全，就是所谓的 “.”，其实我们的网址 [www.baidu.com](http://www.baidu.com) 在配置当中应该是 [www.baidu.com](http://www.baidu.com) .（最后有一点），一般我们在浏览器里输入时会省略后面…</p>
+      <p>关键词：安全与堡垒机、高级安全、DNS、知识笔记、安全与堡垒机 / 高级安全、DNS域名解析过程</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-51b790a5e5bb.html"><small>上一篇</small>DNS后门</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b6a533e18fc5.html"><small>下一篇</small>DNS实战</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4a0a9c8b5412.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

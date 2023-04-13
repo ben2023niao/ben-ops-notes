@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>JavaScript 跨域方法｜Web 安全 / Web基础｜BEN.OPS</title>
+  <meta name="description" content="JavaScript 跨域方法。本文属于Web 安全 / Web基础，跨域并非浏览器限制了发起跨站请求，而是跨站请求可以正常发起，但是返回结果被浏览器拦截了。注意：有些浏览器不允许从HTTPS的域跨域访问HTTP，比如Chrome和Firefox，这些浏览器在请求还未发出的时候就会拦截请求，这是一个特例。">
+  <meta name="keywords" content="Web 安全，Web基础，Apache，PHP，Java，XSS，CORS，权限管理，Web 安全 / Web基础，JavaScript 跨域方法">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d0ae48de264b.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d0ae48de264b.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BApache%2BPHP-JavaScript%20%E8%B7%A8%E5%9F%9F%E6%96%B9%E6%B3%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="JavaScript 跨域方法">
+  <meta property="og:description" content="JavaScript 跨域方法。本文属于Web 安全 / Web基础，跨域并非浏览器限制了发起跨站请求，而是跨站请求可以正常发起，但是返回结果被浏览器拦截了。注意：有些浏览器不允许从HTTPS的域跨域访问HTTP，比如Chrome和Firefox，这些浏览器在请求还未发出的时候就会拦截请求，这是一个特例。">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d0ae48de264b.html">
+  <meta property="article:published_time" content="2023-04-14T16:00:00">
+  <meta property="article:modified_time" content="2023-04-14 16:00">
+  <meta property="article:section" content="Web 安全 / Web基础">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/0f4a378a4dfb32cbc5.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="JavaScript 跨域方法">
+  <meta name="twitter:description" content="JavaScript 跨域方法。本文属于Web 安全 / Web基础，跨域并非浏览器限制了发起跨站请求，而是跨站请求可以正常发起，但是返回结果被浏览器拦截了。注意：有些浏览器不允许从HTTPS的域跨域访问HTTP，比如Chrome和Firefox，这些浏览器在请求还未发出的时候就会拦截请求，这是一个特例。">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/0f4a378a4dfb32cbc5.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d0ae48de264b.html#article","headline":"JavaScript 跨域方法","description":"JavaScript 跨域方法。本文属于Web 安全 / Web基础，跨域并非浏览器限制了发起跨站请求，而是跨站请求可以正常发起，但是返回结果被浏览器拦截了。注意：有些浏览器不允许从HTTPS的域跨域访问HTTP，比如Chrome和Firefox，这些浏览器在请求还未发出的时候就会拦截请求，这是一个特例。","datePublished":"2023-04-14T16:00:00","dateModified":"2023-04-14 16:00","inLanguage":"zh-CN","articleSection":["Web 安全","Web基础"],"keywords":["Web 安全","Web基础","Apache","PHP","Java","XSS","CORS","权限管理","Web 安全 / Web基础","JavaScript 跨域方法"],"wordCount":2769,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d0ae48de264b.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d0ae48de264b.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/0f4a378a4dfb32cbc5.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"Web 安全 / Web基础","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"JavaScript 跨域方法","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d0ae48de264b.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>Web 安全 / Web基础</span> › <span>JavaScript 跨域方法</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">Web 安全 / Web基础</div>
+      <h1>JavaScript 跨域方法</h1>
+      <p class="lede">JavaScript 跨域方法。本文属于Web 安全 / Web基础，跨域并非浏览器限制了发起跨站请求，而是跨站请求可以正常发起，但是返回结果被浏览器拦截了。注意：有些浏览器不允许从HTTPS的域跨域访问HTTP，比如Chrome和Firefox，这些浏览器在请求还未发出的时候就会拦截请求，这是一个特例。</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T16:00:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,769 字</span>
+        <span class="badge">8 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<hr/>
+<p>跨域并非浏览器限制了发起跨站请求，而是跨站请求可以正常发起，但是返回结果被浏览器拦截了。注意：有些浏览器不允许从HTTPS的域跨域访问HTTP，比如Chrome和Firefox，这些浏览器在请求还未发出的时候就会拦截请求，这是一个特例。</p>
+<h2 id="一-JSONP">一、 JSONP</h2>
+<p>JSONP（JSON with Padding）技术实际和Ajax没有关系。我们知道&lt;script&gt;标签可以加载跨域的javascript脚本，并且被加载的脚本和当前文档属于同一个域。因此在文档中可以调用/访问脚本中的数据和函数。如果javascript脚本中的数据是动态生成的，那么只要在文档中动态创建&lt;script&gt;标签就可以实现和服务端的数据交互。
+JSONP就是利用&lt;script&gt;标签的跨域能力实现跨域数据的访问，请求动态生成的JavaScript脚本同时带一个callback函数名作为参数。其中callback函数是本地文档的JavaScript函数，服务器端动态生成的脚本会产生数据，并在代码中以产生的数据为参数调用callback函数。当这段脚本加载到本地文档时，callback 函数就被调用。</p>
+<p>举例：在abc.com 有这么一段 <code>&lt;script src="http://www.xyz.com/sample.aspx?callback=mycallback"&gt;&lt;/script&gt;</code>
+在 xyz.com 的 sample.aspx 可能是如下实现的：</p>
+<pre><code class="language-php">&lt;?php
+header('Content-Type:text/html;charset=utf-8');
+$callback = $_GET['callback'];
+$data     = "{foo: 'bar'}";
+echo $callback . "(" . $data . ");";
+?&gt;
+</code></pre>
+<p>src 标签请求返回即 <code>&lt;script&gt; mycallback({foo: 'bar'});&lt;/script&gt;</code> 也就是会执行函数mycallback，这里需要明确的是mycallback 肯定是在 abc.com 上实现的，把 {foo: 'bar' } 作为参数传递，以便下一步操作。callback只是个key，也可以写成jsonp，当然server获取的key也得变换。</p>
+<p>为了支持JSONP协议，服务器端必须提供特别的支持，另外JSONP只支持GET请求。JQuery 中封装了这一操作，使用 method:'jsonp' 即可获取到数据。</p>
+<h2 id="二-CORS">二、CORS</h2>
+<blockquote>
+<p>Cross-origin resource sharing (CORS) is a mechanism that allows a web page to make XMLHttpRequests to another domain. Such "cross-domain" requests would otherwise be forbidden by web browsers, per the same origin security policy. CORS defines a way in which the browser and the server can interact to determine whether or not to allow the cross-origin request. It is more powerful than only allowing same-origin requests, but it is more secure than simply allowing all such cross-origin requests. --Wikipedia</p>
+</blockquote>
+<p>通过在HTTP Header中加入扩展字段，服务器在相应网页头部加入字段表示允许访问的domain和HTTP method，客户端检查自己的域是否在允许列表中，决定是否处理响应。实现的基础是JavaScript不能够操作HTTP Header，某些浏览器插件实际上是具有这个能力的。</p>
+<p>服务器端在HTTP的响应头中加入（页面层次的控制模式）：
+Access-Control-Allow-Origin: http://example.com
+Access-Control-Request-Method: GET, POST
+Access-Control-Allow-Headers: Content-Type, Authorization, Accept, Range, Origin
+Access-Control-Expose-Headers: Content-Range
+Access-Control-Max-Age: 3600
+多个域名之间用逗号分隔，表示对所示域名提供跨域访问权限。"*" 表示允许所有域名的跨域访问。</p>
+<p>客户端可以有两种行为：
+- 发送OPTIONS请求，请求Access-Control信息。如果自己的域名在允许的访问列表中，则发送真正的请求，否则放弃请求发送。 <a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Access_control_CORS" rel="noopener noreferrer">请求预检</a>
+- 直接发送请求，然后检查response的Access-Control信息，如果自己的域名在允许的访问列表中，则读取response body，否则放弃。</p>
+<p>本质上服务端的response内容已经到达本地，JavaScript决定是否要去读取。</p>
+<p>假设一个站点提供api 供跨域调用，那么兼顾方便与安全的设置应该是：</p>
+<p>将Access-Control-Allow-Origin: *，但Access-Control-Allow-Credentials为false。这是因为，CORS配置不当类风险，危害通常为泄露用户敏感数据，此类接口通常需要鉴权。Access-Control-Allow-Credentials为false后，用户登录态将不会随CORS请求发送，进而降低了此类风险。</p>
+<h3 id="跨域cookies相关">跨域cookies相关</h3>
+<pre><code>GET /resources/credentialed-content/ HTTP/1.1
+Host: bar.other
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:71.0) Gecko/20100101 Firefox/71.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-us,en;q=0.5
+Accept-Encoding: gzip,deflate
+Connection: keep-alive
+Referer: https://foo.example/examples/credential.html
+Origin: https://foo.example
+Cookie: pageAccess=2
+
+HTTP/1.1 200 OK
+Date: Mon, 01 Dec 2008 01:34:52 GMT
+Server: Apache/2
+Access-Control-Allow-Origin: https://foo.example
+Access-Control-Allow-Credentials: true
+Cache-Control: no-cache
+Pragma: no-cache
+Set-Cookie: pageAccess=3; expires=Wed, 31-Dec-2008 01:34:53 GMT
+Vary: Accept-Encoding, Origin
+Content-Encoding: gzip
+Content-Length: 106
+Keep-Alive: timeout=2, max=100
+Connection: Keep-Alive
+Content-Type: text/plain
+
+[text/plain payload]
+</code></pre>
+<p>即使第 10 行指定了 Cookie 的相关信息，但是，如果 https://bar.other 的响应中缺失 Access-Control-Allow-Credentials: true（第 17 行），则响应内容不会返回给请求的发起者。
+对于附带身份凭证的请求（通常是 Cookie），服务器不得设置 Access-Control-Allow-Origin 的值为“*”。</p>
+<p>这是因为请求的首部中携带了 Cookie 信息，如果 Access-Control-Allow-Origin 的值为“*”，请求将会失败。而将 Access-Control-Allow-Origin 的值设置为 https://example.com， 则请求将成功执行。</p>
+<p>另外，响应首部中也携带了 Set-Cookie 字段，尝试对 Cookie 进行修改。如果操作失败，将会抛出异常。</p>
+<p>注意在 CORS 响应中设置的 cookies 适用一般性第三方 cookie 策略。在上面的例子中，页面是在 foo.example 加载，但是第 20 行的 cookie 是被 bar.other 发送的，如果用户设置其浏览器拒绝所有第三方 cookies，那么将不会被保存。</p>
+<p>请求中的 cookie（第 10 行）也可能在正常的第三方 cookie 策略下被阻止。因此，强制执行的 cookie 策略可能会使本节描述的内容无效（阻止你发出任何携带凭据的请求）。</p>
+<p>Cookie 策略受 <a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Set-Cookie/SameSite" rel="noopener noreferrer">SameSite</a> 属性控制。</p>
+<h2 id="三-window-name">三、window.name</h2>
+<p>window.name 在一个窗口（标签）的生命周期之内是共享的，利用这点就可以传输一些数据。
+除此之外，结合 iframe 还能实现更加强大的功能：
+需要3个文件： a/proxy/b
+a.html</p>
+<pre><code class="language-javascript">&lt;script type="text/javascript"&gt;
+    var state = 0,
+    iframe = document.createElement('iframe'),
+    loadfn = function() {
+        if (state === 1) {
+            var data = iframe.contentWindow.name;    // 读取数据
+            alert(data);    //弹出'I was there!'
+        } else if (state === 0) {
+            state = 1;
+            iframe.contentWindow.location = "http://a.com/proxy.html";    // 设置的代理文件
+        }
+    };
+    iframe.src = 'http://b.com/b.html';
+    if (iframe.attachEvent) {
+        iframe.attachEvent('onload', loadfn);
+    } else {
+        iframe.onload  = loadfn;
+    }
+    document.body.appendChild(iframe);
+&lt;/script&gt;
+</code></pre>
+<p>b.html</p>
+<pre><code class="language-javascript">&lt;script type="text/javascript"&gt;
+    window.name = 'I was there!';    // 这里是要传输的数据，大小一般为2M，IE和firefox下可以大至32M左右
+                                     // 数据格式可以自定义，如json、字符串
+&lt;/script&gt;
+</code></pre>
+<p>proxy 是一个代理文件，空的就可以，需要和 a 在同一域下。
+window.name 对象是一个很神奇的东西。对当前窗口的 window.name 对象赋值，没有特殊字符的限制。因为window 对象是浏览器的窗体，而并非 document 对象，因此很多时候 window 对象不受同源策略的限制。攻击者利用这个对象，可以实现跨域、跨页面传递数据。在某些环境下，这种特性将变得非常有用。</p>
+<pre><code class="language-javascript">&lt;script&gt;
+window.name = "alert(document.cookie)";
+location.href = "http://www.xssedsite.com/xssed.php";
+&lt;/script&gt;
+</code></pre>
+<p>在同一窗口打开xss 的站点后，只需通过xss 执行以下代码即可：<code>eval(window.name)</code>;</p>
+<h2 id="四-document-domain">四、 document.domain</h2>
+<p>在不同的子域 + iframe交互的时候，获取到另外一个 iframe 的 window对象是没有问题的，但是获取到的这个window的方法和属性大多数都是不能使用的。这种现象可以借助document.domain 来解决。
+example.com</p>
+<pre><code class="language-html">&lt;iframe id='i' src="1.example.com" onload="do()"&gt;&lt;/iframe&gt;
+&lt;script&gt;
+  document.domain = 'example.com';
+  document.getElementById("i").contentWindow;
+&lt;/script&gt;
+</code></pre>
+<p>1.example.com</p>
+<pre><code class="language-javascript">&lt;script&gt;
+  document.domain = 'example.com';
+&lt;/script&gt;
+</code></pre>
+<p>这样，就可以解决问题了。值得注意的是：document.domain 的设置是有限制的，只能设置为页面本身或者更高一级的域名。
+利用这种方法是极其方便的，但是如果一个网站被攻击之后另外一个网站很可能会引起安全漏洞。
+另外，如果某站点 js 写得不完善，导致设置错误的 document.domain，可能引起跨域cookie 读取问题。</p>
+<pre><code class="language-html">&lt;script&gt;
+document.domain="com";
+function test(){
+alert(document.getElementById("xxx").contentWindow.document.cookie);
+}
+&lt;/script&gt;
+&lt;script type="text/javascript"&gt;
+document.oncontextmenu=function(e){return false;}
+&lt;/script&gt;
+&lt;iframe frameborder="0" hspace="0" vspace="0" style="display:none"  id="xxx" onload="test()" src="http://1. example.com/test.html?domain=com"&gt;&lt;/iframe&gt;
+</code></pre>
+<p>其中 <code>http://1. example.com/test.html?domain=com</code> 里面设置了错误的 <code>document.domain</code></p>
+<pre><code class="language-js">var domain = location.search.split("?").pop().split("&amp;").shift();
+document.domain = decodeURIComponent(domain);
+</code></pre>
+<h2 id="五-location-hash">五、location.hash</h2>
+<p>这种方法可以把数据的变化显示在 url 的 hash 里面。但是由于 chrome 和 IE 不允许修改parent.location.hash 的值，所以需要再加一层。
+a.html 和 b.html 进行数据交换。
+a.html</p>
+<pre><code class="language-javascript">function startRequest(){
+    var ifr = document.createElement('iframe');
+    ifr.style.display = 'none';
+    ifr.src = 'http://b.com/b.html#paramdo';
+    document.body.appendChild(ifr);
+}
+
+function checkHash() {
+    try {
+        var data = location.hash ? location.hash.substring(1) : '';
+        if (console.log) {
+            console.log('Now the data is '+data);
+        }
+    } catch(e) {};
+}
+setInterval(checkHash, 2000);
+</code></pre>
+<p>b.html</p>
+<pre><code class="language-javascript">switch(location.hash){
+    case '#paramdo':
+        callBack();
+        break;
+    case '#paramset':
+        //do something……
+        break;
+}//模拟一个简单的参数处理操作
+
+function callBack(){
+    try {
+        parent.location.hash = 'somedata';
+    } catch (e) {
+        // ie、chrome的安全机制无法修改parent.location.hash，
+        // 所以要利用一个中间域下的代理iframe
+        var ifrproxy = document.createElement('iframe');
+        ifrproxy.style.display = 'none';
+        ifrproxy.src = 'http://a.com/c.html#somedata';    // 注意该文件在"a.com"域下
+        document.body.appendChild(ifrproxy);
+    }
+}
+</code></pre>
+<p>c.html</p>
+<pre><code class="language-javascript">parent.parent.location.hash = self.location.hash.substring(1);
+//因为parent.parent和自身属于同一个域，所以可以改变其location.hash的值
+</code></pre>
+<p>这样，利用中间的 c 层就可以用 hash 达到 a 与 b 的交互了。</p>
+<h2 id="六-window-postMessage">六、window.postMessage()</h2>
+<p>这个方法是 HTML5 的一个新特性，可以用来向其他所有的window对象发送消息。需要注意的是我们必须要保证所有的脚本执行完才发送MessageEvent，如果在函数执行的过程中调用了它，就会让后面的函数超时无法执行。</p>
+<blockquote>
+<p>https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage</p>
+</blockquote>
+<p>基本操作如下图所示：</p>
+<p><img alt="postm_1" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/0f4a378a4dfb32cbc5.png"/></p>
+<p><img alt="postm_2" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/300c3e95156533f7d8.png"/></p>
+<p>注意：otherWindow.postMessage  ： message从当前页发向了otherWindow</p>
+<p>postMessage的几个场景
+- Window.open 返回的窗口对象
+- Window.opener
+- a 标签打开的窗口
+- form post 打开的目标窗口
+- iframe 的contentWindow
+- Window.frames[0]
+- Window.parent</p>
+<p>postMessage的安全注意事项
+- 不要 post给 *
+- 校验 origin
+- 校验手段要严谨
+- message 使用时要注意 安全处理
+- https 的站不建议使用 onmessage</p>
+<h2 id="Reference">Reference</h2>
+<p><a href="https://github.com/rccoder/blog/issues/5" rel="noopener noreferrer">浅谈浏览器端JavaScript 跨域解决方法</a>
+对方不想跟你说话并扔了个message.pdf
+https://fetch.spec.whatwg.org/#cors-safelisted-request-header</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-JSONP">一、 JSONP</a></li><li style="margin-left:0.0rem"><a href="#二-CORS">二、CORS</a></li><li style="margin-left:0.8rem"><a href="#跨域cookies相关">跨域cookies相关</a></li><li style="margin-left:0.0rem"><a href="#三-window-name">三、window.name</a></li><li style="margin-left:0.0rem"><a href="#四-document-domain">四、 document.domain</a></li><li style="margin-left:0.0rem"><a href="#五-location-hash">五、location.hash</a></li><li style="margin-left:0.0rem"><a href="#六-window-postMessage">六、window.postMessage()</a></li><li style="margin-left:0.0rem"><a href="#Reference">Reference</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：Web 安全 / Web基础</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">Web 安全</span><span class="tag">Web基础</span><span class="tag">Apache</span><span class="tag">PHP</span><span class="tag">Java</span><span class="tag">XSS</span><span class="tag">CORS</span><span class="tag">权限管理</span></li>
+          <li><span>来源：01-Web安全/01-Web基础/JS跨域.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BApache%2BPHP-JavaScript%20%E8%B7%A8%E5%9F%9F%E6%96%B9%E6%B3%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>JavaScript 跨域方法。本文属于Web 安全 / Web基础，跨域并非浏览器限制了发起跨站请求，而是跨站请求可以正常发起，但是返回结果被浏览器拦截了。注意：有些浏览器不允许从HTTPS的域跨域访问HTTP，比如Chrome和Firefox，这些浏览器在请求还未发出的时候就会拦截请求，这是一个特例。</p>
+      <p>关键词：Web 安全、Web基础、Apache、PHP、Java、XSS、CORS、权限管理、Web 安全 / Web基础、JavaScript 跨域方法</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9ae3abe706bf.html"><small>上一篇</small>IPv6 协议相关的资料</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-940b84834c12.html"><small>下一篇</small>MAIN DEFAULTS</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d0ae48de264b.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

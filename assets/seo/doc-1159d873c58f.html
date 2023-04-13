@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>1. 架构层绕过WAF｜Web 安全 / WAF与信息泄露｜BEN.OPS</title>
+  <meta name="description" content="1. 架构层绕过WAF。本文属于Web 安全 / WAF与信息泄露，绕过WAF的相关技术研究是WAF攻防研究非常重要的一部分，也是最有趣的部分，所以我在写WAF攻防时先写攻击部分。还是那句老话“不知攻焉知防”，如果连绕过WAF方法都不知道，怎么保证WAF能保护后端服务的安全。在我看来，WAF的绕过技术的研究将不断…">
+  <meta name="keywords" content="Web 安全，WAF与信息泄露，DNS，MySQL，PHP，SQL注入，SSRF，WAF，Web 安全 / WAF与信息泄露，1. 架构层绕过WAF">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1159d873c58f.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1159d873c58f.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWAF%E4%B8%8E%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%2BDNS%2BMySQL-1.%20%E6%9E%B6%E6%9E%84%E5%B1%82%E7%BB%95%E8%BF%87WAF.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="1. 架构层绕过WAF">
+  <meta property="og:description" content="1. 架构层绕过WAF。本文属于Web 安全 / WAF与信息泄露，绕过WAF的相关技术研究是WAF攻防研究非常重要的一部分，也是最有趣的部分，所以我在写WAF攻防时先写攻击部分。还是那句老话“不知攻焉知防”，如果连绕过WAF方法都不知道，怎么保证WAF能保护后端服务的安全。在我看来，WAF的绕过技术的研究将不断…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1159d873c58f.html">
+  <meta property="article:published_time" content="2023-04-14T16:00:00">
+  <meta property="article:modified_time" content="2023-04-14 16:00">
+  <meta property="article:section" content="Web 安全 / WAF与信息泄露">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/2ee8f4658565010ff2.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="1. 架构层绕过WAF">
+  <meta name="twitter:description" content="1. 架构层绕过WAF。本文属于Web 安全 / WAF与信息泄露，绕过WAF的相关技术研究是WAF攻防研究非常重要的一部分，也是最有趣的部分，所以我在写WAF攻防时先写攻击部分。还是那句老话“不知攻焉知防”，如果连绕过WAF方法都不知道，怎么保证WAF能保护后端服务的安全。在我看来，WAF的绕过技术的研究将不断…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/2ee8f4658565010ff2.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1159d873c58f.html#article","headline":"1. 架构层绕过WAF","description":"1. 架构层绕过WAF。本文属于Web 安全 / WAF与信息泄露，绕过WAF的相关技术研究是WAF攻防研究非常重要的一部分，也是最有趣的部分，所以我在写WAF攻防时先写攻击部分。还是那句老话“不知攻焉知防”，如果连绕过WAF方法都不知道，怎么保证WAF能保护后端服务的安全。在我看来，WAF的绕过技术的研究将不断…","datePublished":"2023-04-14T16:00:00","dateModified":"2023-04-14 16:00","inLanguage":"zh-CN","articleSection":["Web 安全","WAF与信息泄露"],"keywords":["Web 安全","WAF与信息泄露","DNS","MySQL","PHP","SQL注入","SSRF","WAF","Web 安全 / WAF与信息泄露","1. 架构层绕过WAF"],"wordCount":4362,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1159d873c58f.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1159d873c58f.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/2ee8f4658565010ff2.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"Web 安全 / WAF与信息泄露","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"1. 架构层绕过WAF","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1159d873c58f.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>Web 安全 / WAF与信息泄露</span> › <span>1. 架构层绕过WAF</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">Web 安全 / WAF与信息泄露</div>
+      <h1>1. 架构层绕过WAF</h1>
+      <p class="lede">1. 架构层绕过WAF。本文属于Web 安全 / WAF与信息泄露，绕过WAF的相关技术研究是WAF攻防研究非常重要的一部分，也是最有趣的部分，所以我在写WAF攻防时先写攻击部分。还是那句老话“不知攻焉知防”，如果连绕过WAF方法都不知道，怎么保证WAF能保护后端服务的安全。在我看来，WAF的绕过技术的研究将不断…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T16:00:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">4,362 字</span>
+        <span class="badge">13 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>原文 by <a href="https://weibo.com/ttarticle/p/show?id=2309404007261092631700&amp;sudaref=www.google.com.hk&amp;display=0&amp;retcode=6102" rel="noopener noreferrer">破-见</a></p>
+<p>绕过WAF的相关技术研究是WAF攻防研究非常重要的一部分，也是最有趣的部分，所以我在写WAF攻防时先写攻击部分。还是那句老话“不知攻焉知防”，如果连绕过WAF方法都不知道，怎么保证WAF能保护后端服务的安全。在我看来，WAF的绕过技术的研究将不断驱动防御水平提高。</p>
+<p>以前一些WAF bypass的文章更像CASE的整理，都把焦点放在了规则对抗层面。绕过WAF规则，更像是正面对抗，属于下策。一直关注规则层面的绕过，太局限视野，看不到WAF在其他方面问题。木桶原理，防御能力并不会有本质的提高。本文将从4个层次讲解bypass WAF的技术，全方位提升WAF的防御能力。 讲完相关攻击技术后，以后再探讨WAF的设计架构、防御策略，这样显得每一处的考虑都是有意义的。</p>
+<ul>
+<li>
+<p>从架构层Bypass WAF 。</p>
+</li>
+<li>
+<p>从资源限角度bypass WAF。</p>
+</li>
+<li>
+<p>从协议层面bypass WAF。</p>
+</li>
+<li>
+<p>从规则缺陷bypass WAF。</p>
+</li>
+</ul>
+<h2 id="1-架构层绕过WAF">1. 架构层绕过WAF</h2>
+<h3 id="1-1-寻找源站">1.1  寻找源站</h3>
+<p>如果流量都没有经过WAF，WAF当然无法拦截攻击请求。当前多数云WAF架构，例如百度云加速、360安全卫士等，通过更改DNS解析，把流量引入WAF集群，流量经过检测后转发请求到源站。如图，liusscs.com接入接入WAF后，liusscs.comd的DNS解析结果指向WAF集群，用户的请求将发送给WAF集群，WAF集群经过检测认为非攻击请求再转发给源站。</p>
+<p>云WAF流量路径</p>
+<p><img alt="waf1" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/2ee8f4658565010ff2.png"/></p>
+<p>假设我们是攻击者，如何绕过WAF的安全检测呢？ 从云WAF架构考虑，如果HTTP请求都没有经过WAF集群直接到达源站，顺理成章bypass WAF。所以关键在于发现源站的IP地址。常用方法如下，可能还有很多很多思路，欢迎补充：</p>
+<p>1)   信息泄露发现源站IP。信息泄露的途径很多，细心留意往往能发现。我常用的方法如下：</p>
+<ul>
+<li>
+<p>网站页面注销是否包含源站IP。</p>
+</li>
+<li>
+<p>GIHUB源代码泄露是否包含源站IP。</p>
+</li>
+<li>
+<p>未接入WAF前，真实IP地址是否被搜索引擎等服务收录。</p>
+</li>
+</ul>
+<p>2)   穷举IP地址，根据特征发现服务器真实IP地址。对于国内的服务器，穷举国内的IP，访问每个IP的HTTP服务，根据页面特征检测响应页面，判断IP是否为源站IP地址。曾经乌云有人分享过，完成一次国内IP扫描只需要8-9小时，可是现在找不到那篇文章。</p>
+<h3 id="1-2-利用同网段">1.2  利用同网段</h3>
+<p>一些在云服务商的站点，同时使用云服务商提供的WAF服务。当流量不是通过DNS解析引流到WAF，流量必须经过WAF的检测，这是不能通过发行源站进行绕过。可以考虑在云服务商买一台VPS，通过VPS攻击目标站点，因为流量是局域网，可能不经过WAF检测，实现绕过。能不能成功，关键在于云服务商的网络配置。</p>
+<p><img alt="waf2" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/f45f70f4279b265f3e.png"/></p>
+<p>攻击机器与目标机器在同一局域网</p>
+<h3 id="1-3-利用边界漏洞">1.3 利用边界漏洞</h3>
+<p>如果未能发现源站IP，可以尝试寻找子站的SSRF漏洞。如果子站访问目标站不经过WAF集群，可以利用SSRF漏洞来绕过WAF。</p>
+<h2 id="2-资源限制角度绕过WAF">2. 资源限制角度绕过WAF</h2>
+<p>这是众所周知、而又难以解决的问题。如果HTTP请求POST BODY太大，检测所有的内容，WAF集群消耗太大的CPU、内存资源。因此许多WAF只检测前面的几K字节、1M、或2M。对于攻击者而然，只需要在POST BODY前面添加许多无用数据，把攻击payload放在最后即可绕过WAF检测。</p>
+<h2 id="3-协议层面绕过WAF的检测">3. 协议层面绕过WAF的检测</h2>
+<p>即使流量都确保经过WAF，如果WAF的防御策略根本就没有检测payload，那么也就能绕过WAF。协议层面绕过WAF，利用WAF解析协议的问题，使得payload被认为不是请求的HTTP请求的内容。从个人经验总结出WAF解析协议的常出现问题的三个方向。</p>
+<ul>
+<li>
+<p>协议覆盖不全。</p>
+</li>
+<li>
+<p>协议解析不正确。</p>
+</li>
+<li>
+<p>协议解析后与WEB容器的协议解析不一致。</p>
+</li>
+</ul>
+<p>以下以实例说明利用协议绕过WAF的方法。通过CASE解析什么是协议覆盖不全、协议解析不正确、协议解析不一致。</p>
+<h3 id="3-1-协议未覆盖绕过WAF">3.1 协议未覆盖绕过WAF</h3>
+<p>POST 请求常用有2种参数提交方式：</p>
+<ul>
+<li>
+<p>Content-Type: application/x-www-form-urlencoded;</p>
+</li>
+<li>
+<p>Content-Type: multipart/form-data;</p>
+</li>
+</ul>
+<p>Waf未能覆盖Content-Type: multipart/form-data从而导致被绕过。或者WAF会认为它是文件上传请求，从而只检测文件上传，导致被绕过。如图，加速乐的WAF就存在被绕过的情况，是典型的协议未覆盖。</p>
+<p><img alt="waf3" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/cba20ff9719c01c793.png"/></p>
+<p>普通攻击请求被拦截</p>
+<p><img alt="waf4" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/af1404488ec0d2b70e.png"/></p>
+<p>协议未覆盖导致绕过</p>
+<h3 id="3-2-利用协议解析不一致绕过WAF的典型例子">3.2 利用协议解析不一致绕过WAF的典型例子</h3>
+<p>如图中的payload，WAF解析出来上传的文件名是test3.jpg，而PHP解析到的文件名是”test3.jpg\nf/shell.php”，因为”/”是目录分隔符，上传的文件名变为shell.php，从而绕过WAF的防御。当时这个方法几乎通杀所有WAF，可见利用协议层绕过WAF的威力。就文件上传而言，还有更多因为协议解析导致绕过，见3.3节。</p>
+<p><img alt="waf5" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/ffa080b0d9b55c99b3.png"/></p>
+<p>WAF与PHP解析文件上传协议不一致导致绕过</p>
+<h3 id="3-3-利用协议解析问题绕过WAF文件上传">3.3  利用协议解析问题绕过WAF文件上传</h3>
+<p>WAF的文件上传规则使用正则表达式匹配上传的文件名是否包含“0x00”等，所以正面绕过正则表达式匹配几乎不可能。如果不从规则角度考虑，利用协议解析问题让WAF无法匹配到正确的文件名，就能绕过WAF实现文件上传。</p>
+<p>3.3.1 协议解析不正确-文件名覆盖(一)</p>
+<p>在multipart协议中，一个文件上传块存在多个Content-Disposition，将以最后一个Content-Disposition的filename值作为上传的文件名。许多WAF解析到第一个Content-Disposition就认为协议解析完毕，获得上传的文件名，从而导致被绕过。如图，加速乐的WAF解析得到文件名是”sp.pho”，但PHP解析结果是”sp.php”，导致被绕过。</p>
+<p><img alt="waf6" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/be9a3fcfa70b48b2ca.png"/></p>
+<p>3.3.2 协议解析不正确-文件名覆盖（二）</p>
+<p>在一个Content-Disposition 中，存在多个filename ，协议解析应该使用最后的filename值作为文件名。如果WAF解析到filename="p3.txt"认为解析到文件名，结束解析，将导致被绕过。因为后端容器解析到的文件名是t3.jsp。</p>
+<p>Content-Disposition: form-data;name="myfile"; filename="p3.txt";filename="t3.jsp"</p>
+<p>3.3.3 协议解析不正确-遗漏文件名</p>
+<p>当WAF遇到“name=”myfile";;”时，认为没有解析到filename。而后端容器继续解析到的文件名是t3.jsp，导致WAF被绕过。</p>
+<p>Content-Disposition: form-data;name="myfile";; filename="t3.jsp"。</p>
+<p>3.3.4 协议解析不正确-未解析所有文件</p>
+<p>multipart协议中，一个POST请求可以同时上传多个文件。如图，许多WAF只检查第一个上传文件，没有检查上传的所有文件，而实际后端容器会解析所有上传的文件名，攻击者只需把paylaod放在后面的文件PART，即可绕过。</p>
+<p><img alt="waf7" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/e04e78ff9c89b403f0.png"/></p>
+<p><img alt="waf8" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/19817e4425170191b3.png"/></p>
+<p>3.3.5 协议解析不一致-文件名解析兼容性</p>
+<p>multipart协议中，文件名的形式为“filename="abc.php"”。但是Tomcat、PHP等容器解析协议时会做一些兼容，能正确解析 ”filename="abc.php”、”filename=abc.php”、 ”filename='abc.php'”。而WAF只按照协议标准去解析，无法解析文件名，但是后端容器能正确获得文件名，从而导致被绕过。场景的绕过形式：</p>
+<ul>
+<li>
+<p>Content-Disposition: form-data; name="file"; filename=abc.php</p>
+</li>
+<li>
+<p>Content-Disposition: form-data; name="file"; filename="abc.php</p>
+</li>
+<li>
+<p>Content-Disposition: form-data; name="file"; filename='abc.php'</p>
+</li>
+</ul>
+<h3 id="3-4-参数污染">3.4    参数污染</h3>
+<p>请求中包含2个参数名相同的参数typeid，第一个是正常参数的值，第二个参数才是payload。如果WAF解析参数使用第一个值，没检查第二个值，将导致绕过。这是很久很久的一个CASE，现在几乎没有WAF存在这个问题。</p>
+<p><code>/forum.php?typeid=644&amp;typeid=if(now()%3dsysdate()%2csleep(19.844)%2c0)/*'XOR(if(now()%3dsysdate()%2csleep(19.844)%2c0))OR'%22XOR(if(now()%3dsysdate()%2csleep(19.844)%2c0))OR%22*/</code></p>
+<h3 id="3-5-小结">3.5 小结</h3>
+<p>当想到利用协议解析绕过WAF检测时，并不敢确定效果，经过实践检验，协议解析绕过WAF的思路可行且有效。在研究利用协议绕过WAF时，需要大胆地猜测WAF解析协议时容易犯什么错误，科学地一点点验证。通过分析PHP、tomcat的协议解析源码，找出它们与HTTP标准协议的差异是发现绕过WAF的快速有效方法。</p>
+<p>本节利用multipart/form-data协议解析过问题文件上传的思路，思路同样可用于绕过multipart/form-data协议POST FROM表单提交参数的检测。</p>
+<h2 id="4-规则层面的绕过">4. 规则层面的绕过</h2>
+<p>对基于正则表达式的WAF，绕过WAF规则主要思考安全工程师写WAF规则时在想什么，容易忽略什么，推断一些可能绕过的方式，然后多次尝试进行验证。比起完整罗列绕过CASE，我更喜欢分析绕过思路。这次以最受关注的SQL注入、文件包含为例，分析一下绕过思路。</p>
+<h3 id="4-1-SQL注入绕过">4.1. SQL注入绕过</h3>
+<p>绕过SQL注入规则主要利用WAF规则本身的问题、未考虑到SQL语法变形、及后端数据库SQL语句语法特性。不同的数据库虽然遵守SQL标准，但是通常会加入特有的语法。WAF的防御策略要兼顾各种数据库的特殊语法，容易遗漏，从而被利用绕过WAF。以下MySQL为例，分析绕过SQL注入的一些思路。</p>
+<p>4.1.1   注释符绕过</p>
+<p><code>/*xxx*/</code>是注释，也可以充当空白符。因为 <code>/**/</code>可使得MySQL对sql语句(<code>union/**/select</code>)词法解析成功。事实上许多WAF都考虑到<code>/**/</code>可以作为空白分，但是waf检测 <code>/\*.*\*/</code>很消耗性能，工程师会折中，可能在检测中间引入一些特殊字符，例如：<code>/*\w+*/</code>。或者，WAF可能只中间检查n个字符<code>/\*.{,n}\*/</code>。根据以上想法，可以逐步测试绕过方法：</p>
+<ul>
+<li>
+<p>先测试最基本的：<code>union/**/select</code></p>
+</li>
+<li>
+<p>再测试中间引入特殊字：<code>union/*aaaa%01bbs*/select</code></p>
+</li>
+<li>
+<p>最后测试注释长度：<code>union/*aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa*/select</code></p>
+</li>
+</ul>
+<p>同理，对于<code>/*!xxx*/</code>，可以采取类似的思路绕过WAF。</p>
+<p>4.1.2   空白符绕过</p>
+<p>基于正则表达式的WAF， SQL注入规则使用正则表达式的“\s”匹配空格，例如”select\s+union”。利用正则表达式的空白符与MySQL空白符的不同可绕过WAF规则。如何这些MySQL的特性？通过fuzz,每次更改正常SQL语句的某部分，替换为其他字符，判断语法是否正确，即可判断出来MySQL语法特性。当然，也可以通过分析MySQL词法来发现语法特性，从而找到绕过方法。</p>
+<p>利用空白符进行绕过，测试WAF时尽可能减少其他原因的影响，例如”union select”被拦截，只需把中间空白符替换为”%250C”, “%25A0”进行绕过测试。</p>
+<ul>
+<li>
+<p>union%250Cselect</p>
+</li>
+<li>
+<p>union%25A0select</p>
+</li>
+</ul>
+<p><img alt="waf9" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/538d42df565375fb53.jpg"/></p>
+<p>4.1.3 函数分隔符</p>
+<p>对基于正则表达式的WAF，我们猜测安全工程师写WAF规则时，可能不知道函数名与左括号之间可以存在特殊字符，或者遗漏可以存在特殊字符。例如匹配函数”concat()”的规则写法，“concat(”或者”concat\s*(”，就没有考虑到一些特殊字符。相应的绕过方法，在特殊位置引入特殊的分隔符，逐个测试。这些特殊分隔符发现也是通过Fuzz出来的。</p>
+<ul>
+<li>
+<p>concat%2520(</p>
+</li>
+<li>
+<p>concat/**/(</p>
+</li>
+<li>
+<p>concat%250c(</p>
+</li>
+<li>
+<p>concat%25a0(</p>
+</li>
+</ul>
+<p>举一反三，寻找类似的关键位置，Fuzz特殊字符，发现更多的绕过新方法。猜测工程师们写规则因为各种原因容易遗漏的点，进行绕过WAF检测。</p>
+<p>4.1.4   浮点数词法解析</p>
+<p>利用MySQL解析浮点数的特点，正则表达式无法匹配出单词union，但是MySQL词法解析成功解析出浮点数、sql关键字union。</p>
+<ul>
+<li>
+<p>select * from users where id=8E0union select 1,2,3,4,5,6,7,8,9,0</p>
+</li>
+<li>
+<p>select * from users where id=8.0union select 1,2,3,4,5,6,7,8,9,0</p>
+</li>
+<li>
+<p>select * from users where id=\Nunion select 1,2,3,4,5,6,7,8,9,0</p>
+</li>
+</ul>
+<p>4.1.5   利用error-based进行SQL注入</p>
+<p>Error-based的SQL注入函数非常容易被忽略，导致WAF规则过滤不完整。随着对MySQL研究越来越深，被发现可用于error-based SQL注入的函数越来越多，同时也给绕过WAF造就了更多机会。常见的函数：</p>
+<ul>
+<li>
+<p>extractvalue(1, concat(0x5c,md5(3)));</p>
+</li>
+<li>
+<p>updatexml(1, concat(0x5d,md5(3)),1);</p>
+</li>
+<li>
+<p>GeometryCollection((select<em>from(select</em>from(select@@version)f)x))</p>
+</li>
+<li>
+<p>polygon((select*from(select name_const(version(),1))x))</p>
+</li>
+<li>
+<p>linestring()</p>
+</li>
+<li>
+<p>multipoint()</p>
+</li>
+<li>
+<p>multilinestring()</p>
+</li>
+<li>
+<p>multipolygon()</p>
+</li>
+</ul>
+<p>利用Error-based的SQL注入函数进行绕过时，可以结合函数分隔符，或其他方法灵活运用。</p>
+<p>4.1.6   Mysql特殊语法</p>
+<p>最有效的发现手段，还是去读读MySQL词法分析源代码。和协议绕过类似，挖掘SQL标准与MySQL的词法分析差异是发现WAF SQL注入绕过的有效手段。以下是MySQL语法的一个特写(ps:不是我发现的)：</p>
+<p>select{x table_name}from{x information_schema.tables};</p>
+<p>4.1.7 综合利用实例    以上都是SQL注入绕过中的技术点，在实际渗透测试中，需要灵活综合利用才能达到完整绕过，读取数据数据。以下给出完整绕过WAF SQ注入检测的实例。如图，本例中综合多个绕过技术点，最终实现完整绕过实现读取数据。</p>
+<ul>
+<li>
+<p>利用浮点数词法解析，绕过union select 的检测。</p>
+</li>
+<li>
+<p>同样，函数分隔符思想集和浮点数词法解析，绕过关键字from的检测。</p>
+</li>
+<li>
+<p>最后空白分分割绕过INFORMATION_SCHEMA.TABLES的检查</p>
+</li>
+</ul>
+<p><img alt="waf11" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/2d42188a1d4481f08b.png"/></p>
+<h3 id="4-2-文件包含">4.2 文件包含</h3>
+<p>文件包含分为相对路径、绝对路径文件包含。在相对路径文件包含中，最终根据Linux虚拟文件系统(vfs)的规则查找文件，通过分析vfs的文件路径解析规则，提取其中规则特点，用这些特点去绕过WAF。在绝对文件路径包含中，主要是根据攻击场景，WAF未过滤一些协议、未过滤某些特殊路径。</p>
+<p>4.2.1          相对路径的绕过</p>
+<p>写WAF文件包含规则时，如果检测单一的”../”，误报会非常多，所以WAF文件包含规则通常会检测连续的“../"。根据vfs解析路径的语法，解析到“//”文件路径不变，解析到“/./”文件路径依然。 通过避免连续的"../"，从而绕过WAF文件包含规则。Eg: <code>././..///./.././/../etc//passwd</code>，它等价于<code>../../../etc/passwd</code>。如图，一个实际的绕过WAF文件包含的 CASE</p>
+<p><img alt="waf13" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/6da982037a270fbc1d.png"/></p>
+<p>4.2.2 绝对路径的绕过（一）</p>
+<ul>
+<li>WAF没有考虑到路径中插入“/./”、“//”对于vfs解析路径是等价的，导致可被绕过。例如 /etc/./passwd 与 /etc/passwd 是等价的。还可以通过组合“/./”、“//”进行绕过，eg. /etc///.//././/passwd。</li>
+</ul>
+<p><img alt="waf15" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/f9dc43ebaf9ec5c705.png"/></p>
+<ul>
+<li>对于绝对路径文件包含，WAF一般会拦截常见路径，而不会防御所有的绝对路径。因此，在渗透测试中，可以包含其他的路径下一些文件，例如/usr/local/nginx/conf/nginx.conf。</li>
+</ul>
+<p><img alt="waf17" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/d5b1ea3a6f16661498.png"/></p>
+<ul>
+<li>如果WAF只检测连续的../，检查开始路径为Linux的目录名，可以采用/wtt/../绕过WAF文件包含检测。 例如，“/wtt/../etc/passwd”， wtt不是Linux标准目录，不会被规则匹配。WAF只检测连续的../，但是只使用一个../，不被拦截。最终读取/etc/passwd文件。</li>
+</ul>
+<p>4.2.2 绝对路径的绕过（二）</p>
+<p>利用WAF未检测的协议。PHP 文件包含支持的协议，在渗透测试中，看环境选择可行的方法</p>
+<ul>
+<li>
+<p>file:// — Accessing local filesystem</p>
+</li>
+<li>
+<p>http:// — Accessing HTTP(s) URLs</p>
+</li>
+<li>
+<p>ftp:// — Accessing FTP(s) URLs</p>
+</li>
+<li>
+<p>php:// — Accessing various I/O streams</p>
+</li>
+<li>
+<p>zlib:// — Compression Streams data:// — Data (RFC 2397)</p>
+</li>
+<li>
+<p>glob:// — Find pathnames matching pattern</p>
+</li>
+<li>
+<p>phar:// — PHP Archive</p>
+</li>
+<li>
+<p>ssh2:// — Secure Shell 2</p>
+</li>
+<li>
+<p>rar:// — RAR</p>
+</li>
+<li>
+<p>ogg:// — Audio streams</p>
+</li>
+<li>
+<p>expect:// — Process Interaction Streams</p>
+</li>
+</ul>
+<h2 id="5-总结">5.     总结</h2>
+<p>一个好WAF不是吹出来的，是实践检验出来的。研究WAF的绕过手段，是为了更好的提升WAF的防御能力。在研究突破的过程中，不要仅仅停留在正则表达式，基本漏洞原理，需要对涉及并深入更多的领域，例如HTTP协议理解和PHP、Tomcat对HTTP协议源码分析，MySQL词法分析，和Fuzz的思路等。在此过程中，会有许多乐趣，也会有各方面能力的提升。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-架构层绕过WAF">1. 架构层绕过WAF</a></li><li style="margin-left:0.8rem"><a href="#1-1-寻找源站">1.1 寻找源站</a></li><li style="margin-left:0.8rem"><a href="#1-2-利用同网段">1.2 利用同网段</a></li><li style="margin-left:0.8rem"><a href="#1-3-利用边界漏洞">1.3 利用边界漏洞</a></li><li style="margin-left:0.0rem"><a href="#2-资源限制角度绕过WAF">2. 资源限制角度绕过WAF</a></li><li style="margin-left:0.0rem"><a href="#3-协议层面绕过WAF的检测">3. 协议层面绕过WAF的检测</a></li><li style="margin-left:0.8rem"><a href="#3-1-协议未覆盖绕过WAF">3.1 协议未覆盖绕过WAF</a></li><li style="margin-left:0.8rem"><a href="#3-2-利用协议解析不一致绕过WAF的典型例子">3.2 利用协议解析不一致绕过WAF的典型例子</a></li><li style="margin-left:0.8rem"><a href="#3-3-利用协议解析问题绕过WAF文件上传">3.3 利用协议解析问题绕过WAF文件上传</a></li><li style="margin-left:0.8rem"><a href="#3-4-参数污染">3.4 参数污染</a></li><li style="margin-left:0.8rem"><a href="#3-5-小结">3.5 小结</a></li><li style="margin-left:0.0rem"><a href="#4-规则层面的绕过">4. 规则层面的绕过</a></li><li style="margin-left:0.8rem"><a href="#4-1-SQL注入绕过">4.1. SQL注入绕过</a></li><li style="margin-left:0.8rem"><a href="#4-2-文件包含">4.2 文件包含</a></li><li style="margin-left:0.0rem"><a href="#5-总结">5. 总结</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：Web 安全 / WAF与信息泄露</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">Web 安全</span><span class="tag">WAF与信息泄露</span><span class="tag">DNS</span><span class="tag">MySQL</span><span class="tag">PHP</span><span class="tag">SQL注入</span><span class="tag">SSRF</span><span class="tag">WAF</span></li>
+          <li><span>来源：01-Web安全/07-WAF与信息泄露/Bypass-WAF/bypass waf（四个层次）.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWAF%E4%B8%8E%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%2BDNS%2BMySQL-1.%20%E6%9E%B6%E6%9E%84%E5%B1%82%E7%BB%95%E8%BF%87WAF.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>1. 架构层绕过WAF。本文属于Web 安全 / WAF与信息泄露，绕过WAF的相关技术研究是WAF攻防研究非常重要的一部分，也是最有趣的部分，所以我在写WAF攻防时先写攻击部分。还是那句老话“不知攻焉知防”，如果连绕过WAF方法都不知道，怎么保证WAF能保护后端服务的安全。在我看来，WAF的绕过技术的研究将不断…</p>
+      <p>关键词：Web 安全、WAF与信息泄露、DNS、MySQL、PHP、SQL注入、SSRF、WAF、Web 安全 / WAF与信息泄露、1. 架构层绕过WAF</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-005d48a1af8b.html"><small>上一篇</small>1. 描述</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c9deef603a2.html"><small>下一篇</small>1.网络路径扫描</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1159d873c58f.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

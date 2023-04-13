@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>CC攻击｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="CC攻击。本文属于安全与堡垒机 / 高级安全，CC(ChallengeCollapsar，挑战黑洞)攻击是 DDoS 攻击的一种类型，使用代理服务器向受害服务器发送大量貌似合法的请求。CC 根据其工具命名，攻击者使用代理机制，利用众多广泛可用的免费代理服务器发动 DDoS 攻击。许多免费代理服务器支持匿名模式，这…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，Nginx，知识笔记，安全与堡垒机 / 高级安全，CC攻击">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dbccd7308dab.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dbccd7308dab.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BNginx%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-CC%E6%94%BB%E5%87%BB.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="CC攻击">
+  <meta property="og:description" content="CC攻击。本文属于安全与堡垒机 / 高级安全，CC(ChallengeCollapsar，挑战黑洞)攻击是 DDoS 攻击的一种类型，使用代理服务器向受害服务器发送大量貌似合法的请求。CC 根据其工具命名，攻击者使用代理机制，利用众多广泛可用的免费代理服务器发动 DDoS 攻击。许多免费代理服务器支持匿名模式，这…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dbccd7308dab.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="CC攻击">
+  <meta name="twitter:description" content="CC攻击。本文属于安全与堡垒机 / 高级安全，CC(ChallengeCollapsar，挑战黑洞)攻击是 DDoS 攻击的一种类型，使用代理服务器向受害服务器发送大量貌似合法的请求。CC 根据其工具命名，攻击者使用代理机制，利用众多广泛可用的免费代理服务器发动 DDoS 攻击。许多免费代理服务器支持匿名模式，这…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dbccd7308dab.html#article","headline":"CC攻击","description":"CC攻击。本文属于安全与堡垒机 / 高级安全，CC(ChallengeCollapsar，挑战黑洞)攻击是 DDoS 攻击的一种类型，使用代理服务器向受害服务器发送大量貌似合法的请求。CC 根据其工具命名，攻击者使用代理机制，利用众多广泛可用的免费代理服务器发动 DDoS 攻击。许多免费代理服务器支持匿名模式，这…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","Nginx","知识笔记","安全与堡垒机 / 高级安全","CC攻击"],"wordCount":2008,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dbccd7308dab.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dbccd7308dab.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"CC攻击","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dbccd7308dab.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>CC攻击</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>CC攻击</h1>
+      <p class="lede">CC攻击。本文属于安全与堡垒机 / 高级安全，CC(ChallengeCollapsar，挑战黑洞)攻击是 DDoS 攻击的一种类型，使用代理服务器向受害服务器发送大量貌似合法的请求。CC 根据其工具命名，攻击者使用代理机制，利用众多广泛可用的免费代理服务器发动 DDoS 攻击。许多免费代理服务器支持匿名模式，这…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,008 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="什么是CC攻击">什么是CC攻击</h2>
+<p>CC(ChallengeCollapsar，挑战黑洞)攻击是 <strong><a href="https://haicoder.net/note/architecture/struct-ddos.html" rel="noopener noreferrer">DDoS</a></strong> 攻击的一种类型，使用代理服务器向受害服务器发送大量貌似合法的请求。CC 根据其工具命名，攻击者使用代理机制，利用众多广泛可用的免费代理服务器发动 DDoS 攻击。许多免费代理服务器支持匿名模式，这使追踪变得非常困难。</p>
+<h2 id="什么是DDoS攻击">什么是DDoS攻击</h2>
+<p>DDoS 攻击就是分布式的拒绝服务攻击，DDoS 攻击手段是在传统的 DoS 攻击基础之上产生的一类攻击方式。单一的 DoS 攻击一般是采用一对一方式的，随着计算机与网络技术的发展，DoS 攻击的困难程度加大了。于是就产生了 DDoS 攻击，它的原理就很简单：计算机与网络的处理能力加大了 10 倍，用一台攻击机来攻击不再能起作用，那么 DDoS 就是利用更多的傀儡机来发起进攻，以比从前更大的规模来进攻受害者。常用的 DDoS 软件有：LOIC。</p>
+<h2 id="CC攻击原理">CC攻击原理</h2>
+<p>CC 攻击的原理是攻击者通过控制某些主机不停地发大量数据包给对方服务器造成服务器资源耗尽，一直到宕机崩溃。CC 主要是用来攻击页面的，每个人都有这样的体验：当一个网页访问的人数特别多的时候，打开网页就慢了，CC 就是模拟多个用户(多少线程就是多少用户)不停地进行访问那些需要大量数据操作(就是需要大量 CPU 时间)的页面，造成服务器资源的浪费，CPU 长时间处于 100%，永远都有处理不完的连接直至就网络拥塞，导致正常的访问被中止。</p>
+<h2 id="CC攻击特点">CC攻击特点</h2>
+<ol>
+<li>CC 攻击来的 IP 都是真实的，分散的；</li>
+<li>CC 攻击的数据包都是正常的数据包；</li>
+<li>CC 攻击的请求，全都是有效的请求，无法拒绝的请求；</li>
+<li>因为 cc 攻击的是网页，服务器什么都可以连接，ping 也没问题，但是网页就是访问不了；</li>
+</ol>
+<h2 id="CC攻击种类">CC攻击种类</h2>
+<p>CC 攻击的种类有三种，直接攻击，代理攻击，僵尸网络攻击，直接攻击主要针对有重要缺陷的 WEB 应用程序，一般说来是程序写的有问题的时候才会出现这种情况，比较少见。</p>
+<p>僵尸网络攻击有点类似于 DDOS 攻击了，从 WEB 应用程序层面上已经无法防御，所以代理攻击是 CC 攻击者一般会操作一批代理服务器，比方说 100 个代理，然后每个代理同时发出 10 个请求，这样 WEB 服务器同时收到 1000 个并发请求的，并且在发出请求后，立刻断掉与代理的连接，避免代理返回的数据将本身的带宽堵死，而不能发动再次请求，这时 WEB 服务器会将响应这些请求的进程进行队列，数据库服务器也同样如此，这样一来，正常请求将会被排在很后被处理，就象本来你去食堂吃饭时，一般只有不到十个人在排队，今天前面却插了一千个人，那么轮到你的机会就很小很小了，这时就出现页面打开极其缓慢或者白屏。</p>
+<h2 id="CC攻击的成本">CC攻击的成本</h2>
+<p>攻击的方式有 2 种,有肉鸡 CC 攻击和代理 CC 攻击,前者的成本更高,但是更容易模拟真实用户,伪造合法数据请求,但是攻击者需要控制大量的肉鸡来发动攻击,后者只需要单台或多台服务器,加上扫描出来的 IP,通过工具代理,模拟不同 IP 疯狂请求目标站点,造成目标站点访问终端。</p>
+<p>肉鸡 CC 攻击成本:不太好说,要根据肉鸡数量规模来定,但是比代理 CC 攻击更难防御。</p>
+<p>代理 CC 攻击成本:可以通过自己自己扫描,也可以通过 6 元/天 30 元/周的第三方代理提取站点,进行无限次的提取。</p>
+<p>打手攻击成本:在一些第三方论坛上,第三方专业打手甚至通过了 50 元/小时攻击,每小时保底打出 1G 的流量。</p>
+<p>根据上面的整体情况来看,发动一场 CC 攻击的技术手段不仅非常容易,而且攻击成本最低只需要几块钱,就能达到让目标站点进行瘫痪的效果,所以在这类攻击的本质:便是双方攻防资源的对抗,一方要不断囤积大量资源具备超大流量输出，一方要不断建设能够抗住超大流量的带宽,就像一场战争一样,要实时对对方进行侦查和防御。</p>
+<h2 id="CC攻击防御策略">CC攻击防御策略</h2>
+<p>确定 Web 服务器正在或者曾经遭受 CC 攻击，那如何进行有效的防范呢?</p>
+<h3 id="取消域名绑定">取消域名绑定</h3>
+<p>一般 cc 攻击都是针对网站的域名进行攻击，比如我们的网站域名是 <code>[www.haicoder.net](http://www.haicoder.net)</code>，那么攻击者就在攻击工具中设定攻击对象为该域名然后实施攻击。对于这样的攻击我们的措施是在 IIS 上取消这个域名的绑定，让 CC 攻击失去目标。</p>
+<h3 id="域名欺骗解析">域名欺骗解析</h3>
+<p>如果发现针对域名的 CC 攻击，我们可以把被攻击的域名解析到 203.0.113.1 这个地址上。我们知道 203.0.113.1 是本地回环 IP 是用来进行网络测试的，如果把被攻击的域名解析到这个 IP 上，就可以实现攻击者自己攻击自己的目的，这样他再多的肉鸡或者代理也会宕机，让其自作自受。</p>
+<p>另外，当我们的 Web 服务器遭受 CC 攻击时把被攻击的域名解析到国家有权威的政府网站或者是网警的网站，让其网警来收拾他们。现在一般的 Web 站点都是利用类似 “新网” 这样的服务商提供的动态域名解析服务，大家可以登录进去之后进行设置。</p>
+<h3 id="更改Web端口">更改Web端口</h3>
+<p>一般情况下 Web 服务器通过 80 端口对外提供服务，因此攻击者实施攻击就以默认的 80 端口进行攻击，所以，我们可以修改 Web 端口达到防 CC 攻击的目的。</p>
+<h3 id="屏蔽IP">屏蔽IP</h3>
+<p>我我们可以通过防火墙或者 <strong>nginx server</strong> 调整单个 IP 的限制连接数,及每分钟最大请求次数,设置一定的阀值,动态调整,当某 IP 超过指定阀值后,进行拦截或黑名单处理,让目标 IP 无法到底应用层,影响正常用户使用,在网络层就进行屏蔽处理。</p>
+<h3 id="扩充服务器资源">扩充服务器资源</h3>
+<p>在手头资金预算足够的情况下,我们可以对服务器群组进行水平和垂直扩充,来提高服务器对 CC 攻击的承载能力。水平扩充:升级服务器硬件,如:升级 CPU、添加内存、添加 SSD 固态硬盘,扩充带宽等。</p>
+<p>垂直扩充:增加服务器数量来提升承载能力。</p>
+<h2 id="CC攻击总结">CC攻击总结</h2>
+<p>CC(ChallengeCollapsar，挑战黑洞)攻击是 DDoS 攻击的一种类型，使用代理服务器向受害服务器发送大量貌似合法的请求。CC 根据其工具命名，攻击者使用代理机制，利用众多广泛可用的免费代理服务器发动 DDoS 攻击。许多免费代理服务器支持匿名模式，这使追踪变得非常困难。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#什么是CC攻击">什么是CC攻击</a></li><li style="margin-left:0.0rem"><a href="#什么是DDoS攻击">什么是DDoS攻击</a></li><li style="margin-left:0.0rem"><a href="#CC攻击原理">CC攻击原理</a></li><li style="margin-left:0.0rem"><a href="#CC攻击特点">CC攻击特点</a></li><li style="margin-left:0.0rem"><a href="#CC攻击种类">CC攻击种类</a></li><li style="margin-left:0.0rem"><a href="#CC攻击的成本">CC攻击的成本</a></li><li style="margin-left:0.0rem"><a href="#CC攻击防御策略">CC攻击防御策略</a></li><li style="margin-left:0.8rem"><a href="#取消域名绑定">取消域名绑定</a></li><li style="margin-left:0.8rem"><a href="#域名欺骗解析">域名欺骗解析</a></li><li style="margin-left:0.8rem"><a href="#更改Web端口">更改Web端口</a></li><li style="margin-left:0.8rem"><a href="#屏蔽IP">屏蔽IP</a></li><li style="margin-left:0.8rem"><a href="#扩充服务器资源">扩充服务器资源</a></li><li style="margin-left:0.0rem"><a href="#CC攻击总结">CC攻击总结</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">Nginx</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68657546.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BNginx%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-CC%E6%94%BB%E5%87%BB.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>CC攻击。本文属于安全与堡垒机 / 高级安全，CC(ChallengeCollapsar，挑战黑洞)攻击是 DDoS 攻击的一种类型，使用代理服务器向受害服务器发送大量貌似合法的请求。CC 根据其工具命名，攻击者使用代理机制，利用众多广泛可用的免费代理服务器发动 DDoS 攻击。许多免费代理服务器支持匿名模式，这…</p>
+      <p>关键词：安全与堡垒机、高级安全、Nginx、知识笔记、安全与堡垒机 / 高级安全、CC攻击</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ae33a45cedb4.html"><small>上一篇</small>C18 K8</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1a225f597e6c.html"><small>下一篇</small>CDN融合方案</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dbccd7308dab.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

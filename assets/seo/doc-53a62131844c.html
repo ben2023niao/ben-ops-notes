@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>使用简单方法解决SNI阻断问题｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="使用简单方法解决SNI阻断问题。本文属于安全与堡垒机 / 高级安全，https://gwliang.com/2020/02/21/remove-sni-block/ TLS 是一个伟大的技术，它确保了网络传输的内容不被中间人篡改。现在越来越多的网站正在使用 HTTPS（即 HTTP over TLS）来保护网页内…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，Linux，Windows，DNS，权限管理，知识笔记，安全与堡垒机 / 高级安全，使用简单方法解决SNI阻断问题">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53a62131844c.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53a62131844c.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2BWindows-%E4%BD%BF%E7%94%A8%E7%AE%80%E5%8D%95%E6%96%B9%E6%B3%95%E8%A7%A3%E5%86%B3SNI%E9%98%BB%E6%96%AD%E9%97%AE%E9%A2%98.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="使用简单方法解决SNI阻断问题">
+  <meta property="og:description" content="使用简单方法解决SNI阻断问题。本文属于安全与堡垒机 / 高级安全，https://gwliang.com/2020/02/21/remove-sni-block/ TLS 是一个伟大的技术，它确保了网络传输的内容不被中间人篡改。现在越来越多的网站正在使用 HTTPS（即 HTTP over TLS）来保护网页内…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53a62131844c.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/2747626b7e06ddcf7f.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="使用简单方法解决SNI阻断问题">
+  <meta name="twitter:description" content="使用简单方法解决SNI阻断问题。本文属于安全与堡垒机 / 高级安全，https://gwliang.com/2020/02/21/remove-sni-block/ TLS 是一个伟大的技术，它确保了网络传输的内容不被中间人篡改。现在越来越多的网站正在使用 HTTPS（即 HTTP over TLS）来保护网页内…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/2747626b7e06ddcf7f.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53a62131844c.html#article","headline":"使用简单方法解决SNI阻断问题","description":"使用简单方法解决SNI阻断问题。本文属于安全与堡垒机 / 高级安全，https://gwliang.com/2020/02/21/remove-sni-block/ TLS 是一个伟大的技术，它确保了网络传输的内容不被中间人篡改。现在越来越多的网站正在使用 HTTPS（即 HTTP over TLS）来保护网页内…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","Linux","Windows","DNS","权限管理","知识笔记","安全与堡垒机 / 高级安全","使用简单方法解决SNI阻断问题"],"wordCount":1480,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53a62131844c.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53a62131844c.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/2747626b7e06ddcf7f.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"使用简单方法解决SNI阻断问题","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53a62131844c.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>使用简单方法解决SNI阻断问题</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>使用简单方法解决SNI阻断问题</h1>
+      <p class="lede">使用简单方法解决SNI阻断问题。本文属于安全与堡垒机 / 高级安全，https://gwliang.com/2020/02/21/remove-sni-block/ TLS 是一个伟大的技术，它确保了网络传输的内容不被中间人篡改。现在越来越多的网站正在使用 HTTPS（即 HTTP over TLS）来保护网页内…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,480 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p><a href="https://gwliang.com/2020/02/21/remove-sni-block/" rel="noopener noreferrer">https://gwliang.com/2020/02/21/remove-sni-block/</a></p>
+<h2 id="SNI阻断技术简单介绍">SNI阻断技术简单介绍</h2>
+<p>TLS 是一个伟大的技术，它确保了网络传输的内容不被中间人篡改。现在越来越多的网站正在使用 HTTPS（即 HTTP over TLS）来保护网页内容。与此同时，TLS 设计中的一个缺陷，却使得阻断 TLS 连接变得可控。</p>
+<p>在建立新的 TLS 连接时，客户端（如浏览器）发出的第一个握手包（称为 Client Hello）中，包含了想要访问的域名信息（称为 <code>SNI，Server Name Indication</code>）。某些服务器（比如 CDN）会同时支持多个域名，在加密传输之前，它需要知道客户端访问的是哪个域名。于是 SNI 必须以明文的方式传输。并且由于浏览器并不知道服务器是否需要 SNI，浏览器会对所有的 TLS 握手都加入 SNI。</p>
+<p>于是，大家都懂的。根据黑名单，某些防火墙对于 TLS 连接可以进行精确地阻断。</p>
+<p>目前 Mozilla 和 CLF 主导了一项对 SNI 的改进方案，称为 <code>Encrypted SNI (ESNI)</code>。这个提案还在早期的讨论状态中，目测还需要两年时间才可以定稿和推广。现阶段只有 Firefox Nightly（客户端），以及 CLF 和 Wikipedia（网站）支持初代的 ESNI。</p>
+<p>在 ESNI 正式推广之前，我们还需要其它的技术来避开对于 TLS 连接的探测。</p>
+<p>目前我们还没有发现通用的解决方案。有一个较为通用的，但部署起来略麻烦的方案称为 <code>Domain Fronting</code> (<a href="https://zh.wikipedia.org/wiki/域前置" rel="noopener noreferrer">域前置</a>，又叫域名幌子)。它的原理简单来说是这样的：部分服务器允许 TLS 连接说自己需要域名 A，但之后的 HTTP 协议说自己需要域名 B。或者服务器压根就不看 SNI 的信息。在这种情况下，对于一个黑名单的域名， 我们在建立 TLS 的时候，可以选用一个不在黑名单的域名，绕过对 TLS 连接的监测。</p>
+<p>当然，它的缺点是，依赖于服务器行为。也就是说，每个不同的站点，可能都需要不同的策略（域名）。</p>
+<p>举两个例子：</p>
+<p>P 站的服务器实际上是不看 SNI 的。在建立 TLS 连接的时候，即使不携带 SNI，也可以正常进行 HTTPS 访问。
+<a href="http://zh.wikipedia.org" rel="noopener noreferrer">zh.wikipedia.org</a> 是一个黑名单域名，但同站点的 <a href="https://www.wikipedia.org/" rel="noopener noreferrer">www.wikipedia.org</a> 就不是。我们在建立 TLS 连接时，使用 SNI = <a href="https://www.wikipedia.org/" rel="noopener noreferrer">www.wikipedia.org</a> ，之后的 HTTP 请求依然可以正常连到 <a href="http://zh.wikipedia.org" rel="noopener noreferrer">zh.wikipedia.org</a>。
+顺便说一句，<code>Domain Fronting</code> 实际上不是一个合理的用法，网站完全可以<strong>拒绝这类连接</strong>，比如 Google 和 Amazon 就主动在自己的所有服务中拒绝这项技术。即使这样，<code>Domain Fronting</code> 依然是在 ESNI 之前最好的绕过技术。</p>
+<p>下面我们将使用一个工具来解决SNI阻断问题</p>
+<h2 id="过程">过程</h2>
+<p>在看此教程之前，请确保你已经安装了<code>OpenSSL</code>，具体安装过程不再详述，可以在 CMD/Powershell/bash/Terminal 中输入<code>openssl</code>,如果出现<code>OpenSSL&gt;</code>字样，说明已经安装</p>
+<h3 id="创建自签名CA证书">创建自签名CA证书</h3>
+<p>使用 CMD/Powershell/bash/Terminal 等命令行工具打开任意文件夹，依次输入下面的命令
+（其中的openssl.cnf可以在openssl的安装处找到，如果没有可以下载<a href="https://cdn.jsdelivr.net/gh/gaowanliang/gitment-store/openssl.cnf" rel="noopener noreferrer">这个</a>，放在命令行工具打开的文件夹下)</p>
+<p>| <code>1 2 3 4 5 6 7 8</code> | <code># 生成根证书私钥(key文件) openssl genrsa -out ca.key 2048 # 生成根证书签发申请文件(csr文件，申请过程可一路回车) openssl req -new -key ca.key -out ca.csr -config ./openssl.cnf # 自签发根证书(crt文件) openssl x509 -req -days 3650 -in ca.csr -signkey ca.key -out ca.crt # 生成pem格式证书 cat ca.crt ca.key &gt; ca.pem</code> |</p>
+<p>| --- | --- |</p>
+<p>Windows下可以直接打开ca.crt文件并安装证书，Linux等系统请自行根据版本进行安装。还可以通过浏览器来进行安装（系统直接安装和浏览器安装二选一），这里以Chromium系浏览器为例。</p>
+<p>在设置中搜索证书：
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/2747626b7e06ddcf7f.png"/></p>
+<p>点击管理证书后面的按钮，并找到“受信任的根证书颁发机构”：
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/42c8d274b5eee0942b.png"/></p>
+<p>导入刚才的ca.crt即可，之后Windows系统需要重启才能使证书生效，Linux请根据实际情况进行操作。</p>
+<h3 id="通过工具解决SNI阻断">通过工具解决SNI阻断</h3>
+<blockquote>
+<p>下载地址 <a href="https://github.com/bypass-GFW-SNI/main/releases" rel="noopener noreferrer">https://github.com/bypass-GFW-SNI/main/releases</a></p>
+<p>或使用这个地址 <a href="https://www.lanzous.com/b0bec39pa" rel="noopener noreferrer">https://www.lanzous.com/b0bec39pa</a> 密码:hwmy</p>
+</blockquote>
+<p>根据你的系统进行下载，Linux系统需要给文件777权限</p>
+<p>同时下载这个文件 <a href="https://www.lanzous.com/i9jthcb" rel="noopener noreferrer">https://www.lanzous.com/i9jthcb</a></p>
+<p>将下载的文件放入刚才生成证书的文件夹，使用命命令行工具执行下面的命令</p>
+<p>| <code>1 2 3 4</code> | <code># Windows .\bypass-v1.2-windows-amd64.exe -c .\ca.pem -k .\ca.key -l .\domain.conf # Linux  .\bypass-v1.2-linux-amd64 -c .\ca.pem -k .\ca.key -l .\domain.conf</code> |</p>
+<p>| --- | --- |</p>
+<p>如果提示<code>"listen tcp [::1]:443: bind: An attempt was made to access a socket in a way forbidden by its access permissions."</code>则是443端口被占用，请自行搜索解决</p>
+<h3 id="最后设置">最后设置</h3>
+<p>以下两个方法二选一，都可以达到目的</p>
+<ul>
+<li>将本机的DNS设置为 203.0.113.1 设置方法请自行搜索解决</li>
+<li>设置hosts 可以下载 <a href="https://cdn.jsdelivr.net/gh/googlehosts/hosts/hosts-files/hosts" rel="noopener noreferrer">这个</a> 文件，用记事本打开，搜索相关网站（如pixiv等），将前面的IP改为 203.0.113.1，效果如下：</li>
+</ul>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/22cd9c19dd373c6905.png"/></p>
+<p>保存，然后Windows需要替换<code>C:/WINDOWS/system32/drivers/etc/hosts</code>这个文件为刚刚改动的文件，Linux需要替换<code>/etc/hosts</code>这个文件为刚刚改动的文件，之后Windows可以在命令行工具中执行<code>DC02onfig /flushdns</code>刷新dns缓存，Linux需要执行<code>/etc/init.d/networking restart</code>重启网络，之后可以通过浏览器连接某些网站（如p站）来测试效果。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#SNI阻断技术简单介绍">SNI阻断技术简单介绍</a></li><li style="margin-left:0.0rem"><a href="#过程">过程</a></li><li style="margin-left:0.8rem"><a href="#创建自签名CA证书">创建自签名CA证书</a></li><li style="margin-left:0.8rem"><a href="#通过工具解决SNI阻断">通过工具解决SNI阻断</a></li><li style="margin-left:0.8rem"><a href="#最后设置">最后设置</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">Linux</span><span class="tag">Windows</span><span class="tag">DNS</span><span class="tag">权限管理</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/66980673.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2BWindows-%E4%BD%BF%E7%94%A8%E7%AE%80%E5%8D%95%E6%96%B9%E6%B3%95%E8%A7%A3%E5%86%B3SNI%E9%98%BB%E6%96%AD%E9%97%AE%E9%A2%98.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>使用简单方法解决SNI阻断问题。本文属于安全与堡垒机 / 高级安全，https://gwliang.com/2020/02/21/remove-sni-block/ TLS 是一个伟大的技术，它确保了网络传输的内容不被中间人篡改。现在越来越多的网站正在使用 HTTPS（即 HTTP over TLS）来保护网页内…</p>
+      <p>关键词：安全与堡垒机、高级安全、Linux、Windows、DNS、权限管理、知识笔记、安全与堡垒机 / 高级安全、使用简单方法解决SNI阻断问题</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a4dbdee61c12.html"><small>上一篇</small>使用微信官方发图教程</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-73d57abe2b54.html"><small>下一篇</small>使用说明</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53a62131844c.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

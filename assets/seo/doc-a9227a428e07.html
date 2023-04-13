@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>流量劫持 —— 浮层登录框的隐患｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="流量劫持 —— 浮层登录框的隐患。本文属于安全与堡垒机 / 高级安全，在之前的文章 流量劫持危害 详细讲解了 HTTP 的高危性，以至于重要的操作都使用 HTTPS 协议，来保障流量在途中的安全。 这是最经典的登录模式。尽管主页面并没有开启 HTTPS，但登录时会跳转到一个安全页面来进行，所以整个过程仍是比较安全…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，XSS，知识笔记，安全与堡垒机 / 高级安全，流量劫持 —— 浮层登录框的隐患">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a9227a428e07.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a9227a428e07.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BXSS%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E6%B5%81%E9%87%8F%E5%8A%AB%E6%8C%81%20%E2%80%94%E2%80%94%20%E6%B5%AE%E5%B1%82%E7%99%BB%E5%BD%95%E6%A1%86%E7%9A%84%E9%9A%90%E6%82%A3.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="流量劫持 —— 浮层登录框的隐患">
+  <meta property="og:description" content="流量劫持 —— 浮层登录框的隐患。本文属于安全与堡垒机 / 高级安全，在之前的文章 流量劫持危害 详细讲解了 HTTP 的高危性，以至于重要的操作都使用 HTTPS 协议，来保障流量在途中的安全。 这是最经典的登录模式。尽管主页面并没有开启 HTTPS，但登录时会跳转到一个安全页面来进行，所以整个过程仍是比较安全…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a9227a428e07.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/a95d754cf0388d6a3a.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="流量劫持 —— 浮层登录框的隐患">
+  <meta name="twitter:description" content="流量劫持 —— 浮层登录框的隐患。本文属于安全与堡垒机 / 高级安全，在之前的文章 流量劫持危害 详细讲解了 HTTP 的高危性，以至于重要的操作都使用 HTTPS 协议，来保障流量在途中的安全。 这是最经典的登录模式。尽管主页面并没有开启 HTTPS，但登录时会跳转到一个安全页面来进行，所以整个过程仍是比较安全…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/a95d754cf0388d6a3a.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a9227a428e07.html#article","headline":"流量劫持 —— 浮层登录框的隐患","description":"流量劫持 —— 浮层登录框的隐患。本文属于安全与堡垒机 / 高级安全，在之前的文章 流量劫持危害 详细讲解了 HTTP 的高危性，以至于重要的操作都使用 HTTPS 协议，来保障流量在途中的安全。 这是最经典的登录模式。尽管主页面并没有开启 HTTPS，但登录时会跳转到一个安全页面来进行，所以整个过程仍是比较安全…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","XSS","知识笔记","安全与堡垒机 / 高级安全","流量劫持 —— 浮层登录框的隐患"],"wordCount":2043,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a9227a428e07.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a9227a428e07.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/a95d754cf0388d6a3a.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"流量劫持 —— 浮层登录框的隐患","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a9227a428e07.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>流量劫持 —— 浮层登录框的隐患</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>流量劫持 —— 浮层登录框的隐患</h1>
+      <p class="lede">流量劫持 —— 浮层登录框的隐患。本文属于安全与堡垒机 / 高级安全，在之前的文章 流量劫持危害 详细讲解了 HTTP 的高危性，以至于重要的操作都使用 HTTPS 协议，来保障流量在途中的安全。 这是最经典的登录模式。尽管主页面并没有开启 HTTPS，但登录时会跳转到一个安全页面来进行，所以整个过程仍是比较安全…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,043 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="传统的登录框">传统的登录框</h2>
+<p>在之前的文章<a href="https://www.cnblogs.com/index-html/p/traffic-hijack-2.html" rel="noopener noreferrer">流量劫持危害</a>详细讲解了 HTTP 的高危性，以至于重要的操作都使用 HTTPS 协议，来保障流量在途中的安全。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/a95d754cf0388d6a3a.png"/></p>
+<p>这是最经典的登录模式。尽管主页面并没有开启 HTTPS，但登录时会跳转到一个安全页面来进行，所以整个过程仍是比较安全的 —— 至少在登录页面是安全的。</p>
+<p>对于这种安全页面的登录模式，黑客硬要下手仍是有办法的。在之前的文章里也列举了几种最常用的方法：拦截 HTTPS 向下转型、伪造证书、跳转钓鱼网站。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/3db2b0b3b431b0960e.png"/></p>
+<p>其中转型 HTTPS 的手段最为先进，甚至一些安全意识较强的用户也时有疏忽。</p>
+<p>然而，用户的意识和知识总是在不断提升的。尤其在如今各种网上交易的时代，安全常识广泛普及，用户在账号登录时会格外留心，就像过马路时那样变得小心翼翼。</p>
+<p>久而久之，用户的火眼金睛一扫地址栏即可识别破绽。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/47a213829d59b5a30c.png"/></p>
+<p>因此，这种传统的登录模式，仍具备一定的安全性，至少能给用户提供识别真假的机会。</p>
+<h2 id="华丽的登录框">华丽的登录框</h2>
+<p>不知从何时起，人们开始热衷在网页里模仿传统应用程序的界面。无论控件、窗口还是交互体验，纷纷向着本地程序靠拢，效果越做越绚。</p>
+<p>然而华丽的背后，其本质仍是一个网页，自然掩盖不了网页的安全缺陷。</p>
+<p>当网页特效蔓延到一些重要数据的交互 —— 例如账号登录时，风险也随之产生。因为它改变了用户的使用习惯，同时也彻底颠覆了传统的意识。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/21ec2a7b20b8b13028.png"/></p>
+<p>乍一看，似乎也没什么问题。虽然未使用登录页跳转，但数据仍通过 HTTPS 传输，途中还是无法被截获。</p>
+<h2 id="HTTP-页面用-HTTPS-有意义吗">HTTP 页面用 HTTPS 有意义吗？</h2>
+<p>如果认为这类登录框没什么大问题，显然还没领悟到『流量劫持』的精髓 —— 流量不是单向的，而是有进也有出。</p>
+<p>能捕获你『出流量』的黑客，大多也有办法控制你的『入流量』。这在流量劫持<a href="https://fex.baidu.com/blog/2014/04/traffic-hijack/" rel="noopener noreferrer">第一篇</a>里也详细列举了。</p>
+<p>使用 HTTPS 确实能保障通信的安全。但在这个场合里，它只能保障『发送』的数据，对于『接收』的流量，则完全不在其保护范围内。</p>
+<p>因为整个登录框都当作『虚拟窗口』嵌套在主页面里的，因此其中的一切都在同个页面环境里。而主页面使用的仍是不安全的 HTTP 协议，所以注入的 XSS 代码能轻而易举的控制登录框。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/0d0e0474dc565dc054.png"/></p>
+<p>当然，或许你会说这只是设计缺陷。若是直接嵌入 HTTPS 登录页的 iframe 框架，那就会因同源策略而无法被 XSS 控制了。</p>
+<p>这样的改进确实能提高一些安全性，但也只是略微的。既然我们能控制主页面，里面显示什么内容完全可以由 XSS 说了算。不论什么登录框、框架页，甚至安全插件，我们都可以将其删除，用看起来完全相同的文本框代替。得到账号后，通过后台反向代理实现登录，然后通知前端脚本伪造一个登录成功的界面。</p>
+<p>所以，HTTPS 被用在 HTTP 页面里，意义就大幅下降了。</p>
+<h2 id="和-缓存投毒-配合出击">和『缓存投毒』配合出击</h2>
+<p>在流量劫持<a href="https://www.cnblogs.com/index-html/p/traffic-hijack-2.html" rel="noopener noreferrer">第二篇</a>里提到『HTTP 缓存投毒』这一概念，只要流量暂时性的被劫持，都可导致缓存长期感染。但这种攻击有个前提，必须事先找到站点下较稳定的脚本资源，做投毒的对象。</p>
+<h3 id="传统登录">传统登录</h3>
+<p>在传统的登录模式里，缓存投毒非常难以利用：</p>
+<p>HTTPS 资源显然无法被感染。</p>
+<p>而使用 HTTPS 向下转型的方案，也会因为离开劫持环境，而无法访问中间人的 HTTP 版登陆页面，导致缓存失效；或者这个真实的 HTTP 版的登录页面根本就不接受你的本地缓存，直接重定向到正常的 HTTPS 页面。</p>
+<p>因此只有在主页面上，修改链接地址，让用户跳转到钓鱼网站去登录，才能勉强利用。</p>
+<h3 id="浮层登录">浮层登录</h3>
+<p>制作一个精良的浮层登录框，需要不少的界面代码，所以经常引用 jQuery 这类通用脚本库。而这些脚本往往是长久不会修改的，因此是缓存投毒的绝好原料。</p>
+<p>所以，浮层登录框的存在，让『缓存投毒』有了绝佳的用武之地。</p>
+<p>再之前的文章 WiFi流量劫持 —— JS脚本缓存投毒，演示了如何利用 <a href="http://www.163.com" rel="noopener noreferrer">www.163.com</a> 下的某个长缓存脚本进行投毒，最终利用网易的浮层登录框获取账号。尽管网易也使用 HTTPS 传输账号数据，但在流量攻击面前不堪一击。</p>
+<p>尽管这种登录模式风险重重，但最近百度也升级成浮层登录框，并且还是所有产品。所以，我们再次尝试那套的古老方法，看看在如今是否仍能发起攻击。</p>
+<p>我们选几个最常用的产品线，进行一次缓存扫描：</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/60f11efb06ebc445ee.png"/></p>
+<p>果然，每个产品线里都有长期未修改、并且缓存很久的脚本库。</p>
+<p>接着开启我们的钓鱼热点，让前来连接的用户，访问任何一个页面都能中毒。</p>
+<p>为了让钓鱼热点更隐蔽，这次我们不再使用路由器，而是利用报废的安卓手机（下一篇文章详细讲解如何实现）。</p>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/1417002a28d73fb560.png"/>
+为了不影响附近办公，本文就不演示同名热点钓鱼了，所以随便取了个名字。</p>
+<p>接着让『受害者』来连一下我们的热点：
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/c67227da5f8b504bb0.png"/></p>
+<p>之前正好开着网页，所以很快收到了 HTTP 请求。我们在任何网页里注入 XSS，进行缓存投毒。</p>
+<p>（由于原理和之前讲一样，所以这里就省略步骤了）</p>
+<p>然后重启电脑，连上正常的 WiFi（模拟用户回到安全的场合）。</p>
+<p>打开 <a href="http://tiebai.baidu.com" rel="noopener noreferrer">tiebai.baidu.com</a>，一切正常。<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/5cb5a9ab789e482e9c.jpg"/>
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/5dfb5306009d74e3f7.png"/></p>
+<p>开始登录了。。。</p>
+<p>看看这种浮层登录框，能否躲避我们的从沉睡中唤起的 XSS 脚本：
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/ca1b87153fcd407f6d.png"/></p>
+<p>奇迹依然发生！</p>
+<p>由于之前有过详细的原理讲解，因此这里就不再累述了。不过在实战中，缓存投毒+非安全页面登录框，是批量获取明文账号的最理想手段。</p>
+<h2 id="不可逆的记忆">不可逆的记忆</h2>
+<p>如果现在再将登录模式换回传统的，还来得及吗？显然，为时已晚。</p>
+<p>当网站第一次从传统登录，升级到浮层登录时，用户大多不会立即输入，而是『欣赏』下这个新版本的创意。确认不是病毒广告弹出的窗口，而是真的官方设计的，才开始登录。</p>
+<p>当用户多次使用浮层登录框之后，慢慢也就接受了这种新模式。</p>
+<p>即使未来，网站取消了浮层登录，黑客使用 XSS 创建一个类似的浮层，用户仍会毫不犹豫的输入账号。因为在他们的记忆里，官方就曾使用过，仍然对其保留着对其信任度。</p>
+<h2 id="安全性升级">安全性升级</h2>
+<p>既然这个过程是不可逆的，撤回传统模式意义也不大。事实上，使用浮层的用户体验还是不错的，对于不了解安全性的用户来说，还是喜欢华丽的界面。</p>
+<p>要保留体验，又得考虑安全性，最好的解决方案就是将所有的页面都使用 HTTPS，将站点武装到牙齿，不留一丝安全缝隙。这也是未来网站的趋势。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#传统的登录框">传统的登录框</a></li><li style="margin-left:0.0rem"><a href="#华丽的登录框">华丽的登录框</a></li><li style="margin-left:0.0rem"><a href="#HTTP-页面用-HTTPS-有意义吗">HTTP 页面用 HTTPS 有意义吗？</a></li><li style="margin-left:0.0rem"><a href="#和-缓存投毒-配合出击">和『缓存投毒』配合出击</a></li><li style="margin-left:0.8rem"><a href="#传统登录">传统登录</a></li><li style="margin-left:0.8rem"><a href="#浮层登录">浮层登录</a></li><li style="margin-left:0.0rem"><a href="#不可逆的记忆">不可逆的记忆</a></li><li style="margin-left:0.0rem"><a href="#安全性升级">安全性升级</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">XSS</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68654451.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BXSS%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E6%B5%81%E9%87%8F%E5%8A%AB%E6%8C%81%20%E2%80%94%E2%80%94%20%E6%B5%AE%E5%B1%82%E7%99%BB%E5%BD%95%E6%A1%86%E7%9A%84%E9%9A%90%E6%82%A3.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>流量劫持 —— 浮层登录框的隐患。本文属于安全与堡垒机 / 高级安全，在之前的文章 流量劫持危害 详细讲解了 HTTP 的高危性，以至于重要的操作都使用 HTTPS 协议，来保障流量在途中的安全。 这是最经典的登录模式。尽管主页面并没有开启 HTTPS，但登录时会跳转到一个安全页面来进行，所以整个过程仍是比较安全…</p>
+      <p>关键词：安全与堡垒机、高级安全、XSS、知识笔记、安全与堡垒机 / 高级安全、流量劫持 —— 浮层登录框的隐患</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3243e9882096.html"><small>上一篇</small>流程规范</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a44c1e7459c3.html"><small>下一篇</small>流量劫持是如何产生的？</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a9227a428e07.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

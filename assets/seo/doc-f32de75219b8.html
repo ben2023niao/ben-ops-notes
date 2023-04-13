@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>0x01 身份认证安全｜Web 安全 / SSRF与业务逻辑｜BEN.OPS</title>
+  <meta name="description" content="0x01 身份认证安全。本文属于Web 安全 / SSRF与业务逻辑，在没有验证码限制或者一次验证码可以多次使用的地方，使用已知用户对密码进行暴力破解或者用一个通用密码对用户进行暴力破解。 htpwdScan 撞库爆破必备 URL: https://github.com/lijiejie/htpwdScan">
+  <meta name="keywords" content="Web 安全，SSRF与业务逻辑，Java，XSS，CSRF，漏洞，权限管理，知识笔记，Web 安全 / SSRF与业务逻辑，0x01 身份认证安全">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f32de75219b8.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f32de75219b8.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BSSRF%E4%B8%8E%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%2BJava%2BXSS-0x01%20%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81%E5%AE%89%E5%85%A8.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="0x01 身份认证安全">
+  <meta property="og:description" content="0x01 身份认证安全。本文属于Web 安全 / SSRF与业务逻辑，在没有验证码限制或者一次验证码可以多次使用的地方，使用已知用户对密码进行暴力破解或者用一个通用密码对用户进行暴力破解。 htpwdScan 撞库爆破必备 URL: https://github.com/lijiejie/htpwdScan">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f32de75219b8.html">
+  <meta property="article:published_time" content="2023-04-14T16:00:00">
+  <meta property="article:modified_time" content="2023-04-14 16:00">
+  <meta property="article:section" content="Web 安全 / SSRF与业务逻辑">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="0x01 身份认证安全">
+  <meta name="twitter:description" content="0x01 身份认证安全。本文属于Web 安全 / SSRF与业务逻辑，在没有验证码限制或者一次验证码可以多次使用的地方，使用已知用户对密码进行暴力破解或者用一个通用密码对用户进行暴力破解。 htpwdScan 撞库爆破必备 URL: https://github.com/lijiejie/htpwdScan">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f32de75219b8.html#article","headline":"0x01 身份认证安全","description":"0x01 身份认证安全。本文属于Web 安全 / SSRF与业务逻辑，在没有验证码限制或者一次验证码可以多次使用的地方，使用已知用户对密码进行暴力破解或者用一个通用密码对用户进行暴力破解。 htpwdScan 撞库爆破必备 URL: https://github.com/lijiejie/htpwdScan","datePublished":"2023-04-14T16:00:00","dateModified":"2023-04-14 16:00","inLanguage":"zh-CN","articleSection":["Web 安全","SSRF与业务逻辑"],"keywords":["Web 安全","SSRF与业务逻辑","Java","XSS","CSRF","漏洞","权限管理","知识笔记","Web 安全 / SSRF与业务逻辑","0x01 身份认证安全"],"wordCount":2665,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f32de75219b8.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f32de75219b8.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"Web 安全 / SSRF与业务逻辑","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"0x01 身份认证安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f32de75219b8.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>Web 安全 / SSRF与业务逻辑</span> › <span>0x01 身份认证安全</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">Web 安全 / SSRF与业务逻辑</div>
+      <h1>0x01 身份认证安全</h1>
+      <p class="lede">0x01 身份认证安全。本文属于Web 安全 / SSRF与业务逻辑，在没有验证码限制或者一次验证码可以多次使用的地方，使用已知用户对密码进行暴力破解或者用一个通用密码对用户进行暴力破解。 htpwdScan 撞库爆破必备 URL: https://github.com/lijiejie/htpwdScan</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T16:00:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,665 字</span>
+        <span class="badge">8 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>原文 by 自娱</p>
+<h2 id="0x01-身份认证安全">0x01 身份认证安全</h2>
+<h3 id="1-暴力破解">1 暴力破解</h3>
+<p>在没有验证码限制或者一次验证码可以多次使用的地方，使用已知用户对密码进行暴力破解或者用一个通用密码对用户进行暴力破解。</p>
+<p>一些工具及脚本</p>
+<ul>
+<li>
+<p>Burpsuite</p>
+</li>
+<li>
+<p>htpwdScan 撞库爆破必备 URL: https://github.com/lijiejie/htpwdScan</p>
+</li>
+<li>
+<p>hydra 源码安装xhydra支持更多的协议去爆破 (可破WEB，其他协议不属于业务安全的范畴)</p>
+</li>
+</ul>
+<h3 id="2-session-cookie类">2 session &amp; cookie类</h3>
+<p>会话固定攻击：利用服务器的session不变机制，借他人之手获得认证和授权，冒充他人。</p>
+<p>Cookie仿冒：修改cookie中的某个参数可以登录其他用户。</p>
+<h3 id="3-弱加密">3 弱加密</h3>
+<p>未使用https，是功能测试点，不好利用。</p>
+<p>前端加密，用密文去后台校验，并利用smart decode可解</p>
+<h2 id="0x02-业务一致性安全">0x02 业务一致性安全</h2>
+<h3 id="1-手机号篡改">1 手机号篡改</h3>
+<p>a) 抓包修改手机号码参数为其他号码尝试，例如在办理查询页面，输入自己的号码然后抓包，修改手机号码参数为其他人号码，查看是否能查询其他人的业务。</p>
+<h3 id="2-邮箱或者用户篡改">2 邮箱或者用户篡改</h3>
+<p>a) 抓包修改用户或者邮箱参数为其他用户或者邮箱</p>
+<h3 id="3-订单id篡改">3 订单id篡改</h3>
+<p>a) 查看自己的订单id，然后修改id（加减一）查看是否能查看其它订单信息。</p>
+<h3 id="4-商品编号篡改">4 商品编号篡改</h3>
+<p>a) 例如积分兑换处，100个积分只能换商品编号为001,1000个积分只能换商品编号005，在100积分换商品的时候抓包把换商品的编号修改为005，用低积分换区高积分商品。</p>
+<h3 id="5-用户id篡改">5 用户id篡改</h3>
+<p>a) 抓包查看自己的用户id，然后修改id（加减1）查看是否能查看其它用户id信息。</p>
+<h2 id="0x03-业务数据篡改">0x03 业务数据篡改</h2>
+<h3 id="1-金额数据篡改">1 金额数据篡改</h3>
+<p>a) 抓包修改金额等字段，例如在支付页面抓取请求中商品的金额字段，修改成任意数额的金额并提交，查看能否以修改后的金额数据完成业务流程。</p>
+<h3 id="2-商品数量篡改">2 商品数量篡改</h3>
+<p>a) 抓包修改商品数量等字段，将请求中的商品数量修改成任意数额，如负数并提交，查看能否以修改后的数量完成业务流程。</p>
+<h3 id="3-最大数限制突破">3 最大数限制突破</h3>
+<p>a) 很多商品限制用户购买数量时，服务器仅在页面通过js脚本限制，未在服务器端校验用户提交的数量，通过抓包修改商品最大数限制，将请求中的商品数量改为大于最大数限制的值，查看能否以修改后的数量完成业务流程。</p>
+<h3 id="4-本地js参数修改">4 本地js参数修改</h3>
+<p>a) 部分应用程序通过Javascript处理用户提交的请求，通过修改Javascript脚本，测试修改后的数据是否影响到用户。</p>
+<h2 id="0x04-用户输入合规性">0x04 用户输入合规性</h2>
+<h3 id="1-注入测试">1 注入测试</h3>
+<h3 id="2-XSS测试">2 XSS测试</h3>
+<h3 id="3-Fuzz">3 Fuzz</h3>
+<p>a) 功能测试用的多一些，有可能一个超长特殊字符串导致系统拒绝服务或者功能缺失。（当然fuzz不单单这点用途。）</p>
+<p>b) 可能会用的工具 —— spike</p>
+<h3 id="4-其他用用户输入交互的应用漏洞">4 其他用用户输入交互的应用漏洞</h3>
+<h2 id="0x05-密码找回漏洞">0x05 密码找回漏洞</h2>
+<p>a) 密码找回逻辑测试一般流程</p>
+<p>i. 首先尝试正常密码找回流程，选择不同找回方式，记录所有数据包</p>
+<p>ii. 分析数据包，找到敏感部分</p>
+<p>iii. 分析后台找回机制所采用的验证手段</p>
+<p>iv. 修改数据包验证推测</p>
+<h2 id="0x06-验证码突破">0x06 验证码突破</h2>
+<p>验证码不单单在登录、找密码应用，提交敏感数据的地方也有类似应用，故单独分类，并进一步详情说明。</p>
+<h3 id="1-验证码暴力破解测试">1 验证码暴力破解测试</h3>
+<p>a) 使用burp对特定的验证码进行暴力破解</p>
+<h3 id="2-验证码时间-次数测试">2 验证码时间、次数测试</h3>
+<p>a) 抓取携带验证码的数据包不断重复提交，例如：在投诉建议处输入要投诉的内容信息，及验证码参数，此时抓包重复提交数据包，查看历史投诉中是否存在重复提交的参数信息。</p>
+<h3 id="3-验证码客户端回显测试">3 验证码客户端回显测试</h3>
+<p>a 当客户端有需要和服务器进行交互，发送验证码时，即可使用firefox按F12调出firebug就可看到客户端与服务器进行交互的详细信息</p>
+<h3 id="4-验证码绕过测试">4 验证码绕过测试</h3>
+<p>a) 当第一步向第二步跳转时，抓取数据包，对验证码进行篡改清空测试，验证该步骤验证码是否可以绕过。</p>
+<h3 id="5-验证码js绕过">5 验证码js绕过</h3>
+<p>a) 短信验证码验证程序逻辑存在缺陷，业务流程的第一步、第二部、第三步都是放在同一个页面里，验证第一步验证码是通过js来判断的，可以修改验证码在没有获取验证码的情况下可以填写实名信息，并且提交成功。</p>
+<h2 id="0x07-业务授权安全">0x07 业务授权安全</h2>
+<h3 id="1-未授权访问">1 未授权访问</h3>
+<p>a) 非授权访问是指用户在没有通过认证授权的情况下能够直接访问需要通过认证才能访问到的页面或文本信息。可以尝试在登录某网站前台或后台之后，将相关的页面链接复制于其他浏览器或其他电脑上进行访问，看是否能访问成功。</p>
+<h3 id="2-越权访问">2 越权访问</h3>
+<p>在web应用中，根据访问客体的不同，常见的访问控制可以分为"基于URL的访问控制"、"基于方法（method）的访问控制"和"基于数据的访问控制"。前两者都是RBAC模型的实现，即验证用户所属的角色，以决定是否授权--"垂直权限管理"；最后一个解决的是"水平权限管理"的问题，即需要有一个同角色用户到数据之间的对应关系。</p>
+<ul>
+<li>水平权限越权</li>
+</ul>
+<p>用户1--&gt; 用户2</p>
+<p>比如 bbs 回帖时修改用户id，可以用他人身份回帖，如果还存在 csrf 漏洞的话，就等于可以控制任意调查+广告利器。</p>
+<p>比如修改 cookie 中的 uin 值为其他qq号，可以越权登录。</p>
+<ul>
+<li>垂直权限越权</li>
+</ul>
+<p>普通用户--&gt; 管理员</p>
+<p>分析方法：</p>
+<ul>
+<li>用两个浏览器登录不同账户，抓包修改如 uid/cookie 中的uin 等标识用户的参数，看能否互相影响或者获取到敏感数据。</li>
+</ul>
+<p>从越权获取敏感数据的角度来看，自动化扫描可以这样实现：</p>
+<p>将cookie 中的 uin 替换成另外一个测试uin，发起请求，判断返回内容格式是否是 json or csv，且内容字段个数与原始请求一致，且返回页面除了含有测试 uin 的值，还满足含有 (email and mobilephone) or idcard or passport or account_and_passwd or  uin_and_skey or app_and_secret_account 时可判断存在敏感信息泄露漏洞。</p>
+<p>注意：如果鉴权是使用前端js 做的，可以修改请求的<strong>响应包</strong>，看是否会造成越权。</p>
+<p>参数或者路径中的uin 测试同理。</p>
+<ul>
+<li>
+<p>A 发出带用户名参数之类的请求，截获请求，把cookie 替换为 B 的cookie，如果可以修改 A 的数据则存在越权。</p>
+</li>
+<li>
+<p>修改如 user=default/admin 等标识用户权限的参数看返回页面。</p>
+</li>
+<li>
+<p>扫描后台页面做一些越权操作，看是否有权限验证。</p>
+</li>
+</ul>
+<h2 id="0x08-业务流程乱序">0x08 业务流程乱序</h2>
+<h3 id="1-顺序执行缺陷">1 顺序执行缺陷</h3>
+<p>a) 部分网站逻辑可能是先A过程后B过程然后C过程最后D过程</p>
+<p>b) 用户控制着他们给应用程序发送的每一个请求，因此能够按照任何顺序进行访问。于是，用户就从B直接进入了D过程，就绕过了C。如果C是支付过程，那么用户就绕过了支付过程而买到了一件商品。如果C是验证过程，就会绕过验证直接进入网站程序了。</p>
+<h2 id="0x09-业务接口调用安全">0x09 业务接口调用安全</h2>
+<h3 id="1-重放攻击">1 重放攻击</h3>
+<p>在短信、邮件调用业务或生成业务数据环节中（类：短信验证码，邮件验证码，订单生成，评论提交等），对其业务环节进行调用（重放）测试。如果业务经过调用（重放）后被多次生成有效的业务或数据结果</p>
+<p>a) 恶意注册</p>
+<p>b) 短信炸弹</p>
+<p>在测试的过程中，我们发现众多的金融交易平台仅在前端通过JS校验时间来控制短信发送按钮，但后台并未对发送做任何限制，导致可通过重放包的方式大量发送恶意短信</p>
+<h3 id="2-内容编辑">2 内容编辑</h3>
+<p>类似案例如下：</p>
+<p>随便输入一个手机号，点击“获取短信验证码”，并抓取数据包内容。通过分析数据包，可以发现参数sendData/insrotxt的内容有客户端控制，可以修改为攻击者想要发送的内容。</p>
+<p>将内容修改“恭喜你获得由xx银行所提供的iphone6一部，请登录http://www.xxx.com 领取，验证码为236694”并发送该数据包，手机可收到修改后的短信内容。</p>
+<h2 id="0x10-时效绕过测试">0x10 时效绕过测试</h2>
+<p>大多有利用的案例发生在验证码以及业务数据的时效范围上，在之前的总结也有人将12306的作为典型，故单独分类。</p>
+<h3 id="1-时间刷新缺陷">1 时间刷新缺陷</h3>
+<p>12306网站的买票业务是每隔5s，票会刷新一次。但是这个时间确是在本地设置的间隔。于是，在控制台就可以将这个时间的关联变量重新设置成1s或者更小，这样刷新的时间就会大幅度缩短（主要更改autoSearchTime本地参数）。</p>
+<h3 id="2-时间范围测试">2 时间范围测试</h3>
+<p>针对某些带有时间限制的业务，修改其时间限制范围，例如在某项时间限制范围内查询的业务，修改含有时间明文字段的请求并提交，查看能否绕过时间限制完成业务流程。例如通过更改查询手机网厅的受理记录的month范围，可以突破默认只能查询六个月的记录。</p>
+<h2 id="Reference">Reference</h2>
+<p><a href="https://yq.aliyun.com/articles/20476" rel="noopener noreferrer">业务安全漏洞挖掘归纳总结</a></p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#0x01-身份认证安全">0x01 身份认证安全</a></li><li style="margin-left:0.8rem"><a href="#1-暴力破解">1 暴力破解</a></li><li style="margin-left:0.8rem"><a href="#2-session-cookie类">2 session &amp; cookie类</a></li><li style="margin-left:0.8rem"><a href="#3-弱加密">3 弱加密</a></li><li style="margin-left:0.0rem"><a href="#0x02-业务一致性安全">0x02 业务一致性安全</a></li><li style="margin-left:0.8rem"><a href="#1-手机号篡改">1 手机号篡改</a></li><li style="margin-left:0.8rem"><a href="#2-邮箱或者用户篡改">2 邮箱或者用户篡改</a></li><li style="margin-left:0.8rem"><a href="#3-订单id篡改">3 订单id篡改</a></li><li style="margin-left:0.8rem"><a href="#4-商品编号篡改">4 商品编号篡改</a></li><li style="margin-left:0.8rem"><a href="#5-用户id篡改">5 用户id篡改</a></li><li style="margin-left:0.0rem"><a href="#0x03-业务数据篡改">0x03 业务数据篡改</a></li><li style="margin-left:0.8rem"><a href="#1-金额数据篡改">1 金额数据篡改</a></li><li style="margin-left:0.8rem"><a href="#2-商品数量篡改">2 商品数量篡改</a></li><li style="margin-left:0.8rem"><a href="#3-最大数限制突破">3 最大数限制突破</a></li><li style="margin-left:0.8rem"><a href="#4-本地js参数修改">4 本地js参数修改</a></li><li style="margin-left:0.0rem"><a href="#0x04-用户输入合规性">0x04 用户输入合规性</a></li><li style="margin-left:0.8rem"><a href="#1-注入测试">1 注入测试</a></li><li style="margin-left:0.8rem"><a href="#2-XSS测试">2 XSS测试</a></li><li style="margin-left:0.8rem"><a href="#3-Fuzz">3 Fuzz</a></li><li style="margin-left:0.8rem"><a href="#4-其他用用户输入交互的应用漏洞">4 其他用用户输入交互的应用漏洞</a></li><li style="margin-left:0.0rem"><a href="#0x05-密码找回漏洞">0x05 密码找回漏洞</a></li><li style="margin-left:0.0rem"><a href="#0x06-验证码突破">0x06 验证码突破</a></li><li style="margin-left:0.8rem"><a href="#1-验证码暴力破解测试">1 验证码暴力破解测试</a></li><li style="margin-left:0.8rem"><a href="#2-验证码时间-次数测试">2 验证码时间、次数测试</a></li><li style="margin-left:0.8rem"><a href="#3-验证码客户端回显测试">3 验证码客户端回显测试</a></li><li style="margin-left:0.8rem"><a href="#4-验证码绕过测试">4 验证码绕过测试</a></li><li style="margin-left:0.8rem"><a href="#5-验证码js绕过">5 验证码js绕过</a></li><li style="margin-left:0.0rem"><a href="#0x07-业务授权安全">0x07 业务授权安全</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：Web 安全 / SSRF与业务逻辑</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">Web 安全</span><span class="tag">SSRF与业务逻辑</span><span class="tag">Java</span><span class="tag">XSS</span><span class="tag">CSRF</span><span class="tag">漏洞</span><span class="tag">权限管理</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：01-Web安全/05-SSRF与业务逻辑/业务逻辑/业务安全.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BSSRF%E4%B8%8E%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%2BJava%2BXSS-0x01%20%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81%E5%AE%89%E5%85%A8.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>0x01 身份认证安全。本文属于Web 安全 / SSRF与业务逻辑，在没有验证码限制或者一次验证码可以多次使用的地方，使用已知用户对密码进行暴力破解或者用一个通用密码对用户进行暴力破解。 htpwdScan 撞库爆破必备 URL: https://github.com/lijiejie/htpwdScan</p>
+      <p>关键词：Web 安全、SSRF与业务逻辑、Java、XSS、CSRF、漏洞、权限管理、知识笔记、Web 安全 / SSRF与业务逻辑、0x01 身份认证安全</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fa015d8a9e85.html"><small>上一篇</small>0x01 简单介绍</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-38442d6ab227.html"><small>下一篇</small>0x02 自定义payload脚本</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f32de75219b8.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

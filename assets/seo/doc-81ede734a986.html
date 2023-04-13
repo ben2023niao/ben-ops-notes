@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Reference｜Web 安全 / 漏洞修复指南｜BEN.OPS</title>
+  <meta name="description" content="Reference。本文属于Web 安全 / 漏洞修复指南，[ ] 使用 Bcrypt 存储密码哈希 (没有使用盐的必要 - Bcrypt 干的就是这个事). [ ] OAuth2 验证必须包含 state 参数. [ ] 登陆成功之后不能直接重定向到开放的路径（需要校验，否则容易存在钓鱼攻击）.">
+  <meta name="keywords" content="Web 安全，漏洞修复指南，DNS，Redis，MongoDB，PHP，Java，SQL注入，Web 安全 / 漏洞修复指南，Reference">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-81ede734a986.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-81ede734a986.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D%E6%8C%87%E5%8D%97%2BDNS%2BRedis-%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D%E6%8C%87%E5%8D%97%E8%AF%B4%E6%98%8E-Reference.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Reference">
+  <meta property="og:description" content="Reference。本文属于Web 安全 / 漏洞修复指南，[ ] 使用 Bcrypt 存储密码哈希 (没有使用盐的必要 - Bcrypt 干的就是这个事). [ ] OAuth2 验证必须包含 state 参数. [ ] 登陆成功之后不能直接重定向到开放的路径（需要校验，否则容易存在钓鱼攻击）.">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-81ede734a986.html">
+  <meta property="article:published_time" content="2023-04-14T16:00:00">
+  <meta property="article:modified_time" content="2023-04-14 16:00">
+  <meta property="article:section" content="Web 安全 / 漏洞修复指南">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Reference">
+  <meta name="twitter:description" content="Reference。本文属于Web 安全 / 漏洞修复指南，[ ] 使用 Bcrypt 存储密码哈希 (没有使用盐的必要 - Bcrypt 干的就是这个事). [ ] OAuth2 验证必须包含 state 参数. [ ] 登陆成功之后不能直接重定向到开放的路径（需要校验，否则容易存在钓鱼攻击）.">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-81ede734a986.html#article","headline":"Reference","description":"Reference。本文属于Web 安全 / 漏洞修复指南，[ ] 使用 Bcrypt 存储密码哈希 (没有使用盐的必要 - Bcrypt 干的就是这个事). [ ] OAuth2 验证必须包含 state 参数. [ ] 登陆成功之后不能直接重定向到开放的路径（需要校验，否则容易存在钓鱼攻击）.","datePublished":"2023-04-14T16:00:00","dateModified":"2023-04-14 16:00","inLanguage":"zh-CN","articleSection":["Web 安全","漏洞修复指南"],"keywords":["Web 安全","漏洞修复指南","DNS","Redis","MongoDB","PHP","Java","SQL注入","Web 安全 / 漏洞修复指南","Reference"],"wordCount":1647,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-81ede734a986.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-81ede734a986.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"Web 安全 / 漏洞修复指南","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Reference","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-81ede734a986.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>Web 安全 / 漏洞修复指南</span> › <span>Reference</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">Web 安全 / 漏洞修复指南</div>
+      <h1>Reference</h1>
+      <p class="lede">Reference。本文属于Web 安全 / 漏洞修复指南，[ ] 使用 Bcrypt 存储密码哈希 (没有使用盐的必要 - Bcrypt 干的就是这个事). [ ] OAuth2 验证必须包含 state 参数. [ ] 登陆成功之后不能直接重定向到开放的路径（需要校验，否则容易存在钓鱼攻击）.</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T16:00:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,647 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="Reference">Reference</h2>
+<p><a href="https://github.com/FallibleInc/security-guide-for-developers/blob/master/security-checklist-zh.md" rel="noopener noreferrer">实用性开发人员安全须知</a></p>
+<h3 id="权限系统-注册-注册-二次验证-密码重置">权限系统 (注册/注册/二次验证/密码重置)</h3>
+<ul>
+<li>[ ] 任何地方都使用 HTTPS.</li>
+<li>[ ] 使用 <code>Bcrypt</code> 存储密码哈希 (没有使用盐的必要 - <code>Bcrypt</code> 干的就是这个事).</li>
+<li>[ ] <code>登出</code>之后销毁会话 ID .</li>
+<li>[ ] 密码重置后销毁所有活跃的会话.</li>
+<li>[ ] OAuth2 验证必须包含 <code>state</code> 参数.</li>
+<li>[ ] 登陆成功之后不能直接重定向到开放的路径（需要校验，否则容易存在钓鱼攻击）.</li>
+<li>[ ] 当解析用户注册/登陆的输入时，过滤 javascript://、 data:// 以及其他 CRLF 字符.</li>
+<li>[ ] 使用 secure/httpOnly cookies.</li>
+<li>[ ] 移动端使用 <code>OTP</code> 验证时，当调用 <code>generate OTP</code> 或者 <code>Resend OTP</code> API 时不能把 OTP（One Time Password） 直接返回。（一般是通过发送手机验证短信，邮箱随机 code 等方式，而不是直接 response）</li>
+<li>[ ] 限制单个用户 <code>Login</code>、<code>Verify OTP</code>、 <code>Resend OTP</code>、<code>generate OTP</code> 等 API 的调用次数，使用 Captcha 等手段防止暴力破解.</li>
+<li>[ ] 检查邮件或短信里的重置密码的 token，确保随机性（无法猜测）</li>
+<li>[ ] 给重置密码的 token 设置过期时间.</li>
+<li>[ ] 重置密码成功后，将重置使用的 token 失效.</li>
+</ul>
+<h4 id="_2">用户数据和权限校验</h4>
+<ul>
+<li>[ ] 诸如<code>我的购物车</code>、<code>我的浏览历史</code>之类的资源访问，必须检查当前登录的用户是否有这些资源的访问权限.</li>
+<li>[ ] 避免资源 ID 被连续遍历访问，使用 <code>/me/orders</code> 代替 <code>/user/37153/orders</code> 以防你忘了检查权限，导致数据泄露。</li>
+<li>[ ] <code>修改邮箱/手机号码</code>功能必须首先确认用户已经验证过邮箱/手机是他自己的。</li>
+<li>[ ] 任何上传功能应该过滤用户上传的文件名，另外，为了普适性的原因（而不是安全问题），上传的东西应该存放到例如 S3 之类的云存储上面(用 lambda 处理)，而不是存储在自己的服务器，防止代码执行。</li>
+<li>[ ] <code>个人头像上传</code> 功能应该过滤所有的 <code>EXIF</code> 标签，即便没有这个需求.</li>
+<li>[ ] 用户 ID 或者其他的 ID，应该使用 <a href="http://www.ietf.org/rfc/rfc4122.txt" rel="noopener noreferrer">RFC compliant </a> 的 <code>UUID</code> 而不是整数. 你可以从 github 找到你所用的语言的实现.</li>
+<li>[ ] <a href="https://jwt.io/" rel="noopener noreferrer">JWT（JSON Web Token）</a>很棒.当你需要构建一个 单页应用/API 时使用.</li>
+</ul>
+<h4 id="ios-app">安卓和 iOS APP</h4>
+<ul>
+<li>[ ] 支付网关的 <code>盐（salt）</code> 不应该被硬编码</li>
+<li>[ ] 来自第三方的 <code>secret</code> 和 <code>auth token</code> 不应该被硬编码</li>
+<li>[ ] 在服务器之间调用的 API 不应该在 app 里面调用</li>
+<li>[ ] 在安卓系统下，要小心评估所有申请的 <a href="https://developer.android.com/guide/topics/security/permissions.html" rel="noopener noreferrer">权限</a></li>
+<li>[ ] 在 iOS 系统下，使用系统的钥匙串来存储敏感信息（权限 token、api key、 等等） <strong>不要</strong> 把这类信息存储在用户配置里面</li>
+<li>[ ] 强烈推荐<a href="https://en.wikipedia.org/wiki/HTTP_Public_Key_Pinning" rel="noopener noreferrer">证书绑定（Certificate pinning）</a></li>
+</ul>
+<h4 id="_3">安全头信息和配置</h4>
+<ul>
+<li>[ ] <code>添加</code> <a href="https://en.wikipedia.org/wiki/Content_Security_Policy" rel="noopener noreferrer">CSP</a> 头信息，减缓 XSS 和数据注入攻击. 这很重要.</li>
+<li>[ ] <code>添加</code> <a href="https://en.wikipedia.org/wiki/Cross-site_request_forgery" rel="noopener noreferrer">CSRF</a> 头信息防止跨站请求伪造（CSRF）攻击.同时<code>添加</code> <a href="https://tools.ietf.org/html/draft-ietf-httpbis-cookie-same-site-00" rel="noopener noreferrer">SameSite</a> 属性到 cookie 里面.</li>
+<li>[ ] <code>添加</code> <a href="https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security" rel="noopener noreferrer">HSTS</a> 头信息防止 SSL stripping 攻击.</li>
+<li>[ ] <code>添加</code> 你的域名到 <a href="https://hstspreload.appspot.com/" rel="noopener noreferrer">HSTS 预加载列表</a></li>
+<li>[ ] <code>添加</code> <a href="https://en.wikipedia.org/wiki/Clickjacking#X-Frame-Options" rel="noopener noreferrer">X-Frame-Options</a> 防止点击劫持.</li>
+<li>[ ] <code>添加</code> <a href="https://www.owasp.org/index.php/OWASP_Secure_Headers_Project#X-XSS-Protection" rel="noopener noreferrer">X-XSS-Protection</a> 缓解 XSS 攻击.</li>
+<li>[ ] <code>更新</code> DNS 记录，增加 <a href="https://en.wikipedia.org/wiki/Sender_Policy_Framework" rel="noopener noreferrer">SPF</a> 记录防止垃圾邮件和钓鱼攻击.</li>
+<li>[ ] 如果你的 Javascript 托管在第三方的 CDN 上面，需要<code>添加</code> <a href="https://en.wikipedia.org/wiki/Subresource_Integrity" rel="noopener noreferrer">内部资源集成检查</a> 。为了更加安全，添加<a href="https://w3c.github.io/webappsec-subresource-integrity/#parse-require-sri-for" rel="noopener noreferrer">require-sri-for</a> CSP-directive 就不会加载到没有 SRI 的资源</li>
+<li>[ ] 使用随机的 CSRF token，业务逻辑 API 可以暴露为 POST 请求。不要把 CSRF token 通过 http 接口暴露出来，比如第一次请求更新的时候</li>
+<li>[ ] 在 get 请求参数里面，不要使用临界数据和 token。 暴露服务器日志的同时也会暴露用户数据</li>
+</ul>
+<h4 id="_4">过滤输入</h4>
+<ul>
+<li>[ ] 所有暴露给用户的参数输入都应该 <code>过滤</code> 防止 <a href="https://en.wikipedia.org/wiki/Cross-site_scripting" rel="noopener noreferrer">XSS</a> 攻击.</li>
+<li>[ ] 使用参数化的查询防止 <a href="https://en.wikipedia.org/wiki/SQL_injection" rel="noopener noreferrer">SQL 注入</a>.</li>
+<li>[ ] 过滤所有具有功能性的用户输入，比如 <code>CSV导入</code></li>
+<li>[ ] <code>过滤</code>一些特殊的用户输入，例如将 robots.txt 作为用户名，而你刚好提供了 coolcorp.io/username 之类的 url 来提供用户信息访问页面。（此时变成 coolcorp.io/robots.txt，可能无法正常工作）</li>
+<li>[ ] 不要自己手动拼装 JSON 字符串，不管这个对象有多么小。请使用你所用的语言相应的库或者框架来编写</li>
+<li>[ ] <code>过滤</code> 那些有点像 URL 的输入，防止 <a href="https://docs.google.com/document/d/1v1TkWZtrhzRLy0bYXBcdLUedXGb9njTNIJXa3u9akHM/edit#heading=h.t4tsk5ixehdd" rel="noopener noreferrer">SSRF</a> 攻击</li>
+<li>[ ] 在输出显示给用户之前，<code>过滤</code>输出信息</li>
+</ul>
+<h4 id="_5">操作</h4>
+<ul>
+<li>[ ] 如果你的业务很小或者你缺乏经验，可以评估一下使用 AWS 或者一个 PaaS 平台来运行代码</li>
+<li>[ ] 在云上使用正规的脚本创建虚拟机</li>
+<li>[ ] 检查所有机器没有必要开放的<code>端口</code></li>
+<li>[ ] 检查数据库是否没有设置密码或者使用默认密码，特别是 MongoDB 和 Redis</li>
+<li>[ ] 使用 SSH 登录你的机器，不要使用密码，而是通过 SSH key 验证来登录</li>
+<li>[ ] 及时更新系统，防止出现 0day 漏洞，比如 Heartbleed、Shellshock 等</li>
+<li>[ ] 修改服务器配置，HTTPS 使用 TLS1.2，禁用其他的模式。(值得这么做)</li>
+<li>[ ] 不要在线上开启 DEBUG 模式，有些框架，DEBUG 模式会开启很多权限以及后门，或者是暴露一些敏感数据到错误栈信息里面</li>
+<li>[ ] 对坏人和 DDOS 攻击要有所准备，使用那些提供 DDOS 清洗的主机服务</li>
+<li>[ ] 监控你的系统，同时记录到日志里面 (例如使用 <a href="https://newrelic.com/" rel="noopener noreferrer">New Relic</a> 或者其他 ).</li>
+<li>[ ] 如果是 2B 的业务，坚持顺从需求。如果使用 AWS S3,可以考虑使用 <a href="http://docs.aws.amazon.com/AmazonS3/latest/dev/UsingServerSideEncryption.html" rel="noopener noreferrer">数据加密</a> 功能. 如果使用 AWS EC2，考虑使用磁盘加密功能（现在系统启动盘也能加密了）</li>
+</ul>
+<h4 id="_6">关于人</h4>
+<ul>
+<li>[ ] 开一个邮件组（例如：[邮箱已脱敏]）和搜集页面，方便安全研究人员提交漏洞</li>
+<li>[ ] 取决于你的业务，限制用户数据库的访问</li>
+<li>[ ] 对报告 bug、漏洞的人有礼貌</li>
+<li>[ ] 把你的代码给那些有安全编码观念的同伴进行 review (More eyes)</li>
+<li>[ ] 被黑或者数据泄露时，检查数据访问前的日志，通知用户更改密码。你可能需要外部的机构来帮助审计</li>
+<li>[ ] 使用 <a href="https://github.com/Netflix/Scumblr" rel="noopener noreferrer">Netflix Scumblr</a> 及时了解你的组织（公司）在社交网络或者搜索引擎上的一些讨论信息，比如黑客攻击、漏洞等等</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#Reference">Reference</a></li><li style="margin-left:0.8rem"><a href="#权限系统-注册-注册-二次验证-密码重置">权限系统 (注册/注册/二次验证/密码重置)</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：Web 安全 / 漏洞修复指南</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">Web 安全</span><span class="tag">漏洞修复指南</span><span class="tag">DNS</span><span class="tag">Redis</span><span class="tag">MongoDB</span><span class="tag">PHP</span><span class="tag">Java</span><span class="tag">SQL注入</span></li>
+          <li><span>来源：03-安全运营与应急/06-Web漏洞修复指南/Web开发人员安全需知.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D%E6%8C%87%E5%8D%97%2BDNS%2BRedis-%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D%E6%8C%87%E5%8D%97%E8%AF%B4%E6%98%8E-Reference.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Reference。本文属于Web 安全 / 漏洞修复指南，[ ] 使用 Bcrypt 存储密码哈希 (没有使用盐的必要 - Bcrypt 干的就是这个事). [ ] OAuth2 验证必须包含 state 参数. [ ] 登陆成功之后不能直接重定向到开放的路径（需要校验，否则容易存在钓鱼攻击）.</p>
+      <p>关键词：Web 安全、漏洞修复指南、DNS、Redis、MongoDB、PHP、Java、SQL注入、Web 安全 / 漏洞修复指南、Reference</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7c54458b0a2c.html"><small>上一篇</small>RASP概念</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-91312c8711e3.html"><small>下一篇</small>Search engines</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-81ede734a986.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

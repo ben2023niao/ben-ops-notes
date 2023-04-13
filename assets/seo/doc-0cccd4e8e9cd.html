@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>TCP滑动窗口｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="TCP滑动窗口。本文属于安全与堡垒机 / 高级安全，从传输数据来讲，TCP/UDP 以及其他协议都可以完成数据的传输，从一端传输到另外一端，TCP比较出众的一点就是提供一个可靠的，流控的数据传输，所以实现起来要比其他协议复杂的多，先来看下这两个修饰词的意义： Reliability，提供 TCP 的可靠性，TCP…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，知识笔记，安全与堡垒机 / 高级安全，TCP滑动窗口">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0cccd4e8e9cd.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0cccd4e8e9cd.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-TCP%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="TCP滑动窗口">
+  <meta property="og:description" content="TCP滑动窗口。本文属于安全与堡垒机 / 高级安全，从传输数据来讲，TCP/UDP 以及其他协议都可以完成数据的传输，从一端传输到另外一端，TCP比较出众的一点就是提供一个可靠的，流控的数据传输，所以实现起来要比其他协议复杂的多，先来看下这两个修饰词的意义： Reliability，提供 TCP 的可靠性，TCP…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0cccd4e8e9cd.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/56b49df1db0efc9576.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="TCP滑动窗口">
+  <meta name="twitter:description" content="TCP滑动窗口。本文属于安全与堡垒机 / 高级安全，从传输数据来讲，TCP/UDP 以及其他协议都可以完成数据的传输，从一端传输到另外一端，TCP比较出众的一点就是提供一个可靠的，流控的数据传输，所以实现起来要比其他协议复杂的多，先来看下这两个修饰词的意义： Reliability，提供 TCP 的可靠性，TCP…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/56b49df1db0efc9576.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0cccd4e8e9cd.html#article","headline":"TCP滑动窗口","description":"TCP滑动窗口。本文属于安全与堡垒机 / 高级安全，从传输数据来讲，TCP/UDP 以及其他协议都可以完成数据的传输，从一端传输到另外一端，TCP比较出众的一点就是提供一个可靠的，流控的数据传输，所以实现起来要比其他协议复杂的多，先来看下这两个修饰词的意义： Reliability，提供 TCP 的可靠性，TCP…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","知识笔记","安全与堡垒机 / 高级安全","TCP滑动窗口"],"wordCount":2068,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0cccd4e8e9cd.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0cccd4e8e9cd.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/56b49df1db0efc9576.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"TCP滑动窗口","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0cccd4e8e9cd.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>TCP滑动窗口</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>TCP滑动窗口</h1>
+      <p class="lede">TCP滑动窗口。本文属于安全与堡垒机 / 高级安全，从传输数据来讲，TCP/UDP 以及其他协议都可以完成数据的传输，从一端传输到另外一端，TCP比较出众的一点就是提供一个可靠的，流控的数据传输，所以实现起来要比其他协议复杂的多，先来看下这两个修饰词的意义： Reliability，提供 TCP 的可靠性，TCP…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,068 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="TCP的优势">TCP的优势</h2>
+<p>从传输数据来讲，TCP/UDP 以及其他协议都可以完成数据的传输，从一端传输到另外一端，TCP比较出众的一点就是提供一个可靠的，流控的数据传输，所以实现起来要比其他协议复杂的多，先来看下这两个修饰词的意义：</p>
+<ol>
+<li>Reliability，提供 TCP 的可靠性，TCP 的传输要保证数据能够准确到达目的地，如果不能，需要能检测出来并且重新发送数据。</li>
+<li>Data Flow Control，提供 TCP 的流控特性，管理发送数据的速率，不要超过设备的承载能力。</li>
+</ol>
+<p>为了能够实现以上两点，TCP 实现了很多细节的功能来保证数据传输，比如说滑动窗口适应系统，超时重传机制，累计 ACK 等，这次先介绍一下滑动窗口的一些知识点。</p>
+<h2 id="滑动窗口引入">滑动窗口引入</h2>
+<p>IP 层协议属于不可靠的协议，IP 层并不关系数据是否发送到了对端，TCP 通过确认机制来保证数据传输的可靠性，在比较早的时候使用的是 send–wait–send 的模式，其实这种模式叫做 stop-wait 模式，发送数据方在发送数据之后会启动定时器，但是如果数据或者 ACK 丢失，那么定时器到期之后，收不到 ACK 就认为发送出现状况，要进行重传。这样就会降低了通信的效率，如下图所示，这种方式被称为 positive acknowledgment with retransmission (PAR)
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/56b49df1db0efc9576.png"/></p>
+<h2 id="滑动窗口">滑动窗口</h2>
+<p>可以假设一下，来优化一下 PAR 效率低的缺点，比如我让发送的每一个包都有一个 id，接收端必须对每一个包进行确认，这样设备 A 一次多发送几个片段，而不必等候 ACK，同时接收端也要告知它能够收多少，这样发送端发起来也有个限制，当然还需要保证顺序性，不要乱序，对于乱序的状况，我们可以允许等待一定情况下的乱序，比如说先缓存提前到的数据，然后去等待需要的数据，如果一定时间没来就 DROP 掉，来保证顺序性！</p>
+<p>在 TCP/IP 协议栈中，滑动窗口的引入可以解决此问题，先来看从概念上数据分为哪些类</p>
+<ol>
+<li>Sent and Acknowledged：这些数据表示已经发送成功并已经被确认的数据，比如图中的前 31 个 bytes，这些数据其实的位置是在窗口之外了，因为窗口内顺序最低的被确认之后，要移除窗口，实际上是窗口进行合拢，同时打开接收新的带发送的数据。</li>
+<li>Send But Not Yet Acknowledged：这部分数据称为发送但没有被确认，数据被发送出去，没有收到接收端的 ACK，认为并没有完成发送，这个属于窗口内的数据。</li>
+<li>Not Sent，Recipient Ready to Receive：这部分是尽快发送的数据，这部分数据已经被加载到缓存中，也就是窗口中了，等待发送，其实这个窗口是完全有接收方告知的，接收方告知还是能够接受这些包，所以发送方需要尽快的发送这些包。</li>
+<li>
+<p>Not Sent，Recipient Not Ready to Receive： 这些数据属于未发送，同时接收端也不允许发送的，因为这些数据已经超出了发送端所接收的范围。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/7e273dd223f3efcb86.png"/>
+对于接收端也是有一个接收窗口的，类似发送端，接收端的数据有 3 个分类，因为接收端并不需要等待 ACK 所以它没有类似的接收并确认了的分类，情况如下</p>
+<ol>
+<li>Received and ACK Not Send to Process：这部分数据属于接收了数据但是还没有被上层的应用程序接收，也是被缓存在窗口内。</li>
+<li>Received Not ACK: 已经接收并，但是还没有回复 ACK，这些包可能输属于 Delay ACK 的范畴了。</li>
+<li>
+<p>Not Received：有空位，还没有被接收的数据。对于发送方来讲，窗口内的包括两部分，就是发送窗口（已经发送了，但是没有收到 ACK），可用窗口，接收端允许发送但是没有发送的那部分称为可用窗口。</p>
+</li>
+<li>
+<p>Send Window ： 20 个 bytes 这部分值是有接收方在三次握手的时候进行通告的，同时在接收过程中也不断的通告可以发送的窗口大小，来进行适应。</p>
+</li>
+<li>Window Already Sent: 已经发送的数据，但是并没有收到 ACK。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/a36fcf54d65aa36d6f.png"/></li>
+</ol>
+<h2 id="滑动窗口原理">滑动窗口原理</h2>
+<p>TCP 并不是每一个报文段都会回复 ACK 的，可能会对两个报文段发送一个 ACK，也可能会对多个报文段发送 1 个ACK 【累计 ACK】，比如说发送方有 1/2/3 3 个报文段，先发送了 2,3 两个报文段，但是接收方期望收到 1 报文段，这个时候 2,3 报文段就只能放在缓存中等待报文 1 的空洞被填上，如果报文 1，一直不来，报文 2/3 也将被丢弃，如果报文 1 来了，那么会发送一个 ACK 对这 3 个报文进行一次确认。</p>
+<p>举一个例子来说明一下滑动窗口的原理：</p>
+<pre><code>1. 假设 32~45 这些数据，是上层 Application 发送给 TCP 的，TCP 将其分成四个 Segment 来发往 internet
+2. seg1 32~34 seg3 35~36 seg3 37~41 seg4 42~45 这四个片段，依次发送出去，此时假设接收端之接收到了 seg1 seg2 seg4
+3. 此时接收端的行为是回复一个 ACK 包说明已经接收到了 32~36 的数据，并将 seg4 进行缓存（保证顺序，产生一个保存 seg3 的 hole）
+4. 发送端收到 ACK 之后，就会将 32~36 的数据包从发送并没有确认切到发送已经确认，提出窗口，这个时候窗口向右移动
+5. 假设接收端通告的 Window Size 仍然不变，此时窗口右移，产生一些新的空位，这些是接收端允许发送的范畴
+6. 对于丢失的 seg3，如果超过一定时间，TCP 就会重新传送（重传机制），重传成功会 seg3 seg4 一块被确认，不成功，seg4 也将被丢弃就是不断重复着上述的过程，随着窗口不断滑动，将真个数据流发送到接收端，实际上接收端的 Window Size 通告也是会变化的，接收端根据这个值来确定何时及发送多少数据，从对数据流进行流控。原理图如下图所示：
+</code></pre>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/9dce3bb1e2c8363edf.png"/></p>
+<h2 id="滑动窗口动态调整">滑动窗口动态调整</h2>
+<p>主要是根据接收端的接收情况，动态去调整 Window Size，然后来控制发送端的数据流量，客户端不断快速发送数据，服务器接收相对较慢，看下实验的结果</p>
+<pre><code>1. 包 175，发送 ACK 携带 WIN = 384，告知客户端，现在只能接收 384 个字节
+2. 包 176，客户端果真只发送了 384 个字节，Wireshark 也比较智能，也宣告 TCP Window Full
+3. 包 177，服务器回复一个 ACK，并通告窗口为 0，说明接收方已经收到所有数据，并保存到缓冲区，但是这个时候应用程序并没有接收这些数据，导致缓冲区没有更多的空间，故通告窗口为 0, 这也就是所谓的零窗口，零窗口期间，发送方停止发送数据
+4. 客户端察觉到窗口为 0，则不再发送数据给接收方
+5. 包 178，接收方发送一个窗口通告，告知发送方已经有接收数据的能力了，可以发送数据包了
+6. 包 179，收到窗口通告之后，就发送缓冲区内的数据了。
+![文档配图](doc/media/c1362fe86f93e686fb.png)总结一点，就是接收端可以根据自己的状况通告窗口大小，从而控制发送端的接收，进行流量控制。
+</code></pre>
+</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#TCP的优势">TCP的优势</a></li><li style="margin-left:0.0rem"><a href="#滑动窗口引入">滑动窗口引入</a></li><li style="margin-left:0.0rem"><a href="#滑动窗口">滑动窗口</a></li><li style="margin-left:0.0rem"><a href="#滑动窗口原理">滑动窗口原理</a></li><li style="margin-left:0.0rem"><a href="#滑动窗口动态调整">滑动窗口动态调整</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68657347.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-TCP%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>TCP滑动窗口。本文属于安全与堡垒机 / 高级安全，从传输数据来讲，TCP/UDP 以及其他协议都可以完成数据的传输，从一端传输到另外一端，TCP比较出众的一点就是提供一个可靠的，流控的数据传输，所以实现起来要比其他协议复杂的多，先来看下这两个修饰词的意义： Reliability，提供 TCP 的可靠性，TCP…</p>
+      <p>关键词：安全与堡垒机、高级安全、知识笔记、安全与堡垒机 / 高级安全、TCP滑动窗口</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4e2e448903d3.html"><small>上一篇</small>TCP消息可靠性</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7d57db091cde.html"><small>下一篇</small>TCP滑动窗口与回退N针协议</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0cccd4e8e9cd.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

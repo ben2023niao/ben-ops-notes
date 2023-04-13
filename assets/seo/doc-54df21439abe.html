@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>java后台对json进行加密解密防恶意抓包串改方案｜安全与堡垒机 / 安全运维｜BEN.OPS</title>
+  <meta name="description" content="java后台对json进行加密解密防恶意抓包串改方案。本文属于安全与堡垒机 / 安全运维，加密顺序：JSON字符串-&gt;Base64字符串-&gt;DES加密 Base64是一重加密 Base64里面我改进了算法，支持任意形式的字典表，所以这个地方是第二重加密 有人问为什么还需要改Base64的字典表，其实原因就是DES…">
+  <meta name="keywords" content="安全与堡垒机，安全运维，Linux，Apache，Java，知识笔记，安全与堡垒机 / 安全运维，java后台对json进行加密解密防恶意抓包串改方案">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-54df21439abe.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-54df21439abe.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BLinux%2BApache-java%E5%90%8E%E5%8F%B0%E5%AF%B9json%E8%BF%9B%E8%A1%8C%E5%8A%A0%E5%AF%86%E8%A7%A3%E5%AF%86%E9%98%B2%E6%81%B6%E6%84%8F%E6%8A%93%E5%8C%85%E4%B8%B2%E6%94%B9%E6%96%B9%E6%A1%88.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="java后台对json进行加密解密防恶意抓包串改方案">
+  <meta property="og:description" content="java后台对json进行加密解密防恶意抓包串改方案。本文属于安全与堡垒机 / 安全运维，加密顺序：JSON字符串-&gt;Base64字符串-&gt;DES加密 Base64是一重加密 Base64里面我改进了算法，支持任意形式的字典表，所以这个地方是第二重加密 有人问为什么还需要改Base64的字典表，其实原因就是DES…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-54df21439abe.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 安全运维">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/e446a36ea290a88480.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="java后台对json进行加密解密防恶意抓包串改方案">
+  <meta name="twitter:description" content="java后台对json进行加密解密防恶意抓包串改方案。本文属于安全与堡垒机 / 安全运维，加密顺序：JSON字符串-&gt;Base64字符串-&gt;DES加密 Base64是一重加密 Base64里面我改进了算法，支持任意形式的字典表，所以这个地方是第二重加密 有人问为什么还需要改Base64的字典表，其实原因就是DES…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/e446a36ea290a88480.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-54df21439abe.html#article","headline":"java后台对json进行加密解密防恶意抓包串改方案","description":"java后台对json进行加密解密防恶意抓包串改方案。本文属于安全与堡垒机 / 安全运维，加密顺序：JSON字符串->Base64字符串->DES加密 Base64是一重加密 Base64里面我改进了算法，支持任意形式的字典表，所以这个地方是第二重加密 有人问为什么还需要改Base64的字典表，其实原因就是DES…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","安全运维"],"keywords":["安全与堡垒机","安全运维","Linux","Apache","Java","知识笔记","安全与堡垒机 / 安全运维","java后台对json进行加密解密防恶意抓包串改方案"],"wordCount":1843,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-54df21439abe.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-54df21439abe.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/e446a36ea290a88480.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 安全运维","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"java后台对json进行加密解密防恶意抓包串改方案","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-54df21439abe.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 安全运维</span> › <span>java后台对json进行加密解密防恶意抓包串改方案</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 安全运维</div>
+      <h1>java后台对json进行加密解密防恶意抓包串改方案</h1>
+      <p class="lede">java后台对json进行加密解密防恶意抓包串改方案。本文属于安全与堡垒机 / 安全运维，加密顺序：JSON字符串-&gt;Base64字符串-&gt;DES加密 Base64是一重加密 Base64里面我改进了算法，支持任意形式的字典表，所以这个地方是第二重加密 有人问为什么还需要改Base64的字典表，其实原因就是DES…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,843 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="推荐使用方式二-三重加密算法-多重加密杜绝被破解-由于热爱爬虫-爱分析数据-几个月前在手机上通过抓包软件-抓到某资源app的大量请求-捕获各种类型的api接口-">推荐使用方式二：三重加密算法 多重加密杜绝被破解<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/e446a36ea290a88480.png"/><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/e6b5a9c51513efb449.png"/><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/e690e62c22eef235c7.png"/>由于热爱爬虫，爱分析数据，几个月前在手机上通过抓包软件，抓到某资源app的大量请求，捕获各种类型的api接口，获取了大量json数据，而且可以直接利用。于是发挥了我python爬虫的那点知识，不断循环爬取数据保存到数据库，最后爬取了近4万条可用有价值的数据。上周末本想继续爬取更新一波，发现json传输的数据都加密了，于是对json加密产生了兴趣，本想把这种传输方式应用到java-web中，发现前端并不是好处理来自后台传过来的加密json数据（知识尚浅？），所以在此只记录下java后端对json数据加密解密处理的代码逻辑，以下两种方式来源在页尾已注明。</h2>
+<h2 id="方式一-AES加密">方式一：AES加密</h2>
+<p><strong>方式一：AES加密</strong> 展开源码</p>
+<pre><code class="language-python">import org.apache.commons.codec.binary.Base64;
+import javax.crypto.*;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.SecureRandom;
+/**
+ * Create by wjup on 2019/7/1 9:03
+ */
+public class AesUtil {
+ public static void main(String[] args) throws Exception {
+ // aes + base  --&gt;  aes + base
+ String content = "{\"mac\":\"123\",\"idfa\":\"123\",\"clientIp\":\"456\",insertTime\":\"test\"}";
+ System.out.println("加密内容：" + content);
+ String key = "123abc";
+ System.out.println("加密密钥和解密密钥：" + key);
+ String encrypt = aesEncrypt(content, key);
+ System.out.println("加密后：" + encrypt);
+ String decrypt = aesDecrypt(encrypt, key);
+ System.out.println("解密后：" + decrypt);
+ }
+ /**
+     * 编码
+     *
+     * @param bstr
+     * @return String
+     */
+ public static String Base64encode(byte[] bstr) {
+ return Base64.encodeBase64String(bstr);
+ }
+ /**
+     * 解码
+     *
+     * @param str
+     * @return string
+     */
+ public static byte[] Base64decode(String str) {
+ return Base64.decodeBase64(str);
+ }
+ /*
+     * AES加密
+     * @param content 待加密的内容
+     * @param encryptKey 加密密钥
+     * @return 加密后的byte[]
+     * @throws Exception
+     */
+ public static byte[] aesEncryptToBytes(String content, String encryptKey) throws Exception {
+ KeyGenerator kgen = KeyGenerator.getInstance("AES");
+ /*防止linux下 随机生成key*/
+ SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+ random.setSeed(encryptKey.getBytes());
+ kgen.init(128, random);
+ Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+ cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(kgen.generateKey().getEncoded(), "AES"));
+ return cipher.doFinal(content.getBytes("UTF-8"));
+ }
+ /**
+     * AES加密为base 64 code
+     *
+     * @param content    待加密的内容
+     * @param encryptKey 加密密钥
+     * @return 加密后的base 64 code
+     * @throws Exception
+     */
+ public static String aesEncrypt(String content, String encryptKey) throws Exception {
+ return Base64encode(aesEncryptToBytes(content, encryptKey));
+ }
+ /**
+     * AES解密
+     *
+     * @param encryptBytes 待解密的byte[]
+     * @param decryptKey   解密密钥
+     * @return 解密后的String
+     * @throws Exception
+     */
+ public static String aesDecryptByBytes(byte[] encryptBytes, String decryptKey) {
+ byte[] decryptBytes = new byte[0];
+ try {
+ KeyGenerator kgen = KeyGenerator.getInstance("AES");
+ /*防止linux下 随机生成key*/
+ SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+ random.setSeed(decryptKey.getBytes());
+ kgen.init(128, random);
+ Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+ cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(kgen.generateKey().getEncoded(), "AES"));
+ decryptBytes = cipher.doFinal(encryptBytes);
+ return new String(decryptBytes, "UTF-8");
+ } catch (Exception e) {
+ e.printStackTrace();
+ }
+ return decryptKey;
+ }
+ /**
+     * 将base 64 code AES解密
+     *
+     * @param encryptStr 待解密的base 64 code
+     * @param decryptKey 解密密钥
+     * @return 解密后的string
+     * @throws Exception
+     */
+ public static String aesDecrypt(String encryptStr, String decryptKey) {
+ return aesDecryptByBytes(Base64decode(encryptStr), decryptKey);
+ }
+}
+</code></pre>
+<h2 id="方式二-三重加密算法">方式二：三重加密算法</h2>
+<p>加密顺序：JSON字符串-&gt;Base64字符串-&gt;DES加密
+Base64是一重加密</p>
+<p>Base64里面我改进了算法，支持任意形式的字典表，所以这个地方是第二重加密</p>
+<p>DES在Base64的基础上再次用秘钥加密。</p>
+<p>有人问为什么还需要改Base64的字典表，其实原因就是DES的秘钥只能是8个字节，按照现在计算机的处理速度，24小时就破解了。</p>
+<p>Base64的处理类，这里我把网上一个公开的类库做了改进，做了一个混排编码格式</p>
+<p><strong>方式二：三重加密算法</strong> 展开源码</p>
+<pre><code class="language-python">import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.HashMap;
+/**
+ * Create by wjup on 2019/7/1 9:08
+ */
+public class Base64 {
+ private static final char[] legalChars = "9ghijk67sutJKLM8rvwx4EzAlnm3OUV+/aNbcdfePQRSTopqCDFG0125BHIWyXYZ"
+ .toCharArray();//字典内顺序任意更改，只要内容保证不缺就行
+ private static HashMap&lt;Character, Integer&gt; hashDecode = new HashMap&lt;Character, Integer&gt;();
+ /**
+     * data[]进行编码
+     *
+     * @param data
+     * @return
+     */
+ public static String encode(byte[] data) {
+ int start = 0;
+ int len = data.length;
+ StringBuffer buf = new StringBuffer(data.length * 3 / 2);
+ int end = len - 3;
+ int i = start;
+ int n = 0;
+ while (i &lt;= end) {
+ int d = ((((int) data[i]) &amp; 0x0ff) &lt;&lt; 16)
+ | ((((int) data[i + 1]) &amp; 0x0ff) &lt;&lt; 8)
+ | (((int) data[i + 2]) &amp; 0x0ff);
+ buf.append(legalChars[(d &gt;&gt; 18) &amp; 63]);
+ buf.append(legalChars[(d &gt;&gt; 12) &amp; 63]);
+ buf.append(legalChars[(d &gt;&gt; 6) &amp; 63]);
+ buf.append(legalChars[d &amp; 63]);
+ i += 3;
+ if (n++ &gt;= 14) {
+ n = 0;
+ buf.append(" ");
+ }
+ }
+ if (i == start + len - 2) {
+ int d = ((((int) data[i]) &amp; 0x0ff) &lt;&lt; 16)
+ | ((((int) data[i + 1]) &amp; 255) &lt;&lt; 8);
+ buf.append(legalChars[(d &gt;&gt; 18) &amp; 63]);
+ buf.append(legalChars[(d &gt;&gt; 12) &amp; 63]);
+ buf.append(legalChars[(d &gt;&gt; 6) &amp; 63]);
+ buf.append("=");
+ } else if (i == start + len - 1) {
+ int d = (((int) data[i]) &amp; 0x0ff) &lt;&lt; 16;
+ buf.append(legalChars[(d &gt;&gt; 18) &amp; 63]);
+ buf.append(legalChars[(d &gt;&gt; 12) &amp; 63]);
+ buf.append("==");
+ }
+ return buf.toString();
+ }
+ public static byte[] decode(String s) {
+ ByteArrayOutputStream bos = new ByteArrayOutputStream();
+ try {
+ decode(s, bos);
+ } catch (IOException e) {
+ throw new RuntimeException();
+ }
+ byte[] decodedBytes = bos.toByteArray();
+ try {
+ bos.close();
+ bos = null;
+ } catch (IOException ex) {
+ System.err.println("Error while decoding BASE64: " + ex.toString());
+ }
+ return decodedBytes;
+ }
+ private static void decode(String s, OutputStream os) throws IOException {
+ int i = 0;
+ int len = s.length();
+ while (true) {
+ while (i &lt; len &amp;&amp; s.charAt(i) &lt;= ' ') {
+ i++;
+ }
+ if (i == len) {
+ break;
+ }
+ int tri = (decode(s.charAt(i)) &lt;&lt; 18)
+ + (decode(s.charAt(i + 1)) &lt;&lt; 12)
+ + (decode(s.charAt(i + 2)) &lt;&lt; 6)
+ + (decode(s.charAt(i + 3)));
+ os.write((tri &gt;&gt; 16) &amp; 255);
+ if (s.charAt(i + 2) == '=') {
+ break;
+ }
+ os.write((tri &gt;&gt; 8) &amp; 255);
+ if (s.charAt(i + 3) == '=') {
+ break;
+ }
+ os.write(tri &amp; 255);
+ i += 4;
+ }
+ }
+ private static int decode(char c) {
+ if (hashDecode.size() == 0) {
+ for (int i = 0; i &lt; 64; i++) {
+ char ch = legalChars[i];
+ hashDecode.put(ch, i);
+ }
+ }
+ if (hashDecode.containsKey(c)) {
+ return hashDecode.get(c);
+ } else if (c == '=') {
+ return 0;
+ } else {
+ throw new RuntimeException("unexpected code: " + c);
+ }
+ }
+</code></pre>
+<h2 id="方式三-Des加密算法">方式三：Des加密算法</h2>
+<p><strong>方式三：Des加密算法</strong> 展开源码</p>
+<pre><code class="language-python">import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+/**
+ * Create by wjup on 2019/7/1 9:12
+ */
+public class DateSecret {
+//    private static String keyCode = "12345678";//秘钥可以任意改，只要总长度是8个字节就行
+ private static byte[] iv = {1, 2, 3, 4, 5, 6, 7, 8};
+ /**
+     * 加密
+     * @param encryptString
+     * @param keyCode 8位秘钥
+     * @return
+     * @throws Exception
+     */
+ public static String encryptDES(String encryptString,String keyCode) throws Exception {
+ IvParameterSpec zeroIv = new IvParameterSpec(iv);
+ SecretKeySpec key = new SecretKeySpec(keyCode.getBytes(), "DES");
+ Cipher cipher = Cipher.getInstance("DES/CBC/PKCS5Padding");
+ cipher.init(Cipher.ENCRYPT_MODE, key, zeroIv);
+ byte[] encryptedData = cipher.doFinal(encryptString.getBytes("utf-8"));
+ return Base64.encode(encryptedData);
+ }
+ /**
+     * 解密
+     * @param decryptString
+     * @param keyCode 8位秘钥
+     * @return
+     * @throws Exception
+     */
+ public static String decryptDES(String decryptString,String keyCode) throws Exception {
+ byte[] byteMi = Base64.decode(decryptString);
+ IvParameterSpec zeroIv = new IvParameterSpec(iv);
+ SecretKeySpec key = new SecretKeySpec(keyCode.getBytes(), "DES");
+ Cipher cipher = Cipher.getInstance("DES/CBC/PKCS5Padding");
+ cipher.init(Cipher.DECRYPT_MODE, key, zeroIv);
+ byte decryptedData[] = cipher.doFinal(byteMi);
+ return new String(decryptedData, "utf-8");
+ }
+ /**
+     * 将二进制转换成16进制
+     *
+     * @param buf
+     * @return String
+     */
+ public static String parseByte2HexStr(byte buf[]) {
+ StringBuffer sb = new StringBuffer();
+ for (int i = 0; i &lt; buf.length; i++) {
+ String hex = Integer.toHexString(buf[i] &amp; 0xFF);
+ if (hex.length() == 1) {
+ hex = '0' + hex;
+ }
+ sb.append(hex.toUpperCase());
+ }
+ return sb.toString();
+ }
+ // 示例
+ public static void main(String[] args) {
+ try {
+ // 加密
+ String s = encryptDES("天王盖地虎","12345678");
+ // 解密
+ String s1 = decryptDES(s,"12345678");
+ System.out.println("加密后："+s+"\n解密后："+s1);
+ } catch (Exception e) {
+ e.printStackTrace();
+ }
+ }
+}
+</code></pre>
+<p>加密参考信息
+<a href="https://www.cnblogs.com/yanchaohui/p/11005037.html" rel="noopener noreferrer">https://www.cnblogs.com/yanchaohui/p/11005037.html</a>
+<a href="https://blog.csdn.net/f2006116/article/details/53222328" rel="noopener noreferrer">https://blog.csdn.net/f2006116/article/details/53222328</a></p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#推荐使用方式二-三重加密算法-多重加密杜绝被破解-由于热爱爬虫-爱分析数据-几个月前在手机上通过抓包软件-抓到某资源app的大量请求-捕获各种类型的api接口-">推荐使用方式二：三重加密算法 多重加密杜绝被破解 由于热爱爬虫，爱分析数据，几个月前在手机上通过抓包软件，抓到某资源app的大量请求，捕获各种类型的api接口，获取了大量json数据，而且可以直接利用。于是发挥了我python爬虫的那点知识，不断循环爬取数据保存到数据库，最后爬取了近4万条可用有价值的数据。上周末本想继续爬取更新一波，发现json传输的数据都加密了，于是对json加密产生了兴趣，本想把这种传输方式应用到java-web中，发现前端并不是好处理来自后台传过来的加密json数据（知识尚浅？），所以在此只记录下java后端对json数据加密解密处理的代码逻辑，以下两种方式来源在页尾已注明。</a></li><li style="margin-left:0.0rem"><a href="#方式一-AES加密">方式一：AES加密</a></li><li style="margin-left:0.0rem"><a href="#方式二-三重加密算法">方式二：三重加密算法</a></li><li style="margin-left:0.0rem"><a href="#方式三-Des加密算法">方式三：Des加密算法</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 安全运维</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">安全运维</span><span class="tag">Linux</span><span class="tag">Apache</span><span class="tag">Java</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/04-安全运维/birdben/68651466.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BLinux%2BApache-java%E5%90%8E%E5%8F%B0%E5%AF%B9json%E8%BF%9B%E8%A1%8C%E5%8A%A0%E5%AF%86%E8%A7%A3%E5%AF%86%E9%98%B2%E6%81%B6%E6%84%8F%E6%8A%93%E5%8C%85%E4%B8%B2%E6%94%B9%E6%96%B9%E6%A1%88.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>java后台对json进行加密解密防恶意抓包串改方案。本文属于安全与堡垒机 / 安全运维，加密顺序：JSON字符串-&gt;Base64字符串-&gt;DES加密 Base64是一重加密 Base64里面我改进了算法，支持任意形式的字典表，所以这个地方是第二重加密 有人问为什么还需要改Base64的字典表，其实原因就是DES…</p>
+      <p>关键词：安全与堡垒机、安全运维、Linux、Apache、Java、知识笔记、安全与堡垒机 / 安全运维、java后台对json进行加密解密防恶意抓包串改方案</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2b98bff2d4ce.html"><small>上一篇</small>jar 线程性能问题拓展知识</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3f85a391847f.html"><small>下一篇</small>js检测 A域名是否能访问，如果可行就链接到他 否则 检测 B域名</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-54df21439abe.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

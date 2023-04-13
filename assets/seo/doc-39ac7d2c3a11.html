@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Shell脚本重复调用命令行｜Linux 与 Shell / 日常运维｜BEN.OPS</title>
+  <meta name="description" content="Shell脚本重复调用命令行。本文属于Linux 与 Shell / 日常运维，学习技巧： Shell 判断、循环、function &amp; polysh工具使用 Shell 判断、循环、function &amp; polysh工具使用 使用shell脚本一键迁移存储机器上的分片，使用polysh在中控机上执行，避免登陆集…">
+  <meta name="keywords" content="Linux 与 Shell，日常运维，日志分析，知识笔记，Linux 与 Shell / 日常运维，Shell脚本重复调用命令行，Shell，Linux">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-39ac7d2c3a11.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-39ac7d2c3a11.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2B%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-Shell%E8%84%9A%E6%9C%AC%E9%87%8D%E5%A4%8D%E8%B0%83%E7%94%A8%E5%91%BD%E4%BB%A4%E8%A1%8C.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Shell脚本重复调用命令行">
+  <meta property="og:description" content="Shell脚本重复调用命令行。本文属于Linux 与 Shell / 日常运维，学习技巧： Shell 判断、循环、function &amp; polysh工具使用 Shell 判断、循环、function &amp; polysh工具使用 使用shell脚本一键迁移存储机器上的分片，使用polysh在中控机上执行，避免登陆集…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-39ac7d2c3a11.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="Linux 与 Shell / 日常运维">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Shell脚本重复调用命令行">
+  <meta name="twitter:description" content="Shell脚本重复调用命令行。本文属于Linux 与 Shell / 日常运维，学习技巧： Shell 判断、循环、function &amp; polysh工具使用 Shell 判断、循环、function &amp; polysh工具使用 使用shell脚本一键迁移存储机器上的分片，使用polysh在中控机上执行，避免登陆集…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-39ac7d2c3a11.html#article","headline":"Shell脚本重复调用命令行","description":"Shell脚本重复调用命令行。本文属于Linux 与 Shell / 日常运维，学习技巧： Shell 判断、循环、function & polysh工具使用 Shell 判断、循环、function & polysh工具使用 使用shell脚本一键迁移存储机器上的分片，使用polysh在中控机上执行，避免登陆集…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["Linux 与 Shell","日常运维"],"keywords":["Linux 与 Shell","日常运维","日志分析","知识笔记","Linux 与 Shell / 日常运维","Shell脚本重复调用命令行","Shell","Linux"],"wordCount":2273,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-39ac7d2c3a11.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-39ac7d2c3a11.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"Linux 与 Shell / 日常运维","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Shell脚本重复调用命令行","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-39ac7d2c3a11.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>Linux 与 Shell / 日常运维</span> › <span>Shell脚本重复调用命令行</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">Linux 与 Shell / 日常运维</div>
+      <h1>Shell脚本重复调用命令行</h1>
+      <p class="lede">Shell脚本重复调用命令行。本文属于Linux 与 Shell / 日常运维，学习技巧： Shell 判断、循环、function &amp; polysh工具使用 Shell 判断、循环、function &amp; polysh工具使用 使用shell脚本一键迁移存储机器上的分片，使用polysh在中控机上执行，避免登陆集…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,273 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<ul>
+<li>
+<p><strong>生产实践：</strong></p>
+<p>使用shell重复调用命令行</p>
+</li>
+<li>
+<p><strong>学习技巧：</strong></p>
+<p><a href="https://chegva.com/tag/shell/" rel="noopener noreferrer" title="View all posts in Shell">Shell</a> 判断、循环、function &amp; polysh工具使用</p>
+</li>
+<li>
+<p><strong>脚本内容：</strong></p>
+</li>
+</ul>
+<p>使用shell脚本一键迁移存储机器上的分片，使用polysh在中控机上执行，避免登陆集群机器手动执行命令，提高效率</p>
+<p>mig_rt_out.sh：将分片迁出</p>
+<p><strong>mig_rt_out.sh</strong> 展开源码</p>
+<pre><code class="language-bash">#!/bin/bash
+dirname="/home/anzhihe/opdir/"
+logfile="/home/anzhihe/opdir/mig_rt.log"
+show_copy_tasks="/home/anzhihe/rt-table/rt-dashboard/MasterCmd show_copy_tasks"
+force_balance="/home/anzhihe/rt-table/rt-dashboard/MasterCmd force_balance offset=0 limit=1"
+date_now=$(date +"%Y-%m-%d %H:%M:%S")
+
+get_time() {
+ echo -e "\n++++++++++++ $date_now ++++++++++++" | tee -a $logfile
+}
+# 获取迁移分片任务总数
+get_tasksum() {
+ sum=`/home/anzhihe/rt-table/rt-dashboard/MasterCmd show_copy_tasks |wc -l`
+ task_sum=`expr $sum - 3`
+}
+# 将迁移任务信息记录日志
+set_logfile() {
+ echo "++++++++++++ $1 分片迁移任务开始 ++++++++++++" | tee -a $logfile
+ echo $date_now &gt;&gt; $logfile &amp;&amp; echo "$($show_copy_tasks)" | tee -a $logfile
+}
+# 配置分片迁移信息
+set_copy_tasks_info() {
+ if [ $# -lt 1 ]; then
+ echo "Usage: `basename $0` host_ip1 host_ip2..."
+ exit;
+ elif [ $# -eq 1 ]; then
+ json_file=`echo $1".json"`
+ chunk_file=`echo "$dirname""$json_file"`
+ #echo $chunk_file
+ if [ ! -f "$chunk_file" ]; then
+ get_time
+ echo "/home/anzhihe/rt-table/rt-dashboard/trp_distribute --output_check_res 0 rm_chunks --chunks $1:9090 &gt; $chunk_file" | tee -a $logfile
+ /home/anzhihe/rt-table/rt-dashboard/trp_distribute --output_check_res 0 rm_chunks --chunks $1:9090 &gt; $chunk_file | tee -a $logfile
+ echo "/home/anzhihe/rt-table/rt-dashboard/trp_distribute set_copy_tasks_info --data-file $chunk_file" | tee -a $logfile
+ /home/anzhihe/rt-table/rt-dashboard/trp_distribute set_copy_tasks_info --data-file $chunk_file | tee -a $logfile
+ set_logfile "$1"
+ else
+ echo "$chunk_file文件已存在，请检查！" | tee -a $logfile
+ exit 1
+ fi
+ else
+ port=":9090"
+ host=("$*")
+ allhost=`echo $host | sed "s/\s\+/_/g"`
+ hostinfo=`echo $host | sed "s/\s\+/${port}#/g"`${port}
+ #echo $hostinfo
+ json_file=`echo $allhost".json"`
+ chunk_file=`echo "$dirname""$json_file"`
+ #echo $chunk_file
+ if [ ! -f "$chunk_file" ]; then
+ get_time
+ echo "/home/anzhihe/rt-table/rt-dashboard/trp_distribute --output_check_res 0 rm_chunks --chunks ${hostinfo} &gt; $chunk_file" | tee -a $logfile
+ /home/anzhihe/rt-table/rt-dashboard/trp_distribute --output_check_res 0 rm_chunks --chunks ${hostinfo} &gt; $chunk_file | tee -a $logfile
+ echo "/home/anzhihe/rt-table/rt-dashboard/trp_distribute set_copy_tasks_info --data-file $chunk_file" | tee -a $logfile
+ /home/anzhihe/rt-table/rt-dashboard/trp_distribute set_copy_tasks_info --data-file $chunk_file | tee -a $logfile
+ set_logfile "${allhost}"
+ else
+ echo "$chunk_file文件已存在，请检查！" | tee -a $logfile
+ exit 1
+ fi
+ fi
+}
+# 执行分片迁移任务
+run_copy_tasks() {
+ while true
+ do
+ get_tasksum
+ if [ $task_sum -ge 1 ]; then
+ if echo $($show_copy_tasks) | grep -q "Copying" ; then
+ sleep 30
+ else
+ $($force_balance)
+ fi
+ else
+ date_now=$(date +"%Y-%m-%d %H:%M:%S")
+ #cd $dirname &amp;&amp; cp -f $json_file $json_file.bak-`date +%Y%m%d`
+ echo "++++++++++++ ${date_now} 分片迁移任务已完成！++++++++++++" | tee -a $logfile
+ break
+ fi
+ done
+}
+
+main() {
+ get_tasksum
+ if [ $task_sum -lt 1 ]; then
+ set_copy_tasks_info "$@"
+ sleep 10
+ if [ -f "$chunk_file" ]; then
+ run_copy_tasks
+ else
+ get_time
+ echo "$json_file文件没有创建成功，请检察！" | tee -a $logfile
+ exit 1
+ fi
+ else
+ echo "已经存在迁移任务，请检查！"
+ fi
+}
+
+main "$@"
+</code></pre>
+<p>mig_rt_in.sh：将分片迁回</p>
+<p><strong>mig_rt_in.sh</strong> 展开源码</p>
+<pre><code class="language-bash">#!/bin/bash
+dirname="/home/anzhihe/opdir/"
+logfile="/home/anzhihe/opdir/mig_rt.log"
+show_copy_tasks="/home/anzhihe/rt-table/rt-dashboard/MasterCmd show_copy_tasks"
+force_balance="/home/anzhihe/rt-table/rt-dashboard/MasterCmd force_balance offset=0 limit=1"
+date_now=$(date +"%Y-%m-%d %H:%M:%S")
+
+get_time() {
+ echo -e "\n============ $date_now ============" | tee -a $logfile
+}
+# 获取迁移分片任务总数
+get_tasksum() {
+ sum=`/home/anzhihe/rt-table/rt-dashboard/MasterCmd show_copy_tasks |wc -l`
+ task_sum=`expr $sum - 3`
+}
+# 将迁移任务信息记录日志
+set_logfile() {
+ echo "============ $1 分片迁回任务开始 ============" | tee -a $logfile
+ echo $date_now &gt;&gt; $logfile &amp;&amp; echo "$($show_copy_tasks)" | tee -a $logfile
+}
+# 配置分片迁移信息
+set_copy_tasks_info() {
+ if [ $# -ne 1 ]; then
+ echo "Usage: `basename $0` chunk_file"
+ exit
+ fi
+ if [ ! -f "$dirname$@" ]; then
+ echo "$@文件不存在请检查！"
+ exit
+ fi
+ host=`basename $1 .json`
+ json_file_b=`echo $host"-b.json"`
+ chunk_file=`echo "$dirname""$json_file_b"`
+ echo $chunk_file
+ if [[ "$@" == *_* ]]; then
+ host1=`echo $host |awk -F"_" '{ print $1}'`
+ host2=`echo $host |awk -F"_" '{ print $2}'`
+ if [ ! -f "$chunk_file" ]; then
+ get_time
+ sed -n '/"ChunkAddr": "'$host1':9090"/{h;n;/"ChunkAddr":/!{:a;N;/"PartitionId"/!ba;x;H;n};x;H;x};p' $dirname$@ | sed -n '/"ChunkAddr": "'$host2':9090"/{h;n;/"ChunkAddr":/!{:a;N;/"PartitionId"/!ba;x;H;n};x;H;x};p' | tee -a $chunk_file
+ echo "/home/anzhihe/rt-table/rt-dashboard/trp_distribute set_copy_tasks_info --data-file $chunk_file" | tee -a $logfile
+ /home/anzhihe/rt-table/rt-dashboard/trp_distribute set_copy_tasks_info --data-file $chunk_file
+ set_logfile $host
+ else
+ echo "$chunk_file文件已存在，请检察！" | tee -a $logfile
+ exit 1
+ fi
+ else
+ if [ ! -f "$chunk_file" ]; then
+ get_time
+ sed -n '/"ChunkAddr": "'$host':9090"/{h;n;/"ChunkAddr":/!{:a;N;/"PartitionId"/!ba;x;H;n};x;H;x};p' $dirname$@ | tee -a $chunk_file
+ echo "/home/anzhihe/rt-table/rt-dashboard/trp_distribute set_copy_tasks_info --data-file $chunk_file" | tee -a $logfile
+ /home/anzhihe/rt-table/rt-dashboard/trp_distribute set_copy_tasks_info --data-file $chunk_file
+ set_logfile $host
+ else
+ echo "$chunk_file文件已存在，请检察！" | tee -a $logfile
+ exit 1
+ fi
+ fi
+}
+# 执行分片迁移任务
+run_copy_tasks() {
+ while true
+ do
+ get_tasksum;
+ if [ $task_sum -ge 1 ]; then
+ if echo $($show_copy_tasks) | grep -q "Copying" ; then
+ sleep 30
+ else
+ $($force_balance)
+ fi
+ else
+ date_now=$(date +"%Y-%m-%d %H:%M:%S")
+ cd $dirname &amp;&amp; mv ${json_file} ${json_file}-`date +%Y%m%d` &amp;&amp; mv ${json_file_b} ${json_file_b}-`date +%Y%m%d`
+ echo "============ ${date_now} 分片迁回任务已完成！============" | tee -a $logfile
+ break
+ fi
+ done
+}
+
+main() {
+ get_tasksum
+ if [ $task_sum -lt 1 ]; then
+ set_copy_tasks_info "$@"
+ sleep 10
+ if [ -f "$chunk_file" ]; then
+ json_file="$@"
+ run_copy_tasks
+ else
+ get_time
+ echo "$json_file文件没有创建成功，请检察！" | tee -a $logfile
+ exit 1
+ fi
+ else
+ echo "已经存在迁移任务，请检查！"
+ fi
+}
+
+main "$@"
+</code></pre>
+<p>run_copy_tasks.sh：执行分片迁移</p>
+<p><strong>run_copy_tasks.sh</strong> 展开源码</p>
+<pre><code class="language-bash">#!/bin/bash
+dirname="/home/anzhihe/opdir/"
+logfile="/home/anzhihe/opdir/mig_rt.log"
+show_copy_tasks="/home/anzhihe/rt-table/rt-dashboard/MasterCmd show_copy_tasks"
+force_balance="/home/anzhihe/rt-table/rt-dashboard/MasterCmd force_balance offset=0 limit=1"
+date_now=$(date +"%Y-%m-%d %H:%M:%S")
+
+get_time() {
+ echo -e "\n============ $date_now ============" | tee -a $logfile
+}
+# 获取迁移分片任务总数
+get_tasksum() {
+ sum=`/home/anzhihe/rt-table/rt-dashboard/MasterCmd show_copy_tasks |wc -l`
+ task_sum=`expr $sum - 3`
+}
+# 将迁移任务信息记录日志
+set_logfile() {
+ echo "============ 重启分片迁移任务开始 ============" | tee -a $logfile
+ echo $date_now &gt;&gt; $logfile &amp;&amp; echo "$($show_copy_tasks)" | tee -a $logfile
+}
+# 配置分片迁移信息
+set_copy_tasks_info() {
+ if [ $# -ne 1 ]; then
+ echo "Usage: `basename $0` chunk_file"
+ exit
+ fi
+ if [ ! -f "$dirname$@" ]; then
+ echo "$@文件不存在请检查！"
+ exit
+ fi
+ host=`basename $1 .json`
+ json_file_b=`echo $host"-b.json"`
+ chunk_file=`echo "$dirname""$json_file_b"`
+ echo $chunk_file
+ if [[ "$@" == *_* ]]; then
+ host1=`echo $host |awk -F"_" '{ print $1}'`
+ host2=`echo $host |awk -F"_" '{ print $2}'`
+ if [ ! -f "$chunk_file" ]; then
+ get_time
+ sed -n '/"ChunkAddr": "'$host1':9090"/{h;n;/"ChunkAddr":/!{:a;N;/"PartitionId"/!ba;x;H;n};x;H;x};p' $dirname$@ | sed -n '/"ChunkAddr": "'$host2':9090"/{h;n;/"ChunkAddr":/!{:a;N;/"PartitionId"/!ba;x;H;n};x;H;x};p' | tee -a $chunk_file
+ echo "/home/anzhihe/rt-table/rt-dashboard/trp_distribute set_copy_tasks_info --data-file $chunk_file" | tee -a $logfile
+ #/home/anzhihe/rt-table/rt-dashboard/trp_distribute set_copy_tasks_info --data-file $chunk_file
+ set_logfile $host
+ else
+ echo "$chunk_file文件已存在，请检察！" | tee -a $logfile
+ exit 1
+ fi
+ else
+ if [ ! -f "$chunk_file" ]; then
+ get_time
+ sed -n '/"ChunkAddr": "'$host':9090"/{h;n;/"ChunkAddr":/!{:a;N;/"PartitionId"/!ba;x;H;n};x;H;x};p' $dirname$@ | tee -a $chunk_file
+ echo "/home/anzhihe/rt-table/rt-dashboard/trp_distribute set_copy_tasks_info --data-file $chunk_file" | tee -a $logfile
+ #/home/anzhihe/rt-table/rt-dashboard/trp_distribute set_copy_tasks_info --data-file $chunk_file
+ set_logfile $host
+ else
+ echo "$chunk_file文件已存在，请检察！" | tee -a $logfile
+ exit 1
+ fi
+ fi
+}
+# 执行分片迁移任务
+run_copy_tasks() {
+ set_logfile
+ while true
+ do
+ get_tasksum;
+ if [ $task_sum -ge 1 ]; then
+ if echo $($show_copy_tasks) | grep -q "Copying" ; then
+ sleep 30
+ else
+ $($force_balance)
+ fi
+ else
+ date_now=$(date +"%Y-%m-%d %H:%M:%S")
+ #cd $dirname &amp;&amp; mv ${json_file} ${json_file}-`date +%Y%m%d` &amp;&amp; mv ${json_file_b} ${json_file_b}-`date +%Y%m%d`
+ echo "============ ${date_now} 分片迁移任务已完成！============" | tee -a $logfile
+ break
+ fi
+ done
+}
+
+main() {
+ run_copy_tasks
+}
+
+main
+</code></pre>
+<p>.bash_profile：polysh调用配置</p>
+<p><strong>bash_profile</strong> 展开源码</p>
+<pre><code># ~/.bash_profile
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+ . ~/.bashrc
+fi
+# User specific environment and startup programs
+# User specific environment and startup programs
+alias rp='polysh xxx --command="sh /home/anzhihe/opdir/cmdb.sh"'
+
+rt-bj-pub() {
+ local host_master=`polysh chegva-rtmaster01.bj01 --command='/home/anzhihe/rt-table/rt-dashboard/MasterCmd host_master | grep -E -o "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}" | grep -v 203.0.113.1'|awk '{ print $3 }'`
+ case "$@" in
+ "status")
+ polysh $host_master --command="/home/anzhihe/rt-table/rt-dashboard/MasterCmd show_copy_tasks"
+ ;;
+ "stop")
+ polysh $host_master --command="/home/anzhihe/rt-table/rt-dashboard/MasterCmd stop_copying_tasks"
+ ;;
+ "master")
+ echo $host_master
+ ;;
+ *)
+ if [[ "$1" == cmd ]]; then
+ polysh $2 --user=anzhihe --command="$3"
+ elif [[ "$1" == file ]]; then
+ polysh $host_master --command="find /home/anzhihe/opdir -name "*.json*" |xargs -n1 basename"
+ elif [[ "$1" == run ]]; then
+ polysh $host_master --user=root --command="sh /home/anzhihe/opdir/run_copy_tasks.sh"
+ elif [[ "$1" == out ]]; then
+ host=`echo ${@:2}`
+ polysh $host_master --user=root --command="sh /home/anzhihe/opdir/mig_rt_out.sh $host"
+ elif [[ "$1" == back ]]; then
+ host=`echo ${@:2}`
+ polysh $host_master --user=root --command="sh /home/anzhihe/opdir/mig_rt_in.sh $host"
+ else
+ echo "输入参数有误，请检查后执行！"
+ fi
+ esac
+}
+
+rt-gz-gs() {
+ local host_master=`polysh chegva-rtmaster00.gz01 --command='/home/anzhihe/rt-table/rt-dashboard/MasterCmd host_master | grep -E -o "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}" | grep -v 203.0.113.1'|awk '{ print $3 }'`
+ case "$@" in
+ "status")
+ polysh $host_master --command="/home/anzhihe/rt-table/rt-dashboard/MasterCmd show_copy_tasks"
+ ;;
+ "stop")
+ polysh $host_master --command="/home/anzhihe/rt-table/rt-dashboard/MasterCmd stop_copying_tasks"
+ ;;
+ "master")
+ echo $host_master
+ ;;
+ *)
+ if [[ "$1" == cmd ]]; then
+ polysh $2 --user=anzhihe --command="$3"
+ elif [[ "$1" == file ]]; then
+ polysh $host_master --command="find /home/anzhihe/opdir -name "*.json*" |xargs -n1 basename"
+ elif [[ "$1" == run ]]; then
+ polysh $host_master --user=root --command="sh /home/anzhihe/opdir/run_copy_tasks.sh"
+ elif [[ "$1" == out ]]; then
+ host=`echo ${@:2}`
+ polysh $host_master --user=root --command="sh /home/anzhihe/opdir/mig_rt_out.sh $host"
+ elif [[ "$1" == back ]]; then
+ host=`echo ${@:2}`
+ polysh $host_master --user=root --command="sh /home/anzhihe/opdir/mig_rt_in.sh $host"
+ else
+ echo "输入参数有误，请检查后执行！"
+ fi
+ esac
+}
+#删除所有任务：
+#./MasterCmd del_all_copy_tasks
+#./MasterCmd stop_copying_tasks
+PATH=$PATH:$HOME/bin
+export PATH
+</code></pre>
+<p>参考：<a href="https://chegva.com/3752.html" rel="noopener noreferrer">批量命令工具Polysh推荐</a></p>
+      </article>
+      <aside class="aside">
+        
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：Linux 与 Shell / 日常运维</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">Linux 与 Shell</span><span class="tag">日常运维</span><span class="tag">日志分析</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/08-运维技巧/birdben/84417230.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2B%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-Shell%E8%84%9A%E6%9C%AC%E9%87%8D%E5%A4%8D%E8%B0%83%E7%94%A8%E5%91%BD%E4%BB%A4%E8%A1%8C.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Shell脚本重复调用命令行。本文属于Linux 与 Shell / 日常运维，学习技巧： Shell 判断、循环、function &amp; polysh工具使用 Shell 判断、循环、function &amp; polysh工具使用 使用shell脚本一键迁移存储机器上的分片，使用polysh在中控机上执行，避免登陆集…</p>
+      <p>关键词：Linux 与 Shell、日常运维、日志分析、知识笔记、Linux 与 Shell / 日常运维、Shell脚本重复调用命令行、Shell、Linux</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-50c4294d23ff.html"><small>上一篇</small>Shell脚本示例</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2594075e4b47.html"><small>下一篇</small>Sudo提权</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-39ac7d2c3a11.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

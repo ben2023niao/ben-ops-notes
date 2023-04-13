@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Nginx解决跨域方案一｜DevOps 与 SRE / 优化方案｜BEN.OPS</title>
+  <meta name="description" content="Nginx解决跨域方案一。本文属于DevOps 与 SRE / 优化方案，跨域是前端开发中经常会遇到的问题，前端调用后台服务时，通常会遇到 No ‘Access-Control-Allow-Origin’ header is present on the requested resource 的错误，这是因为浏览…">
+  <meta name="keywords" content="DevOps 与 SRE，优化方案，Nginx，CORS，知识笔记，DevOps 与 SRE / 优化方案，Nginx解决跨域方案一，DevOps，SRE">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0ea210be06c3.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0ea210be06c3.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BNginx%2BCORS-Nginx%E8%A7%A3%E5%86%B3%E8%B7%A8%E5%9F%9F%E6%96%B9%E6%A1%88%E4%B8%80.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Nginx解决跨域方案一">
+  <meta property="og:description" content="Nginx解决跨域方案一。本文属于DevOps 与 SRE / 优化方案，跨域是前端开发中经常会遇到的问题，前端调用后台服务时，通常会遇到 No ‘Access-Control-Allow-Origin’ header is present on the requested resource 的错误，这是因为浏览…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0ea210be06c3.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="DevOps 与 SRE / 优化方案">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Nginx解决跨域方案一">
+  <meta name="twitter:description" content="Nginx解决跨域方案一。本文属于DevOps 与 SRE / 优化方案，跨域是前端开发中经常会遇到的问题，前端调用后台服务时，通常会遇到 No ‘Access-Control-Allow-Origin’ header is present on the requested resource 的错误，这是因为浏览…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0ea210be06c3.html#article","headline":"Nginx解决跨域方案一","description":"Nginx解决跨域方案一。本文属于DevOps 与 SRE / 优化方案，跨域是前端开发中经常会遇到的问题，前端调用后台服务时，通常会遇到 No ‘Access-Control-Allow-Origin’ header is present on the requested resource 的错误，这是因为浏览…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["DevOps 与 SRE","优化方案"],"keywords":["DevOps 与 SRE","优化方案","Nginx","CORS","知识笔记","DevOps 与 SRE / 优化方案","Nginx解决跨域方案一","DevOps","SRE"],"wordCount":756,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0ea210be06c3.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0ea210be06c3.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"DevOps 与 SRE / 优化方案","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Nginx解决跨域方案一","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0ea210be06c3.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>DevOps 与 SRE / 优化方案</span> › <span>Nginx解决跨域方案一</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">DevOps 与 SRE / 优化方案</div>
+      <h1>Nginx解决跨域方案一</h1>
+      <p class="lede">Nginx解决跨域方案一。本文属于DevOps 与 SRE / 优化方案，跨域是前端开发中经常会遇到的问题，前端调用后台服务时，通常会遇到 No ‘Access-Control-Allow-Origin’ header is present on the requested resource 的错误，这是因为浏览…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">756 字</span>
+        <span class="badge">3 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="什么是跨域">什么是跨域</h2>
+<p>跨域是前端开发中经常会遇到的问题，前端调用后台服务时，通常会遇到 No ‘Access-Control-Allow-Origin’ header is present on the requested resource 的错误，这是因为浏览器的同源策略拒绝了我们的请求。</p>
+<p>所谓同源是指，域名，协议，端口相同，浏览器执行一个脚本时同源的脚本才会被执行。如果非同源，那么在请求数据时，浏览器会在控制台中报一个异常，提示拒绝访问。这个问题我们通常会使用 CORS(跨源资源共享)或者 JSONP 去解决，这两种方法也是使用较多的方法。</p>
+<h3 id="解决跨域">解决跨域</h3>
+<p>这个使用<strong><a href="https://haicoder.net/nginx/nginx-tutorial.html" rel="noopener noreferrer">Nginx</a></strong>的代理功能即可，在 a 服务器的 Nginx 添加如下示例配置：</p>
+<pre><code class="language-nginx">location ~ /xxx/ {
+ proxy_pass http://b.com;
+}
+</code></pre>
+<p>这样就把路径中带有 /xxx/ 的请求都转到了 <a href="http://b.com" rel="noopener noreferrer">b.com</a>。如果不需要保存 cookie，保持 session 这样的功能，这样就可以了。</p>
+<p>然而，本项目就是要用到 cookie，所以就有了下边的内容。</p>
+<h3 id="设置domain">设置domain</h3>
+<p>因为 cookie 当中是有 domain 的，两个服务器的一般不同，比如 a 服务器返回的 Response Headers 中是</p>
+<p><code>Set-Cookie:JSESSIONID=_3y4u02v4cbpBw10DoCrMSnjg7m34xuum1XRWBF1Uno; path=/; domain=a.com</code></p>
+<p>而 b 服务器返回的是</p>
+<p><code>Set-Cookie:JSESSIONID=_3y4u02v4cbpBw10DoCrMSnjg7m34xuum1XRWBF1Uno; path=/; domain=b.com</code></p>
+<p>这时候如果 a 项目的页面调用了 b 的接口，浏览器发现接口返回的 domain 不是 <a href="http://a.com" rel="noopener noreferrer">a.com</a>，就不会把 cookie 保存起来，session 也就失效了。Nginx 引入了 proxy_cookie_domain 来解决这个问题。示例：</p>
+<pre><code class="language-nginx">location ~ /xxx/ {
+ proxy_cookie_domain b.com a.com;
+ proxy_pass http://b.com;
+}
+</code></pre>
+<p>这样就可以在 Nginx 转接请求的时候自动把 domain 中的 <a href="http://b.com" rel="noopener noreferrer">b.com</a> 转换成 <a href="http://a.com" rel="noopener noreferrer">a.com</a>，这样 cookie 就可以设置成功了。</p>
+<p>但是，对于有些情况这样转换不灵光。比如，b 项目的 domain 是 .<a href="http://b.com" rel="noopener noreferrer">b.com</a>，前边多了一个小点，那对应的改为 proxy_cookie_domain .<a href="http://b.com" rel="noopener noreferrer">b.com</a> <a href="http://a.com" rel="noopener noreferrer">a.com</a>; 可以不？通过实践，不行！！！</p>
+<p>通过查看 Nginx 文档，找到了解决办法。其实，除了上边那种配置方式外，Nginx 还支持正则配置：</p>
+<pre><code class="language-nginx">location ~ /xxx/ {
+ proxy_cookie_domain ~\.?b.com a.com;
+ proxy_pass http://b.com;
+}
+</code></pre>
+<p>这样就可以把 domain 中的 .<a href="http://b.com" rel="noopener noreferrer">b.com</a> 转换成 <a href="http://a.com" rel="noopener noreferrer">a.com</a> 啦。</p>
+<h3 id="设置path">设置path</h3>
+<p>正常情况下完成以上两步就可以了，因为 cookie 中的 path 一般默认的是 path=/，也就是所有请求都可以访问本 cookie。但有些服务器会指定，只允许某个层级下的请求可以访问 cookie，比如：</p>
+<p><code>Set-Cookie:JSESSIONID=_3y4u02v4cbpBw10DoCrMSnjg7m34xuum1XRWBF1Uno; path=/sub/; domain=b.com</code></p>
+<p>这样就只允许相对根路径，以 /sub/ 开头的请求路径才能访问 cookie。这时候就又可能出现 cookie 无效的问题了，为了解决这个问题，可以使用 proxy_cookie_path。示例：</p>
+<pre><code class="language-nginx">location ~ /xxx/ {
+ proxy_cookie_domain ~\.?b.com a.com;
+ proxy_cookie_path /sub/ /;
+ proxy_pass http://b.com;
+}
+</code></pre>
+<p>这样就把只允许 /sub/ 层级下的请求访问 cookie，改为允许所有请求访问 cookie 了。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#什么是跨域">什么是跨域</a></li><li style="margin-left:0.8rem"><a href="#解决跨域">解决跨域</a></li><li style="margin-left:0.8rem"><a href="#设置domain">设置domain</a></li><li style="margin-left:0.8rem"><a href="#设置path">设置path</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：DevOps 与 SRE / 优化方案</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">DevOps 与 SRE</span><span class="tag">优化方案</span><span class="tag">Nginx</span><span class="tag">CORS</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/03-优化方案/birdben/68656782.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BNginx%2BCORS-Nginx%E8%A7%A3%E5%86%B3%E8%B7%A8%E5%9F%9F%E6%96%B9%E6%A1%88%E4%B8%80.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Nginx解决跨域方案一。本文属于DevOps 与 SRE / 优化方案，跨域是前端开发中经常会遇到的问题，前端调用后台服务时，通常会遇到 No ‘Access-Control-Allow-Origin’ header is present on the requested resource 的错误，这是因为浏览…</p>
+      <p>关键词：DevOps 与 SRE、优化方案、Nginx、CORS、知识笔记、DevOps 与 SRE / 优化方案、Nginx解决跨域方案一、DevOps、SRE</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c13d93ebf7d.html"><small>上一篇</small>Nginx漏桶算法和令牌桶算法</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-669fe33a0ab6.html"><small>下一篇</small>Nginx解决跨域方案二</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0ea210be06c3.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

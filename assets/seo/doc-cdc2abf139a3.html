@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Linux网络IO模型｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="Linux网络IO模型。本文属于安全与堡垒机 / 高级安全，Linux 的五种 IO 模型，分别是：阻塞 IO、非阻塞 IO、多路复用 IO、信号驱动 IO 以及异步 IO。其中阻塞 IO、非阻塞 IO、多路复用 IO、信号驱动 IO 都属于同步 IO。 同步 IO：应用程序主动向内核查询是否有可用数据，如果有自…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，Linux，知识笔记，安全与堡垒机 / 高级安全，Linux网络IO模型">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cdc2abf139a3.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cdc2abf139a3.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-Linux%E7%BD%91%E7%BB%9CIO%E6%A8%A1%E5%9E%8B.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Linux网络IO模型">
+  <meta property="og:description" content="Linux网络IO模型。本文属于安全与堡垒机 / 高级安全，Linux 的五种 IO 模型，分别是：阻塞 IO、非阻塞 IO、多路复用 IO、信号驱动 IO 以及异步 IO。其中阻塞 IO、非阻塞 IO、多路复用 IO、信号驱动 IO 都属于同步 IO。 同步 IO：应用程序主动向内核查询是否有可用数据，如果有自…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cdc2abf139a3.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  <meta property="og:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/da703c02b0f49a693f.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Linux网络IO模型">
+  <meta name="twitter:description" content="Linux网络IO模型。本文属于安全与堡垒机 / 高级安全，Linux 的五种 IO 模型，分别是：阻塞 IO、非阻塞 IO、多路复用 IO、信号驱动 IO 以及异步 IO。其中阻塞 IO、非阻塞 IO、多路复用 IO、信号驱动 IO 都属于同步 IO。 同步 IO：应用程序主动向内核查询是否有可用数据，如果有自…">
+  <meta name="twitter:image" content="https://ben2023niao.github.io/ben-ops-notes/doc/media/da703c02b0f49a693f.png">
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cdc2abf139a3.html#article","headline":"Linux网络IO模型","description":"Linux网络IO模型。本文属于安全与堡垒机 / 高级安全，Linux 的五种 IO 模型，分别是：阻塞 IO、非阻塞 IO、多路复用 IO、信号驱动 IO 以及异步 IO。其中阻塞 IO、非阻塞 IO、多路复用 IO、信号驱动 IO 都属于同步 IO。 同步 IO：应用程序主动向内核查询是否有可用数据，如果有自…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","Linux","知识笔记","安全与堡垒机 / 高级安全","Linux网络IO模型"],"wordCount":827,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cdc2abf139a3.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cdc2abf139a3.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"},"image":["https://ben2023niao.github.io/ben-ops-notes/doc/media/da703c02b0f49a693f.png"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Linux网络IO模型","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cdc2abf139a3.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>Linux网络IO模型</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>Linux网络IO模型</h1>
+      <p class="lede">Linux网络IO模型。本文属于安全与堡垒机 / 高级安全，Linux 的五种 IO 模型，分别是：阻塞 IO、非阻塞 IO、多路复用 IO、信号驱动 IO 以及异步 IO。其中阻塞 IO、非阻塞 IO、多路复用 IO、信号驱动 IO 都属于同步 IO。 同步 IO：应用程序主动向内核查询是否有可用数据，如果有自…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">827 字</span>
+        <span class="badge">3 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<p><strong><a href="https://haicoder.net/linux/linux-tutorial.html" rel="noopener noreferrer">Linux</a></strong> 的五种 IO 模型，分别是：阻塞 IO、非阻塞 IO、多路复用 IO、信号驱动 IO 以及异步 IO。其中阻塞 IO、非阻塞 IO、多路复用 IO、信号驱动 IO 都属于同步 IO。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/da703c02b0f49a693f.png"/></p>
+<h2 id="同步IO和异步IO">同步IO和异步IO</h2>
+<p>同步 IO：应用程序主动向内核查询是否有可用数据，如果有自己负责把数据从内核 copy 到用户空间。</p>
+<p>异步 IO：应用程序向内核发起读数据请求需要：（1）告诉内核数据存放位置（2）注册回调函数，当内核完成数据 copy 后调用回调通知应用程序取数据。</p>
+<p>同步IO/异步IO最大区别：同步 IO 数据从内核空间到用户空间的 copy 动作是由应用程序自己完成。而异步 IO 则是注册回调函数并告知内核用户空间缓冲区存放地址，数据 copy 由内核完成。</p>
+<h2 id="Linux五种网络IO模型">Linux五种网络IO模型</h2>
+<h3 id="阻塞IO模型">阻塞IO模型</h3>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/5fe67bd5c787af39da.png"/></p>
+<ol>
+<li>当应用程序发起网络 IO 的请求时会调用操作系统 recvfrom 函数。</li>
+<li>等待系统内核准备数据报(获取网络数据:网卡把数据拷贝到内核)。</li>
+<li>数据报准备好后将数据从内核拷贝到用户空间，即应用程序空间。</li>
+</ol>
+<h3 id="非阻塞IO模型">非阻塞IO模型<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/381ca8c863542ab41c.png"/></h3>
+<p>一般很少用这个非阻塞模型，因为反复调用消耗 CPU。</p>
+<h3 id="IO复用模型">IO复用模型</h3>
+<p>IO 复用模型是 Linux 下用的最多的，也就是 JDK 中的 NIO。
+<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/6edbd80e9a199c01f2.png"/></p>
+<p>特点：</p>
+<ol>
+<li>对于某一个应用进程而言，或者说在某一次网络通信,它还是阻塞的,但是可以同时服务于多个网络通信。</li>
+<li>多个 select 函数即多个 socket 请求，会挂在内核中,操作系统会轮询检查数据报是否准备好再返回可读条件即就绪，应用程序再发起 recefrom 函数拷贝内核中的数据。</li>
+</ol>
+<p>select 和 epoll，对一个 socket 两次调用，两次返回，比阻塞 IO 并没有什么优越性，关键是能实现同时对多个 socket 进行处理。</p>
+<h3 id="信号驱动IO-相对少用">信号驱动IO—(相对少用)</h3>
+<p><img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/c98a3edbb410fdcca7.png"/></p>
+<h3 id="异步IO模型">异步IO模型<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/3dd2f4f224af0eb8ab.png"/></h3>
+<p>当一个异步过程调用发出后，系统直接返回,调用者不能立刻得到结果。实际处理这个调用的部件在完成后，通过状态、通知和回调来通知调用者的输入输出操作。</p>
+<h2 id="五种IO模型的比较">五种IO模型的比较<img alt="文档配图" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/15e70147552d3bcc13.png"/></h2>
+<p>除异步 IO 模型，前面四种 IO 模型第二阶段都是相同的，阻塞于 recefrom 调用。</p>
+<h2 id="总结">总结</h2>
+<p>五种 IO 的模型：阻塞 IO、非阻塞 IO、多路复用 IO、信号驱动 IO 和异步 IO；前四种都是同步 IO，在内核数据 copy 到用户空间时都是阻塞的。</p>
+<p>阻塞 IO 和非阻塞 IO 的区别在于第一步，发起 IO 请求是否会被阻塞，如果会那就是传统的阻塞 IO，如果不会那就是非阻塞 IO。</p>
+<p>同步 IO 和异步 IO 的区别就在于第二个步骤是否阻塞，如果实际的 IO 读写阻塞请求进程，那么就是同步 IO；如果不阻塞，而是操作系统帮你做完 IO 操作再将结果返回给你，那么就是异步 IO。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#同步IO和异步IO">同步IO和异步IO</a></li><li style="margin-left:0.0rem"><a href="#Linux五种网络IO模型">Linux五种网络IO模型</a></li><li style="margin-left:0.8rem"><a href="#阻塞IO模型">阻塞IO模型</a></li><li style="margin-left:0.8rem"><a href="#非阻塞IO模型">非阻塞IO模型</a></li><li style="margin-left:0.8rem"><a href="#IO复用模型">IO复用模型</a></li><li style="margin-left:0.8rem"><a href="#信号驱动IO-相对少用">信号驱动IO—(相对少用)</a></li><li style="margin-left:0.8rem"><a href="#异步IO模型">异步IO模型</a></li><li style="margin-left:0.0rem"><a href="#五种IO模型的比较">五种IO模型的比较</a></li><li style="margin-left:0.0rem"><a href="#总结">总结</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">Linux</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68656960.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-Linux%E7%BD%91%E7%BB%9CIO%E6%A8%A1%E5%9E%8B.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Linux网络IO模型。本文属于安全与堡垒机 / 高级安全，Linux 的五种 IO 模型，分别是：阻塞 IO、非阻塞 IO、多路复用 IO、信号驱动 IO 以及异步 IO。其中阻塞 IO、非阻塞 IO、多路复用 IO、信号驱动 IO 都属于同步 IO。 同步 IO：应用程序主动向内核查询是否有可用数据，如果有自…</p>
+      <p>关键词：安全与堡垒机、高级安全、Linux、知识笔记、安全与堡垒机 / 高级安全、Linux网络IO模型</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2d7e3e358819.html"><small>上一篇</small>Linux系统负载</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-43dcab932022.html"><small>下一篇</small>Linux进程状态</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cdc2abf139a3.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

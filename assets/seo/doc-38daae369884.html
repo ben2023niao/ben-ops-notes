@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>软中断与硬中断｜安全与堡垒机 / 高级安全｜BEN.OPS</title>
+  <meta name="description" content="软中断与硬中断。本文属于安全与堡垒机 / 高级安全，中断是指计算机在执行期间，系统内发生任何非寻常的或非预期的急需处理事件，使得 CPU 暂时中断当前正在执行的程序而转去执行相应的事件处理程序，待处理完毕后又返回原来被中断处继续执行或调度新的进程执行的过程。引起中断发生的事件被称为中断源。中断源向 CPU 发出的…">
+  <meta name="keywords" content="安全与堡垒机，高级安全，备份恢复，知识笔记，安全与堡垒机 / 高级安全，软中断与硬中断">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-38daae369884.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-38daae369884.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2B%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E8%BD%AF%E4%B8%AD%E6%96%AD%E4%B8%8E%E7%A1%AC%E4%B8%AD%E6%96%AD.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="软中断与硬中断">
+  <meta property="og:description" content="软中断与硬中断。本文属于安全与堡垒机 / 高级安全，中断是指计算机在执行期间，系统内发生任何非寻常的或非预期的急需处理事件，使得 CPU 暂时中断当前正在执行的程序而转去执行相应的事件处理程序，待处理完毕后又返回原来被中断处继续执行或调度新的进程执行的过程。引起中断发生的事件被称为中断源。中断源向 CPU 发出的…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-38daae369884.html">
+  <meta property="article:published_time" content="2023-04-14T15:57:00">
+  <meta property="article:modified_time" content="2023-04-14 15:57">
+  <meta property="article:section" content="安全与堡垒机 / 高级安全">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="软中断与硬中断">
+  <meta name="twitter:description" content="软中断与硬中断。本文属于安全与堡垒机 / 高级安全，中断是指计算机在执行期间，系统内发生任何非寻常的或非预期的急需处理事件，使得 CPU 暂时中断当前正在执行的程序而转去执行相应的事件处理程序，待处理完毕后又返回原来被中断处继续执行或调度新的进程执行的过程。引起中断发生的事件被称为中断源。中断源向 CPU 发出的…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-38daae369884.html#article","headline":"软中断与硬中断","description":"软中断与硬中断。本文属于安全与堡垒机 / 高级安全，中断是指计算机在执行期间，系统内发生任何非寻常的或非预期的急需处理事件，使得 CPU 暂时中断当前正在执行的程序而转去执行相应的事件处理程序，待处理完毕后又返回原来被中断处继续执行或调度新的进程执行的过程。引起中断发生的事件被称为中断源。中断源向 CPU 发出的…","datePublished":"2023-04-14T15:57:00","dateModified":"2023-04-14 15:57","inLanguage":"zh-CN","articleSection":["安全与堡垒机","高级安全"],"keywords":["安全与堡垒机","高级安全","备份恢复","知识笔记","安全与堡垒机 / 高级安全","软中断与硬中断"],"wordCount":2745,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-38daae369884.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-38daae369884.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 高级安全","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"软中断与硬中断","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-38daae369884.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 高级安全</span> › <span>软中断与硬中断</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 高级安全</div>
+      <h1>软中断与硬中断</h1>
+      <p class="lede">软中断与硬中断。本文属于安全与堡垒机 / 高级安全，中断是指计算机在执行期间，系统内发生任何非寻常的或非预期的急需处理事件，使得 CPU 暂时中断当前正在执行的程序而转去执行相应的事件处理程序，待处理完毕后又返回原来被中断处继续执行或调度新的进程执行的过程。引起中断发生的事件被称为中断源。中断源向 CPU 发出的…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T15:57:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,745 字</span>
+        <span class="badge">8 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="中断的基本概念">中断的基本概念</h2>
+<p>中断是指计算机在执行期间，系统内发生任何非寻常的或非预期的急需处理事件，使得 CPU 暂时中断当前正在执行的程序而转去执行相应的事件处理程序，待处理完毕后又返回原来被中断处继续执行或调度新的进程执行的过程。引起中断发生的事件被称为中断源。中断源向 CPU 发出的请求中断处理信号称为中断请求，而 CPU 收到中断请求后转到相应的事件处理程序称为中断响应。</p>
+<p>在有些情况下，尽管产生了中断源和发出了中断请求，但 CPU 内部的处理器状态字 PSW 的中断允许位已被清除，从而不允许 CPU 响应中断。这种情况称为禁止中断。CPU 禁止中断后只有等到 PSW 的中断允许位被重新设置后才能接收中断。禁止中断也称为关中断，PSW 的中断允许位的设置也被称为开中断。开中断和关中断是为了保证某段程序执行的原子性。</p>
+<p>还有一个比较常用的概念是中断屏蔽。中断屏蔽是指在中断请求产生之后，系统有选择地封锁一部分中断而允许另一部分中断仍能得到响应。不过，有些中断请求是不能屏蔽甚至不能禁止的，也就是说，这些中断具有最高优先级，只要这些中断请求一旦提出，CPU 必须立即响应。例如，电源掉电事件所引起的中断就是不可禁止和不可屏蔽的。</p>
+<h2 id="中断的分类与优先级">中断的分类与优先级</h2>
+<p>根据系统对中断处理的需要，操作系统一般对中断进行分类并对不同的中断赋予不同的处理优先级，以便在不同的中断同时发生时，按轻重缓急进行处理。</p>
+<p>根据中断源产生的条件，可把中断分为外中断和内中断。外中断是指来自处理器和内存外部的中断，包括 IO 设备发出的 IO 中断、外部信号中断(例如用户键人 ESC 键)。各种定时器引起的时钟中断以及调试程序中设置的断点等引起的调试中断等。外中断在狭义上一般被称为中断。</p>
+<p>内中断主要指在处理器和内存内部产生的中断。内中断一般称为陷阱(trap)或异常。它包括程序运算引起的各种错误，如地址非法、校验错、页面失效、存取访问控制错、算术操作溢出、数据格式非法、除数为零、非法指令、用户程序执行特权指令、分时系统中的时间片中断以及从用户态到核心态的切换等都是陷阱的例子。</p>
+<p>为了按中断源的轻重缓急处理响应中断，操作系统为不同的中断赋予不同的优先级。例如在 UNIX 系统中，外中断和陷阱的优先级共分为 8 级。为了禁止中断或屏蔽中断，CPU 的处理器状态字 PSW 中也设有相应的优先级。如果中断源的优先级高于 PSW 的优先级，则 CPU 响应该中断源的请求；反之，CPU 屏蔽该中断源的中断请求。</p>
+<p>各中断源的优先级在系统设计时给定，在系统运行时是固定的。而处理器的优先级则根据执行情况由系统程序动态设定。</p>
+<p>除了在优先级的设置方面有区别之外，中断和陷阱还有如下主要区别：</p>
+<ul>
+<li>陷阱通常由处理器正在执行的现行指令引起，而中断则是由与现行指令无关的中断源引起的。陷阱处理程序提供的服务为当前进程所用，而中断处理程序提供的服务则不是为了当前进程的。</li>
+<li>CPU 执行完一条指令之后，下一条指令开始之前响应中断，而在一条指令执行中也可以响应陷阱。例如执行指令非法时，尽管被执行的非法指令不能执行结束，但 CPU 仍可对其进行处理。</li>
+</ul>
+<h2 id="硬中断">硬中断</h2>
+<ol>
+<li>硬中断是由硬件产生的，比如，像磁盘，网卡，键盘，时钟等。每个设备或设备集都有它自己的 IRQ（中断请求）。基于 IRQ，CPU 可以将相应的请求分发到对应的硬件驱动上（注：硬件驱动通常是内核中的一个子程序，而不是一个独立的进程）。</li>
+<li>处理中断的驱动是需要运行在 CPU 上的，因此，当中断产生的时候，CPU 会中断当前正在运行的任务，来处理中断。在有多核心的系统上，一个中断通常只能中断一颗 CPU（也有一种特殊的情况，就是在大型主机上是有硬件通道的，它可以在没有主 CPU 的支持下，可以同时处理多个中断。）。</li>
+<li>硬中断可以直接中断 CPU。它会引起内核中相关的代码被触发。对于那些需要花费一些时间去处理的进程，中断代码本身也可以被其他的硬中断中断。</li>
+<li>对于时钟中断，内核调度代码会将当前正在运行的进程挂起，从而让其他的进程来运行。它的存在是为了让调度代码（或称为调度器）可以调度多任务。</li>
+</ol>
+<h2 id="软中断">软中断</h2>
+<ol>
+<li>软中断的处理非常像硬中断。然而，它们仅仅是由当前正在运行的进程所产生的。</li>
+<li>通常，软中断是一些对 I/O 的请求。这些请求会调用内核中可以调度 I/O 发生的程序。对于某些设备，I/O 请求需要被立即处理，而磁盘 I/O 请求通常可以排队并且可以稍后处理。根据 I/O 模型的不同，进程或许会被挂起直到 I/O 完成，此时内核调度器就会选择另一个进程去运行。I/O 可以在进程之间产生并且调度过程通常和磁盘 I/O 的方式是相同。</li>
+<li>软中断仅与内核相联系。而内核主要负责对需要运行的任何其他的进程进行调度。一些内核允许设备驱动的一些部分存在于用户空间，并且当需要的时候内核也会调度这个进程去运行。</li>
+<li>软中断并不会直接中断 CPU。也只有当前正在运行的代码（或进程）才会产生软中断。这种中断是一种需要内核为正在运行的进程去做一些事情（通常为 I/O）的请求。有一个特殊的软中断是 Yield 调用，它的作用是请求内核调度器去查看是否有一些其他的进程可以运行。</li>
+</ol>
+<h2 id="硬中断与软中断之区别与联系">硬中断与软中断之区别与联系</h2>
+<ol>
+<li>硬中断是有外设硬件发出的，需要有中断控制器之参与。其过程是外设侦测到变化，告知中断控制器，中断控制器通过 CPU 或内存的中断脚通知 CPU，然后硬件进行程序计数器及堆栈寄存器之现场保存工作（引发上下文切换），并根据中断向量调用硬中断处理程序进行中断处理。</li>
+<li>软中断则通常是由硬中断处理程序或者进程调度程序等软件程序发出的中断信号，无需中断控制器之参与，直接以一个 CPU 指令之形式指示 CPU 进行程序计数器及堆栈寄存器之现场保存工作(亦会引发上下文切换)，并调用相应的软中断处理程序进行中断处理(即我们通常所言之系统调用)。</li>
+<li>硬中断直接以硬件的方式引发，处理速度快。软中断以软件指令之方式适合于对响应速度要求不是特别严格的场景。</li>
+<li>硬中断通过设置 CPU 的屏蔽位可进行屏蔽，软中断则由于是指令之方式给出，不能屏蔽。</li>
+<li>硬中断发生后，通常会在硬中断处理程序中调用一个软中断来进行后续工作的处理。</li>
+<li>硬中断和软中断均会引起上下文切换(进程/线程之切换)，进程切换的过程是差不多的。</li>
+</ol>
+<h2 id="中断处理过程">中断处理过程</h2>
+<p>一旦 CPU 响应中断，转人中断处理程序，系统就开始进行中断处理。下面对中断处理过程进行详细说明：</p>
+<ol>
+<li>CPU 检查响应中断的条件是否满足。CPU 响应中断的条件是：有来自于中断源的中断请求、CPU 允许中断。如果中断响应条件不满足，则中断处理无法进行。</li>
+<li>如果 CPU 响应中断，则 CPU 关中断，使其进入不可再次响应中断的状态。</li>
+<li>保存被中断进程现场。为了在中断处理结束后能使进程正确地返回到中断点，系统必须保存当前处理器状态字 PSW 和程序计数器 PC 等的值。这些值一般保存在特定堆栈或硬件寄存器中。</li>
+<li>分析中断原因，调用中断处理子程序。在多个中断请求同时发生时，处理优先级最高的中断源发出的中断请求。在系统中，为了处理上的方便，通常都是针对不同的中断源编制有不同的中断处理子程序(陷阱处理子程序)。这些子程序的人口地址(或陷阱指令的人口地址)存放在内存的特定单元中。</li>
+</ol>
+<p>再者，不同的中断源也对应着不同的处理器状态字 PSW。这些不同的 PSW 被放在相应的内存单元中，与中断处理子程序人口地址一起构成中断向量。显然，根据中断或陷阱的种类，系统可由中断向量表迅速地找到该中断响应的优先级、中断处理子程序(或陷阱指令)的入口地址和对应的 PSW。</p>
+<ol>
+<li>执行中断处理子程序。对陷阱来说，在有些系统中则是通过陷阱指令向当前执行进程发出软中断信号后调用对应的处理子程序执行。</li>
+<li>退出中断，恢复被中断进程的现场或调度新进程占据处理器。</li>
+<li>开中断，CPU 继续执行。</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#中断的基本概念">中断的基本概念</a></li><li style="margin-left:0.0rem"><a href="#中断的分类与优先级">中断的分类与优先级</a></li><li style="margin-left:0.0rem"><a href="#硬中断">硬中断</a></li><li style="margin-left:0.0rem"><a href="#软中断">软中断</a></li><li style="margin-left:0.0rem"><a href="#硬中断与软中断之区别与联系">硬中断与软中断之区别与联系</a></li><li style="margin-left:0.0rem"><a href="#中断处理过程">中断处理过程</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 高级安全</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">高级安全</span><span class="tag">备份恢复</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdben/68657161.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2B%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E8%BD%AF%E4%B8%AD%E6%96%AD%E4%B8%8E%E7%A1%AC%E4%B8%AD%E6%96%AD.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>软中断与硬中断。本文属于安全与堡垒机 / 高级安全，中断是指计算机在执行期间，系统内发生任何非寻常的或非预期的急需处理事件，使得 CPU 暂时中断当前正在执行的程序而转去执行相应的事件处理程序，待处理完毕后又返回原来被中断处继续执行或调度新的进程执行的过程。引起中断发生的事件被称为中断源。中断源向 CPU 发出的…</p>
+      <p>关键词：安全与堡垒机、高级安全、备份恢复、知识笔记、安全与堡垒机 / 高级安全、软中断与硬中断</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4d42e4b27aaa.html"><small>上一篇</small>账户管理</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b875c1cdb5f7.html"><small>下一篇</small>运测环境</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-38daae369884.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

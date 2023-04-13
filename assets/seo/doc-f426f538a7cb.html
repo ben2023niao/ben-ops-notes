@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>一、服务器的配置｜Web 安全 / Web基础｜BEN.OPS</title>
+  <meta name="description" content="一、服务器的配置。本文属于Web 安全 / Web基础，Nginx 默认不支持CGI模式，它是以FastCGI方式运行的。所以使用Nginx+PHP 就是直接配置为FastCGI模式。php 同样需要支持 php-fpm（也可以使用PHP 自带的 FastCGI 管理器PHP-CGI），且 nginx 支持 ng…">
+  <meta name="keywords" content="Web 安全，Web基础，DNS，Nginx，Apache，PHP，WAF，权限管理，Web 安全 / Web基础，一、服务器的配置，bash">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f426f538a7cb.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f426f538a7cb.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BDNS%2BNginx-%E4%B8%80%E3%80%81%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E9%85%8D%E7%BD%AE.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="一、服务器的配置">
+  <meta property="og:description" content="一、服务器的配置。本文属于Web 安全 / Web基础，Nginx 默认不支持CGI模式，它是以FastCGI方式运行的。所以使用Nginx+PHP 就是直接配置为FastCGI模式。php 同样需要支持 php-fpm（也可以使用PHP 自带的 FastCGI 管理器PHP-CGI），且 nginx 支持 ng…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f426f538a7cb.html">
+  <meta property="article:published_time" content="2023-04-14T16:00:00">
+  <meta property="article:modified_time" content="2023-04-14 16:00">
+  <meta property="article:section" content="Web 安全 / Web基础">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="一、服务器的配置">
+  <meta name="twitter:description" content="一、服务器的配置。本文属于Web 安全 / Web基础，Nginx 默认不支持CGI模式，它是以FastCGI方式运行的。所以使用Nginx+PHP 就是直接配置为FastCGI模式。php 同样需要支持 php-fpm（也可以使用PHP 自带的 FastCGI 管理器PHP-CGI），且 nginx 支持 ng…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f426f538a7cb.html#article","headline":"一、服务器的配置","description":"一、服务器的配置。本文属于Web 安全 / Web基础，Nginx 默认不支持CGI模式，它是以FastCGI方式运行的。所以使用Nginx+PHP 就是直接配置为FastCGI模式。php 同样需要支持 php-fpm（也可以使用PHP 自带的 FastCGI 管理器PHP-CGI），且 nginx 支持 ng…","datePublished":"2023-04-14T16:00:00","dateModified":"2023-04-14 16:00","inLanguage":"zh-CN","articleSection":["Web 安全","Web基础"],"keywords":["Web 安全","Web基础","DNS","Nginx","Apache","PHP","WAF","权限管理","Web 安全 / Web基础","一、服务器的配置","bash"],"wordCount":3924,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f426f538a7cb.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f426f538a7cb.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"Web 安全 / Web基础","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"一、服务器的配置","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f426f538a7cb.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>Web 安全 / Web基础</span> › <span>一、服务器的配置</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">Web 安全 / Web基础</div>
+      <h1>一、服务器的配置</h1>
+      <p class="lede">一、服务器的配置。本文属于Web 安全 / Web基础，Nginx 默认不支持CGI模式，它是以FastCGI方式运行的。所以使用Nginx+PHP 就是直接配置为FastCGI模式。php 同样需要支持 php-fpm（也可以使用PHP 自带的 FastCGI 管理器PHP-CGI），且 nginx 支持 ng…</p>
+      <div class="meta">
+        <time class="badge" datetime="2023-04-14T16:00:00">发布于 2023-04-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">3,924 字</span>
+        <span class="badge">12 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<h2 id="一-服务器的配置">一、服务器的配置</h2>
+<ol>
+<li>
+<p>Apache 可以配置将PHP解释器作为CGI脚本(mod_cgi)，或者作为Apache本身的一个模块(mod_php)，还有就是FastCGI模式来运行。
+CGI是比较原始的方式，需要把php 脚本放在conf 文件中设置的目录内并给与可执行权限(bash,perl 等脚本同理)，比如
+ScriptAlias /cgi-bin/ "/var/www/cgi-bin/"
+或者 在设置目录外执行 cgi，比如
+ # To use CGI scripts outside of ScriptAliased directories:
+ # (You will also need to add "ExecCGI" to the "Options" directive.)
+ # AddHandler cgi-script .cgi
+Apache默认是以第二种方式运行PHP的；
+而配置FastCGI模式需要下载安装相关的包mod_fastcgi，且 php 编译时需要支持 –-enable-fpm（5.3之前版本是 --enable-fastcgi ）。
+不要认为没有搭配php/python/perl的Apache就是安全的，也不要认为安全配置PHP后webshell就不能执行系统命令，因为Apache本身支持CGI和SSI，甚至需要注意 .htaccess 文件的上传覆盖。</p>
+</li>
+<li>
+<p>Nginx 默认不支持CGI模式，它是以FastCGI方式运行的。所以使用Nginx+PHP 就是直接配置为FastCGI模式。php 同样需要支持 php-fpm（也可以使用PHP 自带的 FastCGI 管理器PHP-CGI），且 nginx 支持 ngx_http_fastcgi_module，配置文件一般类似</p>
+</li>
+</ol>
+<pre><code>location ~ \.php$
+{
+     fastcgi_pass 203.0.113.1:9000;
+     fastcgi_index xxxx;
+     fastcgi_param xxxx;
+     include fastcgi.conf;
+}
+</code></pre>
+<p>对于php-cgi/php-fpm监听端口对外开放（一般情况下，是用于nginx/apache与fastcgi 分离，即 fastcgi_pass ip 不是 203.0.113.1），均需做访问控制，只允许指定的IP访问，否则可能导致远程文件包含。可以使用iptables做访问控制，如新增规则（监听端口为9000，webserver来源IP为192.168.2.138）。</p>
+<pre><code> iptables -A INPUT -i eth0 -p tcp -s 203.0.113.1 --dport 9000 -j ACCEPT
+
+ iptables -A OUTPUT -o eth0 -p tcp -d 203.0.113.1 --sport 9000 -j ACCEPT
+
+ iptables -A INPUT -i eth0 -p tcp --dport 9000 -j DROP
+</code></pre>
+<blockquote>
+<p>For the most part, lack of CGI support in Nginx is not an issue and actually has an important side-benefit: because Nginx cannot directly execute external programs (CGI), a malicious person can't trick your system into uploading and executing an arbitrary script.</p>
+</blockquote>
+<p>如果使用php-cgi 作为PHP解析器，虽然均采用root 权限操作命令启动进程，但Nginx默认会降权到nobody普通用户，但是php-cgi不会，此时的危害就很大了，当攻击者上传webshell，那webshell就是root权限。千万不要认为Nginx降权运行了，php也会降权，毕竟解析php的是php-cgi进程。这里为什么突出说php-cgi 有这种问题，而没有说php-fpm，那是因为php-fpm 的配置文件默认已设置进程运行用户为nobody。</p>
+<h2 id="二-CGI的概念-PHP-动态语言">二、CGI的概念、PHP 动态语言</h2>
+<p>CGI 不是一种语言，也不是一种技术，而是一种模式。搜索一下CGI的定义<code>Common Gateway Interface</code>，简称CGI。在物理上是一段程序，存放在服务器上。只要是提供数据输出的服务器端程序都可以叫CGI，ASP/PHP/JSP这些都可以认为是，你用C/C++写一个可以提供数据输出的服务器端bin文件也叫CGI，至于python/perl/shell 等脚本当然也能写cgi。</p>
+<p>对一个 CGI 程序，做的工作其实只有：从环境变量(environment variables)和标准输入(standard input)中读取数据、处理数据、向标准输出(standard output)输出数据。环境变量中存储的叫 Request Meta-Variables，也就是诸如 <code>QUERY_STRING</code>、<code>PATH_INFO</code> 之类的东西，这些是由 Web Server 通过环境变量传递给 CGI 程序的，CGI 程序也是从环境变量中读取的。
+标准输入中存放的往往是用户通过GET 或者 POST 提交的数据，这些数据也是由 Web Server 传过来的（客户端提交）。传统的get 即是以 <code>url?key1=value1&amp;key2=value2</code>的 形式传输过去。而post 形式（http请求包体）就比较多了，可以是传统的key=value，也可以是json/xml 等形式，只是这些从标准输入得到后还需要经过一个解析的过程才能得到想要的key=value 形式的呈现。
+注意标准输入的概念，如果在本地执行 <code>php xx.php args</code> ， 那么 xx.php 的标准输入就是控制命令窗口，获取输入需要通过 $argv；如果是通过 uri 路径访问 xx.php 如 <code>http://localhost/xx.php</code> ， 那么 xx.php 的标准输入来自 webserver 给的数据，可以通过 php://input 获取。</p>
+<p>当然cgi 的body输出也是多种形式了，可以是简单的application/json、text/xml 形式，也可以是php echo 出一个text/plain or text/html，但要明确的是php 等脚本是在服务器端执行的，也就是说当客户端访问test.php 时，server 先执行php脚本（php 会 读取标准输入，处理过程，向标准输出输出数据），形象地来说，就是“戳一次就动一次”，根据用户输入的不同而产生不同的输出结果，即动态网页的概念。注意：php、js、css 都可以和html 标签写在同个文件中。</p>
+<p>如前所述，php 是作为 cgi 脚本还是作为一个模块被解析，取决于服务器的配置。</p>
+<h2 id="三-代理服务器">三、代理服务器</h2>
+<h3 id="nginx-正向代理服务器的配置">nginx 正向代理服务器的配置：</h3>
+<pre><code>worker_processes 1;
+
+       events {
+       worker_connections 1024;
+       }
+
+       http {
+       include mime.types;
+       sendfile on;
+
+       resolver 203.0.113.1;
+       server {
+       listen 81;
+       location / {
+       # 因为所有的地址都以 / 开头，所以这条规则将匹配到所有请求
+       # 但是正则和最长字符串会优先匹配
+       # 比如  curl "http://www.qq.com/index.html" -x "203.0.113.1:80" 假设还有一个 location /index.html {}
+       # 则进入这里的处理逻辑，否则匹配到根路径 /，进入 location / {} 内的处理逻辑
+       # 注意： -x "203.0.113.1:80/xxxx"  xxxx 并不会决定匹配到哪个 location，是http 请求包中的 GET/POST 路径来决定
+       proxy_pass $scheme://$http_host$request_uri;
+                 }
+
+            }
+       }
+</code></pre>
+<p>回想正常的一般请求，浏览器or 客户端工具如fiddle 会先解析地址栏域名得到ip:port（没带则默认是80），进而向此 ip:port 发起 http 请求。假设现在我们在 客户端工具设置了代理为 203.0.113.1:80，而地址栏请求的是 http://www.qq.com/index.html， http 请求包（包含包头和包体）发送给 203.0.113.1:80，注意：http 请求包还是原始的情况，如</p>
+<pre><code>POST http://www.qq.com/index.html HTTP/1.1
+User-Agent : Fiddler
+Host: www.qq.com
+Content-Length: xxx
+
+.....(post 数据）...
+</code></pre>
+<p>(注：Host 头一般用来区分1 个 ip 上配置了两个 virtual host name 的情形）
+如果 203.0.113.1 上的 nginx.conf 配置了代理转发如 proxy_pass，则会将此请求包转发给真正 www.qq.com 的服务器。接着从其获取请求返回内容，再转发给 客户端。此时 www.qq.com 的服务器会认为请求来自于 203.0.113.1，当然也可以在 代理中设置请求头 <code>proxy_set_header  X-Real-IP  $remote_addr;</code>  这样 qq 服务器通过请求头可以知道真正的请求来自哪里。此时 qq 服务器配置文件可能需要改下 LogFormat（X-Real-IP），才能在 log 文件中打印真正的客户端 ip。</p>
+<p>正向代理 是一个位于客户端和原始服务器(origin server)之间的服务器，为了从原始服务器取得内容，客户端向代理发送一个请求并指定目标(原始服务器)，然后代理向原始服务器转交请求并将获得的内容返回给客户端，客户端必须要进行一些特别的设置才能使用正向代理。</p>
+<p>注意：nginx 作为 web server 时当然是可以处理 ssl 的，但作为 正向proxy 则是不行的。因为 nginx 不支持 CONNECT，收到客户端发来的 "CONNECT /:443 HTTP/1.1" 后会报一个包含 <code>client sent invalid request while reading client request line</code> 的错误。因为 CONNECT 是正向代理的特性，据说也没有计划支持。</p>
+<p>nginx 当正向代理的时候，通过代理访问https的网站会失败，而失败的原因是客户端同nginx代理服务器之间建立连接失败，并非nginx不能将https的请求转发出去。因此要解决的问题就是客户端如何同nginx代理服务器之间建立起连接，有了这个思路之后，就可以很简单的解决问题。我们可以配置两个SERVER 端口节点，一个处理HTTP转发，另一个处理HTTPS转发，而客户端都通过HTTP来访问代理，通过访问代理不同的端口，来区分HTTP和HTTPS请求。</p>
+<p>我们可以自己用 ngx-lua 实现一个正向代理服务器，在 lua 代码中获取原始请求（可以修改一些参数/headers）并转发，假设目标站点有waf，绕过率只有10万分之一，那么可以让lua 逻辑中判断返回码是否是某个特定返回码，如果是则重放请求，直到返回码非特定响应码，这时候才把返回页面给到请求方，这样用浏览器挂这个ngx-lua 代码就能自动实现暴力绕waf。为了使ngx-lua 代理支持https，客户端可以将https 请求当作http 请求来发送，但附带一个头task_scheme：https，这样ngx-lua 在代码逻辑中取到scheme 为 task_scheme，即可知道这是https 请求。</p>
+<p>对于 nat 作用 的路由器来说，原始数据包的目的ip 不是路由器，但它重写了数据包的源ip 为路由器的出口ip，在目标主机回包后重写目的ip 为 路由器下联的内网机器ip。注意除非NAT路由器管理者预先设置了规则，否则从外部网络主动建立的连接，送来的数据包将不能到达正确的目的内网ip地址。</p>
+<p>对于代理机器来说，原始数据包的目的ip 就是代理机器，不过因为它的配置文件设置了转发规则，故可以重新发起源ip 为自身，目的ip 为 dns 解析到的目标主机ip的请求包（这就是为什么客户端配置了代理，则客户端上配置的host文件不生效的原因，因为最终请求的目的主机ip 由代理机器经过dns解析获得；当然如果是本地的代理比如127.0.0.1:8080，还是会先看本地host文件而生效）。收到目标主机回包后，代理机器重新发起源ip 为自身，目标ip 为配置了代理的请求客户端ip的请求包。
+<code>curl -i "http://www.qq.com/index.html" -x "203.0.113.1:80"</code> 在 63 机器没有配置代理转发规则时，是一个简便设置访问域名www.qq.com 具体某个host的命令。</p>
+<p>另一方面，waf 在拦截恶意扫描请求时，获取到的 ip（通过解开四层tcp/ip包获取到src ip） 可能是代理机器的ip 或者 路由器出口网关的 ip，特别是网关ip，如果直接进行打击，可能会伤及无辜，即同在一个局域网出口下联的机器都会被限制访问。</p>
+<h3 id="nginx-反向代理服务器的配置">nginx 反向代理服务器的配置：</h3>
+<pre><code>upstream test.net {
+ip_hash; # 默认为轮询，还有 ip_hash, fair, url_hash 等策略
+# 注：当负载调度算法为ip_hash时，后端服务器在负载均衡调度中的状态不能是weight和backup。
+server 203.0.113.1:80;
+server 203.0.113.1:80  down;
+server 203.0.113.1:8009  max_fails=3  fail_timeout=20s;
+server 203.0.113.1:8080;
+}
+server {
+  location / {
+    proxy_pass  http://test.net;
+    proxy_set_header  X-Real-IP  $remote_addr;
+    proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+  }
+}
+</code></pre>
+<p><code>X-Forwarded-For: client1, proxy1, proxy2</code>
+其中的值通过一个 逗号+空格 把多个IP地址区分开, 最左边(client1)是最原始客户端的IP地址, 代理服务器每成功收到一个请求，就把请求来源IP地址添加到右边。 在上面这个例子中，这个请求成功通过了三台代理服务器：proxy1, proxy2 及 proxy3。请求由client1发出，到达了proxy3(proxy3可能是请求的终点)</p>
+<p>$http_x_forwarded_for 是Nginx上一跳的请求中的X-Forwarded-For 内容，$remote_addr 是Nginx 上一跳的ip，
+而 $proxy_add_x_forwarded_for=$http_x_forwarded_for,$remote_addr
+假设现在有两个代理，第一个代理发出的请求中 上一跳 X-Forwarded-For 为空，而$remote_addr 为 client_ip ，故 X-Forwarded-For 头为 client_ip；
+第二个代理发出的请求中，X-Forwarded-For 为 client_ip，而$remote_addr 为proxy1，故 X-Forwarded-For : client1, proxy1
+如果用户在发起请求时设置了 X-Forwarded-For 头的值，则第一跳时X-Forwarded-For 不为空，即 现在情况是 X-Forwarded-For : user-set, client1, proxy1
+故后端逻辑取真实用户ip 时 需要看经过多少层代理，只经过一层取从右到左倒数第一个ip，经过两层则是倒数第二个。</p>
+<p>我们这里只测试两层，实际链路为：</p>
+<p>203.0.113.1(client)-&gt;203.0.113.1(Proxy)-&gt;203.0.113.1(Proxy)-&gt;203.0.113.1(Web Server)</p>
+<p>Curl 命令：</p>
+<p>curl http://203.0.113.1:88/test.php -H 'X-Forwarded-For: unkonw, &lt;203.0.113.1&gt; 203.0.113.1' -H 'X-Real-IP: 203.0.113.1'</p>
+<p>两层代理的情况下结果为：</p>
+<p>[HTTP_X_FORWARDED_FOR] =&gt; unkonw, &lt;203.0.113.1&gt; 203.0.113.1, 203.0.113.1, 203.0.113.1
+[REMOTE_ADDR] =&gt; 203.0.113.1 // php $_SERVER['REMOTE_ADDR']  ||  apache中的cgi中getenv['REMOTE_ADDR']
+[HTTP_X_REAL_IP] =&gt; 203.0.113.1</p>
+<p>upstream是Nginx的HTTP Upstream 模块，这个模块通过一个简单的调度算法来实现客户端IP到后端服务器的负载均衡。在上面的设定中，通过upstream指令指定了一个负载均衡器的名称test.net。这个名称可以任意指定，在后面需要用到的地方直接调用即可。</p>
+<p>假设现在我们访问的是 203.0.113.1:80，实际上它会将http请求包转发给其他可以获取内容的某台机器上。</p>
+<p>反向代理正好相反，对于客户端而言它就像是原始服务器，并且客户端不需要进行任何特别的设置。客户端向反向代理的命名空间(name-space)中的内容发送普通请求，接着反向代理将判断向何处(原始服务器)转交请求，并将获得的内容返回给客户端，就像这些内容原本就是它自己的一样。
+注意：nginx 作为代理转发数据包时可能会对请求头做一些修改，比如 修改 Host，增加 proxy_set_header 增加的一些头，忽略值为空串的头，忽略下划线 '_' 开头的头，<code>Connection: close</code> 。</p>
+<h3 id="识别代理服务器">识别代理服务器</h3>
+<p>识别一个IP是不是代理IP，常见的是如下四种：
+1. 反向探测技术：扫描IP是不是开通了80、8080等代理服务器经常开通的端口，显然一个普通的用户IP不太可能开通如上的端口。
+2. HTTP头部的X_Forwarded_For：开通了HTTP代理的IP可以通过此法来识别是不是代理IP；如果带有XFF信息，该IP是代理IP无疑。
+3. Keep-alive报文：如果带有Proxy-Connection的Keep-alive报文，该IP毫无疑问是代理IP。
+4. 查看IP上端口：如果一个IP有的端口大于10000，那么该IP大多也存在问题，普通的家庭IP开这么大的端口几乎是不可能的。</p>
+<h2 id="Reference">Reference</h2>
+<p><a href="https://www.tutorialspoint.com/cplusplus/cpp_web_programming.htm" rel="noopener noreferrer">C++ Web Programming</a></p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-服务器的配置">一、服务器的配置</a></li><li style="margin-left:0.0rem"><a href="#二-CGI的概念-PHP-动态语言">二、CGI的概念、PHP 动态语言</a></li><li style="margin-left:0.0rem"><a href="#三-代理服务器">三、代理服务器</a></li><li style="margin-left:0.8rem"><a href="#nginx-正向代理服务器的配置">nginx 正向代理服务器的配置：</a></li><li style="margin-left:0.8rem"><a href="#nginx-反向代理服务器的配置">nginx 反向代理服务器的配置：</a></li><li style="margin-left:0.8rem"><a href="#识别代理服务器">识别代理服务器</a></li><li style="margin-left:0.0rem"><a href="#Reference">Reference</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：Web 安全 / Web基础</li>
+          <li>日期：2023-04-14</li>
+          <li>标签：<span class="tag">Web 安全</span><span class="tag">Web基础</span><span class="tag">DNS</span><span class="tag">Nginx</span><span class="tag">Apache</span><span class="tag">PHP</span><span class="tag">WAF</span><span class="tag">权限管理</span></li>
+          <li><span>来源：01-Web安全/01-Web基础/后端基础.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BDNS%2BNginx-%E4%B8%80%E3%80%81%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E9%85%8D%E7%BD%AE.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>一、服务器的配置。本文属于Web 安全 / Web基础，Nginx 默认不支持CGI模式，它是以FastCGI方式运行的。所以使用Nginx+PHP 就是直接配置为FastCGI模式。php 同样需要支持 php-fpm（也可以使用PHP 自带的 FastCGI 管理器PHP-CGI），且 nginx 支持 ng…</p>
+      <p>关键词：Web 安全、Web基础、DNS、Nginx、Apache、PHP、WAF、权限管理、Web 安全 / Web基础、一、服务器的配置、bash</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-41ac0638f725.html"><small>上一篇</small>一、文件解析漏洞</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-481b75d1f7f2.html"><small>下一篇</small>一、本地文件包含</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f426f538a7cb.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
