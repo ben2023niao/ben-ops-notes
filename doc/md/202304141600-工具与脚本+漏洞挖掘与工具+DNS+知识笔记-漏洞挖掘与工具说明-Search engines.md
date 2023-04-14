@@ -1,0 +1,51 @@
+---
+id: "doc-91312c8711e3"
+title: "Search engines"
+date: "2023-04-14T16:00:00"
+categories: ["工具与脚本", "漏洞挖掘与工具"]
+tags: ["工具与脚本", "漏洞挖掘与工具", "DNS", "知识笔记"]
+source: "04-工具与漏洞研究/01-漏洞挖掘与工具/子域名爆破.md"
+---
+
+# Search engines
+
+from [sub-domain-enum-checklist.md](https://gist.github.com/yamakira/2a36d3ae077558ac446e4a89143c69ab)
+
+## Search engines
+
+- [Google](https://google.com) - **site:** operator
+- [Bing](https://bing.com) - **site:** operator
+
+## DNS info aggregators
+
+- [VirusTotal](https://www.virustotal.com/)
+- [ViewDNS](https://viewdns.info)
+- [DNSdumpster](https://dnsdumpster.com/)
+- [Threatcrowd](https://www.threatcrowd.org/)
+
+## Certificate Transparency logs
+
+- https://crt.sh/
+- https://censys.io/
+- https://developers.facebook.com/tools/ct/
+- https://google.com/transparencyreport/https/ct/
+
+## Tools
+
+- [Sublister](https://github.com/aboul3la/Sublist3r)
+- [Altdns](https://github.com/infosec-au/altdns)
+- [massdns](https://github.com/blechschmidt/massdns)
+- [enumall](https://github.com/jhaddix/domain)
+- [DNSRecon](https://github.com/darkoperator/dnsrecon)
+- [Domain analyzer](https://github.com/eldraco/domain_analyzer)
+- [XRay](https://github.com/evilsocket/xray)
+- [Aquatone](https://github.com/michenriksen/aquatone)
+- [ldns-walk](https://www.nlnetlabs.nl/projects/ldns/)
+- [NSEC3 walker](https://dnscurve.org/nsec3walker.html)
+
+## Data sources
+
+- [Project Sonar](https://sonar.labs.rapid7.com/)
+- [Certificate Transparency logs](https://www.certificate-transparency.org/known-logs)
+- [domains-index.com](https://domains-index.com) - Registered Domain Names/ DNS Records aggregator
+- [domainsdb.info](https://domainsdb.info) - Registered Domain Names Search API.
