@@ -1,0 +1,184 @@
+---
+id: "doc-f426f538a7cb"
+title: "一、服务器的配置"
+date: "2023-04-14T16:00:00"
+categories: ["Web 安全", "Web基础"]
+tags: ["Web 安全", "Web基础", "DNS", "Nginx", "Apache", "PHP", "WAF", "权限管理"]
+source: "01-Web安全/01-Web基础/后端基础.md"
+---
+
+# 一、服务器的配置
+
+## 一、服务器的配置
+
+1. Apache 可以配置将PHP解释器作为CGI脚本(mod_cgi)，或者作为Apache本身的一个模块(mod_php)，还有就是FastCGI模式来运行。
+CGI是比较原始的方式，需要把php 脚本放在conf 文件中设置的目录内并给与可执行权限(bash,perl 等脚本同理)，比如
+ScriptAlias /cgi-bin/ "/var/www/cgi-bin/"
+或者 在设置目录外执行 cgi，比如
+ &#35; To use CGI scripts outside of ScriptAliased directories:
+ &#35; (You will also need to add "ExecCGI" to the "Options" directive.)
+ &#35; AddHandler cgi-script .cgi
+Apache默认是以第二种方式运行PHP的；
+而配置FastCGI模式需要下载安装相关的包mod_fastcgi，且 php 编译时需要支持 –-enable-fpm（5.3之前版本是 --enable-fastcgi ）。
+不要认为没有搭配php/python/perl的Apache就是安全的，也不要认为安全配置PHP后webshell就不能执行系统命令，因为Apache本身支持CGI和SSI，甚至需要注意 .htaccess 文件的上传覆盖。
+
+2. Nginx 默认不支持CGI模式，它是以FastCGI方式运行的。所以使用Nginx+PHP 就是直接配置为FastCGI模式。php 同样需要支持 php-fpm（也可以使用PHP 自带的 FastCGI 管理器PHP-CGI），且 nginx 支持 ngx_http_fastcgi_module，配置文件一般类似
+
+```
+location ~ \.php$
+{
+     fastcgi_pass 203.0.113.1:9000;
+     fastcgi_index xxxx;
+     fastcgi_param xxxx;
+     include fastcgi.conf;
+}
+```
+
+对于php-cgi/php-fpm监听端口对外开放（一般情况下，是用于nginx/apache与fastcgi 分离，即 fastcgi_pass ip 不是 203.0.113.1），均需做访问控制，只允许指定的IP访问，否则可能导致远程文件包含。可以使用iptables做访问控制，如新增规则（监听端口为9000，webserver来源IP为192.168.2.138）。
+
+```
+ iptables -A INPUT -i eth0 -p tcp -s 203.0.113.1 --dport 9000 -j ACCEPT
+
+ iptables -A OUTPUT -o eth0 -p tcp -d 203.0.113.1 --sport 9000 -j ACCEPT
+
+ iptables -A INPUT -i eth0 -p tcp --dport 9000 -j DROP
+```
+
+> For the most part, lack of CGI support in Nginx is not an issue and actually has an important side-benefit: because Nginx cannot directly execute external programs (CGI), a malicious person can't trick your system into uploading and executing an arbitrary script.
+
+如果使用php-cgi 作为PHP解析器，虽然均采用root 权限操作命令启动进程，但Nginx默认会降权到nobody普通用户，但是php-cgi不会，此时的危害就很大了，当攻击者上传webshell，那webshell就是root权限。千万不要认为Nginx降权运行了，php也会降权，毕竟解析php的是php-cgi进程。这里为什么突出说php-cgi 有这种问题，而没有说php-fpm，那是因为php-fpm 的配置文件默认已设置进程运行用户为nobody。
+
+## 二、CGI的概念、PHP 动态语言
+
+CGI 不是一种语言，也不是一种技术，而是一种模式。搜索一下CGI的定义`Common Gateway Interface`，简称CGI。在物理上是一段程序，存放在服务器上。只要是提供数据输出的服务器端程序都可以叫CGI，ASP/PHP/JSP这些都可以认为是，你用C/C++写一个可以提供数据输出的服务器端bin文件也叫CGI，至于python/perl/shell 等脚本当然也能写cgi。
+
+对一个 CGI 程序，做的工作其实只有：从环境变量(environment variables)和标准输入(standard input)中读取数据、处理数据、向标准输出(standard output)输出数据。环境变量中存储的叫 Request Meta-Variables，也就是诸如 `QUERY_STRING`、`PATH_INFO` 之类的东西，这些是由 Web Server 通过环境变量传递给 CGI 程序的，CGI 程序也是从环境变量中读取的。
+标准输入中存放的往往是用户通过GET 或者 POST 提交的数据，这些数据也是由 Web Server 传过来的（客户端提交）。传统的get 即是以 `url?key1=value1&key2=value2`的 形式传输过去。而post 形式（http请求包体）就比较多了，可以是传统的key=value，也可以是json/xml 等形式，只是这些从标准输入得到后还需要经过一个解析的过程才能得到想要的key=value 形式的呈现。
+注意标准输入的概念，如果在本地执行 `php xx.php args` ， 那么 xx.php 的标准输入就是控制命令窗口，获取输入需要通过 $argv；如果是通过 uri 路径访问 xx.php 如 `http://localhost/xx.php` ， 那么 xx.php 的标准输入来自 webserver 给的数据，可以通过 php://input 获取。
+
+当然cgi 的body输出也是多种形式了，可以是简单的application/json、text/xml 形式，也可以是php echo 出一个text/plain or text/html，但要明确的是php 等脚本是在服务器端执行的，也就是说当客户端访问test.php 时，server 先执行php脚本（php 会 读取标准输入，处理过程，向标准输出输出数据），形象地来说，就是“戳一次就动一次”，根据用户输入的不同而产生不同的输出结果，即动态网页的概念。注意：php、js、css 都可以和html 标签写在同个文件中。
+
+如前所述，php 是作为 cgi 脚本还是作为一个模块被解析，取决于服务器的配置。
+
+## 三、代理服务器
+
+### nginx 正向代理服务器的配置：
+
+```
+worker_processes 1;
+
+       events {
+       worker_connections 1024;
+       }
+
+       http {
+       include mime.types;
+       sendfile on;
+
+       resolver 203.0.113.1;
+       server {
+       listen 81;
+       location / {
+       # 因为所有的地址都以 / 开头，所以这条规则将匹配到所有请求
+       # 但是正则和最长字符串会优先匹配
+	   # 比如  curl "http://www.qq.com/index.html" -x "203.0.113.1:80" 假设还有一个 location /index.html {}
+       # 则进入这里的处理逻辑，否则匹配到根路径 /，进入 location / {} 内的处理逻辑
+	   # 注意： -x "203.0.113.1:80/xxxx"  xxxx 并不会决定匹配到哪个 location，是http 请求包中的 GET/POST 路径来决定
+       proxy_pass $scheme://$http_host$request_uri;
+                 }
+
+            }
+       }
+```
+
+回想正常的一般请求，浏览器or 客户端工具如fiddle 会先解析地址栏域名得到ip:port（没带则默认是80），进而向此 ip:port 发起 http 请求。假设现在我们在 客户端工具设置了代理为 203.0.113.1:80，而地址栏请求的是 http://www.qq.com/index.html， http 请求包（包含包头和包体）发送给 203.0.113.1:80，注意：http 请求包还是原始的情况，如
+
+```
+POST http://www.qq.com/index.html HTTP/1.1
+User-Agent : Fiddler
+Host: www.qq.com
+Content-Length: xxx
+
+.....(post 数据）...
+```
+
+(注：Host 头一般用来区分1 个 ip 上配置了两个 virtual host name 的情形）
+如果 203.0.113.1 上的 nginx.conf 配置了代理转发如 proxy_pass，则会将此请求包转发给真正 www.qq.com 的服务器。接着从其获取请求返回内容，再转发给 客户端。此时 www.qq.com 的服务器会认为请求来自于 203.0.113.1，当然也可以在 代理中设置请求头 `proxy_set_header  X-Real-IP  $remote_addr;`  这样 qq 服务器通过请求头可以知道真正的请求来自哪里。此时 qq 服务器配置文件可能需要改下 LogFormat（X-Real-IP），才能在 log 文件中打印真正的客户端 ip。
+
+正向代理 是一个位于客户端和原始服务器(origin server)之间的服务器，为了从原始服务器取得内容，客户端向代理发送一个请求并指定目标(原始服务器)，然后代理向原始服务器转交请求并将获得的内容返回给客户端，客户端必须要进行一些特别的设置才能使用正向代理。
+
+注意：nginx 作为 web server 时当然是可以处理 ssl 的，但作为 正向proxy 则是不行的。因为 nginx 不支持 CONNECT，收到客户端发来的 "CONNECT /:443 HTTP/1.1" 后会报一个包含 `client sent invalid request while reading client request line` 的错误。因为 CONNECT 是正向代理的特性，据说也没有计划支持。
+
+nginx 当正向代理的时候，通过代理访问https的网站会失败，而失败的原因是客户端同nginx代理服务器之间建立连接失败，并非nginx不能将https的请求转发出去。因此要解决的问题就是客户端如何同nginx代理服务器之间建立起连接，有了这个思路之后，就可以很简单的解决问题。我们可以配置两个SERVER 端口节点，一个处理HTTP转发，另一个处理HTTPS转发，而客户端都通过HTTP来访问代理，通过访问代理不同的端口，来区分HTTP和HTTPS请求。
+
+我们可以自己用 ngx-lua 实现一个正向代理服务器，在 lua 代码中获取原始请求（可以修改一些参数/headers）并转发，假设目标站点有waf，绕过率只有10万分之一，那么可以让lua 逻辑中判断返回码是否是某个特定返回码，如果是则重放请求，直到返回码非特定响应码，这时候才把返回页面给到请求方，这样用浏览器挂这个ngx-lua 代码就能自动实现暴力绕waf。为了使ngx-lua 代理支持https，客户端可以将https 请求当作http 请求来发送，但附带一个头task_scheme：https，这样ngx-lua 在代码逻辑中取到scheme 为 task_scheme，即可知道这是https 请求。
+
+对于 nat 作用 的路由器来说，原始数据包的目的ip 不是路由器，但它重写了数据包的源ip 为路由器的出口ip，在目标主机回包后重写目的ip 为 路由器下联的内网机器ip。注意除非NAT路由器管理者预先设置了规则，否则从外部网络主动建立的连接，送来的数据包将不能到达正确的目的内网ip地址。
+
+对于代理机器来说，原始数据包的目的ip 就是代理机器，不过因为它的配置文件设置了转发规则，故可以重新发起源ip 为自身，目的ip 为 dns 解析到的目标主机ip的请求包（这就是为什么客户端配置了代理，则客户端上配置的host文件不生效的原因，因为最终请求的目的主机ip 由代理机器经过dns解析获得；当然如果是本地的代理比如127.0.0.1:8080，还是会先看本地host文件而生效）。收到目标主机回包后，代理机器重新发起源ip 为自身，目标ip 为配置了代理的请求客户端ip的请求包。
+`curl -i "http://www.qq.com/index.html" -x "203.0.113.1:80"` 在 63 机器没有配置代理转发规则时，是一个简便设置访问域名www.qq.com 具体某个host的命令。
+
+另一方面，waf 在拦截恶意扫描请求时，获取到的 ip（通过解开四层tcp/ip包获取到src ip） 可能是代理机器的ip 或者 路由器出口网关的 ip，特别是网关ip，如果直接进行打击，可能会伤及无辜，即同在一个局域网出口下联的机器都会被限制访问。
+
+### nginx 反向代理服务器的配置：
+
+```
+upstream test.net {
+ip_hash; # 默认为轮询，还有 ip_hash, fair, url_hash 等策略
+# 注：当负载调度算法为ip_hash时，后端服务器在负载均衡调度中的状态不能是weight和backup。
+server 203.0.113.1:80;
+server 203.0.113.1:80  down;
+server 203.0.113.1:8009  max_fails=3  fail_timeout=20s;
+server 203.0.113.1:8080;
+}
+server {
+  location / {
+    proxy_pass  http://test.net;
+    proxy_set_header  X-Real-IP  $remote_addr;
+    proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+  }
+}
+```
+
+`X-Forwarded-For: client1, proxy1, proxy2`
+其中的值通过一个 逗号+空格 把多个IP地址区分开, 最左边(client1)是最原始客户端的IP地址, 代理服务器每成功收到一个请求，就把请求来源IP地址添加到右边。 在上面这个例子中，这个请求成功通过了三台代理服务器：proxy1, proxy2 及 proxy3。请求由client1发出，到达了proxy3(proxy3可能是请求的终点)
+
+$http_x_forwarded_for 是Nginx上一跳的请求中的X-Forwarded-For 内容，$remote_addr 是Nginx 上一跳的ip，
+而 $proxy_add_x_forwarded_for=$http_x_forwarded_for,$remote_addr
+假设现在有两个代理，第一个代理发出的请求中 上一跳 X-Forwarded-For 为空，而$remote_addr 为 client_ip ，故 X-Forwarded-For 头为 client_ip；
+第二个代理发出的请求中，X-Forwarded-For 为 client_ip，而$remote_addr 为proxy1，故 X-Forwarded-For : client1, proxy1
+如果用户在发起请求时设置了 X-Forwarded-For 头的值，则第一跳时X-Forwarded-For 不为空，即 现在情况是 X-Forwarded-For : user-set, client1, proxy1
+故后端逻辑取真实用户ip 时 需要看经过多少层代理，只经过一层取从右到左倒数第一个ip，经过两层则是倒数第二个。
+
+我们这里只测试两层，实际链路为：
+
+203.0.113.1(client)->203.0.113.1(Proxy)->203.0.113.1(Proxy)->203.0.113.1(Web Server)
+
+Curl 命令：
+
+curl http://203.0.113.1:88/test.php -H 'X-Forwarded-For: unkonw, <203.0.113.1> 203.0.113.1' -H 'X-Real-IP: 203.0.113.1'
+
+两层代理的情况下结果为：
+
+[HTTP_X_FORWARDED_FOR] => unkonw, <203.0.113.1> 203.0.113.1, 203.0.113.1, 203.0.113.1
+[REMOTE_ADDR] => 203.0.113.1 // php $_SERVER['REMOTE_ADDR']  ||  apache中的cgi中getenv['REMOTE_ADDR']
+[HTTP_X_REAL_IP] => 203.0.113.1
+
+upstream是Nginx的HTTP Upstream 模块，这个模块通过一个简单的调度算法来实现客户端IP到后端服务器的负载均衡。在上面的设定中，通过upstream指令指定了一个负载均衡器的名称test.net。这个名称可以任意指定，在后面需要用到的地方直接调用即可。
+
+假设现在我们访问的是 203.0.113.1:80，实际上它会将http请求包转发给其他可以获取内容的某台机器上。
+
+反向代理正好相反，对于客户端而言它就像是原始服务器，并且客户端不需要进行任何特别的设置。客户端向反向代理的命名空间(name-space)中的内容发送普通请求，接着反向代理将判断向何处(原始服务器)转交请求，并将获得的内容返回给客户端，就像这些内容原本就是它自己的一样。
+注意：nginx 作为代理转发数据包时可能会对请求头做一些修改，比如 修改 Host，增加 proxy_set_header 增加的一些头，忽略值为空串的头，忽略下划线 '&#95;' 开头的头，`Connection: close` 。
+
+### 识别代理服务器
+
+识别一个IP是不是代理IP，常见的是如下四种：
+1. 反向探测技术：扫描IP是不是开通了80、8080等代理服务器经常开通的端口，显然一个普通的用户IP不太可能开通如上的端口。
+2. HTTP头部的X_Forwarded_For：开通了HTTP代理的IP可以通过此法来识别是不是代理IP；如果带有XFF信息，该IP是代理IP无疑。
+3. Keep-alive报文：如果带有Proxy-Connection的Keep-alive报文，该IP毫无疑问是代理IP。
+4. 查看IP上端口：如果一个IP有的端口大于10000，那么该IP大多也存在问题，普通的家庭IP开这么大的端口几乎是不可能的。
+
+## Reference
+
+[C++ Web Programming](https://www.tutorialspoint.com/cplusplus/cpp_web_programming.htm)
