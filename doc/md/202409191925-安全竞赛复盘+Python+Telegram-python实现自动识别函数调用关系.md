@@ -16,13 +16,13 @@ sourceHtmlSha256: "3161aa5e4954ca83e89c0bc68de1d75edf23c3cb7430b5e1ac3a734735624
 
 > 来源：GitBook 网页 HTML｜页面时间：2024-09-19 19:25｜日期依据：GitBook 页面更新时间
 
-[Telegram 原帖](示例地址)
+[Telegram 原帖](https://t.me/HackerNiao/162519)
 
 [Telegram 原视频 1](../media/3f88dd3ae1f9bc0933.mp4)
 
 ![Telegram 原图 2](../media/21175a3aec7c0247f5.jpg)
 
-[Telegram 原帖](示例地址)
+[Telegram 原帖](https://t.me/HackerNiao/162521)
 
 [Telegram 原视频 1](../media/8db9f4448314fed06b.mp4)
 

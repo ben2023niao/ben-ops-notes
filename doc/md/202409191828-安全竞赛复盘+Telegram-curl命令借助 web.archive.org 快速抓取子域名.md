@@ -16,6 +16,6 @@ sourceHtmlSha256: "62c774a090b46382560db033c3bca0e7821706eaef77c3012354a8d342500
 
 > 来源：GitBook 网页 HTML｜页面时间：2024-09-19 18:28｜日期依据：GitBook 页面更新时间
 
-[Telegram 原帖](示例地址)
+[Telegram 原帖](https://t.me/HackerNiao/78587)
 
 ![文档配图 1](../media/f34e8a45c0e71aaa58.png)
