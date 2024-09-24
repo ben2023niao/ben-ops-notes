@@ -28,11 +28,11 @@ sourceHtmlSha256: "7eac65fa25e12ead83efcfe9328579784872823242ee4155ca2a6dd4a9c66
 
 ![文档配图 6](../media/35b3c1ee9ecc84ba91.png)
 
-1 <示例地址> 下载CDN主控
+1 <https://www.fikker.com/dl/FikkerCDN-NewUI.rar> 下载CDN主控
 
 ![文档配图 7](../media/cbfc490beb3d1cf172.png)
 
-2 <示例地址> 下载
+2 <https://www.microsoft.com/zh-cn/evalcenter/download-windows-server-2016> 下载
 
 ## Windows Server 2016
 
@@ -64,7 +64,7 @@ d. 推荐使用Chrome谷歌浏览器进行登陆管理。
 
 注：最常见的错误为安装到 **D:\FikkerCDN-NewUI\FikkerCDN-NewUI** 目录下面了。
 
-注：如需更改默认 **D:\FikkerCDN-NewUI** 安装目录，参看 <[有关 CDN 主控(新界面版)的几个常问问题](示例地址)> **★★★★★**
+注：如需更改默认 **D:\FikkerCDN-NewUI** 安装目录，参看 <[有关 CDN 主控(新界面版)的几个常问问题](https://www.fikker.com/help/faq~about-fikker-cdn-2.html)> **★★★★★**
 
 **第二步：安装 vcredist目录下的 vs10/vs15 微软运行库**
 
@@ -82,15 +82,15 @@ c. 为了减少不必要的冲突，关闭Windows防火墙/xx盾/xx锁/xx狗等�
 
 管理员
 
-登录地址: 示例地址 登录帐号：admin，初始密码：123qwe
+登录地址: http://your-cdn-ip:1280/Admin/Login 登录帐号：admin，初始密码：123qwe
 
 用户端
 
-登录地址：示例地址 说明: 用户端帐号由用户创建或管理员创建/删除/冻结。
+登录地址：http://your-cdn-ip:1280/Login 说明: 用户端帐号由用户创建或管理员创建/删除/冻结。
 
 注：默认为 **1280** 端口，主要是避免与 80 端口冲突和尽量避免备案。
 
-注：如需更改默认 **1280** 端口，参看 <[有关 CDN 主控(新界面版)的几个常问问题](示例地址)> **★★★★★**
+注：如需更改默认 **1280** 端口，参看 <[有关 CDN 主控(新界面版)的几个常问问题](https://www.fikker.com/help/faq~about-fikker-cdn-2.html)> **★★★★★**
 
 **截图示例：**
 
