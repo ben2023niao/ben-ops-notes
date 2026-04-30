@@ -1,0 +1,963 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>游点涩 服务端接入文档｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="游点涩 服务端接入文档。本文属于业务系统运维 / 游点涩，对本平台接口发起的请求需进行签名操作；针对接口返回数据及异步通知回调数据，需进行验签操作。 私钥（ secret_key ）与对接人员索取。 获取请求报文所有非空请求参数（不包括数组、字节类型参数，如文件、字节流），剔除 sign 字段；">
+  <meta name="keywords" content="游点涩，Go，Docker，故障排查，业务系统运维，业务系统运维 / 游点涩，游点涩 服务端接入文档，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2aa786441fe0.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2aa786441fe0.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202604301348-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BGo%2BDocker-%E6%B8%B8%E7%82%B9%E6%B6%A9%20%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%8E%A5%E5%85%A5%E6%96%87%E6%A1%A3.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="游点涩 服务端接入文档">
+  <meta property="og:description" content="游点涩 服务端接入文档。本文属于业务系统运维 / 游点涩，对本平台接口发起的请求需进行签名操作；针对接口返回数据及异步通知回调数据，需进行验签操作。 私钥（ secret_key ）与对接人员索取。 获取请求报文所有非空请求参数（不包括数组、字节类型参数，如文件、字节流），剔除 sign 字段；">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2aa786441fe0.html">
+  <meta property="article:published_time" content="2026-04-30T13:48:00+08:00">
+  <meta property="article:modified_time" content="2026-04-30 13:48">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="游点涩 服务端接入文档">
+  <meta name="twitter:description" content="游点涩 服务端接入文档。本文属于业务系统运维 / 游点涩，对本平台接口发起的请求需进行签名操作；针对接口返回数据及异步通知回调数据，需进行验签操作。 私钥（ secret_key ）与对接人员索取。 获取请求报文所有非空请求参数（不包括数组、字节类型参数，如文件、字节流），剔除 sign 字段；">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2aa786441fe0.html#article","headline":"游点涩 服务端接入文档","description":"游点涩 服务端接入文档。本文属于业务系统运维 / 游点涩，对本平台接口发起的请求需进行签名操作；针对接口返回数据及异步通知回调数据，需进行验签操作。 私钥（ secret_key ）与对接人员索取。 获取请求报文所有非空请求参数（不包括数组、字节类型参数，如文件、字节流），剔除 sign 字段；","datePublished":"2026-04-30T13:48:00+08:00","dateModified":"2026-04-30 13:48","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Go","Docker","故障排查","业务系统运维","业务系统运维 / 游点涩","游点涩 服务端接入文档","php"],"wordCount":2142,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2aa786441fe0.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2aa786441fe0.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"游点涩 服务端接入文档","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2aa786441fe0.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>游点涩 服务端接入文档</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>游点涩 服务端接入文档</h1>
+      <p class="lede">游点涩 服务端接入文档。本文属于业务系统运维 / 游点涩，对本平台接口发起的请求需进行签名操作；针对接口返回数据及异步通知回调数据，需进行验签操作。 私钥（ secret_key ）与对接人员索取。 获取请求报文所有非空请求参数（不包括数组、字节类型参数，如文件、字节流），剔除 sign 字段；</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-04-30T13:48:00+08:00">发布于 2026-04-30</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,142 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/src/youdianse-php/doc/sdk.md</code></p>
+<p>整理日期：2026-04-30 13:48｜日期依据：正文日期</p>
+</blockquote>
+<h2 id="快速开始">快速开始</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>参数值</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>baseUrl</code></td>
+<td><code>https://h5.game-app543.com</code></td>
+<td>API 请求域名</td>
+</tr>
+<tr>
+<td><code>baseUrl</code>（测试环境）</td>
+<td><code>https://sdk.youdianse-test.xyz</code></td>
+<td>测试环境 API 请求域名</td>
+</tr>
+<tr>
+<td><code>secret_key</code></td>
+<td><code>6905ddbac389f</code></td>
+<td>回调通知验签私钥，与对接人员索取</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="签名规则">签名规则</h2>
+<h3 id="基本说明">基本说明</h3>
+<p>对本平台接口发起的请求需进行签名操作；针对接口返回数据及异步通知回调数据，需进行验签操作。<strong>私钥（<code>secret_key</code>）与对接人员索取。</strong></p>
+<blockquote>
+<p><code>extra</code> 和 <code>_url</code> 参数不参与签名。</p>
+</blockquote>
+<h3 id="签名步骤">签名步骤</h3>
+<ol>
+<li>获取请求报文所有非空请求参数（不包括数组、字节类型参数，如文件、字节流），剔除 <code>sign</code> 字段；</li>
+<li>按参数键名首字符 ASCII 码递增排序（字母升序），若首字符相同则依次比较后续字符；</li>
+<li>将排序后的参数值用空字符串拼接，生成<strong>待签名字符串</strong>；</li>
+<li>使用私钥（<code>secret_key</code>）对待签名字符串计算 HMAC-SHA256，得到签名字段 <code>sign</code>。</li>
+</ol>
+<h3 id="验签步骤">验签步骤</h3>
+<p>适用于异步通知回调数据：</p>
+<ol>
+<li>参照签名步骤的第 1–2 步，处理参数并生成<strong>待签名字符串</strong>；</li>
+<li>使用私钥（<code>secret_key</code>）对待签名字符串进行 HMAC-SHA256 计算，与回调中的 <code>sign</code> 字段比对。</li>
+</ol>
+<h3 id="注意事项">注意事项</h3>
+<ol>
+<li>私钥（<code>secret_key</code>）需嵌入代码用于签名、验签操作，需妥善保管，避免遗失或泄露；</li>
+<li>游点涩平台可能会在后续新增回调字段，验签逻辑需兼容新增字段，避免因字段增加导致验证失败。</li>
+</ol>
+<hr/>
+<h2 id="回调通知">回调通知</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>请求方法</td>
+<td><code>POST</code></td>
+</tr>
+<tr>
+<td>Content-Type</td>
+<td><code>application/json</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="请求参数说明">请求参数说明</h3>
+<table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>类型</th>
+<th>示例值</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>order_num</code></td>
+<td><code>string</code></td>
+<td><code>ORDER1760373289</code></td>
+<td>游戏侧订单号</td>
+</tr>
+<tr>
+<td><code>trade_status</code></td>
+<td><code>string</code></td>
+<td><code>TRADE_SUCCESS</code></td>
+<td>交易状态，固定为 <code>TRADE_SUCCESS</code></td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td><code>string</code></td>
+<td><code>1760373289</code></td>
+<td>订单创建时间（Unix 时间戳）</td>
+</tr>
+<tr>
+<td><code>money</code></td>
+<td><code>string</code></td>
+<td><code>100</code></td>
+<td>订单金额（G点）</td>
+</tr>
+<tr>
+<td><code>timestamp</code></td>
+<td><code>string</code></td>
+<td><code>1760373312</code></td>
+<td>当前 Unix 时间戳</td>
+</tr>
+<tr>
+<td><code>extra</code></td>
+<td><code>string</code></td>
+<td><code>{"product_name":"黄金*60",...}</code></td>
+<td>扩展信息，JSON 字符串，不参与签名</td>
+</tr>
+<tr>
+<td><code>sign</code></td>
+<td><code>string</code></td>
+<td><code>dd540221aa5f...</code></td>
+<td>签名字符串，参考签名规则</td>
+</tr>
+</tbody>
+</table>
+<h3 id="返回内容说明">返回内容说明</h3>
+<p>当商户服务器接收到游点涩平台的异步通知后，需返回小写 <code>success</code> 字符串，以告知平台已成功接收订单通知。</p>
+<h3 id="其他说明">其他说明</h3>
+<ol>
+<li>必须校验签名字段（<code>sign</code>）并确认 <code>trade_status === TRADE_SUCCESS</code>，两者均通过后方可确认支付有效。</li>
+<li>游点涩平台可能新增回调字段，验签实现需兼容新字段，避免验证失败。</li>
+</ol>
+<h3 id="PHP-示例代码">PHP 示例代码</h3>
+<p><strong>callback.php</strong></p>
+<pre><code class="language-php">$input = file_get_contents('php://input');
+$data = json_decode($input, true);
+
+if ($data['trade_status'] !== 'TRADE_SUCCESS') {
+    die('trade_status error');
+}
+
+$clientSign = $data['sign'];
+$敏感凭据：[已脱敏]; // 换成真正的 secretKey
+
+if ($clientSign !== SignUtil::sign($data, $secretKey)) {
+    die('sign error');
+}
+
+// 处理订单业务逻辑...
+echo 'success';
+</code></pre>
+<p><strong>SignUtil.php</strong></p>
+<pre><code class="language-php">class SignUtil
+{
+    public static function sign(array $params, string $secretKey): string
+    {
+        unset($params['sign'], $params['extra']);
+        ksort($params);
+        $query = implode('', $params);
+        return hash_hmac('sha256', $query, $secretKey);
+    }
+}
+</code></pre>
+<h3 id="Go-示例代码">Go 示例代码</h3>
+<pre><code class="language-go">package main
+
+import (
+    "crypto/hmac"
+    "crypto/sha256"
+    "encoding/json"
+    "fmt"
+    "io"
+    "log"
+    "math"
+    "net/http"
+    "sort"
+    "strconv"
+    "strings"
+)
+
+func main() {
+    http.HandleFunc("/api/callback/test", callback)
+    log.Println("listening :8080")
+    log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+func callback(w http.ResponseWriter, r *http.Request) {
+    body, err := io.ReadAll(r.Body)
+    if err != nil {
+        http.Error(w, "read body err", http.StatusBadRequest)
+        return
+    }
+
+    dec := json.NewDecoder(strings.NewReader(string(body)))
+    dec.UseNumber()
+    var data map[string]interface{}
+    if err := dec.Decode(&amp;data); err != nil {
+        http.Error(w, "invalid json", http.StatusBadRequest)
+        return
+    }
+
+    if v, ok := data["trade_status"]; !ok || fmt.Sprint(v) != "TRADE_SUCCESS" {
+        fmt.Fprint(w, "trade_status error")
+        return
+    }
+
+    clientSign := fmt.Sprint(data["sign"])
+    敏感凭据：[已脱敏] "6905ddbac389f" // 换成真正的 secretKey
+
+    serverSign := calcSign(data, secretKey)
+    if clientSign != serverSign {
+        fmt.Fprint(w, "sign error")
+        return
+    }
+
+    // 处理订单业务逻辑...
+    fmt.Fprint(w, "success")
+}
+
+func calcSign(params map[string]interface{}, secretKey string) string {
+    m := make(map[string]interface{}, len(params))
+    for k, v := range params {
+        m[k] = v
+    }
+    delete(m, "sign")
+    delete(m, "extra")
+
+    keys := make([]string, 0, len(m))
+    for k := range m {
+        keys = append(keys, k)
+    }
+    sort.Strings(keys)
+
+    var b strings.Builder
+    for _, k := range keys {
+        b.WriteString(phpStringify(m[k]))
+    }
+
+    mac := hmac.New(sha256.New, []byte(secretKey))
+    mac.Write([]byte(b.String()))
+    return fmt.Sprintf("%x", mac.Sum(nil))
+}
+
+// phpStringify 模拟 PHP implode('', $array) 的类型转换行为
+func phpStringify(v interface{}) string {
+    if v == nil {
+        return ""
+    }
+    switch val := v.(type) {
+    case json.Number:
+        return val.String()
+    case bool:
+        if val {
+            return "1"
+        }
+        return ""
+    case string:
+        return val
+    case float64:
+        if math.Trunc(val) == val {
+            return strconv.FormatInt(int64(val), 10)
+        }
+        return strconv.FormatFloat(val, 'f', -1, 64)
+    case map[string]interface{}, []interface{}:
+        return "Array"
+    default:
+        return fmt.Sprint(val)
+    }
+}
+</code></pre>
+<hr/>
+<h2 id="Token-验证-可选">Token 验证（可选）</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>接口地址</td>
+<td><code>/customer/other/checkTokenV2</code></td>
+</tr>
+<tr>
+<td>请求方法</td>
+<td><code>POST</code></td>
+</tr>
+<tr>
+<td>Content-Type</td>
+<td><code>application/x-www-form-urlencoded</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="加密方式">加密方式</h3>
+<p><code>sign</code> 和 <code>host_sign</code> 均使用 <strong>AES-128-CBC + Base64 + URLEncode</strong> 加密，私钥由平台侧提供。</p>
+<p><strong>构造待加密数据</strong></p>
+<pre><code class="language-php">// sign：用户身份信息
+$signPayload = json_encode([
+    'token'    =&gt; '51cc2278918930022e9299927420877c',
+    'user_id'  =&gt; 66513,
+    'username' =&gt; '18G66513',
+]);
+
+// host_sign：请求域名 + 时间戳
+$hostPayload = json_encode([
+    'host'      =&gt; 'www.google.com',
+    'timestamp' =&gt; time(), // 秒级，有效期 ±30 秒
+]);
+</code></pre>
+<p><strong>加解密实现</strong></p>
+<pre><code class="language-php">class CryptoUtil
+{
+    /**
+     * 加密：urlencode(base64(iv + cipher))
+     */
+    public static function encrypt(string $json, string $secret): ?string
+    {
+        $key   = self::normalizeKey($secret);
+        $ivLen = openssl_cipher_iv_length('AES-128-CBC');
+        $iv    = random_bytes($ivLen);
+
+        $cipher = openssl_encrypt($json, 'AES-128-CBC', $key, OPENSSL_RAW_DATA, $iv);
+        if ($cipher === false) {
+            return null;
+        }
+
+        return urlencode(base64_encode($iv . $cipher));
+    }
+
+    /**
+     * 解密：入参 urlencode(base64(iv + cipher))
+     */
+    public static function decrypt(string $cipherText, string $secret): ?string
+    {
+        $key = self::normalizeKey($secret);
+        $raw = base64_decode(urldecode($cipherText), true);
+        if ($raw === false) {
+            return null;
+        }
+
+        $ivLen = openssl_cipher_iv_length('AES-128-CBC');
+        if (strlen($raw) &lt;= $ivLen) {
+            return null;
+        }
+
+        $plain = openssl_decrypt(
+            substr($raw, $ivLen),
+            'AES-128-CBC',
+            $key,
+            OPENSSL_RAW_DATA,
+            substr($raw, 0, $ivLen)
+        );
+
+        return $plain === false ? null : $plain;
+    }
+
+    /** 私钥统一截取为 16 字节（AES-128） */
+    private static function normalizeKey(string $secret): string
+    {
+        return substr(str_pad($secret, 16, '0'), 0, 16);
+    }
+}
+</code></pre>
+<h3 id="请求参数">请求参数</h3>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>是否必填</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sign</code></td>
+<td>是</td>
+<td>用户身份信息加密串</td>
+</tr>
+<tr>
+<td><code>host_sign</code></td>
+<td>是</td>
+<td>域名信息加密串</td>
+</tr>
+<tr>
+<td><code>form</code></td>
+<td>是</td>
+<td>研发平台缩写，由平台侧提供（如开炮平台为 <code>kaipao</code>）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="成功响应">成功响应</h3>
+<pre><code class="language-json">{
+  "code": 200,
+  "msg": "success",
+  "status": "y",
+  "tip": "成功",
+  "data": {
+    "user_id": 66513,
+    "username": "18G66513",
+    "token": "51cc2278918930022e9299927420877c",
+    "is_test": 0
+  },
+  "time": "2026-04-30 13:48:54"
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>status</code></td>
+<td>字符串</td>
+<td><code>y</code> 成功 / <code>n</code> 失败</td>
+</tr>
+<tr>
+<td><code>data.user_id</code></td>
+<td>整型</td>
+<td>用户 ID</td>
+</tr>
+<tr>
+<td><code>data.username</code></td>
+<td>字符串</td>
+<td>用户名</td>
+</tr>
+<tr>
+<td><code>data.token</code></td>
+<td>字符串</td>
+<td>用户 token</td>
+</tr>
+<tr>
+<td><code>data.is_test</code></td>
+<td>整型</td>
+<td>是否测试账户 1-是 0-否</td>
+</tr>
+</tbody>
+</table>
+<h3 id="错误响应">错误响应</h3>
+<pre><code class="language-json">{
+  "status": "n",
+  "error": "token失效!",
+  "errorCode": 4002
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>status</code></td>
+<td>字符串</td>
+<td><code>n</code> 表示失败</td>
+</tr>
+<tr>
+<td><code>error</code></td>
+<td>字符串</td>
+<td>错误提示</td>
+</tr>
+<tr>
+<td><code>errorCode</code></td>
+<td>整型</td>
+<td>错误码，见错误码说明</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="订单查询接口-可选">订单查询接口（可选）</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>接口地址</td>
+<td><code>/customer/other/queryOrder</code></td>
+</tr>
+<tr>
+<td>请求方法</td>
+<td><code>POST</code></td>
+</tr>
+<tr>
+<td>Content-Type</td>
+<td><code>application/x-www-form-urlencoded</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="加密方式-2">加密方式</h3>
+<p>加密流程与 Token 验证完全一致，<code>sign</code> 中额外包含 <code>order_num</code> 字段：</p>
+<pre><code class="language-php">$signPayload = json_encode([
+    'token'     =&gt; '51cc2278918930022e9299927420877c',
+    'user_id'   =&gt; 66513,
+    'username'  =&gt; '18G66513',
+    'order_num' =&gt; 'GAC202606022043421780404222135',
+]);
+
+$hostPayload = json_encode([
+    'host'      =&gt; 'www.google.com',
+    'timestamp' =&gt; time(),
+]);
+</code></pre>
+<h3 id="请求参数-2">请求参数</h3>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>是否必填</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sign</code></td>
+<td>是</td>
+<td>用户身份 + 订单号加密串</td>
+</tr>
+<tr>
+<td><code>host_sign</code></td>
+<td>是</td>
+<td>域名信息加密串</td>
+</tr>
+<tr>
+<td><code>form</code></td>
+<td>是</td>
+<td>研发平台缩写，由平台侧提供（如开炮平台为 <code>kaipao</code>）</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>sign</code> 解密后字段</strong></p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>token</code></td>
+<td>字符串</td>
+<td>用户 token</td>
+</tr>
+<tr>
+<td><code>user_id</code></td>
+<td>整型</td>
+<td>用户 ID</td>
+</tr>
+<tr>
+<td><code>username</code></td>
+<td>字符串</td>
+<td>用户名</td>
+</tr>
+<tr>
+<td><code>order_num</code></td>
+<td>字符串</td>
+<td>要查询的订单号</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>host_sign</code> 解密后字段</strong></p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>host</code></td>
+<td>字符串</td>
+<td>白名单域名</td>
+</tr>
+<tr>
+<td><code>timestamp</code></td>
+<td>整型</td>
+<td>当前时间戳（秒级），有效期 ±30 秒</td>
+</tr>
+</tbody>
+</table>
+<h3 id="成功响应-2">成功响应</h3>
+<pre><code class="language-json">{
+  "code": 200,
+  "msg": "success",
+  "status": "y",
+  "tip": "成功",
+  "data": {
+    "order_num": "GAC202606022043421780404222135",
+    "status": "1",
+    "status_text": "已付款"
+  },
+  "time": "2026-06-03 14:00:00"
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>status</code></td>
+<td>字符串</td>
+<td><code>y</code> 成功 / <code>n</code> 失败</td>
+</tr>
+<tr>
+<td><code>data.order_num</code></td>
+<td>字符串</td>
+<td>订单号</td>
+</tr>
+<tr>
+<td><code>data.status</code></td>
+<td>字符串</td>
+<td>订单状态码</td>
+</tr>
+<tr>
+<td><code>data.status_text</code></td>
+<td>字符串</td>
+<td>订单状态文案</td>
+</tr>
+</tbody>
+</table>
+<p><strong>订单状态码</strong></p>
+<table>
+<thead>
+<tr>
+<th><code>status</code></th>
+<th><code>status_text</code></th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-1</code></td>
+<td>发起失败</td>
+<td>发起失败</td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td>付款中</td>
+<td>等待付款</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td>已付款</td>
+<td>支付成功</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td>投诉</td>
+<td>用户投诉</td>
+</tr>
+</tbody>
+</table>
+<h3 id="错误响应-2">错误响应</h3>
+<pre><code class="language-json">{
+  "code": 2001,
+  "status": "n",
+  "tip": "订单不存在!",
+  "data": [],
+  "time": "2026-06-03 14:00:00"
+}
+</code></pre>
+<p><strong>错误码说明</strong></p>
+<table>
+<thead>
+<tr>
+<th><code>code</code></th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>2001</code></td>
+<td>数据错误（订单不存在等）</td>
+</tr>
+<tr>
+<td><code>2002</code></td>
+<td>鉴权失败（token 失效、username 核对错误等）</td>
+</tr>
+<tr>
+<td><code>4002</code></td>
+<td>参数错误（缺少必传参数、签名错误、时间戳超限等）</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="查询测试账户接口-可选">查询测试账户接口（可选）</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>接口地址</td>
+<td><code>/customer/user/queryTestAccounts</code></td>
+</tr>
+<tr>
+<td>请求方法</td>
+<td><code>POST</code></td>
+</tr>
+<tr>
+<td>Content-Type</td>
+<td><code>application/x-www-form-urlencoded</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="请求参数-3">请求参数</h3>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>是否必填</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>game_key</code></td>
+<td>是</td>
+<td>研发平台分配的游戏标识，用于查找对应的 <code>secret_key</code></td>
+</tr>
+<tr>
+<td><code>user_ids</code></td>
+<td>否</td>
+<td>用户 ID 列表，多个以半角逗号 <code>,</code> 分隔；为空则查询全部测试账户</td>
+</tr>
+<tr>
+<td><code>page</code></td>
+<td>否</td>
+<td>页码，默认 <code>1</code></td>
+</tr>
+<tr>
+<td><code>page_size</code></td>
+<td>否</td>
+<td>每页数量，默认 <code>100</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="成功响应-3">成功响应</h3>
+<p><code>data</code> 字段为加密后的字符串，加密算法为 <strong>AES-128-ECB + Base64</strong>，密钥使用 <code>game_key</code> 对应的 <code>secret_key</code>。</p>
+<pre><code class="language-json">{
+  "code": 200,
+  "msg": "success",
+  "status": "y",
+  "tip": "成功",
+  "data": "JkzIro/8luoorg16Cn8tPqWN4dBIvrMo8qwVAf7gI+6LPkT07giM+ns2PXL4TXhYZGRwp8u0T8AXH05KpKLjgLQp0DrxGUGEkUM/dPigTRIoIvwkz9MtRZ9fu64HnVRqZ2SO+5fmnGI5ktGXpTvPGjF8+wlVz7WD8xgyl2xn28lpAxfA03da9apSCgvtpBA6syGD+pVcqVfl3Xe6L//TcqFWYg7SvpvQKCt5EniidJqVN080iSI4Z6N0tOHvvzmj9BuEkOGR3Q8TuMFf3UTQ3UMxc55d/a3q7ygyLGmHtSehVmIO0r6b0CgreRJ4onSalTdPNIkiOGejdLTh7785o5HttOlcV1SOWd4dSewS0P2NakeW1WlIh1t4FnJmE821oVZiDtK+m9AoK3kSeKJ0mpU3TzSJIjhno3S04e+/OaM6IcnBxMuzB33WQPoiz5fvw/DZto7XAPq06DZGjYgmlot//ugGd5Ey8ovjPhNdNW3WVYJnZIJRlhOCDfqtUw5uJACihEIRjjgGonb1yHf15PidAZ3wsCujB2dZJwYF1ESLf/7oBneRMvKL4z4TXTVt1lWCZ2SCUZYTgg36rVMObhjfurNL0lvFidUr9zuhmu7sgL3U++MVDw43OLgqMMZai3/+6AZ3kTLyi+M+E101bc6gJM49u2augOBGBWj4MkQ=",
+  "time": "2026-07-29 17:32:21"
+}
+</code></pre>
+<h3 id="数据解密">数据解密</h3>
+<pre><code class="language-php">$str = base64_decode($str);
+if (empty($str)) {
+    return null;
+}
+
+return openssl_decrypt($str, 'AES-128-ECB', $key, OPENSSL_RAW_DATA);
+</code></pre>
+<p><code>$key</code> 即请求参数 <code>game_key</code> 对应的 <code>secret_key</code>。</p>
+<p>解密后的 <code>data</code> 为 JSON 数组：</p>
+<pre><code class="language-json">[
+  {
+    "user_id": 66513,
+    "username": "18G66513",
+    "is_test": 1,
+    "email": "[邮箱已脱敏]"
+  }
+]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user_id</code></td>
+<td>整型</td>
+<td>用户 ID</td>
+</tr>
+<tr>
+<td><code>username</code></td>
+<td>字符串</td>
+<td>用户名</td>
+</tr>
+<tr>
+<td><code>is_test</code></td>
+<td>整型</td>
+<td>是否测试账户 1-是 0-否</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td>字符串</td>
+<td>邮箱</td>
+</tr>
+</tbody>
+</table>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#快速开始">快速开始</a></li><li style="margin-left:0.0rem"><a href="#签名规则">签名规则</a></li><li style="margin-left:0.8rem"><a href="#基本说明">基本说明</a></li><li style="margin-left:0.8rem"><a href="#签名步骤">签名步骤</a></li><li style="margin-left:0.8rem"><a href="#验签步骤">验签步骤</a></li><li style="margin-left:0.8rem"><a href="#注意事项">注意事项</a></li><li style="margin-left:0.0rem"><a href="#回调通知">回调通知</a></li><li style="margin-left:0.8rem"><a href="#请求参数说明">请求参数说明</a></li><li style="margin-left:0.8rem"><a href="#返回内容说明">返回内容说明</a></li><li style="margin-left:0.8rem"><a href="#其他说明">其他说明</a></li><li style="margin-left:0.8rem"><a href="#PHP-示例代码">PHP 示例代码</a></li><li style="margin-left:0.8rem"><a href="#Go-示例代码">Go 示例代码</a></li><li style="margin-left:0.0rem"><a href="#Token-验证-可选">Token 验证（可选）</a></li><li style="margin-left:0.8rem"><a href="#加密方式">加密方式</a></li><li style="margin-left:0.8rem"><a href="#请求参数">请求参数</a></li><li style="margin-left:0.8rem"><a href="#成功响应">成功响应</a></li><li style="margin-left:0.8rem"><a href="#错误响应">错误响应</a></li><li style="margin-left:0.0rem"><a href="#订单查询接口-可选">订单查询接口（可选）</a></li><li style="margin-left:0.8rem"><a href="#加密方式-2">加密方式</a></li><li style="margin-left:0.8rem"><a href="#请求参数-2">请求参数</a></li><li style="margin-left:0.8rem"><a href="#成功响应-2">成功响应</a></li><li style="margin-left:0.8rem"><a href="#错误响应-2">错误响应</a></li><li style="margin-left:0.0rem"><a href="#查询测试账户接口-可选">查询测试账户接口（可选）</a></li><li style="margin-left:0.8rem"><a href="#请求参数-3">请求参数</a></li><li style="margin-left:0.8rem"><a href="#成功响应-3">成功响应</a></li><li style="margin-left:0.8rem"><a href="#数据解密">数据解密</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-04-30</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Go</span><span class="tag">Docker</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/src/youdianse-php/doc/sdk…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202604301348-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BGo%2BDocker-%E6%B8%B8%E7%82%B9%E6%B6%A9%20%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%8E%A5%E5%85%A5%E6%96%87%E6%A1%A3.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>游点涩 服务端接入文档。本文属于业务系统运维 / 游点涩，对本平台接口发起的请求需进行签名操作；针对接口返回数据及异步通知回调数据，需进行验签操作。 私钥（ secret_key ）与对接人员索取。 获取请求报文所有非空请求参数（不包括数组、字节类型参数，如文件、字节流），剔除 sign 字段；</p>
+      <p>关键词：游点涩、Go、Docker、故障排查、业务系统运维、业务系统运维 / 游点涩、游点涩 服务端接入文档、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-80e1b4cfa60a.html"><small>上一篇</small>首页差异基准</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c1be2ef9333f.html"><small>下一篇</small>Ghome 产品形态与架构设计</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2aa786441fe0.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
