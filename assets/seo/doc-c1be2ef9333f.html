@@ -1,0 +1,1079 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Ghome 产品形态与架构设计｜业务系统运维 / GHOME｜BEN.OPS</title>
+  <meta name="description" content="Ghome 产品形态与架构设计。本文属于业务系统运维 / GHOME，作者 :与 user 协作整理(brainstorming skill) 范围 :Ghome 三段式产品(页面端 / 服务端 / 运营管理端)的整体架构、数据模型、关键交互、MVP 分阶段 Ghome 定位为面向全球中文用户的 LGBTQ+ 数…">
+  <meta name="keywords" content="GHOME，Linux，Shell，Docker，自动化，CDN，源码与配置，业务系统运维，业务系统运维 / GHOME，Ghome 产品形态与架构设计">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c1be2ef9333f.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c1be2ef9333f.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605080000-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BLinux-Ghome%20%E4%BA%A7%E5%93%81%E5%BD%A2%E6%80%81%E4%B8%8E%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Ghome 产品形态与架构设计">
+  <meta property="og:description" content="Ghome 产品形态与架构设计。本文属于业务系统运维 / GHOME，作者 :与 user 协作整理(brainstorming skill) 范围 :Ghome 三段式产品(页面端 / 服务端 / 运营管理端)的整体架构、数据模型、关键交互、MVP 分阶段 Ghome 定位为面向全球中文用户的 LGBTQ+ 数…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c1be2ef9333f.html">
+  <meta property="article:published_time" content="2026-05-08T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-08 00:00">
+  <meta property="article:section" content="业务系统运维 / GHOME">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Ghome 产品形态与架构设计">
+  <meta name="twitter:description" content="Ghome 产品形态与架构设计。本文属于业务系统运维 / GHOME，作者 :与 user 协作整理(brainstorming skill) 范围 :Ghome 三段式产品(页面端 / 服务端 / 运营管理端)的整体架构、数据模型、关键交互、MVP 分阶段 Ghome 定位为面向全球中文用户的 LGBTQ+ 数…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c1be2ef9333f.html#article","headline":"Ghome 产品形态与架构设计","description":"Ghome 产品形态与架构设计。本文属于业务系统运维 / GHOME，作者 :与 user 协作整理(brainstorming skill) 范围 :Ghome 三段式产品(页面端 / 服务端 / 运营管理端)的整体架构、数据模型、关键交互、MVP 分阶段 Ghome 定位为面向全球中文用户的 LGBTQ+ 数…","datePublished":"2026-05-08T00:00:00+08:00","dateModified":"2026-05-08 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","GHOME"],"keywords":["GHOME","Linux","Shell","Docker","自动化","CDN","源码与配置","业务系统运维","业务系统运维 / GHOME","Ghome 产品形态与架构设计"],"wordCount":9289,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c1be2ef9333f.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c1be2ef9333f.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / GHOME","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Ghome 产品形态与架构设计","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c1be2ef9333f.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / GHOME</span> › <span>Ghome 产品形态与架构设计</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / GHOME</div>
+      <h1>Ghome 产品形态与架构设计</h1>
+      <p class="lede">Ghome 产品形态与架构设计。本文属于业务系统运维 / GHOME，作者 :与 user 协作整理(brainstorming skill) 范围 :Ghome 三段式产品(页面端 / 服务端 / 运营管理端)的整体架构、数据模型、关键交互、MVP 分阶段 Ghome 定位为面向全球中文用户的 LGBTQ+ 数…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-08T00:00:00+08:00">发布于 2026-05-08</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">9,289 字</span>
+        <span class="badge">27 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/ghome/docs/superpowers/specs/2026-05-08-ghome-product-shape-design.md</code></p>
+<p>整理日期：2026-05-08 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li><strong>日期</strong>:2026-05-08</li>
+<li><strong>状态</strong>:草稿,待 user 审阅</li>
+<li><strong>作者</strong>:与 user 协作整理(brainstorming skill)</li>
+<li><strong>范围</strong>:Ghome 三段式产品(页面端 / 服务端 / 运营管理端)的整体架构、数据模型、关键交互、MVP 分阶段</li>
+</ul>
+<hr/>
+<h2 id="0-背景与定位">0. 背景与定位</h2>
+<p>Ghome 定位为面向全球中文用户的 <strong>LGBTQ+ 数字生活总入口</strong>,是一个 <strong>导航类站点</strong>:</p>
+<ul>
+<li>收录、组织并对外推荐 LGBTQ+ 友好的 App、视频内容平台、专题与指南</li>
+<li>不托管 App 安装包,不托管视频文件,所有点击外跳第三方</li>
+<li>不收录任何成人 / 擦边 / 违规内容</li>
+<li>当前 <code>docs/ghome.html</code> 是页面端的纯前端原型(单文件 SPA、数据写死),本设计将其拆解为完整的三段式产品</li>
+</ul>
+<h3 id="已确认的核心约束">已确认的核心约束</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>选定</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>内容边界</td>
+<td>纯导航站,<strong>+</strong> 运营端做专辑/专题/指南类编辑型内容,透出到页面端</td>
+</tr>
+<tr>
+<td>核心场景</td>
+<td>App / 视频 / 专题 / 指南<strong>平权</strong>的总入口(以主题/场景驱动浏览)</td>
+</tr>
+<tr>
+<td>多端</td>
+<td>仅 Web,响应式适配桌面 + 手机浏览器</td>
+</tr>
+<tr>
+<td>部署区域</td>
+<td>海外,面向全球中文用户;不走 ICP 备案</td>
+</tr>
+<tr>
+<td>商业模式</td>
+<td>暂不上付费/广告;但服务端预留中转跳转 + 点击追踪 + 推广位字段(可进化架构)</td>
+</tr>
+<tr>
+<td>用户体系</td>
+<td><strong>终端用户纯匿名</strong>(无账号、无终端用户表);收藏/历史走浏览器 localStorage。管理端有运营账号表 <code>admin_users</code>(详见 §3.2)</td>
+</tr>
+<tr>
+<td>数据库</td>
+<td>Postgres 16(可移植性优先,先在本地 Docker 跑)</td>
+</tr>
+<tr>
+<td>ORM</td>
+<td><strong>Prisma</strong></td>
+</tr>
+<tr>
+<td>内容来源</td>
+<td>运营编辑录入,不做 UGC、不做第三方抓取</td>
+</tr>
+<tr>
+<td>搜索</td>
+<td><code>ILIKE + pg_trgm</code> GIN 索引(Postgres 内置扩展);不上 FTS / Elasticsearch / Meilisearch(详见 §4.4)</td>
+</tr>
+<tr>
+<td>榜单</td>
+<td>MVP <strong>手工维护</strong>,seed 出 6 个 <code>collections(kind=ranking)</code>(5 内容榜各 8 条 + 1 标签榜 10 条,共 50 条 ranking_items,完全对齐原型 <code>renderRankings</code>);<code>/rankings</code> 直接读 DB;<strong>不做运行时动态排序</strong>(原型字段如 <code>users_label='800万+'</code> <code>rating='4.7'</code> 是字符串,排序需要先补 numeric 列,留给后期)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="不在-MVP-范围内">不在 MVP 范围内</h3>
+<ul>
+<li>任何用户账号、登录、收藏、评论、点赞</li>
+<li>邮件/Push 通知</li>
+<li>多语言 / i18n</li>
+<li>A/B 测试、灰度发布</li>
+<li>CPS 联盟 / 广告售卖系统 / 会员订阅</li>
+<li>移动端原生 App、微信小程序</li>
+<li>Cloudflare / Supabase / Neon / Vercel 等云托管的最终选型(推迟到 MVP 跑通后)</li>
+</ul>
+<hr/>
+<h2 id="1-整体架构">1. 整体架构</h2>
+<h3 id="1-1-单仓多包-monorepo">1.1 单仓多包(monorepo)</h3>
+<pre><code>ghome/
+├─ apps/
+│  ├─ web/              # 页面端 — Next.js,SSG + ISR
+│  └─ admin/            # 运营管理端 — Next.js,SSR,要登录
+├─ packages/
+│  └─ db/               # Prisma schema + queries + migrations
+├─ docker-compose.yml   # 仅基础设施:Postgres(+ Adminer)
+├─ docs/
+└─ package.json         # pnpm workspaces
+</code></pre>
+<p><strong>"服务端" = <code>packages/db</code> + 两个 app 自己的 Route Handler</strong>。不再起独立 backend 进程;数据库 Postgres 跑在本地 Docker,两个 app 通过 <code>DATABASE_URL</code> 共用同一份 schema。</p>
+<h3 id="1-2-packages-db-内部">1.2 <code>packages/db</code> 内部</h3>
+<pre><code>packages/db/
+├─ prisma/
+│  ├─ schema.prisma        # 14 张表的 schema(Prisma DSL)
+│  └─ migrations/          # prisma migrate 生成的 SQL 迁移
+├─ src/
+│  ├─ client.ts            # PrismaClient 单例,web/admin 共用
+│  └─ queries/             # 复用查询(如 getPublishedAppsByCategory)
+└─ package.json            # 导出 @ghome/db
+</code></pre>
+<h3 id="1-3-本地开发拓扑">1.3 本地开发拓扑</h3>
+<pre><code>[host: macOS/Linux 开发机]
+  ├─ pnpm --filter web dev   → http://localhost:3000   (apps/web)
+  ├─ pnpm --filter admin dev → http://localhost:3100   (apps/admin)
+  │
+  └─ docker compose up -d    →
+       ├─ postgres:16           localhost:5432   (持久化卷)
+       └─ adminer(可选)         localhost:8080   (DB 浏览/排错)
+</code></pre>
+<ul>
+<li><strong>Next.js 跑在宿主机</strong>,HMR 体验最好</li>
+<li><strong>基础设施跑在 Docker</strong>,<code>docker compose up -d</code> 一行起</li>
+<li>两个 app 通过 <code>DATABASE_URL=postgres://...@localhost:5432/ghome</code> 直连</li>
+</ul>
+<h3 id="1-4-一键起项目">1.4 一键起项目</h3>
+<pre><code class="language-bash">pnpm install
+docker compose up -d
+pnpm --filter @ghome/db prisma migrate deploy   # 应用迁移
+pnpm --filter @ghome/db prisma db seed          # 从 docs/ghome.html 灌种子
+pnpm dev                                        # 并行起 web + admin
+</code></pre>
+<h3 id="1-5-关于-云">1.5 关于"云"</h3>
+<p>不在 MVP 范围。选 Postgres + Prisma 是为了<strong>未来不锁死</strong>:任何托管 Postgres(Supabase / Neon / RDS / 自建 VPS)都能直接迁,只改 <code>DATABASE_URL</code>。</p>
+<hr/>
+<h2 id="2-三段产品的能力切片">2. 三段产品的能力切片</h2>
+<h3 id="2-1-页面端-apps-web-匿名访问">2.1 页面端(<code>apps/web</code>)· 匿名访问</h3>
+<table>
+<thead>
+<tr>
+<th>路由</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/</code></td>
+<td>首页 — 搜索 + 主推 + 分类入口 + 专辑/专题腰部 + 热榜</td>
+</tr>
+<tr>
+<td><code>/apps</code> <code>/app/:slug</code></td>
+<td>App 列表 / 详情</td>
+</tr>
+<tr>
+<td><code>/videos</code> <code>/video/:slug</code></td>
+<td>视频列表 / 详情</td>
+</tr>
+<tr>
+<td><code>/categories</code> <code>/category/:slug</code> <code>/tag/:slug</code></td>
+<td>分类与标签聚合(<code>/category/:slug</code> 仅解析视频分类;App 分类作为 <code>/apps?cat=:slug</code> 的筛选 tab,不独立成页 — 详见 §3.2 categories)</td>
+</tr>
+<tr>
+<td><code>/topics</code> <code>/topic/:slug</code></td>
+<td>专题列表 / 详情</td>
+</tr>
+<tr>
+<td><code>/albums</code> <code>/album/:slug</code></td>
+<td>专辑(运营编排的混合卡片集)— <strong>原型无此路由,P2 不实现;由 P6 同步交付前台列表/详情页</strong></td>
+</tr>
+<tr>
+<td><code>/guides</code> <code>/guide/:slug</code></td>
+<td>指南列表 / 详情(Markdown)</td>
+</tr>
+<tr>
+<td><code>/rankings</code></td>
+<td>榜单</td>
+</tr>
+<tr>
+<td><code>/about</code> <code>/contact</code> <code>/terms</code></td>
+<td>站点页</td>
+</tr>
+<tr>
+<td><code>/r/:id</code></td>
+<td>跳转中转:打点 → 302 到第三方目标</td>
+</tr>
+</tbody>
+</table>
+<p><strong>不做</strong>:账号、UGC、收藏(收藏走 localStorage)、内容上传。</p>
+<h3 id="2-2-服务端-packages-db-Route-Handlers">2.2 服务端(<code>packages/db</code> + Route Handlers)</h3>
+<ul>
+<li>API 命名空间:</li>
+<li>公开端点(无 /api 前缀,需要稳定外链):<code>/r/:id</code>(跳转中转)</li>
+<li>内部 API(/api 前缀):<code>apps/web/api/{search, revalidate}</code>、<code>apps/admin/api/*</code>(全套 CRUD)</li>
+<li>内容状态机:<code>draft → published → archived</code>,软删除(<code>deleted_at</code>)</li>
+<li>跳转中转表 <code>redirects</code>:外链统一被替换成 <code>/r/:id</code>,运营端可批量改目标</li>
+<li>点击事件表 <code>click_events</code>:<strong>采集最小化 + 假名化</strong>(详见 §3.2 + §4.2)。<code>ip_hash</code> 是 GDPR 意义上的 <em>pseudonymous data</em>,不等同于"匿名"</li>
+</ul>
+<h3 id="2-3-运营管理端-apps-admin-登录后访问">2.3 运营管理端(<code>apps/admin</code>)· 登录后访问</h3>
+<ul>
+<li><strong>Dashboard</strong>:收录数(按状态:draft / published / archived)、近 7 日点击趋势、热门跳转 Top N</li>
+<li><strong>App / 视频 / 指南</strong> — 列表 + 编辑(P5)</li>
+<li><strong>专题 / 专辑 / 榜单</strong>(三类共用 collections CRUD)— 列表 + 编辑 + 拖拽排序(P6)</li>
+<li><strong>标签</strong> — 仅"内联创建"(在 App / 视频编辑器里要打 tag 时,可即时新建一条 tag,要求 label + slug,P5 完成);<strong>MVP 不做独立标签管理页</strong></li>
+<li><strong>分类</strong>(categories) — <strong>MVP seed-only,不做 admin 编辑</strong>。原因:分类总数极少(3 App + 6 video,共 9 条)、改 slug 影响 URL、新增分类常牵动前端 UI 调整。如需新增/改名,本期通过迁移脚本走;P6 后视情况再做独立分类管理页(列入 §6 后续)</li>
+<li><strong>专题</strong> — 标题 + 描述 + 封面 + 排序的视频/App 集合</li>
+<li><strong>专辑</strong> — 编辑型混合卡片集(可同时混 App + 视频 + 外链)</li>
+<li><strong>指南</strong> — Markdown 编辑器</li>
+<li><strong>跳转链管理</strong> — <code>/r/:id</code> ↔ 真实 URL 的对照,批量改目标</li>
+<li><strong>操作日志</strong> — 谁在什么时候改了什么</li>
+</ul>
+<p><strong>MVP 不做</strong>:多角色 RBAC(全员"编辑")、审批工作流(改完即发布)、定时发布、Webhook。</p>
+<hr/>
+<h2 id="3-数据模型">3. 数据模型</h2>
+<h3 id="3-1-表清单-14-张">3.1 表清单(14 张)</h3>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>表</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>内容</td>
+<td><code>apps</code> <code>videos</code> <code>guides</code></td>
+<td>三类一级内容</td>
+</tr>
+<tr>
+<td>分类</td>
+<td><code>categories</code> <code>tags</code> <code>app_tags</code> <code>video_tags</code></td>
+<td>字典与多对多</td>
+</tr>
+<tr>
+<td>编辑编排</td>
+<td><code>collections</code> <code>collection_items</code></td>
+<td>专题/专辑/榜单<strong>三合一</strong></td>
+</tr>
+<tr>
+<td>跳转打点</td>
+<td><code>redirects</code> <code>click_events</code> <code>click_daily_stats</code></td>
+<td>外链中转 + 原始日志(30d 保留) + 聚合统计</td>
+</tr>
+<tr>
+<td>管理</td>
+<td><code>admin_users</code> <code>audit_log</code></td>
+<td>运营账号与操作日志</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>内容表(apps / videos / guides / collections)共享 6 个公共字段:
+<code>id</code>(uuid)、<code>slug</code>(unique)、<code>status</code>(enum: draft/published/archived)、<code>created_at</code>、<code>updated_at</code>、<code>deleted_at</code>(soft delete)</p>
+<p><strong>关于"enum"的实现方式</strong>:除 <code>categories.kind</code> 用 <code>text + CHECK</code> 之外(见 §3.2 categories 块的解释),
+其他所有 <code>enum</code> 字段(<code>status</code>、<code>collection_items.ref_type</code>、<code>collections.kind</code>、<code>redirects.owner_kind</code>)
+都用 Prisma DSL 的 <code>enum</code> 声明,Prisma 会在迁移中创建对应的 Postgres ENUM 类型。
+这些字段都不是任何复合 FK 的目标,不存在跨表类型对齐问题。</p>
+</blockquote>
+<h3 id="3-2-关键表-schema-简写">3.2 关键表 schema(简写)</h3>
+<p><strong><code>apps</code></strong></p>
+<pre><code>id  slug  name  icon_key  gradient_key
+category_id           ──→ categories.id    (FK 见下)
+category_kind         text  GENERATED ALWAYS AS ('app') STORED   -- 生成列,固定值
+short_desc            -- 卡片用
+detail                -- 长文,markdown
+highlights            -- text[]
+audience  features  platform  size  rating  users_label
+redirect_id ──→ redirects.id   -- 官网/下载跳转
+status  ts  …
+
+FOREIGN KEY (category_id, category_kind) REFERENCES categories (id, kind)
+  -- 这条复合 FK 保证 apps 只能指向 kind='app' 的分类
+</code></pre>
+<p><strong><code>videos</code></strong></p>
+<pre><code>id  slug  title  emoji  cover_key  duration
+views_label  likes_label  published_date
+category_id           ──→ categories.id    (FK 见下)
+category_kind         text  GENERATED ALWAYS AS ('video') STORED  -- 生成列,固定值
+short_desc  detail
+redirect_id ──→ redirects.id   -- 观看跳转
+status  ts  …
+
+FOREIGN KEY (category_id, category_kind) REFERENCES categories (id, kind)
+  -- 这条复合 FK 保证 videos 只能指向 kind='video' 的分类
+</code></pre>
+<blockquote>
+<p><strong>kind 错配防御</strong>(关键):仅靠 <code>apps.category_id</code> 单字段 FK,DB 无法阻止把 App 指到 <code>kind='video'</code> 的分类。
+解决(三个步骤,必须按顺序执行):
+1. <code>categories.kind</code> 用 <strong><code>text + CHECK</code></strong> 而非 ENUM(理由见上)
+2. <code>categories</code> 加 <code>UNIQUE (id, kind)</code>(在已有 PK <code>id</code> 之外补一个复合唯一,作为复合 FK 的目标)
+3. <code>apps</code> / <code>videos</code> 各加一个 <strong><code>GENERATED ALWAYS AS ('app'/'video') STORED</code></strong> 的 <code>text</code> 列
+4. <code>apps</code> / <code>videos</code> 的 FK 从 <code>(category_id) → categories(id)</code> 改为 <code>(category_id, category_kind) → categories(id, kind)</code></p>
+<p>这几条 ALTER 在迁移文件里手写(Prisma DSL 不支持生成列也不支持复合 FK 显式定义,需 raw SQL):
+```sql
+-- categories.kind 用 text + CHECK,直接在 schema.prisma 用 String + Prisma 自动生成的 NOT NULL,
+-- 然后用 raw SQL 添加 CHECK + 复合 UNIQUE
+ALTER TABLE categories ADD CONSTRAINT categories_kind_check CHECK (kind IN ('app','video'));
+ALTER TABLE categories ADD CONSTRAINT categories_id_kind_unique UNIQUE (id, kind);</p>
+<p>-- apps/videos 加生成列(text,与 categories.kind 类型严格一致)
+ALTER TABLE apps   ADD COLUMN category_kind text GENERATED ALWAYS AS ('app')   STORED;
+ALTER TABLE videos ADD COLUMN category_kind text GENERATED ALWAYS AS ('video') STORED;</p>
+<p>-- 复合 FK
+ALTER TABLE apps   ADD CONSTRAINT apps_category_kind_fk
+  FOREIGN KEY (category_id, category_kind) REFERENCES categories(id, kind);
+ALTER TABLE videos ADD CONSTRAINT videos_category_kind_fk
+  FOREIGN KEY (category_id, category_kind) REFERENCES categories(id, kind);
+<code>``
+P1 完成判据:把一条</code>apps.category_id<code>UPDATE 到一个</code>kind='video'` 的分类应被 DB 拒绝。</p>
+<p><strong>Prisma 与生成列的协作策略</strong>(关键 — 影响 schema.prisma 写法、Prisma Client、迁移工作流):</p>
+<p>Prisma DSL <strong>不能表达</strong> <code>GENERATED ALWAYS AS ... STORED</code>(属于 Prisma "unsupported database features",
+见 https://www.prisma.io/docs/orm/prisma-migrate/workflows/unsupported-database-features)。
+我们的策略:</p>
+<ol>
+<li><strong><code>schema.prisma</code> 中不声明 <code>categoryKind</code> 字段</strong>。即 <code>model App</code> / <code>model Video</code> 里没有这个字段</li>
+<li><strong>生成列的 ALTER 写在 raw migration SQL 里</strong>(见上方 SQL 块),发生在 <code>prisma migrate dev</code> 之后追加的手写 migration 文件中</li>
+<li><strong>Prisma Client 不感知该字段</strong>:<code>prisma.app.create({...})</code> / <code>update({...})</code> 都不需要也不能传 <code>categoryKind</code>,DB 会自动填充。读出来的 <code>App</code> 对象也不含 <code>categoryKind</code>(应用层不需要,因为 kind 已经隐含在表归属里)</li>
+<li><strong>复合 FK 的执行</strong>完全在 DB 层。Prisma 只通过 <code>categoryId</code> 单字段关联,DB 用 <code>(categoryId, categoryKind)</code> 复合 FK 实际校验</li>
+<li><strong>避免 introspection 漂移</strong>:<strong>绝对不跑 <code>prisma db pull</code></strong>(它会把生成列拉回 schema.prisma 并破坏前述策略)。CI 可加 <code>prisma migrate diff --from-schema-datamodel ... --to-schema-datasource ...</code> 检查 schema 与 DB 是否吻合;diff 中预期会显示"DB 多出 <code>category_kind</code> 列",这是已知差异,在 CI 脚本里允许这条差异</li>
+<li><strong>新增/修改约束</strong>:任何对 categories/apps/videos 的结构变更都必须先评估对生成列与复合 FK 的影响;在 Prisma 生成迁移之后,<strong>手动在 migration SQL 末尾追加</strong>生成列重建语句(如必要)</li>
+</ol>
+<p>这条策略在 §3.4 取舍清单第 8 条记录(下文)。</p>
+</blockquote>
+<p><strong><code>guides</code></strong></p>
+<pre><code>id              uuid PK
+slug            text  unique  not null     -- e.g. 'choose-app'
+title           text          not null
+summary         text          not null     -- 列表页摘要 = 原型 desc
+body_md         text          not null     -- 长文 markdown(由 :1612 bodies 转码)
+category_slug   text          not null     -- e.g. 'app' / 'video' / 'privacy' / 'social'
+category_label  text          not null     -- e.g. 'App 使用'(冗余,展示用)
+gradient_key    text          not null     -- e.g. 'g-brand'(对应 §3.2 GRADS)
+icon_key        text          not null     -- e.g. 'i-smartphone'(SVG sprite name)
+read_minutes    int           not null     -- 原型 read 文案解析为整数(如 '8 分钟' → 8)
+views_label     text          not null     -- 原型 views 直接保留为字符串(如 '2.3万')
+is_hot          bool          not null  default false
+published_date  date          not null     -- 来源 :623 的 date 字段
+status  ts  …
+</code></pre>
+<blockquote>
+<p>P2 列表/详情视觉所需的字段(date / cat / grad / svg)都在 schema 内,<strong>不再依赖 fixture</strong>。
+<code>category_slug</code> 与 <code>GUIDE_CATS</code> 的 id 对齐(<code>app</code> / <code>video</code> / <code>privacy</code> / <code>social</code>),
+对应 <code>category_label</code> 是冗余存储的展示文案(避免每次查询都 JOIN 字典)。</p>
+</blockquote>
+<p><strong><code>categories</code></strong></p>
+<pre><code>id           uuid PK
+slug         text       not null
+label        text       not null
+description  text
+kind         text       not null    CHECK (kind IN ('app','video'))
+sort_order   int        not null  default 0
+UNIQUE (kind, slug)        -- slug 在 kind 内唯一,跨 kind 可重复(如 'life')
+UNIQUE (id, kind)          -- 复合 FK 目标(见 apps/videos)
+</code></pre>
+<blockquote>
+<p><strong><code>kind</code> 为什么是 <code>text + CHECK</code> 而不是 Postgres ENUM</strong>:
+apps/videos 用 <code>GENERATED ... STORED</code> 列做复合 FK 指向 <code>categories(id, kind)</code>,
+Postgres 要求 FK 两端类型严格兼容。如果 <code>categories.kind</code> 是 ENUM,生成列也必须显式 cast 成同名 ENUM
+(<code>'app'::"CategoryKind"</code>),Prisma DSL + 我们手写迁移 SQL 一起维护这个 enum 名容易出错。
+改用 <code>text + CHECK</code> 后,生成列就是普通 <code>text</code>,FK 直接对得上,Prisma 也不用声明 enum。
+代价:DB 不再有原生 ENUM 的强类型保证,但 CHECK 等价覆盖。</p>
+</blockquote>
+<p>App 与 Video 共用一张表,用 <code>kind</code> 区分。</p>
+<p><strong>Slug 跨 kind 重复的处理</strong>(关键):
+- 原型里 <code>'life'</code> 同时是 App 分类(<code>APP_CATS</code>)和视频分类(<code>CATEGORIES</code>),seed 后会得到两条 <code>slug='life'</code> 的行,必须靠 <code>UNIQUE(kind, slug)</code> 容纳
+- <strong>不</strong>用 <code>UNIQUE(slug)</code> 全局唯一(会 seed 失败)
+- <strong>路由语义</strong>(避免 <code>/category/:slug</code> 歧义):
+  - <code>/category/:slug</code> <strong>仅解析视频分类</strong>(对齐原型 <code>renderCategoryDetail</code>)。命中 <code>categories WHERE kind='video' AND slug=:slug</code>
+  - <strong>App 分类不走 <code>/category/:slug</code></strong>,只在 <code>/apps?cat=:slug</code> 作为筛选 tab 出现(对齐原型 <code>APP_CATS</code> 用法)
+  - 这条规则写在 §2.1 路由表注脚 + <code>/category/[slug]/page.tsx</code> 的查询条件里</p>
+<p><strong><code>tags</code> + <code>app_tags</code> / <code>video_tags</code></strong></p>
+<pre><code>tags
+  id     uuid PK
+  slug   text  not null  UNIQUE      -- kebab-case 英文
+  label  text  not null  UNIQUE      -- 显示文案,通常中文。一个概念只允许一条记录
+app_tags(app_id, tag_id)             -- 复合主键 (app_id, tag_id)
+video_tags(video_id, tag_id)         -- 复合主键 (video_id, tag_id)
+</code></pre>
+<blockquote>
+<p><strong><code>label</code> 也必须 UNIQUE</strong> 的原因:seed 走 <code>ALL_TAGS ∪ APPS[*].tags ∪ VIDEOS[*].tags</code> 并集去重,假设一个 label
+只对应一条记录;如果 admin 后续允许同 label 不同 slug,会出现"两个『健身』,卡片显示一致但 URL 不同",
+搜索/聚合行为会混乱。约束放 DB 里,admin 表单同步做 label 重复校验(返回 422)。
+查询路径仍以 slug 为准(URL 友好);label 是显示用。</p>
+</blockquote>
+<p>不做 polymorphic taggings,两张直白的关系表更简单。</p>
+<p><strong><code>collections</code>(专题/专辑/榜单三合一)</strong></p>
+<pre><code>id           uuid PK
+slug         text  unique  not null
+kind         enum (topic | album | ranking)  not null
+title        text  not null
+description  text
+cover_key    text
+sort_order   int   not null  default 0   -- 同一 kind 内的列表展示顺序
+status  ts  …
+</code></pre>
+<p>三种业务概念结构完全一样:都是"有序内容集合"。用 <code>kind</code> 区分,运营端 UI 给三种独立入口,但底层是一套 CRUD + 排序逻辑。</p>
+<blockquote>
+<p><strong><code>sort_order</code> 用途</strong>(关键):
+- <strong><code>/topics</code></strong> 列表按 <code>(kind='topic', status='published') ORDER BY sort_order ASC, created_at ASC</code>
+- <strong><code>/rankings</code></strong> 6 个区块的展示顺序按 <code>(kind='ranking', status='published') ORDER BY sort_order ASC</code>
+  — seed 时按原型 <code>renderRankings</code> 的渲染顺序赋值:
+  <code>weekly-hot-videos=0</code> <code>latest-videos=1</code> <code>top-liked-videos=2</code> <code>weekly-hot-apps=3</code> <code>top-rated-apps=4</code> <code>hot-tags=5</code>
+- <strong><code>/albums</code></strong> 列表(P6)同样按 <code>sort_order ASC</code>
+- 不依赖 <code>created_at</code> / <code>slug</code> 字典序,排序行为可控可预测</p>
+<p>与 <code>collection_items.position</code> 是不同维度:<code>sort_order</code> 决定"集合之间"的顺序,<code>position</code> 决定"集合内成员"的顺序。</p>
+</blockquote>
+<p><strong><code>collection_items</code>(多态成员,带排序)</strong></p>
+<pre><code>id              uuid PK                       -- 稳定主键,拖拽排序时按 id 更新
+collection_id   ──→ collections.id
+position        int        not null           -- 排序键,小=靠前
+ref_type        enum: app | video | tag | external
+app_id          ──→ apps.id          (nullable)
+video_id        ──→ videos.id        (nullable)
+tag_id          ──→ tags.id          (nullable)
+redirect_id     ──→ redirects.id     (nullable, 仅 ref_type=external)
+external_label  text                 (nullable, 仅 ref_type=external,卡片显示文案)
+note            text                 -- 编辑可补充的卡片说明
+UNIQUE (collection_id, position) DEFERRABLE INITIALLY DEFERRED
+CHECK (恰好一个 *_id 非空,且与 ref_type 匹配:
+       app→app_id, video→video_id, tag→tag_id, external→redirect_id)
+</code></pre>
+<blockquote>
+<p><strong>不用 (collection_id, position) 做复合主键</strong>。理由:拖拽重排时需要批量改 position,如果 position 是主键的一部分,
+中间态会出现 PK 冲突。改用独立 <code>id uuid PK</code> + <code>DEFERRABLE INITIALLY DEFERRED</code> 唯一索引,事务内可经过中间态,
+提交时再校验唯一性,Prisma <code>$transaction</code> 里就能稳妥重排。</p>
+<p><strong>关于 CHECK 约束与 DEFERRABLE 唯一索引的实现</strong>:Prisma <code>schema.prisma</code> 不支持 CHECK 关键字,
+也不支持 <code>DEFERRABLE INITIALLY DEFERRED</code> 修饰。这两条都必须在迁移文件里<strong>手写 raw SQL</strong>:</p>
+<p><strong>重要</strong>:<code>schema.prisma</code> 里的 <code>CollectionItem</code> model <strong>不要</strong>写 <code>@@unique([collectionId, position])</code>。
+Prisma 的 <code>@@unique</code> 会生成普通(非 deferrable)的唯一索引;一旦同时存在普通 unique 与 deferrable unique,
+拖拽交换 position 时会被普通 unique 拦截。<strong>唯一约束完全由下面的 raw SQL 创建</strong>,Prisma DSL 只声明字段、不声明约束。
+<code>sql
+-- ref 字段互斥
+ALTER TABLE collection_items ADD CONSTRAINT collection_items_ref_match CHECK (
+  (ref_type = 'app'      AND app_id IS NOT NULL AND video_id IS NULL AND tag_id IS NULL AND redirect_id IS NULL) OR
+  (ref_type = 'video'    AND video_id IS NOT NULL AND app_id IS NULL AND tag_id IS NULL AND redirect_id IS NULL) OR
+  (ref_type = 'tag'      AND tag_id IS NOT NULL AND app_id IS NULL AND video_id IS NULL AND redirect_id IS NULL) OR
+  (ref_type = 'external' AND redirect_id IS NOT NULL AND app_id IS NULL AND video_id IS NULL AND tag_id IS NULL)
+);
+-- 同一 collection 内 position 唯一(事务结束时才校验,允许中间态冲突)
+ALTER TABLE collection_items ADD CONSTRAINT collection_items_position_unique
+  UNIQUE (collection_id, position) DEFERRABLE INITIALLY DEFERRED;</code>
+P1 完成判据中包含"首版迁移文件包含此 CHECK + DEFERRABLE UNIQUE SQL"。</p>
+<p>外链不再直接持有 URL,而是通过 <code>redirect_id</code> 指向 <code>redirects</code> 表的一行。这样:
+- URL 只存一份(<code>redirects.target_url</code>),改 redirect 同时改所有引用
+- 所有外链点击都自然走 <code>/r/:id</code>,统一打点
+- 运营端创建 external item 时,后台自动建一条 <code>redirects</code> 记录(owner_kind='collection_item')</p>
+</blockquote>
+<p><strong><code>redirects</code></strong></p>
+<pre><code>id          uuid (即 /r/:id 的 :id)
+target_url  text             not null         -- 真实第三方 URL,必须通过 §4.2 的校验
+owner_kind  app | video | external | collection_item
+owner_id    text             -- 反查归属
+disabled    bool default false
+created_at  …
+</code></pre>
+<blockquote>
+<p><strong><code>target_url</code> 安全校验规则</strong>(防 open redirect / XSS / 内网 SSRF):
+1. 协议白名单:<strong>仅允许 <code>http://</code> 和 <code>https://</code></strong>(优先 https)。拒绝 <code>javascript:</code> / <code>data:</code> / <code>file:</code> / <code>ftp:</code> / 自定义 scheme
+2. URL 能 <code>new URL()</code> 通过、不含换行、控制字符、空字节;长度 ≤ 2048
+3. <strong>hostname 字面值黑名单</strong>(纯字符串判定,不查 DNS):
+   - <code>localhost</code> / <code>localhost.localdomain</code>
+   - IPv4 字面值落在 <code>0.0.0.0/8</code> <code>203.0.113.1/8</code> <code>203.0.113.1/8</code> <code>169.254.0.0/16</code> <code>203.0.113.1/12</code> <code>203.0.113.1/16</code> <code>100.64.0.0/10</code>
+   - IPv6 字面值落在 <code>::1</code> <code>fc00::/7</code> <code>fe80::/10</code>
+4. <strong>DNS 解析校验</strong> — 仅 admin 保存时执行:
+   - 用 <code>dns.promises.lookup(hostname, {all: true})</code>,<strong>2 秒 timeout</strong>
+   - 若返回的任一 IP 落在上述私有/link-local/loopback 段 → 拒绝
+   - DNS 失败(超时 / NXDOMAIN)→ 拒绝并提示运营修正</p>
+<p><strong>校验落点 — 分层(避免 /r/:id 依赖 DNS)</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>时机</th>
+<th>阶段</th>
+<th>做什么</th>
+<th>不做什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Admin 保存 redirect</td>
+<td>P5/P7</td>
+<td>1+2+3+<strong>4(完整 DNS)</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>pnpm db:enable-redirect</code> 脚本</td>
+<td>P3</td>
+<td>1+2+3+<strong>4(完整 DNS)</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>/r/:id</code> 请求时兜底</td>
+<td>P3</td>
+<td>1+2+<strong>3(字面值)</strong></td>
+<td><strong>不做 DNS 解析</strong>(避免运行时延迟与抖动)</td>
+</tr>
+</tbody>
+</table>
+<p>设计意图:DNS 解析仅在写入路径上发生,跳转路径只做无副作用的语法/字面值检查。
+历史脏数据如果 hostname 字面值合法但 DNS 实际解到内网,<strong>接受这个残余风险</strong> — 写入门已经把好关。</p>
+<p>校验函数放在 <code>packages/db/src/lib/url-policy.ts</code>,导出两个入口:
+- <code>validateForWrite(url): Promise&lt;Result&gt;</code> —— 含 DNS 校验(异步)
+- <code>validateForRedirect(url): Result</code> —— 仅字面值校验(同步、无 IO)</p>
+</blockquote>
+<p><strong><code>click_events</code></strong>(采集最小化)</p>
+<pre><code>id              uuid PK
+redirect_id     ──→ redirects.id
+ts              timestamptz      not null    -- indexed
+ua_family       text             not null  default 'unknown'   -- 解析失败回落到 'unknown'
+ua_os           text             not null  default 'unknown'
+country         text             not null  default 'unknown'   -- 本地 dev 也是 'unknown'
+referrer_origin text             not null  default 'unknown'   -- 仅 origin,去掉 path/query
+ip_hash         text             not null                      -- pseudonymous data(非匿名)
+</code></pre>
+<blockquote>
+<p>这些维度字段都不可空,解析失败时回落 <code>'unknown'</code>。这样聚合表的主键不会因 NULL 而行为怪异
+(Postgres 里 NULL ≠ NULL,会导致同一组 NULL 行无法被 PK 合并)。</p>
+</blockquote>
+<p><strong>字段口径(关键)</strong>:
+- 不存原始 UA、不存原始 referrer、不存原始 IP。原文不入库,解析后丢弃。
+- <code>referrer_origin</code> 只保留来源站点身份,去除带个人偏好的 query/path。
+- <code>ua_family + ua_os</code> 提供"什么设备"维度,但不构成可识别个人的指纹。
+- <code>DAILY_SALT = HMAC(IP_HASH_SECRET, YYYY-MM-DD UTC)</code>(详见 §4.2),按日轮换 → 同一访客跨天的 hash 不同,弱化追踪。
+- <strong>取不到 IP 时</strong>(本地 dev、缺少代理头、Header 被剥):<code>ip_hash = sha256('unknown' + DAILY_SALT)</code>,字段保持 NOT NULL。所有"取不到"的请求会落到同一个 hash,这是可接受的(对当日聚合表现为一个"unknown 访客桶")。</p>
+<p><strong>保留期</strong>:
+- 原始 <code>click_events</code> 保留 <strong>30 天</strong>
+- 30 天后聚合到 <code>click_daily_stats</code> 表(见下),原行被定时任务删除
+- 这条管线 P3 不上线;P7 引入聚合任务</p>
+<p><strong><code>click_daily_stats</code></strong>(聚合表)</p>
+<pre><code>redirect_id   ──→ redirects.id
+day           date          not null                      -- UTC 日期
+ua_family     text          not null  default 'unknown'   -- 与 click_events 同口径
+country       text          not null  default 'unknown'
+count         bigint        not null
+PRIMARY KEY (redirect_id, day, ua_family, country)
+</code></pre>
+<blockquote>
+<p><strong>聚合 SQL — 必须在单个事务内,且加 advisory lock 防并发</strong>:
+```sql
+BEGIN;</p>
+<p>-- 防并发:两个 cron 同时跑会双倍累加 count。固定的 lock key 让第二个调用阻塞或 try_lock 失败
+  SELECT pg_advisory_xact_lock(8131421);   -- 任意稳定整数,作为 click_events 聚合任务的 lock key</p>
+<p>-- 1) upsert 聚合
+  INSERT INTO click_daily_stats (redirect_id, day, ua_family, country, count)
+  SELECT
+    redirect_id,
+    (ts AT TIME ZONE 'UTC')::date AS day,
+    COALESCE(ua_family, 'unknown'),
+    COALESCE(country, 'unknown'),
+    count(*)
+  FROM click_events
+  WHERE ts &lt; now() - interval '30 days'
+  GROUP BY 1, 2, 3, 4
+  ON CONFLICT (redirect_id, day, ua_family, country)
+  DO UPDATE SET count = click_daily_stats.count + EXCLUDED.count;</p>
+<p>-- 2) 同事务删除已聚合的原始行 — 失败则整段回滚,下次重新聚合,count 不会双倍
+  DELETE FROM click_events WHERE ts &lt; now() - interval '30 days';</p>
+<p>COMMIT;
+```</p>
+<p><strong>幂等性保证</strong>:
+- INSERT 单独不幂等(<code>+= EXCLUDED.count</code> 每次累加),所以<strong>必须</strong>和 DELETE 同事务,失败一起回滚
+- <code>pg_advisory_xact_lock</code> 在事务结束时自动释放;两个并发任务里第二个会阻塞等锁,不会双跑
+- 因为 <code>click_events</code> 的字段已经 NOT NULL DEFAULT 'unknown',COALESCE 主要是防御性兜底</p>
+</blockquote>
+<p>索引:<code>(redirect_id, ts DESC)</code>。MVP 单表;量大后再考虑分区或迁到 ClickHouse,<strong>对外接口不变</strong>。</p>
+<p><strong><code>admin_users</code></strong></p>
+<pre><code>id              uuid PK
+github_id       bigint  unique  not null    -- 主标识
+github_login    text    unique  not null    -- 白名单匹配字段(GitHub username)
+github_email    text                        -- 仅供展示,可为空(私有邮箱场景)
+name            text                        -- 来自 GitHub profile.name
+last_login_at   timestamptz
+created_at      timestamptz
+</code></pre>
+<p><strong>Auth 模型</strong>:
+- 不存密码。Auth.js v5 + <strong>GitHub OAuth Provider</strong>(MVP 选定)
+- <strong>不使用 PrismaAdapter</strong>。原因:PrismaAdapter 要求标准的 <code>User</code> / <code>Account</code>(/ <code>Session</code> / <code>VerificationToken</code>)四表才能正常工作,而我们只有 <code>admin_users</code> 一张内部表,语义也不同(这里是"运营成员"不是"用户")。强行套 PrismaAdapter 要么补 3 张无意义的 Auth.js 表、要么改 schema 名字去迁就它,得不偿失。
+- <strong>改用纯 callback 实现</strong>:
+  - <code>signIn</code> callback:① 校验 <code>profile.login</code> 在白名单 <code>ADMIN_ALLOWED_GITHUB_LOGINS</code>(env,逗号分隔)内,否则返回 false → 401;② Prisma 直接 upsert <code>admin_users</code> by <code>github_id</code>(不走 adapter);③ 写入 <code>last_login_at</code>
+  - <code>jwt</code> callback:把 <code>admin_users.id</code> 注入 token
+  - <code>session</code> callback:把 <code>adminUserId</code> 暴露给应用层
+- 白名单字段是 <code>github_login</code>(GitHub username),<strong>不用 email</strong>(GitHub email 可为空/私有/多个,不可靠)
+- Session 策略:<strong>JWT session</strong>(Auth.js 默认,无需 sessions 表)
+- 这条决定使表数保持 14(不额外引入 Auth.js 的 <code>User</code> / <code>Account</code> 等标准表),代价是 ~30 行 callback 代码</p>
+<p><strong><code>audit_log</code></strong></p>
+<pre><code>id  admin_user_id  action(text, e.g. "app.update")
+target_type  target_id  diff_json  ts
+</code></pre>
+<p>每次写操作落一条,便于追溯与回滚证据链。</p>
+<h3 id="3-3-ER-关键链路">3.3 ER 关键链路</h3>
+<pre><code>                 ┌──────────────────┐
+                 │  collections     │      (kind: topic / album / ranking)
+                 └────────┬─────────┘
+                          │ 1:N (有序)
+                 ┌────────▼─────────┐
+                 │ collection_items │
+                 └──┬───┬───┬───┬───┘
+                    │   │   │   │  (多态:四选一,FK 互斥)
+        ┌───────────┘   │   │   └───────────┐
+        ▼               ▼   ▼               ▼
+    ┌──────┐       ┌────────┐  ┌──────┐  ┌──────────┐
+    │ apps │       │ videos │  │ tags │  │ redirects│ ← external 走这条
+    └──┬───┘       └───┬────┘  └──────┘  └────┬─────┘
+       │               │                       │
+       │ N:1           │ N:1                   │
+       │               │                       │  apps/videos 各自通过
+       │               │                       │  redirect_id ──→ redirects
+       ▼               ▼                       │  ──→ click_events
+   ┌──────────────────────┐                    │
+   │ categories (kind=…)  │                    ▼
+   └──────────────────────┘             ┌──────────────┐
+                                        │ click_events │
+                                        └──────────────┘
+</code></pre>
+<h3 id="3-4-有意识的取舍">3.4 有意识的取舍</h3>
+<ol>
+<li><strong>不做多对多 polymorphic taggings</strong> — 两张直白表(<code>app_tags</code> / <code>video_tags</code>)更简单,索引更优,Prisma 类型清晰。代价:tag 复用语义靠应用层保证。</li>
+<li><strong>collections 三合一</strong> — topic/album/ranking 共表;若某种业务字段大量分叉,再拆。</li>
+<li><strong>categories 单表 + kind</strong> — 同理,有分叉再拆。</li>
+<li><strong>不做 i18n</strong> — 全站单一中文。</li>
+<li><strong>不引入 Redis</strong> — Postgres 索引 + Next.js cache 足够;部署形态确定后再考虑加边缘缓存。</li>
+<li><strong>不用 Auth.js 标准表</strong> — 只保留 <code>admin_users</code>,登录走 callback 手动 upsert。代价:多写 ~30 行 callback;收益:不引入 3 张语义不符的 Auth.js 表。</li>
+<li><strong>CHECK 约束放迁移 SQL,不放 schema.prisma</strong> — Prisma DSL 不支持 CHECK,只能在 migration 里手写。每次改 collection_items 结构时记得同步约束。</li>
+<li><strong>生成列(<code>category_kind</code>)不出现在 <code>schema.prisma</code></strong> — 走 raw migration,Prisma Client 不感知,<strong>禁用 <code>prisma db pull</code></strong>;CI 用 <code>prisma migrate diff</code> 时把 <code>category_kind</code> 列差异加白名单。详见 §3.2 apps/videos 块下的"Prisma 与生成列的协作策略"。</li>
+</ol>
+<hr/>
+<h2 id="4-关键交互与数据流">4. 关键交互与数据流</h2>
+<h3 id="4-1-页面端读取-SSG-ISR">4.1 页面端读取(SSG + ISR)</h3>
+<pre><code>[构建 / ISR 触发]
+  apps/web 在构建期 / 后台再生时,通过 packages/db 直连 Postgres
+  ──→ 查询 published 状态的内容
+  ──→ 渲染为静态 HTML
+  ──→ 用户浏览器拿到的是静态页 + 客户端 hydration
+
+ISR 重新生成的触发条件:
+  - 时间触发:列表页每 60 秒;详情页每 5 分钟
+  - 主动触发:admin 发布动作 → 调 web 的 /api/revalidate(by tag/path)
+</code></pre>
+<blockquote>
+<p><strong>CI 含义(分阶段)</strong>:
+- <strong>P0</strong>:页面是空白,<code>pnpm build</code> 不查 DB,CI 只跑 <code>lint / typecheck / build</code>,不需要 Postgres service
+- <strong>P1 起</strong>:CI 升级到 <code>postgres:16</code> service + <code>DATABASE_URL</code> + <code>prisma migrate deploy</code> + <code>prisma db seed</code> + lint/typecheck/build。<strong>P1 必须跑通这条闭环</strong>,否则 P2 合入(页面开始 SSG 查 DB)后 CI 会在 build 阶段断在 "PrismaClientInitializationError"
+- 之后阶段沿用 P1 的 CI 配置,只是要保证 seed 的行数断言随 P1 完成判据更新而通过</p>
+</blockquote>
+<h3 id="4-2-跳转打点-用户点外链">4.2 跳转打点(用户点外链)</h3>
+<p><strong>路由位置</strong>:<code>apps/web/app/r/[id]/route.ts</code> → 公开 URL <code>/r/:id</code>。</p>
+<blockquote>
+<p>不放在 <code>app/api/r/[id]/route.ts</code> 下,否则会变成 <code>/api/r/:id</code>,与外链短链不符。</p>
+</blockquote>
+<p><strong>Runtime(关键)</strong>:文件顶部显式声明</p>
+<pre><code class="language-ts">export const runtime = 'nodejs';        // 不用 edge,Prisma 直连本地/自托管 Postgres 需要 nodejs
+export const dynamic = 'force-dynamic';  // 不缓存,每次都打点
+</code></pre>
+<p><strong>MVP 写入策略 — 同步</strong>:
+- P3 内,<code>click_events</code> INSERT <strong>同步</strong>完成后再 302。本地 Postgres 单 INSERT 通常 &lt; 5ms,可接受
+- 不依赖 <code>waitUntil</code> / <code>unstable_after</code> / 队列。这些都是部署形态决定后才能选定的,与"本地 Docker 跑通"目标无关
+- 真到了延迟瓶颈(单条 &gt; 30ms 或 QPS 高),再引入异步(届时再决定:Node <code>setImmediate</code> + 内存缓冲 / pg <code>LISTEN/NOTIFY</code> / 平台专属 waitUntil / 独立队列)。<strong>这条改造对外契约不变</strong></p>
+<pre><code>用户点 App 详情页"前往下载"
+  → &lt;a href="/r/{redirectId}"&gt;
+
+apps/web/app/r/[id]/route.ts (runtime='nodejs'):
+  1. SELECT target_url, disabled FROM redirects WHERE id = :id
+  2. 若 disabled 或 not found → 302 到 /404
+  3. 调 url-policy.validateForRedirect(target_url) — 同步、无 IO
+     —— 协议白名单 + URL 语法 + hostname 字面值黑名单(不做 DNS)
+     不通过 → 302 到 /404(不打点)
+  4. 同步 INSERT INTO click_events(...) — 字段口径见 §3.2
+     原始 IP / 原始 UA / 原始 referrer 不入库,在请求处理函数内解析后即丢弃
+     - country: 从代理头取(本地 dev 取 'unknown',解析失败也回落 'unknown')
+     - ip_hash: sha256(ip + DAILY_SALT)
+       DAILY_SALT = HMAC(IP_HASH_SECRET, YYYY-MM-DD UTC) — 每天 0 点 UTC 自然轮换
+     - ua_family / ua_os: 用 ua-parser-js 解析后只存解析结果(失败 'unknown')
+     - referrer_origin: new URL(referrer).origin,失败 'unknown'
+  5. 302 到 target_url
+</code></pre>
+<h3 id="4-3-运营编辑-发布-透出">4.3 运营编辑 → 发布 → 透出</h3>
+<pre><code>[admin 编辑器]
+  保存草稿:status='draft' UPDATE
+  发布:    status='published' UPDATE + audit_log INSERT
+            → POST https://web/api/revalidate
+                Authorization: Bearer ${REVALIDATE_SECRET}
+                Body: { "tags": ["app:slug", "apps-list"] }
+            → web 立即重新生成相关页面
+</code></pre>
+<p><strong>Secret 约定</strong>:
+- <code>REVALIDATE_SECRET</code> 是 web 与 admin 共享的 env(运维下发,本地 dev 用 <code>.env.local</code>)
+- web 的 <code>/api/revalidate</code> handler 必须先校验 <code>Authorization</code> 头,失败返回 401
+- 不把 secret 放进 URL 查询串,避免出现在日志里</p>
+<h3 id="4-4-搜索-MVP">4.4 搜索(MVP)</h3>
+<pre><code>apps/web/api/search?q=:q
+  → packages/db.search(q):
+       三类内容并行查询 (apps / videos / guides),各 limit 10
+       → 合并返回 + 简单按命中字段权重排序(name/title &gt; tag &gt; desc)
+</code></pre>
+<p><strong>实现路线</strong>:
+- <strong>主</strong>:<code>ILIKE '%q%'</code> 命中以下字段(取并集):
+  - apps: name, short_desc, detail
+  - videos: title, short_desc, detail
+  - guides: title, summary, body_md
+  - 标签命中:从 <code>tags.label ILIKE '%q%'</code> 反查 app/video
+- <strong>加速</strong>:对上述 text 字段建 <strong><code>pg_trgm</code> GIN 索引</strong>(<code>CREATE EXTENSION pg_trgm</code>)。pg_trgm 是 PostgreSQL 官方扩展,基础镜像就有,无需自定义镜像
+- <strong>不做</strong>:Postgres <code>to_tsvector</code> 全文索引。<code>simple</code> 配置对中文(无空格)等价于把整段当一个 token,不能切词;声称"FTS 中文搜索"会误导。FTS 仅在未来若添加英文字段时再考虑</p>
+<blockquote>
+<p>决定回顾:之前 §4.4 写了"PostgreSQL FTS + simple 配置",这个表述不准确。MVP 的实际查询路径是 <code>ILIKE + pg_trgm</code>。</p>
+</blockquote>
+<h3 id="4-5-数据初始化-从原型迁出">4.5 数据初始化(从原型迁出)</h3>
+<p><strong>原型实际命名(已核对 <code>docs/ghome.html</code>):</strong></p>
+<table>
+<thead>
+<tr>
+<th>原型常量</th>
+<th>行号</th>
+<th>落到</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>APPS</code></td>
+<td>:525</td>
+<td><code>apps</code> 表</td>
+</tr>
+<tr>
+<td><code>VIDEOS</code></td>
+<td>:579</td>
+<td><code>videos</code> 表</td>
+</tr>
+<tr>
+<td><code>APP_CATS</code></td>
+<td>:537</td>
+<td><code>categories</code> (kind=app) — <strong>排除 <code>id='all'</code></strong>,这一项是前端筛选 tab,不是真实分类</td>
+</tr>
+<tr>
+<td><code>CATEGORIES</code></td>
+<td>:602</td>
+<td><code>categories</code> (kind=video)</td>
+</tr>
+<tr>
+<td><code>ALL_TAGS</code> ∪ <code>APPS[*].tags</code> ∪ <code>VIDEOS[*].tags</code></td>
+<td>:611 / :526+ / :580+</td>
+<td><code>tags</code> 表(必须取<strong>全并集</strong>;见下"tag 来源与 slug 规则")</td>
+</tr>
+<tr>
+<td><code>TOPICS</code></td>
+<td>:613</td>
+<td><code>collections</code> (kind=topic) + <code>collection_items</code></td>
+</tr>
+<tr>
+<td><code>renderRankings</code> 6 个榜单</td>
+<td>:1412</td>
+<td><strong><code>collections</code> (kind=ranking) + <code>collection_items</code></strong> — 每个榜单一条 <code>collections</code> 记录,<code>collection_items</code> 按原型 <code>renderRankings</code> 里的 sort + slice(5 内容榜 <code>slice(0,8)</code>、<code>hot-tags</code> <code>slice(0,10)</code>)结果<strong>冻结</strong>为有序成员(详见下"榜单 seed 来源")</td>
+</tr>
+<tr>
+<td><code>GUIDES</code>(元数据)</td>
+<td>:622</td>
+<td><code>guides</code> 表(meta 字段:title / summary / cover / category 等)</td>
+</tr>
+<tr>
+<td><code>renderGuideDetail</code> 内 <code>bodies</code> map</td>
+<td>:1612</td>
+<td><code>guides.body_md</code> — <strong>见下"指南正文转码"</strong></td>
+</tr>
+<tr>
+<td><code>FEATURED_WEB</code></td>
+<td>:515</td>
+<td><strong>不入库,P2 用静态 fixture</strong>(详见下)</td>
+</tr>
+<tr>
+<td><code>CREATORS</code></td>
+<td>:554</td>
+<td><strong>不入库,P2 用静态 fixture</strong></td>
+</tr>
+<tr>
+<td><code>SAMPLE_REVIEWS</code></td>
+<td>:548</td>
+<td><strong>不入库,P2 用静态 fixture</strong></td>
+</tr>
+<tr>
+<td><code>GUIDE_CATS</code></td>
+<td>:630</td>
+<td>暂不建独立表,作为 <code>guides.category_label</code> 的字典在代码里</td>
+</tr>
+</tbody>
+</table>
+<p><strong>外链(target_url)的处理 — 关键</strong>:
+原型里所有 CTA(如 <code>&lt;a class="btn btn-filled" data-link="/app/${a.id}"&gt;立即下载&lt;/a&gt;</code> :710)都是<strong>站内 data-link</strong>,<strong>没有真实第三方 URL</strong>。因此 seed 时:</p>
+<ul>
+<li>对每个 App / Video 建一条 <code>redirects</code> 记录,字段:</li>
+<li><code>target_url</code> = <code>'https://example.com/seed/{kind}/{slug}'</code>(占位)</li>
+<li><code>disabled</code> = <code>true</code>(默认禁用,运营在 admin 填入真实 URL 并启用前不会向用户暴露)</li>
+<li><code>owner_kind</code> / <code>owner_id</code> 正常填写</li>
+<li>web 端渲染时:对 <code>disabled=true</code> 的 redirect,CTA 按钮置灰 + 文案改为"暂未开放",不渲染 <code>/r/:id</code> 链接</li>
+<li><strong>P3 启用方式</strong>:<code>pnpm db:enable-redirect &lt;id&gt; &lt;real-url&gt;</code> 脚本(走 <code>validateForWrite</code>,DNS + 字面值都校验后才入库并 <code>disabled=false</code>)</li>
+<li><strong>P5+ 启用方式</strong>:运营在 admin 编辑器里填真实 URL 并启用,服务侧同样调 <code>validateForWrite</code></li>
+</ul>
+<p><strong>榜单 seed 来源</strong>:
+原型 <code>renderRankings</code> (<code>docs/ghome.html</code> :1412) 在 JS 里对 APPS/VIDEOS/ALL_TAGS 做即时排序后渲染。MVP 把这一时刻的结果<strong>冻结</strong>进 6 条 ranking collections:</p>
+<table>
+<thead>
+<tr>
+<th>collection.slug</th>
+<th>kind</th>
+<th>items 来源(seed 时计算一次,写入 collection_items)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>weekly-hot-videos</code></td>
+<td>ranking</td>
+<td>VIDEOS 取 views_label 最大的<strong>前 8</strong>(views 文案手工解析为数,如 '38.1万' → 381000)</td>
+</tr>
+<tr>
+<td><code>latest-videos</code></td>
+<td>ranking</td>
+<td>VIDEOS 按 published_date desc <strong>前 8</strong></td>
+</tr>
+<tr>
+<td><code>top-liked-videos</code></td>
+<td>ranking</td>
+<td>VIDEOS 按 likes_label desc <strong>前 8</strong></td>
+</tr>
+<tr>
+<td><code>weekly-hot-apps</code></td>
+<td>ranking</td>
+<td>APPS 按 users_label desc <strong>前 8</strong>(共 9 个 App,取前 8 与原型一致)</td>
+</tr>
+<tr>
+<td><code>top-rated-apps</code></td>
+<td>ranking</td>
+<td>APPS 按 rating desc <strong>前 8</strong></td>
+</tr>
+<tr>
+<td><code>hot-tags</code></td>
+<td>ranking</td>
+<td><strong>遍历 <code>ALL_TAGS</code></strong>,每条计数 = <code>count(VIDEOS where tag ∈ v.tags)</code>(只数视频,不数 App,与原型 <code>:1418</code> 一致),按计数 desc <strong>前 10</strong>;<code>ref_type='tag'</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>上述 take 数量(5 × 8 + 1 × 10 = <strong>50 条</strong> ranking_items)是直接对齐原型 <code>renderRankings</code> <code>:1413-1418</code> 的 <code>slice(0, 8)</code> / <code>slice(0, 10)</code>。</p>
+<p><strong><code>hot-tags</code> 只统计视频</strong> — 这是与原型有意识的对齐(原型只 <code>VIDEOS.filter(...)</code>,不数 App)。
+后期如果要升级为"全站 tag 热度",需把它移出 §6 后续清单;现在保持冻结。</p>
+<p><strong>每条 collection 的 <code>sort_order</code> 赋值</strong>(seed 时写入,影响 <code>/rankings</code> 6 区块顺序):
+<code>weekly-hot-videos</code>=0 / <code>latest-videos</code>=1 / <code>top-liked-videos</code>=2 / <code>weekly-hot-apps</code>=3 / <code>top-rated-apps</code>=4 / <code>hot-tags</code>=5。
+TOPICS 的 6 条按原型 <code>TOPICS</code> 数组顺序赋 0..5。</p>
+<p><strong><code>/rankings</code> 路由</strong>直接读这 6 条 collections,渲染 6 个榜单区块。不做运行时排序。运营可以在 admin 改顺序、置顶、增删,
+但当前数据集小、变更不频繁,这条路径足够。
+后续如要"自动按点击量"调权,会引入 <code>apps.users_count</code> <code>videos.views_count</code> 等 numeric 列 + 定时任务回写 ranking,
+那时再切换路由策略。</p>
+</blockquote>
+<p><strong>指南正文转码</strong>:
+- 原型里 5 篇指南的正文不在 <code>GUIDES</code> 常量里,而在 <code>renderGuideDetail</code> 函数内的 <code>bodies</code> 对象里(<code>docs/ghome.html</code> :1612 起),内容是 HTML 片段(<code>&lt;h2&gt;</code> / <code>&lt;h3&gt;</code> / <code>&lt;p&gt;</code> / <code>&lt;ul&gt;</code> / <code>&lt;li&gt;</code>)
+- seed 时<strong>手工把这 5 段 HTML 转成 Markdown</strong>,放进 <code>packages/db/prisma/seed-data/guide-bodies.ts</code>(标题对应到 GUIDES.id)。HTML→MD 仅 5 篇、结构平直,人工转译比引入 turndown 库简单。
+- 转换后写入 <code>guides.body_md</code>。P5 用 Markdown 编辑器编辑同一字段。</p>
+<p><strong>Tag 来源与 slug 规则</strong>:
+- <strong>来源 — 全并集</strong>:<code>tags</code> 表必须 seed 出 <code>ALL_TAGS ∪ APPS[*].tags ∪ VIDEOS[*].tags</code> 三个集合的并集去重后的所有 label。<strong>只 seed <code>ALL_TAGS</code> 是错的</strong> — 大量 App/Video 自带的 tag(如 <code>'社交'</code> <code>'附近的人'</code> <code>'走心交友'</code> <code>'训练'</code> <code>'打卡'</code> <code>'风光'</code> <code>'长期关系'</code> <code>'毕业'</code>...)不在 <code>ALL_TAGS</code> 里,落不进 <code>tags</code> 表会让 <code>app_tags</code> / <code>video_tags</code> 的 FK 写入失败
+- <strong>slug 映射</strong>:每个 label 必须有显式英文 slug 映射;无映射时 seed <strong>直接 fail</strong>(打印缺失 label 列表)
+- <strong>slug 规范</strong>:<code>/^[a-z0-9-]+$/</code>,kebab-case
+- <strong>存放位置</strong>:<code>packages/db/prisma/seed-data/tags.ts</code> 导出一个完整的 <code>Record&lt;string, string&gt;</code>;由 P1 任务一次性补齐(粗估 50~60 条)。spec 不嵌入完整列表,避免与代码漂移。<code>ALL_TAGS</code> 16 条的初版映射作为起点(下表)
+- <strong>DB 约束</strong>:<code>tags.slug</code> UNIQUE;admin 新增 tag 表单做客户端校验(<code>/^[a-z0-9-]+$/</code>)+ 服务端二次校验</p>
+<p><code>ALL_TAGS</code> 部分的初版映射(完整版在 <code>seed-data/tags.ts</code>):
+  <code>'男同视频'   → 'gay-videos'      'Vlog'      → 'vlog'
+  'LGBTQ+'    → 'lgbtq'           '生活方式'   → 'lifestyle'
+  '情感'      → 'emotion'         '都市'       → 'urban'
+  '校园'      → 'campus'          '高颜值'     → 'good-looking'
+  'CP向'      → 'couple'          '健身'       → 'fitness'
+  '旅行'      → 'travel'          '访谈'       → 'interview'
+  '时尚'      → 'fashion'         '饮食'       → 'food'
+  '文化'      → 'culture'         '阅读'       → 'reading'</code></p>
+<p><strong>脚本入口</strong>:<code>packages/db/prisma/seed.ts</code>,通过 <code>prisma db seed</code> 调用。脚本用静态导入(把 <code>docs/ghome.html</code> 里的 JS 数据<strong>复制</strong>为 TS 模块),不在 runtime 解析 HTML。</p>
+<hr/>
+<h2 id="5-MVP-分阶段切片">5. MVP 分阶段切片</h2>
+<p>每阶段都是 <strong>端到端可演示</strong>,不是"先做完后端再做前端"。</p>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>内容</th>
+<th>完成判据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>P0 · 脚手架</strong></td>
+<td>pnpm workspace + Next.js × 2 + Prisma 客户端依赖(<strong>先不写 schema</strong>)+ docker-compose Postgres + 极简 GitHub Actions CI(<code>pnpm lint</code> → <code>pnpm typecheck</code> → <code>pnpm build</code>)。两个 app 是空白页,build 不查 DB,因此 CI 此阶段不需要 Postgres service</td>
+<td><code>pnpm dev</code> 起两个空白页;<code>docker compose up -d</code> 起来 Postgres(只是为了验证拓扑可用);CI 在 PR 上绿勾(三步 lint/typecheck/build 全过)</td>
+</tr>
+<tr>
+<td><strong>P1 · 数据模型 + Seed</strong></td>
+<td>14 张表 schema(<code>schema.prisma</code>,<strong>不</strong>声明 <code>@@unique([collectionId, position])</code>)、首版迁移(含手写 SQL:<code>categories_kind_check</code> + <code>categories_id_kind_unique</code> + apps/videos <code>category_kind</code> 生成列与复合 FK + <code>collection_items_ref_match</code> CHECK + <code>collection_items_position_unique</code> DEFERRABLE UNIQUE)、<code>pg_trgm</code> 扩展启用、<code>url-policy</code> 工具函数、<strong>tag 全并集</strong> slug 映射表、guide bodies HTML→MD 转译、原型数据导入脚本(APP_CATS 排除 <code>all</code>,seed 出 disabled 占位 redirect);<strong>CI 升级</strong>:GitHub Actions 加 <code>postgres:16</code> service + <code>DATABASE_URL</code> env,步骤补 <code>prisma migrate deploy</code> → <code>prisma db seed</code> 在 lint/typecheck/build 之前(后续 P2 build 期会查 DB,P1 起 CI 必须能跑通这条闭环)</td>
+<td><strong>行数断言</strong>:apps=9 / videos=20 / 专题(<code>collections kind=topic</code>)=6 / <strong>榜单(<code>collections kind=ranking</code>)=6</strong> / 指南=5(5 篇正文字符数 &gt; 0);<code>tags</code> 行数 = ALL_TAGS ∪ APPS[<em>].tags ∪ VIDEOS[</em>].tags 去重数;<code>app_tags</code> 行数 = <code>sum(APPS[*].tags.length)</code>(预期 27);<code>video_tags</code> 行数 = <code>sum(VIDEOS[*].tags.length)</code>(预期 60,以原型实际为准);<code>redirects WHERE disabled=true</code> ≥ 29;<strong>ranking collection_items</strong>:5 个内容榜各 8 条 + <code>hot-tags</code> 10 条 = <strong>50 条</strong>(完全对齐原型 <code>renderRankings</code>)。<strong>抽样</strong>:任取一个 App,JOIN <code>app_tags</code> <code>tags</code> 后 <code>tags.slug</code> 数量 = 原型该 App 的 tags 数;同样抽一个 Video。<strong>约束自检</strong>:错 ref_type 的 collection_items INSERT 被拒;事务内交换两行 position 不报错;把 <code>apps.category_id</code> 改成 <code>kind='video'</code> 的分类被拒;插入两条 <code>tags.label='健身'</code> 被拒</td>
+</tr>
+<tr>
+<td><strong>P2 · 页面端只读</strong></td>
+<td>用 SSG/ISR 把<strong>原型</strong>已有的所有页面用 DB 数据重渲(首页 / <code>/apps</code> / <code>/app/:slug</code> / <code>/videos</code> / <code>/video/:slug</code> / <code>/categories</code> / <code>/category/:slug</code> / <code>/tag/:slug</code> / <code>/topics</code> / <code>/topic/:slug</code> / <code>/guides</code> / <code>/guide/:slug</code> / <code>/rankings</code> / <code>/about</code> / <code>/contact</code> / <code>/terms</code>);<strong><code>/albums</code> <code>/album/:slug</code> 不在 P2 范围</strong>(原型无此路由,留给 P6);<code>/rankings</code> 渲染 6 条 ranking collections;<strong>FEATURED_WEB / CREATORS / SAMPLE_REVIEWS 暂作为 <code>apps/web/fixtures/*.ts</code> 静态数据</strong>(显式不入库)</td>
+<td>浏览 web 站,App/视频/分类/专题/<strong>榜单</strong>/指南数据来自 DB;Featured/创作者/评论区数据来自 fixture(代码内常量);<code>/rankings</code> 显示 6 个榜单(5 内容榜各 8 条 + 标签榜 10 条),与原型一致;<code>/albums</code> 此阶段返回 404 或空态(明确 P6 实现)</td>
+</tr>
+<tr>
+<td><strong>P3 · 跳转中转 + 点击打点</strong></td>
+<td><code>apps/web/app/r/[id]/route.ts</code>、<code>click_events</code> 写入(按 §3.2 字段口径)、详情页 CTA 改为渲染 <code>/r/:id</code>(disabled 时置灰)、提供一个 <code>pnpm db:enable-redirect &lt;id&gt; &lt;url&gt;</code> 脚本(走 url-policy 校验后启用一条 redirect)</td>
+<td>用脚本启用一条 redirect → 前台点击能 302 到目标;DB 能看到 click_events 行(无原始 IP/UA/referrer);用 <code>javascript:</code> 之类 URL 调脚本必须被 url-policy 拒绝</td>
+</tr>
+<tr>
+<td><strong>P4 · 运营端骨架 + Auth</strong></td>
+<td>apps/admin 起来、Auth.js GitHub OAuth + <code>ADMIN_ALLOWED_GITHUB_LOGINS</code> 白名单、Dashboard 显示统计(草稿/已发布数 + 7 日点击趋势)</td>
+<td>白名单 GitHub 用户能登入 admin,看到统计数字</td>
+</tr>
+<tr>
+<td><strong>P5 · 内容 CRUD</strong></td>
+<td>App / 视频 / 指南 的列表 + 编辑;状态机;触发 web revalidate(带 <code>REVALIDATE_SECRET</code> 校验);<strong>标签内联 CRUD</strong>(在 App/视频编辑器里新建 tag,字段:label + slug,服务端校验 slug 形如 <code>/^[a-z0-9-]+$/</code> 且 <code>label</code> / <code>slug</code> 不重复)</td>
+<td>在 admin 改 App 描述并发布,web 刷新后看到;在 App 编辑器里新建一个 tag(如 label='夜跑' slug='night-run')并应用到当前 App,保存后前台 App 详情页能看到这个 tag</td>
+</tr>
+<tr>
+<td><strong>P6 · 编辑编排</strong></td>
+<td>collections(<strong>topic / album / ranking 三种 kind 共用同一套</strong> CRUD + 拖拽排序);external item 创建时自动建 redirect;<strong>前台同步交付 <code>/albums</code> 列表页 + <code>/album/:slug</code> 详情页</strong>(此前 P2 占位,本阶段填充实现);<code>/rankings</code> 路由从 6 条 ranking collections 渲染</td>
+<td>在 admin 建一个新专辑(kind=album)挑 5 张卡(混 App/视频/外链)发布;web <code>/albums</code> 列出该专辑、<code>/album/:slug</code> 渲染卡片网格;改 <code>weekly-hot-videos</code> 的成员顺序后 <code>/rankings</code> 同步更新</td>
+</tr>
+<tr>
+<td><strong>P7 · 跳转链管理 + 操作日志</strong></td>
+<td>redirects 列表与批量编辑;audit_log 写入与展示;30 天 click_events 聚合定时任务</td>
+<td>改一个 redirect 的 target,web 重新跳到新地址;日志能查到这次修改</td>
+</tr>
+<tr>
+<td><strong>P8 · 搜索 + 收尾</strong></td>
+<td>ILIKE + pg_trgm 搜索接口、首页搜索框接通、404 / 性能 / SEO异常验证 收尾</td>
+<td>搜"健身"返回 App + 视频 + 指南混合结果</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>P0–P3</strong> = 用户端可体验的最小闭环;若资源紧张可在 P3 后先停下来对外灰度</li>
+<li><strong>P4–P7</strong> = 运营端可工作的最小闭环</li>
+<li><strong>P8</strong> = 收尾</li>
+</ul>
+<hr/>
+<h2 id="6-后续-超出本-spec-范围">6. 后续(超出本 spec 范围)</h2>
+<p>以下事项确认在本 spec <strong>之后</strong> 决定,不影响现有数据模型与 API 设计:</p>
+<ul>
+<li>部署形态:云托管商选型(Vercel / Fly / Railway / 自建 VPS)、CDN 选型、域名/SSL</li>
+<li>商业化:CPS 中转链结构、广告位字段细节</li>
+<li>多语言:<code>*_translations</code> 子表</li>
+<li>UGC:用户账号、评论、点赞</li>
+<li>自动榜单算法(MVP 是手工 seed 的 ranking collections,后期补 numeric 列 + 定时任务回写)</li>
+<li>分类(categories)的独立 admin 管理页(MVP seed-only)</li>
+<li>移动端原生 App 或小程序</li>
+</ul>
+<p>这些都在当前架构上<strong>叠加式</strong>加,不需要重写既有代码。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#0-背景与定位">0. 背景与定位</a></li><li style="margin-left:0.8rem"><a href="#已确认的核心约束">已确认的核心约束</a></li><li style="margin-left:0.8rem"><a href="#不在-MVP-范围内">不在 MVP 范围内</a></li><li style="margin-left:0.0rem"><a href="#1-整体架构">1. 整体架构</a></li><li style="margin-left:0.8rem"><a href="#1-1-单仓多包-monorepo">1.1 单仓多包(monorepo)</a></li><li style="margin-left:0.8rem"><a href="#1-2-packages-db-内部">1.2 packages/db 内部</a></li><li style="margin-left:0.8rem"><a href="#1-3-本地开发拓扑">1.3 本地开发拓扑</a></li><li style="margin-left:0.8rem"><a href="#1-4-一键起项目">1.4 一键起项目</a></li><li style="margin-left:0.8rem"><a href="#1-5-关于-云">1.5 关于&quot;云&quot;</a></li><li style="margin-left:0.0rem"><a href="#2-三段产品的能力切片">2. 三段产品的能力切片</a></li><li style="margin-left:0.8rem"><a href="#2-1-页面端-apps-web-匿名访问">2.1 页面端( apps/web )· 匿名访问</a></li><li style="margin-left:0.8rem"><a href="#2-2-服务端-packages-db-Route-Handlers">2.2 服务端( packages/db + Route Handlers)</a></li><li style="margin-left:0.8rem"><a href="#2-3-运营管理端-apps-admin-登录后访问">2.3 运营管理端( apps/admin )· 登录后访问</a></li><li style="margin-left:0.0rem"><a href="#3-数据模型">3. 数据模型</a></li><li style="margin-left:0.8rem"><a href="#3-1-表清单-14-张">3.1 表清单(14 张)</a></li><li style="margin-left:0.8rem"><a href="#3-2-关键表-schema-简写">3.2 关键表 schema(简写)</a></li><li style="margin-left:0.8rem"><a href="#3-3-ER-关键链路">3.3 ER 关键链路</a></li><li style="margin-left:0.8rem"><a href="#3-4-有意识的取舍">3.4 有意识的取舍</a></li><li style="margin-left:0.0rem"><a href="#4-关键交互与数据流">4. 关键交互与数据流</a></li><li style="margin-left:0.8rem"><a href="#4-1-页面端读取-SSG-ISR">4.1 页面端读取(SSG + ISR)</a></li><li style="margin-left:0.8rem"><a href="#4-2-跳转打点-用户点外链">4.2 跳转打点(用户点外链)</a></li><li style="margin-left:0.8rem"><a href="#4-3-运营编辑-发布-透出">4.3 运营编辑 → 发布 → 透出</a></li><li style="margin-left:0.8rem"><a href="#4-4-搜索-MVP">4.4 搜索(MVP)</a></li><li style="margin-left:0.8rem"><a href="#4-5-数据初始化-从原型迁出">4.5 数据初始化(从原型迁出)</a></li><li style="margin-left:0.0rem"><a href="#5-MVP-分阶段切片">5. MVP 分阶段切片</a></li><li style="margin-left:0.0rem"><a href="#6-后续-超出本-spec-范围">6. 后续(超出本 spec 范围)</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / GHOME</li>
+          <li>日期：2026-05-08</li>
+          <li>标签：<span class="tag">GHOME</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">自动化</span><span class="tag">CDN</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/ghome/docs/superpowers/specs/2026-05-08-ghome-product-shape-design.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605080000-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BLinux-Ghome%20%E4%BA%A7%E5%93%81%E5%BD%A2%E6%80%81%E4%B8%8E%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Ghome 产品形态与架构设计。本文属于业务系统运维 / GHOME，作者 :与 user 协作整理(brainstorming skill) 范围 :Ghome 三段式产品(页面端 / 服务端 / 运营管理端)的整体架构、数据模型、关键交互、MVP 分阶段 Ghome 定位为面向全球中文用户的 LGBTQ+ 数…</p>
+      <p>关键词：GHOME、Linux、Shell、Docker、自动化、CDN、源码与配置、业务系统运维、业务系统运维 / GHOME、Ghome 产品形态与架构设计</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2aa786441fe0.html"><small>上一篇</small>游点涩 服务端接入文档</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6c1f9d5b279f.html"><small>下一篇</small>Ghome P0 · 脚手架 Implementation Plan</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c1be2ef9333f.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
