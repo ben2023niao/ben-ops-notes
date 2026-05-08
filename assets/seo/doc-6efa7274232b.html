@@ -1,0 +1,1053 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Ghome P8 · ILIKE + pgtrgm 搜索 + SEO异常验证异常验证/404/性能 收尾 Implementation Plan｜业务系统运维 / GHOME｜BEN.OPS</title>
+  <meta name="description" content="Ghome P8 · ILIKE + pgtrgm 搜索 + SEO异常验证异常验证/404/性能 收尾 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent…">
+  <meta name="keywords" content="GHOME，安全运维，故障排查，源码与配置，业务系统运维，业务系统运维 / GHOME">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6efa7274232b.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6efa7274232b.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605090000-GHOME%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2B%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5-Ghome%20P8%20%C2%B7%20ILIKE%20%2B%20pgtrgm%20%E6%90%9C%E7%B4%A2%20%2B%20SEO%E5%BC%82%E5%B8%B8%E9%AA%8C%E8%AF%81-404-%E6%80%A7%E8%83%BD%20%E6%94%B6%E5%B0%BE%20Implementation%20Plan.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Ghome P8 · ILIKE + pgtrgm 搜索 + SEO异常验证异常验证/404/性能 收尾 Implementation Plan">
+  <meta property="og:description" content="Ghome P8 · ILIKE + pgtrgm 搜索 + SEO异常验证异常验证/404/性能 收尾 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6efa7274232b.html">
+  <meta property="article:published_time" content="2026-05-09T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-09 00:00">
+  <meta property="article:section" content="业务系统运维 / GHOME">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Ghome P8 · ILIKE + pgtrgm 搜索 + SEO异常验证异常验证/404/性能 收尾 Implementation Plan">
+  <meta name="twitter:description" content="Ghome P8 · ILIKE + pgtrgm 搜索 + SEO异常验证异常验证/404/性能 收尾 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6efa7274232b.html#article","headline":"Ghome P8 · ILIKE + pgtrgm 搜索 + SEO异常验证异常验证/404/性能 收尾 Implementation Plan","description":"Ghome P8 · ILIKE + pgtrgm 搜索 + SEO异常验证异常验证/404/性能 收尾 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent…","datePublished":"2026-05-09T00:00:00+08:00","dateModified":"2026-05-09 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","GHOME"],"keywords":["GHOME","安全运维","故障排查","源码与配置","业务系统运维","业务系统运维 / GHOME"],"wordCount":6722,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6efa7274232b.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6efa7274232b.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / GHOME","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Ghome P8 · ILIKE + pgtrgm 搜索 + SEO异常验证异常验证/404/性能 收尾 Implementation Plan","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6efa7274232b.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / GHOME</span> › <span>Ghome P8 · ILIKE + pgtrgm 搜索 + SEO异常验证异常验证/404/性能 收尾 Implementation Plan</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / GHOME</div>
+      <h1>Ghome P8 · ILIKE + pgtrgm 搜索 + SEO异常验证异常验证/404/性能 收尾 Implementation Plan</h1>
+      <p class="lede">Ghome P8 · ILIKE + pgtrgm 搜索 + SEO异常验证异常验证/404/性能 收尾 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-09T00:00:00+08:00">发布于 2026-05-09</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">6,722 字</span>
+        <span class="badge">20 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p8-search-wrapup.md</code></p>
+<p>整理日期：2026-05-09 00:00｜日期依据：文件名日期</p>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use <code>superpowers:subagent-driven-development</code> (recommended) or <code>superpowers:executing-plans</code> to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Ghome MVP 收尾。三件事:
+1. <strong>搜索接口</strong>:<code>apps/web/lib/db.ts</code> 实现 <code>searchAll(q)</code>,并行查 apps / videos / guides 三类(各 ≤10),走 P1 已建好的 <code>pg_trgm GIN</code> 索引(对 <code>coalesce(...) || ' ' || coalesce(...)</code> 表达式),tag 命中走子查询反查;按"name/title 命中 &gt; tag 命中 &gt; desc 命中"简单权重排序。出口两个:
+   - <code>apps/web/app/api/search/route.ts</code>(JSON API,Edge 不友好用 <code>runtime='nodejs'</code>,<strong>给前端即时联想框预留</strong>;P8 内不实现联想 UI,只有结果页与 API)
+   - <code>apps/web/app/search/page.tsx</code>(SSR 结果页,从 <code>?q=</code> 拿关键词,渲染三栏混合结果)
+2. <strong>首页搜索框接通</strong>:<code>apps/web/app/page.tsx</code> 当前是 <code>disabled</code> 的占位输入,改成 GET <code>&lt;form action="/search"&gt;</code> + 真实 <code>&lt;input&gt;</code> + 提交按钮;<code>Header.tsx</code> 顶部也加一个轻量搜索入口
+3. <strong>SEO异常验证 + 404 收尾</strong>:
+   - 每个详情页加 <code>generateMetadata</code>(App / Video / Guide / Topic / Album / Ranking / Tag / Category)— 当前仅 <code>layout.tsx</code> 有 root metadata
+   - <code>app/sitemap.ts</code> 输出全部 published 内容的 URL(每日 ISR 生成)
+   - <code>app/robots.ts</code> 输出 <code>User-agent: * Allow: /</code> + sitemap 链接
+   - <code>not-found.tsx</code> 加快捷链(回首页 / 看 App / 看视频 / 看指南)+ 加 <code>metadata.title = '404'</code>
+   - 搜索结果页空态、阻断词(过短 q &lt; 2 char)兜底 UX</p>
+<p><strong>完成判据(spec §6 P8):</strong> 在首页搜索框输入"健身"提交 → <code>/search?q=%E5%81%A5%E8%BA%AB</code> 渲染:命中 App(若 detail 含"健身")+ 命中视频(<code>weekly-fitness-vlog</code> 等)+ 命中指南(若有)三栏混合结果。Sitemap 在 <code>https://localhost:3000/sitemap.xml</code> 列出所有 published 内容路径;robots.txt 允许全爬。</p>
+<p><strong>Architecture:</strong>
+- <strong>三表并行查询</strong>:<code>prisma.$transaction([apps, videos, guides])</code> 三条 <code>$queryRaw</code>,各自带 ORDER BY 简单权重;再用 LIMIT 10 截断。GIN trgm 索引让 ILIKE <code>'%q%'</code> 在 9-20 行的小数据集毫秒级返回(P1 索引表达式与查询表达式必须一致才命中,见 Tricky Bits)
+- <strong>q 校验</strong>:trim,长度 &lt; 2 char → 直接返回空结果(防全表扫 + 防爆 noise);长度 &gt; 100 char 截断;<code>%</code>/<code>_</code> LIKE 元字符转义(防 ILIKE 注入扰动 — 不影响安全,只影响匹配语义)
+- <strong>/search 页面 SSR</strong>:<code>export const dynamic = "force-dynamic"</code>(每次都查),不做 ISR;搜索是低频路径,直查 DB 比维护 cache 更简单
+- <strong>/api/search</strong>:同样 <code>dynamic = 'force-dynamic'</code> + <code>runtime = 'nodejs'</code>(Prisma 直连),返回 <code>{ apps: [], videos: [], guides: [], q, took: ms }</code>。<strong>未鉴权</strong>(公开搜索)。<strong>rate limit P8 不做</strong> — 外部部署形态确定后再加;本地 dev 不需要
+- <strong>per-detail 页 generateMetadata</strong>:只覆盖 title + description + (可选)opengraph。不引入 og:image 生成器、不引入 canonical 自动检测 — 部署形态定下来再补
+- <strong>sitemap.ts</strong>:用 <code>MetadataRoute.Sitemap</code> 规范返回,SSG 时构建期跑 <code>prisma.findMany</code>;ISR 每天重建一次(<code>export const revalidate = 86400</code>)
+- <strong>robots.ts</strong>:静态返回(无 DB);引用 <code>WEB_BASE_URL</code> 拼 sitemap URL</p>
+<p><strong>Tech Stack:</strong> 全部已有依赖,<strong>无新增包</strong>。
+- pg_trgm 扩展 + GIN 索引在 P1 migration 已建好(<code>apps_search_idx</code> <code>videos_search_idx</code> <code>guides_search_idx</code>,见 <code>packages/db/prisma/migrations/20260509015050_constraints/migration.sql:50-55</code>)
+- Prisma <code>$queryRaw</code> + <code>Prisma.sql</code> 模板
+- Next.js 15 <code>MetadataRoute.Sitemap</code> / <code>MetadataRoute.Robots</code> 内置</p>
+<p><strong>Spec 引用:</strong> <a href="https://ben2023niao.github.io/ben-ops-notes/doc/specs/2026-05-08-ghome-product-shape-design.md" rel="noopener noreferrer"><code>docs/superpowers/specs/2026-05-08-ghome-product-shape-design.md</code></a> §4.4 搜索(MVP)、§6 P8。</p>
+<p><strong>前置假设:</strong> P7 已完成,<code>p7-redirects-audit-aggregate</code> 标签存在;<code>apps/web/lib/db.ts</code> 已有 <code>getPublishedApps</code> <code>getPublishedVideos</code> <code>getPublishedGuides</code>;首页 <code>search-box</code> 当前是 <code>disabled</code> 占位;14 表 schema 全 seed,<code>coalesce(...) || ' ' || coalesce(...)</code> GIN 表达式索引存在。</p>
+<hr/>
+<h2 id="File-Structure-P8-末态">File Structure(P8 末态)</h2>
+<pre><code>apps/web/
+├─ app/
+│  ├─ api/
+│  │  └─ search/
+│  │     └─ route.ts                      # T2:JSON API
+│  ├─ search/
+│  │  └─ page.tsx                         # T2:SSR 结果页
+│  ├─ page.tsx                            # T3 改:search-box 接通 GET form
+│  ├─ layout.tsx                          # T4 可能改:扩展 metadata 默认值(description 等)
+│  ├─ not-found.tsx                       # T4 改:加快捷链
+│  ├─ sitemap.ts                          # T4 新建
+│  ├─ robots.ts                           # T4 新建
+│  ├─ app/[slug]/page.tsx                 # T4 改:加 generateMetadata
+│  ├─ video/[slug]/page.tsx               # T4 改:加 generateMetadata
+│  ├─ guide/[slug]/page.tsx               # T4 改:加 generateMetadata
+│  ├─ topic/[slug]/page.tsx               # T4 改:加 generateMetadata
+│  ├─ album/[slug]/page.tsx               # T4 改:加 generateMetadata
+│  ├─ category/[slug]/page.tsx            # T4 改:加 generateMetadata
+│  └─ tag/[slug]/page.tsx                 # T4 改:加 generateMetadata
+├─ components/
+│  └─ Header.tsx                          # T3 改:加搜索快捷入口(可选,顶部小图标)
+└─ lib/
+   ├─ db.ts                               # T1 扩展:searchAll + 类型
+   └─ search.ts                           # T1 新建:q 标准化 / 元字符转义 / 权重打分
+
+apps/web/tests/
+└─ search.test.ts                         # T5:DB 集成测试(打 seed,搜"健身"断言三栏均命中)
+</code></pre>
+<p>新文件 ~6 + ~9 改动 detail 页。</p>
+<hr/>
+<h2 id="Conventions-整个-P8-共享">Conventions(整个 P8 共享)</h2>
+<ul>
+<li><strong>q 标准化</strong>:始终走 <code>normalizeQuery(raw)</code> → <code>{ q, escaped, valid }</code>;<code>valid=false</code> 直接返回空结果。组件传入 raw URL,API/page <strong>同一</strong>入口校验 — 不做两遍</li>
+<li><strong>三表并行</strong>:用 <code>await Promise.all([searchApps(q), searchVideos(q), searchGuides(q)])</code>,各自独立 raw SQL。<strong>不</strong>用单条 UNION SQL — 三类 schema 不同、字段不同,UNION 化会迫使写 cast,反而难读</li>
+<li><strong>ORDER BY 权重</strong>:<code>CASE WHEN name ILIKE :q THEN 0 WHEN tag_match THEN 1 ELSE 2 END</code> 三档权重;同档内 ORDER BY <code>updated_at DESC</code>。LIMIT 10</li>
+<li><strong>响应字段精简</strong>:API 仅返回 <code>id / slug / name(title) / shortDesc(summary) / iconKey/coverKey / categorySlug</code> — <strong>不</strong>返回 detail/body_md / <strong>不</strong>返回 <code>redirect.targetUrl</code>(防 RSC payload 泄漏)</li>
+<li><strong>ISR / cache</strong>:<code>/search</code> 不缓存(<code>force-dynamic</code>);<code>/api/search</code> 同;<strong>只有</strong> <code>sitemap.ts</code> 用 ISR(<code>revalidate = 86400</code>)。robots.ts 是纯静态的(返回常量)</li>
+<li><strong>metadata.description 长度 ≤ 160 char</strong>:Google 建议</li>
+<li><strong>不做(P8 范围外)</strong>:</li>
+<li>即时联想(typeahead / autocomplete)— 留 P9</li>
+<li>搜索分页 — 各类 LIMIT 10 即够 MVP</li>
+<li>搜索结果高亮(<code>&lt;mark&gt;</code> 包裹关键词)</li>
+<li>tag 二级筛选 / 排序选项 / "仅 published 30 天内"</li>
+<li>rate limit / IP 节流</li>
+<li>sitemap 的 ChangeFreq / Priority 调优(用默认)</li>
+<li>og:image 生成 / canonical 自动检测 / Twitter Cards / JSON-LD</li>
+<li>i18n / hreflang</li>
+<li>搜索点击打点(/r/:id 已有点击,搜索不打点)</li>
+<li>提交风格:Conventional Commits;每 task 末尾 commit</li>
+</ul>
+<hr/>
+<h2 id="Task-1-搜索-DB-函数-q-标准化-helper">Task 1 — 搜索 DB 函数 + q 标准化 helper</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/web/lib/search.ts</code>
+- Modify: <code>apps/web/lib/db.ts</code>(末尾追加 <code>searchAll</code>)</p>
+<h3 id="5-Steps">5 Steps</h3>
+<p><strong>Step 1: 写 <code>apps/web/lib/search.ts</code></strong> — q 校验 + 元字符转义 + 类型</p>
+<pre><code class="language-ts">export interface NormalizedQuery {
+  raw: string;       // 用户原始输入
+  q: string;         // trim 后供展示用
+  pattern: string;   // ILIKE 用,已转义 + 加 % 包裹
+  valid: boolean;    // 长度足够、非空白才有效
+}
+
+const MIN_LEN = 2;
+const MAX_LEN = 100;
+
+/**
+ * 把用户输入转成 ILIKE 安全的模式串。
+ * - trim
+ * - 长度 [2, 100] 校验,否则 valid=false 提早返回
+ * - 转义 ILIKE 元字符 % _ \,避免用户输 'jeff%' 之类引发字面外的匹配
+ * - 用 % 包裹两端
+ */
+export function normalizeQuery(raw: unknown): NormalizedQuery {
+  const s = typeof raw === "string" ? raw.trim() : "";
+  if (s.length &lt; MIN_LEN) return { raw: String(raw ?? ""), q: s, pattern: "", valid: false };
+  const truncated = s.slice(0, MAX_LEN);
+  // 顺序:先转 \ 再转 % _,否则先转 % 后转 \ 会把刚加的 \% 又转成 \\%
+  const escaped = truncated
+    .replace(/\\/g, "\\\\")
+    .replace(/%/g, "\\%")
+    .replace(/_/g, "\\_");
+  return {
+    raw: String(raw ?? ""),
+    q: truncated,
+    pattern: `%${escaped}%`,
+    valid: true,
+  };
+}
+
+/* 搜索结果类型(每行) */
+export interface SearchHit {
+  id: string;
+  slug: string;
+  title: string;       // App.name / Video.title / Guide.title 统一这个字段
+  shortDesc: string | null;
+  coverKey: string | null;  // App.iconKey / Video.coverKey / Guide.coverKey
+  categorySlug: string | null;
+  matchScore: number;  // 越小越优先(0=name 命中, 1=tag 命中, 2=desc 命中)
+}
+
+export interface SearchResult {
+  apps: SearchHit[];
+  videos: SearchHit[];
+  guides: SearchHit[];
+  q: string;
+  tookMs: number;
+}
+</code></pre>
+<blockquote>
+<p><strong>顺序提醒</strong>:<code>replace(/\\/g, "\\\\")</code> 必须在 <code>%</code> <code>_</code> 之前。否则后续转义引入的 <code>\</code> 会被前者再吞一次。</p>
+</blockquote>
+<p><strong>Step 2: 在 <code>apps/web/lib/db.ts</code> 末尾追加 <code>searchAll</code></strong></p>
+<pre><code class="language-ts">import { Prisma } from "@ghome/db";
+import { type NormalizedQuery, type SearchHit, type SearchResult } from "./search";
+
+/* ============== 搜索:apps + videos + guides 并行 + 简单权重 ============== */
+
+const PER_TYPE_LIMIT = 10;
+
+async function searchApps(p: NormalizedQuery): Promise&lt;SearchHit[]&gt; {
+  // 表达式必须与 P1 GIN 索引表达式严格一致才命中 trgm 索引:
+  //   coalesce(name, '') || ' ' || coalesce(short_desc, '') || ' ' || coalesce(detail, '')
+  // 同时 tag 命中走子查询反查
+  const rows = await prisma.$queryRaw&lt;
+    Array&lt;{
+      id: string;
+      slug: string;
+      name: string;
+      short_desc: string | null;
+      icon_key: string | null;
+      category_slug: string | null;
+      match_score: number;
+    }&gt;
+  &gt;`
+    SELECT a.id, a.slug, a.name, a.short_desc, a.icon_key,
+           c.slug AS category_slug,
+           CASE
+             WHEN a.name ILIKE ${p.pattern} ESCAPE '\' THEN 0
+             WHEN a.id IN (
+               SELECT at.app_id FROM app_tags at JOIN tags t ON t.id = at.tag_id
+               WHERE t.label ILIKE ${p.pattern} ESCAPE '\'
+             ) THEN 1
+             ELSE 2
+           END AS match_score
+    FROM apps a
+    LEFT JOIN categories c ON c.id = a.category_id
+    WHERE a.status = 'published' AND a.deleted_at IS NULL
+      AND (
+        (coalesce(a.name, '') || ' ' || coalesce(a.short_desc, '') || ' ' || coalesce(a.detail, ''))
+          ILIKE ${p.pattern} ESCAPE '\'
+        OR a.id IN (
+          SELECT at.app_id FROM app_tags at JOIN tags t ON t.id = at.tag_id
+          WHERE t.label ILIKE ${p.pattern} ESCAPE '\'
+        )
+      )
+    ORDER BY match_score ASC, a.updated_at DESC
+    LIMIT ${PER_TYPE_LIMIT}
+  `;
+  return rows.map((r) =&gt; ({
+    id: r.id,
+    slug: r.slug,
+    title: r.name,
+    shortDesc: r.short_desc,
+    coverKey: r.icon_key,
+    categorySlug: r.category_slug,
+    matchScore: r.match_score,
+  }));
+}
+
+async function searchVideos(p: NormalizedQuery): Promise&lt;SearchHit[]&gt; {
+  const rows = await prisma.$queryRaw&lt;
+    Array&lt;{
+      id: string;
+      slug: string;
+      title: string;
+      short_desc: string | null;
+      cover_key: string | null;
+      category_slug: string | null;
+      match_score: number;
+    }&gt;
+  &gt;`
+    SELECT v.id, v.slug, v.title, v.short_desc, v.cover_key,
+           c.slug AS category_slug,
+           CASE
+             WHEN v.title ILIKE ${p.pattern} ESCAPE '\' THEN 0
+             WHEN v.id IN (
+               SELECT vt.video_id FROM video_tags vt JOIN tags t ON t.id = vt.tag_id
+               WHERE t.label ILIKE ${p.pattern} ESCAPE '\'
+             ) THEN 1
+             ELSE 2
+           END AS match_score
+    FROM videos v
+    LEFT JOIN categories c ON c.id = v.category_id
+    WHERE v.status = 'published' AND v.deleted_at IS NULL
+      AND (
+        (coalesce(v.title, '') || ' ' || coalesce(v.short_desc, '') || ' ' || coalesce(v.detail, ''))
+          ILIKE ${p.pattern} ESCAPE '\'
+        OR v.id IN (
+          SELECT vt.video_id FROM video_tags vt JOIN tags t ON t.id = vt.tag_id
+          WHERE t.label ILIKE ${p.pattern} ESCAPE '\'
+        )
+      )
+    ORDER BY match_score ASC, v.updated_at DESC
+    LIMIT ${PER_TYPE_LIMIT}
+  `;
+  return rows.map((r) =&gt; ({
+    id: r.id,
+    slug: r.slug,
+    title: r.title,
+    shortDesc: r.short_desc,
+    coverKey: r.cover_key,
+    categorySlug: r.category_slug,
+    matchScore: r.match_score,
+  }));
+}
+
+async function searchGuides(p: NormalizedQuery): Promise&lt;SearchHit[]&gt; {
+  // guides 没有 tag 关联;只搜 title / summary / body_md
+  const rows = await prisma.$queryRaw&lt;
+    Array&lt;{
+      id: string;
+      slug: string;
+      title: string;
+      summary: string | null;
+      cover_key: string | null;
+      category_label: string | null;
+      match_score: number;
+    }&gt;
+  &gt;`
+    SELECT g.id, g.slug, g.title, g.summary, g.cover_key, g.category_label,
+           CASE
+             WHEN g.title ILIKE ${p.pattern} ESCAPE '\' THEN 0
+             ELSE 2
+           END AS match_score
+    FROM guides g
+    WHERE g.status = 'published' AND g.deleted_at IS NULL
+      AND (coalesce(g.title, '') || ' ' || coalesce(g.summary, '') || ' ' || coalesce(g.body_md, ''))
+            ILIKE ${p.pattern} ESCAPE '\'
+    ORDER BY match_score ASC, g.updated_at DESC
+    LIMIT ${PER_TYPE_LIMIT}
+  `;
+  return rows.map((r) =&gt; ({
+    id: r.id,
+    slug: r.slug,
+    title: r.title,
+    shortDesc: r.summary,
+    coverKey: r.cover_key,
+    categorySlug: r.category_label, // guides 用 category_label,展示同一字段
+    matchScore: r.match_score,
+  }));
+}
+
+/** 主入口 */
+export async function searchAll(raw: unknown): Promise&lt;SearchResult&gt; {
+  const { normalizeQuery } = await import("./search");
+  const np = normalizeQuery(raw);
+  if (!np.valid) {
+    return { apps: [], videos: [], guides: [], q: np.q, tookMs: 0 };
+  }
+  const start = Date.now();
+  const [apps, videos, guides] = await Promise.all([
+    searchApps(np),
+    searchVideos(np),
+    searchGuides(np),
+  ]);
+  return { apps, videos, guides, q: np.q, tookMs: Date.now() - start };
+}
+</code></pre>
+<blockquote>
+<p><strong>关键 — GIN 索引命中</strong>:WHERE 子句里 <code>(coalesce(name, '') || ' ' || coalesce(short_desc, '') || ' ' || coalesce(detail, ''))</code> 必须<strong>逐字符</strong>与 P1 migration 里 GIN 表达式一致(包括括号、空格、单引号),否则 planner 不会用索引,会退化成 seq scan。可以用 <code>EXPLAIN ANALYZE</code> 在本地验证;9-20 行小数据集即使 seq scan 也毫秒级。</p>
+<p><strong><code>ESCAPE '\\'</code> SQL 子句</strong>:声明 ILIKE 用 <code>\</code> 作元字符转义。Prisma raw 模板内字面值是 <code>'\'</code>,JS 源码层面写两个反斜杠。</p>
+</blockquote>
+<p><strong>Step 3: 验证 — 跑 typecheck</strong></p>
+<pre><code class="language-bash">cd /Users/jeff/Work/workspace/uk/ghome
+pnpm --filter @ghome/web typecheck
+</code></pre>
+<p>Expected: pass。</p>
+<p><strong>Step 4: 写一个 quick 单测(可选,T5 才补完整集成)</strong></p>
+<p>可在 packages/db/tests 加一个 <code>apps/web/tests/search.test.ts</code>(更合适在 web 下,因为 <code>searchAll</code> 在 web/lib),T5 才落地。本 task 跳过。</p>
+<p><strong>Step 5: 提交</strong></p>
+<pre><code class="language-bash">git add apps/web/lib/search.ts apps/web/lib/db.ts
+git commit -m "feat(web): searchAll(q) over apps/videos/guides via pg_trgm with weight ordering"
+</code></pre>
+<h2 id="Tricky-Bits-T1">Tricky Bits (T1)</h2>
+<ol>
+<li><strong>GIN 表达式索引必须严格一致</strong>:WHERE 表达式与 P1 索引表达式逐字符匹配。常见踩坑:<code>coalesce(x, '')</code> vs <code>coalesce(x,'')</code>(空格)、<code>||' '||</code> vs <code>|| ' ' ||</code> — 不要"美化"</li>
+<li><strong>ILIKE 元字符转义</strong>:<code>%</code> <code>_</code> <code>\</code> 必须转;否则用户输入 <code>100%</code> 会被解释成 ILIKE,语义漂移</li>
+<li><strong><code>ESCAPE '\'</code></strong>:让 ILIKE 把 <code>\%</code> 看成字面 <code>%</code> 而不是通配。所有四条 ILIKE 都加</li>
+<li><strong>tag 反查子查询</strong>:<code>a.id IN (SELECT app_id FROM app_tags JOIN tags WHERE label ILIKE)</code> — 用 <code>IN</code> 比 <code>EXISTS</code> 在 Prisma raw 下读起来更直观;两者计划等价</li>
+<li><strong>CASE WHEN 权重</strong>:<code>name/title ILIKE :q THEN 0</code> 是字段直接命中(注意是 <code>name/title</code> 单字段,不是组合表达式 — 让"标题包含 q"优先);<code>tag_match THEN 1</code>;<code>ELSE 2</code>(整个 coalesce-concat 字符串命中,但不在前两档)</li>
+<li><strong>guides 没 tag 表</strong>:权重只有 0/2 两档(title 命中 vs 其他)</li>
+<li><strong><code>Prisma</code> 在 web 端</strong>:<code>apps/web/lib/db.ts</code> 顶部 <code>import { prisma, Prisma } from "@ghome/db"</code>;之前可能没 import <code>Prisma</code>,看是否需要加(本 task 用 <code>Prisma.sql</code> 不必 — 现在只用模板字符串)</li>
+<li><strong>如果 git commit 被 permission rule 阻塞</strong>:报 DONE_WITH_CONCERNS</li>
+</ol>
+<hr/>
+<h2 id="Task-2-api-search-JSON-路由-search-SSR-结果页">Task 2 — <code>/api/search</code> JSON 路由 + <code>/search</code> SSR 结果页</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/web/app/api/search/route.ts</code>
+- Create: <code>apps/web/app/search/page.tsx</code></p>
+<h3 id="5-Steps-2">5 Steps</h3>
+<p><strong>Step 1: 写 <code>apps/web/app/api/search/route.ts</code></strong></p>
+<pre><code class="language-ts">import { NextResponse, type NextRequest } from "next/server";
+import { searchAll } from "@/lib/db";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+export async function GET(req: NextRequest) {
+  const q = req.nextUrl.searchParams.get("q") ?? "";
+  const result = await searchAll(q);
+  return NextResponse.json(result, {
+    headers: {
+      "cache-control": "no-store",
+    },
+  });
+}
+</code></pre>
+<blockquote>
+<p><strong>不做</strong> rate limit、不做 CORS(同源)、不做鉴权。</p>
+</blockquote>
+<p><strong>Step 2: 写 <code>apps/web/app/search/page.tsx</code></strong></p>
+<pre><code class="language-tsx">import type { Metadata } from "next";
+import Link from "next/link";
+import { searchAll } from "@/lib/db";
+import { AppCard } from "@/components/AppCard";
+import { VideoCard } from "@/components/VideoCard";
+import { GuideCard } from "@/components/GuideCard";
+import { Crumb } from "@/components/Crumb";
+
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "搜索",
+  description: "在 Ghome 上搜索 LGBTQ+ 相关 App、视频、指南。",
+};
+
+export default async function SearchPage({
+  searchParams,
+}: {
+  searchParams: Promise&lt;{ q?: string }&gt;;
+}) {
+  const sp = await searchParams;
+  const raw = (sp.q ?? "").trim();
+  const result = await searchAll(raw);
+  const noQuery = !raw;
+  const tooShort = raw.length &gt; 0 &amp;&amp; raw.length &lt; 2;
+  const noHits =
+    result.apps.length === 0 &amp;&amp; result.videos.length === 0 &amp;&amp; result.guides.length === 0 &amp;&amp; raw.length &gt;= 2;
+
+  return (
+    &lt;&gt;
+      &lt;div className="page-head"&gt;
+        &lt;div className="container"&gt;
+          &lt;h1&gt;{raw ? `搜索:${raw}` : "搜索"}&lt;/h1&gt;
+          {raw.length &gt;= 2 &amp;&amp; (
+            &lt;p&gt;
+              共 {result.apps.length + result.videos.length + result.guides.length} 条结果 · {result.tookMs} ms
+            &lt;/p&gt;
+          )}
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;Crumb items={[{ href: "/", label: "首页" }, { label: "搜索" }]} /&gt;
+
+      &lt;section className="section" style={{ paddingBottom: 80 }}&gt;
+        &lt;div className="container"&gt;
+          {/* 搜索表单(允许在结果页继续输入)*/}
+          &lt;form
+            method="get"
+            action="/search"
+            style={{ display: "flex", gap: 8, marginBottom: 32, maxWidth: 720 }}
+          &gt;
+            &lt;input
+              name="q"
+              defaultValue={raw}
+              placeholder="搜索 App、视频、指南…"
+              required
+              minLength={2}
+              maxLength={100}
+              style={{ flex: 1, padding: "12px 16px", border: "1px solid var(--border)", borderRadius: 8, fontSize: 15 }}
+            /&gt;
+            &lt;button type="submit" className="btn btn-primary" style={{ padding: "12px 24px" }}&gt;
+              搜索
+            &lt;/button&gt;
+          &lt;/form&gt;
+
+          {noQuery &amp;&amp; (
+            &lt;div style={{ color: "var(--text-3)", padding: 40, textAlign: "center" }}&gt;
+              请输入关键词
+            &lt;/div&gt;
+          )}
+          {tooShort &amp;&amp; (
+            &lt;div style={{ color: "var(--text-3)", padding: 40, textAlign: "center" }}&gt;
+              请至少输入 2 个字符
+            &lt;/div&gt;
+          )}
+          {noHits &amp;&amp; (
+            &lt;div style={{ color: "var(--text-3)", padding: 40, textAlign: "center" }}&gt;
+              没有找到与&amp;ldquo;{raw}&amp;rdquo;相关的内容。
+            &lt;/div&gt;
+          )}
+
+          {result.apps.length &gt; 0 &amp;&amp; (
+            &lt;div style={{ marginBottom: 40 }}&gt;
+              &lt;h2 style={{ fontSize: 20, margin: "0 0 16px" }}&gt;App({result.apps.length})&lt;/h2&gt;
+              &lt;div className="app-grid"&gt;
+                {result.apps.map((hit) =&gt; (
+                  &lt;Link
+                    key={hit.id}
+                    href={`/app/${hit.slug}`}
+                    className="app-card"
+                    style={{ textDecoration: "none" }}
+                  &gt;
+                    &lt;div className="app-icon" style={{ background: hit.coverKey ?? "var(--primary-light)" }} /&gt;
+                    &lt;div className="app-body"&gt;
+                      &lt;h4&gt;{hit.title}&lt;/h4&gt;
+                      {hit.shortDesc &amp;&amp; &lt;p&gt;{hit.shortDesc}&lt;/p&gt;}
+                    &lt;/div&gt;
+                  &lt;/Link&gt;
+                ))}
+              &lt;/div&gt;
+            &lt;/div&gt;
+          )}
+
+          {result.videos.length &gt; 0 &amp;&amp; (
+            &lt;div style={{ marginBottom: 40 }}&gt;
+              &lt;h2 style={{ fontSize: 20, margin: "0 0 16px" }}&gt;视频({result.videos.length})&lt;/h2&gt;
+              &lt;div className="v-grid"&gt;
+                {result.videos.map((hit) =&gt; (
+                  &lt;Link
+                    key={hit.id}
+                    href={`/video/${hit.slug}`}
+                    className="v-card"
+                    style={{ textDecoration: "none" }}
+                  &gt;
+                    &lt;div className="v-cover" style={{ background: hit.coverKey ?? "var(--primary-light)" }} /&gt;
+                    &lt;div className="v-body"&gt;
+                      &lt;h4&gt;{hit.title}&lt;/h4&gt;
+                      {hit.shortDesc &amp;&amp; &lt;p&gt;{hit.shortDesc}&lt;/p&gt;}
+                    &lt;/div&gt;
+                  &lt;/Link&gt;
+                ))}
+              &lt;/div&gt;
+            &lt;/div&gt;
+          )}
+
+          {result.guides.length &gt; 0 &amp;&amp; (
+            &lt;div&gt;
+              &lt;h2 style={{ fontSize: 20, margin: "0 0 16px" }}&gt;指南({result.guides.length})&lt;/h2&gt;
+              &lt;div className="guide-grid"&gt;
+                {result.guides.map((hit) =&gt; (
+                  &lt;Link
+                    key={hit.id}
+                    href={`/guide/${hit.slug}`}
+                    className="guide-card"
+                    style={{ textDecoration: "none" }}
+                  &gt;
+                    &lt;div className="guide-cover" style={{ background: hit.coverKey ?? "var(--primary-light)" }} /&gt;
+                    &lt;div className="guide-body"&gt;
+                      &lt;h4&gt;{hit.title}&lt;/h4&gt;
+                      {hit.shortDesc &amp;&amp; &lt;p&gt;{hit.shortDesc}&lt;/p&gt;}
+                    &lt;/div&gt;
+                  &lt;/Link&gt;
+                ))}
+              &lt;/div&gt;
+            &lt;/div&gt;
+          )}
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+<blockquote>
+<p><strong>避免直接 <code>import { AppCard } from "@/components/AppCard"</code></strong> — <code>AppCard</code> 期待 <code>AppWithRels</code>(完整 include),而搜索 hit 只有精简字段。<strong>复制原型卡片 markup</strong> 一次,简洁内联。<strong>或者</strong>给 AppCard / VideoCard / GuideCard 加 <code>compact</code> prop 走另一路渲染 — P8 内不做,内联 markup 更简单。</p>
+</blockquote>
+<p><strong>Step 3: typecheck + build</strong></p>
+<pre><code class="language-bash">pnpm --filter @ghome/web typecheck
+pnpm --filter @ghome/web build
+</code></pre>
+<p>Expected: pass。<code>/api/search</code> <code>/search</code> 都标 <code>ƒ</code>(动态)。</p>
+<p><strong>Step 4: 本地冒烟</strong></p>
+<pre><code class="language-bash">pnpm --filter @ghome/web dev
+# 浏览器:
+#   http://localhost:3000/search           → "请输入关键词"
+#   http://localhost:3000/search?q=a       → "请至少输入 2 个字符"
+#   http://localhost:3000/search?q=健身     → 三栏混合结果(健身视频在 seed 里至少一个)
+#   http://localhost:3000/api/search?q=健身 → JSON
+</code></pre>
+<p><strong>Step 5: 提交</strong></p>
+<pre><code class="language-bash">git add "apps/web/app/api/search/route.ts" "apps/web/app/search/page.tsx"
+git commit -m "feat(web): /search SSR result page + /api/search JSON endpoint"
+</code></pre>
+<h2 id="Tricky-Bits-T2">Tricky Bits (T2)</h2>
+<ol>
+<li><strong>不复用 <code>AppCard</code> 等组件</strong>:它们的 prop 是 <code>AppWithRels</code>(完整 include + tags + redirect 等),搜索 hit 只精简到必要字段。<strong>内联</strong> card markup 更简单且无类型摩擦</li>
+<li><strong><code>form action="/search"</code> GET</strong>:表单提交到自己,浏览器把 input 拼成 query string;不需要 client JS</li>
+<li><strong><code>required minLength=2 maxLength=100</code></strong>:HTML5 校验在客户端;但 server action / SSR 仍走 <code>normalizeQuery</code> 校验,<strong>不可信任客户端</strong>(用户能改地址栏 URL)</li>
+<li><strong><code>/search</code> 与 <code>/api/search</code> 同走 <code>searchAll</code></strong>:同一份逻辑、同一份校验,不重复</li>
+<li><strong>空态分三档</strong>:无 query、过短、零命中。<strong>确保</strong>这三档在 UI 上视觉清晰,运营/用户能区分</li>
+<li><strong><code>force-dynamic</code></strong>:不做 ISR — 搜索缓存难失效(每个 q 不同),直查更简单。低频路径不会拖慢</li>
+<li><strong><code>&lt;Link href="/app/${slug}"&gt;</code></strong>:必须确保 P2 已实现 <code>/app/[slug]</code> <code>/video/[slug]</code> <code>/guide/[slug]</code> 路由(已实现)</li>
+<li><strong>如果 git commit 被 permission rule 阻塞</strong>:报 DONE_WITH_CONCERNS</li>
+</ol>
+<hr/>
+<h2 id="Task-3-首页搜索框接通-Header-入口">Task 3 — 首页搜索框接通 + Header 入口</h2>
+<p><strong>Files:</strong>
+- Modify: <code>apps/web/app/page.tsx</code>(把 <code>disabled</code> 占位改成 GET form)
+- Modify: <code>apps/web/components/Header.tsx</code>(顶部加搜索快捷入口 link;不放完整搜索框 — 太挤)</p>
+<h3 id="4-Steps">4 Steps</h3>
+<p><strong>Step 1: 改 <code>apps/web/app/page.tsx</code> 的 search-box 块</strong></p>
+<p>将这一段:</p>
+<pre><code class="language-tsx">&lt;div className="search-box"&gt;
+  &lt;span className="si"&gt;🔍&lt;/span&gt;
+  &lt;input placeholder="搜索 App、视频、专题…" disabled /&gt;
+  &lt;button className="btn-primary" disabled&gt;搜索&lt;/button&gt;
+&lt;/div&gt;
+</code></pre>
+<p>改为:</p>
+<pre><code class="language-tsx">&lt;form className="search-box" method="get" action="/search"&gt;
+  &lt;span className="si"&gt;🔍&lt;/span&gt;
+  &lt;input
+    name="q"
+    placeholder="搜索 App、视频、指南…"
+    required
+    minLength={2}
+    maxLength={100}
+    aria-label="搜索"
+  /&gt;
+  &lt;button type="submit" className="btn-primary"&gt;搜索&lt;/button&gt;
+&lt;/form&gt;
+</code></pre>
+<blockquote>
+<p><strong>保留 <code>.search-box</code> className</strong> — 原型 CSS 已对其 styled,无需改 globals.css。<code>&lt;form&gt;</code> 替换 <code>&lt;div&gt;</code> 仅语义升级,flex 布局不动。</p>
+</blockquote>
+<p><strong>Step 2: 改 <code>apps/web/components/Header.tsx</code></strong> — 末尾加一个轻量搜索图标 link</p>
+<p>读现有 Header 内容,在导航末尾加:</p>
+<pre><code class="language-tsx">&lt;Link href="/search" className="header-search-link" aria-label="搜索" title="搜索"&gt;🔍&lt;/Link&gt;
+</code></pre>
+<blockquote>
+<p>不嵌入完整 form — Header 空间紧;点击图标进 <code>/search</code> 页填关键词更合适。</p>
+</blockquote>
+<p>可选 CSS(若已有 <code>.header-search-link</code> 样式则跳过;若无,加到 globals.css):</p>
+<pre><code class="language-css">.header-search-link {
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-decoration: none;
+}
+.header-search-link:hover {
+  background: var(--bg-2);
+}
+</code></pre>
+<blockquote>
+<p>同 P7 T1 注意 — <code>--bg-2</code> 在本项目未定义,用 <code>var(--bg)</code> 替代。</p>
+</blockquote>
+<p><strong>Step 3: typecheck + build + 冒烟</strong></p>
+<pre><code class="language-bash">pnpm --filter @ghome/web typecheck
+pnpm --filter @ghome/web build
+
+pnpm --filter @ghome/web dev
+# 首页 → 搜"健身"提交 → /search?q=健身 渲染结果
+</code></pre>
+<p><strong>Step 4: 提交</strong></p>
+<pre><code class="language-bash">git add apps/web/app/page.tsx apps/web/components/Header.tsx apps/web/app/globals.css
+git commit -m "feat(web): wire homepage search-box GET form + header search link"
+</code></pre>
+<h2 id="Tricky-Bits-T3">Tricky Bits (T3)</h2>
+<ol>
+<li><strong><code>&lt;form className="search-box"&gt;</code></strong>:CSS 选择器是 class,不是 element 标签 — 改 div→form 不影响样式</li>
+<li><strong><code>required minLength</code> 客户端校验</strong>:阻拦空提交 / &lt; 2 字符提交;<strong>仍</strong>要服务端兜底(已有 <code>normalizeQuery</code>)</li>
+<li><strong><code>name="q"</code></strong>:必须叫 <code>q</code>,与 <code>/search</code> page 的 searchParams.q 对应</li>
+<li><strong>Header 不放完整 form</strong>:运营产品已分:首页 hero 是完整搜索入口、Header 上是快捷链接 — 不重复</li>
+<li><strong>如果 git commit 被 permission rule 阻塞</strong>:报 DONE_WITH_CONCERNS</li>
+</ol>
+<hr/>
+<h2 id="Task-4-SEO异常验证-收尾-per-detail-metadata-sitemap-ts-robots-ts-not-found-优化">Task 4 — SEO异常验证 收尾:per-detail metadata + sitemap.ts + robots.ts + not-found 优化</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/web/app/sitemap.ts</code>
+- Create: <code>apps/web/app/robots.ts</code>
+- Modify: <code>apps/web/app/not-found.tsx</code>
+- Modify: <code>apps/web/app/layout.tsx</code>(扩展 metadata 默认值)
+- Modify: 7 个 detail 页(加 <code>generateMetadata</code>):
+  - <code>apps/web/app/app/[slug]/page.tsx</code>
+  - <code>apps/web/app/video/[slug]/page.tsx</code>
+  - <code>apps/web/app/guide/[slug]/page.tsx</code>
+  - <code>apps/web/app/topic/[slug]/page.tsx</code>
+  - <code>apps/web/app/album/[slug]/page.tsx</code>
+  - <code>apps/web/app/category/[slug]/page.tsx</code>
+  - <code>apps/web/app/tag/[slug]/page.tsx</code></p>
+<h3 id="6-Steps">6 Steps</h3>
+<p><strong>Step 1: 写 <code>apps/web/app/robots.ts</code></strong></p>
+<pre><code class="language-ts">import type { MetadataRoute } from "next";
+
+const WEB_BASE_URL = process.env.NEXT_PUBLIC_WEB_BASE_URL ?? "http://localhost:3000";
+
+export default function robots(): MetadataRoute.Robots {
+  return {
+    rules: [{ userAgent: "*", allow: "/" }],
+    sitemap: `${WEB_BASE_URL}/sitemap.xml`,
+  };
+}
+</code></pre>
+<blockquote>
+<p>不禁任何路径 — <code>/r/:id</code> 是 302,搜索引擎一般不会索引中转;<code>/api/*</code> 是动态 API,搜索引擎也不索引(返回 JSON)。MVP 不细分。</p>
+</blockquote>
+<p><strong>Step 2: 写 <code>apps/web/app/sitemap.ts</code></strong></p>
+<pre><code class="language-ts">import type { MetadataRoute } from "next";
+import {
+  getPublishedApps,
+  getPublishedVideos,
+  getPublishedGuides,
+  getCollectionsByKind,
+  getAllTags,
+  getAppCategories,
+  getVideoCategories,
+} from "@/lib/db";
+
+const WEB_BASE_URL = process.env.NEXT_PUBLIC_WEB_BASE_URL ?? "http://localhost:3000";
+
+export const revalidate = 86400; // 每日重建
+
+export default async function sitemap(): Promise&lt;MetadataRoute.Sitemap&gt; {
+  const [apps, videos, guides, topics, albums, tags, appCats, videoCats] = await Promise.all([
+    getPublishedApps(),
+    getPublishedVideos(),
+    getPublishedGuides(),
+    getCollectionsByKind("topic"),
+    getCollectionsByKind("album"),
+    getAllTags(),
+    getAppCategories(),
+    getVideoCategories(),
+  ]);
+
+  const staticUrls = [
+    "/",
+    "/apps",
+    "/videos",
+    "/guides",
+    "/topics",
+    "/albums",
+    "/categories",
+    "/rankings",
+    "/about",
+    "/contact",
+    "/terms",
+    "/search",
+  ];
+
+  const now = new Date();
+  const out: MetadataRoute.Sitemap = [
+    ...staticUrls.map((p) =&gt; ({ url: `${WEB_BASE_URL}${p}`, lastModified: now })),
+    ...apps.map((a) =&gt; ({ url: `${WEB_BASE_URL}/app/${a.slug}`, lastModified: a.updatedAt })),
+    ...videos.map((v) =&gt; ({ url: `${WEB_BASE_URL}/video/${v.slug}`, lastModified: v.updatedAt })),
+    ...guides.map((g) =&gt; ({ url: `${WEB_BASE_URL}/guide/${g.slug}`, lastModified: g.updatedAt })),
+    ...topics.map((t) =&gt; ({ url: `${WEB_BASE_URL}/topic/${t.slug}`, lastModified: t.updatedAt })),
+    ...albums.map((a) =&gt; ({ url: `${WEB_BASE_URL}/album/${a.slug}`, lastModified: a.updatedAt })),
+    ...tags.map((t) =&gt; ({ url: `${WEB_BASE_URL}/tag/${t.slug}` })),
+    ...appCats.map((c) =&gt; ({ url: `${WEB_BASE_URL}/category/${c.slug}` })),
+    ...videoCats.map((c) =&gt; ({ url: `${WEB_BASE_URL}/category/${c.slug}` })),
+  ];
+
+  return out;
+}
+</code></pre>
+<blockquote>
+<p><strong><code>getPublishedApps</code>/<code>getPublishedVideos</code></strong> 默认无 limit,会拉全量。本地 9 + 20 行无压力;生产规模再考虑分 sitemap chunk(<code>MetadataRoute.Sitemap</code> 单文件最多 50000 条 URL,目前距上限远)。</p>
+<p><strong>rankings 不入 sitemap</strong> — 6 个内置榜单挂在 <code>/rankings</code> 静态页底下,不暴露 <code>/ranking/:slug</code> 子路由(P2 没建)。</p>
+</blockquote>
+<p><strong>Step 3: 改 <code>apps/web/app/layout.tsx</code></strong> — 扩展默认 metadata</p>
+<pre><code class="language-ts">export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_WEB_BASE_URL ?? "http://localhost:3000"),
+  title: { default: "Ghome — LGBTQ+ 数字生活总入口", template: "%s · Ghome" },
+  description: "Ghome 收录全球合规上架的 LGBTQ+ 相关 App、视频内容、内容平台,提供专题、榜单、指南等导航服务。",
+  keywords: ["LGBTQ", "男同", "App", "视频", "指南", "导航", "Ghome"],
+  openGraph: {
+    type: "website",
+    siteName: "Ghome",
+  },
+  alternates: { canonical: "/" },
+};
+</code></pre>
+<blockquote>
+<p><code>metadataBase</code> 必填用于解析相对 og:url。</p>
+</blockquote>
+<p><strong>Step 4: 给 7 个 detail 页加 <code>generateMetadata</code></strong></p>
+<p>每个 detail 页 pattern 一致(以 <code>apps/web/app/app/[slug]/page.tsx</code> 为例):</p>
+<pre><code class="language-tsx">import type { Metadata } from "next";
+import { getAppBySlug } from "@/lib/db";
+
+export async function generateMetadata({ params }: { params: Promise&lt;{ slug: string }&gt; }): Promise&lt;Metadata&gt; {
+  const { slug } = await params;
+  const app = await getAppBySlug(slug);
+  if (!app) return { title: "未找到" };
+  const desc = (app.shortDesc ?? app.detail ?? "").slice(0, 160);
+  return {
+    title: app.name,
+    description: desc || `Ghome 收录的 App:${app.name}`,
+    openGraph: {
+      title: app.name,
+      description: desc,
+      type: "website",
+      url: `/app/${app.slug}`,
+    },
+    alternates: { canonical: `/app/${app.slug}` },
+  };
+}
+</code></pre>
+<p>镜像写法对其他 6 个 detail 页(用对应的 fetcher / 字段):
+- video: <code>getVideoBySlug</code> → <code>title</code> / <code>shortDesc</code> / <code>detail</code>
+- guide: <code>getGuideBySlug</code> → <code>title</code> / <code>summary</code>
+- topic: <code>getCollectionBySlug(slug, "topic")</code> → <code>title</code> / <code>description</code>
+- album: <code>getCollectionBySlug(slug, "album")</code> → <code>title</code> / <code>description</code>
+- category: <code>getVideoCategoryBySlug</code> → <code>name</code> / <code>description</code>(若有);<code>description</code> 字段可能没有,用 <code>'${name} 分类下的内容'</code>
+- tag: <code>getTagBySlug</code> → <code>label</code> / 描述用模板 <code>'#${label} 标签下的 App 与视频'</code></p>
+<p><strong>Step 5: 改 <code>apps/web/app/not-found.tsx</code></strong> — 加快捷链 + metadata</p>
+<pre><code class="language-tsx">import type { Metadata } from "next";
+import Link from "next/link";
+
+export const metadata: Metadata = { title: "404 — 页面未找到" };
+
+export default function NotFound() {
+  return (
+    &lt;div className="container" style={{ padding: "120px 24px", textAlign: "center" }}&gt;
+      &lt;h1 style={{ fontSize: 80, margin: 0, color: "var(--primary)" }}&gt;404&lt;/h1&gt;
+      &lt;p style={{ color: "var(--text-2)", margin: "16px 0 24px" }}&gt;
+        页面未找到,可能已被移除或链接错误。
+      &lt;/p&gt;
+      &lt;div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}&gt;
+        &lt;Link href="/" className="btn btn-primary" style={{ padding: "12px 32px" }}&gt;回到首页&lt;/Link&gt;
+        &lt;Link href="/apps" className="btn btn-secondary" style={{ padding: "12px 32px" }}&gt;看 App&lt;/Link&gt;
+        &lt;Link href="/videos" className="btn btn-secondary" style={{ padding: "12px 32px" }}&gt;看视频&lt;/Link&gt;
+        &lt;Link href="/guides" className="btn btn-secondary" style={{ padding: "12px 32px" }}&gt;看指南&lt;/Link&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<p><strong>Step 6: 验证 + 提交</strong></p>
+<pre><code class="language-bash">cd /Users/jeff/Work/workspace/uk/ghome
+pnpm --filter @ghome/web typecheck
+pnpm --filter @ghome/web build
+
+# 冒烟:
+pnpm --filter @ghome/web dev
+# http://localhost:3000/sitemap.xml — 输出 XML(Next.js 自动从 sitemap.ts 编)
+# http://localhost:3000/robots.txt
+# 打开 /app/broconnect → view-source 看 &lt;title&gt;BroConnect · Ghome&lt;/title&gt; + meta description
+
+git add "apps/web/app/sitemap.ts" "apps/web/app/robots.ts" \
+        apps/web/app/not-found.tsx apps/web/app/layout.tsx \
+        "apps/web/app/app/[slug]/page.tsx" "apps/web/app/video/[slug]/page.tsx" \
+        "apps/web/app/guide/[slug]/page.tsx" "apps/web/app/topic/[slug]/page.tsx" \
+        "apps/web/app/album/[slug]/page.tsx" "apps/web/app/category/[slug]/page.tsx" \
+        "apps/web/app/tag/[slug]/page.tsx"
+git commit -m "feat(web): per-detail generateMetadata + sitemap.ts + robots.ts + 404 quicklinks"
+</code></pre>
+<h2 id="Tricky-Bits-T4">Tricky Bits (T4)</h2>
+<ol>
+<li><strong><code>metadataBase</code></strong>:Next.js 警告"metadataBase is not set"会在 build 期出现,产环境影响 og:url 解析。设了就消失</li>
+<li><strong><code>generateMetadata</code> async</strong>:与 page 同的 params Promise 模式;<code>if (!app) return { title: "未找到" }</code> 兜底 — 实际后面 page 会 <code>notFound()</code>,但 metadata 也要不崩</li>
+<li><strong><code>description</code> 长度 ≤ 160</strong>:<code>.slice(0, 160)</code>。开头 <code>(short_desc ?? detail ?? "")</code> 兜底</li>
+<li><strong>sitemap revalidate</strong>:<code>export const revalidate = 86400</code> — 每日重建一次,不需要 admin 写后强制 revalidate</li>
+<li><strong><code>getAllTags</code> 没 <code>updatedAt</code></strong>:tags 表没 updated_at 字段(P1 schema);sitemap 中 tag URL 不带 lastModified</li>
+<li><strong><code>/categories</code> 是 list 页,<code>/category/:slug</code> 是 detail</strong>:按 P2 命名约定,确保 sitemap 用对</li>
+<li><strong>canonical 用相对路径</strong>:<code>alternates: { canonical: "/app/slug" }</code> — 与 <code>metadataBase</code> 拼接后变绝对 URL</li>
+<li><strong>不引入 og-image 生成器</strong>:留下次。本 P8 不写 <code>og:image</code>(MVP)</li>
+<li><strong><code>getAllTags</code> 与 <code>getAppCategories</code> 已存在?</strong>:<code>apps/web/lib/db.ts</code> 已有 <code>getAllTags()</code> 与 <code>getAppCategories()</code> <code>getVideoCategories()</code>(P2),sitemap 直接复用</li>
+<li><strong><code>NEXT_PUBLIC_WEB_BASE_URL</code></strong>:可能没在 <code>.env.example</code>,本 task 加一行(就在 admin <code>.env.example</code> 同一时期)。生产部署需配真实域名</li>
+<li><strong><code>/api/cron/aggregate-clicks</code> 不进 sitemap</strong>:cron 不是公开页;sitemap 也别索引到它</li>
+<li><strong>如果 git commit 被 permission rule 阻塞</strong>:报 DONE_WITH_CONCERNS</li>
+</ol>
+<hr/>
+<h2 id="Task-5-End-to-end-smoke-集成测试-tag-p8-search-wrapup">Task 5 — End-to-end smoke + 集成测试 + tag p8-search-wrapup</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/web/tests/search.test.ts</code>(可选 — 若 web 已有 vitest 配置则加,否则跳过 web 单测,只跑 db 集成)</p>
+<blockquote>
+<p>当前 <code>apps/web/package.json</code> 大概率<strong>没有</strong> vitest 配置(P0-P7 没建)。本 task 把搜索集成测试放在 <code>packages/db/tests/search.test.ts</code>,与 url-policy 测试放一起 — <code>searchAll</code> 虽然在 web,但其核心是 SQL,在 db 包测试更合适。<strong>改写文件名为</strong> <code>packages/db/tests/search.test.ts</code>,但因为 <code>searchAll</code> 不在 packages/db,<strong>改测试目标</strong>:直接复用 search 的 normalizeQuery + 直接写 raw SQL 测三表查询。</p>
+<p><strong>简化决定</strong>:本 task 不增加 vitest 文件,把搜索冒烟放在端到端 dev 服 + curl 验证。集成测试留作 P9 housekeeping(若有)。</p>
+</blockquote>
+<h3 id="5-Steps-精简版">5 Steps(精简版)</h3>
+<p><strong>Step 1: 跑全套本地 CI 等价命令</strong></p>
+<pre><code class="language-bash">cd /Users/jeff/Work/workspace/uk/ghome
+docker compose up -d
+pnpm install
+pnpm --filter @ghome/db db:migrate:deploy
+pnpm --filter @ghome/db db:seed
+pnpm --filter @ghome/db typecheck
+pnpm --filter @ghome/db test                   # 38 + 1 skipped(无新测试)
+pnpm --filter @ghome/admin typecheck
+pnpm --filter @ghome/admin lint
+pnpm --filter @ghome/admin build
+pnpm --filter @ghome/web typecheck
+pnpm --filter @ghome/web lint
+pnpm --filter @ghome/web build
+</code></pre>
+<p>全过才算过关。</p>
+<p><strong>Step 2: 端到端 UI 冒烟</strong></p>
+<pre><code class="language-bash">pnpm --filter @ghome/web dev
+</code></pre>
+<ul>
+<li>首页 → 搜索框输入"健身" → 提交 → <code>/search?q=健身</code>:</li>
+<li>视频栏至少 1 条命中(seed 里 weekly-fitness-vlog 等)</li>
+<li>App 栏可能有命中(若 detail 含"健身")</li>
+<li>指南栏可能有命中</li>
+<li>结果页底部展示 <code>tookMs</code></li>
+<li><code>/search?q=a</code>:显示"请至少输入 2 个字符"</li>
+<li><code>/search</code>:显示"请输入关键词"</li>
+<li><code>/search?q=不存在的字符串zzz</code>:显示"没有找到"</li>
+<li><code>/sitemap.xml</code>:浏览器看 XML,App / 视频 / 指南 / 专题 / 专辑 / tag URL 都在</li>
+<li><code>/robots.txt</code>:看 <code>User-agent: * Allow: /</code></li>
+<li>任一 detail 页 view-source:<code>&lt;title&gt;</code> 含原型名 + <code>· Ghome</code>,<code>&lt;meta name="description"&gt;</code> 不空</li>
+<li><code>/不存在的路径</code>:渲染 404 页 + 4 个快捷链可点</li>
+</ul>
+<p><strong>Step 3: API 冒烟</strong></p>
+<pre><code class="language-bash">curl -s 'http://localhost:3000/api/search?q=健身' | head -100
+# {"apps":[...], "videos":[...], "guides":[...], "q":"健身", "tookMs":...}
+
+curl -s 'http://localhost:3000/api/search?q=a'
+# {"apps":[],"videos":[],"guides":[],"q":"a","tookMs":0}
+
+curl -s 'http://localhost:3000/api/search'
+# {"apps":[],"videos":[],"guides":[],"q":"","tookMs":0}
+</code></pre>
+<p><strong>Step 4: 提交(若上一 task 有遗漏)+ 打 tag</strong></p>
+<pre><code class="language-bash">git status     # 应 clean
+git tag p8-search-wrapup
+</code></pre>
+<p><strong>Step 5: 更新 spec 标注 P8 完成 (可选 — 不在本 task 范围,留给 controller)</strong></p>
+<h2 id="Tricky-Bits-T5">Tricky Bits (T5)</h2>
+<ol>
+<li><strong>冒烟需要 docker compose 起来</strong>:与 P3-P7 同一 dev DB</li>
+<li><strong>API 的 q 缺失</strong>:<code>searchParams.get("q")</code> 返回 <code>null</code>;<code>normalizeQuery(null)</code> → <code>valid=false</code> → 空结果。<strong>不</strong>返回 400(用户友好)</li>
+<li><strong>tag 用 "p8-search-wrapup"</strong>:与 P0-P7 风格一致</li>
+<li><strong>若 git tag 被 permission rule 阻塞</strong>:报 DONE_WITH_CONCERNS</li>
+</ol>
+<hr/>
+<h2 id="Final-验收清单-P8-整体">Final 验收清单(P8 整体)</h2>
+<ul>
+<li>[ ] <code>apps/web/lib/search.ts</code> <code>normalizeQuery</code> 处理 trim / 长度 / <code>% _ \</code> 转义</li>
+<li>[ ] <code>apps/web/lib/db.ts</code> <code>searchAll(q)</code> 三表并行 + 简单权重 + LIMIT 10/类</li>
+<li>[ ] <code>/api/search?q=:q</code> 返回 <code>{ apps, videos, guides, q, tookMs }</code></li>
+<li>[ ] <code>/search?q=:q</code> SSR 三栏混合结果 + 空态 / 过短 / 零命中三档分明</li>
+<li>[ ] 首页 <code>.search-box</code> 是真 GET form 提交到 <code>/search</code></li>
+<li>[ ] <code>Header.tsx</code> 加搜索快捷入口</li>
+<li>[ ] <code>app/sitemap.ts</code> 输出全部 published 内容 URL,每日 ISR</li>
+<li>[ ] <code>app/robots.ts</code> 输出 <code>Allow: /</code> + sitemap 链接</li>
+<li>[ ] 7 个 detail 页有 <code>generateMetadata</code> + canonical</li>
+<li>[ ] <code>layout.tsx</code> 有 <code>metadataBase</code> + 默认 description / og 元</li>
+<li>[ ] <code>not-found.tsx</code> 有 metadata + 4 个快捷链</li>
+<li>[ ] 搜"健身"在 <code>/search</code> 三栏混合命中</li>
+<li>[ ] CI 通过(无新测试,但 lint/typecheck/build 必须绿)</li>
+<li>[ ] tag <code>p8-search-wrapup</code> 落在 main HEAD</li>
+</ul>
+<h2 id="不做-P8-范围外-留给后续">不做(P8 范围外,留给后续)</h2>
+<ul>
+<li>即时联想 / typeahead(client fetch /api/search on keypress + debounce)</li>
+<li>搜索分页(目前各类 LIMIT 10 即截断)</li>
+<li>搜索结果高亮 <code>&lt;mark&gt;</code></li>
+<li>二级筛选(按 category / tag / status)</li>
+<li>搜索点击打点</li>
+<li>rate limit / IP 节流(部署后再加)</li>
+<li>og:image 生成 / Twitter Cards / JSON-LD</li>
+<li>canonical 自动检测</li>
+<li>i18n / hreflang</li>
+<li>sitemap chunk(单文件 &gt; 50000 URLs 才需)</li>
+<li>ranking 子路由(<code>/ranking/:slug</code>)— 当前只暴露 <code>/rankings</code> 列表</li>
+<li>搜索热词榜 / 历史记录 / 个人化</li>
+</ul>
+<hr/>
+<p><strong>P8 完成 ⇒ Ghome MVP 全部交付完成。</strong></p>
+<p>下一步选项(由用户决定):
+1. <strong>写 RELEASE.md</strong> 把 P0-P8 的功能、数据模型、本地启动、测试一站说明
+2. <strong>进入运维阶段</strong>:配置真实域名、Vercel/Cloudflare/Render 部署、监控、备份策略
+3. <strong>P9 housekeeping</strong>(可选):
+   - 把 P7 留下的 minor 修(redirect edit 用 tag helpers + 二次 fresh-fetch)
+   - 即时联想 + 搜索分页
+   - 搜索集成测试(打 seed 后 SQL 断言)
+   - GIN 索引 EXPLAIN ANALYZE 验证 plan
+   - admin 增加 redirect 创建 / 删除 UI
+   - admin 批量勾选 / 批量切 disabled
+4. <strong>P10+:接入 cron</strong> — 把 <code>/api/cron/aggregate-clicks</code> 接到外部调度器(Vercel cron / GitHub Actions / k8s CronJob)</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#File-Structure-P8-末态">File Structure(P8 末态)</a></li><li style="margin-left:0.0rem"><a href="#Conventions-整个-P8-共享">Conventions(整个 P8 共享)</a></li><li style="margin-left:0.0rem"><a href="#Task-1-搜索-DB-函数-q-标准化-helper">Task 1 — 搜索 DB 函数 + q 标准化 helper</a></li><li style="margin-left:0.8rem"><a href="#5-Steps">5 Steps</a></li><li style="margin-left:0.0rem"><a href="#Tricky-Bits-T1">Tricky Bits (T1)</a></li><li style="margin-left:0.0rem"><a href="#Task-2-api-search-JSON-路由-search-SSR-结果页">Task 2 — /api/search JSON 路由 + /search SSR 结果页</a></li><li style="margin-left:0.8rem"><a href="#5-Steps-2">5 Steps</a></li><li style="margin-left:0.0rem"><a href="#Tricky-Bits-T2">Tricky Bits (T2)</a></li><li style="margin-left:0.0rem"><a href="#Task-3-首页搜索框接通-Header-入口">Task 3 — 首页搜索框接通 + Header 入口</a></li><li style="margin-left:0.8rem"><a href="#4-Steps">4 Steps</a></li><li style="margin-left:0.0rem"><a href="#Tricky-Bits-T3">Tricky Bits (T3)</a></li><li style="margin-left:0.0rem"><a href="#Task-4-SEO异常验证-收尾-per-detail-metadata-sitemap-ts-robots-ts-not-found-优化">Task 4 — SEO异常验证 收尾:per-detail metadata + sitemap.ts + robots.ts + not-found 优化</a></li><li style="margin-left:0.8rem"><a href="#6-Steps">6 Steps</a></li><li style="margin-left:0.0rem"><a href="#Tricky-Bits-T4">Tricky Bits (T4)</a></li><li style="margin-left:0.0rem"><a href="#Task-5-End-to-end-smoke-集成测试-tag-p8-search-wrapup">Task 5 — End-to-end smoke + 集成测试 + tag p8-search-wrapup</a></li><li style="margin-left:0.8rem"><a href="#5-Steps-精简版">5 Steps(精简版)</a></li><li style="margin-left:0.0rem"><a href="#Tricky-Bits-T5">Tricky Bits (T5)</a></li><li style="margin-left:0.0rem"><a href="#Final-验收清单-P8-整体">Final 验收清单(P8 整体)</a></li><li style="margin-left:0.0rem"><a href="#不做-P8-范围外-留给后续">不做(P8 范围外,留给后续)</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / GHOME</li>
+          <li>日期：2026-05-09</li>
+          <li>标签：<span class="tag">GHOME</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p8-search-wrapup.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605090000-GHOME%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2B%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5-Ghome%20P8%20%C2%B7%20ILIKE%20%2B%20pgtrgm%20%E6%90%9C%E7%B4%A2%20%2B%20SEO%E5%BC%82%E5%B8%B8%E9%AA%8C%E8%AF%81-404-%E6%80%A7%E8%83%BD%20%E6%94%B6%E5%B0%BE%20Implementation%20Plan.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Ghome P8 · ILIKE + pgtrgm 搜索 + SEO异常验证异常验证/404/性能 收尾 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent…</p>
+      <p>关键词：GHOME、安全运维、故障排查、源码与配置、业务系统运维、业务系统运维 / GHOME</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9eded9024e58.html"><small>上一篇</small>Ghome P7 · Redirects 管理 + Audit Log 展示 + 30 天 Click 聚合任务 Implementati…</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-778f060e3fb6.html"><small>下一篇</small>Ghome · 男同 App、视频与 LGBTQ+ 内容导航门户</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6efa7274232b.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

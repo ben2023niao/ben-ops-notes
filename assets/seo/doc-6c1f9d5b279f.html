@@ -1,0 +1,1059 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Ghome P0 · 脚手架 Implementation Plan｜业务系统运维 / GHOME｜BEN.OPS</title>
+  <meta name="description" content="Ghome P0 · 脚手架 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or s…">
+  <meta name="keywords" content="GHOME，Shell，Docker，源码与配置，业务系统运维，业务系统运维 / GHOME，Ghome P0 · 脚手架 Implementation Plan">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6c1f9d5b279f.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6c1f9d5b279f.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605090000-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BShell-Ghome%20P0%20%C2%B7%20%E8%84%9A%E6%89%8B%E6%9E%B6%20Implementation%20Plan.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Ghome P0 · 脚手架 Implementation Plan">
+  <meta property="og:description" content="Ghome P0 · 脚手架 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or s…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6c1f9d5b279f.html">
+  <meta property="article:published_time" content="2026-05-09T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-09 00:00">
+  <meta property="article:section" content="业务系统运维 / GHOME">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Ghome P0 · 脚手架 Implementation Plan">
+  <meta name="twitter:description" content="Ghome P0 · 脚手架 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or s…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6c1f9d5b279f.html#article","headline":"Ghome P0 · 脚手架 Implementation Plan","description":"Ghome P0 · 脚手架 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or s…","datePublished":"2026-05-09T00:00:00+08:00","dateModified":"2026-05-09 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","GHOME"],"keywords":["GHOME","Shell","Docker","源码与配置","业务系统运维","业务系统运维 / GHOME","Ghome P0 · 脚手架 Implementation Plan"],"wordCount":3916,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6c1f9d5b279f.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6c1f9d5b279f.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / GHOME","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Ghome P0 · 脚手架 Implementation Plan","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6c1f9d5b279f.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / GHOME</span> › <span>Ghome P0 · 脚手架 Implementation Plan</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / GHOME</div>
+      <h1>Ghome P0 · 脚手架 Implementation Plan</h1>
+      <p class="lede">Ghome P0 · 脚手架 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or s…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-09T00:00:00+08:00">发布于 2026-05-09</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">3,916 字</span>
+        <span class="badge">12 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p0-scaffolding.md</code></p>
+<p>整理日期：2026-05-09 00:00｜日期依据：文件名日期</p>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use <code>superpowers:subagent-driven-development</code> (recommended) or <code>superpowers:executing-plans</code> to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 立起 pnpm monorepo + 两个空白 Next.js app(web 3000、admin 3100)+ docker-compose Postgres + 极简 GitHub Actions CI(lint/typecheck/build,P0 不需要 Postgres service)。</p>
+<p><strong>Architecture:</strong> pnpm workspaces 单仓多包。<code>apps/web</code> 与 <code>apps/admin</code> 各为独立 Next.js 15(App Router)应用。<code>packages/db</code> 是 Prisma client 的占位包(P1 才填 schema)。Postgres 仅通过 docker-compose 起,P0 不连接。</p>
+<p><strong>Tech Stack:</strong>
+- Node.js 20 LTS
+- pnpm 9.x
+- TypeScript 5.x
+- Next.js 15.x(App Router)
+- React 19.x
+- Prisma 5.x(P0 仅安装客户端依赖)
+- PostgreSQL 16(Docker)
+- GitHub Actions</p>
+<p><strong>Spec 引用:</strong> <a href="https://ben2023niao.github.io/ben-ops-notes/doc/specs/2026-05-08-ghome-product-shape-design.md" rel="noopener noreferrer">docs/superpowers/specs/2026-05-08-ghome-product-shape-design.md</a> §1、§5 P0。</p>
+<hr/>
+<h2 id="File-Structure-P0-落地的全部文件">File Structure(P0 落地的全部文件)</h2>
+<pre><code>ghome/
+├─ .github/workflows/ci.yml                 # GitHub Actions: lint + typecheck + build
+├─ .gitignore
+├─ .nvmrc                                   # 20
+├─ .npmrc                                   # 启用 pnpm strict workspace
+├─ docker-compose.yml                       # postgres:16 + adminer
+├─ package.json                             # 根:devDeps + scripts
+├─ pnpm-workspace.yaml                      # apps/* + packages/*
+├─ tsconfig.base.json                       # 共享 TS 配置
+├─ README.md
+├─ apps/
+│  ├─ web/
+│  │  ├─ app/
+│  │  │  ├─ layout.tsx                      # root layout(空)
+│  │  │  ├─ page.tsx                        # 首页(P0 占位文案)
+│  │  │  └─ globals.css
+│  │  ├─ next.config.mjs
+│  │  ├─ next-env.d.ts                      # 由 Next.js 生成,git ignore
+│  │  ├─ package.json
+│  │  ├─ postcss.config.mjs                 # P0 暂不上 Tailwind,留作后续 Hook
+│  │  ├─ tsconfig.json
+│  │  ├─ .env.example                       # DATABASE_URL 占位
+│  │  └─ .eslintrc.cjs
+│  └─ admin/
+│     ├─ app/
+│     │  ├─ layout.tsx
+│     │  ├─ page.tsx                        # admin 占位文案
+│     │  └─ globals.css
+│     ├─ next.config.mjs                    # 内含 PORT=3100 启动配置
+│     ├─ next-env.d.ts
+│     ├─ package.json
+│     ├─ postcss.config.mjs
+│     ├─ tsconfig.json
+│     ├─ .env.example
+│     └─ .eslintrc.cjs
+└─ packages/
+   └─ db/
+      ├─ src/
+      │  └─ index.ts                        # PrismaClient 单例占位(P1 填 schema)
+      ├─ package.json
+      └─ tsconfig.json
+</code></pre>
+<p><strong>约定</strong>:
+- 所有命令默认在仓库根目录执行,除非显式 <code>cd</code>。
+- 提交策略:每个 Task 末尾 <code>git commit</code>,Conventional Commits(<code>chore</code>/<code>feat</code>/<code>docs</code>/<code>ci</code> 等前缀)。
+- 不删除原型 <code>docs/ghome.html</code>,保留作为 P1/P2 seed 来源。</p>
+<hr/>
+<h2 id="Task-1-Git-仓库初始化与根级元文件">Task 1 — Git 仓库初始化与根级元文件</h2>
+<p><strong>Files:</strong>
+- Create: <code>.gitignore</code>
+- Create: <code>.nvmrc</code>
+- Create: <code>.npmrc</code>
+- Create: <code>README.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 在仓库根初始化 git 与 main 分支</strong></li>
+</ul>
+<pre><code class="language-bash">cd /Users/jeff/Work/workspace/uk/ghome
+git init -b main
+git status
+</code></pre>
+<p>Expected: <code>On branch main / nothing added to commit but untracked files present</code>(已存在 <code>CLAUDE.md</code> 和 <code>docs/</code>)。</p>
+<ul>
+<li>[ ] <strong>Step 2: 写 <code>.gitignore</code></strong></li>
+</ul>
+<pre><code class="language-gitignore"># Dependencies
+node_modules
+.pnpm-store
+
+# Next.js
+.next
+out
+*.tsbuildinfo
+next-env.d.ts
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# Test/coverage
+coverage
+.nyc_output
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Docker volumes(本地数据)
+.docker-data
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 3: 写 <code>.nvmrc</code></strong></li>
+</ul>
+<pre><code>20
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 写 <code>.npmrc</code></strong></li>
+</ul>
+<pre><code class="language-ini"># 工作区严格依赖管理:子包不可隐式访问未声明依赖
+strict-peer-dependencies=false
+auto-install-peers=true
+shamefully-hoist=false
+# 防止 lockfile 跨平台漂移
+prefer-frozen-lockfile=true
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 5: 写 <code>README.md</code>(精简版)</strong></li>
+</ul>
+<pre><code class="language-markdown"># Ghome
+
+LGBTQ+ 数字生活总入口的 monorepo:`apps/web`(用户站)、`apps/admin`(运营管理端)、`packages/db`(数据访问)。
+
+## 设计文档
+
+- 产品形态与架构:[docs/superpowers/specs/2026-05-08-ghome-product-shape-design.md](docs/superpowers/specs/2026-05-08-ghome-product-shape-design.md)
+- 行为准则:[CLAUDE.md](CLAUDE.md)
+
+## 开发先决条件
+
+- Node.js 20(`.nvmrc`)
+- pnpm 9.x(`corepack enable &amp;&amp; corepack prepare pnpm@latest --activate`)
+- Docker(用于本地 Postgres)
+
+## 一键起项目
+
+```bash
+pnpm install
+docker compose up -d        # 起 Postgres(P1 起才会用到)
+pnpm dev                    # 并行起 web (3000) + admin (3100)
+</code></pre>
+<h2 id="当前阶段">当前阶段</h2>
+<p>P0 · 脚手架 — 两个空白 Next.js app + Postgres 容器 + CI。</p>
+<pre><code>
+- [ ] **Step 6: 提交初始结构**
+
+```bash
+git add .gitignore .nvmrc .npmrc README.md
+git commit -m "chore: initialize repo metadata (gitignore, nvmrc, npmrc, README)"
+</code></pre>
+<p>Expected: 单 commit 创建 4 个文件,无 hooks(尚未配置 husky)。</p>
+<hr/>
+<h2 id="Task-2-pnpm-workspace-TypeScript-基础配置">Task 2 — pnpm workspace + TypeScript 基础配置</h2>
+<p><strong>Files:</strong>
+- Create: <code>pnpm-workspace.yaml</code>
+- Create: <code>package.json</code>
+- Create: <code>tsconfig.base.json</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写 <code>pnpm-workspace.yaml</code></strong></li>
+</ul>
+<pre><code class="language-yaml">packages:
+  - "apps/*"
+  - "packages/*"
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 写根 <code>package.json</code></strong></li>
+</ul>
+<pre><code class="language-json">{
+  "name": "ghome",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": "&gt;=20.0.0",
+    "pnpm": "&gt;=9.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm -r --parallel --stream run dev",
+    "build": "pnpm -r run build",
+    "lint": "pnpm -r run lint",
+    "typecheck": "pnpm -r run typecheck",
+    "clean": "pnpm -r run clean &amp;&amp; rimraf node_modules"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "typescript": "^5.5.0"
+  }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 3: 写 <code>tsconfig.base.json</code></strong></li>
+</ul>
+<pre><code class="language-json">{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "jsx": "preserve",
+    "incremental": true
+  },
+  "exclude": ["node_modules", ".next", "dist", "out"]
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 验证 pnpm 可识别 workspace</strong></li>
+</ul>
+<pre><code class="language-bash">corepack enable
+corepack prepare pnpm@9.12.0 --activate
+pnpm --version
+pnpm install
+</code></pre>
+<p>Expected: pnpm 9.12.0 输出版本号;<code>pnpm install</code> 完成(此时还没有子包,会报 "no projects matched the filters" 但不影响)。可能输出 <code>Done in &lt;X&gt;s</code>。</p>
+<ul>
+<li>[ ] <strong>Step 5: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add pnpm-workspace.yaml package.json tsconfig.base.json pnpm-lock.yaml
+git commit -m "chore: set up pnpm workspace and base TypeScript config"
+</code></pre>
+<hr/>
+<h2 id="Task-3-docker-compose-Postgres-16-Adminer">Task 3 — docker-compose:Postgres 16 + Adminer</h2>
+<p><strong>Files:</strong>
+- Create: <code>docker-compose.yml</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写 <code>docker-compose.yml</code></strong></li>
+</ul>
+<pre><code class="language-yaml">services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ghome-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ghome
+      [敏感内容已脱敏]
+      POSTGRES_DB: ghome
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./.docker-data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ghome -d ghome"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  adminer:
+    image: adminer:4
+    container_name: ghome-adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 启动并验证连接</strong></li>
+</ul>
+<pre><code class="language-bash">docker compose up -d
+docker compose ps
+</code></pre>
+<p>Expected: 两条记录都是 <code>Up</code>,<code>postgres</code> 状态包含 <code>(healthy)</code>(可能首次启动需要 ~10s,可重复 <code>docker compose ps</code> 直到健康)。</p>
+<ul>
+<li>[ ] <strong>Step 3: 验证 Postgres 可访问</strong></li>
+</ul>
+<pre><code class="language-bash">docker compose exec postgres psql -U ghome -d ghome -c "SELECT version();"
+</code></pre>
+<p>Expected: 输出 <code>PostgreSQL 16.x ...</code>。</p>
+<ul>
+<li>[ ] <strong>Step 4: 验证 Adminer 起来</strong></li>
+</ul>
+<pre><code class="language-bash">curl -fsS http://localhost:8080/ | head -c 200
+</code></pre>
+<p>Expected: HTML 包含 <code>&lt;title&gt;Login - Adminer&lt;/title&gt;</code> 或类似,无 connection refused。</p>
+<ul>
+<li>[ ] <strong>Step 5: 停止容器(节省资源,P1 才会持续用)</strong></li>
+</ul>
+<pre><code class="language-bash">docker compose down
+</code></pre>
+<p>Expected: <code>Network ghome_default Removed</code>(或类似)。本地 <code>./.docker-data/postgres/</code> 目录会保留数据,已在 .gitignore 里。</p>
+<ul>
+<li>[ ] <strong>Step 6: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add docker-compose.yml
+git commit -m "chore: add docker-compose with postgres 16 and adminer"
+</code></pre>
+<hr/>
+<h2 id="Task-4-apps-web-脚手架-Next-js-15-空白页">Task 4 — apps/web 脚手架(Next.js 15 空白页)</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/web/package.json</code>
+- Create: <code>apps/web/tsconfig.json</code>
+- Create: <code>apps/web/next.config.mjs</code>
+- Create: <code>apps/web/postcss.config.mjs</code>
+- Create: <code>apps/web/.eslintrc.cjs</code>
+- Create: <code>apps/web/.env.example</code>
+- Create: <code>apps/web/app/layout.tsx</code>
+- Create: <code>apps/web/app/page.tsx</code>
+- Create: <code>apps/web/app/globals.css</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写 <code>apps/web/package.json</code></strong></li>
+</ul>
+<pre><code class="language-json">{
+  "name": "@ghome/web",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "lint": "next lint --dir app",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf .next out"
+  },
+  "dependencies": {
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^15.0.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.5.0"
+  }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 写 <code>apps/web/tsconfig.json</code></strong></li>
+</ul>
+<pre><code class="language-json">{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", ".next"]
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 3: 写 <code>apps/web/next.config.mjs</code></strong></li>
+</ul>
+<pre><code class="language-js">/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  poweredByHeader: false,
+};
+
+export default nextConfig;
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 写 <code>apps/web/postcss.config.mjs</code>(空配置占位,P2 上 Tailwind 时再填)</strong></li>
+</ul>
+<pre><code class="language-js">export default {
+  plugins: {},
+};
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 5: 写 <code>apps/web/.eslintrc.cjs</code></strong></li>
+</ul>
+<pre><code class="language-js">module.exports = {
+  root: true,
+  extends: ["next/core-web-vitals"],
+};
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 6: 写 <code>apps/web/.env.example</code></strong></li>
+</ul>
+<pre><code class="language-bash"># 仅占位,P0 不连接 DB。P1 起会用到。
+DATABASE_URL=postgres://ghome:ghome@localhost:5432/ghome
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 7: 写 <code>apps/web/app/layout.tsx</code></strong></li>
+</ul>
+<pre><code class="language-tsx">import type { Metadata } from "next";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "Ghome",
+  description: "LGBTQ+ 数字生活总入口",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    &lt;html lang="zh-CN"&gt;
+      &lt;body&gt;{children}&lt;/body&gt;
+    &lt;/html&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 8: 写 <code>apps/web/app/page.tsx</code></strong></li>
+</ul>
+<pre><code class="language-tsx">export default function HomePage() {
+  return (
+    &lt;main style={{ padding: "48px 24px", fontFamily: "system-ui, sans-serif" }}&gt;
+      &lt;h1&gt;Ghome · web&lt;/h1&gt;
+      &lt;p&gt;P0 · 脚手架占位。当前阶段:apps/web 已起。&lt;/p&gt;
+    &lt;/main&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 9: 写 <code>apps/web/app/globals.css</code></strong></li>
+</ul>
+<pre><code class="language-css">* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { color: #111827; background: #F5F7FA; }
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 10: 安装依赖(在仓库根)</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm install
+</code></pre>
+<p>Expected: pnpm 拉下 next/react/eslint 等;输出 <code>+ next 15.x.x</code> 等。</p>
+<ul>
+<li>[ ] <strong>Step 11: 启动 web 验证可访问</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/web dev &amp;
+sleep 8
+curl -fsS http://localhost:3000/ | grep -o "P0 · 脚手架占位"
+</code></pre>
+<p>Expected: <code>P0 · 脚手架占位</code>。然后:</p>
+<pre><code class="language-bash">kill %1 2&gt;/dev/null || true
+</code></pre>
+<p>(把后台 dev server 停掉。如果 <code>curl</code> 这一步在 macOS 上 grep 找不到中文,改用 <code>grep -o "Ghome · web"</code> 也行。)</p>
+<ul>
+<li>[ ] <strong>Step 12: 验证 typecheck 与 build</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/web typecheck
+pnpm --filter @ghome/web build
+</code></pre>
+<p>Expected: 两步都成功;build 输出包含 <code>○ /</code> static route。</p>
+<ul>
+<li>[ ] <strong>Step 13: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/web pnpm-lock.yaml
+git commit -m "feat(web): scaffold blank Next.js 15 app on port 3000"
+</code></pre>
+<hr/>
+<h2 id="Task-5-apps-admin-脚手架-端口-3100">Task 5 — apps/admin 脚手架(端口 3100)</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/admin/package.json</code>
+- Create: <code>apps/admin/tsconfig.json</code>
+- Create: <code>apps/admin/next.config.mjs</code>
+- Create: <code>apps/admin/postcss.config.mjs</code>
+- Create: <code>apps/admin/.eslintrc.cjs</code>
+- Create: <code>apps/admin/.env.example</code>
+- Create: <code>apps/admin/app/layout.tsx</code>
+- Create: <code>apps/admin/app/page.tsx</code>
+- Create: <code>apps/admin/app/globals.css</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写 <code>apps/admin/package.json</code>(端口 3100)</strong></li>
+</ul>
+<pre><code class="language-json">{
+  "name": "@ghome/admin",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3100",
+    "build": "next build",
+    "start": "next start --port 3100",
+    "lint": "next lint --dir app",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf .next out"
+  },
+  "dependencies": {
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^15.0.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.5.0"
+  }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 写 <code>apps/admin/tsconfig.json</code>(同 web)</strong></li>
+</ul>
+<pre><code class="language-json">{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", ".next"]
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 3: 写 <code>apps/admin/next.config.mjs</code></strong></li>
+</ul>
+<pre><code class="language-js">/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  poweredByHeader: false,
+};
+
+export default nextConfig;
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 写 <code>apps/admin/postcss.config.mjs</code></strong></li>
+</ul>
+<pre><code class="language-js">export default {
+  plugins: {},
+};
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 5: 写 <code>apps/admin/.eslintrc.cjs</code></strong></li>
+</ul>
+<pre><code class="language-js">module.exports = {
+  root: true,
+  extends: ["next/core-web-vitals"],
+};
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 6: 写 <code>apps/admin/.env.example</code></strong></li>
+</ul>
+<pre><code class="language-bash">DATABASE_URL=postgres://ghome:ghome@localhost:5432/ghome
+# P4 起会加:GitHub OAuth、AUTH_SECRET、ADMIN_ALLOWED_GITHUB_LOGINS、REVALIDATE_SECRET
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 7: 写 <code>apps/admin/app/layout.tsx</code></strong></li>
+</ul>
+<pre><code class="language-tsx">import type { Metadata } from "next";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "Ghome Admin",
+  description: "Ghome 运营管理端",
+  robots: { index: false, follow: false },
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    &lt;html lang="zh-CN"&gt;
+      &lt;body&gt;{children}&lt;/body&gt;
+    &lt;/html&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 8: 写 <code>apps/admin/app/page.tsx</code></strong></li>
+</ul>
+<pre><code class="language-tsx">export default function AdminHomePage() {
+  return (
+    &lt;main style={{ padding: "48px 24px", fontFamily: "system-ui, sans-serif" }}&gt;
+      &lt;h1&gt;Ghome · admin&lt;/h1&gt;
+      &lt;p&gt;P0 · 脚手架占位。当前阶段:apps/admin 已起(端口 3100)。&lt;/p&gt;
+    &lt;/main&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 9: 写 <code>apps/admin/app/globals.css</code></strong></li>
+</ul>
+<pre><code class="language-css">* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { color: #111827; background: #FFFFFF; }
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 10: 安装依赖</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm install
+</code></pre>
+<p>Expected: pnpm 复用 cache,admin 的依赖几乎瞬时完成。</p>
+<ul>
+<li>[ ] <strong>Step 11: 启动 admin 验证可访问(3100)</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/admin dev &amp;
+sleep 8
+curl -fsS http://localhost:3100/ | grep -o "Ghome · admin"
+kill %1 2&gt;/dev/null || true
+</code></pre>
+<p>Expected: 输出 <code>Ghome · admin</code>。</p>
+<ul>
+<li>[ ] <strong>Step 12: 验证 typecheck 与 build</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/admin typecheck
+pnpm --filter @ghome/admin build
+</code></pre>
+<p>Expected: 都通过。</p>
+<ul>
+<li>[ ] <strong>Step 13: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin pnpm-lock.yaml
+git commit -m "feat(admin): scaffold blank Next.js 15 app on port 3100"
+</code></pre>
+<hr/>
+<h2 id="Task-6-packages-db-占位包-P0-不连-DB-只准备-PrismaClient-单例">Task 6 — packages/db 占位包(P0 不连 DB,只准备 PrismaClient 单例)</h2>
+<p><strong>Files:</strong>
+- Create: <code>packages/db/package.json</code>
+- Create: <code>packages/db/tsconfig.json</code>
+- Create: <code>packages/db/src/index.ts</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写 <code>packages/db/package.json</code></strong></li>
+</ul>
+<pre><code class="language-json">{
+  "name": "@ghome/db",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "prisma": "^5.22.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.5.0"
+  }
+}
+</code></pre>
+<blockquote>
+<p>说明:P0 把 <code>@prisma/client</code> 与 <code>prisma</code> CLI 都装上,但<strong>不</strong>写 <code>schema.prisma</code>、不跑 generate、不连 DB。
+仅用于让 <code>import { prisma } from '@ghome/db'</code> 在编译期可解析(P1 才真正落地 schema 与 client)。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 2: 写 <code>packages/db/tsconfig.json</code></strong></li>
+</ul>
+<pre><code class="language-json">{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "declaration": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 3: 写 <code>packages/db/src/index.ts</code>(P0 占位 — 不实例化 PrismaClient,因为没 schema)</strong></li>
+</ul>
+<pre><code class="language-ts">// P0 占位:Prisma schema 在 P1 才落地,目前只导出类型形状以让编译通过。
+// P1 会替换为真正的 PrismaClient 单例 + queries 模块。
+
+export const PRISMA_PLACEHOLDER = "P1 will replace this with a real PrismaClient singleton";
+
+export function notReady(name: string): never {
+  throw new Error(`@ghome/db.${name} is not yet implemented (P0 placeholder)`);
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 安装依赖</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm install
+</code></pre>
+<p>Expected: 拉下 <code>prisma</code> 与 <code>@prisma/client</code>(包较大,可能花几十秒)。完成后 <code>pnpm-lock.yaml</code> 更新。</p>
+<ul>
+<li>[ ] <strong>Step 5: 验证 typecheck</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/db typecheck
+</code></pre>
+<p>Expected: 通过(虽然没有任何运行时逻辑,但类型可解析)。</p>
+<ul>
+<li>[ ] <strong>Step 6: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add packages/db pnpm-lock.yaml
+git commit -m "feat(db): scaffold @ghome/db placeholder package (Prisma deps only)"
+</code></pre>
+<hr/>
+<h2 id="Task-7-根级跨包脚本验证">Task 7 — 根级跨包脚本验证</h2>
+<p>无新文件。验证 Task 2 写的根 <code>package.json</code> 脚本对所有子包都生效。</p>
+<ul>
+<li>[ ] <strong>Step 1: 验证 <code>pnpm typecheck</code> 走全部子包</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm typecheck
+</code></pre>
+<p>Expected: 输出三段(<code>@ghome/web</code>、<code>@ghome/admin</code>、<code>@ghome/db</code>)的 typecheck,全通过。</p>
+<ul>
+<li>[ ] <strong>Step 2: 验证 <code>pnpm lint</code> 走 web/admin</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm lint
+</code></pre>
+<p>Expected: web 与 admin 输出 "No ESLint warnings or errors";<code>@ghome/db</code> 因为没声明 <code>lint</code> 脚本会被 pnpm 跳过(<code>pnpm</code> 默认 <code>--if-present</code> 行为对 <code>-r</code> 不严格;若报错可在 db 的 lint 脚本里写 <code>echo skip</code>)。</p>
+<ul>
+<li>[ ] <strong>Step 3: 验证 <code>pnpm build</code> 走全部子包</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm build
+</code></pre>
+<p>Expected: web 与 admin 都 build 成功(<code>@ghome/db</code> 没声明 <code>build</code> 脚本也跳过)。</p>
+<ul>
+<li>[ ] <strong>Step 4: 验证 <code>pnpm dev</code> 并行起两个 app</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm dev &amp;
+DEV_PID=$!
+sleep 12
+curl -fsS http://localhost:3000/ | grep -o "Ghome · web"
+curl -fsS http://localhost:3100/ | grep -o "Ghome · admin"
+kill $DEV_PID 2&gt;/dev/null || true
+</code></pre>
+<p>Expected: 两条 grep 都命中。</p>
+<ul>
+<li>[ ] <strong>Step 5: 没有新文件需要 commit,直接进 Task 8</strong></li>
+</ul>
+<p>(本任务只做行为验证,Task 7 没有 commit。)</p>
+<hr/>
+<h2 id="Task-8-GitHub-Actions-CI-极简版-P0-不需要-Postgres-service">Task 8 — GitHub Actions CI(极简版,P0 不需要 Postgres service)</h2>
+<p><strong>Files:</strong>
+- Create: <code>.github/workflows/ci.yml</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写 <code>.github/workflows/ci.yml</code></strong></li>
+</ul>
+<pre><code class="language-yaml">name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path --silent)" &gt;&gt; $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
+</code></pre>
+<blockquote>
+<p><strong>注意</strong>:P0 的 CI <strong>不</strong>包含 <code>postgres:16</code> service、<strong>不</strong>跑 <code>prisma migrate / db seed</code>。
+因为页面是空白的,<code>pnpm build</code> 不会查 DB。详见 spec §4.1 的 "CI 含义(分阶段)" 部分。
+P1 任务里会把这个 ci.yml <strong>整体重写</strong>加上 Postgres service。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 2: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add .github/workflows/ci.yml
+git commit -m "ci: add minimal lint/typecheck/build workflow (no DB at P0)"
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 3: 本地用 <code>act</code> 或人工远端验证(可选)</strong></li>
+</ul>
+<pre><code class="language-bash"># 选项 A:推到远端 PR(若已建仓库)
+# 选项 B:用 nektos/act 本地跑(若已装):
+#   act pull_request -W .github/workflows/ci.yml --container-architecture linux/amd64
+</code></pre>
+<blockquote>
+<p><strong>如果 P0 还没有远端仓库</strong>:跳过该步,本地终端按 Step 4 手动复刻一遍 CI 步骤即可。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 4: 本地手动复刻 CI 步骤(无 act 时的兜底)</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm install --frozen-lockfile
+pnpm lint
+pnpm typecheck
+pnpm build
+</code></pre>
+<p>Expected: 4 步全过。这等价于 CI 在 ubuntu 跑通。</p>
+<hr/>
+<h2 id="Task-9-完整冒烟与最终提交">Task 9 — 完整冒烟与最终提交</h2>
+<p>无新文件。本任务把 P0 的所有完成判据跑一遍。</p>
+<ul>
+<li>[ ] <strong>Step 1: 干净环境冒烟</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm clean 2&gt;/dev/null || true
+rm -rf node_modules apps/*/node_modules packages/*/node_modules
+pnpm install
+</code></pre>
+<p>Expected: 完全重新安装成功。</p>
+<ul>
+<li>[ ] <strong>Step 2: 起 Postgres 验证</strong></li>
+</ul>
+<pre><code class="language-bash">docker compose up -d
+docker compose ps | grep -q "(healthy)"
+echo "postgres healthy: $?"
+</code></pre>
+<p>Expected: <code>postgres healthy: 0</code>(0 = grep 匹配成功)。</p>
+<ul>
+<li>[ ] <strong>Step 3: 起两个 app 验证</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm dev &amp;
+DEV_PID=$!
+sleep 12
+curl -fsS http://localhost:3000/ | grep -q "Ghome · web" &amp;&amp; echo "web OK"
+curl -fsS http://localhost:3100/ | grep -q "Ghome · admin" &amp;&amp; echo "admin OK"
+kill $DEV_PID 2&gt;/dev/null || true
+wait 2&gt;/dev/null
+</code></pre>
+<p>Expected: 输出 <code>web OK</code> 与 <code>admin OK</code>。</p>
+<ul>
+<li>[ ] <strong>Step 4: build 全套</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm typecheck
+pnpm lint
+pnpm build
+</code></pre>
+<p>Expected: 三步全过。</p>
+<ul>
+<li>[ ] <strong>Step 5: 关闭 Postgres</strong></li>
+</ul>
+<pre><code class="language-bash">docker compose down
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 6: 检查 git 状态干净</strong></li>
+</ul>
+<pre><code class="language-bash">git status --short
+</code></pre>
+<p>Expected: 空输出(或只有 <code>pnpm-lock.yaml</code> 改动 — 若有则一并提交):</p>
+<pre><code class="language-bash">git add pnpm-lock.yaml 2&gt;/dev/null
+git diff --cached --quiet || git commit -m "chore: refresh pnpm-lock after smoke test"
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 7: 标签 P0 完成</strong></li>
+</ul>
+<pre><code class="language-bash">git tag -a p0-scaffolding -m "P0 · scaffolding complete: web(3000) + admin(3100) + postgres docker + CI"
+git log --oneline -10
+</code></pre>
+<p>Expected: 看到 9 个左右的 commit + 1 个 tag。</p>
+<hr/>
+<h2 id="P0-完成判据-对应-spec-5">P0 完成判据(对应 spec §5)</h2>
+<ul>
+<li>✅ <code>pnpm dev</code> 起两个空白页(web 3000、admin 3100)— Task 5/9 已验证</li>
+<li>✅ <code>docker compose up -d</code> 起来 Postgres,<code>pg_isready</code> 通过 — Task 3/9 已验证</li>
+<li>✅ CI 在 PR 上绿勾(三步 lint/typecheck/build 全过)— Task 8 + Task 9 本地复刻通过</li>
+<li>✅ 仓库结构对齐 spec §1.1 monorepo 布局 — Task 1–7 已落地</li>
+</ul>
+<hr/>
+<h2 id="已知-P0-故意不做的事-P1-起补">已知 P0 故意不做的事(P1 起补)</h2>
+<ul>
+<li><strong>不写 <code>schema.prisma</code>、不跑 <code>prisma migrate</code>、不写 seed</strong>(P1)</li>
+<li><strong>CI 不连 Postgres</strong>、不跑 migrate / db seed(P1 升级 ci.yml)</li>
+<li><strong>不上 Tailwind</strong>(P2 视觉重渲时再上)</li>
+<li><strong>不上 husky / lint-staged</strong>(可选,后期视团队需要)</li>
+<li><strong>不发布远端 git 仓库</strong>(由人决定何时建 GitHub repo;CI 推上去自然跑)</li>
+<li><strong>app 里没有任何 DB 查询</strong>(<code>@ghome/db</code> 是占位)</li>
+</ul>
+<hr/>
+<h2 id="Self-Review">Self-Review</h2>
+<ul>
+<li><strong>Spec 覆盖</strong>:P0 范围 = "脚手架 + Postgres 容器 + 极简 CI" — 9 个 task 覆盖了 spec §5 P0 完成物的全部条目。</li>
+<li><strong>占位符扫描</strong>:每一步都给出了具体内容(代码块 / 命令 / 期望输出);没有 "TBD" / "TODO" / "fill in" / "类似 Task X"。</li>
+<li><strong>类型一致性</strong>:<code>@ghome/web</code> <code>@ghome/admin</code> <code>@ghome/db</code> 命名贯穿全文;端口 3000/3100 一致;<code>pnpm@9.12.0</code> 在根 package.json 与 CI 一致;Node 20 在 .nvmrc 与 CI <code>node-version-file</code> 一致;Next.js 15 / React 19 在两个 app 的 package.json 一致。</li>
+<li><strong>测试覆盖</strong>:P0 是纯脚手架,不写单元测试;改用"行为冒烟"(curl + grep + build/typecheck/lint),已在 Task 4/5/7/9 显式验证。</li>
+</ul>
+<hr/>
+<h2 id="下一步">下一步</h2>
+<p>P0 完成后,<strong>写 P1 plan</strong>(数据模型 + 迁移 + seed + CI 升级带 Postgres service)。P1 plan 会引用本 plan 的 <code>@ghome/db</code> 包占位,在那基础上落 14 张表 schema。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#File-Structure-P0-落地的全部文件">File Structure(P0 落地的全部文件)</a></li><li style="margin-left:0.0rem"><a href="#Task-1-Git-仓库初始化与根级元文件">Task 1 — Git 仓库初始化与根级元文件</a></li><li style="margin-left:0.0rem"><a href="#当前阶段">当前阶段</a></li><li style="margin-left:0.0rem"><a href="#Task-2-pnpm-workspace-TypeScript-基础配置">Task 2 — pnpm workspace + TypeScript 基础配置</a></li><li style="margin-left:0.0rem"><a href="#Task-3-docker-compose-Postgres-16-Adminer">Task 3 — docker-compose:Postgres 16 + Adminer</a></li><li style="margin-left:0.0rem"><a href="#Task-4-apps-web-脚手架-Next-js-15-空白页">Task 4 — apps/web 脚手架(Next.js 15 空白页)</a></li><li style="margin-left:0.0rem"><a href="#Task-5-apps-admin-脚手架-端口-3100">Task 5 — apps/admin 脚手架(端口 3100)</a></li><li style="margin-left:0.0rem"><a href="#Task-6-packages-db-占位包-P0-不连-DB-只准备-PrismaClient-单例">Task 6 — packages/db 占位包(P0 不连 DB,只准备 PrismaClient 单例)</a></li><li style="margin-left:0.0rem"><a href="#Task-7-根级跨包脚本验证">Task 7 — 根级跨包脚本验证</a></li><li style="margin-left:0.0rem"><a href="#Task-8-GitHub-Actions-CI-极简版-P0-不需要-Postgres-service">Task 8 — GitHub Actions CI(极简版,P0 不需要 Postgres service)</a></li><li style="margin-left:0.0rem"><a href="#Task-9-完整冒烟与最终提交">Task 9 — 完整冒烟与最终提交</a></li><li style="margin-left:0.0rem"><a href="#P0-完成判据-对应-spec-5">P0 完成判据(对应 spec §5)</a></li><li style="margin-left:0.0rem"><a href="#已知-P0-故意不做的事-P1-起补">已知 P0 故意不做的事(P1 起补)</a></li><li style="margin-left:0.0rem"><a href="#Self-Review">Self-Review</a></li><li style="margin-left:0.0rem"><a href="#下一步">下一步</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / GHOME</li>
+          <li>日期：2026-05-09</li>
+          <li>标签：<span class="tag">GHOME</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p0-scaffolding.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605090000-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BShell-Ghome%20P0%20%C2%B7%20%E8%84%9A%E6%89%8B%E6%9E%B6%20Implementation%20Plan.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Ghome P0 · 脚手架 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or s…</p>
+      <p>关键词：GHOME、Shell、Docker、源码与配置、业务系统运维、业务系统运维 / GHOME、Ghome P0 · 脚手架 Implementation Plan</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c1be2ef9333f.html"><small>上一篇</small>Ghome 产品形态与架构设计</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7ee18dad49c1.html"><small>下一篇</small>Ghome P1 · 数据模型 + Seed Implementation Plan</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6c1f9d5b279f.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

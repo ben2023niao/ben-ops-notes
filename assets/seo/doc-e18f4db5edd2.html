@@ -1,0 +1,957 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Ghome P3 · 跳转中转 + 点击打点 Implementation Plan｜业务系统运维 / GHOME｜BEN.OPS</title>
+  <meta name="description" content="Ghome P3 · 跳转中转 + 点击打点 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommend…">
+  <meta name="keywords" content="GHOME，Linux，Shell，Docker，CDN，DNS，源码与配置，业务系统运维，业务系统运维 / GHOME，Ghome P3 · 跳转中转 + 点击打点 Implementation Plan">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e18f4db5edd2.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e18f4db5edd2.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605090000-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BLinux-Ghome%20P3%20%C2%B7%20%E8%B7%B3%E8%BD%AC%E4%B8%AD%E8%BD%AC%20%2B%20%E7%82%B9%E5%87%BB%E6%89%93%E7%82%B9%20Implementation%20Plan.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Ghome P3 · 跳转中转 + 点击打点 Implementation Plan">
+  <meta property="og:description" content="Ghome P3 · 跳转中转 + 点击打点 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommend…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e18f4db5edd2.html">
+  <meta property="article:published_time" content="2026-05-09T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-09 00:00">
+  <meta property="article:section" content="业务系统运维 / GHOME">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Ghome P3 · 跳转中转 + 点击打点 Implementation Plan">
+  <meta name="twitter:description" content="Ghome P3 · 跳转中转 + 点击打点 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommend…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e18f4db5edd2.html#article","headline":"Ghome P3 · 跳转中转 + 点击打点 Implementation Plan","description":"Ghome P3 · 跳转中转 + 点击打点 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommend…","datePublished":"2026-05-09T00:00:00+08:00","dateModified":"2026-05-09 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","GHOME"],"keywords":["GHOME","Linux","Shell","Docker","CDN","DNS","源码与配置","业务系统运维","业务系统运维 / GHOME","Ghome P3 · 跳转中转 + 点击打点 Implementation Plan"],"wordCount":5376,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e18f4db5edd2.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e18f4db5edd2.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / GHOME","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Ghome P3 · 跳转中转 + 点击打点 Implementation Plan","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e18f4db5edd2.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / GHOME</span> › <span>Ghome P3 · 跳转中转 + 点击打点 Implementation Plan</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / GHOME</div>
+      <h1>Ghome P3 · 跳转中转 + 点击打点 Implementation Plan</h1>
+      <p class="lede">Ghome P3 · 跳转中转 + 点击打点 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommend…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-09T00:00:00+08:00">发布于 2026-05-09</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">5,376 字</span>
+        <span class="badge">16 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p3-redirect-tracking.md</code></p>
+<p>整理日期：2026-05-09 00:00｜日期依据：文件名日期</p>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use <code>superpowers:subagent-driven-development</code> (recommended) or <code>superpowers:executing-plans</code> to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 落地 <code>/r/:id</code> 跳转中转 route handler(<code>runtime='nodejs'</code>,<strong>同步</strong>写 <code>click_events</code> 后再 302),把 P2 详情页里 <code>&lt;a href={redirect.targetUrl}&gt;</code> 的直跳改为 <code>&lt;a href={</code>/r/${redirect.id}<code>}&gt;</code>,引入 <code>ua-parser-js</code> 解析 UA,实现 <code>ip_hash = sha256(ip + HMAC(IP_HASH_SECRET, YYYY-MM-DD UTC))</code> 按日轮换的假名化。<code>/r/:id</code> 路由必须<strong>仅</strong>做静态字面值兜底校验(不查 DNS)。<code>pnpm db:enable-redirect</code> CLI 在 P1 已落,P3 用它端到端验证。</p>
+<p><strong>Architecture:</strong>
+- <strong>路由位置</strong>:<code>apps/web/app/r/[id]/route.ts</code>(注意:<strong>不是</strong> <code>app/api/r/[id]</code>,见 spec §4.2)
+- <strong>Runtime</strong>:文件顶部 <code>export const runtime = 'nodejs'</code> + <code>export const dynamic = 'force-dynamic'</code>
+- <strong>数据流</strong>:<code>GET /r/:id</code> → <code>prisma.redirect.findUnique</code> → <code>validateForRedirect</code>(同步,bouncer)→ <strong>同步</strong> <code>prisma.clickEvent.create</code> → <code>302</code> 到 <code>redirect.targetUrl</code>。任何中间失败都 302 到 <code>/404</code>,失败也不写 click_event
+- <strong>隐私</strong>:click_events 字段全部最小化(spec §3.2):<code>ua_family/ua_os</code> 解析后丢原文,<code>referrer_origin</code> 只存 origin,<code>ip_hash</code> 用 HMAC daily salt,所有 NOT NULL 字段失败回落 <code>'unknown'</code>
+- <strong>未实施 IP_HASH_SECRET 时</strong>:模块加载阶段直接 throw(fail-fast)— 这是部署必填项,dev 与 CI 都必须设置</p>
+<p><strong>Tech Stack:</strong>
+- Next.js 15 App Router(已 P0)
+- Prisma <code>@ghome/db</code>(已 P1,需补 url-policy 导出)
+- <strong>新增</strong>:<code>ua-parser-js ^1.0.39</code>(v1 同步 API,够用;v2 是 promise 化的,不必)
+- 加密原语:Node 内置 <code>crypto</code>(<code>createHmac</code> / <code>createHash</code>)— 不引第三方
+- Vitest(已 P1)</p>
+<p><strong>Spec 引用:</strong> <a href="https://ben2023niao.github.io/ben-ops-notes/doc/specs/2026-05-08-ghome-product-shape-design.md" rel="noopener noreferrer"><code>docs/superpowers/specs/2026-05-08-ghome-product-shape-design.md</code></a> §3.2(redirects/click_events 字段)、§4.2(/r/:id 流程)、§5 P3。</p>
+<p><strong>前置假设:</strong> P2 已完成,<code>p2-frontend-readonly</code> 标签存在;DB 里有 9 apps + 20 videos 配套 redirects,<strong>全部 disabled=true</strong>(seed 默认);App / Video 详情页 CTA 当前直跳 <code>redirect.targetUrl</code>(P2 实现)。</p>
+<hr/>
+<h2 id="File-Structure-P3-末态">File Structure(P3 末态)</h2>
+<pre><code>apps/web/
+├─ app/
+│  └─ r/
+│      └─ [id]/
+│          └─ route.ts                   # ★ 跳转中转 handler(T3)
+├─ lib/
+│  ├─ click-tracking.ts                  # ipHash / parseUa / refererOrigin / getIp / getCountry(T2)
+│  ├─ db.ts                              # 已存在(T2 不动)
+│  ├─ icons.tsx
+│  ├─ gradients.ts
+│  └─ format.ts
+├─ tests/                                # 新建目录(本期 vitest 进 apps/web)
+│  └─ click-tracking.test.ts             # ipHash 决定性 / 日切换 / parseUa / refererOrigin(T2 TDD)
+├─ vitest.config.ts                      # 新建(T1)
+├─ .env                                  # 加 IP_HASH_SECRET(T1)
+├─ .env.example                          # 新建(T1)
+├─ package.json                          # 加 ua-parser-js + vitest(T1)
+└─ tsconfig.json                         # 已 OK
+
+packages/db/
+└─ src/
+   └─ index.ts                           # T1 加 url-policy 导出
+
+apps/web/app/app/[slug]/page.tsx         # T4:CTA 切到 /r/:id
+apps/web/app/video/[slug]/page.tsx       # T4:CTA 切到 /r/:id
+
+.github/workflows/ci.yml                 # T1 加 IP_HASH_SECRET 到 job env
+</code></pre>
+<hr/>
+<h2 id="Conventions-整个-P3-共享">Conventions(整个 P3 共享)</h2>
+<ul>
+<li>所有 sync helper 都不能 throw(除模块顶层 IP_HASH_SECRET 缺失断言);失败回落 <code>'unknown'</code></li>
+<li>click_events INSERT 在 redirect 302 之前完成(同步)。超时阈值预留 30ms — 单条 INSERT 在本地 Postgres 一般 &lt; 5ms,极端情况(慢盘)50ms,P3 不引异步队列(spec §4.2)</li>
+<li>HTTP redirect 用 302(临时),不是 301(永久)— 让运营改 target 后立即生效,无 CDN 缓存包袱</li>
+<li><code>IP_HASH_SECRET</code> 至少 32 字节,<strong>绝不入库</strong>;dev 用一个固定字符串,prod 是真随机 secret</li>
+<li>提交风格:Conventional Commits;每 task 末尾 commit</li>
+<li>不引 i18n、不动 admin、不接搜索</li>
+</ul>
+<hr/>
+<h2 id="Task-1-Setup-ua-parser-js-依赖-IP_HASH_SECRET-env-ghome-db-导出-url-policy-CI">Task 1 — Setup:<code>ua-parser-js</code> 依赖、<code>IP_HASH_SECRET</code> env、<code>@ghome/db</code> 导出 url-policy、CI</h2>
+<p><strong>Files:</strong>
+- Modify: <code>apps/web/package.json</code>(加 ua-parser-js + vitest + @types/ua-parser-js;若 vitest 已在 root devDeps,只加到 apps/web)
+- Create: <code>apps/web/.env.example</code>(documenting required env)
+- Modify: <code>apps/web/.env</code>(加 IP_HASH_SECRET)
+- Create: <code>apps/web/vitest.config.ts</code>
+- Modify: <code>packages/db/src/index.ts</code>(re-export url-policy)
+- Modify: <code>.github/workflows/ci.yml</code>(加 IP_HASH_SECRET 到 ci job env)</p>
+<ul>
+<li>[ ] <strong>Step 1: 修改 <code>apps/web/package.json</code></strong></li>
+</ul>
+<p>在 <code>dependencies</code> 加 <code>ua-parser-js</code>;在 <code>devDependencies</code> 加 <code>@types/ua-parser-js</code> 和 <code>vitest</code>(若不存在):</p>
+<pre><code class="language-json">"dependencies": {
+  "@ghome/db": "workspace:*",
+  "@prisma/client": "^5.22.0",
+  "next": "^15.0.0",
+  "react": "^19.0.0",
+  "react-dom": "^19.0.0",
+  "react-markdown": "^9.0.0",
+  "remark-gfm": "^4.0.0",
+  "ua-parser-js": "^1.0.39"
+},
+"devDependencies": {
+  "@types/node": "^20.14.0",
+  "@types/react": "^19.0.0",
+  "@types/react-dom": "^19.0.0",
+  "@types/ua-parser-js": "^0.7.39",
+  "eslint": "^9.0.0",
+  "eslint-config-next": "^15.0.0",
+  "rimraf": "^6.0.1",
+  "typescript": "^5.5.0",
+  "vitest": "^2.1.0"
+}
+</code></pre>
+<p>并把 <code>scripts</code> 里 <code>test</code> 与 <code>test:watch</code> 加上(若没有):</p>
+<pre><code class="language-json">"scripts": {
+  "dev": "next dev --port 3000",
+  "build": "next build",
+  "start": "next start --port 3000",
+  "lint": "next lint --dir app",
+  "typecheck": "tsc --noEmit",
+  "clean": "rimraf .next out",
+  "test": "vitest run",
+  "test:watch": "vitest"
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 创建 <code>apps/web/vitest.config.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { defineConfig } from "vitest/config";
+import path from "node:path";
+
+export default defineConfig({
+  test: {
+    environment: "node",
+    include: ["tests/**/*.test.ts"],
+    globals: false,
+    testTimeout: 10000,
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "."),
+    },
+  },
+});
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 3: 创建 <code>apps/web/.env.example</code>(documentation,可入库)</strong></li>
+</ul>
+<pre><code class="language-bash"># Postgres 连接(本地 docker-compose)
+DATABASE_URL=postgres://ghome:ghome@localhost:5432/ghome
+
+# 必填:用于 click_events.ip_hash 的 HMAC 密钥。每天按 UTC 日期作为 message,
+# 计算 daily salt,然后 sha256(ip + salt) 得到 ip_hash。
+# - dev:可以用任意 ≥ 32 字节字符串
+# - prod:用 `openssl rand -hex 32` 生成,**绝不入库**
+# 缺失时模块加载阶段会 throw(fail-fast)
+[敏感内容已脱敏]
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 修改 <code>apps/web/.env</code>(本地 dev 用,</strong>不入库<strong>)</strong></li>
+</ul>
+<pre><code class="language-bash">DATABASE_URL=postgres://ghome:ghome@localhost:5432/ghome
+[敏感内容已脱敏]
+</code></pre>
+<blockquote>
+<p>注:<code>apps/web/.env</code> 已经在 P2 T1 创建,这里只是追加 <code>IP_HASH_SECRET</code>。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 5: 修改 <code>packages/db/src/index.ts</code></strong> — re-export url-policy:</li>
+</ul>
+<p>在文件末尾追加:</p>
+<pre><code class="language-ts">export { validateForRedirect, validateForWrite } from "./lib/url-policy";
+export type { ValidationResult } from "./lib/url-policy";
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 6: 修改 <code>.github/workflows/ci.yml</code></strong> — 在 <code>jobs.ci.env</code> 区域加上 <code>IP_HASH_SECRET</code></li>
+</ul>
+<pre><code class="language-yaml">    env:
+      DATABASE_URL: postgres://ghome:ghome@localhost:5432/ghome
+      [敏感内容已脱敏]
+</code></pre>
+<blockquote>
+<p>注:CI 用一个稳定但仅限 CI 的 secret。<strong>绝不</strong>与 prod 共用。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 7: 安装依赖 + typecheck</strong></li>
+</ul>
+<pre><code class="language-bash">cd /Users/jeff/Work/workspace/uk/ghome
+pnpm install
+pnpm --filter @ghome/web typecheck
+pnpm --filter @ghome/db typecheck
+</code></pre>
+<p>Expected: 拉下 <code>ua-parser-js</code> + <code>@types/ua-parser-js</code> + <code>vitest</code>(若 root 已有则复用)。typecheck 通过(@ghome/db 的 url-policy 现在 export 了)。</p>
+<ul>
+<li>[ ] <strong>Step 8: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/web/package.json apps/web/.env.example apps/web/vitest.config.ts \
+        packages/db/src/index.ts .github/workflows/ci.yml pnpm-lock.yaml
+git commit -m "feat(web): add ua-parser-js, IP_HASH_SECRET env, url-policy export, vitest config"
+</code></pre>
+<blockquote>
+<p><code>apps/web/.env</code> <strong>不</strong>入库(已 gitignored)。</p>
+</blockquote>
+<hr/>
+<h2 id="Task-2-lib-click-tracking-ts-工具集-TDD-先测后实现">Task 2 — <code>lib/click-tracking.ts</code> 工具集(TDD:先测后实现)</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/web/tests/click-tracking.test.ts</code>
+- Create: <code>apps/web/lib/click-tracking.ts</code></p>
+<blockquote>
+<p><strong>TDD discipline</strong>:Step 1 写完整测试,Step 2 跑测试确认全 fail,Step 3 实现,Step 4 跑测试期待全 pass。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试 <code>apps/web/tests/click-tracking.test.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { describe, it, expect, beforeAll } from "vitest";
+import {
+  ipHash,
+  parseUa,
+  refererOrigin,
+  getIp,
+  getCountry,
+  dailySaltUtc,
+} from "../lib/click-tracking";
+
+const 敏感凭据：[已脱敏]
+
+describe("dailySaltUtc", () =&gt; {
+  it("returns YYYY-MM-DD format from UTC", () =&gt; {
+    expect(dailySaltUtc(new Date("2026-05-09T00:00:00Z"))).toBe("2026-05-09");
+    expect(dailySaltUtc(new Date("2026-05-09T23:59:59Z"))).toBe("2026-05-09");
+    // UTC 跨日(2026-05-10 00:30 UTC)
+    expect(dailySaltUtc(new Date("2026-05-10T00:30:00Z"))).toBe("2026-05-10");
+    // 本地北京时间 2026-05-10 08:00 = UTC 2026-05-10 00:00
+    expect(dailySaltUtc(new Date("2026-05-10T00:00:00Z"))).toBe("2026-05-10");
+  });
+});
+
+describe("ipHash", () =&gt; {
+  it("is deterministic for same (ip, secret, date)", () =&gt; {
+    const date = new Date("2026-05-09T12:00:00Z");
+    const a = ipHash("203.0.113.1", SECRET, date);
+    const b = ipHash("203.0.113.1", SECRET, date);
+    expect(a).toBe(b);
+    expect(a).toMatch(/^[a-f0-9]{64}$/); // sha256 hex
+  });
+
+  it("is different for different IPs", () =&gt; {
+    const date = new Date("2026-05-09T12:00:00Z");
+    const a = ipHash("203.0.113.1", SECRET, date);
+    const b = ipHash("203.0.113.2", SECRET, date);
+    expect(a).not.toBe(b);
+  });
+
+  it("rotates daily — same IP across UTC days yields different hashes", () =&gt; {
+    const day1 = new Date("2026-05-09T12:00:00Z");
+    const day2 = new Date("2026-05-10T12:00:00Z");
+    const a = ipHash("203.0.113.1", SECRET, day1);
+    const b = ipHash("203.0.113.1", SECRET, day2);
+    expect(a).not.toBe(b);
+  });
+
+  it("differs across secrets", () =&gt; {
+    const date = new Date("2026-05-09T12:00:00Z");
+    const a = ipHash("203.0.113.1", "secret-A-32-bytes-aaaaaaaaaaaaaa", date);
+    const b = ipHash("203.0.113.1", "secret-B-32-bytes-bbbbbbbbbbbbbb", date);
+    expect(a).not.toBe(b);
+  });
+
+  it("handles 'unknown' IP fallback", () =&gt; {
+    const date = new Date("2026-05-09T12:00:00Z");
+    const a = ipHash("unknown", SECRET, date);
+    expect(a).toMatch(/^[a-f0-9]{64}$/);
+  });
+});
+
+describe("parseUa", () =&gt; {
+  it("parses Chrome on macOS", () =&gt; {
+    const r = parseUa(
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+    );
+    expect(r.family).toBe("Chrome");
+    expect(r.os).toBe("macOS");
+  });
+
+  it("parses Safari on iOS", () =&gt; {
+    const r = parseUa(
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1",
+    );
+    expect(r.family).toBe("Mobile Safari");
+    expect(r.os).toBe("iOS");
+  });
+
+  it("parses Firefox on Linux", () =&gt; {
+    const r = parseUa(
+      "Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0",
+    );
+    expect(r.family).toBe("Firefox");
+    expect(r.os).toBe("Linux");
+  });
+
+  it("returns 'unknown' for null/empty/garbage", () =&gt; {
+    expect(parseUa(null)).toEqual({ family: "unknown", os: "unknown" });
+    expect(parseUa("")).toEqual({ family: "unknown", os: "unknown" });
+    // 完全无意义的字符串解析失败时返回 unknown
+    const r = parseUa("blahblahblah");
+    expect(r.family).toBe("unknown");
+    expect(r.os).toBe("unknown");
+  });
+
+  it("never throws on bizarre inputs", () =&gt; {
+    expect(() =&gt; parseUa("\x00\x01\x02")).not.toThrow();
+    expect(() =&gt; parseUa("a".repeat(10000))).not.toThrow();
+  });
+});
+
+describe("refererOrigin", () =&gt; {
+  it("extracts origin from full URL", () =&gt; {
+    expect(refererOrigin("https://example.com/path?q=1")).toBe("https://example.com");
+    expect(refererOrigin("http://example.com:8080/x")).toBe("http://example.com:8080");
+  });
+
+  it("returns 'unknown' for null/empty/invalid", () =&gt; {
+    expect(refererOrigin(null)).toBe("unknown");
+    expect(refererOrigin("")).toBe("unknown");
+    expect(refererOrigin("not a url")).toBe("unknown");
+  });
+
+  it("never throws on bizarre inputs", () =&gt; {
+    expect(() =&gt; refererOrigin("\x00")).not.toThrow();
+    expect(() =&gt; refererOrigin("javascript:alert(1)")).not.toThrow();
+  });
+});
+
+describe("getIp", () =&gt; {
+  it("uses x-forwarded-for first hop when present", () =&gt; {
+    const headers = new Headers();
+    headers.set("x-forwarded-for", "203.0.113.1, 203.0.113.1");
+    expect(getIp(headers)).toBe("203.0.113.1");
+  });
+
+  it("falls back to x-real-ip", () =&gt; {
+    const headers = new Headers();
+    headers.set("x-real-ip", "203.0.113.5");
+    expect(getIp(headers)).toBe("203.0.113.5");
+  });
+
+  it("returns 'unknown' if neither header present", () =&gt; {
+    const headers = new Headers();
+    expect(getIp(headers)).toBe("unknown");
+  });
+});
+
+describe("getCountry", () =&gt; {
+  it("uses cf-ipcountry when present", () =&gt; {
+    const headers = new Headers();
+    headers.set("cf-ipcountry", "CN");
+    expect(getCountry(headers)).toBe("CN");
+  });
+
+  it("falls back to x-vercel-ip-country", () =&gt; {
+    const headers = new Headers();
+    headers.set("x-vercel-ip-country", "US");
+    expect(getCountry(headers)).toBe("US");
+  });
+
+  it("returns 'unknown' if neither header present", () =&gt; {
+    expect(getCountry(new Headers())).toBe("unknown");
+  });
+});
+
+describe("module-load IP_HASH_SECRET assertion", () =&gt; {
+  // 这个测试确认 ipHash 接收 secret 作为参数(显式),不直接读 process.env。
+  // 模块加载本身不能依赖 process.env,因为 Vitest 测试模块 import 时间可能早于 env 注入。
+  it("ipHash accepts an explicit secret param (not implicit env)", () =&gt; {
+    expect(typeof ipHash).toBe("function");
+    expect(ipHash.length).toBeGreaterThanOrEqual(2); // (ip, secret, ...)
+  });
+});
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试,确认全 fail</strong></li>
+</ul>
+<pre><code class="language-bash">cd /Users/jeff/Work/workspace/uk/ghome
+pnpm --filter @ghome/web test
+</code></pre>
+<p>Expected: 大量 fail / <code>Error: Failed to load url ../lib/click-tracking ...</code>(模块未实现)。</p>
+<ul>
+<li>[ ] <strong>Step 3: 写实现 <code>apps/web/lib/click-tracking.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { createHmac, createHash } from "node:crypto";
+import { UAParser } from "ua-parser-js";
+
+/**
+ * UTC YYYY-MM-DD,作为 daily salt 的 message。
+ */
+export function dailySaltUtc(date: Date = new Date()): string {
+  const yyyy = date.getUTCFullYear();
+  const mm = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(date.getUTCDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+/**
+ * 当日 salt = HMAC-SHA256(secret, "YYYY-MM-DD")(hex)
+ */
+function dailySalt(敏感凭据：[已脱敏] date: Date): string {
+  return createHmac("sha256", secret).update(dailySaltUtc(date)).digest("hex");
+}
+
+/**
+ * ip_hash = sha256(ip + dailySalt)。
+ * 同一访客跨 UTC 日 hash 不同,弱化追踪。
+ *
+ * 注意:secret 是显式参数(便于 mock 与 test);**调用方** 负责从 env 取
+ * IP_HASH_SECRET 并断言非空。本模块不读 process.env。
+ */
+export function ipHash(ip: string, 敏感凭据：[已脱敏] date: Date = new Date()): string {
+  const salt = dailySalt(secret, date);
+  return createHash("sha256").update(`${ip}${salt}`).digest("hex");
+}
+
+/**
+ * 解析 user-agent 字符串为 { family, os }。
+ * 失败 / null / 解析无 name → 'unknown'。永不 throw。
+ */
+export function parseUa(uaString: string | null | undefined): { family: string; os: string } {
+  if (!uaString) return { family: "unknown", os: "unknown" };
+  try {
+    const parser = new UAParser(uaString);
+    const browser = parser.getBrowser();
+    const os = parser.getOS();
+    return {
+      family: browser.name || "unknown",
+      os: os.name || "unknown",
+    };
+  } catch {
+    return { family: "unknown", os: "unknown" };
+  }
+}
+
+/**
+ * Referer 全 URL → 仅 origin(scheme + host[:port])。
+ * 失败 / null / 无效 URL → 'unknown'。永不 throw。
+ */
+export function refererOrigin(referer: string | null | undefined): string {
+  if (!referer) return "unknown";
+  try {
+    return new URL(referer).origin;
+  } catch {
+    return "unknown";
+  }
+}
+
+/**
+ * 从 request headers 取访客 IP。优先 x-forwarded-for 首跳,然后 x-real-ip,
+ * 都没有则 'unknown'。
+ */
+export function getIp(headers: Headers): string {
+  const forwarded = headers.get("x-forwarded-for");
+  if (forwarded) {
+    const first = forwarded.split(",")[0]?.trim();
+    if (first) return first;
+  }
+  const realIp = headers.get("x-real-ip");
+  if (realIp) return realIp;
+  return "unknown";
+}
+
+/**
+ * 从 request headers 取国家代码(ISO 2 letter)。优先 cf-ipcountry,然后
+ * x-vercel-ip-country,都没有则 'unknown'。
+ */
+export function getCountry(headers: Headers): string {
+  const cf = headers.get("cf-ipcountry");
+  if (cf) return cf;
+  const vercel = headers.get("x-vercel-ip-country");
+  if (vercel) return vercel;
+  return "unknown";
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试,期待全过</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/web test
+</code></pre>
+<p>Expected: 所有用例 pass(共 ~22 用例)。</p>
+<ul>
+<li>[ ] <strong>Step 5: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/web/lib/click-tracking.ts apps/web/tests/click-tracking.test.ts
+git commit -m "feat(web): add click-tracking helpers (ipHash with daily salt, parseUa, refererOrigin) — TDD"
+</code></pre>
+<hr/>
+<h2 id="Task-3-r-id-route-ts-跳转中转-handler">Task 3 — <code>/r/[id]/route.ts</code> 跳转中转 handler</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/web/app/r/[id]/route.ts</code></p>
+<blockquote>
+<p><strong>关键路径</strong>:<strong><code>apps/web/app/r/[id]/route.ts</code></strong>(根目录直挂,不在 <code>/api/</code> 下)。这样公开 URL 是 <code>/r/:id</code>,与 spec §4.2 一致。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 1: 写 <code>apps/web/app/r/[id]/route.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { NextResponse, type NextRequest } from "next/server";
+import { prisma, validateForRedirect } from "@ghome/db";
+import {
+  ipHash,
+  parseUa,
+  refererOrigin,
+  getIp,
+  getCountry,
+} from "@/lib/click-tracking";
+
+/* 必须强制 nodejs runtime — Prisma + 加密原语都不能跑 edge */
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+/**
+ * 模块加载时断言 IP_HASH_SECRET。fail-fast 比运行时退化更安全。
+ * dev 与 CI 都必须在 env 里设。
+ */
+const [敏感内容已脱敏];
+if (!IP_HASH_SECRET) {
+  throw new Error(
+    "[r/:id] IP_HASH_SECRET is not set. Required for click_events.ip_hash. " +
+      "Set in apps/web/.env (dev) or job env (CI). See apps/web/.env.example.",
+  );
+}
+
+export async function GET(
+  req: NextRequest,
+  ctx: { params: Promise&lt;{ id: string }&gt; },
+) {
+  const { id } = await ctx.params;
+  const notFoundUrl = new URL("/404", req.url);
+
+  // 1. 查 redirect
+  const redirect = await prisma.redirect.findUnique({ where: { id } });
+  if (!redirect || redirect.disabled) {
+    return NextResponse.redirect(notFoundUrl, 302);
+  }
+
+  // 2. Bouncer:同步、无 IO 校验(协议 / 语法 / 字面值黑名单)
+  //    防御 admin 后台直改 DB / 历史脏数据。详见 spec §4.2 + §3.2.
+  const policy = validateForRedirect(redirect.targetUrl);
+  if (!policy.ok) {
+    // 安全失败:不打点(避免授权安全测试者用未识别 URL 污染 click_events)
+    return NextResponse.redirect(notFoundUrl, 302);
+  }
+
+  // 3. 同步写 click_events,失败也不阻断 302(降级:redirect 仍发生)
+  try {
+    const ip = getIp(req.headers);
+    const ua = req.headers.get("user-agent");
+    const ref = req.headers.get("referer");
+    const { family, os } = parseUa(ua);
+
+    await prisma.clickEvent.create({
+      data: {
+        redirectId: redirect.id,
+        ts: new Date(),
+        uaFamily: family,
+        uaOs: os,
+        country: getCountry(req.headers),
+        referrerOrigin: refererOrigin(ref),
+        ipHash: ipHash(ip, IP_HASH_SECRET),
+      },
+    });
+  } catch (err) {
+    // 不暴露错误细节给访客;日志保留让运营在 admin 看到
+    console.error("[r/:id] click_event insert failed:", err);
+  }
+
+  // 4. 302 到 target
+  return NextResponse.redirect(redirect.targetUrl, 302);
+}
+</code></pre>
+<blockquote>
+<p><strong>设计说明</strong>:
+1. <strong><code>runtime='nodejs'</code></strong> 与 <code>dynamic='force-dynamic'</code> 必须显式声明。Prisma 与 <code>node:crypto</code> 都不能跑 Edge runtime。<code>force-dynamic</code> 防 Next.js 把这条路由当 SSG 缓存。
+2. <strong>同步 INSERT</strong>(不 fire-and-forget):本地 Postgres &lt; 5ms,可接受;Edge 部署 + 远端 DB 时如果延迟成为瓶颈,P 后期再引入异步队列(spec §4.2)。
+3. <strong>3 步失败回落都 302 到 /404</strong>:redirect 不存在 / disabled / url-policy 拒绝 → 都 302 /404。这样授权安全测试者无法通过响应差异探测 redirect 是否存在(timing-safe 不严格,但接口语义一致)。
+4. <strong>click_events 插入失败不阻 302</strong>:跳转是核心功能,打点是次要;如果 DB 短暂不可用,redirect 仍要发生。日志留给运营。
+5. <strong>不读 cookies / sessions</strong>:P3 不接 auth(spec §4.2)。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 2: 验证 build + 单元测试</strong> —— route handler 本身不引入新单元测试(集成测试在 T5 通过 enable-redirect + curl 端到端验)</li>
+</ul>
+<pre><code class="language-bash">cd /Users/jeff/Work/workspace/uk/ghome
+pnpm --filter @ghome/web build
+</code></pre>
+<p>Expected: build 通过,新路由 <code>/r/[id]</code> 出现在 build 输出中(<code>λ</code> 标记 = node runtime,而非 <code>○</code> 静态)。</p>
+<ul>
+<li>[ ] <strong>Step 3: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/web/app/r/
+git commit -m "feat(web): add /r/:id redirect handler with sync click_events tracking (nodejs runtime)"
+</code></pre>
+<hr/>
+<h2 id="Task-4-详情页-CTA-切到-r-id-App-detail-Video-detail">Task 4 — 详情页 CTA 切到 <code>/r/:id</code>(App detail + Video detail)</h2>
+<p><strong>Files:</strong>
+- Modify: <code>apps/web/app/app/[slug]/page.tsx</code>(DownloadButton href)
+- Modify: <code>apps/web/app/video/[slug]/page.tsx</code>(WatchButton href)</p>
+<blockquote>
+<p>切换 logic 简单:<code>&lt;a href={app.redirect.targetUrl}&gt;</code> → <code>&lt;a href={</code>/r/${app.redirect.id}<code>}&gt;</code>。disabled 行为不变。其余 UI 不动。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 1: 修改 <code>apps/web/app/app/[slug]/page.tsx</code> 中的 DownloadButton</strong></li>
+</ul>
+<p>定位 <code>DownloadButton</code>(在 page.tsx 文件底部),修改 enabled 分支的 href:</p>
+<pre><code class="language-tsx">function DownloadButton({ disabled, href }: { disabled: boolean; href?: string }) {
+  if (disabled) {
+    return (
+      &lt;button className="btn btn-primary" disabled style={{ opacity: 0.5, cursor: "not-allowed" }}&gt;
+        暂未开放
+      &lt;/button&gt;
+    );
+  }
+  return (
+    &lt;a className="btn btn-primary" href={href}&gt;立即下载&lt;/a&gt;
+  );
+}
+</code></pre>
+<p>调用处把 prop 从 <code>targetUrl</code> 改为 <code>/r/:id</code>:</p>
+<pre><code class="language-tsx">&lt;DownloadButton
+  disabled={app.redirect.disabled}
+  href={app.redirect.disabled ? undefined : `/r/${app.redirect.id}`}
+/&gt;
+</code></pre>
+<blockquote>
+<p>注意是 <code>app.redirect.id</code>,不是 <code>app.redirectId</code>(后者也可,但前者更明确)。两者值相同。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 2: 修改 <code>apps/web/app/video/[slug]/page.tsx</code> 中的 WatchButton</strong></li>
+</ul>
+<p>同样模式。<code>WatchButton</code> 已存在(P2 T8),把 href 切为 <code>/r/${video.redirect.id}</code>。</p>
+<ul>
+<li>[ ] <strong>Step 3: 验证 build</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/web build
+</code></pre>
+<p>Expected: build 通过。</p>
+<ul>
+<li>[ ] <strong>Step 4: 验证渲染(disabled 状态 — seed 默认全 disabled)</strong></li>
+</ul>
+<pre><code class="language-bash">docker compose up -d
+sleep 3
+pnpm --filter @ghome/web dev &amp;
+sleep 8
+
+# 详情页应该显示"暂未开放"(因为 seed redirect 全 disabled=true)
+curl -fsS http://localhost:3000/app/broconnect | grep -q "暂未开放" &amp;&amp; echo "app disabled OK"
+curl -fsS http://localhost:3000/video/v01 | grep -q "暂未开放" &amp;&amp; echo "video disabled OK"
+
+# 而 dev 渲染产物中**不应**出现 example.com seed URL(seed 占位 URL)
+! curl -fsS http://localhost:3000/app/broconnect | grep -q "example.com/seed" &amp;&amp; echo "no seed url leak OK"
+
+kill %1 2&gt;/dev/null || true
+</code></pre>
+<p>Expected: 3 个 grep 全过。</p>
+<ul>
+<li>[ ] <strong>Step 5: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/web/app/app/[slug]/page.tsx apps/web/app/video/[slug]/page.tsx
+git commit -m "feat(web): app/video detail CTAs use /r/:id redirect route"
+</code></pre>
+<hr/>
+<h2 id="Task-5-端到端集成冒烟-tag-p3-redirect-tracking">Task 5 — 端到端集成冒烟 + tag p3-redirect-tracking</h2>
+<p>无新文件。本 task 跑端到端冒烟,验证从 admin/CLI 启用 redirect → web 详情页渲染 <code>/r/:id</code> href → 用户点击 → <code>click_events</code> 表多一行 → 302 到真实 URL。</p>
+<ul>
+<li>[ ] <strong>Step 1: 干净环境 reset</strong></li>
+</ul>
+<pre><code class="language-bash">cd /Users/jeff/Work/workspace/uk/ghome
+docker compose up -d
+sleep 5
+pnpm --filter @ghome/db db:reset --force   # drop + re-migrate + re-seed
+</code></pre>
+<p>Expected: seed 完成,29 个 redirect 全 disabled=true,click_events 表为空。</p>
+<ul>
+<li>[ ] <strong>Step 2: 用 CLI 启用一条 broconnect 的 redirect</strong></li>
+</ul>
+<pre><code class="language-bash">RID=$(docker compose exec -T postgres psql -U ghome -d ghome -tAc \
+  "SELECT id FROM redirects WHERE owner_kind='app' AND owner_id='broconnect' LIMIT 1")
+echo "RID=$RID"
+
+pnpm --filter @ghome/db db:enable-redirect "$RID" "https://www.example.com/broconnect-download"
+# Expected: Enabled redirect ${RID}: https://www.example.com/broconnect-download
+</code></pre>
+<blockquote>
+<p>注:<code>https://www.example.com/...</code> 在 <code>validateForWrite</code> 的 DNS 校验下能通过(example.com 解析到公网 IP)。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 3: 起 dev,curl <code>/r/:id</code></strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/web dev &amp;
+sleep 8
+
+# 不跟随重定向,看 302 + Location
+curl -sI "http://localhost:3000/r/$RID" | head -5
+</code></pre>
+<p>Expected:<code>HTTP/1.1 302 ...</code> + <code>Location: https://www.example.com/broconnect-download</code>。</p>
+<ul>
+<li>[ ] <strong>Step 4: 验证 click_events 表多了一行</strong></li>
+</ul>
+<pre><code class="language-bash">docker compose exec postgres psql -U ghome -d ghome -c "
+SELECT redirect_id, ts, ua_family, ua_os, country, referrer_origin, length(ip_hash) AS ip_hash_len
+FROM click_events
+WHERE redirect_id = '$RID'
+ORDER BY ts DESC LIMIT 1;
+"
+</code></pre>
+<p>Expected:
+- 1 行
+- <code>ua_family</code> 是 <code>curl</code> 或 <code>unknown</code>(curl 默认 UA 含 <code>curl/8.x</code>,被 ua-parser-js 识别为 <code>curl</code>)
+- <code>ua_os</code> 是 <code>unknown</code>(curl 不暴露 OS)
+- <code>country</code> 是 <code>unknown</code>(本地 dev 没代理头)
+- <code>referrer_origin</code> 是 <code>unknown</code>
+- <code>ip_hash_len</code> = 64(sha256 hex)</p>
+<ul>
+<li>[ ] <strong>Step 5: 验证详情页 CTA 现在指向 <code>/r/:id</code></strong></li>
+</ul>
+<pre><code class="language-bash">curl -fsS http://localhost:3000/app/broconnect &gt; /tmp/broc.html
+
+# 应该有 /r/$RID 形式的 href
+grep -q "/r/$RID" /tmp/broc.html &amp;&amp; echo "CTA href OK"
+
+# 应该是"立即下载"(enabled),不是"暂未开放"
+grep -q "立即下载" /tmp/broc.html &amp;&amp; echo "enabled label OK"
+
+# 不应该有 redirect.targetUrl 直接出现(P2 时旧的写法)
+! grep -q "https://www.example.com/broconnect-download" /tmp/broc.html &amp;&amp; echo "no targetUrl leak"
+</code></pre>
+<p>Expected: 3 个 grep 全过。</p>
+<blockquote>
+<p>等等 — 注意到 ISR 缓存:<code>/app/broconnect</code> 是 <code>revalidate=300</code>,P2 build 时 redirect.disabled=true,渲染了"暂未开放"。运行时 admin/CLI 启用 redirect 后,detail 页<strong>不会立即看到变化</strong>,要等 ISR 过期或 admin 触发 revalidate。<strong>P3 暂不接 revalidate webhook</strong>(P5 才做),所以本 step 用 dev mode 跑(<code>pnpm dev</code> 不缓存),直接看到最新数据。生产 build mode 下需要等 5min。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 6: 验证 disabled redirect 仍然 302 到 /404</strong></li>
+</ul>
+<pre><code class="language-bash">DISABLED_RID=$(docker compose exec -T postgres psql -U ghome -d ghome -tAc \
+  "SELECT id FROM redirects WHERE owner_kind='app' AND owner_id='matematch' LIMIT 1")
+echo "DISABLED_RID=$DISABLED_RID"
+
+curl -sI "http://localhost:3000/r/$DISABLED_RID" | head -3
+</code></pre>
+<p>Expected:<code>HTTP/1.1 302 ...</code> + <code>Location: http://localhost:3000/404</code>(因为 matematch 的 redirect 仍 disabled)。</p>
+<ul>
+<li>[ ] <strong>Step 7: 验证 unknown id 也 302 到 /404</strong></li>
+</ul>
+<pre><code class="language-bash">curl -sI "http://localhost:3000/r/00000000-0000-0000-0000-000000000000" | head -3
+</code></pre>
+<p>Expected:<code>302</code> → <code>/404</code>。</p>
+<ul>
+<li>[ ] <strong>Step 8: 验证 ip_hash 决定性 + 跨日轮换</strong></li>
+</ul>
+<p>短时间内连续 2 次 curl 同一 redirect,新增 2 行 click_events,<strong>ip_hash 应该相同</strong>(同 IP + 同日 + 同 secret):</p>
+<pre><code class="language-bash">curl -sI "http://localhost:3000/r/$RID" &gt; /dev/null
+curl -sI "http://localhost:3000/r/$RID" &gt; /dev/null
+
+docker compose exec postgres psql -U ghome -d ghome -tAc "
+SELECT count(DISTINCT ip_hash) FROM click_events WHERE redirect_id = '$RID';
+"
+</code></pre>
+<p>Expected: 输出 <code>1</code>(同一 ip_hash 出现 N 次,distinct 计数为 1)。</p>
+<p>跨日轮换的测试需要等到 UTC 跨日 — 不在端到端 test 内验,T2 单元测试已经覆盖。</p>
+<ul>
+<li>[ ] <strong>Step 9: 关闭 dev + Postgres</strong></li>
+</ul>
+<pre><code class="language-bash">kill %1 2&gt;/dev/null || true
+docker compose down 2&gt;/dev/null || true
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 10: 4 步全套验证</strong></li>
+</ul>
+<pre><code class="language-bash">docker compose up -d
+sleep 5
+pnpm --filter @ghome/db db:migrate:deploy   # 应该 no-op,已是最新
+pnpm --filter @ghome/db db:seed              # 重置回 seed 状态
+pnpm typecheck
+pnpm lint
+pnpm --filter @ghome/db test                 # P1 的 38 测试
+pnpm --filter @ghome/web test                # P3 新加的 click-tracking 测试
+pnpm build
+</code></pre>
+<p>Expected: 全过。</p>
+<ul>
+<li>[ ] <strong>Step 11: git 干净 + tag P3</strong></li>
+</ul>
+<pre><code class="language-bash">git status --short
+# 期望:仅 untracked plan(P3 plan 文档),其它干净
+git add docs/superpowers/plans/2026-05-09-ghome-p3-redirect-tracking.md
+git commit -m "docs: commit P3 implementation plan"
+
+git tag -a p3-redirect-tracking -m "P3 · redirect tracking: /r/:id route handler with sync click_events INSERT, ua-parser-js, daily-rotated ip_hash; detail CTAs migrated to /r/:id; 22 click-tracking unit tests + end-to-end smoke"
+
+git tag -l
+git log --oneline p2-frontend-readonly..HEAD
+</code></pre>
+<p>Expected: 3 个 tag 全在(<code>p0-scaffolding</code>、<code>p1-data-model</code>、<code>p2-frontend-readonly</code>、<code>p3-redirect-tracking</code>)。log 显示 P3 期间的 ~6 个 commit + tag。</p>
+<hr/>
+<h2 id="P3-完成判据-对应-spec-5">P3 完成判据(对应 spec §5)</h2>
+<ul>
+<li>✅ <code>/r/:id</code> route handler 在 <code>apps/web/app/r/[id]/route.ts</code>(spec §4.2 路径)— T3</li>
+<li>✅ <code>runtime='nodejs'</code> + <code>dynamic='force-dynamic'</code> — T3</li>
+<li>✅ 同步写 click_events 后再 302 — T3</li>
+<li>✅ url-policy <code>validateForRedirect</code> 兜底校验(同步,无 DNS)— T3</li>
+<li>✅ click_events 字段最小化:<code>ua_family/ua_os</code> 解析后丢原文,<code>referrer_origin</code> 仅 origin,country 从 cf/vercel 头取,fallback <code>'unknown'</code>— T2/T3</li>
+<li>✅ <code>ip_hash = sha256(ip + HMAC(IP_HASH_SECRET, YYYY-MM-DD UTC))</code> 按日轮换 — T2</li>
+<li>✅ App / Video 详情页 CTA 切到 <code>/r/:id</code> — T4</li>
+<li>✅ 失败回落 302 → /404,不打点 — T3</li>
+<li>✅ <code>IP_HASH_SECRET</code> 缺失时模块加载阶段 throw(fail-fast)— T3</li>
+<li>✅ 端到端冒烟:CLI enable redirect → curl <code>/r/:id</code> → 302 + click_events 多 1 行 → ip_hash deterministic — T5</li>
+<li>✅ CI 配置 IP_HASH_SECRET — T1</li>
+</ul>
+<hr/>
+<h2 id="已知-P3-故意不做的事-P4-起补">已知 P3 故意不做的事(P4+ 起补)</h2>
+<ul>
+<li><strong><code>waitUntil</code> / 异步队列</strong>:同步 INSERT 在本地 / 中等流量都够;真到瓶颈再换(spec §4.2)</li>
+<li><strong>revalidate 触发器</strong>:admin 改 redirect 后,web 详情页不会即时更新 disabled 状态(等 ISR 5min)。P5 加 admin webhook</li>
+<li><strong>rate limiting</strong>:<code>/r/:id</code> 没接 rate limit。授权安全测试者可以批量请求伪造 click_events 行。P 后期接 Redis + middleware</li>
+<li><strong>bot 过滤</strong>:User-Agent 是 bot/crawler 的请求也写 click_events。运营报表 P5 起再接入 ua-parser-js 的 <code>getDevice</code> 与启发式 bot 过滤</li>
+<li><strong>30 天聚合任务</strong>:P1 已建 click_daily_stats 表,P7 才接定时聚合</li>
+<li><strong>i18n / language hint</strong>:不接</li>
+</ul>
+<hr/>
+<h2 id="Self-Review">Self-Review</h2>
+<ul>
+<li><strong>Spec 覆盖</strong>:逐条核对 spec §4.2 + §3.2 click_events / §5 P3。所有完成判据有对应 task。</li>
+<li><strong>占位符扫描</strong>:无 TBD/TODO。每 step 都有具体代码或命令。</li>
+<li><strong>TS 类型一致性</strong>:<code>ipHash(ip, secret, date)</code> 三参签名一致;<code>parseUa</code> 返回 <code>{family, os}</code> shape 一致;<code>getIp/getCountry</code> 接收 <code>Headers</code> 不接收 <code>Request</code>(测试与实现一致)。</li>
+<li><strong>TDD 体现</strong>:T2 严格 TDD(失败先 → 实现 → 通过)。route handler 本身的集成测试用 T5 端到端 curl 验,不写额外的 fake-Request 单元测试(过度工程)。</li>
+<li><strong>风险</strong>:</li>
+<li><code>parseUa</code> 在某些异常 UA 上 ua-parser-js v1 可能 throw — 已用 try/catch 兜底</li>
+<li><code>ipHash</code> 用同步 createHmac,大量并发时 CPU 是瓶颈 — 单条事件 ~10μs,远低于 INSERT 时间</li>
+<li><strong><code>/r/:id</code> route handler 模块加载时 throw</strong>:如果 IP_HASH_SECRET 缺失,<strong>整个 web 服务都起不来</strong>。这是有意的(部署必填),但 dev 忘记设置时会报错。<code>apps/web/.env.example</code> 与 .env 都已写明。</li>
+</ul>
+<hr/>
+<h2 id="下一步">下一步</h2>
+<p>P3 完成后,<strong>写 P4 plan</strong>(运营端 admin 骨架 + GitHub OAuth + ADMIN_ALLOWED_GITHUB_LOGINS 白名单 + signIn callback 手动 upsert admin_users + Dashboard 显示统计)。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#File-Structure-P3-末态">File Structure(P3 末态)</a></li><li style="margin-left:0.0rem"><a href="#Conventions-整个-P3-共享">Conventions(整个 P3 共享)</a></li><li style="margin-left:0.0rem"><a href="#Task-1-Setup-ua-parser-js-依赖-IP_HASH_SECRET-env-ghome-db-导出-url-policy-CI">Task 1 — Setup: ua-parser-js 依赖、 IP_HASH_SECRET env、 @ghome/db 导出 url-policy、CI</a></li><li style="margin-left:0.0rem"><a href="#Task-2-lib-click-tracking-ts-工具集-TDD-先测后实现">Task 2 — lib/click-tracking.ts 工具集(TDD:先测后实现)</a></li><li style="margin-left:0.0rem"><a href="#Task-3-r-id-route-ts-跳转中转-handler">Task 3 — /r/[id]/route.ts 跳转中转 handler</a></li><li style="margin-left:0.0rem"><a href="#Task-4-详情页-CTA-切到-r-id-App-detail-Video-detail">Task 4 — 详情页 CTA 切到 /r/:id (App detail + Video detail)</a></li><li style="margin-left:0.0rem"><a href="#Task-5-端到端集成冒烟-tag-p3-redirect-tracking">Task 5 — 端到端集成冒烟 + tag p3-redirect-tracking</a></li><li style="margin-left:0.0rem"><a href="#P3-完成判据-对应-spec-5">P3 完成判据(对应 spec §5)</a></li><li style="margin-left:0.0rem"><a href="#已知-P3-故意不做的事-P4-起补">已知 P3 故意不做的事(P4+ 起补)</a></li><li style="margin-left:0.0rem"><a href="#Self-Review">Self-Review</a></li><li style="margin-left:0.0rem"><a href="#下一步">下一步</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / GHOME</li>
+          <li>日期：2026-05-09</li>
+          <li>标签：<span class="tag">GHOME</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">CDN</span><span class="tag">DNS</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p3-redirect-tracking.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605090000-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BLinux-Ghome%20P3%20%C2%B7%20%E8%B7%B3%E8%BD%AC%E4%B8%AD%E8%BD%AC%20%2B%20%E7%82%B9%E5%87%BB%E6%89%93%E7%82%B9%20Implementation%20Plan.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Ghome P3 · 跳转中转 + 点击打点 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommend…</p>
+      <p>关键词：GHOME、Linux、Shell、Docker、CDN、DNS、源码与配置、业务系统运维、业务系统运维 / GHOME、Ghome P3 · 跳转中转 + 点击打点 Implementation Plan</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-29b831214138.html"><small>上一篇</small>Ghome P2 · 页面端只读 Implementation Plan</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-512a213e1309.html"><small>下一篇</small>Ghome P4 · 运营端骨架 + Auth Implementation Plan</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e18f4db5edd2.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

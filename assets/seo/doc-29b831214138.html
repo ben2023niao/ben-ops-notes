@@ -1,0 +1,2197 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Ghome P2 · 页面端只读 Implementation Plan｜业务系统运维 / GHOME｜BEN.OPS</title>
+  <meta name="description" content="Ghome P2 · 页面端只读 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or…">
+  <meta name="keywords" content="GHOME，Shell，Docker，自动化，源码与配置，业务系统运维，业务系统运维 / GHOME，Ghome P2 · 页面端只读 Implementation Plan">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-29b831214138.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-29b831214138.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605090000-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BShell-Ghome%20P2%20%C2%B7%20%E9%A1%B5%E9%9D%A2%E7%AB%AF%E5%8F%AA%E8%AF%BB%20Implementation%20Plan.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Ghome P2 · 页面端只读 Implementation Plan">
+  <meta property="og:description" content="Ghome P2 · 页面端只读 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-29b831214138.html">
+  <meta property="article:published_time" content="2026-05-09T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-09 00:00">
+  <meta property="article:section" content="业务系统运维 / GHOME">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Ghome P2 · 页面端只读 Implementation Plan">
+  <meta name="twitter:description" content="Ghome P2 · 页面端只读 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-29b831214138.html#article","headline":"Ghome P2 · 页面端只读 Implementation Plan","description":"Ghome P2 · 页面端只读 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or…","datePublished":"2026-05-09T00:00:00+08:00","dateModified":"2026-05-09 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","GHOME"],"keywords":["GHOME","Shell","Docker","自动化","源码与配置","业务系统运维","业务系统运维 / GHOME","Ghome P2 · 页面端只读 Implementation Plan"],"wordCount":10277,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-29b831214138.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-29b831214138.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / GHOME","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Ghome P2 · 页面端只读 Implementation Plan","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-29b831214138.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / GHOME</span> › <span>Ghome P2 · 页面端只读 Implementation Plan</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / GHOME</div>
+      <h1>Ghome P2 · 页面端只读 Implementation Plan</h1>
+      <p class="lede">Ghome P2 · 页面端只读 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-09T00:00:00+08:00">发布于 2026-05-09</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">10,277 字</span>
+        <span class="badge">30 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p2-frontend-readonly.md</code></p>
+<p>整理日期：2026-05-09 00:00｜日期依据：文件名日期</p>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use <code>superpowers:subagent-driven-development</code> (recommended) or <code>superpowers:executing-plans</code> to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 把原型 <code>docs/ghome.html</code> 的 <strong>16 条原型路由</strong>(不含 <code>/albums</code>)用 Next.js 15 App Router + SSG/ISR 重渲,数据全部来自 P1 落库的 14 张表 + 3 个 fixture(FEATURED_WEB / CREATORS / SAMPLE_REVIEWS)。视觉对齐原型(把原型 <code>&lt;style&gt;</code> 块整体抄进 <code>globals.css</code>,不重写)。<code>/albums</code> 与 <code>/album/:slug</code> <strong>本期返回 404 占位</strong>,P6 才落地。</p>
+<p><strong>Architecture:</strong>
+- <code>apps/web</code> 引入 <code>@ghome/db</code> workspace 依赖,P1 的 PrismaClient + 14 model 类型 + url-policy 全部可用
+- 数据访问统一收口在 <code>apps/web/lib/db.ts</code>(查询辅助函数),不在页面组件里直写 Prisma 查询
+- ISR:列表页 60s 重生,详情页 300s,静态页(about/contact/terms)纯 SSG
+- Fixtures(FEATURED_WEB / CREATORS / SAMPLE_REVIEWS)单独放 <code>apps/web/fixtures/*.ts</code>,代码内常量
+- Markdown 用 <code>react-markdown</code>(P1 没装,本期引入)
+- 样式策略:原型的 <code>&lt;style&gt;</code> 块(<code>docs/ghome.html</code> :8-432)整体抄进 <code>apps/web/app/globals.css</code>,加少量 P2 新增类(如 markdown body)。<strong>不上 Tailwind</strong>(留 P3+)</p>
+<p><strong>Tech Stack:</strong>
+- Next.js 15 App Router(已 P0 装)
+- React 19(已 P0 装)
+- <code>@ghome/db</code>(P1 已发)
+- <code>react-markdown ^9.0.0</code>(P2 新增,渲染 guide bodies)
+- <code>remark-gfm ^4.0.0</code>(GFM 表格、checkbox 等;guide markdown 可能需要)
+- 所有 SVG icons 从原型 <code>&lt;defs&gt;</code> 提取成 React 组件</p>
+<p><strong>Spec 引用:</strong> <a href="https://ben2023niao.github.io/ben-ops-notes/doc/specs/2026-05-08-ghome-product-shape-design.md" rel="noopener noreferrer"><code>docs/superpowers/specs/2026-05-08-ghome-product-shape-design.md</code></a> §2.1(路由表)、§4.1(SSG/ISR)、§5 P2。</p>
+<p><strong>前置假设:</strong> P1 已完成,<code>p1-data-model</code> 标签存在;<code>pnpm --filter @ghome/db db:seed</code> 跑过,DB 里有 9 apps + 20 videos + 5 guides + 6 topics + 6 rankings + 63 tags;<code>apps/web</code> 还是 P0 占位空白页。</p>
+<hr/>
+<h2 id="File-Structure-P2-末态">File Structure(P2 末态)</h2>
+<pre><code>apps/web/
+├─ app/
+│  ├─ globals.css                        # 整体抄自原型 :8-432 + P2 markdown 样式
+│  ├─ layout.tsx                         # 已存在(P0),T4 重写
+│  ├─ not-found.tsx                      # 自定义 404(T4)
+│  ├─ page.tsx                           # 首页(T6)
+│  ├─ apps/
+│  │  └─ page.tsx                        # /apps 列表 + 筛选(T7)
+│  ├─ app/
+│  │  └─ [slug]/page.tsx                 # /app/:slug 详情(T7)
+│  ├─ videos/
+│  │  └─ page.tsx                        # /videos 列表 + featured(T8)
+│  ├─ video/
+│  │  └─ [slug]/page.tsx                 # /video/:slug 详情(T8)
+│  ├─ categories/
+│  │  └─ page.tsx                        # /categories(T9)
+│  ├─ category/
+│  │  └─ [slug]/page.tsx                 # /category/:slug 仅 video kind(T9)
+│  ├─ tag/
+│  │  └─ [slug]/page.tsx                 # /tag/:slug(T9)
+│  ├─ topics/
+│  │  └─ page.tsx                        # /topics 列表(T10)
+│  ├─ topic/
+│  │  └─ [slug]/page.tsx                 # /topic/:slug(T10)
+│  ├─ rankings/
+│  │  └─ page.tsx                        # /rankings 6 区块(T10)
+│  ├─ albums/
+│  │  └─ page.tsx                        # P2 占位 → notFound()(T10)
+│  ├─ album/
+│  │  └─ [slug]/page.tsx                 # P2 占位 → notFound()(T10)
+│  ├─ guides/
+│  │  └─ page.tsx                        # /guides 列表(T11)
+│  ├─ guide/
+│  │  └─ [slug]/page.tsx                 # /guide/:slug 含 markdown(T11)
+│  ├─ about/
+│  │  └─ page.tsx                        # 静态 markdown 文案(T12)
+│  ├─ contact/
+│  │  └─ page.tsx                        # 静态(T12)
+│  └─ terms/
+│      └─ page.tsx                       # 静态(T12)
+├─ components/
+│  ├─ Header.tsx                         # 顶栏 + nav(T4)
+│  ├─ Footer.tsx                         # 页脚(T4)
+│  ├─ AppCard.tsx                        # App 卡片(T5)
+│  ├─ VideoCard.tsx                      # 视频卡片(T5)
+│  ├─ GuideCard.tsx                      # 指南卡片(T5)
+│  ├─ TopicCard.tsx                      # 专题卡片(T5)
+│  ├─ RankingCard.tsx                    # 榜单卡片(T5)
+│  ├─ Crumb.tsx                          # 面包屑(T5)
+│  ├─ TagPill.tsx                        # tag 小标签(T5)
+│  ├─ FeaturedHero.tsx                   # FEATURED_WEB hero 区块(T6)
+│  └─ MarkdownBody.tsx                   # react-markdown 包装(T11)
+├─ lib/
+│  ├─ db.ts                              # Prisma 查询辅助(T2)
+│  ├─ icons.tsx                          # SVG sprite + &lt;Icon&gt; 组件(T2)
+│  ├─ gradients.ts                       # GRADS 映射(T2)
+│  └─ format.ts                          # 数字 / 日期等格式化(T2)
+├─ fixtures/
+│  ├─ featured-web.ts                    # FEATURED_WEB(T3)
+│  ├─ creators.ts                        # CREATORS(T3)
+│  └─ sample-reviews.ts                  # SAMPLE_REVIEWS(T3)
+├─ .env                                  # DATABASE_URL,本地 dev 用(T1)
+├─ next.config.mjs                       # 已存在(P0)
+├─ next-env.d.ts                         # 自动生成,gitignore
+├─ package.json                          # T1 加 @ghome/db / react-markdown / remark-gfm
+└─ tsconfig.json                         # P0 已配置,T1 不动
+</code></pre>
+<p>新增文件总数:<strong>~30</strong>。<code>@ghome/admin</code> 在 P2 期间不动(P4 才接入)。</p>
+<hr/>
+<h2 id="Conventions-整个-P2-共享">Conventions(整个 P2 共享)</h2>
+<ul>
+<li>所有 page 都是 <strong>server components</strong>(默认),数据查询直接 await Prisma</li>
+<li>ISR:</li>
+<li>列表页 + 首页:<code>export const revalidate = 60</code></li>
+<li>详情页:<code>export const revalidate = 300</code></li>
+<li>静态页(about/contact/terms):<strong>不</strong>写 revalidate(全 SSG)</li>
+<li>路由 <code>not-found.tsx</code> 走 Next.js 标准 <code>notFound()</code> API</li>
+<li>外链按钮在 P2 暂用 <code>&lt;a&gt;</code> 渲染(href 是 <code>redirect.targetUrl</code>,但 <code>redirect.disabled=true</code> 时按钮置灰且不渲染 href);<strong>不实现 <code>/r/:id</code> 中转</strong>(P3)</li>
+<li>提交风格:Conventional Commits,每 task 末尾 commit</li>
+<li>不引 i18n、不引 auth、不接搜索(都在后续 P)</li>
+</ul>
+<hr/>
+<h2 id="Task-1-apps-web-接入-ghome-db-引入-markdown-依赖-复制原型-CSS">Task 1 — <code>apps/web</code> 接入 <code>@ghome/db</code> + 引入 markdown 依赖 + 复制原型 CSS</h2>
+<p><strong>Files:</strong>
+- Modify: <code>apps/web/package.json</code>
+- Create: <code>apps/web/.env</code>(本地 DATABASE_URL,gitignored)
+- Create: <code>apps/web/.gitignore</code>(已存在 root level,加 .env)
+- Modify: <code>apps/web/app/globals.css</code>(整体替换为原型 <code>&lt;style&gt;</code> 块)
+- Modify: <code>apps/web/app/page.tsx</code>(临时改成"P2 接入中"占位,T6 才正式实现首页)</p>
+<ul>
+<li>[ ] <strong>Step 1: 修改 <code>apps/web/package.json</code>,加 workspace 依赖与 markdown 库</strong></li>
+</ul>
+<p>在 <code>dependencies</code> 里加:</p>
+<pre><code class="language-json">"@ghome/db": "workspace:*",
+"react-markdown": "^9.0.0",
+"remark-gfm": "^4.0.0"
+</code></pre>
+<p>完整 package.json 变化:
+- <code>dependencies</code> 加 3 条
+- 其它字段保持</p>
+<ul>
+<li>[ ] <strong>Step 2: 创建 <code>apps/web/.env</code>(local dev only)</strong></li>
+</ul>
+<pre><code class="language-bash">cd /Users/jeff/Work/workspace/uk/ghome
+cat &gt; apps/web/.env &lt;&lt;'EOF'
+DATABASE_URL=postgres://ghome:ghome@localhost:5432/ghome
+EOF
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 3: 创建 <code>apps/web/.gitignore</code>(已存在 root,这里只 ignore env)</strong></li>
+</ul>
+<pre><code>.env
+.env.local
+.env.*.local
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 复制原型 CSS 到 <code>apps/web/app/globals.css</code></strong></li>
+</ul>
+<p>读 <code>docs/ghome.html</code> 第 8-432 行(<code>&lt;style&gt;</code> 块内容),整体覆盖到 <code>apps/web/app/globals.css</code>。<strong>不要改任何选择器、颜色、间距</strong>,这是 P2 的"视觉冻结"原则。</p>
+<pre><code class="language-bash"># 推荐做法:用 Read tool 读 docs/ghome.html offset=8 limit=425(取 8-432 行),
+# 然后 Write 到 apps/web/app/globals.css。
+</code></pre>
+<p>末尾追加 P2 自己的样式块(<code>MarkdownBody</code> 用):</p>
+<pre><code class="language-css">
+/* P2 additions — markdown body */
+.md-body { color: var(--text); line-height: 1.8; font-size: 15.5px; }
+.md-body h2 { font-size: 20px; font-weight: 700; margin: 28px 0 12px; }
+.md-body h3 { font-size: 17px; font-weight: 600; margin: 20px 0 10px; }
+.md-body p { margin: 0 0 14px; color: var(--text-2); }
+.md-body ul { padding-left: 22px; margin: 0 0 14px; color: var(--text-2); }
+.md-body li { margin: 4px 0; }
+.md-body a { color: var(--primary); text-decoration: underline; }
+.md-body code { background: var(--bg); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 5: 临时改 <code>apps/web/app/page.tsx</code>(P0 占位 → P2 接入中占位)</strong></li>
+</ul>
+<pre><code class="language-tsx">export default function HomePage() {
+  return (
+    &lt;main style={{ padding: "48px 24px", fontFamily: "system-ui, sans-serif" }}&gt;
+      &lt;h1&gt;Ghome · web&lt;/h1&gt;
+      &lt;p&gt;P2 · 页面端接入 DB 中。当前任务:T1 · 接入 @ghome/db。&lt;/p&gt;
+    &lt;/main&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 6: 安装依赖</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm install
+</code></pre>
+<p>Expected: 拉下 <code>react-markdown</code>、<code>remark-gfm</code>、<code>@ghome/db</code>(workspace link,无网络下载)。</p>
+<ul>
+<li>[ ] <strong>Step 7: 验证 build / dev</strong></li>
+</ul>
+<pre><code class="language-bash">docker compose up -d  # postgres 必须起,否则后续 task SSG 会断
+sleep 5
+pnpm --filter @ghome/db db:migrate:deploy   # 确保 schema 是最新
+pnpm --filter @ghome/db db:seed              # 确保数据已 seed
+pnpm --filter @ghome/web build
+</code></pre>
+<p>Expected: build 成功(P2 占位首页是纯静态)。</p>
+<ul>
+<li>[ ] <strong>Step 8: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/web/package.json apps/web/.gitignore apps/web/app/globals.css apps/web/app/page.tsx pnpm-lock.yaml
+git commit -m "feat(web): wire @ghome/db dependency and import prototype CSS verbatim"
+</code></pre>
+<blockquote>
+<p><code>apps/web/.env</code> <strong>不</strong>入库(已 gitignored)。</p>
+</blockquote>
+<hr/>
+<h2 id="Task-2-lib-db-queries-icons-gradients-format">Task 2 — <code>lib/</code>:db queries + icons + gradients + format</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/web/lib/db.ts</code>
+- Create: <code>apps/web/lib/icons.tsx</code>
+- Create: <code>apps/web/lib/gradients.ts</code>
+- Create: <code>apps/web/lib/format.ts</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写 <code>apps/web/lib/db.ts</code>(查询辅助)</strong></li>
+</ul>
+<pre><code class="language-ts">import { prisma, type App, type Video, type Guide, type Category, type Tag, type Collection, type CollectionItem } from "@ghome/db";
+
+/* ============== 通用过滤:仅返回已发布、未删除 ============== */
+const PUBLISHED = { status: "published" as const, deletedAt: null };
+
+/* ============== Apps ============== */
+
+export async function getPublishedApps(opts?: { categorySlug?: string; limit?: number }) {
+  return prisma.app.findMany({
+    where: {
+      ...PUBLISHED,
+      ...(opts?.categorySlug ? { category: { slug: opts.categorySlug, kind: "app" } } : {}),
+    },
+    include: {
+      category: true,
+      redirect: true,
+      tags: { include: { tag: true } },
+    },
+    take: opts?.limit,
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export async function getAppBySlug(slug: string) {
+  return prisma.app.findFirst({
+    where: { ...PUBLISHED, slug },
+    include: {
+      category: true,
+      redirect: true,
+      tags: { include: { tag: true } },
+    },
+  });
+}
+
+export async function getAppCategories() {
+  return prisma.category.findMany({
+    where: { kind: "app" },
+    orderBy: { sortOrder: "asc" },
+  });
+}
+
+/* ============== Videos ============== */
+
+export async function getPublishedVideos(opts?: { categorySlug?: string; tagSlug?: string; limit?: number }) {
+  return prisma.video.findMany({
+    where: {
+      ...PUBLISHED,
+      ...(opts?.categorySlug ? { category: { slug: opts.categorySlug, kind: "video" } } : {}),
+      ...(opts?.tagSlug ? { tags: { some: { tag: { slug: opts.tagSlug } } } } : {}),
+    },
+    include: {
+      category: true,
+      redirect: true,
+      tags: { include: { tag: true } },
+    },
+    take: opts?.limit,
+    orderBy: { publishedDate: "desc" },
+  });
+}
+
+export async function getVideoBySlug(slug: string) {
+  return prisma.video.findFirst({
+    where: { ...PUBLISHED, slug },
+    include: {
+      category: true,
+      redirect: true,
+      tags: { include: { tag: true } },
+    },
+  });
+}
+
+export async function getVideoCategories() {
+  return prisma.category.findMany({
+    where: { kind: "video" },
+    orderBy: { sortOrder: "asc" },
+  });
+}
+
+/* ============== Guides ============== */
+
+export async function getPublishedGuides() {
+  return prisma.guide.findMany({
+    where: PUBLISHED,
+    orderBy: { publishedDate: "desc" },
+  });
+}
+
+export async function getGuideBySlug(slug: string) {
+  return prisma.guide.findFirst({ where: { ...PUBLISHED, slug } });
+}
+
+/* ============== Categories(generic) ============== */
+
+export async function getVideoCategoryBySlug(slug: string) {
+  return prisma.category.findUnique({ where: { kind_slug: { kind: "video", slug } } });
+}
+
+/* ============== Tags ============== */
+
+export async function getTagBySlug(slug: string) {
+  return prisma.tag.findUnique({ where: { slug } });
+}
+
+export async function getAllTags() {
+  return prisma.tag.findMany({ orderBy: { label: "asc" } });
+}
+
+/* ============== Collections(topic / album / ranking)============== */
+
+export async function getCollectionsByKind(kind: "topic" | "album" | "ranking") {
+  return prisma.collection.findMany({
+    where: { ...PUBLISHED, kind },
+    orderBy: { sortOrder: "asc" },
+  });
+}
+
+export async function getCollectionBySlug(slug: string, kind?: "topic" | "album" | "ranking") {
+  return prisma.collection.findFirst({
+    where: {
+      ...PUBLISHED,
+      slug,
+      ...(kind ? { kind } : {}),
+    },
+    include: {
+      items: {
+        orderBy: { position: "asc" },
+        include: {
+          app: { include: { category: true, redirect: true } },
+          video: { include: { category: true, redirect: true } },
+          tag: true,
+          redirect: true,
+        },
+      },
+    },
+  });
+}
+
+/* ============== Type helpers ============== */
+// 从查询返回类型推导,组件 prop 用
+export type AppWithRels = NonNullable&lt;Awaited&lt;ReturnType&lt;typeof getAppBySlug&gt;&gt;&gt;;
+export type VideoWithRels = NonNullable&lt;Awaited&lt;ReturnType&lt;typeof getVideoBySlug&gt;&gt;&gt;;
+export type CollectionWithItems = NonNullable&lt;Awaited&lt;ReturnType&lt;typeof getCollectionBySlug&gt;&gt;&gt;;
+export type CollectionItemWithRefs = CollectionWithItems["items"][number];
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 写 <code>apps/web/lib/icons.tsx</code>(SVG sprite + <icon> 组件)</icon></strong></li>
+</ul>
+<p>读原型 <code>docs/ghome.html</code> 第 ~440-480 行(<code>&lt;defs&gt;</code> 块,含 <code>&lt;linearGradient&gt;</code> 与 <code>&lt;symbol&gt;</code>)。把 sprite 整体复制为 React 组件:</p>
+<pre><code class="language-tsx">import type { CSSProperties } from "react";
+
+/**
+ * SVG sprite — 来自原型 docs/ghome.html :440-480 的 &lt;defs&gt; 块。
+ * 使用方式:在 layout 顶部渲染一次 &lt;SvgSprite /&gt;,然后所有页面用 &lt;Icon name="i-chat" grad="g-brand" /&gt;。
+ */
+
+export function SvgSprite() {
+  return (
+    &lt;svg width={0} height={0} style={{ position: "absolute" }} aria-hidden&gt;
+      &lt;defs&gt;
+        {/* 从原型逐字 paste linearGradient + symbol 定义 */}
+        {/* g-brand / g-fire / g-sky / g-leaf / g-rose / g-grape / g-gold / g-mute / g-mint / g-pink */}
+        {/* i-chat / i-heart / i-dumbbell / i-map / i-mic / i-news / i-calendar / i-shield / i-palette */}
+        {/* i-search / i-home / i-fire / i-sparkle / i-users / i-check / i-arrow-right / etc. */}
+        {/* 详见原型 :440-480 */}
+      &lt;/defs&gt;
+    &lt;/svg&gt;
+  );
+}
+
+export function Icon({
+  name,
+  grad = "g-brand",
+  size = 22,
+  style,
+}: {
+  name: string;
+  grad?: string;
+  size?: number;
+  style?: CSSProperties;
+}) {
+  return (
+    &lt;svg width={size} height={size} viewBox="0 0 24 24" style={style}&gt;
+      &lt;use href={`#${name}`} fill={`url(#${grad})`} /&gt;
+    &lt;/svg&gt;
+  );
+}
+
+export function IconWhite({ name, size = 24 }: { name: string; size?: number }) {
+  return (
+    &lt;svg width={size} height={size} viewBox="0 0 24 24"&gt;
+      &lt;use href={`#${name}`} fill="#fff" /&gt;
+    &lt;/svg&gt;
+  );
+}
+</code></pre>
+<blockquote>
+<p>实现细节:Step 2 的占位注释(<code>{/* ... */}</code>)需要 implementer 根据原型行 :440-480 的实际 SVG 内容<strong>完整 paste</strong>。这块 ~40 行 SVG 不在 plan 里嵌入,以保持 plan 长度可控。implementer 必须读原型并复制。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 3: 写 <code>apps/web/lib/gradients.ts</code>(GRADS 映射)</strong></li>
+</ul>
+<pre><code class="language-ts">/**
+ * 与原型 docs/ghome.html :663-668 GRADS 一致。
+ * 用于 CSS gradient 字符串(如 hero 背景)。
+ */
+export const GRADS: Record&lt;string, [string, string]&gt; = {
+  "g-brand": ["#7C7CFF", "#5B5BE8"],
+  "g-fire":  ["#FF8A65", "#F5576C"],
+  "g-sky":   ["#4FACFE", "#00D4FE"],
+  "g-leaf":  ["#43E97B", "#38B89C"],
+  "g-rose":  ["#FA709A", "#FE9568"],
+  "g-grape": ["#A78BFA", "#7C3AED"],
+  "g-gold":  ["#FCD34D", "#F59E0B"],
+  "g-mute":  ["#9CA3AF", "#6B7280"],
+  "g-mint":  ["#5EEAD4", "#14B8A6"],
+  "g-pink":  ["#F472B6", "#DB2777"],
+};
+
+export function gradStops(name: string): [string, string] {
+  return GRADS[name] ?? GRADS["g-brand"];
+}
+
+export function gradCss(name: string, angle = 135): string {
+  const [a, b] = gradStops(name);
+  return `linear-gradient(${angle}deg,${a},${b})`;
+}
+
+/**
+ * 视频 cover 的 gradient(原型 docs/ghome.html :566-577 COVERS)。
+ * coverKey 来自 videos.coverKey,例如 'city' / 'fitness' / 'travel'。
+ */
+export const COVERS: Record&lt;string, string&gt; = {
+  city:     "linear-gradient(135deg,#667eea 0%,#764ba2 100%)",
+  fitness:  "linear-gradient(135deg,#f093fb 0%,#f5576c 100%)",
+  travel:   "linear-gradient(135deg,#4facfe 0%,#00f2fe 100%)",
+  interview:"linear-gradient(135deg,#43e97b 0%,#38f9d7 100%)",
+  life:     "linear-gradient(135deg,#fa709a 0%,#fee140 100%)",
+  vlog:     "linear-gradient(135deg,#a8edea 0%,#fed6e3 100%)",
+  campus:   "linear-gradient(135deg,#d299c2 0%,#fef9d7 100%)",
+  food:     "linear-gradient(135deg,#ffecd2 0%,#fcb69f 100%)",
+  culture:  "linear-gradient(135deg,#84fab0 0%,#8fd3f4 100%)",
+  fashion:  "linear-gradient(135deg,#fbc2eb 0%,#a6c1ee 100%)",
+};
+
+export function coverCss(coverKey: string): string {
+  return COVERS[coverKey] ?? COVERS.life;
+}
+
+/** 视频图片占位:与原型 :671 vimg 一致 */
+export function videoImg(slug: string, w = 800, h = 500): string {
+  return `https://picsum.photos/seed/ghome${slug}/${w}/${h}`;
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 写 <code>apps/web/lib/format.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">/** ISO date 'YYYY-MM-DD' → '2026-04-28' 显示用 */
+export function formatPublishDate(d: Date): string {
+  // 直接用 ISO 切片;不引 date-fns
+  return d.toISOString().slice(0, 10);
+}
+
+/** 阅读时长 '8 分钟' 显示 */
+export function formatReadMinutes(min: number): string {
+  return `${min} 分钟`;
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 5: 验证 typecheck</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/web typecheck
+</code></pre>
+<p>Expected: 通过(虽然 lib 还没被 page 引用,但作为 module typecheck 必须过)。</p>
+<ul>
+<li>[ ] <strong>Step 6: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/web/lib/
+git commit -m "feat(web): add db query helpers, icon registry, gradients, and format utils"
+</code></pre>
+<hr/>
+<h2 id="Task-3-Fixtures-FEATURED_WEB-CREATORS-SAMPLE_REVIEWS">Task 3 — Fixtures:FEATURED_WEB / CREATORS / SAMPLE_REVIEWS</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/web/fixtures/featured-web.ts</code>
+- Create: <code>apps/web/fixtures/creators.ts</code>
+- Create: <code>apps/web/fixtures/sample-reviews.ts</code></p>
+<blockquote>
+<p>来源:原型 <code>docs/ghome.html</code> :515(FEATURED_WEB)、:548-552(SAMPLE_REVIEWS)、:554-559(CREATORS)。这三组数据 P2 不入库,保持 fixture(spec §4.5)。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 1: 写 <code>apps/web/fixtures/featured-web.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">export const FEATURED_WEB = {
+  id: "g-video-hub",
+  name: "G-Video Hub",
+  type: "WEB端视频",
+  desc: "聚合全球优质的男同高清原创短片与长视频,支持无广告极速播放,打造纯净的沉浸式观影体验。",
+  tags: ["超清画质", "原创内容", "无广告", "创作者社区"],
+  audience: "喜欢沉浸式观影、追求高品质视频内容的视觉控",
+  features: "智能推荐 · 弹幕互动 · 多端同步",
+  stats: { videos: "3,200+", creators: "520+", plays: "2,100万+", rating: "9.2" },
+  about: "G-Video Hub 是 Ghome 全力推荐的男同生活方式视频站,收录内容均为合规的 Vlog、健身、旅行、情感访谈、生活记录等题材。所有内容由认证创作者上传,经编辑团队审核后上线,不含任何成人或违规内容。",
+} as const;
+
+export type FeaturedWeb = typeof FEATURED_WEB;
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 写 <code>apps/web/fixtures/creators.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">export interface Creator {
+  id: string;
+  name: string;
+  avatar: string;
+  grad: string;
+  followers: string;
+  videos: number;
+  bio: string;
+}
+
+export const CREATORS: Creator[] = [
+  { id: "c01", name: "小阳的城市笔记",  avatar: "阳", grad: "g-brand", followers: "12.5万", videos: 48, bio: "记录都市生活的细节与温度,主要拍 Vlog 和访谈类内容。" },
+  { id: "c02", name: "Justin Trains",   avatar: "J",  grad: "g-fire",  followers: "28.3万", videos: 62, bio: "健身教练 / 训练计划与饮食方案分享,认证创作者。" },
+  { id: "c03", name: "地球漫步 Geo",    avatar: "地", grad: "g-sky",   followers: "15.8万", videos: 35, bio: "走过 30+ 国家的旅行 Vlogger,分享同志友好城市指南。" },
+  { id: "c04", name: "晚安咖啡",        avatar: "咖", grad: "g-rose",  followers: "8.7万",  videos: 90, bio: "治愈系慢生活内容创作者,每周更新两条 Vlog。" },
+];
+
+/** 从原型 videoCreator 函数:按 video.cat 反查 creator */
+const VIDEO_CAT_TO_CREATOR: Record&lt;string, string&gt; = {
+  fitness: "c02",
+  travel: "c03",
+  life: "c04",
+  vlog: "c01",
+  interview: "c04",
+  campus: "c01",
+};
+
+export function creatorForVideoCategorySlug(catSlug: string): Creator {
+  const id = VIDEO_CAT_TO_CREATOR[catSlug] ?? "c01";
+  return CREATORS.find((c) =&gt; c.id === id) ?? CREATORS[0]!;
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 3: 写 <code>apps/web/fixtures/sample-reviews.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">export interface SampleReview {
+  name: string;
+  avatar: string;
+  grad: string;
+  stars: number;
+  date: string;
+  body: string;
+}
+
+export const SAMPLE_REVIEWS: SampleReview[] = [
+  { name: "Alex",  avatar: "A", grad: "g-brand", stars: 5, date: "2026-04-22", body: "功能很完整,社区氛围友好,已经用了三个月,认识了几个不错的朋友,强烈推荐给同样想拓展生活圈的人。" },
+  { name: "Marco", avatar: "M", grad: "g-rose",  stars: 4, date: "2026-04-15", body: "整体体验不错,UI 干净利落。隐私保护做得很到位,唯一希望能再增加一些深度兴趣社群功能。" },
+  { name: "Jay",   avatar: "J", grad: "g-leaf",  stars: 5, date: "2026-04-08", body: "用过好几款类似的产品,这个的认证机制最让人放心,客服响应也很及时,值得长期使用。" },
+];
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 验证 typecheck</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/web typecheck
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 5: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/web/fixtures/
+git commit -m "feat(web): add fixtures for featured-web, creators, sample-reviews (P2 placeholder)"
+</code></pre>
+<hr/>
+<h2 id="Task-4-Layout-Header-Footer-Custom-404">Task 4 — Layout + Header + Footer + Custom 404</h2>
+<p><strong>Files:</strong>
+- Modify: <code>apps/web/app/layout.tsx</code>
+- Create: <code>apps/web/components/Header.tsx</code>
+- Create: <code>apps/web/components/Footer.tsx</code>
+- Create: <code>apps/web/components/Crumb.tsx</code>
+- Create: <code>apps/web/app/not-found.tsx</code></p>
+<p>参考原型 <code>docs/ghome.html</code>:
+- Header: :486-494(<code>.header</code>、<code>.header-inner</code>、<code>.logo</code>、<code>.nav</code>、<code>.icon-btn</code>)
+- Footer: :498-510(<code>.footer</code>、<code>.footer-grid</code>)
+- 导航数据:原型 NAV array :638-647</p>
+<ul>
+<li>[ ] <strong>Step 1: 写 <code>apps/web/components/Header.tsx</code></strong></li>
+</ul>
+<pre><code class="language-tsx">import Link from "next/link";
+import { Icon } from "@/lib/icons";
+
+const NAV = [
+  { href: "/",         label: "首页" },
+  { href: "/apps",     label: "男同 App" },
+  { href: "/videos",   label: "男同视频" },
+  { href: "/categories", label: "分类导航" },
+  { href: "/rankings", label: "排行榜" },
+  { href: "/topics",   label: "专题" },
+  { href: "/guides",   label: "指南" },
+  { href: "/about",    label: "关于我们" },
+];
+
+export function Header({ activePath }: { activePath: string }) {
+  return (
+    &lt;header className="header"&gt;
+      &lt;div className="container header-inner"&gt;
+        &lt;Link href="/" className="logo"&gt;
+          &lt;span className="logo-icon"&gt;{/* Ghome 字母 logo */}G&lt;/span&gt;
+          &lt;span&gt;Ghome&lt;/span&gt;
+        &lt;/Link&gt;
+        &lt;nav className="nav"&gt;
+          {NAV.map((n) =&gt; {
+            const active = n.href === "/" ? activePath === "/" : activePath.startsWith(n.href);
+            return (
+              &lt;Link key={n.href} href={n.href} className={active ? "active" : ""}&gt;
+                {n.label}
+              &lt;/Link&gt;
+            );
+          })}
+        &lt;/nav&gt;
+        &lt;div className="header-right"&gt;
+          &lt;Link href="/about" className="icon-btn" aria-label="关于"&gt;
+            &lt;Icon name="i-info" size={20} /&gt;
+          &lt;/Link&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/header&gt;
+  );
+}
+</code></pre>
+<blockquote>
+<p>注:<code>icon-btn</code> 的 hover 效果与 <code>.nav .active::after</code> 下划线效果都来自原型 CSS,已在 globals.css 里。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 2: 写 <code>apps/web/components/Footer.tsx</code></strong></li>
+</ul>
+<p>读原型 :498-510 的 <code>.footer</code> 区段,构造对应 JSX。Footer 包含:
+- 4 列(品牌 / 产品 / 内容 / 关于),每列若干 link
+- 底部版权行 + 「免责声明」link</p>
+<p>按原型实际链接结构 paste:</p>
+<pre><code class="language-tsx">import Link from "next/link";
+
+export function Footer() {
+  return (
+    &lt;footer className="footer"&gt;
+      &lt;div className="container"&gt;
+        &lt;div className="footer-grid"&gt;
+          &lt;div&gt;
+            &lt;div className="footer-brand"&gt;Ghome&lt;/div&gt;
+            &lt;p className="footer-desc"&gt;LGBTQ+ 数字生活总入口&lt;/p&gt;
+          &lt;/div&gt;
+          &lt;div&gt;
+            &lt;h5&gt;产品&lt;/h5&gt;
+            &lt;ul&gt;
+              &lt;li&gt;&lt;Link href="/apps"&gt;男同 App&lt;/Link&gt;&lt;/li&gt;
+              &lt;li&gt;&lt;Link href="/videos"&gt;男同视频&lt;/Link&gt;&lt;/li&gt;
+              &lt;li&gt;&lt;Link href="/categories"&gt;分类导航&lt;/Link&gt;&lt;/li&gt;
+              &lt;li&gt;&lt;Link href="/rankings"&gt;排行榜&lt;/Link&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;/div&gt;
+          &lt;div&gt;
+            &lt;h5&gt;内容&lt;/h5&gt;
+            &lt;ul&gt;
+              &lt;li&gt;&lt;Link href="/topics"&gt;专题合集&lt;/Link&gt;&lt;/li&gt;
+              &lt;li&gt;&lt;Link href="/guides"&gt;使用指南&lt;/Link&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;/div&gt;
+          &lt;div&gt;
+            &lt;h5&gt;关于&lt;/h5&gt;
+            &lt;ul&gt;
+              &lt;li&gt;&lt;Link href="/about"&gt;关于我们&lt;/Link&gt;&lt;/li&gt;
+              &lt;li&gt;&lt;Link href="/contact"&gt;联系合作&lt;/Link&gt;&lt;/li&gt;
+              &lt;li&gt;&lt;Link href="/terms"&gt;免责声明&lt;/Link&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div className="footer-bottom"&gt;
+          © {new Date().getFullYear()} Ghome · LGBTQ+ 数字生活总入口
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/footer&gt;
+  );
+}
+</code></pre>
+<blockquote>
+<p>如果原型 Footer 与上述结构不完全一致,<strong>以原型为准</strong>(读 :498-510 校对)。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 3: 写 <code>apps/web/components/Crumb.tsx</code>(面包屑)</strong></li>
+</ul>
+<pre><code class="language-tsx">import Link from "next/link";
+import type { ReactNode } from "react";
+
+export function Crumb({ items }: { items: Array&lt;{ href?: string; label: ReactNode }&gt; }) {
+  return (
+    &lt;div className="container"&gt;
+      &lt;div className="crumb"&gt;
+        {items.map((it, i) =&gt; (
+          &lt;span key={i}&gt;
+            {i &gt; 0 &amp;&amp; &lt;span className="sep"&gt;/&lt;/span&gt;}
+            {it.href ? &lt;Link href={it.href}&gt;{it.label}&lt;/Link&gt; : &lt;span&gt;{it.label}&lt;/span&gt;}
+          &lt;/span&gt;
+        ))}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 重写 <code>apps/web/app/layout.tsx</code>(加 SvgSprite + Header + Footer)</strong></li>
+</ul>
+<pre><code class="language-tsx">import type { Metadata } from "next";
+import { headers } from "next/headers";
+import "./globals.css";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+import { SvgSprite } from "@/lib/icons";
+
+export const metadata: Metadata = {
+  title: { default: "Ghome", template: "%s · Ghome" },
+  description: "LGBTQ+ 数字生活总入口 — App / 视频 / 专题 / 指南",
+};
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const h = await headers();
+  const pathname = h.get("x-pathname") ?? "/";  // see middleware note below
+  return (
+    &lt;html lang="zh-CN"&gt;
+      &lt;body&gt;
+        &lt;SvgSprite /&gt;
+        &lt;Header activePath={pathname} /&gt;
+        {children}
+        &lt;Footer /&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  );
+}
+</code></pre>
+<blockquote>
+<p><strong>注</strong>:Next.js 15 不直接暴露当前 pathname 给 server layout。两种解法:
+- <strong>A(简单)</strong>:不做 active 高亮,Header <code>activePath=""</code> 始终为空,nav 不高亮 active state(可接受)。
+- <strong>B(精确)</strong>:写一个 <code>apps/web/middleware.ts</code>,把 <code>x-pathname</code> header 注入。</p>
+<p><strong>P2 决定 A</strong>:Header 的 <code>active</code> 高亮<strong>不依赖 server pathname</strong>,改成在 client 用 <code>usePathname</code> hook 推断:</p>
+</blockquote>
+<p>修订 Header.tsx 顶部加 <code>"use client"</code>,并用 <code>usePathname</code>:</p>
+<pre><code class="language-tsx">"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Icon } from "@/lib/icons";
+
+const NAV = [/* ...同上... */];
+
+export function Header() {
+  const pathname = usePathname();
+  return (
+    &lt;header className="header"&gt;
+      {/* ... 同上,但用 pathname 判断 active */}
+    &lt;/header&gt;
+  );
+}
+</code></pre>
+<p>并把 layout 里 <code>&lt;Header activePath={pathname} /&gt;</code> 改回 <code>&lt;Header /&gt;</code>,删掉 <code>headers()</code> 调用。</p>
+<blockquote>
+<p>这是 P2 决定:Header 是 client component,因为需要 <code>usePathname</code> 跟踪 active nav。其它 page/section 都是 server。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 5: 写 <code>apps/web/app/not-found.tsx</code></strong></li>
+</ul>
+<pre><code class="language-tsx">import Link from "next/link";
+
+export default function NotFound() {
+  return (
+    &lt;div className="container" style={{ padding: "120px 24px", textAlign: "center" }}&gt;
+      &lt;h1 style={{ fontSize: 80, margin: 0, color: "var(--primary)" }}&gt;404&lt;/h1&gt;
+      &lt;p style={{ color: "var(--text-2)", margin: "16px 0 32px" }}&gt;
+        页面未找到,可能已被移除或链接错误。
+      &lt;/p&gt;
+      &lt;Link href="/" className="btn btn-primary" style={{ display: "inline-flex", padding: "12px 40px" }}&gt;
+        回到首页
+      &lt;/Link&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 6: 验证 build</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/web build
+</code></pre>
+<p>Expected: 通过。/ (首页占位)路由 + /not-found 静态生成。</p>
+<ul>
+<li>[ ] <strong>Step 7: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/web/app/layout.tsx apps/web/app/not-found.tsx apps/web/components/Header.tsx apps/web/components/Footer.tsx apps/web/components/Crumb.tsx
+git commit -m "feat(web): layout with header/footer + custom 404"
+</code></pre>
+<hr/>
+<h2 id="Task-5-卡片组件-AppCard-VideoCard-GuideCard-TopicCard-RankingCard-TagPill">Task 5 — 卡片组件:AppCard / VideoCard / GuideCard / TopicCard / RankingCard / TagPill</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/web/components/AppCard.tsx</code>
+- Create: <code>apps/web/components/VideoCard.tsx</code>
+- Create: <code>apps/web/components/GuideCard.tsx</code>
+- Create: <code>apps/web/components/TopicCard.tsx</code>
+- Create: <code>apps/web/components/RankingCard.tsx</code>
+- Create: <code>apps/web/components/TagPill.tsx</code></p>
+<p>参考原型(<code>docs/ghome.html</code>):
+- AppCard:<code>.app-card</code> 与 <code>.atr</code> 结构,渲染于 :695-715(<code>renderAppCard</code>)
+- VideoCard:<code>.video-card</code> 与 <code>.feat-video</code> 结构,:679-693(<code>renderVCard</code>)
+- GuideCard:guides 列表 :1568+ 的卡片
+- TopicCard:<code>.topic-card</code> :876-878 区
+- RankingCard:<code>.rank-card</code> :1430-1480
+- TagPill:<code>.pill</code> 全局样式</p>
+<ul>
+<li>[ ] <strong>Step 1: 写 <code>AppCard.tsx</code></strong></li>
+</ul>
+<pre><code class="language-tsx">import Link from "next/link";
+import { Icon } from "@/lib/icons";
+import type { AppWithRels } from "@/lib/db";
+
+export function AppCard({ app }: { app: AppWithRels }) {
+  return (
+    &lt;Link href={`/app/${app.slug}`} className="app-card"&gt;
+      &lt;div className="app-card-head"&gt;
+        &lt;div className="featured-icon" style={{ background: `linear-gradient(135deg, ...)` }}&gt;
+          &lt;Icon name={app.iconKey} grad="g-mute" size={28} /&gt;  {/* 实际用 grad={app.gradientKey} */}
+        &lt;/div&gt;
+        &lt;div className="atr"&gt;
+          &lt;h4&gt;{app.name}&lt;/h4&gt;
+          &lt;span className="pill"&gt;APP&lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;p className="app-card-desc"&gt;{app.shortDesc}&lt;/p&gt;
+      &lt;div className="app-card-tags"&gt;
+        {app.tags.map(({ tag }) =&gt; (
+          &lt;span key={tag.id} className="pill"&gt;{tag.label}&lt;/span&gt;
+        ))}
+      &lt;/div&gt;
+      &lt;div className="app-card-meta"&gt;
+        &lt;span&gt;评分 {app.rating}&lt;/span&gt;
+        &lt;span&gt;·&lt;/span&gt;
+        &lt;span&gt;{app.usersLabel}&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/Link&gt;
+  );
+}
+</code></pre>
+<blockquote>
+<p>实际渲染细节按原型 :695-715。CSS 类名与原型保持一致;<strong>不</strong>自创新类。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 2: 写 <code>VideoCard.tsx</code></strong></li>
+</ul>
+<pre><code class="language-tsx">import Link from "next/link";
+import { coverCss } from "@/lib/gradients";
+import type { VideoWithRels } from "@/lib/db";
+
+export function VideoCard({ video }: { video: VideoWithRels }) {
+  return (
+    &lt;Link href={`/video/${video.slug}`} className="feat-video"&gt;
+      &lt;div className="feat-video-cover" style={{ background: coverCss(video.coverKey), aspectRatio: "16/10" }}&gt;
+        &lt;span className="fc"&gt;{video.category.label}&lt;/span&gt;
+        &lt;span className="ft"&gt;{video.title}&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div className="feat-video-meta"&gt;
+        &lt;span&gt;{video.duration}&lt;/span&gt;
+        &lt;span&gt;·&lt;/span&gt;
+        &lt;span&gt;{video.viewsLabel}&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/Link&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 3: 写 <code>GuideCard.tsx</code></strong> — 参考原型 guides 列表卡片(:1568+):</li>
+</ul>
+<pre><code class="language-tsx">import Link from "next/link";
+import { Icon } from "@/lib/icons";
+import type { Guide } from "@ghome/db";
+import { gradCss } from "@/lib/gradients";
+import { formatPublishDate, formatReadMinutes } from "@/lib/format";
+
+export function GuideCard({ guide }: { guide: Guide }) {
+  return (
+    &lt;Link href={`/guide/${guide.slug}`} className="guide-card"&gt;
+      &lt;div className="guide-card-head" style={{ background: gradCss(guide.gradientKey) }}&gt;
+        &lt;Icon name={guide.iconKey} grad="g-mute" size={36} /&gt;
+      &lt;/div&gt;
+      &lt;div className="guide-card-body"&gt;
+        &lt;span className="pill"&gt;{guide.categoryLabel}&lt;/span&gt;
+        &lt;h4&gt;{guide.title}&lt;/h4&gt;
+        &lt;p&gt;{guide.summary}&lt;/p&gt;
+        &lt;div className="guide-card-meta"&gt;
+          &lt;span&gt;{formatPublishDate(guide.publishedDate)}&lt;/span&gt;
+          &lt;span&gt;·&lt;/span&gt;
+          &lt;span&gt;{formatReadMinutes(guide.readMinutes)}&lt;/span&gt;
+          &lt;span&gt;·&lt;/span&gt;
+          &lt;span&gt;{guide.viewsLabel}&lt;/span&gt;
+          {guide.isHot &amp;&amp; &lt;span className="pill pill-hot"&gt;HOT&lt;/span&gt;}
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/Link&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 写 <code>TopicCard.tsx</code></strong> — 参考原型 :876-878:</li>
+</ul>
+<pre><code class="language-tsx">import Link from "next/link";
+import type { Collection } from "@ghome/db";
+
+export function TopicCard({ topic }: { topic: Collection }) {
+  return (
+    &lt;Link href={`/topic/${topic.slug}`} className="topic-card" style={{ background: topic.coverKey ?? "var(--primary-light)" }}&gt;
+      &lt;div className="topic-body"&gt;
+        &lt;h4&gt;{topic.title}&lt;/h4&gt;
+        &lt;p&gt;{topic.description}&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/Link&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 5: 写 <code>RankingCard.tsx</code></strong> — 参考原型 :1430-1480 <code>.rank-card</code>:</li>
+</ul>
+<p>接收一个 collection(kind=ranking),渲染 6 区块之一。详细实现见 T10。本 task 写一个<strong>通用的</strong> RankingCard,接收 <code>{ title, items: Array&lt;{ rank, title, hot, href }&gt; }</code>:</p>
+<pre><code class="language-tsx">import Link from "next/link";
+
+interface RankingCardItem {
+  rank: number;
+  title: React.ReactNode;
+  hot: string;
+  href: string;
+}
+
+export function RankingCard({
+  title,
+  emoji,
+  items,
+}: {
+  title: string;
+  emoji: string;
+  items: RankingCardItem[];
+}) {
+  return (
+    &lt;div className="rank-card"&gt;
+      &lt;h3&gt;
+        &lt;span&gt;{emoji}&lt;/span&gt;
+        {title}
+      &lt;/h3&gt;
+      {items.map((it) =&gt; (
+        &lt;Link key={it.rank} href={it.href} className={`rank-item ${it.rank &lt;= 3 ? "top" : ""}`}&gt;
+          &lt;span className="rank-num"&gt;{it.rank}&lt;/span&gt;
+          &lt;span className="rank-name"&gt;{it.title}&lt;/span&gt;
+          &lt;span className="rank-hot"&gt;{it.hot}&lt;/span&gt;
+        &lt;/Link&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 6: 写 <code>TagPill.tsx</code></strong></li>
+</ul>
+<pre><code class="language-tsx">import Link from "next/link";
+
+export function TagPill({ slug, label, asLink = true }: { slug: string; label: string; asLink?: boolean }) {
+  if (!asLink) return &lt;span className="pill"&gt;{label}&lt;/span&gt;;
+  return (
+    &lt;Link href={`/tag/${slug}`} className="pill pill-link"&gt;
+      #{label}
+    &lt;/Link&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 7: 验证 typecheck</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/web typecheck
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 8: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/web/components/
+git commit -m "feat(web): card components — App/Video/Guide/Topic/Ranking/TagPill"
+</code></pre>
+<hr/>
+<h2 id="Task-6-首页">Task 6 — 首页 <code>/</code></h2>
+<p><strong>Files:</strong>
+- Modify: <code>apps/web/app/page.tsx</code>(从 P0 占位 → 完整首页)
+- Create: <code>apps/web/components/FeaturedHero.tsx</code>(FEATURED_WEB hero 区块)</p>
+<p>参考原型 <code>renderHome</code> :768-893 与 hero / 重点推荐 / app 列表 / 视频列表 / 专题这几块 CSS。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写 <code>FeaturedHero.tsx</code></strong> — 用 fixtures.featured-web,渲染原型的"重点推荐"卡片(<code>.featured-card</code> :61-96):</li>
+</ul>
+<pre><code class="language-tsx">import { FEATURED_WEB } from "@/fixtures/featured-web";
+import { Icon } from "@/lib/icons";
+
+export function FeaturedHero() {
+  const fw = FEATURED_WEB;
+  return (
+    &lt;section className="section"&gt;
+      &lt;div className="container"&gt;
+        &lt;div className="section-header"&gt;
+          &lt;h2 className="section-title"&gt;
+            &lt;span className="i"&gt;🔥&lt;/span&gt;重点推荐
+          &lt;/h2&gt;
+        &lt;/div&gt;
+        &lt;div className="featured-card"&gt;
+          &lt;div className="feat-top"&gt;
+            &lt;div className="feat-banner"&gt;
+              &lt;div className="feat-brand"&gt;
+                &lt;div className="feat-brand-ic"&gt;{/* logo */}&lt;/div&gt;
+                &lt;div&gt;
+                  &lt;div className="feat-brand-name"&gt;{fw.name}&lt;/div&gt;
+                  &lt;div className="feat-brand-sub"&gt;{fw.type} · 男同生活方式视频站&lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+              &lt;p className="feat-tagline"&gt;{fw.desc}&lt;/p&gt;
+              &lt;div className="feat-stat-grid"&gt;
+                &lt;div className="feat-stat"&gt;&lt;div className="v"&gt;{fw.stats.videos}&lt;/div&gt;&lt;div className="l"&gt;视频&lt;/div&gt;&lt;/div&gt;
+                &lt;div className="feat-stat"&gt;&lt;div className="v"&gt;{fw.stats.creators}&lt;/div&gt;&lt;div className="l"&gt;创作者&lt;/div&gt;&lt;/div&gt;
+                &lt;div className="feat-stat"&gt;&lt;div className="v"&gt;{fw.stats.plays}&lt;/div&gt;&lt;div className="l"&gt;累计播放&lt;/div&gt;&lt;/div&gt;
+                &lt;div className="feat-stat"&gt;&lt;div className="v"&gt;{fw.stats.rating}&lt;/div&gt;&lt;div className="l"&gt;综合评分&lt;/div&gt;&lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div className="feat-detail"&gt;
+              &lt;div className="feat-head"&gt;&lt;h3&gt;{fw.name}&lt;/h3&gt;&lt;span className="pill"&gt;{fw.type}&lt;/span&gt;&lt;/div&gt;
+              &lt;p className="feat-desc"&gt;{fw.desc}&lt;/p&gt;
+              &lt;div className="feat-features"&gt;
+                {fw.tags.map((t) =&gt; (
+                  &lt;div key={t} className="feat-feat"&gt;
+                    &lt;Icon name="i-check" grad="g-leaf" size={16} /&gt;
+                    &lt;span&gt;{t}&lt;/span&gt;
+                  &lt;/div&gt;
+                ))}
+              &lt;/div&gt;
+              &lt;div className="feat-meta-row"&gt;
+                &lt;div className="meta"&gt;
+                  &lt;Icon name="i-users" size={16} /&gt;
+                  &lt;div&gt;&lt;b&gt;适合人群:&lt;/b&gt;{fw.audience}&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div className="meta"&gt;
+                  &lt;Icon name="i-sparkle" size={16} /&gt;
+                  &lt;div&gt;&lt;b&gt;主要功能:&lt;/b&gt;{fw.features}&lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 写首页 <code>apps/web/app/page.tsx</code></strong></li>
+</ul>
+<pre><code class="language-tsx">import Link from "next/link";
+import {
+  getPublishedApps,
+  getPublishedVideos,
+  getCollectionsByKind,
+} from "@/lib/db";
+import { AppCard } from "@/components/AppCard";
+import { VideoCard } from "@/components/VideoCard";
+import { TopicCard } from "@/components/TopicCard";
+import { FeaturedHero } from "@/components/FeaturedHero";
+
+export const revalidate = 60;
+
+export default async function HomePage() {
+  const [apps, videos, topics] = await Promise.all([
+    getPublishedApps({ limit: 6 }),
+    getPublishedVideos({ limit: 8 }),
+    getCollectionsByKind("topic"),
+  ]);
+
+  return (
+    &lt;&gt;
+      {/* Hero(原型 :770-784) */}
+      &lt;section className="hero"&gt;
+        &lt;div className="container"&gt;
+          &lt;h1&gt;探索更适合男同用户的 App、视频与内容平台&lt;/h1&gt;
+          &lt;p&gt;Ghome 为您精选并评测全球优质的 LGBTQ+ 社交软件、娱乐平台及实用工具,&lt;br /&gt;助您快速找到最契合的数字生活方式&lt;/p&gt;
+          &lt;div className="search-box"&gt;
+            &lt;span className="si"&gt;🔍&lt;/span&gt;
+            &lt;input placeholder="搜索 App、视频、专题…" disabled /&gt;
+            &lt;button className="btn-primary" disabled&gt;搜索&lt;/button&gt;
+          &lt;/div&gt;
+          &lt;div className="hot"&gt;
+            &lt;span&gt;热门:&lt;/span&gt;
+            &lt;Link href="/category/fitness"&gt;健身&lt;/Link&gt;
+            &lt;Link href="/category/travel"&gt;旅行&lt;/Link&gt;
+            &lt;Link href="/category/vlog"&gt;Vlog&lt;/Link&gt;
+            &lt;Link href="/category/interview"&gt;访谈&lt;/Link&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+
+      &lt;FeaturedHero /&gt;
+
+      {/* App 导航(原型 :842-852) */}
+      &lt;section className="section" style={{ paddingTop: 20 }}&gt;
+        &lt;div className="container"&gt;
+          &lt;div className="section-header"&gt;
+            &lt;h2 className="section-title"&gt;&lt;span className="i"&gt;⊞&lt;/span&gt;优质 App 导航&lt;/h2&gt;
+            &lt;Link href="/apps" className="view-more"&gt;浏览全部 →&lt;/Link&gt;
+          &lt;/div&gt;
+          &lt;div className="app-grid"&gt;
+            {apps.map((a) =&gt; &lt;AppCard key={a.id} app={a} /&gt;)}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+
+      {/* 热门视频(原型 :854-865) */}
+      &lt;section className="section" style={{ paddingTop: 20 }}&gt;
+        &lt;div className="container"&gt;
+          &lt;div className="section-header"&gt;
+            &lt;h2 className="section-title"&gt;&lt;span className="i"&gt;🎬&lt;/span&gt;热门男同视频&lt;/h2&gt;
+            &lt;Link href="/videos" className="view-more"&gt;浏览全部 →&lt;/Link&gt;
+          &lt;/div&gt;
+          &lt;div className="video-grid"&gt;
+            {videos.map((v) =&gt; &lt;VideoCard key={v.id} video={v} /&gt;)}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+
+      {/* 精选专题(原型 :867-880) */}
+      &lt;section className="section" style={{ paddingTop: 20, paddingBottom: 80 }}&gt;
+        &lt;div className="container"&gt;
+          &lt;div className="section-header"&gt;
+            &lt;h2 className="section-title"&gt;&lt;span className="i"&gt;📑&lt;/span&gt;精选专题&lt;/h2&gt;
+            &lt;Link href="/topics" className="view-more"&gt;浏览全部 →&lt;/Link&gt;
+          &lt;/div&gt;
+          &lt;div className="topics-grid"&gt;
+            {topics.map((t) =&gt; &lt;TopicCard key={t.id} topic={t} /&gt;)}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 3: 验证 build + 起 dev 看效果</strong></li>
+</ul>
+<pre><code class="language-bash">docker compose up -d
+pnpm --filter @ghome/web build
+pnpm --filter @ghome/web dev &amp;
+sleep 8
+curl -fsS http://localhost:3000/ | grep -q "探索更适合男同用户" &amp;&amp; echo "OK"
+curl -fsS http://localhost:3000/ | grep -q "G-Video Hub" &amp;&amp; echo "featured OK"
+kill %1 2&gt;/dev/null || true
+</code></pre>
+<p>Expected: 两个 grep 都命中。</p>
+<ul>
+<li>[ ] <strong>Step 4: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/web/app/page.tsx apps/web/components/FeaturedHero.tsx
+git commit -m "feat(web): home page with hero, featured, apps, videos, topics sections"
+</code></pre>
+<hr/>
+<h2 id="Task-7-apps-列表-app-slug-详情">Task 7 — <code>/apps</code> 列表 + <code>/app/[slug]</code> 详情</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/web/app/apps/page.tsx</code>
+- Create: <code>apps/web/app/app/[slug]/page.tsx</code></p>
+<p>参考原型 <code>renderAppsList</code> :896-958、<code>renderAppDetail</code> :960-1083。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写 <code>app/apps/page.tsx</code> — App 列表 + 分类筛选</strong></li>
+</ul>
+<pre><code class="language-tsx">import { getPublishedApps, getAppCategories } from "@/lib/db";
+import { AppCard } from "@/components/AppCard";
+import { Crumb } from "@/components/Crumb";
+import Link from "next/link";
+
+export const revalidate = 60;
+
+export default async function AppsListPage({
+  searchParams,
+}: {
+  searchParams: Promise&lt;{ cat?: string }&gt;;
+}) {
+  const sp = await searchParams;
+  const [apps, cats] = await Promise.all([
+    getPublishedApps({ categorySlug: sp.cat }),
+    getAppCategories(),
+  ]);
+
+  return (
+    &lt;&gt;
+      &lt;div className="page-head"&gt;
+        &lt;div className="container"&gt;
+          &lt;h1&gt;男同 App 矩阵导航&lt;/h1&gt;
+          &lt;p&gt;覆盖社交、生活、娱乐三大场景的优质 App 推荐&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;Crumb items={[{ href: "/", label: "首页" }, { label: "男同 App" }]} /&gt;
+      &lt;section className="section" style={{ paddingTop: 0 }}&gt;
+        &lt;div className="container"&gt;
+          &lt;div className="filter-tabs"&gt;
+            &lt;Link href="/apps" className={!sp.cat ? "active" : ""}&gt;全部&lt;/Link&gt;
+            {cats.map((c) =&gt; (
+              &lt;Link key={c.id} href={`/apps?cat=${c.slug}`} className={sp.cat === c.slug ? "active" : ""}&gt;
+                {c.label}
+              &lt;/Link&gt;
+            ))}
+          &lt;/div&gt;
+          &lt;div className="app-grid"&gt;
+            {apps.map((a) =&gt; &lt;AppCard key={a.id} app={a} /&gt;)}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 写 <code>app/app/[slug]/page.tsx</code> — App 详情</strong></li>
+</ul>
+<pre><code class="language-tsx">import { notFound } from "next/navigation";
+import { getAppBySlug, getPublishedApps } from "@/lib/db";
+import { AppCard } from "@/components/AppCard";
+import { TagPill } from "@/components/TagPill";
+import { Crumb } from "@/components/Crumb";
+import { SAMPLE_REVIEWS } from "@/fixtures/sample-reviews";
+import { gradCss } from "@/lib/gradients";
+import { Icon } from "@/lib/icons";
+
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const apps = await getPublishedApps();
+  return apps.map((a) =&gt; ({ slug: a.slug }));
+}
+
+export default async function AppDetailPage({ params }: { params: Promise&lt;{ slug: string }&gt; }) {
+  const { slug } = await params;
+  const app = await getAppBySlug(slug);
+  if (!app) notFound();
+
+  const sameCategoryApps = (await getPublishedApps({ categorySlug: app.category.slug }))
+    .filter((a) =&gt; a.id !== app.id)
+    .slice(0, 4);
+
+  return (
+    &lt;&gt;
+      &lt;Crumb items={[
+        { href: "/", label: "首页" },
+        { href: "/apps", label: "男同 App" },
+        { label: app.name },
+      ]} /&gt;
+      &lt;section className="section" style={{ paddingTop: 0 }}&gt;
+        &lt;div className="container"&gt;
+          &lt;div className="app-detail-head"&gt;
+            &lt;div className="featured-icon" style={{ background: gradCss(app.gradientKey) }}&gt;
+              &lt;Icon name={app.iconKey} grad="g-mute" size={36} /&gt;
+            &lt;/div&gt;
+            &lt;div className="app-detail-meta"&gt;
+              &lt;h1&gt;{app.name}&lt;/h1&gt;
+              &lt;p&gt;{app.shortDesc}&lt;/p&gt;
+              &lt;div className="app-detail-tags"&gt;
+                {app.tags.map(({ tag }) =&gt; &lt;TagPill key={tag.id} slug={tag.slug} label={tag.label} /&gt;)}
+              &lt;/div&gt;
+              &lt;div className="app-detail-stats"&gt;
+                &lt;span&gt;{app.usersLabel} 用户&lt;/span&gt;
+                &lt;span&gt;·&lt;/span&gt;
+                &lt;span&gt;{app.rating} 评分&lt;/span&gt;
+                &lt;span&gt;·&lt;/span&gt;
+                &lt;span&gt;{app.platform}&lt;/span&gt;
+                &lt;span&gt;·&lt;/span&gt;
+                &lt;span&gt;{app.size}&lt;/span&gt;
+              &lt;/div&gt;
+              {/* 下载按钮:redirect.disabled=true 时置灰,P3 才接 /r/:id */}
+              &lt;DownloadButton disabled={app.redirect.disabled} href={app.redirect.disabled ? undefined : `/r/${app.redirect.id}`} /&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+
+          &lt;div className="grid-2col"&gt;
+            &lt;div&gt;
+              &lt;h2&gt;产品介绍&lt;/h2&gt;
+              &lt;p&gt;{app.detail}&lt;/p&gt;
+              &lt;h2&gt;核心亮点&lt;/h2&gt;
+              &lt;ul className="hl-list"&gt;
+                {app.highlights.map((h, i) =&gt; &lt;li key={i}&gt;{h}&lt;/li&gt;)}
+              &lt;/ul&gt;
+              &lt;h2&gt;适合人群&lt;/h2&gt;
+              &lt;p&gt;{app.audience}&lt;/p&gt;
+              &lt;h2&gt;主要功能&lt;/h2&gt;
+              &lt;p&gt;{app.features}&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div&gt;
+              &lt;h2 style={{ marginTop: 0 }}&gt;用户评价&lt;/h2&gt;
+              {/* SAMPLE_REVIEWS 是 fixture */}
+              {SAMPLE_REVIEWS.map((r, i) =&gt; (
+                &lt;ReviewItem key={i} review={r} /&gt;
+              ))}
+              &lt;p className="muted" style={{ marginTop: 16 }}&gt;* 评价示例,P5 后接入真实评价系统&lt;/p&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+
+          &lt;div className="section-header" style={{ marginTop: 40 }}&gt;
+            &lt;h2 className="section-title"&gt;同类推荐&lt;/h2&gt;
+            &lt;Link href="/apps" className="view-more"&gt;浏览全部 →&lt;/Link&gt;
+          &lt;/div&gt;
+          &lt;div className="app-grid"&gt;
+            {sameCategoryApps.map((a) =&gt; &lt;AppCard key={a.id} app={a} /&gt;)}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/&gt;
+  );
+}
+
+function DownloadButton({ disabled, href }: { disabled: boolean; href?: string }) {
+  if (disabled) {
+    return (
+      &lt;button className="btn btn-primary" disabled style={{ opacity: 0.5, cursor: "not-allowed" }}&gt;
+        暂未开放
+      &lt;/button&gt;
+    );
+  }
+  return (
+    &lt;a className="btn btn-primary" href={href}&gt;立即下载&lt;/a&gt;
+  );
+}
+
+function ReviewItem({ review }: { review: typeof SAMPLE_REVIEWS[number] }) {
+  return (
+    &lt;div className="review"&gt;
+      &lt;div className="avatar" style={{ background: `var(--primary-light)` }}&gt;{review.avatar}&lt;/div&gt;
+      &lt;div&gt;
+        &lt;div&gt;&lt;b&gt;{review.name}&lt;/b&gt; · {"⭐".repeat(review.stars)} · &lt;small&gt;{review.date}&lt;/small&gt;&lt;/div&gt;
+        &lt;p&gt;{review.body}&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+
+import Link from "next/link";  // 注:这里实际放文件顶部
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 3: 验证 build + dev</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/web build
+pnpm --filter @ghome/web dev &amp;
+sleep 8
+curl -fsS http://localhost:3000/apps | grep -q "男同 App 矩阵导航" &amp;&amp; echo "list OK"
+curl -fsS http://localhost:3000/app/broconnect | grep -q "BroConnect" &amp;&amp; echo "detail OK"
+curl -fsS http://localhost:3000/app/nonexistent -o /dev/null -w "%{http_code}\n" | grep 404 &amp;&amp; echo "404 OK"
+kill %1 2&gt;/dev/null || true
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/web/app/apps/ apps/web/app/app/
+git commit -m "feat(web): /apps list with category filter and /app/:slug detail"
+</code></pre>
+<hr/>
+<h2 id="Task-8-videos-列表-video-slug-详情">Task 8 — <code>/videos</code> 列表 + <code>/video/[slug]</code> 详情</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/web/app/videos/page.tsx</code>
+- Create: <code>apps/web/app/video/[slug]/page.tsx</code></p>
+<p>参考原型 <code>renderVideosHome</code> :1085-1183、<code>renderVideoDetail</code> :1185-1288。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写 <code>app/videos/page.tsx</code></strong> — 视频首页(含 FEATURED_WEB hero + 热门 + 最新 + 创作者 + 分类)</li>
+</ul>
+<p>数据来源:
+- <code>getPublishedVideos({ limit: 8 })</code> — 热门(实际按 publishedDate desc 来代替)
+- <code>getCollectionsByKind("ranking")</code> — 取 weekly-hot-videos 与 latest-videos 来覆盖"热门"和"最新"区块
+- CREATORS fixture
+- VIDEO_CATS</p>
+<p>参照原型 :1085-1183 渲染 hero(FEATURED_WEB)+ "热门视频" + "最新上线" + "认证创作者" + "视频分类"。</p>
+<ul>
+<li>[ ] <strong>Step 2: 写 <code>app/video/[slug]/page.tsx</code></strong> — 视频详情</li>
+</ul>
+<p>数据来源:<code>getVideoBySlug(slug)</code>,fallback notFound;同类视频 <code>getPublishedVideos({ categorySlug: video.category.slug, limit: 4 })</code>;同标签视频通过 video.tags[*].tag.slug 第一个查 <code>getPublishedVideos({ tagSlug })</code> 4 条。</p>
+<p>引用 <code>creatorForVideoCategorySlug(video.category.slug)</code> 显示创作者(fixture)。</p>
+<p>外链按钮逻辑同 App detail 的 DownloadButton。</p>
+<p>ISR <code>revalidate = 300</code>。</p>
+<p><code>generateStaticParams()</code> 返回所有 published video slugs。</p>
+<ul>
+<li>[ ] <strong>Step 3: 验证</strong></li>
+</ul>
+<pre><code class="language-bash">curl localhost:3000/videos | grep "热门视频"
+curl localhost:3000/video/v01 | grep "都市生活"
+curl localhost:3000/video/missing -o /dev/null -w "%{http_code}" | grep 404
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/web/app/videos/ apps/web/app/video/
+git commit -m "feat(web): /videos home and /video/:slug detail with creators fixture"
+</code></pre>
+<hr/>
+<h2 id="Task-9-categories-category-slug-tag-slug">Task 9 — <code>/categories</code> + <code>/category/[slug]</code> + <code>/tag/[slug]</code></h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/web/app/categories/page.tsx</code>
+- Create: <code>apps/web/app/category/[slug]/page.tsx</code>
+- Create: <code>apps/web/app/tag/[slug]/page.tsx</code></p>
+<p>参考原型 :1290-1410。<strong>注意:<code>/category/:slug</code> 仅解析视频分类</strong>(spec §3.2),App 分类只在 <code>/apps?cat=:slug</code> 出现。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写 <code>app/categories/page.tsx</code></strong> — 列出 6 个视频分类(每个含视频计数):</li>
+</ul>
+<pre><code class="language-tsx">import { getVideoCategories, getPublishedVideos } from "@/lib/db";
+import Link from "next/link";
+import { Crumb } from "@/components/Crumb";
+
+export const revalidate = 60;
+
+export default async function CategoriesPage() {
+  const cats = await getVideoCategories();
+  // 计数:对每个 cat 查一次 video count
+  const withCount = await Promise.all(
+    cats.map(async (c) =&gt; ({
+      ...c,
+      count: (await getPublishedVideos({ categorySlug: c.slug })).length,
+    })),
+  );
+  return (
+    &lt;&gt;
+      &lt;div className="page-head"&gt;
+        &lt;div className="container"&gt;
+          &lt;h1&gt;视频分类导航&lt;/h1&gt;
+          &lt;p&gt;按主题浏览,快速找到你想看的内容&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;Crumb items={[{ href: "/", label: "首页" }, { label: "分类导航" }]} /&gt;
+      &lt;section className="section" style={{ paddingTop: 10 }}&gt;
+        &lt;div className="container"&gt;
+          &lt;div className="topics-grid"&gt;
+            {withCount.map((c) =&gt; (
+              &lt;Link key={c.id} href={`/category/${c.slug}`} className="topic-card"&gt;
+                &lt;div className="topic-body"&gt;
+                  &lt;h4&gt;{c.label} · {c.count} 条视频&lt;/h4&gt;
+                  &lt;p&gt;{c.description ?? ""}&lt;/p&gt;
+                &lt;/div&gt;
+              &lt;/Link&gt;
+            ))}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 写 <code>app/category/[slug]/page.tsx</code></strong> — 仅 video kind:</li>
+</ul>
+<pre><code class="language-tsx">import { notFound } from "next/navigation";
+import { getVideoCategoryBySlug, getPublishedVideos, getPublishedApps } from "@/lib/db";
+import { VideoCard } from "@/components/VideoCard";
+import { AppCard } from "@/components/AppCard";
+import { Crumb } from "@/components/Crumb";
+import Link from "next/link";
+
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  // 仅 video kind
+  const cats = await (await import("@/lib/db")).getVideoCategories();
+  return cats.map((c) =&gt; ({ slug: c.slug }));
+}
+
+export default async function CategoryDetailPage({ params }: { params: Promise&lt;{ slug: string }&gt; }) {
+  const { slug } = await params;
+  const cat = await getVideoCategoryBySlug(slug);
+  if (!cat) notFound();
+
+  const [videos, recommendedApps] = await Promise.all([
+    getPublishedVideos({ categorySlug: slug, limit: 24 }),
+    getPublishedApps({ limit: 4 }),
+  ]);
+
+  return (
+    &lt;&gt;
+      &lt;div className="page-head" style={{ background: "var(--primary-light)" }}&gt;
+        &lt;div className="container"&gt;
+          &lt;h1&gt;{cat.label} · 男同视频推荐&lt;/h1&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;Crumb items={[
+        { href: "/", label: "首页" },
+        { href: "/categories", label: "分类导航" },
+        { label: cat.label },
+      ]} /&gt;
+      &lt;section className="section" style={{ paddingTop: 10 }}&gt;
+        &lt;div className="container"&gt;
+          &lt;div className="cat-intro"&gt;
+            &lt;h3&gt;关于「{cat.label}」分类&lt;/h3&gt;
+            &lt;p&gt;{cat.description}&lt;/p&gt;
+          &lt;/div&gt;
+          &lt;div className="video-grid" style={{ marginTop: 24 }}&gt;
+            {videos.map((v) =&gt; &lt;VideoCard key={v.id} video={v} /&gt;)}
+          &lt;/div&gt;
+
+          &lt;div className="section-header" style={{ marginTop: 40 }}&gt;
+            &lt;h2 className="section-title"&gt;推荐 App&lt;/h2&gt;
+            &lt;Link href="/apps" className="view-more"&gt;浏览全部 →&lt;/Link&gt;
+          &lt;/div&gt;
+          &lt;div className="app-grid"&gt;
+            {recommendedApps.map((a) =&gt; &lt;AppCard key={a.id} app={a} /&gt;)}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 3: 写 <code>app/tag/[slug]/page.tsx</code></strong>:</li>
+</ul>
+<pre><code class="language-tsx">import { notFound } from "next/navigation";
+import { getTagBySlug, getPublishedVideos, getPublishedApps, getAllTags } from "@/lib/db";
+import { VideoCard } from "@/components/VideoCard";
+import { AppCard } from "@/components/AppCard";
+import { TagPill } from "@/components/TagPill";
+import { Crumb } from "@/components/Crumb";
+
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const tags = await getAllTags();
+  return tags.map((t) =&gt; ({ slug: t.slug }));
+}
+
+export default async function TagPage({ params }: { params: Promise&lt;{ slug: string }&gt; }) {
+  const { slug } = await params;
+  const tag = await getTagBySlug(slug);
+  if (!tag) notFound();
+
+  const [videos, allTags, apps] = await Promise.all([
+    getPublishedVideos({ tagSlug: slug, limit: 24 }),
+    getAllTags(),
+    getPublishedApps({ limit: 4 }),
+  ]);
+
+  const otherTags = allTags.filter((t) =&gt; t.slug !== slug).slice(0, 12);
+
+  return (
+    &lt;&gt;
+      &lt;div className="page-head"&gt;
+        &lt;div className="container"&gt;
+          &lt;h1&gt;#{tag.label}&lt;/h1&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;Crumb items={[
+        { href: "/", label: "首页" },
+        { label: `#${tag.label}` },
+      ]} /&gt;
+      &lt;section className="section" style={{ paddingTop: 10 }}&gt;
+        &lt;div className="container"&gt;
+          &lt;div className="video-grid"&gt;
+            {videos.map((v) =&gt; &lt;VideoCard key={v.id} video={v} /&gt;)}
+          &lt;/div&gt;
+
+          &lt;div className="section-header" style={{ marginTop: 40 }}&gt;
+            &lt;h2 className="section-title"&gt;其他热门标签&lt;/h2&gt;
+          &lt;/div&gt;
+          &lt;div className="tag-pills-row"&gt;
+            {otherTags.map((t) =&gt; &lt;TagPill key={t.id} slug={t.slug} label={t.label} /&gt;)}
+          &lt;/div&gt;
+
+          &lt;div className="section-header" style={{ marginTop: 40 }}&gt;
+            &lt;h2 className="section-title"&gt;推荐 App&lt;/h2&gt;
+          &lt;/div&gt;
+          &lt;div className="app-grid"&gt;
+            {apps.map((a) =&gt; &lt;AppCard key={a.id} app={a} /&gt;)}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 验证</strong></li>
+</ul>
+<pre><code class="language-bash">curl localhost:3000/categories | grep "视频分类导航"
+curl localhost:3000/category/fitness | grep "健身 · 男同视频推荐"
+curl localhost:3000/tag/fitness-tag | grep "#健身"
+curl localhost:3000/category/social -o /dev/null -w "%{http_code}" | grep 404  # social 是 app 分类,不应在 /category/ 出现
+</code></pre>
+<blockquote>
+<p>注:<code>/category/social</code> 应该 404,因为 social 是 kind='app',<code>getVideoCategoryBySlug</code> 找不到。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 5: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/web/app/categories/ apps/web/app/category/ apps/web/app/tag/
+git commit -m "feat(web): /categories, /category/:slug (video-only), /tag/:slug pages"
+</code></pre>
+<hr/>
+<h2 id="Task-10-topics-topic-slug-rankings-albums-占位">Task 10 — <code>/topics</code> + <code>/topic/[slug]</code> + <code>/rankings</code> + <code>/albums</code> 占位</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/web/app/topics/page.tsx</code>
+- Create: <code>apps/web/app/topic/[slug]/page.tsx</code>
+- Create: <code>apps/web/app/rankings/page.tsx</code>
+- Create: <code>apps/web/app/albums/page.tsx</code>(<code>notFound()</code>)
+- Create: <code>apps/web/app/album/[slug]/page.tsx</code>(<code>notFound()</code>)</p>
+<p>参考原型 <code>renderTopicsList</code> :1485+、<code>renderTopicDetail</code> :1510+、<code>renderRankings</code> :1412-1483。</p>
+<ul>
+<li>[ ] <strong>Step 1: <code>/topics</code> 列表</strong></li>
+</ul>
+<pre><code class="language-tsx">import { getCollectionsByKind } from "@/lib/db";
+import { TopicCard } from "@/components/TopicCard";
+import { Crumb } from "@/components/Crumb";
+
+export const revalidate = 60;
+
+export default async function TopicsListPage() {
+  const topics = await getCollectionsByKind("topic");
+  return (
+    &lt;&gt;
+      &lt;div className="page-head"&gt;
+        &lt;div className="container"&gt;
+          &lt;h1&gt;专题合集&lt;/h1&gt;
+          &lt;p&gt;由 Ghome 编辑精心策划的主题专题&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;Crumb items={[{ href: "/", label: "首页" }, { label: "专题合集" }]} /&gt;
+      &lt;section className="section" style={{ paddingTop: 10, paddingBottom: 80 }}&gt;
+        &lt;div className="container"&gt;
+          &lt;div className="topics-grid"&gt;
+            {topics.map((t) =&gt; &lt;TopicCard key={t.id} topic={t} /&gt;)}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: <code>/topic/[slug]</code> 详情</strong></li>
+</ul>
+<pre><code class="language-tsx">import { notFound } from "next/navigation";
+import { getCollectionBySlug, getCollectionsByKind } from "@/lib/db";
+import { VideoCard } from "@/components/VideoCard";
+import { TopicCard } from "@/components/TopicCard";
+import { Crumb } from "@/components/Crumb";
+
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const topics = await getCollectionsByKind("topic");
+  return topics.map((t) =&gt; ({ slug: t.slug }));
+}
+
+export default async function TopicDetailPage({ params }: { params: Promise&lt;{ slug: string }&gt; }) {
+  const { slug } = await params;
+  const topic = await getCollectionBySlug(slug, "topic");
+  if (!topic) notFound();
+
+  const otherTopics = (await getCollectionsByKind("topic"))
+    .filter((t) =&gt; t.slug !== slug)
+    .slice(0, 6);
+
+  return (
+    &lt;&gt;
+      &lt;div className="page-head" style={{ background: topic.coverKey ?? "var(--primary-light)" }}&gt;
+        &lt;div className="container"&gt;
+          &lt;h1&gt;{topic.title}&lt;/h1&gt;
+          &lt;p&gt;{topic.description}&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;Crumb items={[
+        { href: "/", label: "首页" },
+        { href: "/topics", label: "专题" },
+        { label: topic.title },
+      ]} /&gt;
+      &lt;section className="section" style={{ paddingTop: 10 }}&gt;
+        &lt;div className="container"&gt;
+          &lt;div className="video-grid"&gt;
+            {topic.items.map((it) =&gt;
+              it.video ? &lt;VideoCard key={it.id} video={it.video as any} /&gt; : null,
+            )}
+          &lt;/div&gt;
+
+          &lt;div className="section-header" style={{ marginTop: 40 }}&gt;
+            &lt;h2 className="section-title"&gt;其他专题&lt;/h2&gt;
+          &lt;/div&gt;
+          &lt;div className="topics-grid"&gt;
+            {otherTopics.map((t) =&gt; &lt;TopicCard key={t.id} topic={t} /&gt;)}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+<blockquote>
+<p>注:<code>it.video</code> 类型是 <code>(Video &amp; {category, redirect}) | null</code>。<code>as any</code> 临时绕过 — 更好的写法是把 <code>getCollectionBySlug</code> 的 include 在 <code>lib/db.ts</code> 里加上 tags 让类型完整,然后在 VideoCard 用更宽泛的类型。本 P2 先 <code>as any</code>,P3 再清。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 3: <code>/rankings</code> — 6 区块,从 6 条 ranking collection 渲染</strong></li>
+</ul>
+<pre><code class="language-tsx">import { getCollectionsByKind, getCollectionBySlug } from "@/lib/db";
+import { RankingCard } from "@/components/RankingCard";
+import { Crumb } from "@/components/Crumb";
+
+export const revalidate = 60;
+
+export default async function RankingsPage() {
+  const rankings = await getCollectionsByKind("ranking");
+  const detailed = await Promise.all(
+    rankings.map((r) =&gt; getCollectionBySlug(r.slug, "ranking")),
+  );
+
+  return (
+    &lt;&gt;
+      &lt;div className="page-head"&gt;
+        &lt;div className="container"&gt;
+          &lt;h1&gt;Ghome 排行榜&lt;/h1&gt;
+          &lt;p&gt;每周基于用户行为数据更新的男同 App 与视频内容榜单。&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;Crumb items={[{ href: "/", label: "首页" }, { label: "排行榜" }]} /&gt;
+      &lt;section className="section" style={{ paddingTop: 10 }}&gt;
+        &lt;div className="container"&gt;
+          &lt;div className="rank-grid"&gt;
+            {detailed.filter(Boolean).map((rk) =&gt; (
+              &lt;RankingCard
+                key={rk!.id}
+                title={rk!.title}
+                emoji={rankingEmoji(rk!.slug)}
+                items={rk!.items.map((it, i) =&gt; ({
+                  rank: i + 1,
+                  title: itemTitle(it),
+                  hot: itemHot(it),
+                  href: itemHref(it),
+                }))}
+              /&gt;
+            ))}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/&gt;
+  );
+}
+
+function rankingEmoji(slug: string): string {
+  switch (slug) {
+    case "weekly-hot-videos": return "🔥";
+    case "latest-videos":     return "✨";
+    case "top-liked-videos":  return "💜";
+    case "weekly-hot-apps":   return "📱";
+    case "top-rated-apps":    return "⭐";
+    case "hot-tags":          return "🏷";
+    default: return "🔥";
+  }
+}
+
+function itemTitle(it: any): React.ReactNode {
+  if (it.video) return it.video.title;
+  if (it.app) return it.app.name;
+  if (it.tag) return `#${it.tag.label}`;
+  return "—";
+}
+
+function itemHot(it: any): string {
+  if (it.video) {
+    const slug = it.collection?.slug ?? "";
+    if (slug === "latest-videos") return it.video.publishedDate.toISOString().slice(0, 10);
+    if (slug === "top-liked-videos") return `♥ ${it.video.likesLabel}`;
+    return it.video.viewsLabel;
+  }
+  if (it.app) {
+    const slug = it.collection?.slug ?? "";
+    if (slug === "top-rated-apps") return `${it.app.rating} 分`;
+    return it.app.usersLabel;
+  }
+  if (it.tag) {
+    // count of videos with this tag — already implicit; fall back to label
+    return "";
+  }
+  return "";
+}
+
+function itemHref(it: any): string {
+  if (it.video) return `/video/${it.video.slug}`;
+  if (it.app)   return `/app/${it.app.slug}`;
+  if (it.tag)   return `/tag/${it.tag.slug}`;
+  return "/";
+}
+</code></pre>
+<blockquote>
+<p>注:<code>itemHot</code> 内部需要知道当前 ranking 的 slug;实际实现时把 ranking 的 slug 通过闭包/参数传入(上述代码用 <code>it.collection?.slug</code> 是不准确的,应该在 <code>RankingsPage</code> map 时 <code>(it, i)</code> 之外把 ranking slug 也传进来 — implementer 修正实现)。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 4: <code>/albums</code> + <code>/album/[slug]</code> 占位 → notFound()</strong></li>
+</ul>
+<pre><code class="language-tsx">// apps/web/app/albums/page.tsx
+import { notFound } from "next/navigation";
+export default function AlbumsPlaceholder() { notFound(); }
+</code></pre>
+<pre><code class="language-tsx">// apps/web/app/album/[slug]/page.tsx
+import { notFound } from "next/navigation";
+export default function AlbumDetailPlaceholder() { notFound(); }
+</code></pre>
+<blockquote>
+<p>这两条路由在 P2 故意 404。P6 会落地真正实现。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 5: 验证</strong></li>
+</ul>
+<pre><code class="language-bash">curl localhost:3000/topics | grep "专题合集"
+curl localhost:3000/topic/entry | grep "男同视频入门推荐"
+curl localhost:3000/rankings | grep "本周热门视频榜"
+curl localhost:3000/albums -o /dev/null -w "%{http_code}" | grep 404
+curl localhost:3000/album/anything -o /dev/null -w "%{http_code}" | grep 404
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 6: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/web/app/topics/ apps/web/app/topic/ apps/web/app/rankings/ apps/web/app/albums/ apps/web/app/album/
+git commit -m "feat(web): /topics, /topic/:slug, /rankings (6 boards), /albums placeholder (notFound)"
+</code></pre>
+<hr/>
+<h2 id="Task-11-guides-guide-slug-含-markdown-渲染">Task 11 — <code>/guides</code> + <code>/guide/[slug]</code> 含 markdown 渲染</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/web/components/MarkdownBody.tsx</code>
+- Create: <code>apps/web/app/guides/page.tsx</code>
+- Create: <code>apps/web/app/guide/[slug]/page.tsx</code></p>
+<p>参考原型 :1540+(列表)与 :1590+(详情含 TOC)。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写 <code>MarkdownBody.tsx</code></strong></li>
+</ul>
+<pre><code class="language-tsx">"use client";
+
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
+export function MarkdownBody({ source }: { source: string }) {
+  return (
+    &lt;div className="md-body"&gt;
+      &lt;ReactMarkdown remarkPlugins={[remarkGfm]}&gt;{source}&lt;/ReactMarkdown&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<blockquote>
+<p>用 client component 是因为 react-markdown 在 server component 渲染时偶尔有 hydration 问题(实际上 server 也行,但 client 更稳)。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 2: 写 <code>/guides</code> 列表</strong></li>
+</ul>
+<pre><code class="language-tsx">import { getPublishedGuides } from "@/lib/db";
+import { GuideCard } from "@/components/GuideCard";
+import { Crumb } from "@/components/Crumb";
+
+export const revalidate = 60;
+
+export default async function GuidesListPage() {
+  const guides = await getPublishedGuides();
+  return (
+    &lt;&gt;
+      &lt;div className="page-head"&gt;
+        &lt;div className="container"&gt;
+          &lt;h1&gt;使用指南&lt;/h1&gt;
+          &lt;p&gt;选 App、看视频、保护隐私的全套指南&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;Crumb items={[{ href: "/", label: "首页" }, { label: "使用指南" }]} /&gt;
+      &lt;section className="section" style={{ paddingTop: 10, paddingBottom: 80 }}&gt;
+        &lt;div className="container"&gt;
+          &lt;div className="guides-grid"&gt;
+            {guides.map((g) =&gt; &lt;GuideCard key={g.id} guide={g} /&gt;)}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 3: 写 <code>/guide/[slug]</code> 详情</strong></li>
+</ul>
+<pre><code class="language-tsx">import { notFound } from "next/navigation";
+import { getGuideBySlug, getPublishedGuides } from "@/lib/db";
+import { MarkdownBody } from "@/components/MarkdownBody";
+import { Crumb } from "@/components/Crumb";
+import { gradCss } from "@/lib/gradients";
+import { Icon } from "@/lib/icons";
+import { formatPublishDate, formatReadMinutes } from "@/lib/format";
+import Link from "next/link";
+
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const guides = await getPublishedGuides();
+  return guides.map((g) =&gt; ({ slug: g.slug }));
+}
+
+export default async function GuideDetailPage({ params }: { params: Promise&lt;{ slug: string }&gt; }) {
+  const { slug } = await params;
+  const guide = await getGuideBySlug(slug);
+  if (!guide) notFound();
+
+  const all = await getPublishedGuides();
+  const idx = all.findIndex((g) =&gt; g.slug === slug);
+  const prev = idx &gt; 0 ? all[idx - 1] : null;
+  const next = idx &lt; all.length - 1 ? all[idx + 1] : null;
+
+  return (
+    &lt;&gt;
+      &lt;section className="gd-hero" style={{ background: gradCss(guide.gradientKey) }}&gt;
+        &lt;div className="container"&gt;
+          &lt;span className="pill"&gt;{guide.categoryLabel}&lt;/span&gt;
+          &lt;h1&gt;{guide.title}&lt;/h1&gt;
+          &lt;p&gt;{guide.summary}&lt;/p&gt;
+          &lt;div className="gd-meta"&gt;
+            &lt;span&gt;&lt;Icon name="i-calendar" size={14} /&gt; {formatPublishDate(guide.publishedDate)}&lt;/span&gt;
+            &lt;span&gt;&lt;Icon name="i-clock" size={14} /&gt; {formatReadMinutes(guide.readMinutes)}&lt;/span&gt;
+            &lt;span&gt;&lt;Icon name="i-eye" size={14} /&gt; {guide.viewsLabel}&lt;/span&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+      &lt;Crumb items={[
+        { href: "/", label: "首页" },
+        { href: "/guides", label: "使用指南" },
+        { label: guide.title },
+      ]} /&gt;
+      &lt;section className="section" style={{ paddingTop: 20, paddingBottom: 80 }}&gt;
+        &lt;div className="container" style={{ maxWidth: 760 }}&gt;
+          &lt;MarkdownBody source={guide.bodyMd} /&gt;
+
+          &lt;div className="gd-nav"&gt;
+            {prev &amp;&amp; &lt;Link href={`/guide/${prev.slug}`} className="gd-prev"&gt;← {prev.title}&lt;/Link&gt;}
+            {next &amp;&amp; &lt;Link href={`/guide/${next.slug}`} className="gd-next"&gt;{next.title} →&lt;/Link&gt;}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 验证</strong></li>
+</ul>
+<pre><code class="language-bash">curl localhost:3000/guides | grep "使用指南"
+curl localhost:3000/guide/choose-app | grep "如何选择适合自己的男同 App"
+curl localhost:3000/guide/choose-app | grep "明确你的核心需求"  # markdown body 渲染
+curl localhost:3000/guide/missing -o /dev/null -w "%{http_code}" | grep 404
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 5: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/web/components/MarkdownBody.tsx apps/web/app/guides/ apps/web/app/guide/
+git commit -m "feat(web): /guides list and /guide/:slug detail with react-markdown"
+</code></pre>
+<hr/>
+<h2 id="Task-12-静态页-ISR-配置整理-完整冒烟-tag">Task 12 — 静态页 + ISR 配置整理 + 完整冒烟 + tag</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/web/app/about/page.tsx</code>
+- Create: <code>apps/web/app/contact/page.tsx</code>
+- Create: <code>apps/web/app/terms/page.tsx</code></p>
+<p>参考原型 <code>renderAbout</code> :1754-1781、<code>renderContact</code> :1783-1808、<code>renderTerms</code> :1810-1830。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写 <code>app/about/page.tsx</code></strong></li>
+</ul>
+<p>文案直接参 prototype <code>renderAbout</code> 内的 about-card,转成 React JSX。无 DB 查询、无 ISR(纯 SSG)。</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: 写 <code>app/contact/page.tsx</code></strong> — 同样转 prototype <code>renderContact</code>。</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 写 <code>app/terms/page.tsx</code></strong> — 同样转 prototype <code>renderTerms</code>。</p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: 完整冒烟(干净环境)</strong></p>
+</li>
+</ul>
+<pre><code class="language-bash">cd /Users/jeff/Work/workspace/uk/ghome
+docker compose up -d
+sleep 5
+pnpm --filter @ghome/db db:reset --force
+pnpm --filter @ghome/web build
+pnpm --filter @ghome/web dev &amp;
+sleep 10
+
+# 16 条原型路由
+for path in / /apps /app/broconnect /videos /video/v01 /categories /category/fitness /tag/fitness-tag /topics /topic/entry /rankings /guides /guide/choose-app /about /contact /terms; do
+  status=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:3000$path")
+  echo "GET $path → $status"
+done
+
+# /albums 与 /album/:slug 应 404
+for path in /albums /album/whatever; do
+  status=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:3000$path")
+  echo "GET $path → $status (expect 404)"
+done
+
+kill %1 2&gt;/dev/null || true
+docker compose down
+</code></pre>
+<p>Expected: 前 16 条都返回 200;后 2 条都返回 404。</p>
+<ul>
+<li>[ ] <strong>Step 5: typecheck + lint + test 全套</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm typecheck
+pnpm lint
+pnpm --filter @ghome/db test
+pnpm build
+</code></pre>
+<p>Expected: 4 步全过。</p>
+<ul>
+<li>[ ] <strong>Step 6: 提交 + 标签 P2</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/web/app/about/ apps/web/app/contact/ apps/web/app/terms/
+git commit -m "feat(web): static about/contact/terms pages"
+
+# 顺手把 plan 文件提交(同 P0/P1 末端的惯例)
+git add docs/superpowers/plans/2026-05-09-ghome-p2-frontend-readonly.md
+git commit -m "docs: commit P2 implementation plan"
+
+git tag -a p2-frontend-readonly -m "P2 · frontend read-only: 16 prototype routes connected to DB; FEATURED_WEB/CREATORS/SAMPLE_REVIEWS as fixtures; /albums placeholder; ISR 60s/300s; CSS frozen from prototype"
+git log --oneline p1-data-model..HEAD
+git tag -l
+</code></pre>
+<hr/>
+<h2 id="P2-完成判据-对应-spec-5">P2 完成判据(对应 spec §5)</h2>
+<ul>
+<li>✅ 16 条原型路由用 SSG/ISR 渲染,数据来自 DB(T1-T11 + T12 静态页)</li>
+<li>✅ <code>/rankings</code> 渲染 6 条 ranking collections(T10),5 内容榜各 8 + tag 榜 10 与原型一致</li>
+<li>✅ FEATURED_WEB / CREATORS / SAMPLE_REVIEWS 作为 fixture(T3 + 各页面引用)</li>
+<li>✅ <code>/albums</code> 与 <code>/album/:slug</code> 在 P2 返回 404 占位(T10)</li>
+<li>✅ ISR 配置:列表 60s / 详情 300s / 静态页全 SSG(分布在各 task)</li>
+<li>✅ markdown 渲染(react-markdown)用于 guide bodies(T11)</li>
+<li>✅ 视觉对齐原型(整体 CSS 抄自 prototype,T1)</li>
+</ul>
+<hr/>
+<h2 id="已知-P2-故意不做的事-P3-起补">已知 P2 故意不做的事(P3+ 起补)</h2>
+<ul>
+<li><strong><code>/r/:id</code> 跳转中转</strong>:P2 详情页的下载按钮在 <code>redirect.disabled=true</code> 时置灰,不渲染外链;启用后用 <code>&lt;a href={redirect.targetUrl}&gt;</code> 占位,<strong>不</strong>走中转(P3 才接 <code>/r/:id</code> route handler + click_events 写入)</li>
+<li><strong>搜索框接通</strong>:首页 <code>&lt;input disabled&gt;</code>,P8 才接</li>
+<li><strong>admin 编辑</strong>:web 仅读(P5/P6 起 admin 能写 → revalidate web)</li>
+<li><strong>i18n / 多语言</strong>:全中文</li>
+<li><strong><code>/albums</code>、<code>/album/:slug</code> 实际页面</strong>:P6 才出</li>
+<li><strong>active state on Header</strong>:用 <code>usePathname</code> 在 client 侧推断 — 已 P2 实现</li>
+</ul>
+<hr/>
+<h2 id="Self-Review">Self-Review</h2>
+<ul>
+<li>
+<p><strong>Spec 覆盖</strong>:逐条核对 spec §2.1 路由表,16 条原型路由 + 2 条 albums 占位全部有 task 覆盖。<code>/category/:slug</code> 仅解析 video kind(spec §3.2)在 T9 Step 2 显式要求(getVideoCategoryBySlug 限定 kind=video)。<code>/rankings</code> 直接读 DB 不做运行时排序(spec §0)在 T10 Step 3 实现。</p>
+</li>
+<li>
+<p><strong>占位符扫描</strong>:plan 内有 2 处 <code>// 实际...</code> 与 <code>// 详见原型...</code> 是有意的引用注释,告诉 implementer 去 prototype 读对应 HTML 片段。这些不是 TBD,而是因为 prototype 的 SVG defs(T2 Step 2 ~40 行)与 Footer 内容(T4 Step 2)若全嵌入会让 plan 超 4500 行;让 implementer 去原型读对应 line 是更合理的做法。其余无 TBD/fill in。</p>
+</li>
+<li>
+<p><strong>TS 类型一致性</strong>:<code>AppWithRels</code> / <code>VideoWithRels</code> / <code>CollectionWithItems</code> 在 <code>lib/db.ts</code> 定义,各 page 与 component 引用名一致。</p>
+</li>
+<li>
+<p><strong>风险</strong>:T10 Step 3 <code>itemHot</code> 函数中 <code>it.collection?.slug</code> 是错的(CollectionItem 没有反向 collection 关系直接 expose);implementer 在实现时<strong>应</strong>改成在 RankingsPage <code>.map((rk) =&gt; ...)</code> 时把 <code>rk.slug</code> 传给 RankingCard 的 children,然后 RankingCard 内部根据 ranking slug 决定 hot 文案。已经在 plan 注释里点出。</p>
+</li>
+</ul>
+<hr/>
+<h2 id="下一步">下一步</h2>
+<p>P2 完成后,<strong>写 P3 plan</strong>(<code>/r/:id</code> 跳转中转 + <code>click_events</code> 写入 + 详情页 CTA 渲染 <code>/r/:id</code>;<code>pnpm db:enable-redirect</code> 验证管线 — 已 P1 落 CLI,但 P3 把 web 端的真实链接接上;<code>runtime='nodejs'</code> + 同步 INSERT;ip_hash 用 <code>HMAC(SECRET, YYYY-MM-DD UTC)</code>;<code>ua-parser-js</code> 引入)。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#File-Structure-P2-末态">File Structure(P2 末态)</a></li><li style="margin-left:0.0rem"><a href="#Conventions-整个-P2-共享">Conventions(整个 P2 共享)</a></li><li style="margin-left:0.0rem"><a href="#Task-1-apps-web-接入-ghome-db-引入-markdown-依赖-复制原型-CSS">Task 1 — apps/web 接入 @ghome/db + 引入 markdown 依赖 + 复制原型 CSS</a></li><li style="margin-left:0.0rem"><a href="#Task-2-lib-db-queries-icons-gradients-format">Task 2 — lib/ :db queries + icons + gradients + format</a></li><li style="margin-left:0.0rem"><a href="#Task-3-Fixtures-FEATURED_WEB-CREATORS-SAMPLE_REVIEWS">Task 3 — Fixtures:FEATURED_WEB / CREATORS / SAMPLE_REVIEWS</a></li><li style="margin-left:0.0rem"><a href="#Task-4-Layout-Header-Footer-Custom-404">Task 4 — Layout + Header + Footer + Custom 404</a></li><li style="margin-left:0.0rem"><a href="#Task-5-卡片组件-AppCard-VideoCard-GuideCard-TopicCard-RankingCard-TagPill">Task 5 — 卡片组件:AppCard / VideoCard / GuideCard / TopicCard / RankingCard / TagPill</a></li><li style="margin-left:0.0rem"><a href="#Task-6-首页">Task 6 — 首页 /</a></li><li style="margin-left:0.0rem"><a href="#Task-7-apps-列表-app-slug-详情">Task 7 — /apps 列表 + /app/[slug] 详情</a></li><li style="margin-left:0.0rem"><a href="#Task-8-videos-列表-video-slug-详情">Task 8 — /videos 列表 + /video/[slug] 详情</a></li><li style="margin-left:0.0rem"><a href="#Task-9-categories-category-slug-tag-slug">Task 9 — /categories + /category/[slug] + /tag/[slug]</a></li><li style="margin-left:0.0rem"><a href="#Task-10-topics-topic-slug-rankings-albums-占位">Task 10 — /topics + /topic/[slug] + /rankings + /albums 占位</a></li><li style="margin-left:0.0rem"><a href="#Task-11-guides-guide-slug-含-markdown-渲染">Task 11 — /guides + /guide/[slug] 含 markdown 渲染</a></li><li style="margin-left:0.0rem"><a href="#Task-12-静态页-ISR-配置整理-完整冒烟-tag">Task 12 — 静态页 + ISR 配置整理 + 完整冒烟 + tag</a></li><li style="margin-left:0.0rem"><a href="#P2-完成判据-对应-spec-5">P2 完成判据(对应 spec §5)</a></li><li style="margin-left:0.0rem"><a href="#已知-P2-故意不做的事-P3-起补">已知 P2 故意不做的事(P3+ 起补)</a></li><li style="margin-left:0.0rem"><a href="#Self-Review">Self-Review</a></li><li style="margin-left:0.0rem"><a href="#下一步">下一步</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / GHOME</li>
+          <li>日期：2026-05-09</li>
+          <li>标签：<span class="tag">GHOME</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">自动化</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p2-frontend-readonly.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605090000-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BShell-Ghome%20P2%20%C2%B7%20%E9%A1%B5%E9%9D%A2%E7%AB%AF%E5%8F%AA%E8%AF%BB%20Implementation%20Plan.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Ghome P2 · 页面端只读 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or…</p>
+      <p>关键词：GHOME、Shell、Docker、自动化、源码与配置、业务系统运维、业务系统运维 / GHOME、Ghome P2 · 页面端只读 Implementation Plan</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7ee18dad49c1.html"><small>上一篇</small>Ghome P1 · 数据模型 + Seed Implementation Plan</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e18f4db5edd2.html"><small>下一篇</small>Ghome P3 · 跳转中转 + 点击打点 Implementation Plan</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-29b831214138.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

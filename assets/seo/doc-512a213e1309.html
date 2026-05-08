@@ -1,0 +1,1175 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Ghome P4 · 运营端骨架 + Auth Implementation Plan｜业务系统运维 / GHOME｜BEN.OPS</title>
+  <meta name="description" content="Ghome P4 · 运营端骨架 + Auth Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommen…">
+  <meta name="keywords" content="GHOME，Shell，Docker，自动化，源码与配置，业务系统运维，业务系统运维 / GHOME，Ghome P4 · 运营端骨架 + Auth Implementation Plan">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-512a213e1309.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-512a213e1309.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605090000-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BShell-Ghome%20P4%20%C2%B7%20%E8%BF%90%E8%90%A5%E7%AB%AF%E9%AA%A8%E6%9E%B6%20%2B%20Auth%20Implementation%20Plan.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Ghome P4 · 运营端骨架 + Auth Implementation Plan">
+  <meta property="og:description" content="Ghome P4 · 运营端骨架 + Auth Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommen…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-512a213e1309.html">
+  <meta property="article:published_time" content="2026-05-09T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-09 00:00">
+  <meta property="article:section" content="业务系统运维 / GHOME">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Ghome P4 · 运营端骨架 + Auth Implementation Plan">
+  <meta name="twitter:description" content="Ghome P4 · 运营端骨架 + Auth Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommen…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-512a213e1309.html#article","headline":"Ghome P4 · 运营端骨架 + Auth Implementation Plan","description":"Ghome P4 · 运营端骨架 + Auth Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommen…","datePublished":"2026-05-09T00:00:00+08:00","dateModified":"2026-05-09 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","GHOME"],"keywords":["GHOME","Shell","Docker","自动化","源码与配置","业务系统运维","业务系统运维 / GHOME","Ghome P4 · 运营端骨架 + Auth Implementation Plan"],"wordCount":6899,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-512a213e1309.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-512a213e1309.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / GHOME","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Ghome P4 · 运营端骨架 + Auth Implementation Plan","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-512a213e1309.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / GHOME</span> › <span>Ghome P4 · 运营端骨架 + Auth Implementation Plan</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / GHOME</div>
+      <h1>Ghome P4 · 运营端骨架 + Auth Implementation Plan</h1>
+      <p class="lede">Ghome P4 · 运营端骨架 + Auth Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommen…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-09T00:00:00+08:00">发布于 2026-05-09</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">6,899 字</span>
+        <span class="badge">20 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p4-admin-auth.md</code></p>
+<p>整理日期：2026-05-09 00:00｜日期依据：文件名日期</p>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use <code>superpowers:subagent-driven-development</code> (recommended) or <code>superpowers:executing-plans</code> to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 让 <code>apps/admin</code>(P0 起的空白 Next.js app on port 3100)第一次接 DB,落地 Auth.js v5 + GitHub OAuth + GitHub login 白名单 + 手动 upsert <code>admin_users</code>(不走 PrismaAdapter),实现登录后看到 Dashboard 统计:收录数、点击数、草稿数 / 已发布数、最近 7 天点击趋势、热门 redirect Top 5。未登录访问任何内层 admin 路由 → middleware 拦截到 <code>/signin</code>。</p>
+<p><strong>Architecture:</strong>
+- <strong>Auth.js v5(<code>next-auth ^5.0.0-beta.x</code>)</strong> + <code>GitHub</code> provider — 业界标准,App Router 友好
+- <strong>不使用 PrismaAdapter</strong>(spec §3.2 决定):<code>signIn</code> callback 手动校验白名单 + upsert <code>admin_users</code>,<code>jwt</code> callback 把 <code>adminUserId</code> 注入 token,<code>session</code> callback 暴露给应用层。代价 ~30 行 callback 代码,收益是不引入 Auth.js 的 <code>User</code>/<code>Account</code>/<code>Session</code>/<code>VerificationToken</code> 4 张语义不符的表
+- <strong>JWT session</strong>(无 sessions 表)
+- <strong>白名单</strong>:<code>ADMIN_ALLOWED_GITHUB_LOGINS</code> env(逗号分隔的 GitHub username),不用 email(GitHub email 可空/私有/多个,不可靠)
+- <strong>未登录拦截</strong>:<code>apps/admin/middleware.ts</code> 在请求层拦截 — 任何不在白名单的 path 都重定向到 <code>/signin</code>
+- <strong>Dashboard 数据来自 DB</strong>:用 P3 已经在写的 <code>click_events</code> + P1 落的 apps/videos/guides 统计;没用到 <code>audit_log</code>(P5+ 才会有数据)
+- <strong>本期不做</strong>:AdminUser CRUD UI(P5+),内容编辑(P5+),redirect 管理 UI(P7),搜索功能,多角色 RBAC</p>
+<p><strong>Tech Stack:</strong>
+- <code>next-auth ^5.0.0-beta.25</code>(P4 新增)— Auth.js v5 latest stable beta,App Router 全支持
+- <code>@ghome/db</code>(已 P1)— 引入 <code>apps/admin</code> 作为 workspace dep
+- Node <code>crypto.randomUUID()</code>(<code>AUTH_SECRET</code> 用 openssl 生成)
+- Vitest(P3 已加 root)</p>
+<p><strong>Spec 引用:</strong> <a href="https://ben2023niao.github.io/ben-ops-notes/doc/specs/2026-05-08-ghome-product-shape-design.md" rel="noopener noreferrer"><code>docs/superpowers/specs/2026-05-08-ghome-product-shape-design.md</code></a> §2.3、§3.2 admin_users + Auth 模型、§5 P4。</p>
+<p><strong>前置假设:</strong> P3 已完成,<code>p3-redirect-tracking</code> 标签存在;<code>apps/admin</code> 是 P0 占位空白页(端口 3100,文件 <code>apps/admin/app/page.tsx</code> 文案 "Ghome · admin / P0 · 脚手架占位");<code>packages/db</code> 14 表都 seed 过(seed 数据里没有 admin_users 行 — 第一次登录时自动创建)。</p>
+<hr/>
+<h2 id="File-Structure-P4-末态">File Structure(P4 末态)</h2>
+<pre><code>apps/admin/
+├─ app/
+│  ├─ globals.css                        # T1:简化版样式(不抄 web 原型 CSS)
+│  ├─ layout.tsx                         # 已存在(P0)— T4 重写为 admin chrome
+│  ├─ page.tsx                           # T4:Dashboard 主页(原占位被替换)
+│  ├─ (auth)/
+│  │  └─ signin/
+│  │      └─ page.tsx                    # T4:自定义登录页(GitHub 按钮)
+│  └─ api/
+│      └─ auth/
+│          └─ [...nextauth]/
+│              └─ route.ts               # T3:Auth.js handler(GET/POST)
+├─ components/
+│  ├─ AdminHeader.tsx                    # T4:顶栏(用户头像 + 退出)
+│  └─ DashboardCard.tsx                  # T4:统计卡片
+├─ lib/
+│  ├─ auth.ts                            # T2:NextAuth 实例 + 配置
+│  └─ db.ts                              # T4:Dashboard 查询(count + top + trend)
+├─ middleware.ts                         # T3:未登录拦截
+├─ .env                                  # T1 加 OAuth + 白名单 envs
+├─ .env.example                          # T1 documentation
+├─ next.config.mjs                       # 已存在,P4 不动
+├─ next-env.d.ts                         # 自动生成
+├─ package.json                          # T1 加 next-auth、@ghome/db、@prisma/client
+└─ tsconfig.json                         # T1 加 paths(@/* + @prisma/client)
+
+.github/workflows/ci.yml                 # T1 加 OAuth + AUTH_SECRET + 白名单 envs
+</code></pre>
+<p>新增文件总数 ~12;<code>apps/web</code> 期间不动。</p>
+<hr/>
+<h2 id="Conventions-整个-P4-共享">Conventions(整个 P4 共享)</h2>
+<ul>
+<li><strong>环境变量</strong>:<code>apps/admin/.env</code>(本地,gitignored)与 CI yml 都必须设</li>
+<li><code>DATABASE_URL</code>(已有)</li>
+<li><code>AUTH_SECRET</code> — 用 <code>openssl rand -hex 32</code> 生成,32 字节随机</li>
+<li><code>AUTH_GITHUB_ID</code> / <code>AUTH_GITHUB_SECRET</code> — GitHub OAuth App credentials(dev 用 localhost callback,CI 用 placeholder 因为不会真发起 OAuth)</li>
+<li><code>AUTH_TRUST_HOST=true</code>(本地 dev 必须;Auth.js v5 默认严格 origin 检查)</li>
+<li><code>ADMIN_ALLOWED_GITHUB_LOGINS</code> — 逗号分隔的 GitHub username 白名单</li>
+<li><strong>OAuth callback URL</strong>:dev <code>http://localhost:3100/api/auth/callback/github</code>;prod 由部署时配置</li>
+<li><strong>登录后跳转</strong>:默认 <code>/</code>(Dashboard)</li>
+<li><strong>未登录 + 访问内层路由</strong>:middleware 拦截 → 302 到 <code>/signin?from=&lt;path&gt;</code></li>
+<li><strong>登录页</strong>:<code>/signin</code> 是公开路由,middleware 放行</li>
+<li><strong>API auth 路由</strong>:<code>/api/auth/*</code> 是公开,middleware 放行</li>
+<li>提交风格:Conventional Commits,每 task 末尾 commit</li>
+<li>不上 Tailwind / 不引第三方 UI 库;P4 admin 用极简 inline + 少量 globals.css</li>
+</ul>
+<hr/>
+<h2 id="Task-1-Setup-依赖-环境-CSS-CI">Task 1 — Setup:依赖、环境、CSS、CI</h2>
+<p><strong>Files:</strong>
+- Modify: <code>apps/admin/package.json</code>(加 next-auth + @ghome/db + @prisma/client + 类型)
+- Create: <code>apps/admin/.env.example</code>(可入库,documentation)
+- Modify: <code>apps/admin/.env</code>(本地 dev,<strong>不入库</strong> — 加 OAuth 与白名单 envs)
+- Modify: <code>apps/admin/tsconfig.json</code>(加 @/* paths + @prisma/client paths)
+- Modify: <code>apps/admin/app/globals.css</code>(简化版样式,不抄 web)
+- Modify: <code>.github/workflows/ci.yml</code>(加 OAuth + AUTH_SECRET + 白名单 envs)</p>
+<h3 id="7-Steps">7 Steps</h3>
+<p><strong>Step 1: 修改 <code>apps/admin/package.json</code></strong> — <code>dependencies</code> 加 3 条,<code>devDependencies</code> 不变(已有 typescript / eslint 等):</p>
+<pre><code class="language-json">"dependencies": {
+  "@ghome/db": "workspace:*",
+  "@prisma/client": "^5.22.0",
+  "next": "^15.0.0",
+  "next-auth": "^5.0.0-beta.25",
+  "react": "^19.0.0",
+  "react-dom": "^19.0.0"
+}
+</code></pre>
+<p>(已有的 dev deps 保持。)</p>
+<p><strong>Step 2: 创建 <code>apps/admin/.env.example</code>(入库)</strong></p>
+<pre><code class="language-bash"># Postgres
+DATABASE_URL=postgres://ghome:ghome@localhost:5432/ghome
+
+# Auth.js v5
+# AUTH_SECRET 用 `openssl rand -hex 32` 生成,绝不入库。dev 也要设。
+[敏感内容已脱敏]
+# Auth.js 会用这个判断 trusted origin(本地 dev 必须 true)
+AUTH_TRUST_HOST=true
+
+# GitHub OAuth App
+# 创建:https://github.com/settings/applications/new
+# - Homepage URL: http://localhost:3100
+# - Authorization callback URL: http://localhost:3100/api/auth/callback/github
+AUTH_GITHUB_ID=replace-with-github-oauth-client-id
+[敏感内容已脱敏]
+
+# 白名单:逗号分隔的 GitHub username。不在内的 OAuth 登录会被 deny。
+# 不用 email(GitHub email 可空/私有/多个,不可靠)。
+ADMIN_ALLOWED_GITHUB_LOGINS=alice,bob,carol
+</code></pre>
+<p><strong>Step 3: 修改 <code>apps/admin/.env</code>(本地,gitignored)</strong> — 已存在(P0),追加:</p>
+<pre><code class="language-bash">DATABASE_URL=postgres://ghome:ghome@localhost:5432/ghome
+[敏感内容已脱敏]
+AUTH_TRUST_HOST=true
+AUTH_GITHUB_ID=dev-placeholder-id
+[敏感内容已脱敏]
+ADMIN_ALLOWED_GITHUB_LOGINS=tadacamp-code
+</code></pre>
+<blockquote>
+<p>注:dev 的 GitHub OAuth credentials 是 placeholder。<strong>真实测试登录时,需要 user 自己注册 GitHub OAuth App 并替换值</strong>。本 plan 的端到端冒烟(T5)用 mock / unit test 覆盖,不依赖真实 GitHub。</p>
+<p><code>tadacamp-code</code> 是工作区已知的 git user(根据 commit author);user 可以替换为自己的 GitHub username。</p>
+</blockquote>
+<p><strong>Step 4: 修改 <code>apps/admin/tsconfig.json</code></strong> — 加 paths:</p>
+<pre><code class="language-json">{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@/*": ["./*"],
+      "@prisma/client": ["../../packages/db/node_modules/.prisma/client"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", ".next"]
+}
+</code></pre>
+<blockquote>
+<p>与 <code>apps/web/tsconfig.json</code> 同型(P2 T2 加过)。<code>@prisma/client</code> 的 paths fix 是 pnpm + Prisma 标准 workaround。</p>
+</blockquote>
+<p><strong>Step 5: 重写 <code>apps/admin/app/globals.css</code></strong> — 极简样式(<strong>不</strong>复制 web 的原型 CSS):</p>
+<pre><code class="language-css">:root {
+  --bg: #f7f7f8;
+  --panel: #fff;
+  --border: #e5e7eb;
+  --text: #111827;
+  --text-2: #4b5563;
+  --text-3: #9ca3af;
+  --primary: #5b5be8;
+  --primary-light: #eef0ff;
+  --danger: #ef4444;
+  --success: #10b981;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+
+/* Admin chrome */
+.admin-shell { min-height: 100vh; display: flex; flex-direction: column; }
+.admin-header {
+  height: 56px; background: var(--panel); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 24px; gap: 16px;
+}
+.admin-header .brand { font-weight: 700; font-size: 16px; }
+.admin-header .spacer { flex: 1; }
+.admin-header .user { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-2); }
+.admin-header .user img { width: 28px; height: 28px; border-radius: 50%; }
+.admin-header .signout {
+  background: transparent; border: 1px solid var(--border); padding: 6px 12px;
+  border-radius: 6px; font-size: 13px; cursor: pointer; color: var(--text-2);
+}
+.admin-header .signout:hover { background: var(--bg); color: var(--text); }
+.admin-main { flex: 1; padding: 32px 24px; max-width: 1200px; width: 100%; margin: 0 auto; }
+
+/* Dashboard */
+.dash-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px;
+}
+@media (max-width: 768px) { .dash-grid { grid-template-columns: repeat(2, 1fr); } }
+.dash-card {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+  padding: 20px;
+}
+.dash-card .label { font-size: 13px; color: var(--text-3); margin-bottom: 6px; }
+.dash-card .value { font-size: 28px; font-weight: 700; color: var(--text); }
+.dash-card .sub { font-size: 12px; color: var(--text-2); margin-top: 6px; }
+
+/* Section */
+.dash-section { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+.dash-section h2 { font-size: 16px; margin: 0 0 16px; }
+.dash-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.dash-table th { text-align: left; color: var(--text-3); font-weight: 500; font-size: 12px; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+.dash-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.dash-table tr:last-child td { border-bottom: none; }
+
+/* Sign-in page */
+.signin-shell {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: var(--bg);
+}
+.signin-card {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+  padding: 40px 32px; max-width: 360px; width: 100%; text-align: center;
+}
+.signin-card h1 { font-size: 22px; margin: 0 0 8px; }
+.signin-card p { color: var(--text-2); font-size: 14px; margin: 0 0 24px; }
+.signin-btn {
+  display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px;
+  background: #24292e; color: #fff; border: none; border-radius: 8px;
+  font-size: 14px; cursor: pointer; font-weight: 500;
+}
+.signin-btn:hover { background: #1a1e22; }
+.signin-error { color: var(--danger); font-size: 13px; margin-top: 16px; }
+</code></pre>
+<p><strong>Step 6: 修改 <code>.github/workflows/ci.yml</code></strong> — <code>jobs.ci.env</code> 区域追加(在 IP_HASH_SECRET 同级):</p>
+<pre><code class="language-yaml">    env:
+      DATABASE_URL: postgres://ghome:ghome@localhost:5432/ghome
+      [敏感内容已脱敏]
+      [敏感内容已脱敏]
+      AUTH_TRUST_HOST: "true"
+      AUTH_GITHUB_ID: ci-placeholder
+      [敏感内容已脱敏]
+      ADMIN_ALLOWED_GITHUB_LOGINS: ci-test-user
+</code></pre>
+<p><strong>Step 7: 安装 + typecheck + 提交</strong></p>
+<pre><code class="language-bash">cd /Users/jeff/Work/workspace/uk/ghome
+pnpm install
+pnpm --filter @ghome/admin typecheck
+pnpm typecheck
+
+git add apps/admin/package.json apps/admin/tsconfig.json apps/admin/app/globals.css \
+        apps/admin/.env.example .github/workflows/ci.yml pnpm-lock.yaml
+git commit -m "feat(admin): wire @ghome/db + next-auth deps, env templates, base styles"
+</code></pre>
+<blockquote>
+<p><code>apps/admin/.env</code> 不入库(已 gitignored)。</p>
+</blockquote>
+<h2 id="Tricky-Bits-T1">Tricky Bits (T1)</h2>
+<ol>
+<li><strong>next-auth ^5.0.0-beta.25</strong>:Auth.js v5 仍是 beta,但 API 已稳定,生产可用。如果将来稳定版发布,只需调整 version。</li>
+<li><strong><code>AUTH_SECRET</code></strong> 必须 ≥ 32 字节;dev 用固定字符串(便于多次重启 session 不失效),prod 必须真随机。</li>
+<li><strong><code>AUTH_TRUST_HOST</code></strong>:Auth.js v5 默认严格 host check;本地 dev / Docker 必须设 <code>true</code>,否则 callback 会被拒。</li>
+<li><strong>GitHub OAuth App credentials</strong>:dev <code>.env</code> 用占位符即可(因为 T5 端到端冒烟用 unit test mock,不会真发 OAuth)。如果开发者要本地真测试登录:
+   - 去 https://github.com/settings/applications/new 创建 OAuth App
+   - Authorization callback URL = <code>http://localhost:3100/api/auth/callback/github</code>
+   - 把 Client ID 与 Secret 填到本地 <code>apps/admin/.env</code></li>
+<li><strong>CI 用 placeholder</strong>:CI 不发起真 OAuth(没法跑),只跑单元测试 + typecheck + build。</li>
+</ol>
+<hr/>
+<h2 id="Task-2-Auth-js-配置-lib-auth-ts-手动-upsert-admin_users">Task 2 — Auth.js 配置:<code>lib/auth.ts</code> + 手动 upsert admin_users</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/admin/lib/auth.ts</code>
+- Create: <code>apps/admin/lib/auth.types.ts</code>(扩充 Auth.js 的 <code>Session</code> 类型加 <code>adminUserId</code>)</p>
+<blockquote>
+<p><strong>TDD 难度</strong>:Auth.js 的 callback 测试比较繁琐(需要 mock OAuth profile、mock prisma)。<strong>P4 不写 callback 单元测试</strong>,只用 T5 端到端冒烟覆盖。lib/auth.ts 是配置型代码,structural review 比单元测试更有效。</p>
+</blockquote>
+<h3 id="4-Steps">4 Steps</h3>
+<p><strong>Step 1: 写 <code>apps/admin/lib/auth.types.ts</code></strong></p>
+<pre><code class="language-ts">import type { DefaultSession } from "next-auth";
+
+declare module "next-auth" {
+  /** 扩充 next-auth 默认 Session,加 adminUserId */
+  interface Session {
+    user: {
+      adminUserId: string;
+      githubLogin: string;
+    } &amp; DefaultSession["user"];
+  }
+}
+
+declare module "next-auth/jwt" {
+  /** 扩充 JWT,内部带 adminUserId 让 session callback 取出 */
+  interface JWT {
+    adminUserId?: string;
+    githubLogin?: string;
+  }
+}
+</code></pre>
+<p><strong>Step 2: 写 <code>apps/admin/lib/auth.ts</code></strong></p>
+<pre><code class="language-ts">import NextAuth from "next-auth";
+import GitHub from "next-auth/providers/github";
+import { prisma } from "@ghome/db";
+import "./auth.types";
+
+/* ============ 模块加载断言 ============ */
+
+const AUTH_GITHUB_ID = process.env.AUTH_GITHUB_ID;
+const [敏感内容已脱敏];
+const [敏感内容已脱敏];
+const ALLOWED_LOGINS_RAW = process.env.ADMIN_ALLOWED_GITHUB_LOGINS;
+
+if (!AUTH_GITHUB_ID || !AUTH_GITHUB_SECRET || !AUTH_SECRET) {
+  throw new Error(
+    "[admin/auth] AUTH_SECRET, AUTH_GITHUB_ID, AUTH_GITHUB_SECRET are required. " +
+      "Set in apps/admin/.env (dev) or job env (CI). See apps/admin/.env.example.",
+  );
+}
+
+const ALLOWED_LOGINS = (ALLOWED_LOGINS_RAW ?? "")
+  .split(",")
+  .map((s) =&gt; s.trim())
+  .filter((s) =&gt; s.length &gt; 0);
+
+if (ALLOWED_LOGINS.length === 0) {
+  // 不 throw — 允许全空白名单(等价于 deny all),但 log 警告
+  console.warn(
+    "[admin/auth] ADMIN_ALLOWED_GITHUB_LOGINS is empty. All sign-in attempts will be rejected.",
+  );
+}
+
+/* ============ Auth.js handlers ============ */
+
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  // 默认 JWT session,无 PrismaAdapter
+  session: { strategy: "jwt" },
+
+  providers: [
+    GitHub({
+      clientId: AUTH_GITHUB_ID,
+      [敏感内容已脱敏],
+    }),
+  ],
+
+  pages: {
+    signIn: "/signin",
+    error: "/signin",
+  },
+
+  callbacks: {
+    /**
+     * signIn:校验 GitHub login 是否在白名单内;若是 → upsert admin_users 行 +
+     * 写 last_login_at;若否 → 拒绝(返回 false 让 Auth.js redirect 到 error 页)。
+     */
+    async signIn({ profile }) {
+      // GitHub profile 必有 id (number) 与 login (string)。Auth.js v5 透传原始 profile。
+      const githubId = profile?.id;  // number | undefined
+      const githubLogin = (profile as { login?: string } | undefined)?.login;
+      const githubEmail = (profile as { email?: string | null } | undefined)?.email;
+      const githubName = profile?.name;
+
+      if (typeof githubId !== "number" || typeof githubLogin !== "string") {
+        console.warn("[admin/signIn] missing github id or login on profile:", profile);
+        return false;
+      }
+
+      if (!ALLOWED_LOGINS.includes(githubLogin)) {
+        console.warn(
+          `[admin/signIn] login '${githubLogin}' not in whitelist (size=${ALLOWED_LOGINS.length})`,
+        );
+        return false;
+      }
+
+      // upsert admin_users by github_id (BigInt);写 last_login_at
+      await prisma.adminUser.upsert({
+        where: { githubId: BigInt(githubId) },
+        create: {
+          githubId: BigInt(githubId),
+          githubLogin,
+          githubEmail: githubEmail ?? null,
+          name: githubName ?? null,
+          lastLoginAt: new Date(),
+        },
+        update: {
+          githubLogin,                 // login 可改名,跟着同步
+          githubEmail: githubEmail ?? null,
+          name: githubName ?? null,
+          lastLoginAt: new Date(),
+        },
+      });
+
+      return true;
+    },
+
+    /**
+     * jwt callback:首次登录时从 DB 拿到 admin_users.id 注入 token;
+     * 后续请求 token 已有,直接透传。
+     */
+    async jwt({ token, profile }) {
+      // 首次登录 profile 不为空 — 此时根据 github id 反查 admin_users
+      if (profile) {
+        const githubLogin = (profile as { login?: string } | undefined)?.login;
+        if (typeof githubLogin === "string") {
+          const admin = await prisma.adminUser.findUnique({
+            where: { githubLogin },
+            select: { id: true, githubLogin: true },
+          });
+          if (admin) {
+            token.adminUserId = admin.id;
+            token.githubLogin = admin.githubLogin;
+          }
+        }
+      }
+      return token;
+    },
+
+    /**
+     * session callback:把 token 里的 adminUserId 暴露给应用层。
+     */
+    async session({ session, token }) {
+      if (token.adminUserId &amp;&amp; session.user) {
+        session.user.adminUserId = token.adminUserId;
+      }
+      if (token.githubLogin &amp;&amp; session.user) {
+        session.user.githubLogin = token.githubLogin;
+      }
+      return session;
+    },
+  },
+});
+</code></pre>
+<p><strong>Step 3: 验证 typecheck</strong></p>
+<pre><code class="language-bash">cd /Users/jeff/Work/workspace/uk/ghome
+pnpm --filter @ghome/admin typecheck
+</code></pre>
+<p>Expected: 通过。<code>auth.ts</code> 与 <code>auth.types.ts</code> 都被 tsconfig include 覆盖。</p>
+<p><strong>Step 4: 提交</strong></p>
+<pre><code class="language-bash">git add apps/admin/lib/auth.ts apps/admin/lib/auth.types.ts
+git commit -m "feat(admin): add Auth.js v5 config with GitHub OAuth + manual admin_users upsert"
+</code></pre>
+<h2 id="Tricky-Bits-T2">Tricky Bits (T2)</h2>
+<ol>
+<li><strong>不用 PrismaAdapter</strong>:<code>NextAuth</code> 配置里没传 <code>adapter</code> 字段。Auth.js v5 默认 JWT session,搞定。</li>
+<li><strong><code>profile</code> 来自 GitHub</strong> — <code>next-auth/providers/github</code> 会 normalise OAuth 响应,但 <code>id</code>/<code>login</code>/<code>email</code> 等字段在 <code>profile</code> 上原样保留。TS 类型是 <code>Profile</code>,实际形状是 GitHub user object。需要 cast 取 <code>login</code>。</li>
+<li><strong><code>BigInt(githubId)</code></strong>:schema 里 <code>admin_users.githubId</code> 是 <code>BigInt</code>(GitHub user id 可能超 32-bit int 范围)。Prisma 接收 number → BigInt 自动 OK,但显式 <code>BigInt()</code> 更清晰。</li>
+<li><strong><code>signIn</code> 返回 false 的行为</strong>:Auth.js 会重定向到 <code>pages.error</code> 页(<code>/signin?error=AccessDenied</code>)。OK。</li>
+<li><strong><code>jwt</code> callback 的 <code>profile</code> 仅在首次登录(OAuth 回来时)非空</strong>;后续每次请求只有 token 透传,不重复查 DB。</li>
+<li><strong>白名单全空时</strong>:任何 OAuth 都会被 <code>signIn</code> 拒。这是有意的 deny-by-default。</li>
+<li><strong><code>auth.types.ts</code> 的 module augmentation</strong>:必须 <code>import "./auth.types"</code> 才会被 TS 识别(side-effect import)。<code>auth.ts</code> 顶部 import 一次即可。</li>
+<li><strong>如果 git commit 被 permission rule 阻塞</strong>:报 DONE_WITH_CONCERNS。</li>
+</ol>
+<hr/>
+<h2 id="Task-3-Auth-route-handlers-middleware-未登录拦截">Task 3 — Auth route handlers + middleware(未登录拦截)</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/admin/app/api/auth/[...nextauth]/route.ts</code>
+- Create: <code>apps/admin/middleware.ts</code></p>
+<h3 id="5-Steps">5 Steps</h3>
+<p><strong>Step 1: 写 <code>apps/admin/app/api/auth/[...nextauth]/route.ts</code></strong></p>
+<pre><code class="language-ts">import { handlers } from "@/lib/auth";
+
+export const runtime = "nodejs";
+
+export const { GET, POST } = handlers;
+</code></pre>
+<blockquote>
+<p>Auth.js v5 已经把 GET / POST 的 handler 包好,直接 re-export。</p>
+</blockquote>
+<p><strong>Step 2: 写 <code>apps/admin/middleware.ts</code></strong></p>
+<pre><code class="language-ts">import { NextResponse, type NextRequest } from "next/server";
+import { auth } from "@/lib/auth";
+
+/**
+ * 拦截未登录访问任何内层路由(/, /apps, /videos, ...);放行 /signin 与 /api/auth/*。
+ * 未登录 → 重定向到 /signin?from=&lt;path&gt;。
+ */
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  // 公开路径:登录页 + auth API + 静态资源
+  if (
+    pathname === "/signin" ||
+    pathname.startsWith("/api/auth/") ||
+    pathname.startsWith("/_next/") ||
+    pathname === "/favicon.ico"
+  ) {
+    return NextResponse.next();
+  }
+
+  const session = await auth();
+  if (!session?.user?.adminUserId) {
+    // 未登录或未通过白名单
+    const signinUrl = new URL("/signin", req.url);
+    if (pathname !== "/") {
+      signinUrl.searchParams.set("from", pathname);
+    }
+    return NextResponse.redirect(signinUrl);
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: [
+    /*
+     * 匹配所有路径,除了:
+     *   - /_next/static (Next.js 静态)
+     *   - /_next/image (Next.js 图片)
+     *   - /favicon.ico
+     */
+    "/((?!_next/static|_next/image|favicon.ico).*)",
+  ],
+};
+</code></pre>
+<blockquote>
+<p>注:<code>config.matcher</code> 已经把 <code>/_next/static</code> 与 <code>/_next/image</code> 排除,middleware 函数体里仍重复检查是 defence-in-depth(若 matcher 漏了某些前缀会兜底)。</p>
+</blockquote>
+<p><strong>Step 3: 验证 typecheck + build</strong></p>
+<pre><code class="language-bash">cd /Users/jeff/Work/workspace/uk/ghome
+pnpm --filter @ghome/admin typecheck
+pnpm --filter @ghome/admin build
+</code></pre>
+<p>Expected: build 输出 <code>/api/auth/[...nextauth]</code> 路由(<code>ƒ</code> 标 dynamic),<code>/middleware</code> 出现在 build summary 中(Edge runtime by default)。</p>
+<blockquote>
+<p>⚠️ Next.js 15 对 middleware 的 runtime 限制:<strong>默认 Edge runtime</strong>。但我们的 <code>auth()</code> 调用了 <code>prisma</code>(Node-only)。</p>
+<p><strong>关键决定</strong>:Auth.js v5 的 <code>auth()</code> 函数在 middleware 里用时,<strong>不会</strong>直接调 Prisma;它只解析 JWT token(用 <code>AUTH_SECRET</code> 签名)。所以 middleware 跑 Edge 是 OK 的,只要不在 callbacks 之外触碰 prisma。</p>
+<p>但是 <code>lib/auth.ts</code> 里的 callbacks(signIn / jwt)会调 prisma — 这些 callbacks 只在 <code>/api/auth/[...nextauth]/route.ts</code> 调用链里跑,而那个 route 已经标 <code>runtime = 'nodejs'</code>,所以 Prisma OK。</p>
+<p>middleware 里的 <code>auth()</code> 仅做 JWT 解码,不触发 callbacks,不调 prisma → Edge 兼容。</p>
+<p><strong>如果 build 报 "PrismaClient is unable to be run in this browser environment"</strong>:把 middleware 改为强制 Node runtime:在 middleware.ts 顶部加 <code>export const runtime = "nodejs";</code>。Next.js 15 支持 Node runtime middleware(2024 起),但需要在 <code>next.config.mjs</code> 里启用 experimental flag。<strong>先尝试不加,如果 build 失败再加</strong>。</p>
+</blockquote>
+<p><strong>Step 4: 起 dev 验证 middleware(不需要真登录)</strong></p>
+<pre><code class="language-bash">docker compose up -d
+sleep 3
+pnpm --filter @ghome/admin dev &amp;
+sleep 8
+
+# 未登录访问 / 应 redirect 到 /signin
+curl -sI http://localhost:3100/ | grep -E "^(HTTP|Location):" | head -3
+
+# /signin 直接返回 200
+curl -sI http://localhost:3100/signin | head -3
+
+# /api/auth/* 直接放行(由 Auth.js 处理)
+curl -sI http://localhost:3100/api/auth/providers | head -3
+
+kill %1 2&gt;/dev/null || true
+</code></pre>
+<p>Expected:
+- <code>/</code>:<code>HTTP/1.1 307 ...</code> + <code>Location: http://localhost:3100/signin</code>(307 是 Next.js 默认 redirect 状态)
+- <code>/signin</code>:200
+- <code>/api/auth/providers</code>:200(Auth.js 返回 JSON 列出 providers)</p>
+<blockquote>
+<p>注:T4 才会真正写 <code>/signin</code> 页面;此时访问 <code>/signin</code> 会因为页面不存在 → 404。<strong>Step 4 期间这是正常的</strong>,只验证 middleware 拦截行为正确。</p>
+</blockquote>
+<p><strong>Step 5: 提交</strong></p>
+<pre><code class="language-bash">git add apps/admin/app/api/auth apps/admin/middleware.ts
+git commit -m "feat(admin): add Auth.js route handler and middleware (whitelist gate)"
+</code></pre>
+<h2 id="Tricky-Bits-T3">Tricky Bits (T3)</h2>
+<ol>
+<li><strong>middleware Edge vs Node</strong>:Auth.js v5 设计上让 <code>auth()</code> 在 middleware 跑 Edge — 它仅解 JWT,不查 DB。<strong>保持 middleware 在 Edge runtime</strong>(默认),不强制 Node。</li>
+<li><strong><code>auth()</code> 在 middleware 里返回什么</strong>:返回完整 Session 对象(JWT 解出来)或 null。<code>session.user.adminUserId</code> 是 jwt callback 注入的字段,middleware 里直接读。</li>
+<li><strong><code>config.matcher</code> 用排除式正则</strong>:匹配 <em>除了</em> <code>/_next/static</code>、<code>/_next/image</code>、<code>/favicon.ico</code> 之外的所有路径;<code>/api/auth/*</code> 在 matcher 里仍会被 matched,但函数体里第一段就放行。</li>
+<li><strong>不要在 middleware 调任何 db 查询</strong>:违反 Edge 兼容。当前实现没调,OK。</li>
+<li><strong>如果 git commit 被 permission rule 阻塞</strong>:报 DONE_WITH_CONCERNS。</li>
+</ol>
+<hr/>
+<h2 id="Task-4-Dashboard-page-自定义登录页-admin-chrome">Task 4 — Dashboard page + 自定义登录页 + admin chrome</h2>
+<p><strong>Files:</strong>
+- Modify: <code>apps/admin/app/layout.tsx</code>(P0 占位 → 加 SessionProvider 与 metadata)
+- Modify: <code>apps/admin/app/page.tsx</code>(P0 占位 → Dashboard 内容)
+- Create: <code>apps/admin/app/(auth)/signin/page.tsx</code>
+- Create: <code>apps/admin/components/AdminHeader.tsx</code>(用户头像 + 退出按钮)
+- Create: <code>apps/admin/components/DashboardCard.tsx</code>(统计卡片)
+- Create: <code>apps/admin/lib/db.ts</code>(Dashboard 查询辅助)</p>
+<h3 id="7-Steps-2">7 Steps</h3>
+<p><strong>Step 1: 写 <code>apps/admin/lib/db.ts</code></strong> — Dashboard 数据查询</p>
+<pre><code class="language-ts">import { prisma } from "@ghome/db";
+
+/* ============== 内容计数 ============== */
+
+export async function getContentCounts() {
+  const [appsPub, appsDraft, videosPub, videosDraft, guidesPub, guidesDraft] =
+    await Promise.all([
+      prisma.app.count({ where: { status: "published", deletedAt: null } }),
+      prisma.app.count({ where: { status: "draft", deletedAt: null } }),
+      prisma.video.count({ where: { status: "published", deletedAt: null } }),
+      prisma.video.count({ where: { status: "draft", deletedAt: null } }),
+      prisma.guide.count({ where: { status: "published", deletedAt: null } }),
+      prisma.guide.count({ where: { status: "draft", deletedAt: null } }),
+    ]);
+  return { appsPub, appsDraft, videosPub, videosDraft, guidesPub, guidesDraft };
+}
+
+/* ============== 点击统计 ============== */
+
+/** 全量 click_events 总数 */
+export async function getTotalClicks() {
+  return prisma.clickEvent.count();
+}
+
+/** 最近 7 天 click_events 总数 */
+export async function getClicksLast7Days() {
+  const since = new Date();
+  since.setUTCDate(since.getUTCDate() - 7);
+  return prisma.clickEvent.count({ where: { ts: { gte: since } } });
+}
+
+/** 最近 7 天每日 click 数(按 UTC 日期聚合)*/
+export async function getClicksByDayLast7Days(): Promise&lt;Array&lt;{ day: string; count: number }&gt;&gt; {
+  const since = new Date();
+  since.setUTCDate(since.getUTCDate() - 6); // 含今天共 7 天
+  since.setUTCHours(0, 0, 0, 0);
+
+  // 用 raw SQL 按 UTC date 聚合
+  const rows = await prisma.$queryRaw&lt;Array&lt;{ day: Date; count: bigint }&gt;&gt;`
+    SELECT date_trunc('day', ts AT TIME ZONE 'UTC')::date AS day, count(*) AS count
+    FROM click_events
+    WHERE ts &gt;= ${since}
+    GROUP BY 1
+    ORDER BY 1 ASC
+  `;
+  return rows.map((r) =&gt; ({
+    day: r.day.toISOString().slice(0, 10),
+    count: Number(r.count),
+  }));
+}
+
+/* ============== 热门 redirect Top 5 ============== */
+
+export interface TopRedirect {
+  redirectId: string;
+  ownerKind: string;
+  ownerId: string | null;
+  targetUrl: string;
+  disabled: boolean;
+  clicks: number;
+}
+
+export async function getTopRedirects(limit = 5): Promise&lt;TopRedirect[]&gt; {
+  const rows = await prisma.$queryRaw&lt;
+    Array&lt;{
+      redirect_id: string;
+      owner_kind: string;
+      owner_id: string | null;
+      target_url: string;
+      disabled: boolean;
+      clicks: bigint;
+    }&gt;
+  &gt;`
+    SELECT r.id AS redirect_id, r.owner_kind, r.owner_id, r.target_url, r.disabled, count(c.id) AS clicks
+    FROM redirects r
+    LEFT JOIN click_events c ON c.redirect_id = r.id
+    GROUP BY r.id
+    ORDER BY clicks DESC
+    LIMIT ${limit}
+  `;
+  return rows.map((r) =&gt; ({
+    redirectId: r.redirect_id,
+    ownerKind: r.owner_kind,
+    ownerId: r.owner_id,
+    targetUrl: r.target_url,
+    disabled: r.disabled,
+    clicks: Number(r.clicks),
+  }));
+}
+</code></pre>
+<p><strong>Step 2: 写 <code>apps/admin/components/DashboardCard.tsx</code></strong></p>
+<pre><code class="language-tsx">export function DashboardCard({
+  label,
+  value,
+  sub,
+}: {
+  label: string;
+  value: string | number;
+  sub?: string;
+}) {
+  return (
+    &lt;div className="dash-card"&gt;
+      &lt;div className="label"&gt;{label}&lt;/div&gt;
+      &lt;div className="value"&gt;{typeof value === "number" ? value.toLocaleString() : value}&lt;/div&gt;
+      {sub &amp;&amp; &lt;div className="sub"&gt;{sub}&lt;/div&gt;}
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<p><strong>Step 3: 写 <code>apps/admin/components/AdminHeader.tsx</code></strong>(client component,有退出按钮)</p>
+<pre><code class="language-tsx">"use client";
+
+import { signOut } from "next-auth/react";
+
+interface AdminHeaderProps {
+  user: { name?: string | null; image?: string | null; githubLogin: string };
+}
+
+export function AdminHeader({ user }: AdminHeaderProps) {
+  return (
+    &lt;header className="admin-header"&gt;
+      &lt;div className="brand"&gt;Ghome · Admin&lt;/div&gt;
+      &lt;div className="spacer" /&gt;
+      &lt;div className="user"&gt;
+        {user.image &amp;&amp; &lt;img src={user.image} alt="" /&gt;}
+        &lt;span&gt;@{user.githubLogin}&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;button className="signout" onClick={() =&gt; signOut({ callbackUrl: "/signin" })}&gt;
+        退出
+      &lt;/button&gt;
+    &lt;/header&gt;
+  );
+}
+</code></pre>
+<p><strong>Step 4: 重写 <code>apps/admin/app/layout.tsx</code></strong></p>
+<pre><code class="language-tsx">import type { Metadata } from "next";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "Ghome · Admin",
+  description: "Ghome 运营管理端",
+  robots: { index: false, follow: false },
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    &lt;html lang="zh-CN"&gt;
+      &lt;body&gt;{children}&lt;/body&gt;
+    &lt;/html&gt;
+  );
+}
+</code></pre>
+<blockquote>
+<p>注:这里<strong>不</strong>全局加 AdminHeader,因为 <code>/signin</code> 也走这个 layout,登录页不需要 chrome。AdminHeader 在 page.tsx(Dashboard)里加。如果将来加 admin sub-pages,可以再造 <code>(admin)/layout.tsx</code> 嵌套 layout。</p>
+</blockquote>
+<p><strong>Step 5: 重写 <code>apps/admin/app/page.tsx</code></strong>(Dashboard,要求登录)</p>
+<pre><code class="language-tsx">import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { AdminHeader } from "@/components/AdminHeader";
+import { DashboardCard } from "@/components/DashboardCard";
+import {
+  getContentCounts,
+  getTotalClicks,
+  getClicksLast7Days,
+  getClicksByDayLast7Days,
+  getTopRedirects,
+} from "@/lib/db";
+
+export const dynamic = "force-dynamic"; // 永远要最新数据
+
+export default async function DashboardPage() {
+  const session = await auth();
+  if (!session?.user?.adminUserId) {
+    // middleware 已经拦截过,这里仅作 server-side double-check
+    redirect("/signin");
+  }
+
+  const [counts, totalClicks, clicks7d, clicksByDay, topRedirects] = await Promise.all([
+    getContentCounts(),
+    getTotalClicks(),
+    getClicksLast7Days(),
+    getClicksByDayLast7Days(),
+    getTopRedirects(5),
+  ]);
+
+  return (
+    &lt;div className="admin-shell"&gt;
+      &lt;AdminHeader user={{ name: session.user.name ?? null, image: session.user.image ?? null, githubLogin: session.user.githubLogin }} /&gt;
+      &lt;main className="admin-main"&gt;
+        &lt;h1 style={{ fontSize: 22, margin: "0 0 24px" }}&gt;仪表盘&lt;/h1&gt;
+
+        {/* 核心计数 */}
+        &lt;div className="dash-grid"&gt;
+          &lt;DashboardCard
+            label="App"
+            value={counts.appsPub}
+            sub={`已发布 · ${counts.appsDraft} 草稿`}
+          /&gt;
+          &lt;DashboardCard
+            label="视频"
+            value={counts.videosPub}
+            sub={`已发布 · ${counts.videosDraft} 草稿`}
+          /&gt;
+          &lt;DashboardCard
+            label="指南"
+            value={counts.guidesPub}
+            sub={`已发布 · ${counts.guidesDraft} 草稿`}
+          /&gt;
+          &lt;DashboardCard
+            label="累计点击"
+            value={totalClicks}
+            sub={`最近 7 天 ${clicks7d} 次`}
+          /&gt;
+        &lt;/div&gt;
+
+        {/* 7 日点击趋势 */}
+        &lt;section className="dash-section"&gt;
+          &lt;h2&gt;最近 7 天点击趋势&lt;/h2&gt;
+          &lt;table className="dash-table"&gt;
+            &lt;thead&gt;
+              &lt;tr&gt;
+                &lt;th&gt;日期(UTC)&lt;/th&gt;
+                &lt;th style={{ textAlign: "right" }}&gt;点击&lt;/th&gt;
+              &lt;/tr&gt;
+            &lt;/thead&gt;
+            &lt;tbody&gt;
+              {clicksByDay.length === 0 ? (
+                &lt;tr&gt;
+                  &lt;td colSpan={2} style={{ color: "var(--text-3)", textAlign: "center" }}&gt;
+                    暂无数据
+                  &lt;/td&gt;
+                &lt;/tr&gt;
+              ) : (
+                clicksByDay.map((row) =&gt; (
+                  &lt;tr key={row.day}&gt;
+                    &lt;td&gt;{row.day}&lt;/td&gt;
+                    &lt;td style={{ textAlign: "right" }}&gt;{row.count.toLocaleString()}&lt;/td&gt;
+                  &lt;/tr&gt;
+                ))
+              )}
+            &lt;/tbody&gt;
+          &lt;/table&gt;
+        &lt;/section&gt;
+
+        {/* 热门 redirect Top 5 */}
+        &lt;section className="dash-section"&gt;
+          &lt;h2&gt;热门 redirect Top 5&lt;/h2&gt;
+          &lt;table className="dash-table"&gt;
+            &lt;thead&gt;
+              &lt;tr&gt;
+                &lt;th&gt;类型&lt;/th&gt;
+                &lt;th&gt;归属&lt;/th&gt;
+                &lt;th&gt;目标 URL&lt;/th&gt;
+                &lt;th&gt;状态&lt;/th&gt;
+                &lt;th style={{ textAlign: "right" }}&gt;点击&lt;/th&gt;
+              &lt;/tr&gt;
+            &lt;/thead&gt;
+            &lt;tbody&gt;
+              {topRedirects.length === 0 ? (
+                &lt;tr&gt;
+                  &lt;td colSpan={5} style={{ color: "var(--text-3)", textAlign: "center" }}&gt;
+                    暂无数据
+                  &lt;/td&gt;
+                &lt;/tr&gt;
+              ) : (
+                topRedirects.map((r) =&gt; (
+                  &lt;tr key={r.redirectId}&gt;
+                    &lt;td&gt;{r.ownerKind}&lt;/td&gt;
+                    &lt;td&gt;{r.ownerId ?? "—"}&lt;/td&gt;
+                    &lt;td style={{ maxWidth: 300, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}&gt;
+                      {r.targetUrl}
+                    &lt;/td&gt;
+                    &lt;td style={{ color: r.disabled ? "var(--text-3)" : "var(--success)" }}&gt;
+                      {r.disabled ? "未启用" : "已启用"}
+                    &lt;/td&gt;
+                    &lt;td style={{ textAlign: "right" }}&gt;{r.clicks.toLocaleString()}&lt;/td&gt;
+                  &lt;/tr&gt;
+                ))
+              )}
+            &lt;/tbody&gt;
+          &lt;/table&gt;
+        &lt;/section&gt;
+      &lt;/main&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<p><strong>Step 6: 写 <code>apps/admin/app/(auth)/signin/page.tsx</code></strong>(自定义登录页)</p>
+<pre><code class="language-tsx">import { signIn } from "@/lib/auth";
+
+export const dynamic = "force-dynamic";
+
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams: Promise&lt;{ error?: string; from?: string }&gt;;
+}) {
+  const sp = await searchParams;
+  const errorMsg = sp.error
+    ? sp.error === "AccessDenied"
+      ? "你的 GitHub 账号未在白名单中。请联系管理员添加。"
+      : `登录失败:${sp.error}`
+    : null;
+
+  return (
+    &lt;div className="signin-shell"&gt;
+      &lt;div className="signin-card"&gt;
+        &lt;h1&gt;Ghome 运营管理端&lt;/h1&gt;
+        &lt;p&gt;使用 GitHub 账号登录(仅限白名单内成员)&lt;/p&gt;
+        &lt;form
+          action={async () =&gt; {
+            "use server";
+            await signIn("github", { redirectTo: sp.from || "/" });
+          }}
+        &gt;
+          &lt;button type="submit" className="signin-btn"&gt;
+            &lt;svg width={18} height={18} viewBox="0 0 24 24" fill="currentColor" aria-hidden&gt;
+              &lt;path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6a3.2 3.2 0 0 0-1.3-1.7c-1-.7.1-.7.1-.7a2.5 2.5 0 0 1 1.8 1.2 2.6 2.6 0 0 0 3.5 1 2.6 2.6 0 0 1 .8-1.6c-2.7-.3-5.5-1.3-5.5-5.9a4.6 4.6 0 0 1 1.2-3.2 4.3 4.3 0 0 1 .1-3.2s1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.5 1.1.5 2.4.1 3.2a4.6 4.6 0 0 1 1.2 3.2c0 4.6-2.8 5.6-5.5 5.9a2.9 2.9 0 0 1 .8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3z" /&gt;
+            &lt;/svg&gt;
+            &lt;span&gt;使用 GitHub 登录&lt;/span&gt;
+          &lt;/button&gt;
+        &lt;/form&gt;
+        {errorMsg &amp;&amp; &lt;div className="signin-error"&gt;{errorMsg}&lt;/div&gt;}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<blockquote>
+<p>Auth.js v5 在 server action 里调 <code>signIn("github", { redirectTo })</code> 自动重定向到 GitHub OAuth。</p>
+</blockquote>
+<p><strong>Step 7: 验证 build + 提交</strong></p>
+<pre><code class="language-bash">cd /Users/jeff/Work/workspace/uk/ghome
+pnpm --filter @ghome/admin build
+</code></pre>
+<p>Expected: build 输出包括 <code>/</code>(Dashboard,<code>ƒ</code> dynamic)与 <code>/signin</code>(<code>ƒ</code> dynamic with form)、<code>/api/auth/[...nextauth]</code>(<code>ƒ</code> dynamic)。</p>
+<pre><code class="language-bash">git add apps/admin/app/page.tsx apps/admin/app/layout.tsx \
+        "apps/admin/app/(auth)/" \
+        apps/admin/components/ apps/admin/lib/db.ts
+git commit -m "feat(admin): dashboard with content/click stats, top redirects, custom signin page"
+</code></pre>
+<h2 id="Tricky-Bits-T4">Tricky Bits (T4)</h2>
+<ol>
+<li><strong>Server action <code>signIn</code></strong>:<code>&lt;form action={async () =&gt; { "use server"; await signIn(...) }}&gt;</code> 是 Next.js 15 推荐写法。表单提交触发 server action,server action 调 <code>signIn</code>(Auth.js helper),返回 redirect。</li>
+<li><strong><code>signIn</code> (server) vs <code>signOut</code> (client)</strong>:<code>signOut</code> 在 AdminHeader 里用 client API(因为是 button onClick)。两者都从 next-auth 导出,但 client 用 <code>next-auth/react</code>(<code>signOut</code>),server 用 <code>@/lib/auth</code>(<code>signIn</code>)。</li>
+<li><strong>Dashboard 是 server component</strong>:可以直接 <code>await auth()</code> + <code>await prisma.xxx.count()</code>。无需任何 client hook。</li>
+<li><strong><code>raw SQL</code> 用 <code>prisma.$queryRaw</code></strong>:Prisma 的 <code>groupBy</code> API 可用但不支持 date_trunc;改用 raw SQL 更直接。type 用 generic 自定义。</li>
+<li><strong><code>redirect("/signin")</code> from "next/navigation"</strong>:在 server component 里调,Next 会 throw special redirect signal。</li>
+<li><strong>如果 git commit 被 permission rule 阻塞</strong>:报 DONE_WITH_CONCERNS。</li>
+</ol>
+<hr/>
+<h2 id="Task-5-端到端冒烟-tag-p4-admin-auth">Task 5 — 端到端冒烟 + tag p4-admin-auth</h2>
+<p>无新文件。本 task 不真发起 GitHub OAuth(本地无法),用以下方式覆盖:
+- 静态验证:<code>pnpm typecheck</code> / <code>pnpm build</code> 全过
+- middleware 拦截行为:未登录 access → 302 到 /signin
+- /signin 页面渲染正常
+- /api/auth/providers 返回 JSON 列出 github provider
+- DB 操作正确:用一个 fake JWT 直接绕过 OAuth(可选,P4 不做),或者 user 自己注册 OAuth App 真测一次</p>
+<h3 id="8-Steps">8 Steps</h3>
+<p><strong>Step 1: 干净环境 reset</strong></p>
+<pre><code class="language-bash">cd /Users/jeff/Work/workspace/uk/ghome
+docker compose up -d
+sleep 5
+pnpm --filter @ghome/db db:reset --force   # P1 38 + P3 21 + ... 之前 tag 仍在
+</code></pre>
+<p>Expected: P1 seed 跑完,DB 干净。</p>
+<p><strong>Step 2: 4 步全套验证</strong></p>
+<pre><code class="language-bash">pnpm typecheck
+pnpm lint
+pnpm --filter @ghome/db test
+pnpm --filter @ghome/web test
+pnpm build
+</code></pre>
+<p>Expected: 全过(包括 admin build,但 admin 没单测)。</p>
+<p><strong>Step 3: 起 admin dev</strong></p>
+<pre><code class="language-bash">pnpm --filter @ghome/admin dev &amp;
+sleep 8
+</code></pre>
+<p><strong>Step 4: 验证未登录访问</strong></p>
+<pre><code class="language-bash"># 未登录访问 / 应 302 → /signin
+curl -sI http://localhost:3100/ | head -5
+
+# /signin 200
+curl -fsS http://localhost:3100/signin | grep -q "Ghome 运营管理端" &amp;&amp; echo "signin page OK"
+
+# /api/auth/providers 返回 GitHub provider JSON
+curl -fsS http://localhost:3100/api/auth/providers | grep -q "github" &amp;&amp; echo "providers JSON OK"
+</code></pre>
+<p>Expected: 1 次 302 + 2 个 grep 命中。</p>
+<p><strong>Step 5: 验证登录链接构造</strong></p>
+<pre><code class="language-bash"># /api/auth/signin/github 重定向到 GitHub OAuth 页(状态 302,Location 含 github.com)
+curl -sI -X POST http://localhost:3100/api/auth/signin/github | head -5
+</code></pre>
+<p>Expected: <code>HTTP/1.1 302</code> + <code>Location: https://github.com/login/oauth/authorize?...</code>(因为 dev placeholder client_id 是无效的,GitHub 会反过来报 404,但 middleware 与 Auth.js 的中间逻辑工作正常,这一步只验证 admin 能正确把流量发出去)。</p>
+<blockquote>
+<p><strong>Step 5 是最弱的 smoke</strong>:本地无法真完成 OAuth round-trip。<strong>真测试登录功能</strong>需要:① 注册 dev OAuth App;② 把白名单设为自己的 GitHub username;③ 浏览器里走完整流程。<strong>这步在端到端 plan 之外</strong>,由 user 选择是否做。</p>
+</blockquote>
+<p><strong>Step 6: 验证 db 查询不会报错(模拟 Dashboard 渲染时的 count 调用)</strong></p>
+<pre><code class="language-bash"># Dashboard 在登录前是 redirect,登录后才查 db。无法不登录直接命中
+# 用 prisma client 单独验证 count 函数能跑:
+
+cd /Users/jeff/Work/workspace/uk/ghome
+pnpm --filter @ghome/admin exec node --input-type=module -e "
+import { getContentCounts, getTotalClicks } from './lib/db.ts';
+const counts = await getContentCounts();
+console.log(JSON.stringify(counts));
+console.log('total clicks:', await getTotalClicks());
+" 2&gt;&amp;1 | tail -5
+</code></pre>
+<blockquote>
+<p>注:<code>node --input-type=module</code> 配合 ts 文件可能不直接 work — 需要用 <code>tsx</code> 或 <code>ts-node</code>。如果失败,<strong>跳过 Step 6</strong>,改为在 Step 7 build 完后验证渲染。</p>
+</blockquote>
+<p><strong>简化 Step 6</strong>:跳过直接 DB 查询验证,改为依赖 Step 7 的 build 通过(说明 lib/db.ts 类型与查询都正确)。</p>
+<p><strong>Step 7: 关 dev,验证 build 后仍可启动 prod 模式</strong></p>
+<pre><code class="language-bash">kill %1 2&gt;/dev/null || true
+pnpm --filter @ghome/admin build
+pnpm --filter @ghome/admin start &amp;
+sleep 5
+curl -sI http://localhost:3100/ | head -3
+kill %1 2&gt;/dev/null || true
+</code></pre>
+<p>Expected: prod start 后,<code>/</code> 仍 302 到 /signin(middleware 工作)。</p>
+<p><strong>Step 8: git 干净 + plan 入库 + tag P4</strong></p>
+<pre><code class="language-bash">git status --short
+git add docs/superpowers/plans/2026-05-09-ghome-p4-admin-auth.md
+git commit -m "docs: commit P4 implementation plan"
+
+git tag -a p4-admin-auth -m "P4 · admin scaffold + auth: Auth.js v5 + GitHub OAuth + manual admin_users upsert (no PrismaAdapter); JWT session; whitelist gate via middleware; Dashboard with content/click counts and top redirects"
+
+git tag -l
+git log --oneline p3-redirect-tracking..HEAD
+</code></pre>
+<p>Expected: 5 个 tag(p0-scaffolding / p1-data-model / p2-frontend-readonly / p3-redirect-tracking / p4-admin-auth)。</p>
+<hr/>
+<h2 id="P4-完成判据-对应-spec-5">P4 完成判据(对应 spec §5)</h2>
+<ul>
+<li>✅ apps/admin 起来,Auth.js v5 + GitHub OAuth + JWT session(无 PrismaAdapter)— T2/T3</li>
+<li>✅ ADMIN_ALLOWED_GITHUB_LOGINS env 白名单 — T1/T2</li>
+<li>✅ signIn callback 校验白名单 + 手动 upsert admin_users by github_id + 写 last_login_at — T2</li>
+<li>✅ jwt callback 注入 adminUserId — T2</li>
+<li>✅ session callback 暴露 adminUserId — T2</li>
+<li>✅ middleware 拦截未登录访问 → 302 /signin — T3</li>
+<li>✅ Dashboard 显示统计:apps/videos/guides 已发布数与草稿数 + 累计点击 + 7 日趋势 + 热门 redirect Top 5 — T4</li>
+<li>✅ 自定义登录页(GitHub 按钮 + error 提示)— T4</li>
+<li>✅ 退出按钮 — T4 (AdminHeader)</li>
+<li>✅ CI 配 Auth + 白名单 envs — T1</li>
+</ul>
+<hr/>
+<h2 id="已知-P4-故意不做的事-P5-起补">已知 P4 故意不做的事(P5+ 起补)</h2>
+<ul>
+<li><strong>真实登录测试</strong>:本地端到端需要注册 dev OAuth App。本 plan 不强制</li>
+<li><strong>AdminUser CRUD UI</strong>:管理员表只在登录时被 upsert;没有"添加/删除运营成员"的 UI(P5+)</li>
+<li><strong>内容编辑 CRUD</strong>:apps/videos/guides 的列表与编辑都不在 P4(P5)</li>
+<li><strong>collections / topics / albums / rankings 编辑</strong>:P6</li>
+<li><strong>redirect 管理 UI</strong>:P7</li>
+<li><strong>audit_log 写入</strong>:P5+(任何 admin 写操作时)</li>
+<li><strong>多角色 RBAC</strong>:本期所有白名单成员都是同等编辑角色</li>
+<li><strong>session 持久化</strong>:JWT,无 sessions 表</li>
+<li><strong>SSO 之外的认证</strong>:无邮箱魔法链接,无密码</li>
+</ul>
+<hr/>
+<h2 id="Self-Review">Self-Review</h2>
+<ul>
+<li><strong>Spec 覆盖</strong>:逐条核对 spec §2.3 + §3.2 + §5 P4。所有完成判据有对应 task。</li>
+<li><strong>占位符扫描</strong>:无 TBD/TODO。每 step 都有具体代码或命令。</li>
+<li><strong>TS 类型一致性</strong>:<code>Session.user.adminUserId / githubLogin</code> 在 auth.types.ts module augmentation 后全局可用;Dashboard 与 AdminHeader 都直接读。<code>BigInt(githubId)</code> 与 schema <code>github_id BigInt</code> 一致。</li>
+<li><strong>TDD 体现</strong>:Auth callback 是配置型代码,P4 不写单测(代价高/收益低);用 T5 端到端冒烟覆盖。lib/db.ts 的 count 函数是简单 prisma 调用,不写单测。</li>
+<li><strong>风险</strong>:</li>
+<li>Auth.js v5 仍是 beta — API 偶尔 breaking changes。pin 到具体 patch version (<code>^5.0.0-beta.25</code>) 减少风险</li>
+<li>middleware 默认 Edge — 已经在 plan T3 解释 <code>auth()</code> 在 middleware 不查 prisma,Edge OK</li>
+<li>JWT 没有 server-side revoke 机制 — 退出仅清 cookie,真要踢用户下线需等 JWT 过期(默认 30 天)。运营场景可接受;如需即时撤销,P 后期改 DB session</li>
+</ul>
+<hr/>
+<h2 id="下一步">下一步</h2>
+<p>P4 完成后,<strong>写 P5 plan</strong>(运营管理端内容 CRUD:App / Video / Guide 列表 + 编辑 + 标签内联 CRUD + 状态机 + revalidate web)。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#File-Structure-P4-末态">File Structure(P4 末态)</a></li><li style="margin-left:0.0rem"><a href="#Conventions-整个-P4-共享">Conventions(整个 P4 共享)</a></li><li style="margin-left:0.0rem"><a href="#Task-1-Setup-依赖-环境-CSS-CI">Task 1 — Setup:依赖、环境、CSS、CI</a></li><li style="margin-left:0.8rem"><a href="#7-Steps">7 Steps</a></li><li style="margin-left:0.0rem"><a href="#Tricky-Bits-T1">Tricky Bits (T1)</a></li><li style="margin-left:0.0rem"><a href="#Task-2-Auth-js-配置-lib-auth-ts-手动-upsert-admin_users">Task 2 — Auth.js 配置: lib/auth.ts + 手动 upsert admin_users</a></li><li style="margin-left:0.8rem"><a href="#4-Steps">4 Steps</a></li><li style="margin-left:0.0rem"><a href="#Tricky-Bits-T2">Tricky Bits (T2)</a></li><li style="margin-left:0.0rem"><a href="#Task-3-Auth-route-handlers-middleware-未登录拦截">Task 3 — Auth route handlers + middleware(未登录拦截)</a></li><li style="margin-left:0.8rem"><a href="#5-Steps">5 Steps</a></li><li style="margin-left:0.0rem"><a href="#Tricky-Bits-T3">Tricky Bits (T3)</a></li><li style="margin-left:0.0rem"><a href="#Task-4-Dashboard-page-自定义登录页-admin-chrome">Task 4 — Dashboard page + 自定义登录页 + admin chrome</a></li><li style="margin-left:0.8rem"><a href="#7-Steps-2">7 Steps</a></li><li style="margin-left:0.0rem"><a href="#Tricky-Bits-T4">Tricky Bits (T4)</a></li><li style="margin-left:0.0rem"><a href="#Task-5-端到端冒烟-tag-p4-admin-auth">Task 5 — 端到端冒烟 + tag p4-admin-auth</a></li><li style="margin-left:0.8rem"><a href="#8-Steps">8 Steps</a></li><li style="margin-left:0.0rem"><a href="#P4-完成判据-对应-spec-5">P4 完成判据(对应 spec §5)</a></li><li style="margin-left:0.0rem"><a href="#已知-P4-故意不做的事-P5-起补">已知 P4 故意不做的事(P5+ 起补)</a></li><li style="margin-left:0.0rem"><a href="#Self-Review">Self-Review</a></li><li style="margin-left:0.0rem"><a href="#下一步">下一步</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / GHOME</li>
+          <li>日期：2026-05-09</li>
+          <li>标签：<span class="tag">GHOME</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">自动化</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p4-admin-auth.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605090000-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BShell-Ghome%20P4%20%C2%B7%20%E8%BF%90%E8%90%A5%E7%AB%AF%E9%AA%A8%E6%9E%B6%20%2B%20Auth%20Implementation%20Plan.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Ghome P4 · 运营端骨架 + Auth Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommen…</p>
+      <p>关键词：GHOME、Shell、Docker、自动化、源码与配置、业务系统运维、业务系统运维 / GHOME、Ghome P4 · 运营端骨架 + Auth Implementation Plan</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e18f4db5edd2.html"><small>上一篇</small>Ghome P3 · 跳转中转 + 点击打点 Implementation Plan</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3cc905a5cb26.html"><small>下一篇</small>Ghome P5 · 内容 CRUD Implementation Plan</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-512a213e1309.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
