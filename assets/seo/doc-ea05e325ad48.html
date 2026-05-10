@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Ghome P9.6 · 原型像素级对齐 Implementation Plan｜业务系统运维 / GHOME｜BEN.OPS</title>
+  <meta name="description" content="Ghome P9.6 · 原型像素级对齐 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: superpowers:subagent-driven-development . Goal: 把 P9.5 留…">
+  <meta name="keywords" content="GHOME，Shell，Docker，故障排查，业务系统运维，业务系统运维 / GHOME，Ghome P9.6 · 原型像素级对齐 Implementation Plan">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ea05e325ad48.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ea05e325ad48.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605110000-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BShell-Ghome%20P9.6%20%C2%B7%20%E5%8E%9F%E5%9E%8B%E5%83%8F%E7%B4%A0%E7%BA%A7%E5%AF%B9%E9%BD%90%20Implementation%20Plan.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Ghome P9.6 · 原型像素级对齐 Implementation Plan">
+  <meta property="og:description" content="Ghome P9.6 · 原型像素级对齐 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: superpowers:subagent-driven-development . Goal: 把 P9.5 留…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ea05e325ad48.html">
+  <meta property="article:published_time" content="2026-05-11T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-11 00:00">
+  <meta property="article:section" content="业务系统运维 / GHOME">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Ghome P9.6 · 原型像素级对齐 Implementation Plan">
+  <meta name="twitter:description" content="Ghome P9.6 · 原型像素级对齐 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: superpowers:subagent-driven-development . Goal: 把 P9.5 留…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ea05e325ad48.html#article","headline":"Ghome P9.6 · 原型像素级对齐 Implementation Plan","description":"Ghome P9.6 · 原型像素级对齐 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: superpowers:subagent-driven-development . Goal: 把 P9.5 留…","datePublished":"2026-05-11T00:00:00+08:00","dateModified":"2026-05-11 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","GHOME"],"keywords":["GHOME","Shell","Docker","故障排查","业务系统运维","业务系统运维 / GHOME","Ghome P9.6 · 原型像素级对齐 Implementation Plan"],"wordCount":2183,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ea05e325ad48.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ea05e325ad48.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / GHOME","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Ghome P9.6 · 原型像素级对齐 Implementation Plan","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ea05e325ad48.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / GHOME</span> › <span>Ghome P9.6 · 原型像素级对齐 Implementation Plan</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / GHOME</div>
+      <h1>Ghome P9.6 · 原型像素级对齐 Implementation Plan</h1>
+      <p class="lede">Ghome P9.6 · 原型像素级对齐 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: superpowers:subagent-driven-development . Goal: 把 P9.5 留…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-11T00:00:00+08:00">发布于 2026-05-11</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,183 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-11-ghome-p9.6-prototype-parity.md</code></p>
+<p>整理日期：2026-05-11 00:00｜日期依据：文件名日期</p>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: <code>superpowers:subagent-driven-development</code>.</p>
+</blockquote>
+<p><strong>Goal:</strong> 把 P9.5 留下的 ~5% 视觉差 + ~3% 交互差 + 视频封面图占位补到 100%。<strong>全程不依赖外部凭证或服务</strong>:视频封面直接从原型 <code>docs/ghome-20260509.html</code> 的 base64 <code>VIMAGES</code> 常量里抽出,落到本地 <code>/public/uploads/videos/</code>。</p>
+<p>完成后:
+- 视频封面 100% 真图(20/20)
+- 视觉与原型像素级对齐(逐页 side-by-side diff,主观差异忽略)
+- 交互与原型一致(除 Spec Mode 开发者工具,刻意永远不做)</p>
+<h2 id="Architecture">Architecture</h2>
+<ul>
+<li>
+<p><strong>T1 视频封面抽取</strong>:写一次性 Node 脚本 <code>packages/db/scripts/extract-prototype-covers.ts</code>,读原型 HTML,正则匹配 <code>const VIMAGES = { v01: "data:image/jpeg;base64,...", ... }</code>,base64 解码 → 写 <code>apps/web/public/uploads/videos/v01.jpg ... v20.jpg</code>。然后修改 <code>seed/data/videos.ts</code> 给每条记录加 <code>coverImageUrl: "/uploads/videos/{slug}.jpg"</code>,seed 时写入 DB。</p>
+</li>
+<li>
+<p><strong>T2 视觉 diff 审计</strong>:子 agent 并排打开两个 URL(原型本地 file://、运行时 http://localhost:3001),逐页 13 个核心路由对比,生成具体 diff 清单 + 批改 CSS/markup。</p>
+</li>
+<li>
+<p><strong>T3 交互补遗</strong>:逐项查原型 JS 行为(鼠标悬停过渡、焦点态、滚动锚点、抽屉动画曲线),与当前实现对比,补漏。</p>
+</li>
+</ul>
+<h2 id="Spec-引用">Spec / 引用</h2>
+<ul>
+<li>原型:<code>docs/ghome-20260509.html</code>(line 545+ 是 <code>&lt;script&gt;const VIMAGES = {...}</code> 块)</li>
+<li>P9.5 plan:<code>docs/superpowers/plans/2026-05-10-ghome-p9.5-layout-fidelity.md</code></li>
+<li>P10a T4 已就绪的 web fallback 逻辑:<code>VideoCard.tsx</code> / <code>VideoHero.tsx</code> 优先用 <code>coverImageUrl</code>,fallback 到 <code>coverCss(coverKey)</code></li>
+</ul>
+<h2 id="不做-P9-6-范围外">不做(P9.6 范围外)</h2>
+<ul>
+<li><strong>Spec Mode 开发者工具</strong>:永远不做</li>
+<li><strong>视频文件托管</strong>:仍用 picsum.photos 占位(P10b 接 R2 时再改)</li>
+<li><strong>App / Guide 真实图片</strong>:它们本来就是 SVG glyph + gradient 设计意图,原型亦如此</li>
+</ul>
+<h2 id="前置假设">前置假设</h2>
+<ul>
+<li>P10a 完成,<code>p10a-finishing</code> 标签存在</li>
+<li>原型 HTML 已 commit(<code>docs/ghome-20260509.html</code> 在 P9 commit <code>1f394fe</code>)</li>
+<li><code>videos.cover_image_url</code> 字段在 P10a T1 已加(<code>coverImageUrl String?</code>)</li>
+<li>web <code>VideoCard</code> / <code>VideoHero</code> 已支持 fallback(P10a T4)</li>
+</ul>
+<h2 id="File-Structure-P9-6-末态">File Structure(P9.6 末态)</h2>
+<pre><code>packages/db/
+├─ scripts/
+│  └─ extract-prototype-covers.ts                     # T1 一次性脚本
+└─ seed/data/videos.ts                                # T1 改:加 coverImageUrl
+
+apps/web/
+└─ public/uploads/videos/                             # T1 写入 20 张 .jpg(.gitignore 已排除)
+   └─ v01.jpg ... v20.jpg                             # 一次性写入,然后 .gitignore 但有 .gitkeep
+</code></pre>
+<p>T2 / T3 的改动散落在 <code>apps/web/app/**/page.tsx</code> + <code>apps/web/components/*.tsx</code> + <code>apps/web/app/globals.css</code>,具体由 diff 清单决定。</p>
+<h2 id="Conventions">Conventions</h2>
+<ul>
+<li>T1 是 build-time 脚本,跑一次写文件即可;不进运行时路径</li>
+<li>T2 / T3 的 CSS / markup 改动小步快跑,<strong>每页一个 commit</strong> 方便回退</li>
+<li>不引入新依赖</li>
+<li>提交风格:Conventional Commits;permission 阻塞→DONE_WITH_CONCERNS</li>
+</ul>
+<hr/>
+<h2 id="Task-1-抽取-20-张视频封面-seed-写入">Task 1 — 抽取 20 张视频封面 + seed 写入</h2>
+<p><strong>Files:</strong>
+- Create: <code>packages/db/scripts/extract-prototype-covers.ts</code>
+- Modify: <code>packages/db/seed/data/videos.ts</code>(每条加 <code>coverImageUrl</code>)
+- Modify: <code>packages/db/prisma/seed.ts</code>(upsert 写入 coverImageUrl)
+- Files written at runtime: <code>apps/web/public/uploads/videos/v01.jpg ... v20.jpg</code>(gitignored,运行 seed 后产生)</p>
+<h3 id="Steps">Steps</h3>
+<ol>
+<li>写脚本:
+   ```ts
+   // packages/db/scripts/extract-prototype-covers.ts
+   import { readFile, mkdir, writeFile } from "node:fs/promises";
+   import { resolve } from "node:path";</li>
+</ol>
+<p>const PROTOTYPE = resolve(process.cwd(), "..", "..", "docs", "ghome-20260509.html");
+   const TARGET_DIR = resolve(process.cwd(), "..", "..", "apps", "web", "public", "uploads", "videos");</p>
+<p>async function main() {
+     const html = await readFile(PROTOTYPE, "utf8");
+     // VIMAGES = { v01: "data:image/jpeg;base64,..." } — extract entire object literal then parse
+     const m = html.match(/const VIMAGES\s<em>=\s</em>{([\s\S]*?)};/);
+     if (!m) throw new Error("VIMAGES literal not found in prototype");
+     const body = m[1]!;</p>
+<pre><code> // Parse each "v01": "data:image/jpeg;base64,..." entry
+ const entryRe = /(["']?)(v\d{2})\1\s*:\s*"data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)"/g;
+ await mkdir(TARGET_DIR, { recursive: true });
+ let count = 0;
+ for (const match of body.matchAll(entryRe)) {
+   const [, , slug, fmt, base64] = match;
+   const ext = fmt === "jpeg" ? "jpg" : fmt;
+   const filepath = resolve(TARGET_DIR, `${slug}.${ext}`);
+   await writeFile(filepath, Buffer.from(base64!, "base64"));
+   count++;
+ }
+ console.log(`extracted ${count} cover images to ${TARGET_DIR}`);
+</code></pre>
+<p>}</p>
+<p>main().catch((e) =&gt; { console.error(e); process.exit(1); });
+   ```</p>
+<ol start="2">
+<li>
+<p>加 npm script <code>db:extract-covers</code> 到 <code>packages/db/package.json</code>:
+   <code>json
+   "db:extract-covers": "tsx scripts/extract-prototype-covers.ts"</code></p>
+</li>
+<li>
+<p>跑一次:<code>pnpm --filter @ghome/db db:extract-covers</code> —— 预期输出 <code>extracted 20 cover images to ...</code></p>
+</li>
+<li>
+<p>验证文件:<code>ls apps/web/public/uploads/videos/ | wc -l</code> 应 ≥ 20</p>
+</li>
+<li>
+<p>修改 <code>seed/data/videos.ts</code>:每条 video 加 <code>coverImageUrl: "/uploads/videos/${slug}.jpg"</code>(注意 ext 与脚本输出一致,需要看 base64 实际格式 — 通常 jpeg 即 .jpg)</p>
+</li>
+<li>
+<p>修改 <code>prisma/seed.ts</code>:在 video upsert 的 update + create 块都加 <code>coverImageUrl: v.coverImageUrl</code></p>
+</li>
+<li>
+<p>跑 seed:<code>pnpm --filter @ghome/db db:seed</code>,验证:
+   <code>bash
+   docker exec ghome-postgres psql -U ghome -d ghome -c "SELECT slug, cover_image_url FROM videos LIMIT 5;"</code>
+   每条应有 <code>/uploads/videos/{slug}.jpg</code></p>
+</li>
+<li>
+<p>typecheck + 启动 web,curl <code>/video/v01</code> 确认 <code>&lt;img src="/uploads/videos/v01.jpg"&gt;</code> 渲染</p>
+</li>
+<li>
+<p>commit:
+   <code>bash
+   git add packages/db/scripts/extract-prototype-covers.ts \
+           packages/db/seed/data/videos.ts \
+           packages/db/prisma/seed.ts \
+           packages/db/package.json
+   # 不 add public/uploads/videos/ 内容(gitignored),只 add .gitkeep 已存在
+   git commit -m "feat(db): extract 20 prototype video covers + seed coverImageUrl"</code></p>
+</li>
+</ol>
+<h3 id="Tricky-Bits-T1">Tricky Bits (T1)</h3>
+<ol>
+<li><strong>正则解析 base64 块</strong>:VIMAGES 对象可能跨多行,base64 本身可能含 <code>+</code> <code>/</code> <code>=</code>,正则要小心。如果原型源用单引号 vs 双引号 vs 模板字符串,要 robust 处理</li>
+<li><strong>文件扩展名</strong>:base64 前缀 <code>data:image/jpeg</code> → <code>.jpg</code>(注意:不是 jpeg)。脚本里做 <code>fmt === "jpeg" ? "jpg" : fmt</code> 转换</li>
+<li><strong>路径</strong>:脚本从 <code>packages/db/scripts/</code> 跑,要解析到 monorepo 根再回 <code>apps/web/public/uploads/videos/</code>。用 <code>resolve(process.cwd(), "..", "..", ...)</code> (cwd = packages/db)</li>
+<li><strong><code>.gitignore</code> 已忽略 <code>apps/web/public/uploads/</code></strong>(P10a T4 加的),所以提交不会带二进制图片。<strong>重新跑一次 seed 时</strong>(开发新机器 / CI)需要先跑 <code>db:extract-covers</code></li>
+<li><strong>Prototype HTML 必须 commit 在 repo</strong>(已 commit <code>docs/ghome-20260509.html</code>)— 否则脚本找不到源</li>
+<li><strong>大约 1.27MB 总图片</strong>:解码后落地的 20 张 jpg 累计大小,本地磁盘 OK</li>
+<li><strong>如果 VIMAGES 实际不存在或格式变了</strong>:脚本 throw,不影响其它代码</li>
+</ol>
+<hr/>
+<h2 id="Task-2-逐页视觉-diff-审计-批改">Task 2 — 逐页视觉 diff 审计 + 批改</h2>
+<p><strong>Files:</strong> 散落,具体由 diff 决定。预期:<code>apps/web/app/globals.css</code>、各 page.tsx、各 component.tsx 微调。</p>
+<h3 id="Steps-2">Steps</h3>
+<ol>
+<li>
+<p><strong>打开两个浏览器窗口并排</strong>:
+   - 原型:<code>file:///Users/jeff/Work/workspace/uk/ghome/docs/ghome-20260509.html</code>(直接打开,SPA)
+   - 实现:<code>http://localhost:3001/...</code></p>
+</li>
+<li>
+<p><strong>逐页对比 13 个核心路由</strong>:<code>/</code>, <code>/apps</code>, <code>/app/broconnect</code>, <code>/videos</code>, <code>/video/v01</code>, <code>/categories</code>, <code>/category/fitness</code>, <code>/topics</code>, <code>/topic/&lt;slug&gt;</code>, <code>/guides</code>, <code>/guide/choose-app</code>, <code>/about</code>, <code>/contact</code>, <code>/terms</code>, <code>/search?q=健身</code></p>
+</li>
+<li>
+<p><strong>每页对比维度</strong>:
+   - 主要 section 块的 padding / margin
+   - 字号 / 行距
+   - 卡片之间的 gap
+   - hover / focus 视觉
+   - 移动断点(模拟 iPhone / Android UA)</p>
+</li>
+<li>
+<p><strong>生成 diff 清单</strong>(markdown 表格):
+   <code>| 页 | 差异 | 修复 |
+   |---|---|---|
+   | / | brand-hero h1 行距偏紧 | line-height: 1.15 → 1.1 |
+   | /apps | hero-stat .v 字重比原型轻 | font-weight: 700 → 800 |
+   | ... |</code></p>
+</li>
+<li>
+<p><strong>批改 CSS / markup</strong>(优先 CSS — 改一行影响多处)。每处改完跑 <code>pnpm --filter @ghome/web build</code> 跟一次 typecheck</p>
+</li>
+<li>
+<p><strong>每完成 3-5 处差异 commit 一次</strong>,message 形如:
+   - <code>fix(web): home brand-hero h1 line-height + lead font-size to match prototype</code>
+   - <code>fix(web): apps page hero-stats label opacity</code></p>
+</li>
+</ol>
+<h3 id="Tricky-Bits-T2">Tricky Bits (T2)</h3>
+<ol>
+<li><strong>不要主观改进</strong>:目标是与原型对齐,<strong>不是</strong>"做得比原型更好"。如果原型字号偏小,我们也用偏小的</li>
+<li><strong>响应式测试</strong>:iPhone 视口、平板视口、桌面 1280px / 1920px 各看一遍</li>
+<li><strong>跨浏览器</strong>:Chrome 是基线;Safari 字体 metrics 有差但不必匹配 Chrome 100%</li>
+<li><strong>图片对比</strong>:T1 已经把视频封面改成真图,T2 只看布局,不再担心封面差</li>
+<li><strong>subjective 项目</strong>:5% 中可能有"颜色看起来稍微不同"这种感觉,实际是 sub-pixel rendering 差异 — 不动它</li>
+<li><strong>如果某项需要重大改动</strong>(如重写一个组件):升级到独立 task,不混在 T2 里</li>
+</ol>
+<hr/>
+<h2 id="Task-3-交互-动画补遗-冒烟-tag">Task 3 — 交互 / 动画补遗 + 冒烟 + tag</h2>
+<p><strong>Files:</strong> 视审计结果而定。</p>
+<h3 id="Steps-3">Steps</h3>
+<ol>
+<li>
+<p><strong>审计原型 JS 行为</strong>(读原型 line 1900+ render 函数,主要交互):
+   - <code>.app-card</code> hover 效果(原型 line ~165-170 可能有 transform)
+   - <code>.v-card:hover .v-cover img { transform: scale(1.05) }</code> 已有
+   - <code>.suggest-dd</code> 入场动画(transform / opacity)
+   - mobile drawer cubic-bezier 动画曲线
+   - <code>.apk-pop</code> hover focus-within 出现的过渡时长</p>
+</li>
+<li>
+<p><strong>逐项 grep 原型 CSS</strong> + 当前 globals.css 比较:
+   <code>bash
+   grep -E "transition:|@keyframes" docs/ghome-20260509.html &gt; /tmp/proto-anim.txt
+   grep -E "transition:|@keyframes" apps/web/app/globals.css &gt; /tmp/web-anim.txt
+   diff /tmp/proto-anim.txt /tmp/web-anim.txt | head -30</code></p>
+</li>
+<li>
+<p><strong>补漏</strong>:每条缺的 transition 加到 globals.css。<strong>不引入</strong> <code>@keyframes</code> 除非原型有(原型实际没有 keyframes)</p>
+</li>
+<li>
+<p><strong>冒烟最终 CI 矩阵</strong>:
+   <code>bash
+   pnpm --filter @ghome/db typecheck
+   pnpm --filter @ghome/db test
+   pnpm --filter @ghome/admin typecheck
+   pnpm --filter @ghome/admin lint
+   pnpm --filter @ghome/admin build
+   pnpm --filter @ghome/web typecheck
+   pnpm --filter @ghome/web lint
+   pnpm --filter @ghome/web build
+   pnpm --filter @ghome/web e2e   # 25 用例 (24 通过 + 1 文档化跳过)</code></p>
+</li>
+<li>
+<p><strong>打 tag</strong>:
+   <code>bash
+   git tag p9.6-prototype-parity</code></p>
+</li>
+</ol>
+<h3 id="Tricky-Bits-T3">Tricky Bits (T3)</h3>
+<ol>
+<li><strong>Spec Mode 永远不做</strong>:原型 line 610+ 任何 <code>body.spec-mode</code> / <code>.spec-*</code> 规则都跳</li>
+<li><strong>transition 优先于 @keyframes</strong>:原型主要用 transition,不要引入复杂动画</li>
+<li><strong>tag 名:<code>p9.6-prototype-parity</code></strong>,与 P9.5 风格一致</li>
+<li><strong>如果 git tag 阻塞</strong>:DONE_WITH_CONCERNS</li>
+</ol>
+<hr/>
+<h2 id="Final-验收清单-P9-6-整体">Final 验收清单(P9.6 整体)</h2>
+<ul>
+<li>[ ] <code>apps/web/public/uploads/videos/v01.jpg ... v20.jpg</code> 存在,各 ≤ 100KB</li>
+<li>[ ] DB videos 表 <code>cover_image_url</code> 全部填充,指向 <code>/uploads/videos/{slug}.jpg</code></li>
+<li>[ ] <code>/videos</code> 首页 + <code>/video/v01</code> 显示真图(curl 看 <code>&lt;img src="/uploads/videos/v01.jpg"&gt;</code>)</li>
+<li>[ ] 13 个核心路由逐页对比原型,主观判定 95%+ 接近</li>
+<li>[ ] 缺失的 CSS transition 全部补上</li>
+<li>[ ] CI 全绿(typecheck / lint / build / unit / e2e 24+1)</li>
+<li>[ ] tag <code>p9.6-prototype-parity</code> 在 main HEAD</li>
+</ul>
+<p><strong>P9.6 完成 ⇒ 视觉/交互/真图 100%(扣除 Spec Mode 与等 R2 的视频文件托管)。</strong></p>
+<p>后续可继续 P10b(R2/邮件/部署等真实凭证),或直接走上线流程。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#Architecture">Architecture</a></li><li style="margin-left:0.0rem"><a href="#Spec-引用">Spec / 引用</a></li><li style="margin-left:0.0rem"><a href="#不做-P9-6-范围外">不做(P9.6 范围外)</a></li><li style="margin-left:0.0rem"><a href="#前置假设">前置假设</a></li><li style="margin-left:0.0rem"><a href="#File-Structure-P9-6-末态">File Structure(P9.6 末态)</a></li><li style="margin-left:0.0rem"><a href="#Conventions">Conventions</a></li><li style="margin-left:0.0rem"><a href="#Task-1-抽取-20-张视频封面-seed-写入">Task 1 — 抽取 20 张视频封面 + seed 写入</a></li><li style="margin-left:0.8rem"><a href="#Steps">Steps</a></li><li style="margin-left:0.8rem"><a href="#Tricky-Bits-T1">Tricky Bits (T1)</a></li><li style="margin-left:0.0rem"><a href="#Task-2-逐页视觉-diff-审计-批改">Task 2 — 逐页视觉 diff 审计 + 批改</a></li><li style="margin-left:0.8rem"><a href="#Steps-2">Steps</a></li><li style="margin-left:0.8rem"><a href="#Tricky-Bits-T2">Tricky Bits (T2)</a></li><li style="margin-left:0.0rem"><a href="#Task-3-交互-动画补遗-冒烟-tag">Task 3 — 交互 / 动画补遗 + 冒烟 + tag</a></li><li style="margin-left:0.8rem"><a href="#Steps-3">Steps</a></li><li style="margin-left:0.8rem"><a href="#Tricky-Bits-T3">Tricky Bits (T3)</a></li><li style="margin-left:0.0rem"><a href="#Final-验收清单-P9-6-整体">Final 验收清单(P9.6 整体)</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / GHOME</li>
+          <li>日期：2026-05-11</li>
+          <li>标签：<span class="tag">GHOME</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-11-ghome-p9.6-prototype-parity.…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605110000-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BShell-Ghome%20P9.6%20%C2%B7%20%E5%8E%9F%E5%9E%8B%E5%83%8F%E7%B4%A0%E7%BA%A7%E5%AF%B9%E9%BD%90%20Implementation%20Plan.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Ghome P9.6 · 原型像素级对齐 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: superpowers:subagent-driven-development . Goal: 把 P9.5 留…</p>
+      <p>关键词：GHOME、Shell、Docker、故障排查、业务系统运维、业务系统运维 / GHOME、Ghome P9.6 · 原型像素级对齐 Implementation Plan</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2343f4bfdb9a.html"><small>上一篇</small>P10 路线图与待确认事项</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-85dcf312c72e.html"><small>下一篇</small>Admin Agent 数据接入 API Implementation Plan</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ea05e325ad48.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
