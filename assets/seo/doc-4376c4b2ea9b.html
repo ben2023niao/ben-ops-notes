@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Agent 配对(公开 Skill.md → 短配对码 → owner 登录态确认)设计｜业务系统运维 / GHOME｜BEN.OPS</title>
+  <meta name="description" content="Agent 配对(公开 Skill.md → 短配对码 → owner 登录态确认)设计。本文属于业务系统运维 / GHOME，外部 Agent(OpenClaw / Hermes 等)接入:给一个 固定公开 Skill.md 地址 ,Agent 在线读取 → 后台即时铸一枚 8 位短配对码 → Agent 把短…">
+  <meta name="keywords" content="GHOME，Shell，安全运维，故障排查，业务系统运维，业务系统运维 / GHOME，Agent 配对(公开 Skill.md → 短配对码 → owner 登录态确认)设计">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4376c4b2ea9b.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4376c4b2ea9b.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605180000-GHOME%2BShell%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4-Agent%20%E9%85%8D%E5%AF%B9%28%E5%85%AC%E5%BC%80%20Skill.md%20%E2%86%92%20%E7%9F%AD%E9%85%8D%E5%AF%B9%E7%A0%81%20%E2%86%92%20owner%20%E7%99%BB%E5%BD%95%E6%80%81%E7%A1%AE%E8%AE%A4%29%E8%AE%BE%E8%AE%A1.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Agent 配对(公开 Skill.md → 短配对码 → owner 登录态确认)设计">
+  <meta property="og:description" content="Agent 配对(公开 Skill.md → 短配对码 → owner 登录态确认)设计。本文属于业务系统运维 / GHOME，外部 Agent(OpenClaw / Hermes 等)接入:给一个 固定公开 Skill.md 地址 ,Agent 在线读取 → 后台即时铸一枚 8 位短配对码 → Agent 把短…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4376c4b2ea9b.html">
+  <meta property="article:published_time" content="2026-05-18T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-18 00:00">
+  <meta property="article:section" content="业务系统运维 / GHOME">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Agent 配对(公开 Skill.md → 短配对码 → owner 登录态确认)设计">
+  <meta name="twitter:description" content="Agent 配对(公开 Skill.md → 短配对码 → owner 登录态确认)设计。本文属于业务系统运维 / GHOME，外部 Agent(OpenClaw / Hermes 等)接入:给一个 固定公开 Skill.md 地址 ,Agent 在线读取 → 后台即时铸一枚 8 位短配对码 → Agent 把短…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4376c4b2ea9b.html#article","headline":"Agent 配对(公开 Skill.md → 短配对码 → owner 登录态确认)设计","description":"Agent 配对(公开 Skill.md → 短配对码 → owner 登录态确认)设计。本文属于业务系统运维 / GHOME，外部 Agent(OpenClaw / Hermes 等)接入:给一个 固定公开 Skill.md 地址 ,Agent 在线读取 → 后台即时铸一枚 8 位短配对码 → Agent 把短…","datePublished":"2026-05-18T00:00:00+08:00","dateModified":"2026-05-18 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","GHOME"],"keywords":["GHOME","Shell","安全运维","故障排查","业务系统运维","业务系统运维 / GHOME","Agent 配对(公开 Skill.md → 短配对码 → owner 登录态确认)设计"],"wordCount":3298,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4376c4b2ea9b.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4376c4b2ea9b.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / GHOME","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Agent 配对(公开 Skill.md → 短配对码 → owner 登录态确认)设计","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4376c4b2ea9b.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / GHOME</span> › <span>Agent 配对(公开 Skill.md → 短配对码 → owner 登录态确认)设计</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / GHOME</div>
+      <h1>Agent 配对(公开 Skill.md → 短配对码 → owner 登录态确认)设计</h1>
+      <p class="lede">Agent 配对(公开 Skill.md → 短配对码 → owner 登录态确认)设计。本文属于业务系统运维 / GHOME，外部 Agent(OpenClaw / Hermes 等)接入:给一个 固定公开 Skill.md 地址 ,Agent 在线读取 → 后台即时铸一枚 8 位短配对码 → Agent 把短…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-18T00:00:00+08:00">发布于 2026-05-18</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">3,298 字</span>
+        <span class="badge">10 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/ghome/docs/superpowers/specs/2026-05-18-agent-self-pairing-design.md</code></p>
+<p>整理日期：2026-05-18 00:00｜日期依据：文件名日期</p>
+<p>状态:待评审 · 日期:2026-05-18 · 范围:<code>apps/admin</code>
+本文是 <a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/2026-05-18-admin-agent-data-api-design.md" rel="noopener noreferrer">Admin Agent 数据接入 API 设计</a> 的<strong>配套附录</strong>,复用其 AgentClient/token/scope/dispatcher/agent-clients UI。
+<strong>本版修订</strong>:配对完成方式由"Agent 凭长码自助 POST 无人审批"改为 <strong>"Agent 拿短码 → 其 owner 登录 Admin 输入短码、后台校验通过"</strong>。手工凭空建 Agent 的入口此前已移除;现在 Agent 进入系统的唯一路径就是本流程。git 历史保留旧版设计。
+<strong>可用性修订(2026-05-19)</strong>:① 公开引导端点 <code>GET /agent/skill.md</code> → <strong><code>GET /agent/pair.md</code></strong>(旧名移除),消除与鉴权 <code>GET /api/agent/v1/skill.md</code> 的同名混淆;引导文档须含<strong>醒目区分</strong>(这是配对引导页、不是 API 文档,API 文档是带 Bearer 的 <code>/api/agent/v1/skill.md</code>)。② agent-clients 列表行新增「轮换」动作(复用 <code>rotateAction</code>+<code>ConfirmSubmitButton</code>),让"错过一次性 token"可一键重取。本轮为聚焦后续,另起实现计划;§8 切片表为上一版构建留存。</p>
+</blockquote>
+<h2 id="0-背景与目标">0. 背景与目标</h2>
+<p>外部 Agent(OpenClaw / Hermes 等)接入:给一个<strong>固定公开 Skill.md 地址</strong>,Agent 在线读取 → 后台即时铸一枚<strong>8 位短配对码</strong> → Agent 把短码交给它的 <strong>owner</strong> → owner 用自己的账号<strong>登录 Admin</strong>、在「输入配对码」页填入该码 → 后台校验(通道开 / 码存在 / 未用 / 未过期)→ 建 AgentClient 并<strong>在 Admin 页面一次性显示 Bearer token</strong> → owner 复制 token 配进 Agent。完成。之后沿用原数据 API 与个性化 Skill.md。</p>
+<p><strong>确认的核心决策</strong></p>
+<ul>
+<li><strong>完成方式</strong>:owner(登录态管理员)输入短码、后台校验通过才算配对完成。不再有公开免鉴权的自助兑换端点。</li>
+<li><strong>短码</strong>:8 位,大写字母+数字+少量安全特殊符,去易混字符;<strong>单次、30 分钟 TTL、原子焚码</strong>;公开 <code>GET /agent/pair.md</code> 每次被读即铸一枚(非管理员预建)。</li>
+<li><strong>公开地址</strong>:固定单一 URL <code>GET /agent/pair.md</code>,免鉴权,仅铸码+回引导文档。</li>
+<li><strong>Token 交付</strong>:校验通过后 Admin 页面<strong>一次性明文显示</strong>(复用现有 <code>TokenRevealBanner</code> + `?敏感凭据：[已脱敏] 回显机制),owner 手动填回 Agent。库内仅存 token 哈希,不可再查。</li>
+<li><strong>scope 策略</strong>:配对出的 AgentClient 固定 <code>content:published</code>;更高权限由管理员事后在现有「编辑」页勾选提权(已审计)。确认页<strong>不</strong>选 scope。</li>
+<li><strong>方案 A</strong>:复用现有 token 一次性回显机制 + 现有编辑/提权/吊销/配对码日志/通道开关,新增面最小。</li>
+<li><strong>通道开关</strong>:公开通道全局开关(单行 <code>AgentPairingConfig</code>),<strong>出厂默认关闭</strong>,管理员显式开启才生效。</li>
+</ul>
+<h2 id="1-流程总览">1. 流程总览</h2>
+<pre><code>管理员  Admin → Agent 接入 → 开启「公开自助配对通道」(出厂默认关)
+   │
+Agent   GET /agent/pair.md  (公开免鉴权)
+        通道关 → 200 markdown:已关闭,联系管理员(不铸码)
+        通道开 → 铸一枚 8 位短码(单次,30min)→ 返回引导文档:含短码 +
+                 "把这串码交给你的 owner;owner 登录 Admin → Agent 接入 → 输入配对码"
+   │
+owner   用本人账号登录 Admin → /agent-clients/pair → 填短码(+ 可选 Agent 名)→ 提交
+   │
+后台    校验(通道开 / sha256 命中 / 未用 / 未过期)→ 原子焚码 →
+        建 AgentClient(origin=self-paired, scopes=["content:published"],
+        createdByAdminId=该管理员)→ 重定向 /agent-clients/{id}/edit?敏感凭据：[已脱敏]
+   │
+Admin   编辑页用现有 TokenRevealBanner 一次性显示 token(库内仅哈希)
+owner   复制 token 配进自己的 Agent
+   │
+之后    Agent 持 token 调 GET /api/agent/v1/skill.md(个性化文档)/ /api/agent/v1/apps …
+管理员  agent-clients 列表见该 Agent(来源=自助);需更高权限→编辑页提权(审计);
+        可吊销;配对码日志只读审计;通道一键开关
+</code></pre>
+<h2 id="2-数据模型-无需迁移-复用现有-AgentPairingCode">2. 数据模型(无需迁移,复用现有 <code>AgentPairingCode</code>)</h2>
+<p>现有表 <code>AgentPairingCode { id, codePrefix, codeHash @unique, expiresAt, usedAt, usedByAgentClientId?, createdAt }</code> 字段沿用,语义调整:</p>
+<ul>
+<li><code>codeHash</code> = <code>sha256(短码)</code> —— 唯一查找键(不变)。</li>
+<li><code>codePrefix</code> —— <strong>改存一个与密文无关的随机 8 位"工单号"</strong>(纯内部/日志关联用,不可反推短码;短码本身永不入任何列)。</li>
+<li><code>usedAt</code> / <code>usedByAgentClientId</code> —— 不变。</li>
+<li><code>createdByAdminId</code>(在 <code>AgentClient</code> 上,已是可空):配对完成时填<strong>确认配对的管理员 id</strong>(此前自助路径为 null;现在恒有值——记录"谁完成了配对")。</li>
+</ul>
+<p><code>AgentPairingConfig</code>(单行,公开通道开关)与 <code>AgentClient.origin</code>(默认 <code>admin</code>,配对建的写 <code>self-paired</code>)均沿用,无改动。</p>
+<blockquote>
+<p>不新增列、不改类型 → <strong>无 Prisma 迁移</strong>。</p>
+</blockquote>
+<h2 id="3-短码格式">3. 短码格式</h2>
+<p><code>apps/admin/lib/agent-api/pairing.ts</code> 的 <code>generatePairingCode()</code> 改写:</p>
+<ul>
+<li><strong>固定 8 位</strong>。字符集(共 39 个,去易混):</li>
+<li>大写字母 <code>ABCDEFGHJKMNPQRSTUVWXYZ</code>(去 <code>O I L</code>)</li>
+<li>数字 <code>23456789</code>(去 <code>0 1</code>)</li>
+<li>安全特殊符 <code>#$%@*+=-</code>(不含引号/反斜杠/空格/<code>/</code>,避免手输错或 shell/复制踩坑)</li>
+<li>拒绝采样、无 modulo 偏置(沿用现有 <code>token.ts</code> 生成器写法)。熵 ≈ <code>log2(39^8) ≈ 42 bit</code>。</li>
+<li><code>hashToken</code>(通用 sha256,<code>token.ts</code> 既有)复用于短码哈希;原 <code>codePrefix(raw)</code> 前缀函数移除(短码不可暴露前缀),改由 db 层生成随机工单号写入 <code>codePrefix</code> 列。</li>
+<li><code>PAIRING_CODE_TTL_MS</code> 由 10min <strong>改为 30min</strong>(owner 人工中转需时间)。</li>
+</ul>
+<h2 id="4-端点-路由">4. 端点 / 路由</h2>
+<h3 id="4-1-公开-GET-agent-pair-md-免鉴权-保留">4.1 公开 <code>GET /agent/pair.md</code>(免鉴权,保留)</h3>
+<ul>
+<li>路由文件 <code>apps/admin/app/agent/pair.md/route.ts</code> 保留;middleware 仍精确放行 <code>pathname === "/agent/pair.md"</code>。</li>
+<li>通道关 → <code>200 text/markdown</code> 关闭提示,<strong>不铸码</strong>。</li>
+<li>通道开 → 铸一枚短码(<code>mintPairingCode()</code>,写 <code>codeHash</code>+随机 <code>codePrefix</code>+<code>expiresAt=now+30min</code>)→ 返回引导 Markdown:frontmatter、短码(明文,仅本响应)、有效期 30min/单次、<strong>新指引</strong>:"把这串配对码交给你的 owner;owner 用自己账号登录 Admin → 顶部导航『Agent 接入』→『输入配对码』,填入它即可完成配对并取得本 Agent 的 token。"(<strong>不再含</strong> <code>POST /agent/pair</code>;配对后取个性化文档仍是 <code>GET /api/agent/v1/skill.md</code> 带 Bearer——不变)。</li>
+<li><strong>醒目区分(必须)</strong>:<code>renderPairingSkillMd</code> 与 <code>renderPairingClosedMd</code> <strong>两态</strong>文档顶部均须有一段显著提示,大意为:"⚠️ 这是<strong>配对引导页</strong>,不是 API 文档;本页每次访问都换一枚新配对码。配对完成、owner 在 Admin 校验后你会拿到 Bearer token;<strong>真正的个性化 API 文档</strong>是另一个地址且须带 敏感凭据：[已脱敏] /api/agent/v1/skill.md<code>(</code>Authorization: Bearer <token>`)。" 目的:杜绝把本引导页误当作鉴权后 API 文档(本轮修订动因)。</token></li>
+</ul>
+<h3 id="4-2-公开-POST-agent-pair-删除">4.2 公开 <code>POST /agent/pair</code> —— 删除</h3>
+<ul>
+<li>删 <code>apps/admin/app/agent/pair/route.ts</code>;<code>apps/admin/middleware.ts</code> 公开白名单去掉 <code>pathname === "/agent/pair"</code>(<strong>保留</strong> <code>/agent/pair.md</code>)。无任何公开免鉴权的兑换端点。</li>
+</ul>
+<h3 id="4-3-登录态确认-新增-admin-分组-会话守卫">4.3 登录态确认(新增,<code>(admin)</code> 分组,会话守卫)</h3>
+<ul>
+<li>页面 <code>apps/admin/app/(admin)/agent-clients/pair/page.tsx</code>:表单 = 配对码(必填)+ Agent 名称(可选)+ 提交;带 <code>?error=&lt;code&gt;</code> 时在表单上方显示友好中文错误(<code>invalid_request</code>/<code>invalid_code</code>/<code>code_used</code>/<code>code_expired</code>/<code>pairing_disabled</code>)。复用现有 <code>EditForm</code>/<code>FormRow</code>/<code>.btn-*</code> 风格。</li>
+<li>server action <code>confirmPairingAction(form)</code>(加入现有 <code>apps/admin/app/(admin)/agent-clients/actions.ts</code>,共用其顶部单一 <code>"use server"</code> 与 <code>adminId()</code>):
+  1. <code>me = await adminId()</code>(会话守卫,未登录 <code>redirect("/signin")</code>)。
+  2. 读 <code>code</code>(trim;空→<code>redirect("/agent-clients/pair?error=invalid_request")</code>)、可选 <code>name</code>。
+  3. <code>res = await confirmPairingCode(code, me, name?)</code>。
+  4. <code>!res.ok</code> → <code>redirect("/agent-clients/pair?error=" + res.code)</code>。
+  5. <code>logAuditAction(me, "agentClient.pair", "agentClient", res.client.id, { after: { name: res.client.name, scopes: res.client.scopes, via: "pairing-code" } })</code>。
+  6. <code>revalidatePath("/agent-clients")</code> → <code>redirect("/agent-clients/" + res.client.id + "/edit?敏感凭据：[已脱敏] + encodeURIComponent(res.rawToken))</code>(复用现有编辑页 <code>TokenRevealBanner</code> 一次性回显;与旧手工建/轮换同一机制)。</li>
+</ul>
+<h3 id="4-4-agent-pairing-db-ts">4.4 <code>agent-pairing-db.ts</code></h3>
+<ul>
+<li><code>redeemPairingCode</code> → 改写为 <code>confirmPairingCode(rawCode: string, adminId: string, name?: string): Promise&lt;ConfirmResult&gt;</code>,<code>ConfirmResult = { ok: true; [敏感内容已脱敏]; client: AgentClient } | { ok: false; code: "invalid_code" | "code_used" | "code_expired" | "pairing_disabled" }</code>:</li>
+<li>先 <code>if (!(await isPairingEnabled())) return { ok:false, code:"pairing_disabled" }</code>(确认时通道已被关也拒)。</li>
+<li><code>sha256</code> 查 <code>AgentPairingCode</code>:无→<code>invalid_code</code>;<code>usedAt</code>→<code>code_used</code>;<code>expiresAt&lt;now</code>→<code>code_expired</code>。</li>
+<li><code>prisma.$transaction</code>:条件 <code>updateMany(where:{id,usedAt:null},data:{usedAt:now})</code>;<code>count===0</code>→<code>code_used</code>;<code>resolveUniqueName(tx,name)</code>;<code>generateToken()</code>;<code>tx.agentClient.create({ name, tokenPrefix, tokenHash, scopes:[...SELF_PAIR_DEFAULT_SCOPES], origin:"self-paired", createdByAdminId: adminId })</code>;回填 <code>usedByAgentClientId</code>;返回 <code>{ok:true,rawToken,client}</code>。post-burn 抛错回滚(沿用现有原子语义)。</li>
+<li><code>mintPairingCode()</code> 产 8 位短码 + 随机工单号写 <code>codePrefix</code>。<code>isPairingEnabled</code>/<code>setPairingEnabled</code>/<code>listPairingCodes</code> 不变。</li>
+<li><code>SELF_PAIR_DEFAULT_SCOPES</code>(<code>scopes.ts</code>)= <code>["content:published"]</code>(不变)。</li>
+</ul>
+<h2 id="5-Admin-UI">5. Admin UI</h2>
+<ul>
+<li>列表页 <code>agent-clients/page.tsx</code> header:在 <code>&lt;h1&gt;Agent 接入&lt;/h1&gt;</code> 旁加 <code>&lt;Link href="/agent-clients/pair" className="btn-primary"&gt;输入配对码&lt;/Link&gt;</code>(新合法入口——完成 Agent 已发起的配对,非凭空建)。通道开关面板、表格(来源列)、配对码日志链接不变。</li>
+<li>新 <code>agent-clients/pair/page.tsx</code>:配对码 + 可选 Agent 名 表单;带 <code>?error=&lt;code&gt;</code> 时显示友好中文错误,覆盖 <code>invalid_request</code>(空码)/<code>invalid_code</code>/<code>code_used</code>/<code>code_expired</code>/<code>pairing_disabled</code>。</li>
+<li>配对码日志 <code>agent-clients/pairing-codes/page.tsx</code>:<strong>不再显示码/前缀</strong>;列改为 创建时间 / 过期 / 状态(<code>待确认</code> / <code>已用</code> / <code>已过期</code>,按 usedAt 与 now 推导)/ 确认管理员 / 兑换出的 Client。纯审计。</li>
+<li>编辑页 <code>agent-clients/[id]/edit</code> + <code>TokenRevealBanner</code> + `?敏感凭据：[已脱敏] 回显:<strong>完全复用,不改</strong>。</li>
+<li>提权/吊销:复用现有编辑页(已审计)。</li>
+<li><strong>列表行「轮换」动作(本轮新增)</strong>:<code>agent-clients/page.tsx</code> 表格每行在「编辑」旁加一个 <code>&lt;form action={rotateAction.bind(null, c.id)}&gt;</code> 内含 <code>ConfirmSubmitButton</code>(确认文案如「轮换会立即作废 <name> 当前 token,确定?」)。<strong>复用现有</strong> <code>rotateAction(id)</code>(已 <code>rotateAgentToken</code>+审计 <code>agentClient.rotate</code>+<code>redirect('/agent-clients/{id}/edit?敏感凭据：[已脱敏]</code>ConfirmSubmitButton` 组件。零新增 action/组件/数据模型。动因:错过一次性 token 时可在列表一眼找到、一键重取。</name></li>
+</ul>
+<h2 id="6-安全姿态">6. 安全姿态</h2>
+<ul>
+<li><strong>校验端点是登录态</strong>:<code>confirmPairingCode</code> 只被 <code>(admin)</code> 会话守卫后的 server action 调用 → 匿名互联网暴力猜码打不进来(须先有 Admin 账号并登录)。8 位短码(≈42 bit)+ 单次 + 30min TTL + 原子焚码足够;<strong>不做账号级锁定/限频</strong>(YAGNI;唯一可尝试者是已登录管理员,每次 confirm 写审计 <code>agentClient.pair</code>)。</li>
+<li>三层结构性兜底:① 配对出的 client 固定 <code>content:published</code>(敏感面结构不可达,提权走编辑页);② 短码单次+30min TTL+原子焚码;③ 公开通道出厂默认关 + 一键停用(关时不铸码、返回关闭提示;<code>confirmPairingCode</code> 亦在通道关时拒)。</li>
+<li>短码<strong>永不入库</strong>(仅 <code>sha256</code>)、<strong>永不进日志</strong>、配对码日志页<strong>不显示</strong>;只出现在那一次 <code>/agent/pair.md</code> 响应体与 owner 手里。token 经现有 <code>TokenRevealBanner</code> 一次性回显、不持久化、不进审计 diff(diff 仅 name/scopes/via)。</li>
+<li>可追溯链:<code>AgentPairingCode</code>(usedAt/usedBy + 关联确认管理员)→ 新 <code>AgentClient</code>(origin=self-paired, createdByAdminId=确认管理员, createdAt)+ 审计 <code>agentClient.pair</code>。</li>
+<li>公开授权安全测试面仅剩"读 <code>/agent/pair.md</code> 触发铸一行短码"(出厂关 + 通道开关为主控),与原 spec 已记录残余风险同级,无新增免鉴权面(反而移除了公开 POST)。</li>
+<li>延续隐私姿态:不存原始 IP/UA。</li>
+</ul>
+<h2 id="7-测试策略-vitest-为主">7. 测试策略(vitest 为主)</h2>
+<ul>
+<li>单元:短码生成(长度 8、字符集、无 <code>O0I1L</code>、无偏置、唯一);<code>confirmPairingCode</code>(合法→建 client 且 <code>createdByAdminId=该管理员</code>、scopes 恰为 <code>["content:published"]</code>、返回 token;复用→<code>code_used</code>;过期→<code>code_expired</code>;未知→<code>invalid_code</code>;通道关→<code>pairing_disabled</code>;并发双确认→仅 1 个 client,原子)。</li>
+<li>集成:<code>GET /agent/pair.md</code> 通道开→写一行短码、markdown 含新指引且<strong>不含</strong> <code>POST /agent/pair</code>;<strong>且含醒目区分语</strong>(同时出现 <code>/api/agent/v1/skill.md</code> 与"不是 API 文档"意味的文案);通道关→不铸码+关闭提示(关闭提示亦含该区分语)。新 confirm 路径端到端(经 <code>confirmPairingCode</code>)。</li>
+<li><strong>改</strong>:<code>pair-endpoints.test.ts</code> 导入路径 <code>@/app/agent/skill.md/route</code> → <code>@/app/agent/pair.md/route</code>;原断言保留并加上述区分语断言。</li>
+<li>E2E(改写):管理员开通道 → 取 <code>/agent/pair.md</code> 8 位短码 → 登录态打开 <code>/agent-clients/pair</code> 填码提交 → 跳编辑页、token 一次性可见 → 用该 token <code>GET /api/agent/v1/apps</code> 得 200 → 同码再确认显示错误提示 → <strong>回 <code>/agent-clients</code> 列表对该行点「轮换」(接受确认弹窗)→ 跳编辑页拿到新 <code>^ghagt_</code> token 且仍能调 <code>/api/agent/v1/apps</code> 得 200</strong>。</li>
+<li>回归:全量 admin + db 套件、typecheck、build(<code>/agent-clients/pair</code> emitted、<code>/agent/pair</code> 不再 emitted)、lint 全绿。</li>
+</ul>
+<h2 id="8-分阶段切片">8. 分阶段切片</h2>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>内容</th>
+<th>完成判据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>C1 · 短码原语</strong></td>
+<td><code>generatePairingCode</code> 改 8 位短码字符集 + TTL 30min;移除旧 <code>codePrefix</code> 前缀函数</td>
+<td>单元测试绿(格式/字符集/无偏置/唯一/TTL)</td>
+</tr>
+<tr>
+<td><strong>C2 · confirmPairingCode</strong></td>
+<td><code>redeemPairingCode</code>→<code>confirmPairingCode(code,adminId,name?)</code>(通道关拒、原子焚码、createdByAdminId=adminId);<code>mintPairingCode</code> 写随机工单号 codePrefix</td>
+<td>单元/集成测试绿(全分支 + 并发)</td>
+</tr>
+<tr>
+<td><strong>C3 · 删公开 POST + skill.md 文案</strong></td>
+<td>删 <code>agent/pair</code> 路由 + middleware 收口;<code>pairing-skill-md.ts</code> 改新指引</td>
+<td><code>/agent/pair</code> 404;<code>GET /agent/pair.md</code> 含短码+新指引、不含 POST</td>
+</tr>
+<tr>
+<td><strong>C4 · 登录态确认 UI</strong></td>
+<td><code>agent-clients/pair</code> 页 + <code>confirmPairingAction</code> + 列表入口;配对码日志改列;复用编辑页回显</td>
+<td>typecheck/build 绿,新路由 emitted;手工走查链路通</td>
+</tr>
+<tr>
+<td><strong>C5 · 测试 + E2E + spec 收尾</strong></td>
+<td>删旧 POST 用例、加 confirm 用例、改 E2E;全量回归</td>
+<td>全套测试/lint/build/E2E 绿</td>
+</tr>
+</tbody>
+</table>
+<h2 id="9-不在本-spec-范围-未来">9. 不在本 spec 范围(未来)</h2>
+<ul>
+<li>结构化提权审批队列(Agent 声明期望 scope → pending → 管理员批/驳)——日后真有提权频次再加。</li>
+<li>公开 <code>GET /agent/pair.md</code> 硬限流 / per-IP 配额(延续延后;主控为出厂关+通道开关)。</li>
+<li><code>AgentPairingCode</code> / <code>AgentAccessLog</code> 自动清理 prune(运维延后项;上线开通道前补)。</li>
+<li>测试隔离:DB 级单行 <code>agent_pairing_config</code> 单例使测试需 <code>fileParallelism:false</code>;后续可加 snapshot/restore fixture。</li>
+<li>多通道 / 每通道独立默认 scope / owner 自助选 scope(本设计单通道、固定安全默认、事后提权)。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#0-背景与目标">0. 背景与目标</a></li><li style="margin-left:0.0rem"><a href="#1-流程总览">1. 流程总览</a></li><li style="margin-left:0.0rem"><a href="#2-数据模型-无需迁移-复用现有-AgentPairingCode">2. 数据模型(无需迁移,复用现有 AgentPairingCode )</a></li><li style="margin-left:0.0rem"><a href="#3-短码格式">3. 短码格式</a></li><li style="margin-left:0.0rem"><a href="#4-端点-路由">4. 端点 / 路由</a></li><li style="margin-left:0.8rem"><a href="#4-1-公开-GET-agent-pair-md-免鉴权-保留">4.1 公开 GET /agent/pair.md (免鉴权,保留)</a></li><li style="margin-left:0.8rem"><a href="#4-2-公开-POST-agent-pair-删除">4.2 公开 POST /agent/pair —— 删除</a></li><li style="margin-left:0.8rem"><a href="#4-3-登录态确认-新增-admin-分组-会话守卫">4.3 登录态确认(新增, (admin) 分组,会话守卫)</a></li><li style="margin-left:0.8rem"><a href="#4-4-agent-pairing-db-ts">4.4 agent-pairing-db.ts</a></li><li style="margin-left:0.0rem"><a href="#5-Admin-UI">5. Admin UI</a></li><li style="margin-left:0.0rem"><a href="#6-安全姿态">6. 安全姿态</a></li><li style="margin-left:0.0rem"><a href="#7-测试策略-vitest-为主">7. 测试策略(vitest 为主)</a></li><li style="margin-left:0.0rem"><a href="#8-分阶段切片">8. 分阶段切片</a></li><li style="margin-left:0.0rem"><a href="#9-不在本-spec-范围-未来">9. 不在本 spec 范围(未来)</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / GHOME</li>
+          <li>日期：2026-05-18</li>
+          <li>标签：<span class="tag">GHOME</span><span class="tag">Shell</span><span class="tag">安全运维</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/ghome/docs/superpowers/specs/2026-05-18-agent-self-pairing-design.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605180000-GHOME%2BShell%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4-Agent%20%E9%85%8D%E5%AF%B9%28%E5%85%AC%E5%BC%80%20Skill.md%20%E2%86%92%20%E7%9F%AD%E9%85%8D%E5%AF%B9%E7%A0%81%20%E2%86%92%20owner%20%E7%99%BB%E5%BD%95%E6%80%81%E7%A1%AE%E8%AE%A4%29%E8%AE%BE%E8%AE%A1.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Agent 配对(公开 Skill.md → 短配对码 → owner 登录态确认)设计。本文属于业务系统运维 / GHOME，外部 Agent(OpenClaw / Hermes 等)接入:给一个 固定公开 Skill.md 地址 ,Agent 在线读取 → 后台即时铸一枚 8 位短配对码 → Agent 把短…</p>
+      <p>关键词：GHOME、Shell、安全运维、故障排查、业务系统运维、业务系统运维 / GHOME、Agent 配对(公开 Skill.md → 短配对码 → owner 登录态确认)设计</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d15b78a42f10.html"><small>上一篇</small>Agent 自助配对 Implementation Plan</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4fd4aadd25f3.html"><small>下一篇</small>Agent 配对改短码 + owner 登录态确认 Implementation Plan</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4376c4b2ea9b.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

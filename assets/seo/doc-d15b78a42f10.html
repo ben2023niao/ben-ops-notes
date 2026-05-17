@@ -1,0 +1,1140 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Agent 自助配对 Implementation Plan｜业务系统运维 / GHOME｜BEN.OPS</title>
+  <meta name="description" content="Agent 自助配对 Implementation Plan。本文属于业务系统运维 / GHOME，历史 plan(已执行)。公开端点路径已迁移 : GET /agent/skill.md + POST /agent/pair (原 /api/agent/v1/pair* 已移除)。本文内 /api/agent/…">
+  <meta name="keywords" content="GHOME，Shell，安全运维，源码与配置，业务系统运维，业务系统运维 / GHOME，Agent 自助配对 Implementation Plan">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d15b78a42f10.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d15b78a42f10.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605180000-GHOME%2BShell%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4-Agent%20%E8%87%AA%E5%8A%A9%E9%85%8D%E5%AF%B9%20Implementation%20Plan.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Agent 自助配对 Implementation Plan">
+  <meta property="og:description" content="Agent 自助配对 Implementation Plan。本文属于业务系统运维 / GHOME，历史 plan(已执行)。公开端点路径已迁移 : GET /agent/skill.md + POST /agent/pair (原 /api/agent/v1/pair* 已移除)。本文内 /api/agent/…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d15b78a42f10.html">
+  <meta property="article:published_time" content="2026-05-18T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-18 00:00">
+  <meta property="article:section" content="业务系统运维 / GHOME">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Agent 自助配对 Implementation Plan">
+  <meta name="twitter:description" content="Agent 自助配对 Implementation Plan。本文属于业务系统运维 / GHOME，历史 plan(已执行)。公开端点路径已迁移 : GET /agent/skill.md + POST /agent/pair (原 /api/agent/v1/pair* 已移除)。本文内 /api/agent/…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d15b78a42f10.html#article","headline":"Agent 自助配对 Implementation Plan","description":"Agent 自助配对 Implementation Plan。本文属于业务系统运维 / GHOME，历史 plan(已执行)。公开端点路径已迁移 : GET /agent/skill.md + POST /agent/pair (原 /api/agent/v1/pair* 已移除)。本文内 /api/agent/…","datePublished":"2026-05-18T00:00:00+08:00","dateModified":"2026-05-18 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","GHOME"],"keywords":["GHOME","Shell","安全运维","源码与配置","业务系统运维","业务系统运维 / GHOME","Agent 自助配对 Implementation Plan"],"wordCount":5922,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d15b78a42f10.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d15b78a42f10.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / GHOME","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Agent 自助配对 Implementation Plan","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d15b78a42f10.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / GHOME</span> › <span>Agent 自助配对 Implementation Plan</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / GHOME</div>
+      <h1>Agent 自助配对 Implementation Plan</h1>
+      <p class="lede">Agent 自助配对 Implementation Plan。本文属于业务系统运维 / GHOME，历史 plan(已执行)。公开端点路径已迁移 : GET /agent/skill.md + POST /agent/pair (原 /api/agent/v1/pair* 已移除)。本文内 /api/agent/…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-18T00:00:00+08:00">发布于 2026-05-18</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">5,922 字</span>
+        <span class="badge">17 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-18-agent-self-pairing.md</code></p>
+<p>整理日期：2026-05-18 00:00｜日期依据：文件名日期</p>
+<p><strong>历史 plan(已执行)。公开端点路径已迁移</strong>:<code>GET /agent/skill.md</code> + <code>POST /agent/pair</code>(原 <code>/api/agent/v1/pair*</code> 已移除)。本文内 <code>/api/agent/v1/pair*</code> 引用为执行时旧值,<strong>以 spec §4/§5 的最终路径为准</strong>,勿照搬。</p>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 新增一条公开自助配对通道:固定 URL 的引导版 Skill.md 每次被读即铸一次性短 TTL 配对码,Agent 凭码 <code>POST</code> 自助换取仅 <code>content:published</code> 的 Bearer token;管理员可一键开关通道、事后提权/吊销。</p>
+<p><strong>Architecture:</strong> 复用现有 <code>apps/admin/lib/agent-api/*</code> 的 token/scope/dispatcher 与 agent-clients UI。新增 <code>AgentPairingCode</code>/<code>AgentPairingConfig</code> 表与 <code>AgentClient.origin</code> 列,在 catch-all dispatcher 顶端 pre-auth 特判两个公开端点(GET 引导 / POST 兑换),自助配对出的 client 固定安全 scope,提权复用既有编辑页。</p>
+<p><strong>Tech Stack:</strong> Next.js 15 App Router (Route Handlers + Server Actions)、Prisma 5、Postgres、vitest、Playwright。</p>
+<p><strong>Spec:</strong> <a href="https://ben2023niao.github.io/ben-ops-notes/doc/specs/2026-05-18-agent-self-pairing-design.md" rel="noopener noreferrer">docs/superpowers/specs/2026-05-18-agent-self-pairing-design.md</a>(原 API spec:<a href="https://ben2023niao.github.io/ben-ops-notes/doc/specs/2026-05-18-admin-agent-data-api-design.md" rel="noopener noreferrer">2026-05-18-admin-agent-data-api-design.md</a>)</p>
+<hr/>
+<h2 id="File-Structure">File Structure</h2>
+<p><strong>新建</strong>
+- <code>apps/admin/lib/agent-api/pairing.ts</code> — 配对码生成/前缀、TTL 常量(复用 token.ts 的 hashToken)
+- <code>apps/admin/lib/agent-api/pairing-skill-md.ts</code> — 引导版 Skill.md 渲染(开/关两态)
+- <code>apps/admin/lib/agent-pairing-db.ts</code> — config 读写、铸码、兑换、码列表
+- <code>apps/admin/app/(admin)/agent-clients/pairing-codes/page.tsx</code> — 只读配对码日志子页
+- <code>apps/admin/tests/pairing.test.ts</code>、<code>pairing-db.test.ts</code>、<code>pair-endpoints.test.ts</code> — 测试</p>
+<p><strong>修改</strong>
+- <code>packages/db/prisma/schema.prisma</code> — <code>AgentPairingCode</code>/<code>AgentPairingConfig</code> model;<code>AgentClient</code> 加 <code>origin</code>、<code>createdByAdminId</code> 改可空 + 反向关系
+- <code>packages/db/src/index.ts</code> — 重导出 <code>AgentPairingCode</code>/<code>AgentPairingConfig</code>
+- <code>apps/admin/lib/agent-api/scopes.ts</code> — 加 <code>SELF_PAIR_DEFAULT_SCOPES</code>
+- <code>apps/admin/app/api/agent/v1/[[...slug]]/route.ts</code> — pre-auth 特判两个公开端点 + 新增 <code>POST</code> 导出
+- <code>apps/admin/app/(admin)/agent-clients/page.tsx</code> — 加 <code>来源</code> 列 + 公开配对通道开关面板 + 配对码日志入口
+- <code>apps/admin/app/(admin)/agent-clients/actions.ts</code> — 加 <code>setPairingChannelAction</code>
+- <code>apps/admin/e2e/agent-clients.spec.ts</code> — 扩 E2E:免鉴权抓码 → 兑换 → 用 token</p>
+<hr/>
+<h2 id="Task-1-Prisma-模型-迁移-类型重导出">Task 1: Prisma 模型 + 迁移 + 类型重导出</h2>
+<p><strong>Files:</strong>
+- Modify: <code>packages/db/prisma/schema.prisma</code>
+- Modify: <code>packages/db/src/index.ts</code>
+- Create: <code>packages/db/prisma/migrations/20260518100000_agent_self_pairing/migration.sql</code>(diff 生成 + 手工追加 seed)</p>
+<ul>
+<li>[ ] <strong>Step 1: 在 <code>packages/db/prisma/schema.prisma</code> 末尾追加两个 model</strong></li>
+</ul>
+<pre><code class="language-prisma">model AgentPairingCode {
+  id                  String   @id @default(uuid()) @db.Uuid
+  codePrefix          String   @map("code_prefix")
+  codeHash            String   @unique @map("code_hash")
+  expiresAt           DateTime @map("expires_at") @db.Timestamptz(6)
+  usedAt              DateTime? @map("used_at") @db.Timestamptz(6)
+  usedByAgentClientId String?  @map("used_by_agent_client_id") @db.Uuid
+  usedByClient        AgentClient? @relation(fields: [usedByAgentClientId], references: [id])
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([codeHash])
+  @@index([expiresAt])
+  @@map("agent_pairing_codes")
+}
+
+model AgentPairingConfig {
+  id               String   @id
+  enabled          Boolean  @default(false)
+  updatedByAdminId String?  @map("updated_by_admin_id") @db.Uuid
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("agent_pairing_config")
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 改 <code>model AgentClient</code>(在 schema.prisma 内)</strong></li>
+</ul>
+<p>把 <code>createdByAdminId String   @map("created_by_admin_id") @db.Uuid</code> 改为可空,且关系改可选,并加 <code>origin</code> 列与反向关系。最终该 model 相关行为:</p>
+<pre><code class="language-prisma">  origin           String   @default("admin")
+  createdByAdminId String?  @map("created_by_admin_id") @db.Uuid
+  createdBy        AdminUser? @relation(fields: [createdByAdminId], references: [id])
+</code></pre>
+<p>并在 <code>accessLogs AgentAccessLog[]</code> 同区追加一行:</p>
+<pre><code class="language-prisma">  pairingCodes AgentPairingCode[]
+</code></pre>
+<p>(只改这三处:<code>origin</code> 新增、<code>createdByAdminId</code> 加 <code>?</code>、<code>createdBy</code> 加 <code>?</code>,加 <code>pairingCodes</code> 反向关系。不动其它字段。)</p>
+<ul>
+<li>[ ] <strong>Step 3: 生成迁移(schema-vs-schema diff,本仓库约定:手放迁移目录 + <code>migrate deploy</code>,禁用 <code>migrate dev</code>)</strong></li>
+</ul>
+<pre><code class="language-bash">cp packages/db/prisma/schema.prisma /tmp/sp-base.prisma
+# 编辑 /tmp/sp-base.prisma:删除 model AgentPairingCode{...}、model AgentPairingConfig{...},
+# 并把 AgentClient 的改动还原(删 origin 行、createdByAdminId 去掉 ?、createdBy 去掉 ?、删 pairingCodes 行)
+mkdir -p packages/db/prisma/migrations/20260518100000_agent_self_pairing
+pnpm --filter @ghome/db exec prisma migrate diff \
+  --from-schema-datamodel /tmp/sp-base.prisma \
+  --to-schema-datamodel packages/db/prisma/schema.prisma \
+  --script &gt; packages/db/prisma/migrations/20260518100000_agent_self_pairing/migration.sql
+</code></pre>
+<p>检视 <code>migration.sql</code>,必须只含这些<strong>非破坏性</strong>语句:<code>CREATE TABLE "agent_pairing_codes"</code>、<code>CREATE TABLE "agent_pairing_config"</code>、其索引、<code>ALTER TABLE "agent_clients" ADD COLUMN "origin" TEXT NOT NULL DEFAULT 'admin'</code>、<code>ALTER TABLE "agent_clients" ALTER COLUMN "created_by_admin_id" DROP NOT NULL</code>、<code>agent_pairing_codes</code> → <code>agent_clients</code> 的 FK。<strong>绝不能</strong>出现 <code>DROP TABLE</code>、<code>DROP COLUMN</code>、<code>DROP CONSTRAINT</code>、<code>category_kind</code>、<code>apps</code>/<code>videos</code>/<code>contact_submissions</code>/<code>collection_items</code> 相关语句。出现即停止报告(base schema 没还原干净)。</p>
+<ul>
+<li>[ ] <strong>Step 4: 手工在 <code>migration.sql</code> 末尾追加单行配置种子</strong></li>
+</ul>
+<pre><code class="language-sql">
+-- seed singleton pairing config (channel OFF by default)
+INSERT INTO "agent_pairing_config" ("id", "enabled", "updated_at")
+VALUES ('singleton', false, CURRENT_TIMESTAMP)
+ON CONFLICT ("id") DO NOTHING;
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 5: 应用迁移 + 重生成 client</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/db db:migrate:deploy
+pnpm --filter @ghome/db exec prisma generate
+</code></pre>
+<p>Expected: 输出含 <code>20260518100000_agent_self_pairing</code> applied(1 migration applied),无 drift/reset 提示。若提示破坏性 reset → 停止报告 BLOCKED,勿重置。</p>
+<ul>
+<li>[ ] <strong>Step 6: 在 <code>packages/db/src/index.ts</code> 的 <code>export type { ... } from "@prisma/client";</code> 块内,<code>AgentAccessLog,</code> 行后追加</strong></li>
+</ul>
+<pre><code class="language-ts">  AgentPairingCode,
+  AgentPairingConfig,
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 7: typecheck + 验证表与种子</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/db typecheck
+psql "postgres://ghome:ghome@localhost:5432/ghome" -c "\dt agent_pairing*" -c "SELECT id,enabled FROM agent_pairing_config;" -c "SELECT origin FROM agent_clients LIMIT 1;"
+</code></pre>
+<p>Expected: 两张 <code>agent_pairing_*</code> 表存在;<code>agent_pairing_config</code> 有一行 <code>singleton,f</code>;<code>agent_clients.origin</code> 列存在(现有行值 <code>admin</code>);typecheck 干净。</p>
+<ul>
+<li>[ ] <strong>Step 8: 回归既有 db/admin 测试</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/db test &amp;&amp; pnpm --filter @ghome/admin test
+</code></pre>
+<p>Expected: db 42 passed/1 skipped;admin 44 passed(<code>createdByAdminId</code> 改可空不影响既有 <code>createAgentClient</code> —— 它仍传该值)。</p>
+<ul>
+<li>[ ] <strong>Step 9: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add packages/db/prisma/schema.prisma packages/db/prisma/migrations packages/db/src/index.ts
+git commit -m "feat(db): AgentPairingCode/AgentPairingConfig + AgentClient.origin + nullable createdByAdminId"
+</code></pre>
+<hr/>
+<h2 id="Task-2-pairing-ts-原语-SELF_PAIR_DEFAULT_SCOPES">Task 2: pairing.ts 原语 + SELF_PAIR_DEFAULT_SCOPES</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/admin/lib/agent-api/pairing.ts</code>
+- Modify: <code>apps/admin/lib/agent-api/scopes.ts</code>
+- Test: <code>apps/admin/tests/pairing.test.ts</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试 <code>apps/admin/tests/pairing.test.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { describe, it, expect } from "vitest";
+import { generatePairingCode, codePrefix, PAIRING_CODE_TTL_MS } from "@/lib/agent-api/pairing";
+import { hashToken } from "@/lib/agent-api/token";
+import { SELF_PAIR_DEFAULT_SCOPES } from "@/lib/agent-api/scopes";
+
+describe("pairing primitives", () =&gt; {
+  it("generatePairingCode: ghpair_ + 32 base62, unique", () =&gt; {
+    const a = generatePairingCode();
+    expect(a).toMatch(/^ghpair_[0-9A-Za-z]{32}$/);
+    const set = new Set(Array.from({ length: 100 }, () =&gt; generatePairingCode()));
+    expect(set.size).toBe(100);
+  });
+  it("codePrefix: ghpair_ + first 8 (15 chars)", () =&gt; {
+    const c = "ghpair_ABCDEFGH" + "zzzz";
+    expect(codePrefix(c)).toBe("ghpair_ABCDEFGH");
+    expect(codePrefix(c)).toHaveLength(15);
+  });
+  it("hashToken works for codes (generic sha256, 64 hex)", () =&gt; {
+    expect(hashToken("ghpair_x")).toMatch(/^[0-9a-f]{64}$/);
+    expect(hashToken("ghpair_x")).toBe(hashToken("ghpair_x"));
+  });
+  it("TTL is 10 minutes", () =&gt; {
+    expect(PAIRING_CODE_TTL_MS).toBe(10 * 60 * 1000);
+  });
+  it("SELF_PAIR_DEFAULT_SCOPES is exactly content:published", () =&gt; {
+    expect([...SELF_PAIR_DEFAULT_SCOPES]).toEqual(["content:published"]);
+  });
+});
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test pairing</code>
+Expected: FAIL(模块/导出不存在)</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 <code>apps/admin/lib/agent-api/pairing.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { randomBytes } from "node:crypto";
+
+const ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"; // 62
+const CODE_LEN = 32;
+
+/** `ghpair_` + 32 字符 base62(拒绝采样,无 modulo 偏置)。单次 + 10min TTL,32 字符足够。 */
+export function generatePairingCode(): string {
+  let out = "";
+  while (out.length &lt; CODE_LEN) {
+    const buf = randomBytes(CODE_LEN);
+    for (const b of buf) {
+      if (b &lt; 248) {
+        out += ALPHABET[b % 62];
+        if (out.length === CODE_LEN) break;
+      }
+    }
+  }
+  return "ghpair_" + out;
+}
+
+/** `ghpair_` + 前 8 字符(共 15),admin 日志辨识用。 */
+export function codePrefix(raw: string): string {
+  return raw.slice(0, 15);
+}
+
+export const PAIRING_CODE_TTL_MS = 10 * 60 * 1000;
+</code></pre>
+<p>(哈希复用 <code>apps/admin/lib/agent-api/token.ts</code> 的 <code>hashToken</code>(通用 sha256),不重复实现。)</p>
+<ul>
+<li>[ ] <strong>Step 4: 在 <code>apps/admin/lib/agent-api/scopes.ts</code> 末尾追加</strong></li>
+</ul>
+<pre><code class="language-ts">/** 公开自助配对出的 token 固定只拿这些 scope(安全默认,非配置)。 */
+export const SELF_PAIR_DEFAULT_SCOPES = ["content:published"] as const;
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 5: 跑测试确认通过 + typecheck</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/admin test pairing
+pnpm --filter @ghome/admin typecheck
+</code></pre>
+<p>Expected: PASS;typecheck 干净。</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/lib/agent-api/pairing.ts apps/admin/lib/agent-api/scopes.ts apps/admin/tests/pairing.test.ts
+git commit -m "feat(admin): pairing code primitives + SELF_PAIR_DEFAULT_SCOPES"
+</code></pre>
+<hr/>
+<h2 id="Task-3-agent-pairing-db-ts-config-读写-铸码-兑换-码列表">Task 3: agent-pairing-db.ts(config 读写 / 铸码 / 兑换 / 码列表)</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/admin/lib/agent-pairing-db.ts</code>
+- Test: <code>apps/admin/tests/pairing-db.test.ts</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试 <code>apps/admin/tests/pairing-db.test.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { describe, it, expect, afterAll } from "vitest";
+import { prisma } from "@ghome/db";
+import {
+  isPairingEnabled,
+  setPairingEnabled,
+  mintPairingCode,
+  redeemPairingCode,
+  listPairingCodes,
+} from "@/lib/agent-pairing-db";
+import { hashToken } from "@/lib/agent-api/token";
+
+const createdClientIds: string[] = [];
+
+afterAll(async () =&gt; {
+  await prisma.agentPairingCode.deleteMany({ where: { usedByAgentClientId: { in: createdClientIds } } });
+  await prisma.agentAccessLog.deleteMany({ where: { agentClientId: { in: createdClientIds } } });
+  await prisma.agentClient.deleteMany({ where: { id: { in: createdClientIds } } });
+  await prisma.agentPairingCode.deleteMany({ where: { codePrefix: { startsWith: "ghpair_" } , usedAt: null } });
+  await setPairingEnabled(false, null);
+});
+
+describe("agent-pairing-db", () =&gt; {
+  it("config toggle round-trips", async () =&gt; {
+    await setPairingEnabled(true, null);
+    expect(await isPairingEnabled()).toBe(true);
+    await setPairingEnabled(false, null);
+    expect(await isPairingEnabled()).toBe(false);
+  });
+
+  it("mintPairingCode persists hash, returns raw + expiry ~10min", async () =&gt; {
+    const { rawCode, expiresAt } = await mintPairingCode();
+    expect(rawCode).toMatch(/^ghpair_/);
+    const row = await prisma.agentPairingCode.findUnique({ where: { codeHash: hashToken(rawCode) } });
+    expect(row).not.toBeNull();
+    expect(row!.usedAt).toBeNull();
+    expect(expiresAt.getTime()).toBeGreaterThan(Date.now() + 9 * 60 * 1000);
+  });
+
+  it("redeem valid code → self-paired client, content:published only, code burned", async () =&gt; {
+    const { rawCode } = await mintPairingCode();
+    const res = await redeemPairingCode(rawCode, "my-agent");
+    expect(res.ok).toBe(true);
+    if (!res.ok) return;
+    createdClientIds.push(res.client.id);
+    expect(res.client.origin).toBe("self-paired");
+    expect(res.client.scopes).toEqual(["content:published"]);
+    expect(res.client.createdByAdminId).toBeNull();
+    expect(res.rawToken).toMatch(/^ghagt_/);
+    const code = await prisma.agentPairingCode.findUnique({ where: { codeHash: hashToken(rawCode) } });
+    expect(code!.usedAt).not.toBeNull();
+    expect(code!.usedByAgentClientId).toBe(res.client.id);
+  });
+
+  it("redeem reused code → code_used", async () =&gt; {
+    const { rawCode } = await mintPairingCode();
+    const a = await redeemPairingCode(rawCode);
+    expect(a.ok).toBe(true);
+    if (a.ok) createdClientIds.push(a.client.id);
+    const b = await redeemPairingCode(rawCode);
+    expect(b).toMatchObject({ ok: false, code: "code_used" });
+  });
+
+  it("redeem unknown code → invalid_code; expired → code_expired", async () =&gt; {
+    expect(await redeemPairingCode("ghpair_nope")).toMatchObject({ ok: false, code: "invalid_code" });
+    const { rawCode } = await mintPairingCode();
+    await prisma.agentPairingCode.update({
+      where: { codeHash: hashToken(rawCode) },
+      data: { expiresAt: new Date(Date.now() - 1000) },
+    });
+    expect(await redeemPairingCode(rawCode)).toMatchObject({ ok: false, code: "code_expired" });
+  });
+
+  it("name collision → auto self-paired-&lt;rand&gt;", async () =&gt; {
+    const { rawCode: c1 } = await mintPairingCode();
+    const r1 = await redeemPairingCode(c1, "dup-name");
+    expect(r1.ok).toBe(true);
+    if (r1.ok) createdClientIds.push(r1.client.id);
+    const { rawCode: c2 } = await mintPairingCode();
+    const r2 = await redeemPairingCode(c2, "dup-name");
+    expect(r2.ok).toBe(true);
+    if (r2.ok) {
+      createdClientIds.push(r2.client.id);
+      expect(r2.client.name).toMatch(/^self-paired-/);
+    }
+  });
+
+  it("listPairingCodes returns rows desc by createdAt", async () =&gt; {
+    const rows = await listPairingCodes();
+    expect(Array.isArray(rows)).toBe(true);
+    if (rows.length &gt;= 2) {
+      expect(rows[0]!.createdAt.getTime()).toBeGreaterThanOrEqual(rows[1]!.createdAt.getTime());
+    }
+  });
+});
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test pairing-db</code>
+Expected: FAIL(模块不存在)</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 <code>apps/admin/lib/agent-pairing-db.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { prisma } from "@ghome/db";
+import type { AgentClient, AgentPairingCode } from "@ghome/db";
+import { generateToken, hashToken, tokenPrefix } from "./agent-api/token";
+import { generatePairingCode, codePrefix, PAIRING_CODE_TTL_MS } from "./agent-api/pairing";
+import { SELF_PAIR_DEFAULT_SCOPES } from "./agent-api/scopes";
+
+const CONFIG_ID = "singleton";
+
+export async function isPairingEnabled(): Promise&lt;boolean&gt; {
+  const row = await prisma.agentPairingConfig.findUnique({ where: { id: CONFIG_ID } });
+  return row?.enabled ?? false;
+}
+
+export async function setPairingEnabled(enabled: boolean, adminId: string | null): Promise&lt;void&gt; {
+  await prisma.agentPairingConfig.upsert({
+    where: { id: CONFIG_ID },
+    create: { id: CONFIG_ID, enabled, updatedByAdminId: adminId },
+    update: { enabled, updatedByAdminId: adminId },
+  });
+}
+
+export async function mintPairingCode(): Promise&lt;{ rawCode: string; expiresAt: Date }&gt; {
+  const rawCode = generatePairingCode();
+  const expiresAt = new Date(Date.now() + PAIRING_CODE_TTL_MS);
+  await prisma.agentPairingCode.create({
+    data: { codePrefix: codePrefix(rawCode), codeHash: hashToken(rawCode), expiresAt },
+  });
+  return { rawCode, expiresAt };
+}
+
+export type RedeemResult =
+  | { ok: true; [敏感内容已脱敏]; client: AgentClient }
+  | { ok: false; code: "invalid_code" | "code_used" | "code_expired" };
+
+async function resolveUniqueName(requested?: string): Promise&lt;string&gt; {
+  const cleaned = (requested ?? "").trim();
+  if (cleaned) {
+    const taken = await prisma.agentClient.findUnique({ where: { name: cleaned } });
+    if (!taken) return cleaned;
+  }
+  for (let i = 0; i &lt; 5; i++) {
+    const candidate = `self-paired-${generatePairingCode().slice(7, 15)}`;
+    const taken = await prisma.agentClient.findUnique({ where: { name: candidate } });
+    if (!taken) return candidate;
+  }
+  return `self-paired-${Date.now()}`;
+}
+
+export async function redeemPairingCode(rawCode: string, name?: string): Promise&lt;RedeemResult&gt; {
+  const codeHash = hashToken(rawCode);
+  const row = await prisma.agentPairingCode.findUnique({ where: { codeHash } });
+  if (!row) return { ok: false, code: "invalid_code" };
+  if (row.usedAt) return { ok: false, code: "code_used" };
+  if (row.expiresAt.getTime() &lt; Date.now()) return { ok: false, code: "code_expired" };
+
+  // 原子焚码:仅当仍未使用时置 usedAt,防并发双花
+  const burn = await prisma.agentPairingCode.updateMany({
+    where: { id: row.id, usedAt: null },
+    data: { usedAt: new Date() },
+  });
+  if (burn.count === 0) return { ok: false, code: "code_used" };
+
+  const finalName = await resolveUniqueName(name);
+  const [敏感内容已脱敏];
+  const client = await prisma.agentClient.create({
+    data: {
+      name: finalName,
+      [敏感内容已脱敏],
+      [敏感内容已脱敏],
+      scopes: [...SELF_PAIR_DEFAULT_SCOPES],
+      origin: "self-paired",
+      createdByAdminId: null,
+    },
+  });
+  await prisma.agentPairingCode.update({
+    where: { id: row.id },
+    data: { usedByAgentClientId: client.id },
+  });
+  return { ok: true, rawToken, client };
+}
+
+export function listPairingCodes(): Promise&lt;AgentPairingCode[]&gt; {
+  return prisma.agentPairingCode.findMany({ orderBy: { createdAt: "desc" }, take: 200 });
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过 + typecheck</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/admin test pairing-db
+pnpm --filter @ghome/admin typecheck
+</code></pre>
+<p>Expected: 全部 7 用例 PASS;typecheck 干净。(<code>createdByAdminId: null</code> 仅在 schema 已改可空后合法 —— Task 1 已改。)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/lib/agent-pairing-db.ts apps/admin/tests/pairing-db.test.ts
+git commit -m "feat(admin): pairing-db (config toggle, mint, atomic redeem, code list)"
+</code></pre>
+<hr/>
+<h2 id="Task-4-dispatcher-pre-auth-特判-引导-Skill-md-POST-兑换">Task 4: dispatcher pre-auth 特判 + 引导 Skill.md + POST 兑换</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/admin/lib/agent-api/pairing-skill-md.ts</code>
+- Modify: <code>apps/admin/app/api/agent/v1/[[...slug]]/route.ts</code>
+- Test: <code>apps/admin/tests/pair-endpoints.test.ts</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试 <code>apps/admin/tests/pair-endpoints.test.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { prisma } from "@ghome/db";
+import { NextRequest } from "next/server";
+import { GET, POST } from "@/app/api/agent/v1/[[...slug]]/route";
+import { setPairingEnabled } from "@/lib/agent-pairing-db";
+
+const createdClientIds: string[] = [];
+
+function get(path: string) {
+  const req = new NextRequest(`http://localhost${path}`);
+  const slug = path.replace(/^\/api\/agent\/v1\/?/, "").split("/").filter(Boolean);
+  return GET(req, { params: Promise.resolve({ slug }) });
+}
+function post(path: string, body: unknown) {
+  const req = new NextRequest(`http://localhost${path}`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const slug = path.replace(/^\/api\/agent\/v1\/?/, "").split("/").filter(Boolean);
+  return POST(req, { params: Promise.resolve({ slug }) });
+}
+async function codeFromSkillMd(): Promise&lt;string&gt; {
+  const r = await get("/api/agent/v1/pair/skill.md");
+  const md = await r.text();
+  const m = md.match(/ghpair_[0-9A-Za-z]{32}/);
+  if (!m) throw new Error("no code in skill.md: " + md.slice(0, 200));
+  return m[0];
+}
+
+afterAll(async () =&gt; {
+  await prisma.agentPairingCode.deleteMany({ where: { usedByAgentClientId: { in: createdClientIds } } });
+  await prisma.agentAccessLog.deleteMany({ where: { agentClientId: { in: createdClientIds } } });
+  await prisma.agentClient.deleteMany({ where: { id: { in: createdClientIds } } });
+  await setPairingEnabled(false, null);
+});
+
+describe("pair endpoints", () =&gt; {
+  it("channel OFF: GET skill.md = closed notice, no code minted", async () =&gt; {
+    await setPairingEnabled(false, null);
+    const before = await prisma.agentPairingCode.count();
+    const r = await get("/api/agent/v1/pair/skill.md");
+    expect(r.status).toBe(200);
+    const md = await r.text();
+    expect(md).toContain("已关闭");
+    expect(md).not.toMatch(/ghpair_[0-9A-Za-z]{32}/);
+    expect(await prisma.agentPairingCode.count()).toBe(before);
+  });
+
+  it("channel OFF: POST /pair → 403 pairing_disabled", async () =&gt; {
+    await setPairingEnabled(false, null);
+    const r = await post("/api/agent/v1/pair", { code: "ghpair_x" });
+    expect(r.status).toBe(403);
+    expect(await r.json()).toEqual({ error: "pairing_disabled" });
+  });
+
+  it("channel ON: GET skill.md mints a code; POST redeems → 200 token, content:published", async () =&gt; {
+    await setPairingEnabled(true, null);
+    const code = await codeFromSkillMd();
+    const r = await post("/api/agent/v1/pair", { code, name: "e2e-pair" });
+    expect(r.status).toBe(200);
+    const j = await r.json();
+    expect(j.token).toMatch(/^ghagt_/);
+    expect(j.scopes).toEqual(["content:published"]);
+    const client = await prisma.agentClient.findFirst({ where: { name: j.name } });
+    expect(client?.origin).toBe("self-paired");
+    if (client) createdClientIds.push(client.id);
+  });
+
+  it("invalid/missing/reused/expired mapping", async () =&gt; {
+    await setPairingEnabled(true, null);
+    expect((await post("/api/agent/v1/pair", {})).status).toBe(400); // invalid_request
+    expect(await (await post("/api/agent/v1/pair", { code: 123 })).json()).toEqual({ error: "invalid_request" });
+    expect(await (await post("/api/agent/v1/pair", { code: "ghpair_unknown" })).json()).toEqual({ error: "invalid_code" });
+    const code = await codeFromSkillMd();
+    const ok = await post("/api/agent/v1/pair", { code });
+    const okj = await ok.json();
+    const c = await prisma.agentClient.findFirst({ where: { name: okj.name } });
+    if (c) createdClientIds.push(c.id);
+    const again = await post("/api/agent/v1/pair", { code });
+    expect(again.status).toBe(410);
+    expect(await again.json()).toEqual({ error: "code_used" });
+  });
+
+  it("self-paired token can GET /apps but is 403 on ops/analytics", async () =&gt; {
+    await setPairingEnabled(true, null);
+    const code = await codeFromSkillMd();
+    const pr = await post("/api/agent/v1/pair", { code });
+    const { token, name } = await pr.json();
+    const c = await prisma.agentClient.findFirst({ where: { name } });
+    if (c) createdClientIds.push(c.id);
+    const hdr = { authorization: `Bearer ${token}` };
+    const apps = await GET(new NextRequest("http://localhost/api/agent/v1/apps", { headers: hdr }), { params: Promise.resolve({ slug: ["apps"] }) });
+    expect(apps.status).toBe(200);
+    const ops = await GET(new NextRequest("http://localhost/api/agent/v1/contact-submissions", { headers: hdr }), { params: Promise.resolve({ slug: ["contact-submissions"] }) });
+    expect(ops.status).toBe(403);
+  });
+});
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test pair-endpoints</code>
+Expected: FAIL(<code>POST</code> 未导出 / 公开端点未实现)</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 <code>apps/admin/lib/agent-api/pairing-skill-md.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">/** 通道开:含本次专属配对码的引导文档。 */
+export function renderPairingSkillMd(rawCode: string): string {
+  return [
+    "---",
+    "name: ghome-agent-pairing",
+    "description: Self-serve pairing — exchange a one-time code for a content:published token",
+    "---",
+    "",
+    "# Ghome Agent 自助配对",
+    "",
+    "这是自助配对引导。配对成功默认仅授予 `content:published`(等价于用户站公开可见内容)。",
+    "更高权限(analytics / ops)需管理员事后在后台审批,公开通道无法自助获得。",
+    "",
+    "## 你的一次性配对码(仅本次响应可见,10 分钟内有效,单次使用)",
+    "",
+    "```",
+    rawCode,
+    "```",
+    "",
+    "## 兑换",
+    "",
+    "```",
+    "POST /api/agent/v1/pair",
+    "Content-Type: application/json",
+    "",
+    `{ "code": "${rawCode}", "name": "&lt;可选,自报名称&gt;" }`,
+    "```",
+    "",
+    "成功返回 `{ token, name, scopes }`(token 仅此一次)。随后:",
+    "",
+    "```",
+    "GET /api/agent/v1/skill.md",
+    "Authorization: Bearer &lt;token&gt;",
+    "```",
+    "",
+    "取个性化完整 API 文档。",
+    "",
+  ].join("\n");
+}
+
+/** 通道关:关闭提示(不含码)。 */
+export function renderPairingClosedMd(): string {
+  return [
+    "---",
+    "name: ghome-agent-pairing",
+    "description: Pairing channel closed",
+    "---",
+    "",
+    "# 自助配对通道已关闭",
+    "",
+    "管理员当前未开启公开自助配对。请联系管理员开启,或改用管理员直接签发的授权码。",
+    "",
+  ].join("\n");
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 改 <code>apps/admin/app/api/agent/v1/[[...slug]]/route.ts</code></strong> —— 顶部新增 import 与公开路径常量、抽出 pathname 解析、在 <code>resolveAgentClient</code> 之前 pre-auth 特判,并新增 <code>POST</code> 导出</li>
+</ul>
+<p>把文件<strong>整体替换</strong>为(在现有逻辑上叠加,不改既有鉴权/scope/handler 流程):</p>
+<pre><code class="language-ts">import type { NextRequest } from "next/server";
+import { resolveAgentClient, logAccess, touchLastUsed } from "@/lib/agent-api/auth";
+import { matchEndpoint, ENDPOINTS } from "@/lib/agent-api/manifest";
+import { scopeSatisfies } from "@/lib/agent-api/scopes";
+import { jsonError } from "@/lib/agent-api/http";
+import { renderSkillMd } from "@/lib/agent-api/skill-md";
+import { isPairingEnabled, mintPairingCode, redeemPairingCode } from "@/lib/agent-pairing-db";
+import { renderPairingSkillMd, renderPairingClosedMd } from "@/lib/agent-api/pairing-skill-md";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const SKILL_PATH = "/api/agent/v1/skill.md";
+const PAIR_SKILL_PATH = "/api/agent/v1/pair/skill.md";
+const PAIR_PATH = "/api/agent/v1/pair";
+
+function pathnameFrom(slug: string[]): string {
+  const rawPath = "/api/agent/v1" + (slug.length ? "/" + slug.join("/") : "");
+  const qIdx = rawPath.indexOf("?");
+  return qIdx === -1 ? rawPath : rawPath.slice(0, qIdx);
+}
+
+function md(body: string): Response {
+  return new Response(body, { headers: { "content-type": "text/markdown; charset=utf-8" } });
+}
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise&lt;{ slug?: string[] }&gt; },
+): Promise&lt;Response&gt; {
+  const { slug = [] } = await params;
+  const pathname = pathnameFrom(slug);
+
+  // ── 公开 pre-auth:引导版 Skill.md ──
+  if (pathname === PAIR_SKILL_PATH) {
+    if (!(await isPairingEnabled())) return md(renderPairingClosedMd());
+    const { rawCode } = await mintPairingCode();
+    return md(renderPairingSkillMd(rawCode));
+  }
+
+  const authed = await resolveAgentClient(req);
+  if (!authed.ok) return jsonError(authed.status, authed.code);
+  const client = authed.client;
+
+  if (pathname === SKILL_PATH) {
+    void touchLastUsed(client);
+    void logAccess(client.id, pathname, "ok");
+    return md(renderSkillMd(client, ENDPOINTS));
+  }
+
+  const match = matchEndpoint(pathname, "GET", ENDPOINTS);
+  if (!match) return jsonError(404, "not_found");
+
+  if (!scopeSatisfies(client.scopes, match.endpoint.scope)) {
+    if (match.endpoint.scope.startsWith("ops:")) {
+      void logAccess(client.id, pathname, "denied");
+    }
+    return jsonError(403, "forbidden");
+  }
+
+  void touchLastUsed(client);
+  void logAccess(client.id, pathname, "ok");
+
+  try {
+    return await match.endpoint.handler({
+      req,
+      params: match.params,
+      client,
+      searchParams: req.nextUrl.searchParams,
+    });
+  } catch (e) {
+    console.error("[agent-api] handler error", { pathname, agentClientId: client.id }, e);
+    return jsonError(500, "internal");
+  }
+}
+
+// ── 公开 pre-auth:配对兑换 ──
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise&lt;{ slug?: string[] }&gt; },
+): Promise&lt;Response&gt; {
+  const { slug = [] } = await params;
+  const pathname = pathnameFrom(slug);
+
+  if (pathname !== PAIR_PATH) return jsonError(404, "not_found");
+  if (!(await isPairingEnabled())) return jsonError(403, "pairing_disabled");
+
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return jsonError(400, "invalid_request");
+  }
+  const code = (body as { code?: unknown } | null)?.code;
+  const name = (body as { name?: unknown } | null)?.name;
+  if (typeof code !== "string" || !code) return jsonError(400, "invalid_request");
+
+  const res = await redeemPairingCode(code, typeof name === "string" ? name : undefined);
+  if (!res.ok) {
+    const status = res.code === "invalid_code" ? 400 : 410;
+    return jsonError(status, res.code);
+  }
+  return Response.json({
+    敏感凭据：[已脱敏]
+    name: res.client.name,
+    scopes: res.client.scopes,
+    note: "更高权限请联系管理员",
+  });
+}
+</code></pre>
+<blockquote>
+<p>既有 <code>GET</code> 鉴权/scope/handler 流程逐行未改,仅在 <code>resolveAgentClient</code> 前插入 <code>PAIR_SKILL_PATH</code> 分支并抽出 <code>pathnameFrom</code>/<code>md</code>;新增 <code>POST</code>。<code>jsonError</code> 已支持任意 code 字符串。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 5: 跑测试确认通过 + 全量回归 + typecheck</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/admin test pair-endpoints
+pnpm --filter @ghome/admin test
+pnpm --filter @ghome/admin typecheck
+</code></pre>
+<p>Expected: pair-endpoints 全绿;全量 admin 套件无回归(原 dispatch/queries 等仍绿);typecheck 干净。</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add "apps/admin/app/api/agent/v1/[[...slug]]/route.ts" apps/admin/lib/agent-api/pairing-skill-md.ts apps/admin/tests/pair-endpoints.test.ts
+git commit -m "feat(admin): public pairing endpoints (bootstrap skill.md + POST /pair)"
+</code></pre>
+<hr/>
+<h2 id="Task-5-来源列-通道开关面板-配对码日志子页">Task 5: 来源列 + 通道开关面板 + 配对码日志子页</h2>
+<p><strong>Files:</strong>
+- Modify: <code>apps/admin/app/(admin)/agent-clients/actions.ts</code>
+- Modify: <code>apps/admin/app/(admin)/agent-clients/page.tsx</code>
+- Create: <code>apps/admin/app/(admin)/agent-clients/pairing-codes/page.tsx</code></p>
+<blockquote>
+<p>先 <code>Read</code> 现有 <code>apps/admin/app/(admin)/agent-clients/page.tsx</code>、<code>actions.ts</code>、<code>apps/admin/components/ConfirmSubmitButton.tsx</code>、<code>apps/admin/lib/auth.ts</code> 作风格基准。沿用 <code>dash-section</code>/<code>dash-table</code>/<code>page-header</code>/<code>btn-primary</code> 等既有 class 与既有 server-action 写法。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 1: 在 <code>apps/admin/app/(admin)/agent-clients/actions.ts</code> 末尾追加通道开关 server action</strong></li>
+</ul>
+<pre><code class="language-ts">import { setPairingEnabled } from "@/lib/agent-pairing-db";
+
+export async function setPairingChannelAction(enabled: boolean): Promise&lt;void&gt; {
+  const me = await adminId();
+  await setPairingEnabled(enabled, me);
+  await logAuditAction(
+    me,
+    enabled ? "agentPairing.enable" : "agentPairing.disable",
+    "agentPairing",
+    "singleton",
+    { after: { enabled } },
+  );
+  revalidatePath("/agent-clients");
+}
+</code></pre>
+<p>(<code>adminId</code>/<code>logAuditAction</code>/<code>revalidatePath</code> 已在文件内 import,沿用。把 <code>import { setPairingEnabled }</code> 合并到文件顶部 import 区。)</p>
+<ul>
+<li>[ ] <strong>Step 2: 改 <code>apps/admin/app/(admin)/agent-clients/page.tsx</code></strong> —— 顶部加通道面板、表格加 <code>来源</code> 列、加配对码日志链接</li>
+</ul>
+<p>整体替换为:</p>
+<pre><code class="language-tsx">import Link from "next/link";
+import { listAgentClients } from "@/lib/agent-clients-db";
+import { isPairingEnabled } from "@/lib/agent-pairing-db";
+import { setPairingChannelAction } from "./actions";
+
+export const dynamic = "force-dynamic";
+
+const PAIR_PATH = "/api/agent/v1/pair/skill.md";
+
+export default async function AgentClientsPage() {
+  const [clients, pairingEnabled] = await Promise.all([listAgentClients(), isPairingEnabled()]);
+  const base = process.env.ADMIN_BASE_URL ?? "";
+  const enableBound = setPairingChannelAction.bind(null, true);
+  const disableBound = setPairingChannelAction.bind(null, false);
+
+  return (
+    &lt;&gt;
+      &lt;div className="page-header"&gt;
+        &lt;h1&gt;Agent 接入&lt;/h1&gt;
+        &lt;Link href="/agent-clients/new" className="btn-primary"&gt;+ 新建 Agent&lt;/Link&gt;
+      &lt;/div&gt;
+
+      &lt;div className="dash-section" style={{ marginBottom: 16 }}&gt;
+        &lt;h2 style={{ marginTop: 0 }}&gt;公开自助配对通道&lt;/h2&gt;
+        &lt;p&gt;
+          状态:&lt;strong&gt;{pairingEnabled ? "已开启" : "已关闭"}&lt;/strong&gt;
+          {"　"}
+          &lt;Link href="/agent-clients/pairing-codes" style={{ color: "var(--primary)" }}&gt;配对码日志&lt;/Link&gt;
+        &lt;/p&gt;
+        &lt;p&gt;
+          公开地址:&lt;code style={{ userSelect: "all" }}&gt;{base + PAIR_PATH}&lt;/code&gt;
+        &lt;/p&gt;
+        {pairingEnabled ? (
+          &lt;form action={disableBound}&gt;
+            &lt;button type="submit" className="btn-secondary"&gt;关闭通道&lt;/button&gt;
+          &lt;/form&gt;
+        ) : (
+          &lt;form action={enableBound}&gt;
+            &lt;button type="submit" className="btn-primary"&gt;开启通道&lt;/button&gt;
+          &lt;/form&gt;
+        )}
+      &lt;/div&gt;
+
+      &lt;div className="dash-section" style={{ padding: 0, overflow: "hidden" }}&gt;
+        &lt;table className="dash-table"&gt;
+          &lt;thead&gt;
+            &lt;tr&gt;
+              &lt;th&gt;名称&lt;/th&gt;
+              &lt;th&gt;来源&lt;/th&gt;
+              &lt;th&gt;Token 前缀&lt;/th&gt;
+              &lt;th&gt;Scopes&lt;/th&gt;
+              &lt;th&gt;状态&lt;/th&gt;
+              &lt;th&gt;最近使用&lt;/th&gt;
+              &lt;th&gt;过期&lt;/th&gt;
+              &lt;th /&gt;
+            &lt;/tr&gt;
+          &lt;/thead&gt;
+          &lt;tbody&gt;
+            {clients.length === 0 ? (
+              &lt;tr&gt;
+                &lt;td colSpan={8} style={{ textAlign: "center", color: "var(--text-3)" }}&gt;
+                  暂无数据
+                &lt;/td&gt;
+              &lt;/tr&gt;
+            ) : (
+              clients.map((c) =&gt; (
+                &lt;tr key={c.id}&gt;
+                  &lt;td&gt;{c.name}&lt;/td&gt;
+                  &lt;td&gt;{c.origin === "self-paired" ? "自助" : "管理员"}&lt;/td&gt;
+                  &lt;td&gt;&lt;code&gt;{c.tokenPrefix}…&lt;/code&gt;&lt;/td&gt;
+                  &lt;td&gt;{c.scopes.join(", ") || "—"}&lt;/td&gt;
+                  &lt;td&gt;{c.disabled ? "已停用" : "启用"}&lt;/td&gt;
+                  &lt;td&gt;{c.lastUsedAt ? c.lastUsedAt.toISOString().slice(0, 16).replace("T", " ") : "—"}&lt;/td&gt;
+                  &lt;td&gt;{c.expiresAt ? c.expiresAt.toISOString().slice(0, 10) : "—"}&lt;/td&gt;
+                  &lt;td&gt;
+                    &lt;Link href={`/agent-clients/${c.id}/edit`} style={{ color: "var(--primary)" }}&gt;
+                      编辑
+                    &lt;/Link&gt;
+                  &lt;/td&gt;
+                &lt;/tr&gt;
+              ))
+            )}
+          &lt;/tbody&gt;
+        &lt;/table&gt;
+      &lt;/div&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 3: 创建只读子页 <code>apps/admin/app/(admin)/agent-clients/pairing-codes/page.tsx</code></strong></li>
+</ul>
+<pre><code class="language-tsx">import Link from "next/link";
+import { listPairingCodes } from "@/lib/agent-pairing-db";
+
+export const dynamic = "force-dynamic";
+
+export default async function PairingCodesPage() {
+  const codes = await listPairingCodes();
+  const now = Date.now();
+  return (
+    &lt;&gt;
+      &lt;div className="page-header"&gt;
+        &lt;h1&gt;配对码日志&lt;/h1&gt;
+        &lt;Link href="/agent-clients" style={{ color: "var(--primary)" }}&gt;← 返回&lt;/Link&gt;
+      &lt;/div&gt;
+      &lt;div className="dash-section" style={{ padding: 0, overflow: "hidden" }}&gt;
+        &lt;table className="dash-table"&gt;
+          &lt;thead&gt;
+            &lt;tr&gt;&lt;th&gt;码前缀&lt;/th&gt;&lt;th&gt;创建&lt;/th&gt;&lt;th&gt;过期&lt;/th&gt;&lt;th&gt;状态&lt;/th&gt;&lt;th&gt;兑换出的 Client&lt;/th&gt;&lt;/tr&gt;
+          &lt;/thead&gt;
+          &lt;tbody&gt;
+            {codes.length === 0 ? (
+              &lt;tr&gt;&lt;td colSpan={5} style={{ textAlign: "center", color: "var(--text-3)" }}&gt;暂无数据&lt;/td&gt;&lt;/tr&gt;
+            ) : (
+              codes.map((c) =&gt; {
+                const status = c.usedAt
+                  ? "已用"
+                  : c.expiresAt.getTime() &lt; now
+                    ? "已过期"
+                    : "未用";
+                return (
+                  &lt;tr key={c.id}&gt;
+                    &lt;td&gt;&lt;code&gt;{c.codePrefix}…&lt;/code&gt;&lt;/td&gt;
+                    &lt;td&gt;{c.createdAt.toISOString().slice(0, 16).replace("T", " ")}&lt;/td&gt;
+                    &lt;td&gt;{c.expiresAt.toISOString().slice(0, 16).replace("T", " ")}&lt;/td&gt;
+                    &lt;td&gt;{status}&lt;/td&gt;
+                    &lt;td&gt;{c.usedByAgentClientId ?? "—"}&lt;/td&gt;
+                  &lt;/tr&gt;
+                );
+              })
+            )}
+          &lt;/tbody&gt;
+        &lt;/table&gt;
+      &lt;/div&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: typecheck + build + 全量回归</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/admin typecheck
+pnpm --filter @ghome/admin build
+pnpm --filter @ghome/admin test
+</code></pre>
+<p>Expected: typecheck 干净;build 成功且新增路由 <code>/agent-clients/pairing-codes</code> 出现;admin 套件全绿。</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add "apps/admin/app/(admin)/agent-clients/actions.ts" "apps/admin/app/(admin)/agent-clients/page.tsx" "apps/admin/app/(admin)/agent-clients/pairing-codes/page.tsx"
+git commit -m "feat(admin): agent-clients UI — origin column, pairing channel toggle, codes log"
+</code></pre>
+<hr/>
+<h2 id="Task-6-E2E-扩展-全量验证-spec-交叉引用">Task 6: E2E 扩展 + 全量验证 + spec 交叉引用</h2>
+<p><strong>Files:</strong>
+- Modify: <code>apps/admin/e2e/agent-clients.spec.ts</code>
+- Modify: <code>docs/superpowers/specs/2026-05-18-admin-agent-data-api-design.md</code></p>
+<blockquote>
+<p>先 <code>Read</code> 现有 <code>apps/admin/e2e/agent-clients.spec.ts</code>(已有签发→展示→拉取→吊销链路与 signin 帮助)与 <code>apps/admin/playwright.config.ts</code>。沿用其 signin/选择器写法。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 1: 在 <code>apps/admin/e2e/agent-clients.spec.ts</code> 追加一个测试(自助配对端到端)</strong></li>
+</ul>
+<pre><code class="language-ts">test("self-pairing: admin enables channel → public skill.md → POST /pair → token works", async ({ page, request }) =&gt; {
+  // 1. 管理员登录并开启通道(沿用文件已有的 signin 流程/常量)
+  await page.goto(`${BASE}/signin`);
+  await page.locator('input[name="email"]').fill(ADMIN_EMAIL);
+  await page.locator('input[name="password"]').fill(ADMIN_PASSWORD);
+  await page.getByRole("button", { name: "登录" }).click();
+  await page.waitForURL(`${BASE}/`);
+  await page.goto(`${BASE}/agent-clients`);
+  if (await page.getByRole("button", { name: "开启通道" }).isVisible()) {
+    await page.getByRole("button", { name: "开启通道" }).click();
+  }
+  await expect(page.getByText("状态:已开启")).toBeVisible();
+
+  // 2. 免鉴权抓引导 Skill.md,取一次性配对码
+  const skill = await request.get(`${BASE}/api/agent/v1/pair/skill.md`);
+  expect(skill.status()).toBe(200);
+  const md = await skill.text();
+  const code = md.match(/ghpair_[0-9A-Za-z]{32}/)?.[0];
+  expect(code).toBeTruthy();
+
+  // 3. 凭码自助兑换 token
+  const pair = await request.post(`${BASE}/api/agent/v1/pair`, {
+    data: { code, name: `e2e-self-${Date.now()}` },
+  });
+  expect(pair.status()).toBe(200);
+  const { token, scopes } = await pair.json();
+  expect(token).toMatch(/^ghagt_/);
+  expect(scopes).toEqual(["content:published"]);
+
+  // 4. 用 token 调数据 API
+  const apps = await request.get(`${BASE}/api/agent/v1/apps`, {
+    headers: { authorization: `Bearer ${token}` },
+  });
+  expect(apps.status()).toBe(200);
+
+  // 5. 复原:关闭通道
+  await page.goto(`${BASE}/agent-clients`);
+  if (await page.getByRole("button", { name: "关闭通道" }).isVisible()) {
+    await page.getByRole("button", { name: "关闭通道" }).click();
+  }
+});
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 跑 E2E(本地需 admin dev 在跑或 webServer 自起 + 已 seed 管理员)</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin exec playwright test</code>
+Expected: 全部通过(原有用例 + 新自助配对用例)。</p>
+<ul>
+<li>[ ] <strong>Step 3: 原 spec 末尾加交叉引用</strong></li>
+</ul>
+<p>在 <code>docs/superpowers/specs/2026-05-18-admin-agent-data-api-design.md</code> §6(后续)区追加一行:</p>
+<pre><code>- 公开自助配对通道(Skill.md → 一次性配对码 → 自助换 token):见配套附录 [2026-05-18-agent-self-pairing-design.md](2026-05-18-agent-self-pairing-design.md)。
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 全量验证</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/db test
+pnpm --filter @ghome/admin test
+pnpm --filter @ghome/admin typecheck
+pnpm --filter @ghome/admin build
+pnpm lint
+</code></pre>
+<p>Expected: 全绿(db 42/1skip;admin 套件含新 pairing/pairing-db/pair-endpoints 全绿;typecheck/lint 干净;build 成功)。</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/e2e/agent-clients.spec.ts docs/superpowers/specs/2026-05-18-admin-agent-data-api-design.md
+git commit -m "test(admin): e2e self-pairing flow; cross-link self-pairing spec"
+</code></pre>
+<hr/>
+<h2 id="Self-Review-规划者已执行">Self-Review(规划者已执行)</h2>
+<ul>
+<li><strong>Spec 覆盖</strong>:§2 数据模型→Task1;§3 配对码/token 原语→Task2;§4.1/§4.2 公开端点(开关/铸码/兑换7步/错误码/原子焚码)→Task3(redeem 原子焚码)+Task4(端点 + 错误映射);§5 Admin UI(来源列/开关面板/审计/码日志/提权复用)→Task5(提权复用既有编辑页,无新代码);§6 安全(固定安全 scope/单次+TTL/出厂关)→Task1 种子 enabled=false + Task2 常量 + Task3/4 行为 + 测试断言;§7 测试→各 Task TDD + Task6 E2E;§8 B1–B5→Task1–6。</li>
+<li><strong>占位符扫描</strong>:无 TBD/TODO;每步含完整代码与命令;迁移 <code>&lt;timestamp&gt;</code> 用固定 <code>20260518100000</code>;name 冲突重试给了确定实现。</li>
+<li><strong>类型一致</strong>:<code>generatePairingCode</code>/<code>codePrefix</code>/<code>PAIRING_CODE_TTL_MS</code>、<code>SELF_PAIR_DEFAULT_SCOPES</code>、<code>isPairingEnabled</code>/<code>setPairingEnabled</code>/<code>mintPairingCode</code>/<code>redeemPairingCode</code>/<code>RedeemResult</code>/<code>listPairingCodes</code>、<code>renderPairingSkillMd</code>/<code>renderPairingClosedMd</code>、<code>setPairingChannelAction</code>、route <code>GET</code>/<code>POST</code> 跨 Task 签名一致;<code>hashToken</code> 复用 token.ts 通用 sha256;<code>createdByAdminId: null</code> 仅在 Task1 改可空后被 Task3 使用(顺序正确)。</li>
+<li><strong>既有约定</strong>:迁移走 schema-vs-schema diff + <code>migrate deploy</code>(本仓库不可用 <code>migrate dev</code>,已在 Task1 写明并给禁止性语句清单);宿主 <code>pnpm</code>、Postgres 已起、无 Docker;commit 信息子代理受分类器限制可能不带 Co-Authored-By(终态合并提交补署)。</li>
+<li><strong>已知实现期核对点</strong>:迁移生成后人工核对 <code>migration.sql</code> 仅含白名单语句;E2E 的 signin 选择器/种子管理员凭据以现有 <code>agent-clients.spec.ts</code> 既有常量为准(该文件已实现并跑通,直接复用其顶部 BASE/ADMIN_EMAIL/ADMIN_PASSWORD)。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#File-Structure">File Structure</a></li><li style="margin-left:0.0rem"><a href="#Task-1-Prisma-模型-迁移-类型重导出">Task 1: Prisma 模型 + 迁移 + 类型重导出</a></li><li style="margin-left:0.0rem"><a href="#Task-2-pairing-ts-原语-SELF_PAIR_DEFAULT_SCOPES">Task 2: pairing.ts 原语 + SELF_PAIR_DEFAULT_SCOPES</a></li><li style="margin-left:0.0rem"><a href="#Task-3-agent-pairing-db-ts-config-读写-铸码-兑换-码列表">Task 3: agent-pairing-db.ts(config 读写 / 铸码 / 兑换 / 码列表)</a></li><li style="margin-left:0.0rem"><a href="#Task-4-dispatcher-pre-auth-特判-引导-Skill-md-POST-兑换">Task 4: dispatcher pre-auth 特判 + 引导 Skill.md + POST 兑换</a></li><li style="margin-left:0.0rem"><a href="#Task-5-来源列-通道开关面板-配对码日志子页">Task 5: 来源列 + 通道开关面板 + 配对码日志子页</a></li><li style="margin-left:0.0rem"><a href="#Task-6-E2E-扩展-全量验证-spec-交叉引用">Task 6: E2E 扩展 + 全量验证 + spec 交叉引用</a></li><li style="margin-left:0.0rem"><a href="#Self-Review-规划者已执行">Self-Review(规划者已执行)</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / GHOME</li>
+          <li>日期：2026-05-18</li>
+          <li>标签：<span class="tag">GHOME</span><span class="tag">Shell</span><span class="tag">安全运维</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-18-agent-self-pairing.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605180000-GHOME%2BShell%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4-Agent%20%E8%87%AA%E5%8A%A9%E9%85%8D%E5%AF%B9%20Implementation%20Plan.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Agent 自助配对 Implementation Plan。本文属于业务系统运维 / GHOME，历史 plan(已执行)。公开端点路径已迁移 : GET /agent/skill.md + POST /agent/pair (原 /api/agent/v1/pair* 已移除)。本文内 /api/agent/…</p>
+      <p>关键词：GHOME、Shell、安全运维、源码与配置、业务系统运维、业务系统运维 / GHOME、Agent 自助配对 Implementation Plan</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-44264fdaa88b.html"><small>上一篇</small>Admin Agent 数据接入 API 设计</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4376c4b2ea9b.html"><small>下一篇</small>Agent 配对(公开 Skill.md → 短配对码 → owner 登录态确认)设计</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d15b78a42f10.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

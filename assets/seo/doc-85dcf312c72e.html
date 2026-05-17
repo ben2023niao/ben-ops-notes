@@ -1,0 +1,2107 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Admin Agent 数据接入 API Implementation Plan｜业务系统运维 / GHOME｜BEN.OPS</title>
+  <meta name="description" content="Admin Agent 数据接入 API Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended…">
+  <meta name="keywords" content="GHOME，Shell，Docker，故障排查，数据库恢复，源码与配置，业务系统运维，业务系统运维 / GHOME，Admin Agent 数据接入 API Implementation Plan">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-85dcf312c72e.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-85dcf312c72e.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605180000-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BShell-Admin%20Agent%20%E6%95%B0%E6%8D%AE%E6%8E%A5%E5%85%A5%20API%20Implementation%20Plan.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Admin Agent 数据接入 API Implementation Plan">
+  <meta property="og:description" content="Admin Agent 数据接入 API Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-85dcf312c72e.html">
+  <meta property="article:published_time" content="2026-05-18T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-18 00:00">
+  <meta property="article:section" content="业务系统运维 / GHOME">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Admin Agent 数据接入 API Implementation Plan">
+  <meta name="twitter:description" content="Admin Agent 数据接入 API Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-85dcf312c72e.html#article","headline":"Admin Agent 数据接入 API Implementation Plan","description":"Admin Agent 数据接入 API Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended…","datePublished":"2026-05-18T00:00:00+08:00","dateModified":"2026-05-18 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","GHOME"],"keywords":["GHOME","Shell","Docker","故障排查","数据库恢复","源码与配置","业务系统运维","业务系统运维 / GHOME","Admin Agent 数据接入 API Implementation Plan"],"wordCount":10373,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-85dcf312c72e.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-85dcf312c72e.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / GHOME","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Admin Agent 数据接入 API Implementation Plan","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-85dcf312c72e.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / GHOME</span> › <span>Admin Agent 数据接入 API Implementation Plan</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / GHOME</div>
+      <h1>Admin Agent 数据接入 API Implementation Plan</h1>
+      <p class="lede">Admin Agent 数据接入 API Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-18T00:00:00+08:00">发布于 2026-05-18</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">10,373 字</span>
+        <span class="badge">30 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-18-admin-agent-data-api.md</code></p>
+<p>整理日期：2026-05-18 00:00｜日期依据：文件名日期</p>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 在 <code>apps/admin</code> 内增加一套 manifest 驱动、按 Agent scope 分级的只读数据 API + 个性化 Skill.md + Agent 授权码管理 UI。</p>
+<p><strong>Architecture:</strong> 一个 <code>[[...slug]]</code> catch-all dispatcher 用 Bearer token 解析 <code>AgentClient</code>、按 manifest 命中端点并校验 scope、写 <code>AgentAccessLog</code>,再调 manifest handler 复用 prisma 查询返回 JSON。Skill.md 端点遍历同一 manifest 按 scope 过滤生成 Markdown。Admin UI 签发/吊销/轮换授权码。</p>
+<p><strong>Tech Stack:</strong> Next.js 15 App Router (Route Handlers + Server Actions)、Prisma 5、Postgres、vitest、Playwright。</p>
+<p><strong>Spec:</strong> <a href="https://ben2023niao.github.io/ben-ops-notes/doc/specs/2026-05-18-admin-agent-data-api-design.md" rel="noopener noreferrer">docs/superpowers/specs/2026-05-18-admin-agent-data-api-design.md</a></p>
+<hr/>
+<h2 id="File-Structure">File Structure</h2>
+<p><strong>新建</strong>
+- <code>apps/admin/lib/agent-api/scopes.ts</code> — scope 联合常量 + 校验
+- <code>apps/admin/lib/agent-api/token.ts</code> — token 生成 / sha256 / prefix(纯函数)
+- <code>apps/admin/lib/agent-api/manifest.ts</code> — <code>AgentEndpoint</code>/<code>AgentCtx</code> 类型 + <code>ENDPOINTS</code> 数组 + <code>matchEndpoint</code>
+- <code>apps/admin/lib/agent-api/auth.ts</code> — <code>resolveAgentClient</code> / <code>logAccess</code> / <code>touchLastUsed</code>
+- <code>apps/admin/lib/agent-api/http.ts</code> — <code>jsonError</code> / <code>pageArgs</code> / <code>envelope</code> / <code>statusFilter</code>
+- <code>apps/admin/lib/agent-api/queries.ts</code> — 各资源 handler(复用 prisma)
+- <code>apps/admin/lib/agent-api/skill-md.ts</code> — <code>renderSkillMd</code>
+- <code>apps/admin/app/api/agent/v1/[[...slug]]/route.ts</code> — dispatcher
+- <code>apps/admin/lib/agent-clients-db.ts</code> — AgentClient 增删改查 + 轮换
+- <code>apps/admin/app/(admin)/agent-clients/page.tsx</code> — 列表
+- <code>apps/admin/app/(admin)/agent-clients/new/page.tsx</code> — 新建
+- <code>apps/admin/app/(admin)/agent-clients/[id]/edit/page.tsx</code> — 编辑
+- <code>apps/admin/app/(admin)/agent-clients/actions.ts</code> — server actions
+- <code>apps/admin/components/TokenRevealBanner.tsx</code> — token 一次性展示(client component)
+- <code>apps/admin/vitest.config.ts</code> — admin 测试配置
+- <code>apps/admin/tests/*.test.ts</code> — 测试
+- <code>apps/admin/e2e/agent-clients.spec.ts</code> — E2E</p>
+<p><strong>修改</strong>
+- <code>packages/db/prisma/schema.prisma</code> — 新增 <code>AgentClient</code> / <code>AgentAccessLog</code> model + 反向关系
+- <code>packages/db/src/index.ts</code> — 重导出 <code>AgentClient</code> / <code>AgentAccessLog</code> 类型
+- <code>apps/admin/package.json</code> — 加 <code>vitest</code> devDep + <code>test</code> 脚本
+- <code>apps/admin/middleware.ts</code> — 公开路径白名单加 <code>/api/agent/</code>
+- <code>apps/admin/app/(admin)/layout.tsx</code> — 侧边栏加「Agent 接入」入口
+- <code>.github/workflows/ci.yml</code> — 加 admin test 步骤
+- <code>apps/admin/playwright.config.ts</code>(若无则新建,镜像 web 配置)</p>
+<hr/>
+<h2 id="Task-1-Prisma-模型-迁移">Task 1: Prisma 模型 + 迁移</h2>
+<p><strong>Files:</strong>
+- Modify: <code>packages/db/prisma/schema.prisma</code>
+- Modify: <code>packages/db/src/index.ts</code>
+- Create: <code>packages/db/prisma/migrations/&lt;timestamp&gt;_agent_clients/migration.sql</code>(由 prisma 生成)</p>
+<ul>
+<li>[ ] <strong>Step 1: 在 schema.prisma 末尾(<code>ContactSubmission</code> model 之后)追加两个 model</strong></li>
+</ul>
+<pre><code class="language-prisma">model AgentClient {
+  id               String   @id @default(uuid()) @db.Uuid
+  name             String   @unique
+  tokenPrefix      String   @map("token_prefix")
+  tokenHash        String   @unique @map("token_hash")
+  scopes           String[]
+  disabled         Boolean  @default(false)
+  expiresAt        DateTime? @map("expires_at") @db.Timestamptz(6)
+  lastUsedAt       DateTime? @map("last_used_at") @db.Timestamptz(6)
+  note             String?
+  createdByAdminId String   @map("created_by_admin_id") @db.Uuid
+  createdBy        AdminUser @relation(fields: [createdByAdminId], references: [id])
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  accessLogs AgentAccessLog[]
+
+  @@index([tokenPrefix])
+  @@map("agent_clients")
+}
+
+model AgentAccessLog {
+  id            String   @id @default(uuid()) @db.Uuid
+  agentClientId String   @map("agent_client_id") @db.Uuid
+  client        AgentClient @relation(fields: [agentClientId], references: [id])
+  endpoint      String
+  status        String
+  ts            DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([agentClientId, ts(sort: Desc)])
+  @@map("agent_access_log")
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 给 <code>AdminUser</code> model 加反向关系</strong></li>
+</ul>
+<p>在 <code>model AdminUser</code> 内 <code>repliedSubmissions ContactSubmission[]</code> 行下新增一行:</p>
+<pre><code class="language-prisma">  agentClients       AgentClient[]
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 3: 生成迁移</strong></li>
+</ul>
+<p>⚠️ 本仓库<strong>不能用 <code>prisma migrate dev</code></strong>:既有迁移含 schema.prisma 无法表达的裸 SQL(<code>category_kind</code> 生成列、复合 FK、deferrable unique),<code>migrate dev</code> 每次都误判为破坏性 drift。仓库实际约定是<strong>手放迁移目录 + <code>prisma migrate deploy</code></strong>(全部既有迁移 + CI + docker <code>migrate</code> 服务皆用 deploy)。用 <strong>schema-vs-schema diff</strong> 生成纯增量 SQL,绕开 live-DB drift:</p>
+<pre><code class="language-bash"># 1) 复制当前 schema 为 base,从 base 里删掉本任务新增的两个 model + AdminUser 那行 agentClients 反向关系
+cp packages/db/prisma/schema.prisma /tmp/schema-base.prisma
+#   编辑 /tmp/schema-base.prisma:删除 model AgentClient {...}、model AgentAccessLog {...}、
+#   以及 AdminUser 内新增的 "agentClients AgentClient[]" 一行(恢复为本任务前的 schema)
+# 2) schema→schema diff 仅产出这两张新表的 CREATE TABLE(Prisma 原生格式,正确默认值)
+mkdir -p packages/db/prisma/migrations/20260518000000_agent_clients
+pnpm --filter @ghome/db exec prisma migrate diff \
+  --from-schema-datamodel /tmp/schema-base.prisma \
+  --to-schema-datamodel packages/db/prisma/schema.prisma \
+  --script &gt; packages/db/prisma/migrations/20260518000000_agent_clients/migration.sql
+# 3) 检视 migration.sql:必须只含 agent_clients / agent_access_log 的 CREATE TABLE/INDEX/FK,
+#    绝不能出现任何 DROP COLUMN / DROP INDEX / ALTER ... category_kind / contact_submissions。
+#    若出现,停止并报告(说明 base schema 没删干净)。
+# 4) 应用(deploy 按迁移文件原样执行,既有迁移已 applied → 幂等,不会带入 drift)
+pnpm --filter @ghome/db db:migrate:deploy
+</code></pre>
+<p>Expected: <code>packages/db/prisma/migrations/20260518000000_agent_clients/migration.sql</code> 仅含两张新表的 <code>CREATE TABLE "agent_clients"</code> / <code>CREATE TABLE "agent_access_log"</code> + 索引 + FK;<code>migrate deploy</code> 输出 <code>1 migration applied</code>。</p>
+<ul>
+<li>[ ] <strong>Step 4: 在 <code>packages/db/src/index.ts</code> 的 <code>export type { ... } from "@prisma/client";</code> 块内追加两个类型</strong></li>
+</ul>
+<p>在 <code>RedirectOwnerKind,</code> 行后、<code>} from "@prisma/client";</code> 前加:</p>
+<pre><code class="language-ts">  AgentClient,
+  AgentAccessLog,
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 5: 重新生成 client 并 typecheck</strong></li>
+</ul>
+<p>Run:</p>
+<pre><code class="language-bash">docker compose run --rm migrate pnpm --filter @ghome/db exec prisma generate
+pnpm --filter @ghome/db typecheck
+</code></pre>
+<p>Expected: 均无错误;<code>import type { AgentClient } from "@ghome/db"</code> 可用。</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add packages/db/prisma/schema.prisma packages/db/prisma/migrations packages/db/src/index.ts
+git commit -m "feat(db): AgentClient + AgentAccessLog models for agent data API"
+</code></pre>
+<hr/>
+<h2 id="Task-2-admin-vitest-基建-CI-步骤">Task 2: admin vitest 基建 + CI 步骤</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/admin/vitest.config.ts</code>
+- Modify: <code>apps/admin/package.json</code>
+- Modify: <code>.github/workflows/ci.yml</code>
+- Create: <code>apps/admin/tests/smoke.test.ts</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 创建 <code>apps/admin/vitest.config.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { defineConfig } from "vitest/config";
+import path from "node:path";
+
+export default defineConfig({
+  test: {
+    environment: "node",
+    include: ["tests/**/*.test.ts"],
+    globals: false,
+    testTimeout: 10000,
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "."),
+      "@prisma/client": path.resolve(__dirname, "../../packages/db/node_modules/.prisma/client"),
+    },
+  },
+});
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 在 <code>apps/admin/package.json</code> 的 <code>scripts</code> 块加两行</strong></li>
+</ul>
+<p><code>"clean"</code> 行后追加:</p>
+<pre><code class="language-json">    "test": "vitest run",
+    "test:watch": "vitest",
+</code></pre>
+<p>并在 <code>devDependencies</code> 加 <code>"vitest": "^2.1.0"</code>。</p>
+<ul>
+<li>[ ] <strong>Step 3: 写最小冒烟测试 <code>apps/admin/tests/smoke.test.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { describe, it, expect } from "vitest";
+
+describe("admin vitest wiring", () =&gt; {
+  it("runs", () =&gt; {
+    expect(1 + 1).toBe(2);
+  });
+});
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 安装依赖并跑测试验证基建可用</strong></li>
+</ul>
+<p>Run:</p>
+<pre><code class="language-bash">pnpm install
+pnpm --filter @ghome/admin test
+</code></pre>
+<p>Expected: PASS,1 passed。</p>
+<ul>
+<li>[ ] <strong>Step 5: 在 <code>.github/workflows/ci.yml</code> 加 admin 测试步骤</strong></li>
+</ul>
+<p>在 <code>- name: Test (web — click-tracking helpers)</code> 那一步(<code>run: pnpm --filter @ghome/web test</code>)之后插入:</p>
+<pre><code class="language-yaml">      - name: Test (admin — agent API)
+        run: pnpm --filter @ghome/admin test
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/vitest.config.ts apps/admin/package.json apps/admin/tests/smoke.test.ts pnpm-lock.yaml .github/workflows/ci.yml
+git commit -m "chore(admin): vitest setup + CI test step"
+</code></pre>
+<hr/>
+<h2 id="Task-3-scopes-ts">Task 3: scopes.ts</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/admin/lib/agent-api/scopes.ts</code>
+- Test: <code>apps/admin/tests/scopes.test.ts</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试 <code>apps/admin/tests/scopes.test.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { describe, it, expect } from "vitest";
+import { ALL_SCOPES, isValidScope } from "@/lib/agent-api/scopes";
+
+describe("scopes", () =&gt; {
+  it("contains exactly the 7 spec scopes", () =&gt; {
+    expect([...ALL_SCOPES].sort()).toEqual(
+      [
+        "analytics:read",
+        "content:all",
+        "content:published",
+        "ops:admins",
+        "ops:audit",
+        "ops:contacts",
+        "ops:redirects",
+      ].sort(),
+    );
+  });
+
+  it("isValidScope accepts known, rejects unknown", () =&gt; {
+    expect(isValidScope("content:published")).toBe(true);
+    expect(isValidScope("ops:admins")).toBe(true);
+    expect(isValidScope("ops:secret")).toBe(false);
+    expect(isValidScope("")).toBe(false);
+  });
+});
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test scopes</code>
+Expected: FAIL（模块不存在）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 <code>apps/admin/lib/agent-api/scopes.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">export const ALL_SCOPES = [
+  "content:published",
+  "content:all",
+  "analytics:read",
+  "ops:redirects",
+  "ops:audit",
+  "ops:contacts",
+  "ops:admins",
+] as const;
+
+export type AgentScope = (typeof ALL_SCOPES)[number];
+
+export function isValidScope(s: string): s is AgentScope {
+  return (ALL_SCOPES as readonly string[]).includes(s);
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test scopes</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/lib/agent-api/scopes.ts apps/admin/tests/scopes.test.ts
+git commit -m "feat(admin): agent-api scope enum"
+</code></pre>
+<hr/>
+<h2 id="Task-4-token-ts">Task 4: token.ts</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/admin/lib/agent-api/token.ts</code>
+- Test: <code>apps/admin/tests/token.test.ts</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试 <code>apps/admin/tests/token.test.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { describe, it, expect } from "vitest";
+import { generateToken, hashToken, tokenPrefix } from "@/lib/agent-api/token";
+
+describe("token", () =&gt; {
+  it("generateToken has ghagt_ prefix and 32 base62 chars", () =&gt; {
+    const t = generateToken();
+    expect(t).toMatch(/^ghagt_[0-9A-Za-z]{32}$/);
+  });
+
+  it("generateToken is unique across calls", () =&gt; {
+    const set = new Set(Array.from({ length: 100 }, () =&gt; generateToken()));
+    expect(set.size).toBe(100);
+  });
+
+  it("hashToken is deterministic sha256 hex (64 chars)", () =&gt; {
+    expect(hashToken("ghagt_abc")).toBe(hashToken("ghagt_abc"));
+    expect(hashToken("ghagt_abc")).toMatch(/^[0-9a-f]{64}$/);
+    expect(hashToken("ghagt_abc")).not.toBe(hashToken("ghagt_abd"));
+  });
+
+  it("tokenPrefix returns ghagt_ + first 8 random chars (14 total)", () =&gt; {
+    const t = "ghagt_ABCDEFGH" + "rest";
+    expect(tokenPrefix(t)).toBe("ghagt_ABCDEFGH");
+    expect(tokenPrefix(t)).toHaveLength(14);
+  });
+});
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test token</code>
+Expected: FAIL（模块不存在）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 <code>apps/admin/lib/agent-api/token.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { randomBytes, createHash } from "node:crypto";
+
+const ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+/** 生成 `ghagt_` + 32 字符 base62（约 190 bit 熵）的原始 token。 */
+export function generateToken(): string {
+  const buf = randomBytes(32);
+  let out = "";
+  for (const b of buf) out += ALPHABET[b % 62];
+  return "ghagt_" + out.slice(0, 32);
+}
+
+/** sha256 十六进制；入库与查找均用它，原始 token 不落库。 */
+export function hashToken(raw: string): string {
+  return createHash("sha256").update(raw).digest("hex");
+}
+
+/** `ghagt_` + 前 8 个随机字符,用于 UI/日志辨识。 */
+export function tokenPrefix(raw: string): string {
+  return raw.slice(0, 14);
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test token</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/lib/agent-api/token.ts apps/admin/tests/token.test.ts
+git commit -m "feat(admin): agent token generate/hash/prefix"
+</code></pre>
+<hr/>
+<h2 id="Task-5-manifest-类型-matchEndpoint">Task 5: manifest 类型 + matchEndpoint</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/admin/lib/agent-api/manifest.ts</code>
+- Test: <code>apps/admin/tests/manifest.test.ts</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试 <code>apps/admin/tests/manifest.test.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { describe, it, expect } from "vitest";
+import { matchEndpoint, type AgentEndpoint } from "@/lib/agent-api/manifest";
+
+const eps: AgentEndpoint[] = [
+  { path: "/api/agent/v1/apps", method: "GET", scope: "content:published", summary: "", exampleResponse: {}, handler: async () =&gt; new Response() },
+  { path: "/api/agent/v1/apps/:slug", method: "GET", scope: "content:published", summary: "", exampleResponse: {}, handler: async () =&gt; new Response() },
+];
+
+describe("matchEndpoint", () =&gt; {
+  it("matches static path", () =&gt; {
+    const m = matchEndpoint("/api/agent/v1/apps", "GET", eps);
+    expect(m?.endpoint.path).toBe("/api/agent/v1/apps");
+    expect(m?.params).toEqual({});
+  });
+
+  it("matches param path and extracts param", () =&gt; {
+    const m = matchEndpoint("/api/agent/v1/apps/foo-bar", "GET", eps);
+    expect(m?.endpoint.path).toBe("/api/agent/v1/apps/:slug");
+    expect(m?.params).toEqual({ slug: "foo-bar" });
+  });
+
+  it("returns null for unknown path or wrong method", () =&gt; {
+    expect(matchEndpoint("/api/agent/v1/nope", "GET", eps)).toBeNull();
+    expect(matchEndpoint("/api/agent/v1/apps", "POST" as "GET", eps)).toBeNull();
+  });
+});
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test manifest</code>
+Expected: FAIL（模块不存在）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 <code>apps/admin/lib/agent-api/manifest.ts</code></strong>（先只放类型 + matchEndpoint，<code>ENDPOINTS</code> 留空数组,Task 8/11 填充）</li>
+</ul>
+<pre><code class="language-ts">import type { NextRequest } from "next/server";
+import type { AgentClient } from "@ghome/db";
+import type { AgentScope } from "./scopes";
+
+export interface AgentCtx {
+  req: NextRequest;
+  params: Record&lt;string, string&gt;;
+  client: AgentClient;
+  searchParams: URLSearchParams;
+}
+
+export interface AgentEndpoint {
+  path: string; // 如 "/api/agent/v1/apps" 或 "/api/agent/v1/apps/:slug"
+  method: "GET";
+  scope: AgentScope;
+  summary: string;
+  query?: { name: string; type: string; desc: string }[];
+  exampleResponse: unknown;
+  handler: (ctx: AgentCtx) =&gt; Promise&lt;Response&gt;;
+}
+
+export interface EndpointMatch {
+  endpoint: AgentEndpoint;
+  params: Record&lt;string, string&gt;;
+}
+
+export function matchEndpoint(
+  pathname: string,
+  method: "GET",
+  endpoints: AgentEndpoint[],
+): EndpointMatch | null {
+  const segs = pathname.split("/").filter(Boolean);
+  for (const ep of endpoints) {
+    if (ep.method !== method) continue;
+    const epSegs = ep.path.split("/").filter(Boolean);
+    if (epSegs.length !== segs.length) continue;
+    const params: Record&lt;string, string&gt; = {};
+    let ok = true;
+    for (let i = 0; i &lt; epSegs.length; i++) {
+      const e = epSegs[i];
+      if (e.startsWith(":")) params[e.slice(1)] = decodeURIComponent(segs[i]);
+      else if (e !== segs[i]) {
+        ok = false;
+        break;
+      }
+    }
+    if (ok) return { endpoint: ep, params };
+  }
+  return null;
+}
+
+// Task 8 / Task 11 填充
+export const ENDPOINTS: AgentEndpoint[] = [];
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test manifest</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/lib/agent-api/manifest.ts apps/admin/tests/manifest.test.ts
+git commit -m "feat(admin): agent-api manifest types + path matcher"
+</code></pre>
+<hr/>
+<h2 id="Task-6-鉴权解析-访问日志">Task 6: 鉴权解析 + 访问日志</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/admin/lib/agent-api/auth.ts</code>
+- Test: <code>apps/admin/tests/auth.test.ts</code>（命中真实 Postgres，CI 已起 service）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试 <code>apps/admin/tests/auth.test.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { prisma } from "@ghome/db";
+import { NextRequest } from "next/server";
+import { resolveAgentClient, logAccess } from "@/lib/agent-api/auth";
+import { generateToken, hashToken, tokenPrefix } from "@/lib/agent-api/token";
+
+const RAW = generateToken();
+let adminId: string;
+let clientId: string;
+
+beforeAll(async () =&gt; {
+  const admin = await prisma.adminUser.create({
+    data: { email: `auth-test-${Date.now()}@x.io`, [敏感内容已脱敏] },
+  });
+  adminId = admin.id;
+  const c = await prisma.agentClient.create({
+    data: {
+      name: `auth-test-${Date.now()}`,
+      [敏感内容已脱敏],
+      [敏感内容已脱敏],
+      scopes: ["content:published"],
+      createdByAdminId: adminId,
+    },
+  });
+  clientId = c.id;
+});
+
+afterAll(async () =&gt; {
+  await prisma.agentAccessLog.deleteMany({ where: { agentClientId: clientId } });
+  await prisma.agentClient.delete({ where: { id: clientId } });
+  await prisma.adminUser.delete({ where: { id: adminId } });
+});
+
+function reqWith(auth?: string) {
+  const h = new Headers();
+  if (auth) h.set("authorization", auth);
+  return new NextRequest("http://localhost/api/agent/v1/apps", { headers: h });
+}
+
+describe("resolveAgentClient", () =&gt; {
+  it("401 when header missing or malformed", async () =&gt; {
+    expect((await resolveAgentClient(reqWith())).ok).toBe(false);
+    expect((await resolveAgentClient(reqWith("Bearer nope"))).ok).toBe(false);
+  });
+
+  it("401 when token unknown", async () =&gt; {
+    const r = await resolveAgentClient(reqWith(`Bearer ${generateToken()}`));
+    expect(r).toMatchObject({ ok: false, status: 401, code: "unauthorized" });
+  });
+
+  it("ok for valid token", async () =&gt; {
+    const r = await resolveAgentClient(reqWith(`Bearer ${RAW}`));
+    expect(r.ok).toBe(true);
+  });
+
+  it("401 token_revoked when disabled", async () =&gt; {
+    await prisma.agentClient.update({ where: { id: clientId }, data: { disabled: true } });
+    const r = await resolveAgentClient(reqWith(`Bearer ${RAW}`));
+    expect(r).toMatchObject({ ok: false, code: "token_revoked" });
+    await prisma.agentClient.update({ where: { id: clientId }, data: { disabled: false } });
+  });
+
+  it("401 token_expired when past expiresAt", async () =&gt; {
+    await prisma.agentClient.update({
+      where: { id: clientId },
+      data: { expiresAt: new Date(Date.now() - 1000) },
+    });
+    const r = await resolveAgentClient(reqWith(`Bearer ${RAW}`));
+    expect(r).toMatchObject({ ok: false, code: "token_expired" });
+    await prisma.agentClient.update({ where: { id: clientId }, data: { expiresAt: null } });
+  });
+
+  it("logAccess writes a row", async () =&gt; {
+    await logAccess(clientId, "/api/agent/v1/apps", "ok");
+    const n = await prisma.agentAccessLog.count({
+      where: { agentClientId: clientId, status: "ok" },
+    });
+    expect(n).toBeGreaterThanOrEqual(1);
+  });
+});
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test auth</code>
+Expected: FAIL（模块不存在）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 <code>apps/admin/lib/agent-api/auth.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import type { NextRequest } from "next/server";
+import type { AgentClient } from "@ghome/db";
+import { prisma } from "@ghome/db";
+import { hashToken } from "./token";
+
+export type AuthResult =
+  | { ok: true; client: AgentClient }
+  | { ok: false; status: 401; code: "unauthorized" | "token_revoked" | "token_expired" };
+
+const BEARER_RE = /^Bearer\s+(ghagt_[0-9A-Za-z]{32})$/;
+
+export async function resolveAgentClient(req: NextRequest): Promise&lt;AuthResult&gt; {
+  const m = BEARER_RE.exec(req.headers.get("authorization") ?? "");
+  if (!m) return { ok: false, status: 401, code: "unauthorized" };
+
+  const client = await prisma.agentClient.findUnique({
+    where: { [敏感内容已脱敏] },
+  });
+  if (!client) return { ok: false, status: 401, code: "unauthorized" };
+  if (client.disabled) return { ok: false, status: 401, code: "token_revoked" };
+  if (client.expiresAt &amp;&amp; client.expiresAt.getTime() &lt; Date.now()) {
+    return { ok: false, status: 401, code: "token_expired" };
+  }
+  return { ok: true, client };
+}
+
+/** fire-and-forget;调用方用 `void logAccess(...)`,不阻塞响应。 */
+export async function logAccess(
+  agentClientId: string,
+  endpoint: string,
+  status: "ok" | "denied",
+): Promise&lt;void&gt; {
+  try {
+    await prisma.agentAccessLog.create({ data: { agentClientId, endpoint, status } });
+  } catch (e) {
+    console.error("[agent-api] logAccess failed:", e);
+  }
+}
+
+/** lastUsedAt 节流:距上次 &gt;60s 才写。fire-and-forget。 */
+export async function touchLastUsed(client: AgentClient): Promise&lt;void&gt; {
+  const now = Date.now();
+  if (client.lastUsedAt &amp;&amp; now - client.lastUsedAt.getTime() &lt; 60_000) return;
+  try {
+    await prisma.agentClient.update({
+      where: { id: client.id },
+      data: { lastUsedAt: new Date() },
+    });
+  } catch (e) {
+    console.error("[agent-api] touchLastUsed failed:", e);
+  }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test auth</code>
+Expected: PASS（需 DATABASE_URL 指向已迁移的库;本地 <code>docker compose up -d</code> 后跑,或在 CI 中自动满足）</p>
+<ul>
+<li>[ ] <strong>Step 5: middleware 放行 <code>/api/agent/</code></strong></li>
+</ul>
+<p>在 <code>apps/admin/middleware.ts</code> 的公开路径 <code>if (...)</code> 条件里,<code>pathname.startsWith("/api/cron/") ||</code> 那行之后加一行:</p>
+<pre><code class="language-ts">    pathname.startsWith("/api/agent/") ||
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/lib/agent-api/auth.ts apps/admin/tests/auth.test.ts apps/admin/middleware.ts
+git commit -m "feat(admin): agent token resolution + access log + middleware passthrough"
+</code></pre>
+<hr/>
+<h2 id="Task-7-HTTP-辅助-分页-信封-状态门控-错误">Task 7: HTTP 辅助(分页 / 信封 / 状态门控 / 错误)</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/admin/lib/agent-api/http.ts</code>
+- Test: <code>apps/admin/tests/http.test.ts</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试 <code>apps/admin/tests/http.test.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { describe, it, expect } from "vitest";
+import { pageArgs, statusFilter, jsonError } from "@/lib/agent-api/http";
+
+describe("pageArgs", () =&gt; {
+  it("defaults to page 1 size 20", () =&gt; {
+    expect(pageArgs(new URLSearchParams())).toEqual({ page: 1, pageSize: 20, skip: 0, take: 20 });
+  });
+  it("caps pageSize at 100 and floors page at 1", () =&gt; {
+    const sp = new URLSearchParams("page=0&amp;pageSize=999");
+    expect(pageArgs(sp)).toEqual({ page: 1, pageSize: 100, skip: 0, take: 100 });
+  });
+  it("computes skip", () =&gt; {
+    const sp = new URLSearchParams("page=3&amp;pageSize=10");
+    expect(pageArgs(sp)).toEqual({ page: 3, pageSize: 10, skip: 20, take: 10 });
+  });
+});
+
+describe("statusFilter", () =&gt; {
+  it("forces published when no content:all", () =&gt; {
+    expect(statusFilter(["content:published"], new URLSearchParams("status=draft"))).toEqual({
+      status: "published",
+      deletedAt: null,
+    });
+  });
+  it("honors ?status= when content:all present", () =&gt; {
+    const s = ["content:all"];
+    expect(statusFilter(s, new URLSearchParams("status=draft"))).toEqual({
+      status: "draft",
+      deletedAt: null,
+    });
+    expect(statusFilter(s, new URLSearchParams("status=all"))).toEqual({});
+    expect(statusFilter(s, new URLSearchParams())).toEqual({
+      status: "published",
+      deletedAt: null,
+    });
+  });
+});
+
+describe("jsonError", () =&gt; {
+  it("returns status + {error}", async () =&gt; {
+    const r = jsonError(403, "forbidden");
+    expect(r.status).toBe(403);
+    expect(await r.json()).toEqual({ error: "forbidden" });
+  });
+});
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test http</code>
+Expected: FAIL</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 <code>apps/admin/lib/agent-api/http.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">export interface PageArgs {
+  page: number;
+  pageSize: number;
+  skip: number;
+  take: number;
+}
+
+export function pageArgs(sp: URLSearchParams): PageArgs {
+  const page = Math.max(1, Math.floor(Number(sp.get("page")) || 1));
+  const pageSize = Math.min(100, Math.max(1, Math.floor(Number(sp.get("pageSize")) || 20)));
+  return { page, pageSize, skip: (page - 1) * pageSize, take: pageSize };
+}
+
+/** 内容类查询的 status/deletedAt where 片段。无 content:all 时锁死 published。 */
+export function statusFilter(
+  scopes: string[],
+  sp: URLSearchParams,
+): { status?: string; deletedAt?: null } {
+  if (!scopes.includes("content:all")) return { status: "published", deletedAt: null };
+  const s = sp.get("status");
+  if (s === "draft" || s === "archived" || s === "published") return { status: s, deletedAt: null };
+  if (s === "all") return {};
+  return { status: "published", deletedAt: null };
+}
+
+export function envelope(data: unknown[], total: number, page: number, pageSize: number): Response {
+  return Response.json({ data, page, pageSize, total });
+}
+
+export function jsonError(status: number, error: string): Response {
+  return Response.json({ error }, { status });
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test http</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/lib/agent-api/http.ts apps/admin/tests/http.test.ts
+git commit -m "feat(admin): agent-api http helpers (paging/status/envelope/error)"
+</code></pre>
+<hr/>
+<h2 id="Task-8-内容资源-handler-manifest-条目">Task 8: 内容资源 handler + manifest 条目</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/admin/lib/agent-api/queries.ts</code>
+- Modify: <code>apps/admin/lib/agent-api/manifest.ts</code>(填充 <code>ENDPOINTS</code> 内容部分)
+- Test: <code>apps/admin/tests/queries-content.test.ts</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试 <code>apps/admin/tests/queries-content.test.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { describe, it, expect } from "vitest";
+import { ENDPOINTS } from "@/lib/agent-api/manifest";
+
+describe("content endpoints registered", () =&gt; {
+  it("registers the expected content paths with content:published scope", () =&gt; {
+    const paths = ENDPOINTS.map((e) =&gt; e.path);
+    for (const p of [
+      "/api/agent/v1/apps",
+      "/api/agent/v1/apps/:slug",
+      "/api/agent/v1/videos",
+      "/api/agent/v1/videos/:slug",
+      "/api/agent/v1/guides",
+      "/api/agent/v1/guides/:slug",
+      "/api/agent/v1/topics",
+      "/api/agent/v1/topics/:slug",
+      "/api/agent/v1/albums",
+      "/api/agent/v1/albums/:slug",
+      "/api/agent/v1/rankings",
+      "/api/agent/v1/categories",
+      "/api/agent/v1/tags",
+    ]) {
+      expect(paths).toContain(p);
+    }
+    expect(ENDPOINTS.find((e) =&gt; e.path === "/api/agent/v1/apps")?.scope).toBe(
+      "content:published",
+    );
+  });
+});
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test queries-content</code>
+Expected: FAIL（内容端点未注册,paths 不含这些）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 <code>apps/admin/lib/agent-api/queries.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { prisma } from "@ghome/db";
+import type { AgentCtx } from "./manifest";
+import { pageArgs, statusFilter, envelope, jsonError } from "./http";
+
+/* ---------- 内容:列表 + 详情 ---------- */
+
+export async function listApps(ctx: AgentCtx): Promise&lt;Response&gt; {
+  const { page, pageSize, skip, take } = pageArgs(ctx.searchParams);
+  const where = statusFilter(ctx.client.scopes, ctx.searchParams);
+  const [data, total] = await Promise.all([
+    prisma.app.findMany({
+      where,
+      skip,
+      take,
+      orderBy: { updatedAt: "desc" },
+      select: { id: true, slug: true, name: true, shortDesc: true, status: true, categoryId: true, updatedAt: true },
+    }),
+    prisma.app.count({ where }),
+  ]);
+  return envelope(data, total, page, pageSize);
+}
+
+export async function getApp(ctx: AgentCtx): Promise&lt;Response&gt; {
+  const where = { slug: ctx.params.slug, ...statusFilter(ctx.client.scopes, ctx.searchParams) };
+  const app = await prisma.app.findFirst({
+    where,
+    include: { category: true, tags: { include: { tag: true } } },
+  });
+  return app ? Response.json(app) : jsonError(404, "not_found");
+}
+
+export async function listVideos(ctx: AgentCtx): Promise&lt;Response&gt; {
+  const { page, pageSize, skip, take } = pageArgs(ctx.searchParams);
+  const where = statusFilter(ctx.client.scopes, ctx.searchParams);
+  const [data, total] = await Promise.all([
+    prisma.video.findMany({
+      where,
+      skip,
+      take,
+      orderBy: { updatedAt: "desc" },
+      select: { id: true, slug: true, title: true, shortDesc: true, status: true, categoryId: true, updatedAt: true },
+    }),
+    prisma.video.count({ where }),
+  ]);
+  return envelope(data, total, page, pageSize);
+}
+
+export async function getVideo(ctx: AgentCtx): Promise&lt;Response&gt; {
+  const where = { slug: ctx.params.slug, ...statusFilter(ctx.client.scopes, ctx.searchParams) };
+  const v = await prisma.video.findFirst({
+    where,
+    include: { category: true, tags: { include: { tag: true } } },
+  });
+  return v ? Response.json(v) : jsonError(404, "not_found");
+}
+
+export async function listGuides(ctx: AgentCtx): Promise&lt;Response&gt; {
+  const { page, pageSize, skip, take } = pageArgs(ctx.searchParams);
+  const where = statusFilter(ctx.client.scopes, ctx.searchParams);
+  const [data, total] = await Promise.all([
+    prisma.guide.findMany({
+      where,
+      skip,
+      take,
+      orderBy: { updatedAt: "desc" },
+      select: { id: true, slug: true, title: true, summary: true, status: true, updatedAt: true },
+    }),
+    prisma.guide.count({ where }),
+  ]);
+  return envelope(data, total, page, pageSize);
+}
+
+export async function getGuide(ctx: AgentCtx): Promise&lt;Response&gt; {
+  const where = { slug: ctx.params.slug, ...statusFilter(ctx.client.scopes, ctx.searchParams) };
+  const g = await prisma.guide.findFirst({ where });
+  return g ? Response.json(g) : jsonError(404, "not_found");
+}
+
+/* ---------- collections:topic / album / ranking ---------- */
+
+function collectionList(kind: "topic" | "album" | "ranking") {
+  return async (ctx: AgentCtx): Promise&lt;Response&gt; =&gt; {
+    const { page, pageSize, skip, take } = pageArgs(ctx.searchParams);
+    const sf = statusFilter(ctx.client.scopes, ctx.searchParams);
+    const where = { kind, ...sf };
+    const [data, total] = await Promise.all([
+      prisma.collection.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { updatedAt: "desc" },
+        select: { id: true, slug: true, title: true, status: true, kind: true, updatedAt: true },
+      }),
+      prisma.collection.count({ where }),
+    ]);
+    return envelope(data, total, page, pageSize);
+  };
+}
+
+function collectionDetail(kind: "topic" | "album" | "ranking") {
+  return async (ctx: AgentCtx): Promise&lt;Response&gt; =&gt; {
+    const where = { kind, slug: ctx.params.slug, ...statusFilter(ctx.client.scopes, ctx.searchParams) };
+    const c = await prisma.collection.findFirst({
+      where,
+      include: { items: { orderBy: { position: "asc" } } },
+    });
+    return c ? Response.json(c) : jsonError(404, "not_found");
+  };
+}
+
+export const listTopics = collectionList("topic");
+export const getTopic = collectionDetail("topic");
+export const listAlbums = collectionList("album");
+export const getAlbum = collectionDetail("album");
+export const listRankings = collectionList("ranking");
+
+export async function listCategories(): Promise&lt;Response&gt; {
+  const data = await prisma.category.findMany({ orderBy: { slug: "asc" } });
+  return Response.json({ data });
+}
+
+export async function listTags(): Promise&lt;Response&gt; {
+  const data = await prisma.tag.findMany({ orderBy: { slug: "asc" } });
+  return Response.json({ data });
+}
+</code></pre>
+<blockquote>
+<p>注:<code>select</code> 字段以 <code>packages/db/prisma/schema.prisma</code> 现有列为准;若某字段名不符,以 schema 实际列名替换(如 <code>shortDesc</code>/<code>summary</code>/<code>title</code> 等),不要新增列。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 4: 在 <code>apps/admin/lib/agent-api/manifest.ts</code> 填充 <code>ENDPOINTS</code> 内容部分</strong></li>
+</ul>
+<p>把文件末尾 <code>export const ENDPOINTS: AgentEndpoint[] = [];</code> 替换为:</p>
+<pre><code class="language-ts">import * as q from "./queries";
+
+export const ENDPOINTS: AgentEndpoint[] = [
+  { path: "/api/agent/v1/apps", method: "GET", scope: "content:published", summary: "App 列表(分页)", query: [{ name: "page", type: "int", desc: "页码,默认1" }, { name: "pageSize", type: "int", desc: "每页,默认20,上限100" }, { name: "status", type: "string", desc: "仅 content:all 生效:draft|archived|published|all" }], exampleResponse: { data: [{ id: "uuid", slug: "demo", name: "Demo", status: "published" }], page: 1, pageSize: 20, total: 1 }, handler: q.listApps },
+  { path: "/api/agent/v1/apps/:slug", method: "GET", scope: "content:published", summary: "App 详情(含分类/标签)", exampleResponse: { id: "uuid", slug: "demo", name: "Demo" }, handler: q.getApp },
+  { path: "/api/agent/v1/videos", method: "GET", scope: "content:published", summary: "视频列表(分页)", exampleResponse: { data: [], page: 1, pageSize: 20, total: 0 }, handler: q.listVideos },
+  { path: "/api/agent/v1/videos/:slug", method: "GET", scope: "content:published", summary: "视频详情", exampleResponse: { id: "uuid", slug: "demo" }, handler: q.getVideo },
+  { path: "/api/agent/v1/guides", method: "GET", scope: "content:published", summary: "指南列表(分页)", exampleResponse: { data: [], page: 1, pageSize: 20, total: 0 }, handler: q.listGuides },
+  { path: "/api/agent/v1/guides/:slug", method: "GET", scope: "content:published", summary: "指南详情", exampleResponse: { id: "uuid", slug: "demo" }, handler: q.getGuide },
+  { path: "/api/agent/v1/topics", method: "GET", scope: "content:published", summary: "专题列表", exampleResponse: { data: [], page: 1, pageSize: 20, total: 0 }, handler: q.listTopics },
+  { path: "/api/agent/v1/topics/:slug", method: "GET", scope: "content:published", summary: "专题详情(含成员)", exampleResponse: { id: "uuid", slug: "demo" }, handler: q.getTopic },
+  { path: "/api/agent/v1/albums", method: "GET", scope: "content:published", summary: "专辑列表", exampleResponse: { data: [], page: 1, pageSize: 20, total: 0 }, handler: q.listAlbums },
+  { path: "/api/agent/v1/albums/:slug", method: "GET", scope: "content:published", summary: "专辑详情(含成员)", exampleResponse: { id: "uuid", slug: "demo" }, handler: q.getAlbum },
+  { path: "/api/agent/v1/rankings", method: "GET", scope: "content:published", summary: "榜单列表", exampleResponse: { data: [], page: 1, pageSize: 20, total: 0 }, handler: q.listRankings },
+  { path: "/api/agent/v1/categories", method: "GET", scope: "content:published", summary: "分类全集", exampleResponse: { data: [] }, handler: q.listCategories },
+  { path: "/api/agent/v1/tags", method: "GET", scope: "content:published", summary: "标签全集", exampleResponse: { data: [] }, handler: q.listTags },
+];
+</code></pre>
+<p>(把 <code>import * as q from "./queries";</code> 提到文件顶部 import 区。)</p>
+<ul>
+<li>[ ] <strong>Step 5: 跑测试确认通过 + typecheck</strong></li>
+</ul>
+<p>Run:</p>
+<pre><code class="language-bash">pnpm --filter @ghome/admin test queries-content
+pnpm --filter @ghome/admin typecheck
+</code></pre>
+<p>Expected: 测试 PASS;typecheck 无错(若报某 <code>select</code> 字段不存在,按 schema 真实列名修正后再跑)</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/lib/agent-api/queries.ts apps/admin/lib/agent-api/manifest.ts apps/admin/tests/queries-content.test.ts
+git commit -m "feat(admin): content resource handlers + manifest entries"
+</code></pre>
+<hr/>
+<h2 id="Task-9-dispatcher-route-集成测试">Task 9: dispatcher route + 集成测试</h2>
+<blockquote>
+<p><strong>Task 6 review carry-over:</strong> <code>logAccess</code> 是 best-effort,写失败只打 <code>[agent-api][AUDIT-WRITE-FAILED]</code> 日志(已在 auth.ts 实现,生产侧应对该 tag 配告警)。本任务的集成测试必须实际断言:成功拉取写入一条 <code>status="ok"</code> 的 <code>AgentAccessLog</code>、<code>ops:*</code> 被拒写入 <code>status="denied"</code>(Task 11 覆盖 denied 路径)。dispatcher 调 <code>logAccess(client.id, pathname, ...)</code> 时传的是 <code>pathname</code>(已归一,非原始 URL),与 auth.ts 的 200 字符 clamp 双重兜底。</p>
+</blockquote>
+<p><strong>Files:</strong>
+- Create: <code>apps/admin/app/api/agent/v1/[[...slug]]/route.ts</code>
+- Test: <code>apps/admin/tests/dispatch.test.ts</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试 <code>apps/admin/tests/dispatch.test.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { prisma } from "@ghome/db";
+import { NextRequest } from "next/server";
+import { GET } from "@/app/api/agent/v1/[[...slug]]/route";
+import { generateToken, hashToken, tokenPrefix } from "@/lib/agent-api/token";
+
+const PUB = generateToken();
+const ALL = generateToken();
+let adminId: string;
+const ids: string[] = [];
+
+beforeAll(async () =&gt; {
+  const a = await prisma.adminUser.create({
+    data: { email: `disp-${Date.now()}@x.io`, [敏感内容已脱敏] },
+  });
+  adminId = a.id;
+  for (const [raw, scopes] of [
+    [PUB, ["content:published"]],
+    [ALL, ["content:all"]],
+  ] as const) {
+    const c = await prisma.agentClient.create({
+      data: {
+        name: `disp-${raw.slice(6, 14)}`,
+        [敏感内容已脱敏],
+        [敏感内容已脱敏],
+        scopes: [...scopes],
+        createdByAdminId: adminId,
+      },
+    });
+    ids.push(c.id);
+  }
+});
+
+afterAll(async () =&gt; {
+  await prisma.agentAccessLog.deleteMany({ where: { agentClientId: { in: ids } } });
+  await prisma.agentClient.deleteMany({ where: { id: { in: ids } } });
+  await prisma.adminUser.delete({ where: { id: adminId } });
+});
+
+function call(path: string, token?: string) {
+  const h = new Headers();
+  if (token) h.set("authorization", `Bearer ${token}`);
+  const req = new NextRequest(`http://localhost${path}`, { headers: h });
+  const slug = path.replace(/^\/api\/agent\/v1\/?/, "").split("/").filter(Boolean);
+  return GET(req, { params: Promise.resolve({ slug }) });
+}
+
+describe("dispatcher", () =&gt; {
+  it("401 without token", async () =&gt; {
+    expect((await call("/api/agent/v1/apps")).status).toBe(401);
+  });
+  it("404 unknown endpoint with valid token", async () =&gt; {
+    expect((await call("/api/agent/v1/nope", PUB)).status).toBe(404);
+  });
+  it("403 when scope missing (content token hitting nothing it lacks)", async () =&gt; {
+    // apps requires content:published which PUB has -&gt; 200; verify ALL also works
+    expect((await call("/api/agent/v1/apps", ALL)).status).toBe(200);
+  });
+  it("200 list shape for apps", async () =&gt; {
+    const r = await call("/api/agent/v1/apps", PUB);
+    expect(r.status).toBe(200);
+    const j = await r.json();
+    expect(j).toHaveProperty("data");
+    expect(j).toHaveProperty("total");
+  });
+  it("published-only token cannot see drafts via ?status=draft (silently ignored)", async () =&gt; {
+    const r = await call("/api/agent/v1/apps?status=draft", PUB);
+    const j = await r.json();
+    // 所有返回项必须是 published(若库中有 draft 数据,亦不应出现)
+    for (const row of j.data) expect(row.status).toBe("published");
+  });
+  it("writes an ok access-log row", async () =&gt; {
+    await call("/api/agent/v1/apps", PUB);
+    const n = await prisma.agentAccessLog.count({
+      where: { agentClientId: ids[0], status: "ok" },
+    });
+    expect(n).toBeGreaterThanOrEqual(1);
+  });
+});
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test dispatch</code>
+Expected: FAIL（route 模块不存在）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 <code>apps/admin/app/api/agent/v1/[[...slug]]/route.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import type { NextRequest } from "next/server";
+import { resolveAgentClient, logAccess, touchLastUsed } from "@/lib/agent-api/auth";
+import { matchEndpoint, ENDPOINTS } from "@/lib/agent-api/manifest";
+import { jsonError } from "@/lib/agent-api/http";
+import { renderSkillMd } from "@/lib/agent-api/skill-md";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const SKILL_PATH = "/api/agent/v1/skill.md";
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise&lt;{ slug?: string[] }&gt; },
+): Promise&lt;Response&gt; {
+  const { slug = [] } = await params;
+  const pathname = "/api/agent/v1" + (slug.length ? "/" + slug.join("/") : "");
+
+  const authed = await resolveAgentClient(req);
+  if (!authed.ok) return jsonError(authed.status, authed.code);
+  const client = authed.client;
+
+  // Skill.md:任一有效 token 即可,按 scope 个性化
+  if (pathname === SKILL_PATH) {
+    void touchLastUsed(client);
+    void logAccess(client.id, pathname, "ok");
+    return new Response(renderSkillMd(client, ENDPOINTS), {
+      headers: { "content-type": "text/markdown; charset=utf-8" },
+    });
+  }
+
+  const match = matchEndpoint(pathname, "GET", ENDPOINTS);
+  if (!match) return jsonError(404, "not_found");
+
+  if (!client.scopes.includes(match.endpoint.scope)) {
+    if (match.endpoint.scope.startsWith("ops:")) {
+      void logAccess(client.id, pathname, "denied");
+    }
+    return jsonError(403, "forbidden");
+  }
+
+  void touchLastUsed(client);
+  void logAccess(client.id, pathname, "ok");
+
+  return match.endpoint.handler({
+    req,
+    params: match.params,
+    client,
+    searchParams: req.nextUrl.searchParams,
+  });
+}
+</code></pre>
+<blockquote>
+<p>依赖 <code>renderSkillMd</code>(Task 10)。先建占位 <code>apps/admin/lib/agent-api/skill-md.ts</code>:
+<code>ts
+import type { AgentClient } from "@ghome/db";
+import type { AgentEndpoint } from "./manifest";
+export function renderSkillMd(_c: AgentClient, _e: AgentEndpoint[]): string {
+  return "# placeholder";
+}</code>
+Task 10 用 TDD 实现真正内容。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test dispatch</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/app/api/agent apps/admin/lib/agent-api/skill-md.ts apps/admin/tests/dispatch.test.ts
+git commit -m "feat(admin): agent API catch-all dispatcher"
+</code></pre>
+<hr/>
+<h2 id="Task-10-Skill-md-生成器">Task 10: Skill.md 生成器</h2>
+<p><strong>Files:</strong>
+- Modify: <code>apps/admin/lib/agent-api/skill-md.ts</code>
+- Test: <code>apps/admin/tests/skill-md.test.ts</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试 <code>apps/admin/tests/skill-md.test.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { describe, it, expect } from "vitest";
+import { renderSkillMd } from "@/lib/agent-api/skill-md";
+import type { AgentEndpoint } from "@/lib/agent-api/manifest";
+import type { AgentClient } from "@ghome/db";
+
+const eps: AgentEndpoint[] = [
+  { path: "/api/agent/v1/apps", method: "GET", scope: "content:published", summary: "App 列表", exampleResponse: { data: [] }, handler: async () =&gt; new Response() },
+  { path: "/api/agent/v1/contact-submissions", method: "GET", scope: "ops:contacts", summary: "联系表单", exampleResponse: { data: [] }, handler: async () =&gt; new Response() },
+];
+
+function client(scopes: string[]): AgentClient {
+  return { id: "c1", name: "x", scopes } as unknown as AgentClient;
+}
+
+describe("renderSkillMd", () =&gt; {
+  it("includes only in-scope endpoints", () =&gt; {
+    const md = renderSkillMd(client(["content:published"]), eps);
+    expect(md).toContain("/api/agent/v1/apps");
+    expect(md).not.toContain("/api/agent/v1/contact-submissions");
+  });
+  it("includes ops endpoint when scoped", () =&gt; {
+    const md = renderSkillMd(client(["content:published", "ops:contacts"]), eps);
+    expect(md).toContain("/api/agent/v1/contact-submissions");
+  });
+  it("has SKILL.md frontmatter and auth section", () =&gt; {
+    const md = renderSkillMd(client(["content:published"]), eps);
+    expect(md).toMatch(/^---\nname: ghome-admin-data/);
+    expect(md).toContain("Authorization: Bearer");
+  });
+});
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test skill-md</code>
+Expected: FAIL（占位实现返回 "# placeholder"）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 <code>apps/admin/lib/agent-api/skill-md.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import type { AgentClient } from "@ghome/db";
+import type { AgentEndpoint } from "./manifest";
+
+export function renderSkillMd(client: AgentClient, endpoints: AgentEndpoint[]): string {
+  const visible = endpoints.filter((e) =&gt; client.scopes.includes(e.scope));
+
+  const lines: string[] = [];
+  lines.push("---");
+  lines.push("name: ghome-admin-data");
+  lines.push(
+    "description: Pull Ghome admin data (content / analytics / ops) over a scoped read-only API",
+  );
+  lines.push("---");
+  lines.push("");
+  lines.push("# Ghome Admin Data API");
+  lines.push("");
+  lines.push(`Authorized as **${client.name}**. Granted scopes: ${client.scopes.join(", ")}.`);
+  lines.push("");
+  lines.push("## 鉴权");
+  lines.push("");
+  lines.push("每个请求带 header:");
+  lines.push("");
+  lines.push("```");
+  lines.push("Authorization: Bearer &lt;你的授权码&gt;");
+  lines.push("```");
+  lines.push("");
+  lines.push("## 约定");
+  lines.push("");
+  lines.push("- 全部 GET、只读、JSON。");
+  lines.push("- 列表信封:`{ data, page, pageSize, total }`;`?page=&amp;pageSize=`(pageSize≤100)。");
+  lines.push("- 错误:`{ error }`,401 未授权 / 403 缺 scope / 404 未知端点 / 400 参数非法。");
+  lines.push("");
+  lines.push("## 可用端点");
+  lines.push("");
+
+  for (const e of visible) {
+    lines.push(`### \`GET ${e.path}\``);
+    lines.push("");
+    lines.push(`${e.summary} (scope: \`${e.scope}\`)`);
+    lines.push("");
+    if (e.query?.length) {
+      lines.push("查询参数:");
+      for (const qp of e.query) lines.push(`- \`${qp.name}\` (${qp.type}) — ${qp.desc}`);
+      lines.push("");
+    }
+    lines.push("示例响应:");
+    lines.push("");
+    lines.push("```json");
+    lines.push(JSON.stringify(e.exampleResponse, null, 2));
+    lines.push("```");
+    lines.push("");
+  }
+
+  return lines.join("\n");
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test skill-md</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/lib/agent-api/skill-md.ts apps/admin/tests/skill-md.test.ts
+git commit -m "feat(admin): scope-personalized Skill.md generator"
+</code></pre>
+<hr/>
+<h2 id="Task-11-分析-运营-handler-manifest-条目">Task 11: 分析/运营 handler + manifest 条目</h2>
+<blockquote>
+<p><strong>Task 9 review carry-over (do these in this task's test work):</strong>
+1. <code>apps/admin/tests/dispatch.test.ts</code> 里那条名为 <code>"403 when scope missing"</code> 但实际断言 200 的用例名不副实 —— Task 11 引入 <code>ops:*</code> 端点后,<strong>改/补一条真正的跨 scope 403 用例</strong>:一个仅持 <code>content:published</code> 的 token 访问某 <code>ops:*</code> 端点 → 断言 403,且 <code>AgentAccessLog</code> 写入一条 <code>status="denied"</code> 行(验证 spec §5/§10 的 ops:<em> denied 记录策略)。可在 <code>queries-ops.test.ts</code> 里实现(已规划)。
+2. dispatcher 的 <code>?status=draft</code> 用例在库无 draft 数据时是空断言 —— 在 ops/denied 测试的 <code>beforeAll</code> 里</em><em>额外 seed 一条 draft App</em>*,断言 <code>content:published</code> token 看不到它、<code>content:all</code> token 能看到,给"草稿不泄露"边界以实证(测完在 afterAll 清理)。
+3. 已确认的设计决策(无需改动):denied 仅对 <code>ops:*</code> 记日志是 spec §5/§10 的刻意选择(只审计敏感面尝试,避免良性 content scope 不匹配刷屏),保持不变。</p>
+</blockquote>
+<p><strong>Files:</strong>
+- Modify: <code>apps/admin/lib/agent-api/queries.ts</code>(追加)
+- Modify: <code>apps/admin/lib/agent-api/manifest.ts</code>(追加条目)
+- Test: <code>apps/admin/tests/queries-ops.test.ts</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试 <code>apps/admin/tests/queries-ops.test.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { prisma } from "@ghome/db";
+import { NextRequest } from "next/server";
+import { GET } from "@/app/api/agent/v1/[[...slug]]/route";
+import { generateToken, hashToken, tokenPrefix } from "@/lib/agent-api/token";
+
+const ADMINS = generateToken();
+const NOSCOPE = generateToken();
+let adminId: string;
+const ids: string[] = [];
+
+beforeAll(async () =&gt; {
+  const a = await prisma.adminUser.create({
+    data: { email: `ops-${Date.now()}@x.io`, [敏感内容已脱敏] },
+  });
+  adminId = a.id;
+  for (const [raw, scopes] of [
+    [ADMINS, ["ops:admins"]],
+    [NOSCOPE, ["content:published"]],
+  ] as const) {
+    const c = await prisma.agentClient.create({
+      data: {
+        name: `ops-${raw.slice(6, 14)}`,
+        [敏感内容已脱敏],
+        [敏感内容已脱敏],
+        scopes: [...scopes],
+        createdByAdminId: adminId,
+      },
+    });
+    ids.push(c.id);
+  }
+});
+
+afterAll(async () =&gt; {
+  await prisma.agentAccessLog.deleteMany({ where: { agentClientId: { in: ids } } });
+  await prisma.agentClient.deleteMany({ where: { id: { in: ids } } });
+  await prisma.adminUser.delete({ where: { id: adminId } });
+});
+
+function call(path: string, 敏感凭据：[已脱敏] {
+  const h = new Headers({ authorization: `Bearer ${token}` });
+  const req = new NextRequest(`http://localhost${path}`, { headers: h });
+  const slug = path.replace(/^\/api\/agent\/v1\/?/, "").split("/").filter(Boolean);
+  return GET(req, { params: Promise.resolve({ slug }) });
+}
+
+describe("ops endpoints", () =&gt; {
+  it("/admins returns rows WITHOUT passwordHash", async () =&gt; {
+    const r = await call("/api/agent/v1/admins", ADMINS);
+    expect(r.status).toBe(200);
+    const j = await r.json();
+    const all = JSON.stringify(j);
+    expect(all).not.toContain("passwordHash");
+    expect(all).not.toContain("secret-hash");
+  });
+
+  it("missing ops scope -&gt; 403 and writes denied access-log", async () =&gt; {
+    const r = await call("/api/agent/v1/admins", NOSCOPE);
+    expect(r.status).toBe(403);
+    const n = await prisma.agentAccessLog.count({
+      where: { agentClientId: ids[1], status: "denied" },
+    });
+    expect(n).toBeGreaterThanOrEqual(1);
+  });
+});
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test queries-ops</code>
+Expected: FAIL（/admins 未注册 → 404,断言失败）</p>
+<ul>
+<li>[ ] <strong>Step 3: 在 <code>apps/admin/lib/agent-api/queries.ts</code> 末尾追加</strong></li>
+</ul>
+<pre><code class="language-ts">/* ---------- 分析 ---------- */
+
+export async function analyticsClicksDaily(ctx: AgentCtx): Promise&lt;Response&gt; {
+  const days = Math.min(90, Math.max(1, Math.floor(Number(ctx.searchParams.get("days")) || 7)));
+  const since = new Date();
+  since.setUTCDate(since.getUTCDate() - (days - 1));
+  since.setUTCHours(0, 0, 0, 0);
+  const rows = await prisma.$queryRaw&lt;Array&lt;{ day: Date; count: bigint }&gt;&gt;`
+    SELECT date_trunc('day', ts AT TIME ZONE 'UTC')::date AS day, count(*) AS count
+    FROM click_events
+    WHERE ts &gt;= ${since}
+    GROUP BY 1
+    ORDER BY 1 ASC
+  `;
+  return Response.json({
+    data: rows.map((r) =&gt; ({ day: r.day.toISOString().slice(0, 10), count: Number(r.count) })),
+  });
+}
+
+export async function analyticsTopRedirects(ctx: AgentCtx): Promise&lt;Response&gt; {
+  const limit = Math.min(100, Math.max(1, Math.floor(Number(ctx.searchParams.get("limit")) || 20)));
+  const rows = await prisma.$queryRaw&lt;
+    Array&lt;{ redirect_id: string; owner_kind: string; owner_id: string | null; target_url: string; disabled: boolean; clicks: bigint }&gt;
+  &gt;`
+    SELECT r.id AS redirect_id, r.owner_kind, r.owner_id, r.target_url, r.disabled, count(c.id) AS clicks
+    FROM redirects r
+    LEFT JOIN click_events c ON c.redirect_id = r.id
+    GROUP BY r.id
+    ORDER BY clicks DESC
+    LIMIT ${limit}
+  `;
+  return Response.json({
+    data: rows.map((r) =&gt; ({
+      redirectId: r.redirect_id,
+      ownerKind: r.owner_kind,
+      ownerId: r.owner_id,
+      targetUrl: r.target_url,
+      disabled: r.disabled,
+      clicks: Number(r.clicks),
+    })),
+  });
+}
+
+/* ---------- 运营 ---------- */
+
+export async function listRedirectsApi(ctx: AgentCtx): Promise&lt;Response&gt; {
+  const { page, pageSize, skip, take } = pageArgs(ctx.searchParams);
+  const [data, total] = await Promise.all([
+    prisma.redirect.findMany({
+      skip,
+      take,
+      orderBy: { createdAt: "desc" },
+      select: { id: true, ownerKind: true, ownerId: true, targetUrl: true, disabled: true, createdAt: true },
+    }),
+    prisma.redirect.count(),
+  ]);
+  return envelope(data, total, page, pageSize);
+}
+
+export async function listAuditLog(ctx: AgentCtx): Promise&lt;Response&gt; {
+  const { page, pageSize, skip, take } = pageArgs(ctx.searchParams);
+  const [data, total] = await Promise.all([
+    prisma.auditLogEntry.findMany({
+      skip,
+      take,
+      orderBy: { ts: "desc" },
+      select: { id: true, adminUserId: true, action: true, targetType: true, targetId: true, ts: true },
+    }),
+    prisma.auditLogEntry.count(),
+  ]);
+  return envelope(data, total, page, pageSize);
+}
+
+export async function listContactSubmissions(ctx: AgentCtx): Promise&lt;Response&gt; {
+  const { page, pageSize, skip, take } = pageArgs(ctx.searchParams);
+  const [data, total] = await Promise.all([
+    prisma.contactSubmission.findMany({
+      skip,
+      take,
+      orderBy: { createdAt: "desc" },
+      select: { id: true, email: true, name: true, subject: true, body: true, status: true, createdAt: true, repliedAt: true },
+    }),
+    prisma.contactSubmission.count(),
+  ]);
+  return envelope(data, total, page, pageSize);
+}
+
+export async function listAdmins(ctx: AgentCtx): Promise&lt;Response&gt; {
+  const { page, pageSize, skip, take } = pageArgs(ctx.searchParams);
+  const [data, total] = await Promise.all([
+    prisma.adminUser.findMany({
+      skip,
+      take,
+      orderBy: { createdAt: "desc" },
+      // 字段白名单:绝不含 passwordHash
+      select: { id: true, email: true, name: true, lastLoginAt: true },
+    }),
+    prisma.adminUser.count(),
+  ]);
+  return envelope(data, total, page, pageSize);
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 在 <code>apps/admin/lib/agent-api/manifest.ts</code> 的 <code>ENDPOINTS</code> 数组(内容条目之后、<code>]</code> 之前)追加</strong></li>
+</ul>
+<pre><code class="language-ts">  { path: "/api/agent/v1/analytics/clicks/daily", method: "GET", scope: "analytics:read", summary: "每日点击趋势", query: [{ name: "days", type: "int", desc: "回溯天数,默认7,上限90" }], exampleResponse: { data: [{ day: "2026-05-18", count: 12 }] }, handler: q.analyticsClicksDaily },
+  { path: "/api/agent/v1/analytics/redirects/top", method: "GET", scope: "analytics:read", summary: "热门 redirect", query: [{ name: "limit", type: "int", desc: "默认20,上限100" }], exampleResponse: { data: [] }, handler: q.analyticsTopRedirects },
+  { path: "/api/agent/v1/redirects", method: "GET", scope: "ops:redirects", summary: "redirect 列表(含 target)", exampleResponse: { data: [], page: 1, pageSize: 20, total: 0 }, handler: q.listRedirectsApi },
+  { path: "/api/agent/v1/audit-log", method: "GET", scope: "ops:audit", summary: "管理操作审计日志", exampleResponse: { data: [], page: 1, pageSize: 20, total: 0 }, handler: q.listAuditLog },
+  { path: "/api/agent/v1/contact-submissions", method: "GET", scope: "ops:contacts", summary: "联系表单提交(含 PII)", exampleResponse: { data: [], page: 1, pageSize: 20, total: 0 }, handler: q.listContactSubmissions },
+  { path: "/api/agent/v1/admins", method: "GET", scope: "ops:admins", summary: "管理员账号(无 passwordHash)", exampleResponse: { data: [{ id: "uuid", email: "[邮箱已脱敏]", name: null, lastLoginAt: null }], page: 1, pageSize: 20, total: 1 }, handler: q.listAdmins },
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 5: 跑测试确认通过 + typecheck</strong></li>
+</ul>
+<p>Run:</p>
+<pre><code class="language-bash">pnpm --filter @ghome/admin test queries-ops
+pnpm --filter @ghome/admin typecheck
+</code></pre>
+<p>Expected: PASS;typecheck 无错(<code>select</code> 字段若与 schema 不符,以真实列名修正)</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/lib/agent-api/queries.ts apps/admin/lib/agent-api/manifest.ts apps/admin/tests/queries-ops.test.ts
+git commit -m "feat(admin): analytics + ops endpoints (admins whitelist, denied logging)"
+</code></pre>
+<hr/>
+<h2 id="Task-12-AgentClient-DB-辅助">Task 12: AgentClient DB 辅助</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/admin/lib/agent-clients-db.ts</code>
+- Test: <code>apps/admin/tests/agent-clients-db.test.ts</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试 <code>apps/admin/tests/agent-clients-db.test.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { prisma } from "@ghome/db";
+import {
+  createAgentClient,
+  listAgentClients,
+  rotateAgentToken,
+  updateAgentClient,
+  deleteAgentClient,
+} from "@/lib/agent-clients-db";
+
+let adminId: string;
+
+beforeAll(async () =&gt; {
+  const a = await prisma.adminUser.create({
+    data: { email: `acdb-${Date.now()}@x.io`, [敏感内容已脱敏] },
+  });
+  adminId = a.id;
+});
+afterAll(async () =&gt; {
+  await prisma.agentClient.deleteMany({ where: { createdByAdminId: adminId } });
+  await prisma.adminUser.delete({ where: { id: adminId } });
+});
+
+describe("agent-clients-db", () =&gt; {
+  it("create returns raw token once and stores only hash", async () =&gt; {
+    const { rawToken, client } = await createAgentClient({
+      name: `acdb-${Date.now()}`,
+      scopes: ["content:published"],
+      createdByAdminId: adminId,
+    });
+    expect(rawToken).toMatch(/^ghagt_/);
+    const row = await prisma.agentClient.findUnique({ where: { id: client.id } });
+    expect(row?.tokenHash).not.toContain(rawToken);
+    expect(row?.scopes).toEqual(["content:published"]);
+  });
+
+  it("rejects invalid scope", async () =&gt; {
+    await expect(
+      createAgentClient({ name: `bad-${Date.now()}`, scopes: ["ops:secret"], createdByAdminId: adminId }),
+    ).rejects.toThrow();
+  });
+
+  it("rotate changes tokenHash, invalidates old", async () =&gt; {
+    const { client } = await createAgentClient({
+      name: `rot-${Date.now()}`,
+      scopes: ["content:published"],
+      createdByAdminId: adminId,
+    });
+    const before = (await prisma.agentClient.findUnique({ where: { id: client.id } }))!.tokenHash;
+    const { rawToken } = await rotateAgentToken(client.id);
+    const after = (await prisma.agentClient.findUnique({ where: { id: client.id } }))!.tokenHash;
+    expect(after).not.toBe(before);
+    expect(rawToken).toMatch(/^ghagt_/);
+  });
+
+  it("update toggles disabled / scopes; list returns it; delete removes", async () =&gt; {
+    const { client } = await createAgentClient({
+      name: `upd-${Date.now()}`,
+      scopes: ["content:published"],
+      createdByAdminId: adminId,
+    });
+    await updateAgentClient(client.id, { disabled: true, scopes: ["content:all"] });
+    const got = (await listAgentClients()).find((c) =&gt; c.id === client.id);
+    expect(got?.disabled).toBe(true);
+    expect(got?.scopes).toEqual(["content:all"]);
+    await deleteAgentClient(client.id);
+    expect(await prisma.agentClient.findUnique({ where: { id: client.id } })).toBeNull();
+  });
+});
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test agent-clients-db</code>
+Expected: FAIL（模块不存在）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 <code>apps/admin/lib/agent-clients-db.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { prisma } from "@ghome/db";
+import type { AgentClient } from "@ghome/db";
+import { generateToken, hashToken, tokenPrefix } from "./agent-api/token";
+import { isValidScope } from "./agent-api/scopes";
+
+function assertScopes(scopes: string[]) {
+  for (const s of scopes) {
+    if (!isValidScope(s)) throw new Error(`invalid scope: ${s}`);
+  }
+}
+
+export async function createAgentClient(input: {
+  name: string;
+  scopes: string[];
+  createdByAdminId: string;
+  expiresAt?: Date | null;
+  note?: string | null;
+}): Promise&lt;{ [敏感内容已脱敏]; client: AgentClient }&gt; {
+  assertScopes(input.scopes);
+  const [敏感内容已脱敏];
+  const client = await prisma.agentClient.create({
+    data: {
+      name: input.name,
+      [敏感内容已脱敏],
+      [敏感内容已脱敏],
+      scopes: input.scopes,
+      createdByAdminId: input.createdByAdminId,
+      expiresAt: input.expiresAt ?? null,
+      note: input.note ?? null,
+    },
+  });
+  return { rawToken, client };
+}
+
+export function listAgentClients(): Promise&lt;AgentClient[]&gt; {
+  return prisma.agentClient.findMany({ orderBy: { createdAt: "desc" } });
+}
+
+export function getAgentClient(id: string): Promise&lt;AgentClient | null&gt; {
+  return prisma.agentClient.findUnique({ where: { id } });
+}
+
+export async function rotateAgentToken(
+  id: string,
+): Promise&lt;{ [敏感内容已脱敏]; client: AgentClient }&gt; {
+  const [敏感内容已脱敏];
+  const client = await prisma.agentClient.update({
+    where: { id },
+    data: { [敏感内容已脱敏], [敏感内容已脱敏] },
+  });
+  return { rawToken, client };
+}
+
+export async function updateAgentClient(
+  id: string,
+  patch: { disabled?: boolean; scopes?: string[]; expiresAt?: Date | null; note?: string | null },
+): Promise&lt;AgentClient&gt; {
+  if (patch.scopes) assertScopes(patch.scopes);
+  return prisma.agentClient.update({ where: { id }, data: patch });
+}
+
+export async function deleteAgentClient(id: string): Promise&lt;void&gt; {
+  await prisma.agentAccessLog.deleteMany({ where: { agentClientId: id } });
+  await prisma.agentClient.delete({ where: { id } });
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin test agent-clients-db</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/lib/agent-clients-db.ts apps/admin/tests/agent-clients-db.test.ts
+git commit -m "feat(admin): AgentClient db helpers (create/list/rotate/update/delete)"
+</code></pre>
+<hr/>
+<h2 id="Task-13-Admin-UI-页面-server-actions-导航">Task 13: Admin UI 页面 + server actions + 导航</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/admin/app/(admin)/agent-clients/actions.ts</code>
+- Create: <code>apps/admin/app/(admin)/agent-clients/page.tsx</code>
+- Create: <code>apps/admin/app/(admin)/agent-clients/new/page.tsx</code>
+- Create: <code>apps/admin/app/(admin)/agent-clients/[id]/edit/page.tsx</code>
+- Create: <code>apps/admin/components/TokenRevealBanner.tsx</code>
+- Modify: <code>apps/admin/app/(admin)/layout.tsx</code>(侧边栏入口)</p>
+<blockquote>
+<p>实现前先 <code>Read</code> 一个现有同类页面作风格基准:<code>apps/admin/app/(admin)/redirects/page.tsx</code>、<code>apps/admin/app/(admin)/redirects/new/page.tsx</code>、<code>apps/admin/components/ListTable.tsx</code>、<code>apps/admin/lib/audit.ts</code>、<code>apps/admin/lib/auth.ts</code>(取 <code>session.user.adminUserId</code> 的方式)。匹配既有 server action + 表单写法,不引入新模式。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 1: 创建 <code>apps/admin/app/(admin)/agent-clients/actions.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { logAuditAction } from "@/lib/audit";
+import {
+  createAgentClient,
+  rotateAgentToken,
+  updateAgentClient,
+  deleteAgentClient,
+} from "@/lib/agent-clients-db";
+import { ALL_SCOPES } from "@/lib/agent-api/scopes";
+
+async function adminId(): Promise&lt;string&gt; {
+  const session = await auth();
+  const id = session?.user?.adminUserId;
+  if (!id) throw new Error("unauthorized");
+  return id;
+}
+
+function pickScopes(form: FormData): string[] {
+  return ALL_SCOPES.filter((s) =&gt; form.get(`scope:${s}`) === "on");
+}
+
+export async function createAction(form: FormData): Promise&lt;void&gt; {
+  const me = await adminId();
+  const name = String(form.get("name") ?? "").trim();
+  const note = String(form.get("note") ?? "").trim() || null;
+  const expRaw = String(form.get("expiresAt") ?? "").trim();
+  if (!name) throw new Error("name required");
+  const { rawToken, client } = await createAgentClient({
+    name,
+    scopes: pickScopes(form),
+    createdByAdminId: me,
+    expiresAt: expRaw ? new Date(expRaw) : null,
+    note,
+  });
+  await logAuditAction(me, "agentClient.create", "agentClient", client.id, {
+    after: { name: client.name, scopes: client.scopes },
+  });
+  revalidatePath("/agent-clients");
+  redirect(`/agent-clients/${client.id}/edit?敏感凭据：[已脱敏]
+}
+
+export async function rotateAction(id: string): Promise&lt;void&gt; {
+  const me = await adminId();
+  const { rawToken } = await rotateAgentToken(id);
+  await logAuditAction(me, "agentClient.rotate", "agentClient", id, { after: { rotated: true } });
+  revalidatePath(`/agent-clients/${id}/edit`);
+  redirect(`/agent-clients/${id}/edit?敏感凭据：[已脱敏]
+}
+
+export async function updateAction(id: string, form: FormData): Promise&lt;void&gt; {
+  const me = await adminId();
+  const disabled = form.get("disabled") === "on";
+  const expRaw = String(form.get("expiresAt") ?? "").trim();
+  const client = await updateAgentClient(id, {
+    disabled,
+    scopes: pickScopes(form),
+    expiresAt: expRaw ? new Date(expRaw) : null,
+    note: String(form.get("note") ?? "").trim() || null,
+  });
+  await logAuditAction(me, "agentClient.update", "agentClient", id, {
+    after: { disabled: client.disabled, scopes: client.scopes },
+  });
+  revalidatePath("/agent-clients");
+  redirect("/agent-clients");
+}
+
+export async function deleteAction(id: string): Promise&lt;void&gt; {
+  const me = await adminId();
+  await deleteAgentClient(id);
+  await logAuditAction(me, "agentClient.revoke", "agentClient", id, { after: { deleted: true } });
+  revalidatePath("/agent-clients");
+  redirect("/agent-clients");
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 创建 <code>apps/admin/components/TokenRevealBanner.tsx</code></strong></li>
+</ul>
+<pre><code class="language-tsx">"use client";
+
+import { useState } from "react";
+
+export function TokenRevealBanner({ token }: { 敏感凭据：[已脱敏] }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    &lt;div
+      style={{
+        border: "1px solid #c8860d",
+        background: "#fff8e6",
+        padding: "12px 16px",
+        borderRadius: 8,
+        margin: "16px 0",
+      }}
+    &gt;
+      &lt;strong&gt;授权码(仅此一次显示,关闭后不可再查看)&lt;/strong&gt;
+      &lt;pre style={{ userSelect: "all", margin: "8px 0", overflowX: "auto" }}&gt;{token}&lt;/pre&gt;
+      &lt;button
+        type="button"
+        onClick={() =&gt; {
+          navigator.clipboard.writeText(token).then(() =&gt; setCopied(true));
+        }}
+      &gt;
+        {copied ? "已复制" : "复制"}
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 3: 创建列表页 <code>apps/admin/app/(admin)/agent-clients/page.tsx</code></strong></li>
+</ul>
+<pre><code class="language-tsx">import Link from "next/link";
+import { listAgentClients } from "@/lib/agent-clients-db";
+
+export const dynamic = "force-dynamic";
+
+export default async function AgentClientsPage() {
+  const clients = await listAgentClients();
+  return (
+    &lt;div&gt;
+      &lt;div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}&gt;
+        &lt;h1&gt;Agent 接入&lt;/h1&gt;
+        &lt;Link href="/agent-clients/new"&gt;+ 新建&lt;/Link&gt;
+      &lt;/div&gt;
+      &lt;table style={{ width: "100%", marginTop: 16 }}&gt;
+        &lt;thead&gt;
+          &lt;tr&gt;
+            &lt;th&gt;名称&lt;/th&gt;&lt;th&gt;Token 前缀&lt;/th&gt;&lt;th&gt;Scopes&lt;/th&gt;&lt;th&gt;状态&lt;/th&gt;&lt;th&gt;最近使用&lt;/th&gt;&lt;th&gt;过期&lt;/th&gt;&lt;th&gt;&lt;/th&gt;
+          &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+          {clients.map((c) =&gt; (
+            &lt;tr key={c.id}&gt;
+              &lt;td&gt;{c.name}&lt;/td&gt;
+              &lt;td&gt;&lt;code&gt;{c.tokenPrefix}…&lt;/code&gt;&lt;/td&gt;
+              &lt;td&gt;{c.scopes.join(", ")}&lt;/td&gt;
+              &lt;td&gt;{c.disabled ? "已停用" : "启用"}&lt;/td&gt;
+              &lt;td&gt;{c.lastUsedAt ? c.lastUsedAt.toISOString().slice(0, 16) : "—"}&lt;/td&gt;
+              &lt;td&gt;{c.expiresAt ? c.expiresAt.toISOString().slice(0, 10) : "—"}&lt;/td&gt;
+              &lt;td&gt;&lt;Link href={`/agent-clients/${c.id}/edit`}&gt;编辑&lt;/Link&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+          ))}
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: 创建新建页 <code>apps/admin/app/(admin)/agent-clients/new/page.tsx</code></strong></li>
+</ul>
+<pre><code class="language-tsx">import { ALL_SCOPES } from "@/lib/agent-api/scopes";
+import { createAction } from "../actions";
+
+export default function NewAgentClientPage() {
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;新建 Agent&lt;/h1&gt;
+      &lt;form action={createAction}&gt;
+        &lt;p&gt;&lt;label&gt;名称 &lt;input name="name" required /&gt;&lt;/label&gt;&lt;/p&gt;
+        &lt;p&gt;&lt;label&gt;过期(可选) &lt;input name="expiresAt" type="date" /&gt;&lt;/label&gt;&lt;/p&gt;
+        &lt;p&gt;&lt;label&gt;备注 &lt;input name="note" /&gt;&lt;/label&gt;&lt;/p&gt;
+        &lt;fieldset&gt;
+          &lt;legend&gt;授权范围&lt;/legend&gt;
+          {ALL_SCOPES.map((s) =&gt; (
+            &lt;label key={s} style={{ display: "block" }}&gt;
+              &lt;input type="checkbox" name={`scope:${s}`} /&gt; {s}
+            &lt;/label&gt;
+          ))}
+        &lt;/fieldset&gt;
+        &lt;button type="submit"&gt;创建并生成授权码&lt;/button&gt;
+      &lt;/form&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 5: 创建编辑页 <code>apps/admin/app/(admin)/agent-clients/[id]/edit/page.tsx</code></strong></li>
+</ul>
+<pre><code class="language-tsx">import { notFound } from "next/navigation";
+import { ALL_SCOPES } from "@/lib/agent-api/scopes";
+import { getAgentClient } from "@/lib/agent-clients-db";
+import { TokenRevealBanner } from "@/components/TokenRevealBanner";
+import { updateAction, rotateAction, deleteAction } from "../../actions";
+
+export const dynamic = "force-dynamic";
+
+export default async function EditAgentClientPage({
+  params,
+  searchParams,
+}: {
+  params: Promise&lt;{ id: string }&gt;;
+  searchParams: Promise&lt;{ token?: string }&gt;;
+}) {
+  const { id } = await params;
+  const { token } = await searchParams;
+  const c = await getAgentClient(id);
+  if (!c) notFound();
+
+  const updateBound = updateAction.bind(null, id);
+  const rotateBound = rotateAction.bind(null, id);
+  const deleteBound = deleteAction.bind(null, id);
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;编辑 Agent — {c.name}&lt;/h1&gt;
+      {token ? &lt;TokenRevealBanner 敏感凭据：[已脱敏] /&gt; : null}
+
+      &lt;form action={updateBound}&gt;
+        &lt;p&gt;
+          &lt;label&gt;
+            &lt;input type="checkbox" name="disabled" defaultChecked={c.disabled} /&gt; 停用
+          &lt;/label&gt;
+        &lt;/p&gt;
+        &lt;p&gt;
+          &lt;label&gt;过期 &lt;input name="expiresAt" type="date" defaultValue={c.expiresAt ? c.expiresAt.toISOString().slice(0, 10) : ""} /&gt;&lt;/label&gt;
+        &lt;/p&gt;
+        &lt;p&gt;&lt;label&gt;备注 &lt;input name="note" defaultValue={c.note ?? ""} /&gt;&lt;/label&gt;&lt;/p&gt;
+        &lt;fieldset&gt;
+          &lt;legend&gt;授权范围&lt;/legend&gt;
+          {ALL_SCOPES.map((s) =&gt; (
+            &lt;label key={s} style={{ display: "block" }}&gt;
+              &lt;input type="checkbox" name={`scope:${s}`} defaultChecked={c.scopes.includes(s)} /&gt; {s}
+            &lt;/label&gt;
+          ))}
+        &lt;/fieldset&gt;
+        &lt;button type="submit"&gt;保存&lt;/button&gt;
+      &lt;/form&gt;
+
+      &lt;form action={rotateBound} style={{ marginTop: 16 }}&gt;
+        &lt;button type="submit"&gt;轮换授权码(旧码立即失效)&lt;/button&gt;
+      &lt;/form&gt;
+
+      &lt;form action={deleteBound} style={{ marginTop: 16 }}&gt;
+        &lt;button type="submit" style={{ color: "crimson" }}&gt;删除该 Agent&lt;/button&gt;
+      &lt;/form&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 6: 在 <code>apps/admin/app/(admin)/layout.tsx</code> 侧边栏加入口</strong></li>
+</ul>
+<p><code>Read</code> 该文件,找到现有导航链接列表(如指向 <code>/redirects</code> / <code>/audit-log</code> 的 <code>&lt;Link&gt;</code> 组),仿照同一写法新增一条:</p>
+<pre><code class="language-tsx">&lt;Link href="/agent-clients"&gt;Agent 接入&lt;/Link&gt;
+</code></pre>
+<p>（位置:放在 <code>审计日志 / audit-log</code> 链接之后,保持与既有项相同的标签/className。）</p>
+<ul>
+<li>[ ] <strong>Step 7: typecheck + 构建验证</strong></li>
+</ul>
+<p>Run:</p>
+<pre><code class="language-bash">pnpm --filter @ghome/admin typecheck
+pnpm --filter @ghome/admin build
+</code></pre>
+<p>Expected: 均无错误</p>
+<ul>
+<li>[ ] <strong>Step 8: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/app/\(admin\)/agent-clients apps/admin/components/TokenRevealBanner.tsx apps/admin/app/\(admin\)/layout.tsx
+git commit -m "feat(admin): agent-clients management UI (issue/rotate/revoke + one-time token reveal)"
+</code></pre>
+<hr/>
+<h2 id="Task-14-E2E-签发-展示-拉取-吊销">Task 14: E2E — 签发→展示→拉取→吊销</h2>
+<p><strong>Files:</strong>
+- Create: <code>apps/admin/playwright.config.ts</code>(若不存在;镜像 <code>apps/web/playwright.config.ts</code>,<code>PORT=3100</code>)
+- Create: <code>apps/admin/e2e/agent-clients.spec.ts</code>
+- Modify: <code>apps/admin/package.json</code>(加 <code>"e2e": "playwright test"</code> 脚本 + <code>@playwright/test</code> devDep,若缺)
+- Modify: <code>.github/workflows/ci.yml</code>(可选:加 admin e2e 步骤,与 web e2e 同段)</p>
+<blockquote>
+<p>先 <code>Read</code> <code>apps/web/playwright.config.ts</code> 作模板;admin 端口 3100;<code>webServer</code> 命令用 <code>pnpm --filter @ghome/admin dev</code>。登录态:E2E 里先走 <code>/signin</code> 用种子管理员账号(见 <code>packages/db/seed/data/admin-users.ts</code> 的 email/明文口令)登入,再操作。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 1: 写 E2E <code>apps/admin/e2e/agent-clients.spec.ts</code></strong></li>
+</ul>
+<pre><code class="language-ts">import { test, expect } from "@playwright/test";
+
+// 种子管理员凭据(见 packages/db/seed/data/admin-users.ts)
+const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL ?? "[邮箱已脱敏]";
+const [敏感内容已脱敏] ?? "admin12345";
+const BASE = process.env.ADMIN_BASE_URL ?? "http://localhost:3100";
+
+test("issue → reveal once → pull data → revoke → 401", async ({ page, request }) =&gt; {
+  await page.goto(`${BASE}/signin`);
+  await page.getByLabel(/邮箱|email/i).fill(ADMIN_EMAIL);
+  await page.getByLabel(/密码|password/i).fill(ADMIN_PASSWORD);
+  await page.getByRole("button", { name: /登录|sign in/i }).click();
+
+  await page.goto(`${BASE}/agent-clients/new`);
+  const name = `e2e-${Date.now()}`;
+  await page.getByLabel("名称").fill(name);
+  await page.getByText("content:published").click();
+  await page.getByRole("button", { name: /创建并生成授权码/ }).click();
+
+  const [敏感内容已脱敏] page.locator("pre").first().innerText();
+  expect(tokenText).toMatch(/^ghagt_/);
+
+  // 用授权码拉数据 → 200
+  const ok = await request.get(`${BASE}/api/agent/v1/apps`, {
+    headers: { authorization: `Bearer ${tokenText}` },
+  });
+  expect(ok.status()).toBe(200);
+
+  // 删除该 Agent → 同一 token 立即 401
+  await page.getByRole("button", { name: /删除该 Agent/ }).click();
+  const dead = await request.get(`${BASE}/api/agent/v1/apps`, {
+    headers: { authorization: `Bearer ${tokenText}` },
+  });
+  expect(dead.status()).toBe(401);
+});
+</code></pre>
+<blockquote>
+<p>种子管理员的真实 email/口令以 <code>packages/db/seed/data/admin-users.ts</code> 为准;<code>Read</code> 该文件后把上面默认值替换为真实值(或通过 <code>E2E_ADMIN_EMAIL</code>/<code>E2E_ADMIN_PASSWORD</code> env 注入)。<code>getByLabel</code> 的文案以 <code>apps/admin/app/(auth)/signin/page.tsx</code> 实际标签为准。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 2: 跑 E2E(本地需先 <code>docker compose up -d</code> 并已 seed)</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin exec playwright test</code>
+Expected: 1 passed</p>
+<ul>
+<li>[ ] <strong>Step 3: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/e2e apps/admin/playwright.config.ts apps/admin/package.json pnpm-lock.yaml .github/workflows/ci.yml
+git commit -m "test(admin): e2e — issue/reveal/pull/revoke agent token"
+</code></pre>
+<hr/>
+<h2 id="Final-全量验证">Final: 全量验证</h2>
+<ul>
+<li>[ ] <strong>Step 1: 全套测试 + 构建</strong></li>
+</ul>
+<p>Run:</p>
+<pre><code class="language-bash">pnpm --filter @ghome/db test
+pnpm --filter @ghome/admin test
+pnpm --filter @ghome/admin typecheck
+pnpm --filter @ghome/admin build
+pnpm lint
+</code></pre>
+<p>Expected: 全绿</p>
+<ul>
+<li>[ ] <strong>Step 2: 手工冒烟(本地 <code>docker compose up -d</code> 后)</strong></li>
+</ul>
+<pre><code class="language-bash"># 在 admin UI 新建一个带 content:published + ops:contacts 的 Agent,复制 token
+敏感凭据：[已脱敏]
+curl -s -H "Authorization: Bearer $TOKEN" http://localhost:3100/api/agent/v1/skill.md | head -40
+curl -s -H "Authorization: Bearer $TOKEN" "http://localhost:3100/api/agent/v1/apps?pageSize=2" | jq .
+curl -s -o /dev/null -w "%{http_code}\n" -H "Authorization: Bearer $TOKEN" http://localhost:3100/api/agent/v1/audit-log   # 期望 403(无 ops:audit)
+</code></pre>
+<p>Expected: skill.md 含 apps 与 contact-submissions、不含 audit-log;apps 返回信封;audit-log 返回 403。</p>
+<hr/>
+<h2 id="Self-Review-规划者已执行">Self-Review(规划者已执行)</h2>
+<ul>
+<li><strong>Spec 覆盖</strong>:§2 数据模型→Task1;§3 scopes→Task3;§4 manifest→Task5/8/11;§5 鉴权→Task6+Task9;§6 端点清单→Task8(内容)+Task11(分析/运营);§7 响应约定→Task7;§8 Skill.md→Task10;§9 Admin UI→Task13;§10 安全→Task6/11(白名单、denied 日志);§11 测试→各 Task TDD + Task14 E2E;§12 分阶段→A1/A2/A3/A5 对应。<strong>A4(Skill.md)并入 A2 的 Task10</strong>(dispatcher 需要它),已在阶段标题注明。</li>
+<li><strong>占位符扫描</strong>:无 TODO/TBD;每步含完整代码与命令;<code>select</code> 字段处给出"以 schema 真实列名为准"的明确兜底,非占位。</li>
+<li><strong>类型一致性</strong>:<code>AgentScope</code>/<code>ALL_SCOPES</code>/<code>isValidScope</code>、<code>generateToken</code>/<code>hashToken</code>/<code>tokenPrefix</code>、<code>AgentCtx</code>/<code>AgentEndpoint</code>/<code>ENDPOINTS</code>/<code>matchEndpoint</code>、<code>resolveAgentClient</code>/<code>AuthResult</code>/<code>logAccess</code>/<code>touchLastUsed</code>、<code>pageArgs</code>/<code>statusFilter</code>/<code>envelope</code>/<code>jsonError</code>、<code>renderSkillMd</code>、<code>createAgentClient</code>/<code>listAgentClients</code>/<code>getAgentClient</code>/<code>rotateAgentToken</code>/<code>updateAgentClient</code>/<code>deleteAgentClient</code> 跨任务签名一致。</li>
+<li><strong>已知留待实现期确认</strong>:各 <code>prisma.*.findMany({ select })</code> 的字段名需对照 <code>schema.prisma</code> 真实列(App/Video/Guide/Collection/Redirect/ContactSubmission);种子管理员凭据与 signin 表单标签文案以源码为准。这些在对应 Step 已显式标注校正动作。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#File-Structure">File Structure</a></li><li style="margin-left:0.0rem"><a href="#Task-1-Prisma-模型-迁移">Task 1: Prisma 模型 + 迁移</a></li><li style="margin-left:0.0rem"><a href="#Task-2-admin-vitest-基建-CI-步骤">Task 2: admin vitest 基建 + CI 步骤</a></li><li style="margin-left:0.0rem"><a href="#Task-3-scopes-ts">Task 3: scopes.ts</a></li><li style="margin-left:0.0rem"><a href="#Task-4-token-ts">Task 4: token.ts</a></li><li style="margin-left:0.0rem"><a href="#Task-5-manifest-类型-matchEndpoint">Task 5: manifest 类型 + matchEndpoint</a></li><li style="margin-left:0.0rem"><a href="#Task-6-鉴权解析-访问日志">Task 6: 鉴权解析 + 访问日志</a></li><li style="margin-left:0.0rem"><a href="#Task-7-HTTP-辅助-分页-信封-状态门控-错误">Task 7: HTTP 辅助(分页 / 信封 / 状态门控 / 错误)</a></li><li style="margin-left:0.0rem"><a href="#Task-8-内容资源-handler-manifest-条目">Task 8: 内容资源 handler + manifest 条目</a></li><li style="margin-left:0.0rem"><a href="#Task-9-dispatcher-route-集成测试">Task 9: dispatcher route + 集成测试</a></li><li style="margin-left:0.0rem"><a href="#Task-10-Skill-md-生成器">Task 10: Skill.md 生成器</a></li><li style="margin-left:0.0rem"><a href="#Task-11-分析-运营-handler-manifest-条目">Task 11: 分析/运营 handler + manifest 条目</a></li><li style="margin-left:0.0rem"><a href="#Task-12-AgentClient-DB-辅助">Task 12: AgentClient DB 辅助</a></li><li style="margin-left:0.0rem"><a href="#Task-13-Admin-UI-页面-server-actions-导航">Task 13: Admin UI 页面 + server actions + 导航</a></li><li style="margin-left:0.0rem"><a href="#Task-14-E2E-签发-展示-拉取-吊销">Task 14: E2E — 签发→展示→拉取→吊销</a></li><li style="margin-left:0.0rem"><a href="#Final-全量验证">Final: 全量验证</a></li><li style="margin-left:0.0rem"><a href="#Self-Review-规划者已执行">Self-Review(规划者已执行)</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / GHOME</li>
+          <li>日期：2026-05-18</li>
+          <li>标签：<span class="tag">GHOME</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-18-admin-agent-data-api.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605180000-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BShell-Admin%20Agent%20%E6%95%B0%E6%8D%AE%E6%8E%A5%E5%85%A5%20API%20Implementation%20Plan.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Admin Agent 数据接入 API Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended…</p>
+      <p>关键词：GHOME、Shell、Docker、故障排查、数据库恢复、源码与配置、业务系统运维、业务系统运维 / GHOME、Admin Agent 数据接入 API Implementation Plan</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ea05e325ad48.html"><small>上一篇</small>Ghome P9.6 · 原型像素级对齐 Implementation Plan</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-44264fdaa88b.html"><small>下一篇</small>Admin Agent 数据接入 API 设计</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-85dcf312c72e.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

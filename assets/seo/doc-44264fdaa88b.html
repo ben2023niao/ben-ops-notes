@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Admin Agent 数据接入 API 设计｜业务系统运维 / GHOME｜BEN.OPS</title>
+  <meta name="description" content="Admin Agent 数据接入 API 设计。本文属于业务系统运维 / GHOME，状态:待评审 · 日期:2026-05-18 · 范围: apps/admin 关联: 产品形态与架构 、 CLAUDE.md Admin 后台需要对 OpenClaw Hermes 以及其它自研 Agent 开放数据访问。Ag…">
+  <meta name="keywords" content="GHOME，Shell，自动化，安全运维，故障排查，源码与配置，业务系统运维，业务系统运维 / GHOME，Admin Agent 数据接入 API 设计">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-44264fdaa88b.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-44264fdaa88b.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605180000-GHOME%2BShell%2B%E8%87%AA%E5%8A%A8%E5%8C%96-Admin%20Agent%20%E6%95%B0%E6%8D%AE%E6%8E%A5%E5%85%A5%20API%20%E8%AE%BE%E8%AE%A1.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Admin Agent 数据接入 API 设计">
+  <meta property="og:description" content="Admin Agent 数据接入 API 设计。本文属于业务系统运维 / GHOME，状态:待评审 · 日期:2026-05-18 · 范围: apps/admin 关联: 产品形态与架构 、 CLAUDE.md Admin 后台需要对 OpenClaw Hermes 以及其它自研 Agent 开放数据访问。Ag…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-44264fdaa88b.html">
+  <meta property="article:published_time" content="2026-05-18T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-18 00:00">
+  <meta property="article:section" content="业务系统运维 / GHOME">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Admin Agent 数据接入 API 设计">
+  <meta name="twitter:description" content="Admin Agent 数据接入 API 设计。本文属于业务系统运维 / GHOME，状态:待评审 · 日期:2026-05-18 · 范围: apps/admin 关联: 产品形态与架构 、 CLAUDE.md Admin 后台需要对 OpenClaw Hermes 以及其它自研 Agent 开放数据访问。Ag…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-44264fdaa88b.html#article","headline":"Admin Agent 数据接入 API 设计","description":"Admin Agent 数据接入 API 设计。本文属于业务系统运维 / GHOME，状态:待评审 · 日期:2026-05-18 · 范围: apps/admin 关联: 产品形态与架构 、 CLAUDE.md Admin 后台需要对 OpenClaw Hermes 以及其它自研 Agent 开放数据访问。Ag…","datePublished":"2026-05-18T00:00:00+08:00","dateModified":"2026-05-18 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","GHOME"],"keywords":["GHOME","Shell","自动化","安全运维","故障排查","源码与配置","业务系统运维","业务系统运维 / GHOME","Admin Agent 数据接入 API 设计"],"wordCount":2352,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-44264fdaa88b.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-44264fdaa88b.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / GHOME","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Admin Agent 数据接入 API 设计","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-44264fdaa88b.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / GHOME</span> › <span>Admin Agent 数据接入 API 设计</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / GHOME</div>
+      <h1>Admin Agent 数据接入 API 设计</h1>
+      <p class="lede">Admin Agent 数据接入 API 设计。本文属于业务系统运维 / GHOME，状态:待评审 · 日期:2026-05-18 · 范围: apps/admin 关联: 产品形态与架构 、 CLAUDE.md Admin 后台需要对 OpenClaw Hermes 以及其它自研 Agent 开放数据访问。Ag…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-18T00:00:00+08:00">发布于 2026-05-18</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,352 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/ghome/docs/superpowers/specs/2026-05-18-admin-agent-data-api-design.md</code></p>
+<p>整理日期：2026-05-18 00:00｜日期依据：文件名日期</p>
+<p>状态:待评审 · 日期:2026-05-18 · 范围:<code>apps/admin</code>
+关联:<a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/2026-05-08-ghome-product-shape-design.md" rel="noopener noreferrer">产品形态与架构</a>、<a href="https://ben2023niao.github.io/CLAUDE.md" rel="noopener noreferrer">CLAUDE.md</a></p>
+</blockquote>
+<h2 id="0-背景与目标">0. 背景与目标</h2>
+<p>Admin 后台需要对 <strong>OpenClaw Hermes 以及其它自研 Agent</strong> 开放数据访问。Agent 通过一个授权码(token)鉴权,在线拉取一份按其授权范围个性化的 <code>Skill.md</code>(类 superpowers SKILL.md,教 Agent 如何鉴权与调用),再以该 token 调用只读 JSON API 拉取数据。</p>
+<p><strong>确认的核心约束</strong></p>
+<ul>
+<li><strong>只读</strong>:Agent 仅能 <code>GET</code>,不可改动任何数据。</li>
+<li><strong>落在 admin app 内</strong>:复用 <code>apps/admin</code> 既有 prisma / audit / middleware / <code>lib/db.ts</code>,不新起服务。</li>
+<li><strong>每 Agent 独立授权码 + 范围 + 可吊销</strong>:新增 <code>AgentClient</code> 表 + admin 管理 UI。</li>
+<li><strong>manifest 驱动</strong>:端点路由、scope 校验、Skill.md 生成共用同一份 manifest,杜绝文档与实现漂移。</li>
+<li><strong>数据范围全开但按 scope 分级</strong>:已发布内容 / 全状态内容 / 点击分析 / 运营敏感(redirect / 审计 / 联系表单 PII / 管理员账号)均可经显式 scope 开放。</li>
+</ul>
+<p><strong>默认决策(评审时可推翻)</strong></p>
+<ul>
+<li><strong>MVP 不做硬限流</strong>:对象是可信自研 Agent;仅靠 <code>pageSize ≤ 100</code> 兜底,限流列入"未来"。评审时若要求敏感数据必须带限流,升为 MVP 项。</li>
+</ul>
+<h2 id="1-整体架构">1. 整体架构</h2>
+<pre><code>Agent (OpenClaw Hermes / 自研)
+  │  Authorization: Bearer ghagt_xxx
+  ▼
+apps/admin/app/api/agent/v1/[[...slug]]/route.ts   单一 catch-all dispatcher
+  │  ① withAgentAuth(token): 查 AgentClient → 校验 disabled / expiresAt
+  │  ② 按 pathname+method 命中 manifest 条目 → 校验 entry.scope ∈ client.scopes
+  │  ③ 写审计 (agent.pull / agent.denied)
+  ▼
+manifest[entry].handler → 复用 lib/db.ts 查询 → JSON 信封
+另一条:GET /api/agent/v1/skill.md → 遍历 manifest 按 client.scopes 过滤 → 个性化 Markdown
+</code></pre>
+<p>新增文件集中在 <code>apps/admin/lib/agent-api/</code> 与 <code>apps/admin/app/api/agent/v1/</code>,加一支 Prisma 迁移与一组 admin UI 页面。</p>
+<h2 id="2-数据模型">2. 数据模型</h2>
+<p>新增 Prisma model（Postgres）：</p>
+<pre><code class="language-prisma">model AgentClient {
+  id               String   @id @default(uuid()) @db.Uuid
+  name             String   @unique
+  tokenPrefix      String   @map("token_prefix")
+  tokenHash        String   @unique @map("token_hash")
+  scopes           String[] // 见 §3 scope 枚举
+  disabled         Boolean  @default(false)
+  expiresAt        DateTime? @map("expires_at") @db.Timestamptz(6)
+  lastUsedAt       DateTime? @map("last_used_at") @db.Timestamptz(6)
+  note             String?
+  createdByAdminId String   @map("created_by_admin_id") @db.Uuid
+  createdBy        AdminUser @relation(fields: [createdByAdminId], references: [id])
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([tokenPrefix])
+  @@map("agent_clients")
+}
+</code></pre>
+<p>Agent 访问日志单独建表(现有 <code>audit_log.admin_user_id</code> 非空、专记有管理员身份的操作;Agent 拉取无管理员身份,量级与性质不同,分表):</p>
+<pre><code class="language-prisma">model AgentAccessLog {
+  id            String   @id @default(uuid()) @db.Uuid
+  agentClientId String   @map("agent_client_id") @db.Uuid
+  client        AgentClient @relation(fields: [agentClientId], references: [id])
+  endpoint      String   // 命中的 manifest path,如 "/api/agent/v1/contact-submissions"
+  status        String   // "ok" | "denied"
+  ts            DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([agentClientId, ts(sort: Desc)])
+  @@map("agent_access_log")
+}
+</code></pre>
+<ul>
+<li><code>AgentClient</code> 反向加 <code>accessLogs AgentAccessLog[]</code>;<code>AdminUser</code> 反向加 <code>agentClients AgentClient[]</code>。</li>
+<li>原始 token 永不入库:仅存 <code>tokenPrefix</code>(前 8 位,用于 UI/日志辨识)与 `[敏感内容已脱敏] 十六进制。</li>
+<li>迁移名:<code>&lt;timestamp&gt;_agent_clients</code>(随 P10a 之后顺延),一支迁移同时建两张表。</li>
+</ul>
+<h2 id="3-Scope-枚举">3. Scope 枚举</h2>
+<p>TS 联合常量（<code>apps/admin/lib/agent-api/scopes.ts</code>），非 DB enum，便于演进；manifest 与签发校验均引用：</p>
+<table>
+<thead>
+<tr>
+<th>scope</th>
+<th>解锁数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>content:published</code></td>
+<td>已发布 App/视频/指南/专题/榜单/专辑/分类/标签</td>
+</tr>
+<tr>
+<td><code>content:all</code></td>
+<td>同上但含 draft/archived 全状态（解锁 <code>?status=</code>）</td>
+</tr>
+<tr>
+<td><code>analytics:read</code></td>
+<td>每日点击趋势 / 热门 redirect 聚合（无原始 IP/UA/referrer）</td>
+</tr>
+<tr>
+<td><code>ops:redirects</code></td>
+<td>redirect 列表与 target</td>
+</tr>
+<tr>
+<td><code>ops:audit</code></td>
+<td>审计日志</td>
+</tr>
+<tr>
+<td><code>ops:contacts</code></td>
+<td>联系表单提交（<strong>含用户 PII</strong>，最敏感）</td>
+</tr>
+<tr>
+<td><code>ops:admins</code></td>
+<td>管理员账号列表（字段白名单：id/email/name/lastLoginAt，<strong>绝不含 passwordHash</strong>）</td>
+</tr>
+</tbody>
+</table>
+<p>签发时校验所选 scopes 全部 ∈ 该枚举，否则 400。</p>
+<h2 id="4-Manifest">4. Manifest</h2>
+<p><code>apps/admin/lib/agent-api/manifest.ts</code> 导出一个数组，每端点一条：</p>
+<pre><code class="language-ts">interface AgentEndpoint {
+  path: string;                 // "/api/agent/v1/apps" 或 "/api/agent/v1/apps/:slug"
+  method: "GET";
+  scope: AgentScope;            // 该端点要求的 scope
+  summary: string;              // Skill.md 用
+  query?: { name: string; type: string; desc: string }[];
+  exampleResponse: unknown;     // Skill.md 里展示的小样本
+  handler: (ctx: AgentCtx) =&gt; Promise&lt;Response&gt;;
+}
+</code></pre>
+<p><code>AgentCtx</code> = <code>{ req, params, client }</code>。dispatcher、scope 校验、Skill.md 生成全部读这一份数组——这是方案 B 的核心:端点 ↔ 文档 ↔ scope 校验三者同源。</p>
+<h2 id="5-鉴权流程">5. 鉴权流程</h2>
+<p><strong>Token 形态与签发</strong></p>
+<ul>
+<li>格式 <code>ghagt_</code> + 32 字节随机（base62），≥256 bit 熵。</li>
+<li>签发：服务端生成原始 token → 存 <code>tokenPrefix</code> + `[敏感内容已脱敏] → 页面<strong>仅此一次</strong>明文回显（复制按钮 + “关闭后不再显示”警告）。</li>
+</ul>
+<p><strong><code>withAgentAuth(requiredScope)</code></strong>（<code>apps/admin/lib/agent-api/auth.ts</code>），按序：</p>
+<ol>
+<li>取 <code>Authorization: Bearer ghagt_...</code>；缺失 → <code>401 unauthorized</code></li>
+<li><code>sha256</code> → 按 <code>tokenHash</code> 唯一索引查 <code>AgentClient</code>；未命中 → <code>401 unauthorized</code></li>
+<li><code>disabled=true</code> → <code>401 token_revoked</code>；<code>expiresAt</code> 已过 → <code>401 token_expired</code></li>
+<li><code>requiredScope ∉ client.scopes</code> → <code>403 forbidden</code></li>
+<li>放行；<code>lastUsedAt</code> 节流更新（距上次 &gt;60s 才写）</li>
+<li>写访问日志到 <code>AgentAccessLog</code>:成功 <code>status="ok"</code>;被拒且端点 scope 属 <code>ops:*</code> 写 <code>status="denied"</code>。记 <code>agentClientId</code> + <code>endpoint</code>(fire-and-forget,不阻塞响应)。<strong>不复用 <code>logAuditAction</code></strong>(那张表 actor 必须是管理员)</li>
+</ol>
+<p><strong>middleware 改动</strong>:<a href="https://ben2023niao.github.io/apps/admin/middleware.ts" rel="noopener noreferrer">apps/admin/middleware.ts</a> 公开路径白名单增加 <code>pathname.startsWith("/api/agent/")</code>,与既有 <code>/api/cron/</code> 同样绕过 session 重定向（鉴权在 handler 内完成）。</p>
+<h2 id="6-API-端点清单">6. API 端点清单</h2>
+<p>全部 <code>GET</code>，前缀 <code>/api/agent/v1</code>：</p>
+<table>
+<thead>
+<tr>
+<th>端点</th>
+<th>scope</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/skill.md</code></td>
+<td>任一有效 token</td>
+<td>个性化技能文档（§8）</td>
+</tr>
+<tr>
+<td><code>/apps</code> <code>/apps/:slug</code></td>
+<td><code>content:published</code>（持 <code>content:all</code> 解锁 <code>?status=</code>）</td>
+<td>App 列表/详情</td>
+</tr>
+<tr>
+<td><code>/videos</code> <code>/videos/:slug</code></td>
+<td>同上</td>
+<td>视频</td>
+</tr>
+<tr>
+<td><code>/guides</code> <code>/guides/:slug</code></td>
+<td>同上</td>
+<td>指南</td>
+</tr>
+<tr>
+<td><code>/topics</code> <code>/topics/:slug</code> <code>/albums</code> <code>/albums/:slug</code> <code>/rankings</code></td>
+<td>同上</td>
+<td>collections 三类</td>
+</tr>
+<tr>
+<td><code>/categories</code> <code>/tags</code></td>
+<td><code>content:published</code></td>
+<td>分类/标签全集</td>
+</tr>
+<tr>
+<td><code>/analytics/clicks/daily?days=7</code></td>
+<td><code>analytics:read</code></td>
+<td>每日点击趋势（days ≤ 90）</td>
+</tr>
+<tr>
+<td><code>/analytics/redirects/top?limit=20</code></td>
+<td><code>analytics:read</code></td>
+<td>热门 redirect（limit ≤ 100）</td>
+</tr>
+<tr>
+<td><code>/redirects</code></td>
+<td><code>ops:redirects</code></td>
+<td>redirect 列表+target（复用已修的 <code>listRedirects</code>）</td>
+</tr>
+<tr>
+<td><code>/audit-log</code></td>
+<td><code>ops:audit</code></td>
+<td>审计日志</td>
+</tr>
+<tr>
+<td><code>/contact-submissions</code></td>
+<td><code>ops:contacts</code></td>
+<td>联系表单（含 PII）</td>
+</tr>
+<tr>
+<td><code>/admins</code></td>
+<td><code>ops:admins</code></td>
+<td>管理员列表,字段白名单 id/email/name/lastLoginAt</td>
+</tr>
+</tbody>
+</table>
+<h2 id="7-响应约定">7. 响应约定</h2>
+<ul>
+<li>JSON，字段 camelCase；复用 <a href="https://ben2023niao.github.io/apps/admin/lib/db.ts" rel="noopener noreferrer">apps/admin/lib/db.ts</a> / <a href="https://ben2023niao.github.io/apps/web/lib/db.ts" rel="noopener noreferrer">apps/web/lib/db.ts</a> 既有 mapper，不另写查询逻辑。</li>
+<li>列表统一信封:<code>{ data: [...], page, pageSize, total }</code>。<strong>offset 分页</strong>:<code>?page=1&amp;pageSize=20</code>，<code>pageSize</code> 上限 100，越界归一到 100。</li>
+<li>状态过滤:端点默认 <code>status=published AND deletedAt IS NULL</code>;仅当 token 持 <code>content:all</code> 时 <code>?status=draft|archived|all</code> 生效，否则<strong>静默忽略</strong>该参数（不报错，防越权探测）。</li>
+<li>错误体统一 <code>{ error: &lt;code&gt; }</code>:<code>401</code>（token 缺失/无效/吊销/过期）、<code>403</code>（有 token 缺 scope）、<code>404</code>（未知端点）、<code>400</code>（非法 query）。</li>
+<li>不开 CORS（纯服务端到服务端）。</li>
+</ul>
+<h2 id="8-Skill-md-生成器">8. Skill.md 生成器</h2>
+<p><code>apps/admin/lib/agent-api/skill-md.ts</code>；<code>GET /api/agent/v1/skill.md</code> 走同一 <code>withAgentAuth</code>（无需特定 scope，任一有效 token 即可），返回 <code>text/markdown</code>：</p>
+<ul>
+<li>遍历 manifest，<strong>仅渲染 <code>entry.scope ∈ client.scopes</code> 的端点</strong>。</li>
+<li>产出标准 superpowers 风格 SKILL.md：frontmatter（<code>name: ghome-admin-data</code> / <code>description</code>）、鉴权说明（如何带 Bearer）、base URL、按 scope 分组的端点表（path / 用途 / query / <code>exampleResponse</code>）、分页与错误码约定。</li>
+<li>个性化:无 <code>ops:contacts</code> 的 Agent 看不到该端点存在,开箱即用且不泄露未授权面。</li>
+</ul>
+<h2 id="9-Admin-管理-UI">9. Admin 管理 UI</h2>
+<p>侧边栏新增「Agent 接入」，路由 <code>apps/admin/app/(admin)/agent-clients/</code>：</p>
+<ul>
+<li><strong>列表页</strong>:name / tokenPrefix / scopes / 状态 / lastUsedAt / expiresAt（复用 <code>ListTable</code>）。</li>
+<li><strong>新建页</strong>:name + scope 多选勾选 + 可选过期 + 备注 → 提交后<strong>一次性</strong>明文展示 token（复用一次性展示 UI 模式）。<em>(已废弃:手工新建入口已移除,Agent 仅经自助配对进入——见自助配对附录)</em></li>
+<li><strong>编辑页</strong>:停用/启用、增删 scope、<strong>轮换 token</strong>（生成新、旧立废）、改过期、删除。</li>
+<li>全部写操作走 <code>logAuditAction</code>，action 形如 <code>agentClient.create/rotate/revoke/update</code>。</li>
+</ul>
+<h2 id="10-安全">10. 安全</h2>
+<ul>
+<li>token 仅以 sha256 入库，按 hash 唯一索引查（无明文比较）。</li>
+<li><code>ops:admins</code> 字段白名单硬编码,<code>passwordHash</code> 不进序列化路径;<code>ops:contacts</code> 仅在显式 scope 下可达。</li>
+<li>成功拉取 + <code>ops:*</code> 被拒尝试均落 <code>AgentAccessLog</code>（含 agentClientId / endpoint / status），便于事后追溯。</li>
+<li>admin UI 的签发/吊销/轮换等写操作仍走 <code>logAuditAction</code>（有管理员身份）。</li>
+<li><code>expiresAt</code> / <code>disabled</code> 即时生效;轮换即旧 token 立废。</li>
+<li>限流:MVP 不做（见 §0 默认决策）;<code>pageSize ≤ 100</code> 兜底。</li>
+</ul>
+<h2 id="11-测试策略">11. 测试策略</h2>
+<p>vitest 为主，沿用各包现有配置：</p>
+<ul>
+<li><strong>单元</strong>:token 生成/校验、scope 判定、manifest→Skill.md 渲染、<code>content:all</code> 状态门控。</li>
+<li><strong>集成</strong>:每端点 无 token→401 / 错 scope→403 / disabled·expired→401 / published-only vs content:all 行为差异 / <code>/admins</code> 响应不含 <code>passwordHash</code>（显式断言)。</li>
+<li><strong>访问日志</strong>:断言拉取写 <code>AgentAccessLog</code> status=ok 行、<code>ops:*</code> 被拒写 status=denied 行。</li>
+<li><strong>E2E</strong>（Playwright，admin）:签发 → token 一次性展示 → 用该 token 拉一个端点 → 吊销 → 该 token 立即 401。</li>
+</ul>
+<h2 id="12-分阶段切片">12. 分阶段切片</h2>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>内容</th>
+<th>完成判据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A1 · 数据模型 + 鉴权内核</strong></td>
+<td><code>AgentClient</code> + <code>AgentAccessLog</code> 迁移 + scopes 常量 + <code>withAgentAuth</code> + middleware 放行</td>
+<td>单元测试:token 生成/校验/scope 判定通过;手工 curl 带/不带 token 命中 401/403</td>
+</tr>
+<tr>
+<td><strong>A2 · Manifest + dispatcher + 内容端点</strong></td>
+<td>manifest 抽象 + catch-all dispatcher + content/categories/tags 端点</td>
+<td>持 <code>content:published</code> token 能拉 apps/videos/...;<code>content:all</code> 解锁 <code>?status=</code></td>
+</tr>
+<tr>
+<td><strong>A3 · 分析 + 运营端点</strong></td>
+<td>analytics / redirects / audit-log / contact-submissions / admins 端点</td>
+<td>各端点 scope 门控正确;<code>/admins</code> 无 passwordHash;<code>ops:*</code> 被拒写 <code>AgentAccessLog</code> status=denied</td>
+</tr>
+<tr>
+<td><strong>A4 · Skill.md 生成器</strong></td>
+<td>manifest→个性化 Markdown</td>
+<td>不同 scope token 拉到的 skill.md 端点集不同;无 scope 的端点不出现</td>
+</tr>
+<tr>
+<td><strong>A5 · Admin 管理 UI</strong></td>
+<td>agent-clients 列表/新建/编辑/轮换/吊销 + 审计</td>
+<td>签发→一次性展示→拉数据→吊销→立即 401 的 E2E 通过</td>
+</tr>
+</tbody>
+</table>
+<h2 id="13-不在本-spec-范围">13. 不在本 spec 范围</h2>
+<ul>
+<li>写接口（Agent 回写数据）</li>
+<li>硬限流 / 配额(评审推翻则升 MVP)</li>
+<li>OAuth / OIDC 等标准协议鉴权(MVP 用自管 bearer token)</li>
+<li>Agent 侧 SDK / 客户端封装</li>
+<li>Webhook / 推送(本设计仅 pull)</li>
+<li>AgentAccessLog 留存/清理:每次拉取写一行,MVP 不做自动清理/归档(与限流同属有意识的运维延后项);后续可加 /api/cron/ 定时 prune,按 ts 滚动保留窗口。</li>
+<li>公开自助配对通道(Skill.md → 一次性配对码 → 自助换 token):见配套附录 <a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/2026-05-18-agent-self-pairing-design.md" rel="noopener noreferrer">2026-05-18-agent-self-pairing-design.md</a>。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#0-背景与目标">0. 背景与目标</a></li><li style="margin-left:0.0rem"><a href="#1-整体架构">1. 整体架构</a></li><li style="margin-left:0.0rem"><a href="#2-数据模型">2. 数据模型</a></li><li style="margin-left:0.0rem"><a href="#3-Scope-枚举">3. Scope 枚举</a></li><li style="margin-left:0.0rem"><a href="#4-Manifest">4. Manifest</a></li><li style="margin-left:0.0rem"><a href="#5-鉴权流程">5. 鉴权流程</a></li><li style="margin-left:0.0rem"><a href="#6-API-端点清单">6. API 端点清单</a></li><li style="margin-left:0.0rem"><a href="#7-响应约定">7. 响应约定</a></li><li style="margin-left:0.0rem"><a href="#8-Skill-md-生成器">8. Skill.md 生成器</a></li><li style="margin-left:0.0rem"><a href="#9-Admin-管理-UI">9. Admin 管理 UI</a></li><li style="margin-left:0.0rem"><a href="#10-安全">10. 安全</a></li><li style="margin-left:0.0rem"><a href="#11-测试策略">11. 测试策略</a></li><li style="margin-left:0.0rem"><a href="#12-分阶段切片">12. 分阶段切片</a></li><li style="margin-left:0.0rem"><a href="#13-不在本-spec-范围">13. 不在本 spec 范围</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / GHOME</li>
+          <li>日期：2026-05-18</li>
+          <li>标签：<span class="tag">GHOME</span><span class="tag">Shell</span><span class="tag">自动化</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/ghome/docs/superpowers/specs/2026-05-18-admin-agent-data-api-design.…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605180000-GHOME%2BShell%2B%E8%87%AA%E5%8A%A8%E5%8C%96-Admin%20Agent%20%E6%95%B0%E6%8D%AE%E6%8E%A5%E5%85%A5%20API%20%E8%AE%BE%E8%AE%A1.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Admin Agent 数据接入 API 设计。本文属于业务系统运维 / GHOME，状态:待评审 · 日期:2026-05-18 · 范围: apps/admin 关联: 产品形态与架构 、 CLAUDE.md Admin 后台需要对 OpenClaw Hermes 以及其它自研 Agent 开放数据访问。Ag…</p>
+      <p>关键词：GHOME、Shell、自动化、安全运维、故障排查、源码与配置、业务系统运维、业务系统运维 / GHOME、Admin Agent 数据接入 API 设计</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-85dcf312c72e.html"><small>上一篇</small>Admin Agent 数据接入 API Implementation Plan</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d15b78a42f10.html"><small>下一篇</small>Agent 自助配对 Implementation Plan</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-44264fdaa88b.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

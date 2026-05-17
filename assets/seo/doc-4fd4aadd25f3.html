@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Agent 配对改短码 + owner 登录态确认 Implementation Plan｜业务系统运维 / GHOME｜BEN.OPS</title>
+  <meta name="description" content="Agent 配对改短码 + owner 登录态确认 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to impl…">
+  <meta name="keywords" content="GHOME，Shell，安全运维，业务系统运维，业务系统运维 / GHOME，Agent 配对改短码 + owner 登录态确认 Implementation Plan">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4fd4aadd25f3.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4fd4aadd25f3.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605180000-GHOME%2BShell%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4-Agent%20%E9%85%8D%E5%AF%B9%E6%94%B9%E7%9F%AD%E7%A0%81%20%2B%20owner%20%E7%99%BB%E5%BD%95%E6%80%81%E7%A1%AE%E8%AE%A4%20Implementation%20Plan.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Agent 配对改短码 + owner 登录态确认 Implementation Plan">
+  <meta property="og:description" content="Agent 配对改短码 + owner 登录态确认 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to impl…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4fd4aadd25f3.html">
+  <meta property="article:published_time" content="2026-05-18T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-18 00:00">
+  <meta property="article:section" content="业务系统运维 / GHOME">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Agent 配对改短码 + owner 登录态确认 Implementation Plan">
+  <meta name="twitter:description" content="Agent 配对改短码 + owner 登录态确认 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to impl…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4fd4aadd25f3.html#article","headline":"Agent 配对改短码 + owner 登录态确认 Implementation Plan","description":"Agent 配对改短码 + owner 登录态确认 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to impl…","datePublished":"2026-05-18T00:00:00+08:00","dateModified":"2026-05-18 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","GHOME"],"keywords":["GHOME","Shell","安全运维","业务系统运维","业务系统运维 / GHOME","Agent 配对改短码 + owner 登录态确认 Implementation Plan"],"wordCount":4514,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4fd4aadd25f3.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4fd4aadd25f3.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / GHOME","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Agent 配对改短码 + owner 登录态确认 Implementation Plan","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4fd4aadd25f3.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / GHOME</span> › <span>Agent 配对改短码 + owner 登录态确认 Implementation Plan</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / GHOME</div>
+      <h1>Agent 配对改短码 + owner 登录态确认 Implementation Plan</h1>
+      <p class="lede">Agent 配对改短码 + owner 登录态确认 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to impl…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-18T00:00:00+08:00">发布于 2026-05-18</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">4,514 字</span>
+        <span class="badge">13 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-18-agent-pairing-owner-confirm.md</code></p>
+<p>整理日期：2026-05-18 00:00｜日期依据：文件名日期</p>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax.</p>
+</blockquote>
+<p><strong>Goal:</strong> 把 Agent 配对从"长码公开自助 POST 兑换"改为"8 位短码 + owner 登录 Admin 输入短码、后台校验通过 → Admin 一次性显示 token"。</p>
+<p><strong>Architecture:</strong> 复用现有 token 一次性回显机制(编辑页 <code>?敏感凭据：[已脱敏] +</code>TokenRevealBanner<code>)。公开</code>GET /agent/skill.md<code>仍铸码(改 8 位短码),公开</code>POST /agent/pair<code>删除;新增登录态</code>/agent-clients/pair<code>页 +</code>confirmPairingAction<code>调</code>confirmPairingCode(code,adminId,name?)<code>(原子焚码、</code>createdByAdminId=确认管理员<code>、固定</code>content:published`)。</p>
+<p><strong>Tech Stack:</strong> Next.js 15 App Router、Prisma、vitest、Playwright。无 Prisma 迁移。</p>
+<p><strong>Spec:</strong> <a href="https://ben2023niao.github.io/ben-ops-notes/doc/specs/2026-05-18-agent-self-pairing-design.md" rel="noopener noreferrer">docs/superpowers/specs/2026-05-18-agent-self-pairing-design.md</a></p>
+<hr/>
+<h2 id="File-Structure">File Structure</h2>
+<ul>
+<li>Modify <code>apps/admin/lib/agent-api/pairing.ts</code> — 8 位短码生成器 + <code>randomTicket()</code>;删旧 <code>codePrefix</code>;TTL 30min</li>
+<li>Modify <code>apps/admin/lib/agent-pairing-db.ts</code> — <code>mintPairingCode</code> 用 ticket;<code>redeemPairingCode</code>→<code>confirmPairingCode(code,adminId,name?)</code>(+<code>pairing_disabled</code>、<code>createdByAdminId=adminId</code>);<code>resolveUniqueName</code> 后缀修正;<code>listPairingCodes</code> 带确认管理员</li>
+<li>Modify <code>apps/admin/lib/agent-api/pairing-skill-md.ts</code> — 引导文案改"交给 owner 登录 Admin 输入",TTL 30min,删 <code>POST /agent/pair</code></li>
+<li>Delete <code>apps/admin/app/agent/pair/route.ts</code>(+ 空目录);Modify <code>apps/admin/middleware.ts</code> 去 <code>/agent/pair</code></li>
+<li>Modify <code>apps/admin/app/(admin)/agent-clients/actions.ts</code> — 加 <code>confirmPairingAction</code></li>
+<li>Create <code>apps/admin/app/(admin)/agent-clients/pair/page.tsx</code> — 确认表单 + <code>?error=</code> 提示</li>
+<li>Modify <code>apps/admin/app/(admin)/agent-clients/page.tsx</code> — header 加「输入配对码」入口</li>
+<li>Modify <code>apps/admin/app/(admin)/agent-clients/pairing-codes/page.tsx</code> — 不显码,列改 创建/过期/状态/确认管理员/Client</li>
+<li>Modify <code>apps/admin/tests/pair-endpoints.test.ts</code> — 删公开 POST 用例,加 <code>confirmPairingCode</code> 用例</li>
+<li>Modify <code>apps/admin/e2e/agent-clients.spec.ts</code> — 改写为短码 + 登录态确认流</li>
+</ul>
+<hr/>
+<h2 id="Task-1-pairing-ts-短码生成器">Task 1: pairing.ts 短码生成器</h2>
+<p><strong>Files:</strong> Modify <code>apps/admin/lib/agent-api/pairing.ts</code>; Test <code>apps/admin/tests/pairing.test.ts</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 改写测试 <code>apps/admin/tests/pairing.test.ts</code></strong> 为(整体替换文件内容):</li>
+</ul>
+<pre><code class="language-ts">import { describe, it, expect } from "vitest";
+import { generatePairingCode, randomTicket, PAIRING_CODE_TTL_MS } from "@/lib/agent-api/pairing";
+import { hashToken } from "@/lib/agent-api/token";
+import { SELF_PAIR_DEFAULT_SCOPES } from "@/lib/agent-api/scopes";
+
+const CHARSET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789#$%@*+=-";
+
+describe("pairing primitives", () =&gt; {
+  it("generatePairingCode: 8 chars, only from the safe charset, no ambiguous O0I1L", () =&gt; {
+    for (let i = 0; i &lt; 200; i++) {
+      const c = generatePairingCode();
+      expect(c).toHaveLength(8);
+      for (const ch of c) expect(CHARSET).toContain(ch);
+      expect(c).not.toMatch(/[O0I1L]/);
+    }
+  });
+  it("generatePairingCode: unique across calls", () =&gt; {
+    const set = new Set(Array.from({ length: 200 }, () =&gt; generatePairingCode()));
+    expect(set.size).toBe(200);
+  });
+  it("randomTicket: short non-secret tag, distinct from a code", () =&gt; {
+    const t = randomTicket();
+    expect(t).toMatch(/^pair-[0-9A-Za-z]{6}$/);
+    expect(randomTicket()).not.toBe(randomTicket());
+  });
+  it("hashToken works for short codes (sha256 hex 64)", () =&gt; {
+    expect(hashToken("ABCD2#%@")).toMatch(/^[0-9a-f]{64}$/);
+    expect(hashToken("ABCD2#%@")).toBe(hashToken("ABCD2#%@"));
+  });
+  it("TTL is 30 minutes", () =&gt; {
+    expect(PAIRING_CODE_TTL_MS).toBe(30 * 60 * 1000);
+  });
+  it("SELF_PAIR_DEFAULT_SCOPES unchanged = content:published", () =&gt; {
+    expect([...SELF_PAIR_DEFAULT_SCOPES]).toEqual(["content:published"]);
+  });
+});
+</code></pre>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: Run → FAIL.</strong> <code>pnpm --filter @ghome/admin test pairing</code> — expect fail (<code>randomTicket</code> missing / length 8 mismatch).</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: Replace <code>apps/admin/lib/agent-api/pairing.ts</code> entirely with:</strong></p>
+</li>
+</ul>
+<pre><code class="language-ts">import { randomBytes } from "node:crypto";
+
+// 去易混字符(无 O 0 I 1 L)的大写字母+数字 + 安全特殊符;不含引号/反斜杠/空格/斜杠。
+const CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789#$%@*+=-"; // 39
+const CODE_LEN = 8;
+const TICKET_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"; // 62
+const TICKET_LEN = 6;
+
+function sample(alphabet: string, len: number): string {
+  const n = alphabet.length;
+  const limit = Math.floor(256 / n) * n; // 拒绝 &gt;=limit 去 modulo 偏置
+  let out = "";
+  while (out.length &lt; len) {
+    const buf = randomBytes(len);
+    for (const b of buf) {
+      if (b &lt; limit) {
+        out += alphabet[b % n];
+        if (out.length === len) break;
+      }
+    }
+  }
+  return out;
+}
+
+/** 8 位短配对码(去易混字符,拒绝采样无偏置)。单次 + 30min TTL。原始码永不入库/日志。 */
+export function generatePairingCode(): string {
+  return sample(CODE_ALPHABET, CODE_LEN);
+}
+
+/** 与密文无关的随机工单号,写入 AgentPairingCode.codePrefix 列纯做日志关联(不可反推短码)。 */
+export function randomTicket(): string {
+  return "pair-" + sample(TICKET_ALPHABET, TICKET_LEN);
+}
+
+export const PAIRING_CODE_TTL_MS = 30 * 60 * 1000;
+</code></pre>
+<ul>
+<li>
+<p>[ ] <strong>Step 4: Run → PASS.</strong> <code>pnpm --filter @ghome/admin test pairing</code> (6 cases). Then <code>pnpm --filter @ghome/admin typecheck</code> — note: this WILL fail to fully typecheck until Task 2 (callers of removed <code>codePrefix</code>); that is expected — only assert <code>test pairing</code> is green here; do NOT fix other files in this task.</p>
+</li>
+<li>
+<p>[ ] <strong>Step 5: Commit</strong></p>
+</li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/lib/agent-api/pairing.ts apps/admin/tests/pairing.test.ts
+git commit -m "feat(admin): 8-char short pairing code + randomTicket; 30min TTL"
+</code></pre>
+<hr/>
+<h2 id="Task-2-agent-pairing-db-ts">Task 2: agent-pairing-db.ts</h2>
+<p><strong>Files:</strong> Modify <code>apps/admin/lib/agent-pairing-db.ts</code>; Test <code>apps/admin/tests/pairing-db.test.ts</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Replace <code>apps/admin/tests/pairing-db.test.ts</code> entirely with:</strong></li>
+</ul>
+<pre><code class="language-ts">import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { prisma } from "@ghome/db";
+import {
+  isPairingEnabled,
+  setPairingEnabled,
+  mintPairingCode,
+  confirmPairingCode,
+  listPairingCodes,
+} from "@/lib/agent-pairing-db";
+
+let adminId: string;
+const createdClientIds: string[] = [];
+
+beforeAll(async () =&gt; {
+  const a = await prisma.adminUser.create({
+    data: { email: `pairdb-${Date.now()}@x.io`, [敏感内容已脱敏] },
+  });
+  adminId = a.id;
+});
+afterAll(async () =&gt; {
+  await prisma.agentPairingCode.deleteMany({ where: { usedByAgentClientId: { in: createdClientIds } } });
+  await prisma.agentAccessLog.deleteMany({ where: { agentClientId: { in: createdClientIds } } });
+  await prisma.agentClient.deleteMany({ where: { id: { in: createdClientIds } } });
+  await prisma.agentPairingCode.deleteMany({ where: { codeHash: { not: "" }, usedAt: null } });
+  await setPairingEnabled(false, null);
+  await prisma.adminUser.delete({ where: { id: adminId } });
+});
+
+describe("confirmPairingCode", () =&gt; {
+  it("valid → client with createdByAdminId set, content:published, code burned", async () =&gt; {
+    await setPairingEnabled(true, null);
+    const { rawCode } = await mintPairingCode();
+    const res = await confirmPairingCode(rawCode, adminId, "owner-named");
+    expect(res.ok).toBe(true);
+    if (!res.ok) return;
+    createdClientIds.push(res.client.id);
+    expect(res.client.origin).toBe("self-paired");
+    expect(res.client.scopes).toEqual(["content:published"]);
+    expect(res.client.createdByAdminId).toBe(adminId);
+    expect(res.client.name).toBe("owner-named");
+    expect(res.rawToken).toMatch(/^ghagt_/);
+    const code = await prisma.agentPairingCode.findFirst({ where: { usedByAgentClientId: res.client.id } });
+    expect(code?.usedAt).not.toBeNull();
+  });
+
+  it("reused → code_used; unknown → invalid_code; expired → code_expired", async () =&gt; {
+    await setPairingEnabled(true, null);
+    const { rawCode } = await mintPairingCode();
+    const a = await confirmPairingCode(rawCode, adminId);
+    if (a.ok) createdClientIds.push(a.client.id);
+    expect((await confirmPairingCode(rawCode, adminId))).toMatchObject({ ok: false, code: "code_used" });
+    expect((await confirmPairingCode("NOPE2#$@", adminId))).toMatchObject({ ok: false, code: "invalid_code" });
+    const { rawCode: c2 } = await mintPairingCode();
+    await prisma.agentPairingCode.update({
+      where: { codeHash: (await import("@/lib/agent-api/token")).hashToken(c2) },
+      data: { expiresAt: new Date(Date.now() - 1000) },
+    });
+    expect((await confirmPairingCode(c2, adminId))).toMatchObject({ ok: false, code: "code_expired" });
+  });
+
+  it("channel disabled → pairing_disabled (even with a valid fresh code)", async () =&gt; {
+    await setPairingEnabled(true, null);
+    const { rawCode } = await mintPairingCode();
+    await setPairingEnabled(false, null);
+    expect((await confirmPairingCode(rawCode, adminId))).toMatchObject({ ok: false, code: "pairing_disabled" });
+  });
+
+  it("concurrent confirm of same code → exactly one ok", async () =&gt; {
+    await setPairingEnabled(true, null);
+    const { rawCode } = await mintPairingCode();
+    const [r1, r2] = await Promise.all([
+      confirmPairingCode(rawCode, adminId),
+      confirmPairingCode(rawCode, adminId),
+    ]);
+    const oks = [r1, r2].filter((r) =&gt; r.ok);
+    const used = [r1, r2].filter((r) =&gt; !r.ok);
+    expect(oks.length).toBe(1);
+    expect(used.length).toBe(1);
+    for (const r of oks) if (r.ok) createdClientIds.push(r.client.id);
+  });
+
+  it("mintPairingCode stores a random ticket in codePrefix, never the code", async () =&gt; {
+    await setPairingEnabled(true, null);
+    const { rawCode } = await mintPairingCode();
+    const { hashToken } = await import("@/lib/agent-api/token");
+    const row = await prisma.agentPairingCode.findUnique({ where: { codeHash: hashToken(rawCode) } });
+    expect(row?.codePrefix).toMatch(/^pair-[0-9A-Za-z]{6}$/);
+    expect(row?.codePrefix).not.toContain(rawCode);
+  });
+
+  it("listPairingCodes returns rows desc with usedByClient relation", async () =&gt; {
+    const rows = await listPairingCodes();
+    expect(Array.isArray(rows)).toBe(true);
+    // 关系字段存在(可能为 null,但类型上应有 usedByClient)
+    if (rows[0]) expect("usedByClient" in rows[0]).toBe(true);
+  });
+});
+</code></pre>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: Run → FAIL.</strong> <code>pnpm --filter @ghome/admin test pairing-db</code> (no <code>confirmPairingCode</code> export).</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: Edit <code>apps/admin/lib/agent-pairing-db.ts</code>:</strong></p>
+</li>
+</ul>
+<p>(a) imports line: change <code>import { generatePairingCode, codePrefix, PAIRING_CODE_TTL_MS } from "./agent-api/pairing";</code> → <code>import { generatePairingCode, randomTicket, PAIRING_CODE_TTL_MS } from "./agent-api/pairing";</code></p>
+<p>(b) <code>mintPairingCode</code>: change <code>data: { codePrefix: codePrefix(rawCode), codeHash: hashToken(rawCode), expiresAt }</code> → <code>data: { codePrefix: randomTicket(), codeHash: hashToken(rawCode), expiresAt }</code></p>
+<p>(c) <code>resolveUniqueName</code>: the candidate line <code>const candidate = \</code>self-paired-${generatePairingCode().slice(7, 15)}`;<code>→</code>const candidate = `self-paired-${generatePairingCode()}`;<code>(short code is now 8 chars, no</code>ghpair_` prefix to slice; comment may be simplified to "随机后缀复用短码生成器(8 位)").</p>
+<p>(d) Replace the <code>RedeemResult</code> type + <code>redeemPairingCode</code> function with:</p>
+<pre><code class="language-ts">export type ConfirmResult =
+  | { ok: true; [敏感内容已脱敏]; client: AgentClient }
+  | { ok: false; code: "invalid_code" | "code_used" | "code_expired" | "pairing_disabled" };
+
+export async function confirmPairingCode(
+  rawCode: string,
+  adminId: string,
+  name?: string,
+): Promise&lt;ConfirmResult&gt; {
+  if (!(await isPairingEnabled())) return { ok: false, code: "pairing_disabled" };
+
+  const codeHash = hashToken(rawCode);
+  const row = await prisma.agentPairingCode.findUnique({ where: { codeHash } });
+  if (!row) return { ok: false, code: "invalid_code" };
+  if (row.usedAt) return { ok: false, code: "code_used" };
+  if (row.expiresAt.getTime() &lt; Date.now()) return { ok: false, code: "code_expired" };
+
+  // 焚码→建客户端→回填,一个事务内防并发双花;任一失败整体回滚(码保持未使用)。
+  const result = await prisma.$transaction(async (tx) =&gt; {
+    const burn = await tx.agentPairingCode.updateMany({
+      where: { id: row.id, usedAt: null },
+      data: { usedAt: new Date() },
+    });
+    if (burn.count === 0) return { ok: false, code: "code_used" } as const;
+
+    const finalName = await resolveUniqueName(tx, name);
+    const [敏感内容已脱敏];
+    const client = await tx.agentClient.create({
+      data: {
+        name: finalName,
+        [敏感内容已脱敏],
+        [敏感内容已脱敏],
+        scopes: [...SELF_PAIR_DEFAULT_SCOPES],
+        origin: "self-paired",
+        createdByAdminId: adminId,
+      },
+    });
+    await tx.agentPairingCode.update({
+      where: { id: row.id },
+      data: { usedByAgentClientId: client.id },
+    });
+    return { ok: true, rawToken, client } as const;
+  });
+  return result;
+}
+</code></pre>
+<p>(e) <code>listPairingCodes</code>: change to include the related client:</p>
+<pre><code class="language-ts">export function listPairingCodes() {
+  return prisma.agentPairingCode.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 200,
+    include: { usedByClient: { select: { name: true, createdByAdminId: true } } },
+  });
+}
+</code></pre>
+<p>(Confirm the relation field name on <code>AgentPairingCode</code> by reading <code>packages/db/prisma/schema.prisma</code> model <code>AgentPairingCode</code> — it is <code>usedByClient</code> per the existing schema; if the actual relation name differs, use the real one and adjust the test's <code>"usedByClient" in rows[0]</code> accordingly. Drop the explicit <code>: Promise&lt;AgentPairingCode[]&gt;</code> return annotation since the include widens the type; let it infer. Remove the now-unused <code>AgentPairingCode</code> type import if nothing else uses it — verify before removing.)</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 4: Run → PASS + typecheck.</strong> <code>pnpm --filter @ghome/admin test pairing-db</code> (6 cases). <code>pnpm --filter @ghome/admin typecheck</code> — will still fail in <code>app/agent/pair/route.ts</code> (imports removed <code>redeemPairingCode</code>) and <code>pair-endpoints.test.ts</code>; that is expected and fixed in Task 3/5. Only require <code>test pairing-db</code> green here.</p>
+</li>
+<li>
+<p>[ ] <strong>Step 5: Commit</strong></p>
+</li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/lib/agent-pairing-db.ts apps/admin/tests/pairing-db.test.ts
+git commit -m "feat(admin): confirmPairingCode(code,adminId,name) — channel-gated, createdByAdminId set"
+</code></pre>
+<hr/>
+<h2 id="Task-3-删-agent-pair-middleware-引导文案">Task 3: 删 /agent/pair + middleware + 引导文案</h2>
+<p><strong>Files:</strong> Delete <code>apps/admin/app/agent/pair/route.ts</code>; Modify <code>apps/admin/middleware.ts</code>, <code>apps/admin/lib/agent-api/pairing-skill-md.ts</code></p>
+<ul>
+<li>
+<p>[ ] <strong>Step 1:</strong> <code>git rm apps/admin/app/agent/pair/route.ts</code> and remove the now-empty <code>apps/admin/app/agent/pair/</code> directory.</p>
+</li>
+<li>
+<p>[ ] <strong>Step 2:</strong> In <code>apps/admin/middleware.ts</code> public-path <code>if</code>, delete the line <code>pathname === "/agent/pair" ||</code> (KEEP <code>pathname === "/agent/skill.md" ||</code>).</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3:</strong> Replace <code>renderPairingSkillMd</code> in <code>apps/admin/lib/agent-api/pairing-skill-md.ts</code> with (keep <code>renderPairingClosedMd</code> unchanged):</p>
+</li>
+</ul>
+<pre><code class="language-ts">/** 通道开:含本次专属短配对码的引导文档(owner 登录 Admin 输入完成配对)。 */
+export function renderPairingSkillMd(rawCode: string): string {
+  return [
+    "---",
+    "name: ghome-agent-pairing",
+    "description: Pair this agent — hand the short code to your owner to confirm in Admin",
+    "---",
+    "",
+    "# Ghome Agent 配对",
+    "",
+    "配对成功默认仅授予 `content:published`(等价于用户站公开可见内容)。",
+    "更高权限(analytics / ops)由管理员事后在后台「编辑」页提权。",
+    "",
+    "## 你的一次性配对码(仅本次响应可见,30 分钟内有效,单次使用)",
+    "",
+    "```",
+    rawCode,
+    "```",
+    "",
+    "## 如何完成配对",
+    "",
+    "把上面这串配对码交给你的 **owner**(拥有 Admin 账号的人)。owner 操作:",
+    "",
+    "1. 用自己的账号登录 Admin 后台",
+    "2. 顶部导航进入「Agent 接入」→ 点「输入配对码」",
+    "3. 填入这串配对码(可选填一个 Agent 名称)并提交",
+    "4. 校验通过后,Admin 页面会**一次性**显示本 Agent 的 Bearer token",
+    "5. owner 把该 token 配置进本 Agent",
+    "",
+    "拿到 token 后,用它调用个性化完整 API 文档:",
+    "",
+    "```",
+    "GET /api/agent/v1/skill.md",
+    "Authorization: Bearer &lt;token&gt;",
+    "```",
+    "",
+  ].join("\n");
+}
+</code></pre>
+<ul>
+<li>
+<p>[ ] <strong>Step 4: Verify.</strong> <code>pnpm --filter @ghome/admin typecheck</code> — now clean EXCEPT <code>apps/admin/tests/pair-endpoints.test.ts</code> still imports the deleted <code>@/app/agent/pair/route</code> (fixed in Task 5). Confirm no OTHER file references <code>@/app/agent/pair</code> or <code>redeemPairingCode</code>: <code>grep -rn "agent/pair/route\|redeemPairingCode" apps/admin --include='*.ts' --include='*.tsx' | grep -v '/.next/'</code> → only <code>pair-endpoints.test.ts</code> may remain. <code>pnpm --filter @ghome/admin build</code> — succeeds and route list NO LONGER contains <code>/agent/pair</code> (still has <code>/agent/skill.md</code>).</p>
+</li>
+<li>
+<p>[ ] <strong>Step 5: Commit</strong></p>
+</li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/app/agent apps/admin/middleware.ts apps/admin/lib/agent-api/pairing-skill-md.ts
+git commit -m "refactor(admin): remove public POST /agent/pair; skill.md instructs owner Admin-confirm"
+</code></pre>
+<hr/>
+<h2 id="Task-4-confirmPairingAction-agent-clients-pair-页-入口-日志页改列">Task 4: confirmPairingAction + /agent-clients/pair 页 + 入口 + 日志页改列</h2>
+<p><strong>Files:</strong> Modify <code>apps/admin/app/(admin)/agent-clients/actions.ts</code>, <code>page.tsx</code>, <code>pairing-codes/page.tsx</code>; Create <code>apps/admin/app/(admin)/agent-clients/pair/page.tsx</code></p>
+<ul>
+<li>[ ] <strong>Step 1:</strong> In <code>apps/admin/app/(admin)/agent-clients/actions.ts</code>:
+(a) change the import <code>import { setPairingEnabled } from "@/lib/agent-pairing-db";</code> → <code>import { setPairingEnabled, confirmPairingCode } from "@/lib/agent-pairing-db";</code>
+(b) append:</li>
+</ul>
+<pre><code class="language-ts">export async function confirmPairingAction(form: FormData): Promise&lt;void&gt; {
+  const me = await adminId();
+  const code = String(form.get("code") ?? "").trim();
+  const name = String(form.get("name") ?? "").trim() || undefined;
+  if (!code) redirect("/agent-clients/pair?error=invalid_request");
+  const res = await confirmPairingCode(code, me, name);
+  if (!res.ok) redirect(`/agent-clients/pair?error=${res.code}`);
+  await logAuditAction(me, "agentClient.pair", "agentClient", res.client.id, {
+    after: { name: res.client.name, scopes: res.client.scopes, via: "pairing-code" },
+  });
+  revalidatePath("/agent-clients");
+  // 一次性明文 token 经同源、仅管理员的重定向 URL 单次展示(库内仅哈希),勿外推到其他路由。
+  redirect(`/agent-clients/${res.client.id}/edit?敏感凭据：[已脱敏]
+}
+</code></pre>
+<p>(<code>adminId</code>/<code>logAuditAction</code>/<code>revalidatePath</code>/<code>redirect</code> already imported &amp; file already has top <code>"use server"</code>. Note: <code>redirect()</code> throws, so the <code>if (!res.ok) redirect(...)</code> correctly does not fall through — mirrors existing actions.)</p>
+<ul>
+<li>[ ] <strong>Step 2:</strong> Create <code>apps/admin/app/(admin)/agent-clients/pair/page.tsx</code>:</li>
+</ul>
+<pre><code class="language-tsx">import Link from "next/link";
+import { EditForm, FormRow } from "@/components/EditForm";
+import { confirmPairingAction } from "../actions";
+
+export const dynamic = "force-dynamic";
+
+const ERRORS: Record&lt;string, string&gt; = {
+  invalid_request: "请填写配对码。",
+  invalid_code: "配对码无效(不存在)。请向 Agent 重新获取。",
+  code_used: "该配对码已被使用。请让 Agent 重新读取获取新码。",
+  code_expired: "该配对码已过期(30 分钟有效)。请让 Agent 重新读取获取新码。",
+  pairing_disabled: "公开配对通道当前已关闭,无法完成配对。",
+};
+
+export default async function PairConfirmPage({
+  searchParams,
+}: {
+  searchParams: Promise&lt;{ error?: string }&gt;;
+}) {
+  const { error } = await searchParams;
+  const msg = error ? (ERRORS[error] ?? "配对失败,请重试。") : null;
+  return (
+    &lt;&gt;
+      &lt;div className="page-header"&gt;
+        &lt;h1&gt;输入配对码&lt;/h1&gt;
+        &lt;Link href="/agent-clients" style={{ color: "var(--primary)" }}&gt;← 返回&lt;/Link&gt;
+      &lt;/div&gt;
+      {msg &amp;&amp; (
+        &lt;div className="dash-section" style={{ borderColor: "var(--danger, #c0392b)", color: "var(--danger, #c0392b)", marginBottom: 16 }}&gt;
+          {msg}
+        &lt;/div&gt;
+      )}
+      &lt;p style={{ color: "var(--text-3)", marginBottom: 16 }}&gt;
+        Agent 读取公开 Skill.md 后会拿到一串 8 位配对码,把它填到这里完成配对;校验通过后本页会一次性显示该 Agent 的 token。
+      &lt;/p&gt;
+      &lt;EditForm action={confirmPairingAction} submitLabel="校验并完成配对"&gt;
+        &lt;FormRow label="配对码"&gt;
+          &lt;input name="code" required autoComplete="off" className="form-input" placeholder="8 位配对码" /&gt;
+        &lt;/FormRow&gt;
+        &lt;FormRow label="Agent 名称(可选)" hint="留空则自动命名 self-paired-xxxxxxxx"&gt;
+          &lt;input name="name" className="form-input" placeholder="自报名称" /&gt;
+        &lt;/FormRow&gt;
+      &lt;/EditForm&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+<p>(Read another admin form page e.g. <code>redirects/new</code> to confirm the <code>className="form-input"</code>/<code>EditForm</code>/<code>FormRow</code> conventions match; adjust class names to whatever the codebase actually uses for inputs if <code>form-input</code> is not it.)</p>
+<ul>
+<li>[ ] <strong>Step 3:</strong> In <code>apps/admin/app/(admin)/agent-clients/page.tsx</code>, the header is currently <code>&lt;div className="page-header"&gt;&lt;h1&gt;Agent 接入&lt;/h1&gt;&lt;/div&gt;</code>. Add the confirm-entry link:</li>
+</ul>
+<pre><code class="language-tsx">      &lt;div className="page-header"&gt;
+        &lt;h1&gt;Agent 接入&lt;/h1&gt;
+        &lt;Link href="/agent-clients/pair" className="btn-primary"&gt;输入配对码&lt;/Link&gt;
+      &lt;/div&gt;
+</code></pre>
+<p>(<code>Link</code> already imported.)</p>
+<ul>
+<li>[ ] <strong>Step 4:</strong> Rewrite <code>apps/admin/app/(admin)/agent-clients/pairing-codes/page.tsx</code> to drop the code/prefix column and show confirming admin:</li>
+</ul>
+<pre><code class="language-tsx">import Link from "next/link";
+import { listPairingCodes } from "@/lib/agent-pairing-db";
+
+export const dynamic = "force-dynamic";
+
+export default async function PairingCodesPage() {
+  const codes = await listPairingCodes();
+  const now = Date.now();
+  return (
+    &lt;&gt;
+      &lt;div className="page-header"&gt;
+        &lt;h1&gt;配对码日志&lt;/h1&gt;
+        &lt;Link href="/agent-clients" style={{ color: "var(--primary)" }}&gt;← 返回&lt;/Link&gt;
+      &lt;/div&gt;
+      &lt;div className="dash-section" style={{ padding: 0, overflow: "hidden" }}&gt;
+        &lt;table className="dash-table"&gt;
+          &lt;thead&gt;
+            &lt;tr&gt;&lt;th&gt;创建&lt;/th&gt;&lt;th&gt;过期&lt;/th&gt;&lt;th&gt;状态&lt;/th&gt;&lt;th&gt;确认管理员&lt;/th&gt;&lt;th&gt;兑换出的 Client&lt;/th&gt;&lt;/tr&gt;
+          &lt;/thead&gt;
+          &lt;tbody&gt;
+            {codes.length === 0 ? (
+              &lt;tr&gt;&lt;td colSpan={5} style={{ textAlign: "center", color: "var(--text-3)" }}&gt;暂无数据&lt;/td&gt;&lt;/tr&gt;
+            ) : (
+              codes.map((c) =&gt; {
+                const status = c.usedAt ? "已用" : c.expiresAt.getTime() &lt; now ? "已过期" : "待确认";
+                return (
+                  &lt;tr key={c.id}&gt;
+                    &lt;td&gt;{c.createdAt.toISOString().slice(0, 16).replace("T", " ")}&lt;/td&gt;
+                    &lt;td&gt;{c.expiresAt.toISOString().slice(0, 16).replace("T", " ")}&lt;/td&gt;
+                    &lt;td&gt;{status}&lt;/td&gt;
+                    &lt;td&gt;{c.usedByClient?.createdByAdminId ?? "—"}&lt;/td&gt;
+                    &lt;td&gt;{c.usedByClient?.name ?? "—"}&lt;/td&gt;
+                  &lt;/tr&gt;
+                );
+              })
+            )}
+          &lt;/tbody&gt;
+        &lt;/table&gt;
+      &lt;/div&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>
+<p>[ ] <strong>Step 5: Verify.</strong> <code>pnpm --filter @ghome/admin typecheck</code> — clean except <code>pair-endpoints.test.ts</code> (Task 5). <code>pnpm --filter @ghome/admin build</code> — success; route list contains <code>/agent-clients/pair</code> and <code>/agent-clients/pairing-codes</code>, NOT <code>/agent/pair</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>Step 6: Commit</strong></p>
+</li>
+</ul>
+<pre><code class="language-bash">git add "apps/admin/app/(admin)/agent-clients/actions.ts" "apps/admin/app/(admin)/agent-clients/pair/page.tsx" "apps/admin/app/(admin)/agent-clients/page.tsx" "apps/admin/app/(admin)/agent-clients/pairing-codes/page.tsx"
+git commit -m "feat(admin): authenticated pairing-code confirm page + action; codes log shows confirming admin"
+</code></pre>
+<hr/>
+<h2 id="Task-5-重写-pair-endpoints-测试-E2E-全量回归">Task 5: 重写 pair-endpoints 测试 + E2E + 全量回归</h2>
+<p><strong>Files:</strong> Modify <code>apps/admin/tests/pair-endpoints.test.ts</code>, <code>apps/admin/e2e/agent-clients.spec.ts</code></p>
+<ul>
+<li>[ ] <strong>Step 1:</strong> Replace <code>apps/admin/tests/pair-endpoints.test.ts</code> entirely with (public POST gone; only GET skill.md behavior remains here — confirm logic is covered by <code>pairing-db.test.ts</code> from Task 2):</li>
+</ul>
+<pre><code class="language-ts">import { describe, it, expect, afterAll } from "vitest";
+import { prisma } from "@ghome/db";
+import { GET as pairSkillGet } from "@/app/agent/skill.md/route";
+import { setPairingEnabled } from "@/lib/agent-pairing-db";
+
+afterAll(async () =&gt; {
+  await prisma.agentPairingCode.deleteMany({ where: { usedAt: null } });
+  await setPairingEnabled(false, null);
+});
+
+const CODE_RE = /[ABCDEFGHJKMNPQRSTUVWXYZ23456789#$%@*+=-]{8}/;
+
+describe("GET /agent/skill.md", () =&gt; {
+  it("channel OFF: closed notice, no code minted", async () =&gt; {
+    await setPairingEnabled(false, null);
+    const before = await prisma.agentPairingCode.count();
+    const r = await pairSkillGet();
+    expect(r.status).toBe(200);
+    const md = await r.text();
+    expect(md).toContain("已关闭");
+    expect(md).not.toMatch(CODE_RE);
+    expect(await prisma.agentPairingCode.count()).toBe(before);
+  });
+
+  it("channel ON: mints a short code; doc instructs owner Admin-confirm, not POST", async () =&gt; {
+    await setPairingEnabled(true, null);
+    const before = await prisma.agentPairingCode.count();
+    const r = await pairSkillGet();
+    expect(r.status).toBe(200);
+    const md = await r.text();
+    // 含 8 位短码块
+    expect(md).toMatch(/```\n[ABCDEFGHJKMNPQRSTUVWXYZ23456789#$%@*+=-]{8}\n```/);
+    // 新指引:登录 Admin 输入配对码;不再出现公开 POST /agent/pair
+    expect(md).toContain("输入配对码");
+    expect(md).not.toContain("POST /agent/pair");
+    expect(await prisma.agentPairingCode.count()).toBe(before + 1);
+  });
+});
+</code></pre>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: Run → PASS.</strong> <code>pnpm --filter @ghome/admin test pair-endpoints</code> (2 cases).</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3:</strong> Rewrite the self-pairing test in <code>apps/admin/e2e/agent-clients.spec.ts</code>. Keep the file's top constants (<code>ADMIN_EMAIL</code>/<code>ADMIN_PASSWORD</code>/<code>BASE</code>) and the signin pattern used by the existing test. Replace the single <code>test("self-pairing: ...")</code> block with:</p>
+</li>
+</ul>
+<pre><code class="language-ts">test("pairing: enable channel → skill.md short code → owner confirms in Admin → token works", async ({
+  page,
+  request,
+}) =&gt; {
+  // 1. admin login
+  await page.goto(`${BASE}/signin`);
+  await page.locator('input[name="email"]').fill(ADMIN_EMAIL);
+  await page.locator('input[name="password"]').fill(ADMIN_PASSWORD);
+  await page.getByRole("button", { name: "登录" }).click();
+  await page.waitForURL(`${BASE}/`);
+
+  // 2. enable channel
+  await page.goto(`${BASE}/agent-clients`);
+  if (await page.getByRole("button", { name: "开启通道" }).isVisible()) {
+    await page.getByRole("button", { name: "开启通道" }).click();
+  }
+
+  // 3. Agent reads public skill.md (unauthenticated request), extract 8-char code
+  const skill = await request.get(`${BASE}/agent/skill.md`);
+  expect(skill.status()).toBe(200);
+  const md = await skill.text();
+  const m = md.match(/```\n([ABCDEFGHJKMNPQRSTUVWXYZ23456789#$%@*+=-]{8})\n```/);
+  expect(m).toBeTruthy();
+  const code = m![1];
+
+  // 4. owner confirms in Admin (logged-in)
+  await page.goto(`${BASE}/agent-clients/pair`);
+  await page.locator('input[name="code"]').fill(code);
+  await page.locator('input[name="name"]').fill(`e2e-pair-${Date.now()}`);
+  await page.getByRole("button", { name: "校验并完成配对" }).click();
+
+  // 5. lands on edit page with one-time token revealed
+  await page.waitForURL(/\/agent-clients\/[^/]+\/edit\?敏感凭据：[已脱敏]
+  const url = new URL(page.url());
+  const 敏感凭据：[已脱敏] ?? "");
+  expect(token).toMatch(/^ghagt_/);
+
+  // 6. token works on the data API
+  const apps = await request.get(`${BASE}/api/agent/v1/apps`, {
+    headers: { authorization: `Bearer ${token}` },
+  });
+  expect(apps.status()).toBe(200);
+
+  // 7. reusing the same code now fails (friendly error on the confirm page)
+  await page.goto(`${BASE}/agent-clients/pair`);
+  await page.locator('input[name="code"]').fill(code);
+  await page.getByRole("button", { name: "校验并完成配对" }).click();
+  await page.waitForURL(/\/agent-clients\/pair\?error=code_used/);
+
+  // 8. restore: close channel
+  await page.goto(`${BASE}/agent-clients`);
+  if (await page.getByRole("button", { name: "关闭通道" }).isVisible()) {
+    await page.getByRole("button", { name: "关闭通道" }).click();
+  }
+});
+</code></pre>
+<p>(If the existing test referenced helper consts only it used, leave shared ones. Keep any other tests in the file unchanged. The token is read from the post-confirm redirect URL `?敏感凭据：[已脱敏] rather than scraping the banner — robust and matches the action's redirect.)</p>
+<ul>
+<li>[ ] <strong>Step 4: Verify full matrix.</strong></li>
+</ul>
+<pre><code class="language-bash">pnpm --filter @ghome/admin typecheck
+pnpm --filter @ghome/db test
+pnpm --filter @ghome/admin test
+pnpm --filter @ghome/admin build
+pnpm lint
+</code></pre>
+<p>All green: typecheck clean; db 42/1-skip; admin suite green (pairing/pairing-db/pair-endpoints rewritten); build success (<code>/agent-clients/pair</code> emitted, <code>/agent/pair</code> absent); lint clean. Then E2E: ensure port 3100 free (<code>lsof -nP -iTCP:3100 -sTCP:LISTEN</code> → kill any <code>next dev</code>), <code>pnpm --filter @ghome/admin exec playwright test</code> → all green (Playwright auto-starts a fresh server). Kill any server you started.</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/tests/pair-endpoints.test.ts apps/admin/e2e/agent-clients.spec.ts
+git commit -m "test(admin): rewrite pairing tests + e2e for short-code owner-confirm flow"
+</code></pre>
+<hr/>
+<h2 id="Self-Review-规划者已执行">Self-Review(规划者已执行)</h2>
+<ul>
+<li><strong>Spec 覆盖</strong>:§3 短码→Task1;§2/§4.4 confirmPairingCode/codePrefix=ticket/createdByAdminId→Task2;§4.1/§4.2 删公开 POST + skill.md 文案 + middleware→Task3;§4.3/§5 confirm 页+action+入口+日志页改列→Task4;§7 测试/E2E→Task2(confirm 单测)+Task5(skill.md 集成 + E2E);§6 安全(通道关时 confirm 亦拒、固定 content:published、createdByAdminId、短码不入库/日志)→Task2/3/4 + spec 已述;§8 C1–C5↔Task1–5;§9 未来项不实现。无遗漏。</li>
+<li><strong>占位符扫描</strong>:无 TBD/TODO;每步含完整代码与命令;Task1/2/3/4 明确写出"此任务 typecheck 仅部分通过、余下任务修复"的顺序约定,非占位。</li>
+<li><strong>类型一致</strong>:<code>generatePairingCode</code>/<code>randomTicket</code>/<code>PAIRING_CODE_TTL_MS</code>(Task1)↔ 被 Task2 引用一致;<code>confirmPairingCode(rawCode,adminId,name?)</code>/<code>ConfirmResult</code>(Task2)↔ Task4 <code>confirmPairingAction</code> 调用一致;<code>listPairingCodes</code> 加 <code>include:{usedByClient}</code> ↔ Task4 日志页 <code>c.usedByClient?.name/createdByAdminId</code> 一致;删除的 <code>redeemPairingCode</code>/<code>codePrefix</code>/<code>/agent/pair</code> 在 Task3/5 同步清除引用,Task1/2 已标注遗留到后续任务修复的顺序。</li>
+<li><strong>既有约定</strong>:无 Prisma 迁移(codeHash 不变、codePrefix 值变、createdByAdminId 复用既有可空列);宿主 pnpm、Postgres 已起、无 Docker;<code>fileParallelism:false</code> 保持;子代理 commit 可能不带 Co-Authored-By(终态合并补)。</li>
+<li><strong>实现期核对点</strong>:<code>AgentPairingCode.usedByClient</code> 关系名以 <code>schema.prisma</code> 实际为准(Task2 Step3e 已标注核对);admin 表单输入框 class(<code>form-input</code>)以现有表单页实际为准(Task4 Step2 已标注核对);E2E signin 选择器复用文件现有 test 写法。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#File-Structure">File Structure</a></li><li style="margin-left:0.0rem"><a href="#Task-1-pairing-ts-短码生成器">Task 1: pairing.ts 短码生成器</a></li><li style="margin-left:0.0rem"><a href="#Task-2-agent-pairing-db-ts">Task 2: agent-pairing-db.ts</a></li><li style="margin-left:0.0rem"><a href="#Task-3-删-agent-pair-middleware-引导文案">Task 3: 删 /agent/pair + middleware + 引导文案</a></li><li style="margin-left:0.0rem"><a href="#Task-4-confirmPairingAction-agent-clients-pair-页-入口-日志页改列">Task 4: confirmPairingAction + /agent-clients/pair 页 + 入口 + 日志页改列</a></li><li style="margin-left:0.0rem"><a href="#Task-5-重写-pair-endpoints-测试-E2E-全量回归">Task 5: 重写 pair-endpoints 测试 + E2E + 全量回归</a></li><li style="margin-left:0.0rem"><a href="#Self-Review-规划者已执行">Self-Review(规划者已执行)</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / GHOME</li>
+          <li>日期：2026-05-18</li>
+          <li>标签：<span class="tag">GHOME</span><span class="tag">Shell</span><span class="tag">安全运维</span></li>
+          <li><span>来源：~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-18-agent-pairing-owner-confirm.…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605180000-GHOME%2BShell%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4-Agent%20%E9%85%8D%E5%AF%B9%E6%94%B9%E7%9F%AD%E7%A0%81%20%2B%20owner%20%E7%99%BB%E5%BD%95%E6%80%81%E7%A1%AE%E8%AE%A4%20Implementation%20Plan.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Agent 配对改短码 + owner 登录态确认 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to impl…</p>
+      <p>关键词：GHOME、Shell、安全运维、业务系统运维、业务系统运维 / GHOME、Agent 配对改短码 + owner 登录态确认 Implementation Plan</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4376c4b2ea9b.html"><small>上一篇</small>Agent 配对(公开 Skill.md → 短配对码 → owner 登录态确认)设计</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-79b7be40020c.html"><small>下一篇</small>Pair.md rename + API-doc disambiguation + list-row rotate Implementat…</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4fd4aadd25f3.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
