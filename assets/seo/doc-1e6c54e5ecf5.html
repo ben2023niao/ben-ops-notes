@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>6. 风控规则｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="6. 风控规则。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §6.2 权限与风控 、原型评审版 2026.05.21评审版.html 后台风控规则表 类型 ：账号安全 / 反洗钱 / 资金风控 / 内容安全 / 系统 触发条件 ：用业务语言描述，工程实现时翻译为 SQL /…">
+  <meta name="keywords" content="小蓝直播，Shell，Go，MySQL，Redis，监控告警，自动化，安全运维，业务系统运维，业务系统运维 / 小蓝直播，6. 风控规则">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e6c54e5ecf5.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e6c54e5ecf5.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605210000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-6.%20%E9%A3%8E%E6%8E%A7%E8%A7%84%E5%88%99.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="6. 风控规则">
+  <meta property="og:description" content="6. 风控规则。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §6.2 权限与风控 、原型评审版 2026.05.21评审版.html 后台风控规则表 类型 ：账号安全 / 反洗钱 / 资金风控 / 内容安全 / 系统 触发条件 ：用业务语言描述，工程实现时翻译为 SQL /…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e6c54e5ecf5.html">
+  <meta property="article:published_time" content="2026-05-21T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-21 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="6. 风控规则">
+  <meta name="twitter:description" content="6. 风控规则。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §6.2 权限与风控 、原型评审版 2026.05.21评审版.html 后台风控规则表 类型 ：账号安全 / 反洗钱 / 资金风控 / 内容安全 / 系统 触发条件 ：用业务语言描述，工程实现时翻译为 SQL /…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e6c54e5ecf5.html#article","headline":"6. 风控规则","description":"6. 风控规则。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §6.2 权限与风控 、原型评审版 2026.05.21评审版.html 后台风控规则表 类型 ：账号安全 / 反洗钱 / 资金风控 / 内容安全 / 系统 触发条件 ：用业务语言描述，工程实现时翻译为 SQL /…","datePublished":"2026-05-21T00:00:00+08:00","dateModified":"2026-05-21 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Shell","Go","MySQL","Redis","监控告警","自动化","安全运维","业务系统运维","业务系统运维 / 小蓝直播","6. 风控规则"],"wordCount":2416,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e6c54e5ecf5.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e6c54e5ecf5.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"6. 风控规则","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e6c54e5ecf5.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>6. 风控规则</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>6. 风控规则</h1>
+      <p class="lede">6. 风控规则。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §6.2 权限与风控 、原型评审版 2026.05.21评审版.html 后台风控规则表 类型 ：账号安全 / 反洗钱 / 资金风控 / 内容安全 / 系统 触发条件 ：用业务语言描述，工程实现时翻译为 SQL /…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-21T00:00:00+08:00">发布于 2026-05-21</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,416 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/architecture/risk-control-rules.md</code></p>
+<p>整理日期：2026-05-21 00:00｜日期依据：正文日期</p>
+<p>对齐 PRD：<code>product-prd.md §6.2 权限与风控</code>、原型评审版 <code>2026.05.21评审版.html</code> 后台风控规则表</p>
+<p><strong>本文档严格对齐 PRD</strong>，技术架构识别的潜在缺口列入 §3 "建议补入清单"，由产品评审后回写 PRD 再实施，技术文档不单方面新增规则。</p>
+</blockquote>
+<h2 id="6-1-规则总表-v1-原型评审版-6-条">6.1 规则总表（v1，原型评审版 6 条）</h2>
+<table>
+<thead>
+<tr>
+<th>规则 ID</th>
+<th>名称</th>
+<th>类型</th>
+<th>严重度</th>
+<th>触发条件</th>
+<th>自动动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>R-101</strong></td>
+<td>新设备登录</td>
+<td>账号安全</td>
+<td>低</td>
+<td>新设备指纹 + IP 异常</td>
+<td>二次验证（短信 / 邮箱）</td>
+</tr>
+<tr>
+<td><strong>R-108</strong></td>
+<td>主播多设备并发</td>
+<td>账号安全</td>
+<td>高</td>
+<td>同主播账号 2+ 设备同时推流</td>
+<td>自动暂停推流 + 人工核查</td>
+</tr>
+<tr>
+<td><strong>R-204</strong></td>
+<td>异常充提链路</td>
+<td>反洗钱</td>
+<td>高</td>
+<td>充值 24h 内提现 ≥ 80% 余额</td>
+<td>人工审核</td>
+</tr>
+<tr>
+<td><strong>R-301</strong></td>
+<td>单笔大额押注</td>
+<td>资金风控</td>
+<td>高</td>
+<td>单笔押注 ≥ ¥10,000 等值</td>
+<td>财务复核</td>
+</tr>
+<tr>
+<td><strong>R-502</strong></td>
+<td>弹幕违禁词高频</td>
+<td>内容安全</td>
+<td>中</td>
+<td>房间 10 min 内命中 ≥ 15 次</td>
+<td>进入直播间 / 人工巡查</td>
+</tr>
+<tr>
+<td><strong>R-604</strong></td>
+<td>通道成功率骤降</td>
+<td>系统</td>
+<td>中</td>
+<td>15 min 内成功率下降 ≥ 5%</td>
+<td>查看 / 联系通道</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-1-1-字段说明">6.1.1 字段说明</h3>
+<ul>
+<li><strong>规则 ID</strong>：全局唯一，不可重用</li>
+<li><strong>类型</strong>：账号安全 / 反洗钱 / 资金风控 / 内容安全 / 系统</li>
+<li><strong>严重度</strong>：高 / 中 / 低</li>
+<li><strong>触发条件</strong>：用业务语言描述，工程实现时翻译为 SQL / 表达式</li>
+<li><strong>自动动作</strong>：系统自动执行（不需要人工）</li>
+</ul>
+<h2 id="6-2-各规则技术实现">6.2 各规则技术实现</h2>
+<h3 id="6-2-1-R-101-新设备登录">6.2.1 R-101 新设备登录</h3>
+<p><strong>实现位置</strong>：<code>internal/service/auth/login.go</code></p>
+<pre><code class="language-go">// 登录成功后：
+deviceFP := req.DeviceFingerprint
+known, _ := repo.UserDevice.IsKnown(ctx, userID, deviceFP)
+if !known {
+    ipCountry := geoip.Lookup(req.IP)
+    historicalCountry := repo.UserDevice.LastIPCountry(ctx, userID)
+    if ipCountry != historicalCountry {
+        // 触发 R-101
+        riskService.Trigger(ctx, "R-101", RiskTriggerCtx{
+            UserID: userID, DeviceFP: deviceFP, IP: req.IP,
+        })
+        // 阻塞登录，要求二次验证
+        return ErrNeedSecondaryVerify
+    }
+    repo.UserDevice.Register(ctx, userID, deviceFP, req.IP, req.UA)
+}
+</code></pre>
+<h3 id="6-2-2-R-108-主播多设备并发-v0-2-基于-stream_key">6.2.2 R-108 主播多设备并发（v0.2：基于 stream_key）</h3>
+<p><strong>实现位置</strong>：<code>internal/service/liveroom/publish.go</code> + SRS <code>on_publish</code> hook</p>
+<blockquote>
+<p>v0.2 简化：原 PRD 设计依赖"主播登录主播端 + 设备指纹"，v0.2 改为<strong>主播无 web 端</strong>，纯基于 stream_key 检测。</p>
+</blockquote>
+<pre><code class="language-go">// SRS on_publish hook：
+// 1. 解析推流 URL 中的 stream_key → 反查 live_rooms.streamer_id + room_id
+// 2. 校验 stream_key 是否有效 + room 是否被封禁
+// 3. 查 Redis: SETNX live:active:{room_id} = client_id EX 60s
+// 4. 失败 → 已有 active 推流
+//    - 触发 R-108：
+//      a. 拒绝新推流（返回 403）
+//      b. 写 risk_alerts
+//      c. 推送通知给该房间的房间管理员（Telegram bot webhook）
+//      d. 房间管理员判断真伪，决定是否轮换 stream_key（前者作恶）或人工协调主播切回原端
+// 5. 心跳：on_publish 后每 20s 续期 live:active 这个 key
+// 6. on_unpublish: 立即清除 live:active key
+</code></pre>
+<h3 id="6-2-3-R-204-异常充提链路">6.2.3 R-204 异常充提链路</h3>
+<p><strong>实现位置</strong>：<code>internal/service/wallet/withdraw.go</code> 风控引擎</p>
+<pre><code class="language-go">// 用户提交提现申请：
+recentRecharge := repo.RechargeOrder.Sum24h(ctx, userID, "PAID")
+currentBalance := wallet.RMB
+amount := req.Amount
+
+// 触发条件：充值 24h 内 提现金额 ≥ 80% × 该 24h 累计充值
+if recentRecharge &gt; 0 &amp;&amp; amount &gt;= recentRecharge*0.8 {
+    riskService.Trigger(ctx, "R-204", RiskTriggerCtx{
+        UserID: userID, Recharge24h: recentRecharge, WithdrawAmount: amount,
+    })
+    // 自动动作：标记为高风险，进入人工审核队列
+    return WithdrawResult{Status: "待审核（高风险）", RiskScore: 90}
+}
+</code></pre>
+<h3 id="6-2-4-R-301-单笔大额押注">6.2.4 R-301 单笔大额押注</h3>
+<p><strong>实现位置</strong>：<code>internal/service/predict/bet.go</code> 押注事务后</p>
+<pre><code class="language-go">// 押注成功后：
+amountRMBEquiv := bet.Amount / 10.0 // 钻石转 RMB 等值
+if amountRMBEquiv &gt;= 10000 {
+    riskService.Trigger(ctx, "R-301", RiskTriggerCtx{
+        UserID: bet.UserID, BetID: bet.ID,
+        AmountDiamond: bet.Amount, AmountRMBEquiv: amountRMBEquiv,
+    })
+    // 自动动作：财务复核任务进入 admin 队列
+    // 不阻塞押注（PRD 未要求阻塞），仅复核
+}
+</code></pre>
+<h3 id="6-2-5-R-502-弹幕违禁词高频">6.2.5 R-502 弹幕违禁词高频</h3>
+<p><strong>实现位置</strong>：<code>go-ws</code> 弹幕入站处理 + worker-risk 聚合</p>
+<pre><code class="language-go">// go-ws 收到弹幕：
+hits := forbiddenWord.Match(content)
+if len(hits) &gt; 0 {
+    // 不广播给观众
+    repo.RoomAuditLog.Record(ctx, roomID, userID, "FORBIDDEN_HIT", content, hits)
+    redis.Incr(ctx, fmt.Sprintf("room:hit:%d:%s", roomID, time.Now().Format("200601021504")))
+}
+
+// worker-risk 每分钟跑：
+for each room:
+    count := redis.GetSum(ctx, fmt.Sprintf("room:hit:%d:*", roomID), last10Min)
+    if count &gt;= 15 {
+        riskService.Trigger(ctx, "R-502", RiskTriggerCtx{RoomID: roomID, Count: count})
+        // 自动动作：仅生成告警，等待人工巡查（PRD 明确"人工巡查"）
+    }
+</code></pre>
+<h3 id="6-2-6-R-604-通道成功率骤降">6.2.6 R-604 通道成功率骤降</h3>
+<p><strong>实现位置</strong>：worker-cron 每分钟跑</p>
+<pre><code class="language-go">// 每分钟评估每个通道：
+for each channel in [wechat, alipay]:
+    last15min := repo.RechargeOrder.Stats15Min(ctx, channel)
+    successRate := float64(last15min.Paid) / float64(last15min.Total)
+
+    // 与基线对比
+    baseline := redis.Get(ctx, fmt.Sprintf("channel:baseline:%s", channel))
+    drop := baseline - successRate
+
+    if drop &gt;= 0.05 {
+        riskService.Trigger(ctx, "R-604", RiskTriggerCtx{
+            Channel: channel, SuccessRate: successRate, Baseline: baseline,
+        })
+        // 自动动作（PRD）：触发系统告警 → 推 Telegram + 邮件 → 运营查看 / 联系通道
+        // PRD 未要求自动切通道，技术架构识别此为可补入点，见 §3.1
+    }
+</code></pre>
+<h2 id="6-3-建议补入-PRD-的规则-非-PRD-待产品评审">6.3 建议补入 PRD 的规则（非 PRD，待产品评审）</h2>
+<p>技术架构识别到以下风控缺口，<strong>原型评审版未定义</strong>，待产品评审后回写 PRD 并分配规则 ID，再由技术侧实现。技术文档不单方面新增。</p>
+<table>
+<thead>
+<tr>
+<th>临时编号</th>
+<th>名称</th>
+<th>触发条件（建议）</th>
+<th>建议动作</th>
+<th>必要性</th>
+<th>缺失影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>T-205</strong></td>
+<td>短期多笔小额提现</td>
+<td>24h 内 ≥ 5 笔同账号提现</td>
+<td>人工审核</td>
+<td>高</td>
+<td>防小额套现 / 洗钱</td>
+</tr>
+<tr>
+<td><strong>T-206</strong></td>
+<td>单一收款账号绑定多用户</td>
+<td>同一支付宝账号同时绑 ≥ 3 个 Kickoff 账号</td>
+<td>告警 + 限制提现</td>
+<td>高</td>
+<td>防关联账户洗钱</td>
+</tr>
+<tr>
+<td><strong>T-302</strong></td>
+<td>同用户短时高额打赏</td>
+<td>同用户 1h 内累计 ≥ ¥5,000 等值</td>
+<td>财务复核</td>
+<td>中</td>
+<td>大 R 行为画像</td>
+</tr>
+<tr>
+<td><strong>T-303</strong></td>
+<td>押注密集刷量</td>
+<td>同用户 5min 内 ≥ 50 次押注</td>
+<td>自动告警 + 人工</td>
+<td>中</td>
+<td>机器人 / 异常账户</td>
+</tr>
+<tr>
+<td><strong>T-304</strong></td>
+<td>高赔率选项异常集中</td>
+<td>单一高赔率选项被 ≥ N 人异常集中下注</td>
+<td>财务复核 + 暂时锁盘</td>
+<td>高</td>
+<td><strong>防内幕交易</strong>，赛事场景核心风险</td>
+</tr>
+<tr>
+<td><strong>T-102</strong></td>
+<td>短期高频注册</td>
+<td>同设备 24h 内 ≥ 5 次 / 同 IP ≥ 10 次</td>
+<td>阻断</td>
+<td>中</td>
+<td>防垃圾账号</td>
+</tr>
+<tr>
+<td><strong>T-501</strong></td>
+<td>直播内容 AI 鉴黄命中</td>
+<td>截图 AI 鉴黄置信度高</td>
+<td>自动断流 + 房间封禁</td>
+<td><strong>极高</strong></td>
+<td><strong>合规底线</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-3-1-评审输入">6.3.1 评审输入</h3>
+<table>
+<thead>
+<tr>
+<th>规则</th>
+<th>评审决策点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T-205 / T-206</td>
+<td>阈值与白名单</td>
+</tr>
+<tr>
+<td>T-302</td>
+<td>是否阻塞打赏 vs 仅复核</td>
+</tr>
+<tr>
+<td>T-303 / T-304</td>
+<td>高赔率"N"取值；是否自动锁盘</td>
+</tr>
+<tr>
+<td>T-102</td>
+<td>设备指纹算法稳定性</td>
+</tr>
+<tr>
+<td>T-501</td>
+<td>鉴黄供应商（阿里云/腾讯云）+ 置信度阈值 + 误判处理</td>
+</tr>
+</tbody>
+</table>
+<p>评审通过后由产品在 PRD <code>product-prd.md §6.2</code> 增补条目，分配正式 ID（建议从 R-XXX 继续编号），技术再实施。</p>
+<h2 id="6-4-风控引擎实现">6.4 风控引擎实现</h2>
+<h3 id="6-4-1-当前落地范围-v0-3-4">6.4.1 当前落地范围（v0.3.4）</h3>
+<p>本期已落地风控 MVP，覆盖后台 ADM-601~ADM-605 与竞猜 R-301：</p>
+<ul>
+<li><code>risk_rules</code> / <code>risk_alerts</code> 两张表由 <code>000018_create_risk_tables</code> 创建，包含 down migration。</li>
+<li>默认种子规则 <code>R-301</code>：单笔押注 <code>min_bet_diamond &gt;= 100000</code>（¥10,000 等值）触发 HIGH 告警。</li>
+<li>C 端下注成功后，<code>services/go-app/internal/service/predict/service.go</code> 在资金事务完成后生成 <code>risk_alerts</code>，同一 <code>rule_code + source_type + source_id</code> 去重。</li>
+<li>后台 <code>/api/v1/admin/risk/*</code> 已支持 KPI、告警列表、告警详情、告警处置、规则列表、规则启用/禁用。</li>
+<li>告警处置写 <code>admin_audit_logs</code>，冻结用户动作会把 <code>users.status</code> 从正常改为冻结。</li>
+</ul>
+<h3 id="6-4-2-目标模块结构">6.4.2 目标模块结构</h3>
+<pre><code class="language-text">internal/service/risk/
+├── engine.go         # 规则引擎入口
+├── rules/
+│   ├── r101.go       # 每条规则独立 evaluator
+│   ├── r108.go
+│   ├── r204.go
+│   ├── r301.go
+│   ├── r502.go
+│   └── r604.go
+├── action.go         # 动作执行器（人工审核队列、自动阻断、告警）
+└── alert.go          # 告警生成（写 risk_alerts 表 + 推 Telegram + 邮件）
+</code></pre>
+<h3 id="6-4-3-规则评估方式">6.4.3 规则评估方式</h3>
+<table>
+<thead>
+<tr>
+<th>评估时机</th>
+<th>实现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>同步评估</strong></td>
+<td>业务请求路径内调用 <code>riskService.Evaluate(ctx, ev)</code> 立即决策（R-101 / R-108 / R-204）</td>
+</tr>
+<tr>
+<td><strong>异步评估</strong></td>
+<td>worker-risk 消费 stream:risk.signal，跑批 / 滚动窗口（R-502 / R-604）</td>
+</tr>
+<tr>
+<td><strong>事件后评估</strong></td>
+<td>资金事务完成后异步通知风控（R-301 押注后）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-4-4-规则配置化">6.4.4 规则配置化</h3>
+<p>规则参数存 <code>risk_rules</code> 表。当前 MySQL 实现使用 <code>id BIGINT UNSIGNED</code> 雪花主键 + <code>rule_code</code> 唯一键，状态和严重度使用 <code>TINYINT UNSIGNED</code>，避免字符串 enum：</p>
+<pre><code class="language-sql">CREATE TABLE risk_rules (
+    id           BIGINT UNSIGNED PRIMARY KEY,
+    rule_code    VARCHAR(32) UNIQUE,
+    name         VARCHAR(64) NOT NULL,
+    category     VARCHAR(32),         -- funds/account/content/system
+    severity     TINYINT UNSIGNED,    -- 1=LOW 2=MEDIUM 3=HIGH 4=CRITICAL
+    enabled      TINYINT UNSIGNED,
+    threshold_json JSON,              -- 规则参数，如 {"min_bet_diamond":100000}
+    action       VARCHAR(64),         -- 'auto_pause'/'block'/'manual_review'/'alert'
+    updated_by   BIGINT,
+    created_at   DATETIME(3),
+    updated_at   DATETIME(3),
+    deleted_at   DATETIME(3)
+);
+</code></pre>
+<p>后台 ADM-606（PRD）"新增/编辑规则" 直接改这张表，5min 缓存刷新。</p>
+<h2 id="6-5-告警与处置">6.5 告警与处置</h2>
+<h3 id="6-5-1-告警生成">6.5.1 告警生成</h3>
+<pre><code class="language-sql">CREATE TABLE risk_alerts (
+    id           BIGINT UNSIGNED PRIMARY KEY,
+    rule_id      BIGINT UNSIGNED,
+    rule_code    VARCHAR(32),
+    severity     TINYINT UNSIGNED,    -- 1=LOW 2=MEDIUM 3=HIGH 4=CRITICAL
+    target_type  VARCHAR(32),         -- user/streamer/room/order/channel
+    target_id    VARCHAR(64),
+    source_type  VARCHAR(32),         -- predict_bet/withdraw_order/...
+    source_id    VARCHAR(64),
+    payload_json JSON,                -- 触发时的上下文快照
+    status       TINYINT UNSIGNED,    -- 1=OPEN 2=REVIEWING 3=CLOSED 4=IGNORED
+    handled_by   BIGINT,              -- admin_user id
+    handled_at   DATETIME(3),
+    created_at   DATETIME(3),
+    INDEX(status, severity, created_at)
+);
+</code></pre>
+<h3 id="6-5-2-处置-SLA-PRD-kickoff-admin-md-3-7">6.5.2 处置 SLA（PRD <code>kickoff-admin.md §3.7</code>）</h3>
+<table>
+<thead>
+<tr>
+<th>严重度</th>
+<th>响应时间</th>
+<th>处置时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>高</td>
+<td>≤ 5 min</td>
+<td>≤ 1 hour</td>
+</tr>
+<tr>
+<td>中</td>
+<td>≤ 30 min</td>
+<td>≤ 24 hour</td>
+</tr>
+<tr>
+<td>低</td>
+<td>≤ 2 hour</td>
+<td>≤ 7 day</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-5-3-处置动作">6.5.3 处置动作</h3>
+<table>
+<thead>
+<tr>
+<th>动作</th>
+<th>实现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>查看</td>
+<td>跳转告警详情 + 关联数据</td>
+</tr>
+<tr>
+<td>冻结账户</td>
+<td>调 admin API <code>POST /admin/users/{id}/freeze</code></td>
+</tr>
+<tr>
+<td>封禁主播</td>
+<td>调 admin API <code>POST /admin/streamers/{id}/ban</code></td>
+</tr>
+<tr>
+<td>强制下播</td>
+<td>调 admin API <code>POST /admin/streamers/{id}/force-end</code></td>
+</tr>
+<tr>
+<td>财务放行</td>
+<td>提现订单 approve</td>
+</tr>
+<tr>
+<td>财务驳回</td>
+<td>提现订单 reject + 填理由</td>
+</tr>
+<tr>
+<td>忽略</td>
+<td>标记 <code>已忽略</code>，写审计</td>
+</tr>
+</tbody>
+</table>
+<p>所有处置写入 <code>admin_audit_log</code>。</p>
+<h2 id="6-6-风控审计">6.6 风控审计</h2>
+<ul>
+<li>每次规则触发 → INSERT <code>risk_alerts</code></li>
+<li>每次处置 → INSERT <code>admin_audit_log</code></li>
+<li><code>risk_alerts</code> 保留 365 天，<code>admin_audit_log</code> 永久保留</li>
+</ul>
+<h2 id="6-7-监控指标">6.7 监控指标</h2>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>阈值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>高优告警未处理数</td>
+<td>≥ 3 → 通知 oncall</td>
+</tr>
+<tr>
+<td>高优告警平均响应时长</td>
+<td>&gt; 30 min</td>
+</tr>
+<tr>
+<td>中优告警平均处置时长</td>
+<td>&gt; 24h</td>
+</tr>
+<tr>
+<td>风控规则触发率</td>
+<td>同比突增 &gt; 200%</td>
+</tr>
+<tr>
+<td>风控引擎错误率</td>
+<td>&gt; 1%</td>
+</tr>
+</tbody>
+</table>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#6-1-规则总表-v1-原型评审版-6-条">6.1 规则总表（v1，原型评审版 6 条）</a></li><li style="margin-left:0.8rem"><a href="#6-1-1-字段说明">6.1.1 字段说明</a></li><li style="margin-left:0.0rem"><a href="#6-2-各规则技术实现">6.2 各规则技术实现</a></li><li style="margin-left:0.8rem"><a href="#6-2-1-R-101-新设备登录">6.2.1 R-101 新设备登录</a></li><li style="margin-left:0.8rem"><a href="#6-2-2-R-108-主播多设备并发-v0-2-基于-stream_key">6.2.2 R-108 主播多设备并发（v0.2：基于 stream_key）</a></li><li style="margin-left:0.8rem"><a href="#6-2-3-R-204-异常充提链路">6.2.3 R-204 异常充提链路</a></li><li style="margin-left:0.8rem"><a href="#6-2-4-R-301-单笔大额押注">6.2.4 R-301 单笔大额押注</a></li><li style="margin-left:0.8rem"><a href="#6-2-5-R-502-弹幕违禁词高频">6.2.5 R-502 弹幕违禁词高频</a></li><li style="margin-left:0.8rem"><a href="#6-2-6-R-604-通道成功率骤降">6.2.6 R-604 通道成功率骤降</a></li><li style="margin-left:0.0rem"><a href="#6-3-建议补入-PRD-的规则-非-PRD-待产品评审">6.3 建议补入 PRD 的规则（非 PRD，待产品评审）</a></li><li style="margin-left:0.8rem"><a href="#6-3-1-评审输入">6.3.1 评审输入</a></li><li style="margin-left:0.0rem"><a href="#6-4-风控引擎实现">6.4 风控引擎实现</a></li><li style="margin-left:0.8rem"><a href="#6-4-1-当前落地范围-v0-3-4">6.4.1 当前落地范围（v0.3.4）</a></li><li style="margin-left:0.8rem"><a href="#6-4-2-目标模块结构">6.4.2 目标模块结构</a></li><li style="margin-left:0.8rem"><a href="#6-4-3-规则评估方式">6.4.3 规则评估方式</a></li><li style="margin-left:0.8rem"><a href="#6-4-4-规则配置化">6.4.4 规则配置化</a></li><li style="margin-left:0.0rem"><a href="#6-5-告警与处置">6.5 告警与处置</a></li><li style="margin-left:0.8rem"><a href="#6-5-1-告警生成">6.5.1 告警生成</a></li><li style="margin-left:0.8rem"><a href="#6-5-2-处置-SLA-PRD-kickoff-admin-md-3-7">6.5.2 处置 SLA（PRD kickoff-admin.md §3.7 ）</a></li><li style="margin-left:0.8rem"><a href="#6-5-3-处置动作">6.5.3 处置动作</a></li><li style="margin-left:0.0rem"><a href="#6-6-风控审计">6.6 风控审计</a></li><li style="margin-left:0.0rem"><a href="#6-7-监控指标">6.7 监控指标</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-05-21</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Shell</span><span class="tag">Go</span><span class="tag">MySQL</span><span class="tag">Redis</span><span class="tag">监控告警</span><span class="tag">自动化</span><span class="tag">安全运维</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/architecture/risk-control-rules.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605210000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-6.%20%E9%A3%8E%E6%8E%A7%E8%A7%84%E5%88%99.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>6. 风控规则。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §6.2 权限与风控 、原型评审版 2026.05.21评审版.html 后台风控规则表 类型 ：账号安全 / 反洗钱 / 资金风控 / 内容安全 / 系统 触发条件 ：用业务语言描述，工程实现时翻译为 SQL /…</p>
+      <p>关键词：小蓝直播、Shell、Go、MySQL、Redis、监控告警、自动化、安全运维、业务系统运维、业务系统运维 / 小蓝直播、6. 风控规则</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-79b7be40020c.html"><small>上一篇</small>Pair.md rename + API-doc disambiguation + list-row rotate Implementat…</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2e23f299e5cf.html"><small>下一篇</small>Kickoff PRD 模块索引</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e6c54e5ecf5.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
