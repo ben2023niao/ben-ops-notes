@@ -1,0 +1,1006 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>数据模型设计 · data-model（2026-05-22 · 4fc1）｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="数据模型设计 · data-model。本文属于业务系统运维 / 小蓝直播，对齐 PRD 各模块 §7 数据对象 + funds-and-ledger.md 任何资金变动 = 1 条 wallet_journals 主流水 + ≥2 条 wallet_journal_entries 分录 其他表 32 天数据量预…">
+  <meta name="keywords" content="小蓝直播，Shell，Go，MySQL，Redis，监控告警，安全运维，故障排查，业务系统运维，业务系统运维 / 小蓝直播，数据模型设计 · data-model">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-196500024fc1.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-196500024fc1.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605220000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B%E8%AE%BE%E8%AE%A1%20%C2%B7%20data-model-02.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="数据模型设计 · data-model（2026-05-22 · 4fc1）">
+  <meta property="og:description" content="数据模型设计 · data-model。本文属于业务系统运维 / 小蓝直播，对齐 PRD 各模块 §7 数据对象 + funds-and-ledger.md 任何资金变动 = 1 条 wallet_journals 主流水 + ≥2 条 wallet_journal_entries 分录 其他表 32 天数据量预…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-196500024fc1.html">
+  <meta property="article:published_time" content="2026-05-22T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-22 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="数据模型设计 · data-model（2026-05-22 · 4fc1）">
+  <meta name="twitter:description" content="数据模型设计 · data-model。本文属于业务系统运维 / 小蓝直播，对齐 PRD 各模块 §7 数据对象 + funds-and-ledger.md 任何资金变动 = 1 条 wallet_journals 主流水 + ≥2 条 wallet_journal_entries 分录 其他表 32 天数据量预…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-196500024fc1.html#article","headline":"数据模型设计 · data-model（2026-05-22 · 4fc1）","description":"数据模型设计 · data-model。本文属于业务系统运维 / 小蓝直播，对齐 PRD 各模块 §7 数据对象 + funds-and-ledger.md 任何资金变动 = 1 条 wallet_journals 主流水 + ≥2 条 wallet_journal_entries 分录 其他表 32 天数据量预…","datePublished":"2026-05-22T00:00:00+08:00","dateModified":"2026-05-22 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Shell","Go","MySQL","Redis","监控告警","安全运维","故障排查","业务系统运维","业务系统运维 / 小蓝直播","数据模型设计 · data-model"],"wordCount":2672,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-196500024fc1.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-196500024fc1.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"数据模型设计 · data-model","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-196500024fc1.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>数据模型设计 · data-model（2026-05-22 · 4fc1）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>数据模型设计 · data-model（2026-05-22 · 4fc1）</h1>
+      <p class="lede">数据模型设计 · data-model。本文属于业务系统运维 / 小蓝直播，对齐 PRD 各模块 §7 数据对象 + funds-and-ledger.md 任何资金变动 = 1 条 wallet_journals 主流水 + ≥2 条 wallet_journal_entries 分录 其他表 32 天数据量预…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-22T00:00:00+08:00">发布于 2026-05-22</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,672 字</span>
+        <span class="badge">8 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/main/docs/architecture/data-model.md</code></p>
+<p>整理日期：2026-05-22 00:00｜日期依据：正文日期</p>
+<p>对齐 PRD 各模块 §7 数据对象 + <code>funds-and-ledger.md</code></p>
+<p><strong>v0.3（2026-05-22）</strong>：全集 51 张表，本期落地 P0 35 张（迁移脚本 000001-000008）。
+<strong>v0.3.4（2026-05-26）</strong>：补齐风控 MVP 2 张表（<code>risk_rules</code> / <code>risk_alerts</code>），支撑 ADM-601~ADM-605。
+<strong>v0.3.5（2026-05-30）</strong>：新增运营配置表 <code>user_level_configs</code> / <code>gift_catalog</code>，承接 ADM-409 / ADM-410；等级只保留累计充值到账钻石升级门槛，不承载特权。
+<strong>v0.3.6（2026-06-02）</strong>：<code>system_configs</code> 新增充值规则 seed（手续费、钻石比例、金额上下限、预设金额、精确充值包），承接 WALLET-011 / ADM-914。
+其余 P1/P2 表（审核/对账/level_log/login_log/user_level_log 等）将在后续迁移补齐。</p>
+</blockquote>
+<h2 id="1-设计原则-强制">1. 设计原则（强制）</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>规则</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>主键 <code>BIGINT UNSIGNED</code> + 雪花 ID（应用生成）</td>
+<td>禁止自增，分布式 + 隐藏行数</td>
+</tr>
+<tr>
+<td>2</td>
+<td>软删除 <code>deleted_at DATETIME(3) NULL</code></td>
+<td>资金类表禁用软删（订单走状态机）</td>
+</tr>
+<tr>
+<td>3</td>
+<td>时间精度 <code>DATETIME(3)</code> 毫秒</td>
+<td><code>created_at</code> / <code>updated_at</code> 必有</td>
+</tr>
+<tr>
+<td>4</td>
+<td>字符集 <code>utf8mb4_0900_ai_ci</code> + InnoDB</td>
+<td>全表 emoji 友好</td>
+</tr>
+<tr>
+<td>5</td>
+<td>钱币类型</td>
+<td>RMB → <code>DECIMAL(20,2)</code>；💎 → <code>BIGINT UNSIGNED</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td>状态字段 <code>TINYINT UNSIGNED</code> + 注释枚举</td>
+<td>禁止用字符串 enum</td>
+</tr>
+<tr>
+<td>7</td>
+<td>不建外键约束</td>
+<td>应用层保证，避免高并发外键锁</td>
+</tr>
+<tr>
+<td>8</td>
+<td>资金表 CHECK 约束</td>
+<td>MySQL 8.0.16+ 非负校验</td>
+</tr>
+<tr>
+<td>9</td>
+<td>乐观锁 <code>version BIGINT UNSIGNED</code></td>
+<td>仅 <code>wallets</code> 使用</td>
+</tr>
+<tr>
+<td>10</td>
+<td>软删除参与索引</td>
+<td>业务索引带 <code>deleted_at</code> 列</td>
+</tr>
+<tr>
+<td>11</td>
+<td>所有迁移 up+down 配对</td>
+<td><code>000NNN_topic.{up,down}.sql</code></td>
+</tr>
+<tr>
+<td>12</td>
+<td>DB 用户权限分离</td>
+<td>业务账号无 DELETE，DBA 才能 DROP</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-全集-51-张表清单">2. 全集 51 张表清单</h2>
+<table>
+<thead>
+<tr>
+<th>域</th>
+<th>表数</th>
+<th>P0</th>
+<th>P1</th>
+<th>P2</th>
+<th>迁移文件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 用户认证</td>
+<td>6</td>
+<td>4</td>
+<td>2</td>
+<td>0</td>
+<td><code>000001_create_user_tables</code></td>
+</tr>
+<tr>
+<td>2 钱包账本</td>
+<td>8</td>
+<td>8</td>
+<td>0</td>
+<td>0</td>
+<td><code>000002_create_wallet_tables</code></td>
+</tr>
+<tr>
+<td>3 直播</td>
+<td>8</td>
+<td>6</td>
+<td>2</td>
+<td>0</td>
+<td><code>000003_create_live_tables</code></td>
+</tr>
+<tr>
+<td>4 比赛</td>
+<td>6</td>
+<td>5</td>
+<td>1</td>
+<td>0</td>
+<td><code>000004_create_match_tables</code></td>
+</tr>
+<tr>
+<td>5 竞猜</td>
+<td>4</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td><code>000005_create_predict_tables</code></td>
+</tr>
+<tr>
+<td>6 主播</td>
+<td>2</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td><code>000006_create_streamer_tables</code></td>
+</tr>
+<tr>
+<td>7 风控审核</td>
+<td>6</td>
+<td>2</td>
+<td>1</td>
+<td>3</td>
+<td><code>000018_create_risk_tables</code></td>
+</tr>
+<tr>
+<td>8 对账</td>
+<td>3</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td><em>(后续 P1)</em></td>
+</tr>
+<tr>
+<td>9 系统配置</td>
+<td>7</td>
+<td>5</td>
+<td>2</td>
+<td>0</td>
+<td><code>000007_create_config_tables</code>, <code>000024_create_economy_config_tables</code></td>
+</tr>
+<tr>
+<td>10 审计通用</td>
+<td>3</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td><code>000008_create_audit_tables</code></td>
+</tr>
+<tr>
+<td><strong>合计</strong></td>
+<td><strong>53</strong></td>
+<td><strong>37</strong></td>
+<td><strong>13</strong></td>
+<td><strong>3</strong></td>
+<td><strong>9 个文件</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-P0-35-张表索引">3. P0 35 张表索引</h2>
+<h3 id="3-1-域-1-用户与认证-4-张">3.1 域 1 · 用户与认证（4 张）</h3>
+<table>
+<thead>
+<tr>
+<th>表</th>
+<th>关键索引</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>users</code></td>
+<td>uk(account) / uk(user_no) / idx(level,deleted_at) / idx(status,deleted_at)</td>
+<td>登录、客服用户号精确查询、等级筛选、风控冻结筛选</td>
+</tr>
+<tr>
+<td><code>admins</code></td>
+<td>uk(username) / idx(role,deleted_at)</td>
+<td>后台登录 + RBAC 检索</td>
+</tr>
+<tr>
+<td><code>user_kyc</code></td>
+<td>idx(user_id,status) / idx(id_card_no_hash)</td>
+<td>KYC 状态查询、身份证去重</td>
+</tr>
+<tr>
+<td><code>refresh_token_blacklist</code></td>
+<td>uk(jti) / idx(expires_at)</td>
+<td>撤销名单查询 + TTL 清理</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-2-域-2-钱包账本-8-张-最严谨">3.2 域 2 · 钱包账本（8 张，最严谨）</h3>
+<table>
+<thead>
+<tr>
+<th>表</th>
+<th>关键索引</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>wallets</code></td>
+<td>uk(user_id) + CHECK 非负</td>
+<td>每用户 1 行，乐观锁 version</td>
+</tr>
+<tr>
+<td><code>wallet_journals</code></td>
+<td>uk(idempotency_key) / idx(user_id,created_at) / idx(biz_type,biz_id)</td>
+<td>幂等去重 + 用户流水 + 业务反查</td>
+</tr>
+<tr>
+<td><code>wallet_journal_entries</code></td>
+<td>idx(journal_id) / idx(account,direction,created_at)</td>
+<td>复式记账分录</td>
+</tr>
+<tr>
+<td><code>recharge_orders</code></td>
+<td>uk(order_no) / uk(channel,third_party_no) / idx(user_id,status,created_at) / idx(pay_type,status)</td>
+<td>订单号唯一 + 通道防重 + 用户筛选 + 大白鲨子通道筛选</td>
+</tr>
+<tr>
+<td><code>withdraw_orders</code></td>
+<td>uk(order_no) / idx(status,created_at)</td>
+<td>提现队列</td>
+</tr>
+<tr>
+<td><code>exchange_orders</code></td>
+<td>uk(order_no) / idx(user_id,created_at)</td>
+<td>兑换流水</td>
+</tr>
+<tr>
+<td><code>balance_adjustments</code></td>
+<td>uk(journal_id) / idx(user_id,created_at)</td>
+<td>手工调账审计</td>
+</tr>
+<tr>
+<td><code>bank_accounts</code></td>
+<td>uk(user_id,account_no_hash,deleted_at)</td>
+<td>同一用户同一账号去重</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-3-域-3-直播-6-张">3.3 域 3 · 直播（6 张）</h3>
+<table>
+<thead>
+<tr>
+<th>表</th>
+<th>关键索引</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>live_rooms</code></td>
+<td>uk(room_no) / idx(streamer_id,status,deleted_at) / idx(status,deleted_at) / idx(home_banner_enabled,home_banner_sort,status,deleted_at,home_banner_start_at,home_banner_end_at) / idx(always_visible,status,deleted_at,viewer_count,last_start_at)</td>
+<td>房间列表、主播房间、首页赛事 Banner 推荐、C 端常驻直播间列表</td>
+</tr>
+<tr>
+<td><code>live_sessions</code></td>
+<td>idx(room_id,start_at) / idx(streamer_id,start_at) / idx(status,last_heartbeat_at)</td>
+<td>场次历史；<code>last_heartbeat_at</code> 记录主播端业务心跳,用于 60s 失联自动下播兜底；<code>settlement_tip_rmb</code> 与 <code>operator_tip_*</code> 分开支持主播对账</td>
+</tr>
+<tr>
+<td><code>live_stream_keys</code></td>
+<td>uk(stream_key) / idx(room_id,active)</td>
+<td>推流码鉴权 + 历史</td>
+</tr>
+<tr>
+<td><code>live_room_admins</code></td>
+<td>uk(active_key) / idx(room_id,admin_id,revoked_at) / idx(admin_id,revoked_at)</td>
+<td>房间管理员多对多关系；<code>active_key</code> 为生成列，仅约束未撤销授权唯一</td>
+</tr>
+<tr>
+<td><code>live_chat_messages_YYYYMM</code></td>
+<td>idx(room_id,created_at) / idx(user_id,created_at)</td>
+<td><strong>按月分表</strong></td>
+</tr>
+<tr>
+<td><code>live_tips</code></td>
+<td>uk(journal_id) / idx(room_id,created_at) / idx(streamer_id,created_at) / idx(session_id,is_operator_tip,settlement_rmb_equiv)</td>
+<td>打赏流水；<code>rmb_equiv</code> 为礼物展示价值，<code>settlement_*</code> 为主播结算价值</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-4-域-4-比赛-5-张">3.4 域 4 · 比赛（5 张）</h3>
+<table>
+<thead>
+<tr>
+<th>表</th>
+<th>关键索引</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>teams</code></td>
+<td>uk(code) / idx(fifa_rank)</td>
+<td>国家代码唯一</td>
+</tr>
+<tr>
+<td><code>match_groups</code></td>
+<td>uk(stage,group_code)</td>
+<td>小组赛分组</td>
+</tr>
+<tr>
+<td><code>matches</code></td>
+<td>uk(match_no) / idx(start_at,status) / idx(stage,round)</td>
+<td>时间轴 + 阶段筛选</td>
+</tr>
+<tr>
+<td><code>match_brackets</code></td>
+<td>uk(round,position)</td>
+<td>淘汰赛对阵图</td>
+</tr>
+<tr>
+<td><code>match_goals</code></td>
+<td>idx(match_id,minute,deleted_at) / idx(team_id,created_at)</td>
+<td>进球事件流</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-5-域-5-竞猜-4-张-核心商业">3.5 域 5 · 竞猜（4 张，核心商业）</h3>
+<table>
+<thead>
+<tr>
+<th>表</th>
+<th>关键索引</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>predict_activities</code></td>
+<td>idx(match_id,status) / idx(status,close_at) / idx(status,settled_at)</td>
+<td>活动列表 + 到期扫描 + 结算队列</td>
+</tr>
+<tr>
+<td><code>predict_options</code></td>
+<td>uk(activity_id,option_no)</td>
+<td>活动内选项唯一</td>
+</tr>
+<tr>
+<td><code>predict_bets</code></td>
+<td>uk(bet_no) / uk(lock_journal_id) / idx(user_id,status,created_at) / idx(activity_id,option_id)</td>
+<td>押注查询 + 结算扫描</td>
+</tr>
+<tr>
+<td><code>predict_settlements</code></td>
+<td>uk(bet_id,batch_no) / uk(journal_id)</td>
+<td>同押注多批次结算（v1/v2）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-6-域-6-主播-2-张">3.6 域 6 · 主播（2 张）</h3>
+<table>
+<thead>
+<tr>
+<th>表</th>
+<th>关键索引</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>streamers</code></td>
+<td>uk(streamer_no) / idx(status,deleted_at) / idx(total_tip_rmb)</td>
+<td>TOP 主播榜</td>
+</tr>
+<tr>
+<td><code>streamer_audit_logs</code></td>
+<td>idx(streamer_id,created_at) / idx(operator_created)</td>
+<td>审核轨迹</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-7-域-9-系统配置-3-张">3.7 域 9 · 系统配置（3 张）</h3>
+<table>
+<thead>
+<tr>
+<th>表</th>
+<th>关键索引</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>system_configs</code></td>
+<td>uk(config_key) / idx(category)</td>
+<td>通用 K-V；钱包充值规则使用 <code>wallet.recharge.*</code> key 动态控制手续费、钻石比例、金额上下限和精确充值包</td>
+</tr>
+<tr>
+<td><code>level_configs</code></td>
+<td>PK(level)</td>
+<td>历史等级配置表；新增逻辑不得依赖其中的特权/限额字段</td>
+</tr>
+<tr>
+<td><code>user_level_configs</code></td>
+<td>idx(enabled,min_diamond,deleted_at) / idx(level_no,deleted_at)</td>
+<td>用户等级升级门槛，仅按累计充值到账钻石展示进度</td>
+</tr>
+<tr>
+<td><code>gift_catalog</code></td>
+<td>idx(enabled,sort_order,deleted_at) / idx(code,deleted_at)</td>
+<td>礼物目录、钻石价格、礼物图标与特效静态图；<code>effect_type</code> 仅作旧枚举兼容</td>
+</tr>
+<tr>
+<td><code>home_banners</code></td>
+<td>idx(position,enabled,sort_order,deleted_at)</td>
+<td>位置分组排序</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-8-域-10-审计通用-3-张">3.8 域 10 · 审计通用（3 张）</h3>
+<table>
+<thead>
+<tr>
+<th>表</th>
+<th>关键索引</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>admin_audit_logs</code></td>
+<td>idx(operator_id,created_at) / idx(target_type,target_id) / idx(action,created_at)</td>
+<td>操作审计三维检索</td>
+</tr>
+<tr>
+<td><code>idempotency_keys</code></td>
+<td>uk(scope,key) / idx(expires_at)</td>
+<td>幂等去重</td>
+</tr>
+<tr>
+<td><code>payment_callbacks</code></td>
+<td>idx(channel,third_party_no) / idx(order_no) / idx(processed,received_at)</td>
+<td>回调反查 + 重放</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-ER-关系图">4. ER 关系图</h2>
+<pre><code class="language-mermaid">erDiagram
+    users ||--o| wallets : "1:1"
+    users ||--o{ wallet_journals : "1:N"
+    users ||--o{ user_kyc : "1:N"
+    users ||--o{ recharge_orders : "1:N"
+    users ||--o{ withdraw_orders : "1:N"
+    users ||--o{ predict_bets : "1:N"
+    users ||--o{ bank_accounts : "1:N"
+    users ||--o{ live_tips : "1:N"
+
+    admins ||--o{ live_room_admins : "1:N"
+    admins ||--o{ admin_audit_logs : "1:N"
+    admins ||--o{ streamer_audit_logs : "1:N"
+
+    wallets ||--o{ wallet_journals : "用户视角"
+    wallet_journals ||--|{ wallet_journal_entries : "1:N&gt;=2 复式"
+    wallet_journals ||--o| balance_adjustments : "1:0/1 调账绑定"
+    wallet_journals ||--o| live_tips : "1:0/1 打赏绑定"
+
+    recharge_orders ||--o| wallet_journals : "1:0/1 入账"
+    withdraw_orders ||--o| wallet_journals : "1:0/1 出账"
+    exchange_orders ||--o| wallet_journals : "1:0/1 兑换"
+    withdraw_orders }o--|| bank_accounts : "提现到"
+
+    streamers ||--o{ live_rooms : "1:N"
+    streamers ||--o{ streamer_audit_logs : "1:N"
+    live_rooms ||--o{ live_sessions : "1:N"
+    live_rooms ||--o{ live_stream_keys : "1:N 含轮换"
+    live_rooms ||--o{ live_room_admins : "M:N admins"
+    live_rooms ||--o{ live_tips : "1:N"
+    live_sessions ||--o{ live_tips : "1:N"
+
+    teams ||--o{ matches : "home/away"
+    match_groups ||--o{ matches : "小组赛"
+    matches ||--o{ match_goals : "1:N"
+    matches ||--o{ match_brackets : "0/1 淘汰赛"
+    matches ||--o{ predict_activities : "1:N"
+
+    predict_activities ||--o{ predict_options : "1:N"
+    predict_activities ||--o{ predict_bets : "1:N"
+    predict_options ||--o{ predict_bets : "1:N"
+    predict_bets ||--o| predict_settlements : "1:0/1 结算"
+</code></pre>
+<h2 id="5-复式记账模式">5. 复式记账模式</h2>
+<h3 id="5-1-流水写入规范">5.1 流水写入规范</h3>
+<p>任何资金变动 = <strong>1 条 <code>wallet_journals</code> 主流水</strong> + <strong>≥2 条 <code>wallet_journal_entries</code> 分录</strong></p>
+<pre><code>示例：用户 #1001 充值 100 元 → 1000💎
+
+INSERT wallet_journals (id=J1, user_id=1001, biz_type='recharge', biz_id=RO1, amount=100.00, currency=1)
+
+INSERT wallet_journal_entries (journal_id=J1, account='user:1001',         direction=1 借, currency=1, amount=100.00)
+INSERT wallet_journal_entries (journal_id=J1, account='platform:recharge', direction=2 贷, currency=1, amount=100.00)
+</code></pre>
+<h3 id="5-2-校验约束">5.2 校验约束</h3>
+<table>
+<thead>
+<tr>
+<th>校验</th>
+<th>时机</th>
+<th>实现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>同一 journal 借贷配平</td>
+<td>事务内</td>
+<td>service 层 + SQL <code>SELECT SUM(amount * IF(direction=1,1,-1)) GROUP BY journal_id</code></td>
+</tr>
+<tr>
+<td>单分录金额 &gt; 0</td>
+<td>DDL</td>
+<td><code>CHECK (amount &gt; 0)</code></td>
+</tr>
+<tr>
+<td>钱包余额非负</td>
+<td>DDL</td>
+<td><code>CHECK (rmb_balance &gt;= 0)</code> 等</td>
+</tr>
+<tr>
+<td>日终全账平衡</td>
+<td>凌晨 cron</td>
+<td>对账 job：<code>SUM(entries.amount * sign) GROUP BY currency = 0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="5-3-账户命名">5.3 账户命名</h3>
+<table>
+<thead>
+<tr>
+<th>account</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user:{user_id}</code></td>
+<td>用户账户</td>
+</tr>
+<tr>
+<td><code>platform:recharge</code></td>
+<td>平台收款（充值入账）</td>
+</tr>
+<tr>
+<td><code>platform:withdraw</code></td>
+<td>平台付款（提现出账）</td>
+</tr>
+<tr>
+<td><code>platform:exchange_fee</code></td>
+<td>兑换手续费收入</td>
+</tr>
+<tr>
+<td><code>platform:bet_pool</code></td>
+<td>押注资金池（押注转入，结算转出）</td>
+</tr>
+<tr>
+<td><code>platform:income</code></td>
+<td>平台净收入（打赏分成等）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-分表策略">6. 分表策略</h2>
+<table>
+<thead>
+<tr>
+<th>表</th>
+<th>策略</th>
+<th>触发</th>
+<th>路由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>live_chat_messages</code></td>
+<td>按月 <code>live_chat_messages_YYYYMM</code></td>
+<td>单月预估 ≥ 1000w 行</td>
+<td>应用层根据 <code>created_at</code> 月份路由；template 表用 <code>LIKE</code> 模板克隆</td>
+</tr>
+</tbody>
+</table>
+<p>其他表 32 天数据量预估均 &lt; 1000w 行，<strong>不分表</strong>，仅做覆盖索引。</p>
+<h2 id="7-一致性等级">7. 一致性等级</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>等级</th>
+<th>实现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>钱包扣款/入账</td>
+<td><strong>强一致</strong></td>
+<td>InnoDB 事务 + <code>SELECT ... FOR UPDATE</code> + 乐观锁 version</td>
+</tr>
+<tr>
+<td>用户余额冗余字段（<code>users.rmb_balance</code>）</td>
+<td><strong>最终一致</strong></td>
+<td>钱包写后异步刷 user 冗余；权威来源是 <code>wallets</code></td>
+</tr>
+<tr>
+<td>直播间观众数</td>
+<td><strong>最终一致</strong></td>
+<td>Redis 计数 + 30s 同步到 DB</td>
+</tr>
+<tr>
+<td>比赛比分</td>
+<td><strong>强一致</strong></td>
+<td>后台事务写入</td>
+</tr>
+<tr>
+<td>押注流水</td>
+<td><strong>强一致</strong></td>
+<td>事务内同时操作 wallets + wallet_journals + predict_bets</td>
+</tr>
+<tr>
+<td>弹幕</td>
+<td><strong>最终一致</strong></td>
+<td>异步写 DB（先 Redis）</td>
+</tr>
+<tr>
+<td>审计日志</td>
+<td><strong>最终一致</strong></td>
+<td>异步落库，丢失视为可接受（但需限流告警）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="8-字段编码约定">8. 字段编码约定</h2>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>规范</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>加密字段</td>
+<td><code>_enc</code> 后缀，AES-256-GCM，密钥从环境变量读取</td>
+</tr>
+<tr>
+<td>脱敏字段</td>
+<td><code>_mask</code> 后缀，仅前后 4 位明文</td>
+</tr>
+<tr>
+<td>Hash 字段</td>
+<td><code>_hash</code> 后缀，sha256 hex（64 字符），用于精确查询/去重</td>
+</tr>
+<tr>
+<td>URL 字段</td>
+<td><code>_url</code> 后缀，VARCHAR(512)，存全路径</td>
+</tr>
+<tr>
+<td>状态字段</td>
+<td><code>status</code> 或 <code>xxx_status</code>，TINYINT UNSIGNED，必有 COMMENT</td>
+</tr>
+<tr>
+<td>时间字段</td>
+<td><code>_at</code> 后缀，DATETIME(3)</td>
+</tr>
+<tr>
+<td>时长字段</td>
+<td><code>_duration_sec</code>，INT/BIGINT UNSIGNED</td>
+</tr>
+<tr>
+<td>钱字段（RMB）</td>
+<td><code>rmb_amount</code> / <code>xxx_rmb</code>，DECIMAL(20,2)</td>
+</tr>
+<tr>
+<td>钱字段（💎）</td>
+<td><code>diamond_amount</code> / <code>xxx_diamond</code>，BIGINT UNSIGNED</td>
+</tr>
+</tbody>
+</table>
+<h2 id="9-已落地的-P1-子集">9. 已落地的 P1 子集</h2>
+<h3 id="9-1-风控告警-MVP-000018_create_risk_tables">9.1 风控告警 MVP（<code>000018_create_risk_tables</code>）</h3>
+<table>
+<thead>
+<tr>
+<th>表</th>
+<th>关键索引</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>risk_rules</code></td>
+<td>uk(rule_code) / idx(enabled,severity,deleted_at)</td>
+<td>风控规则配置、后台启用禁用</td>
+</tr>
+<tr>
+<td><code>risk_alerts</code></td>
+<td>uk(rule_code,source_type,source_id) / idx(status,severity,created_at) / idx(target_type,target_id,status)</td>
+<td>告警列表、去重、按用户追踪</td>
+</tr>
+</tbody>
+</table>
+<p>初始规则：</p>
+<ul>
+<li><code>R-301</code> 单笔大额押注：<code>threshold_json.min_bet_diamond = 100000</code>，即 ¥10,000 等值（10 钻石 = ¥1）。</li>
+</ul>
+<h3 id="9-2-直播间房间级禁言-000045_create_live_room_bans">9.2 直播间房间级禁言（<code>000045_create_live_room_bans</code>）</h3>
+<table>
+<thead>
+<tr>
+<th>表</th>
+<th>关键索引</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>live_room_bans</code></td>
+<td>uk(room_id,user_id) / idx(room_id,expires_at) / idx(user_id,expires_at) / idx(deleted_at)</td>
+<td>后台直播间管控按房间禁言用户；C 端发弹幕前按 room/user/未删除/未过期查询并拦截</td>
+</tr>
+</tbody>
+</table>
+<p>说明：</p>
+<ul>
+<li>同一房间同一用户只保留当前禁言配置，重复禁言通过 upsert 延长或覆盖过期时间与原因。</li>
+<li>操作历史、管理员、失败原因以 <code>admin_audit_logs</code> 记录，避免禁言表承担审计流水职责。</li>
+</ul>
+<h2 id="10-待办-P1-P2">10. 待办（P1 / P2）</h2>
+<p>P1 剩余表，下一批迁移：</p>
+<ul>
+<li><code>login_logs</code> <code>user_level_logs</code> <code>live_room_stats_daily</code> <code>match_mvps</code></li>
+<li><code>recon_summaries</code> <code>recon_diffs</code> <code>recon_history</code></li>
+<li><code>forbidden_words</code></li>
+<li><code>feature_flags</code> <code>home_ad_slots</code></li>
+</ul>
+<p>P2 表（3 张）：</p>
+<ul>
+<li><code>moderation_reports</code> <code>danmaku_violations</code> <code>patrol_logs</code></li>
+</ul>
+<h2 id="10-迁移指令">10. 迁移指令</h2>
+<pre><code class="language-bash"># 安装 golang-migrate
+brew install golang-migrate
+
+# 创建数据库
+mysql -uroot -e "CREATE DATABASE kickoff DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;"
+
+# 跑迁移
+cd services/go-app
+make migrate-up                    # 跑到最新
+make migrate-down                  # 回滚一步
+make migrate-new name=add_foo      # 新建迁移文件
+make migrate-force v=3             # 修复脏状态
+</code></pre>
+<h2 id="引用">引用</h2>
+<p>本文件遵循 <a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/database-design-standards.md" rel="noopener noreferrer"><code>database-design-standards.md</code></a> 的设计规范。</p>
+<p>新表设计使用 <a href="https://ben2023niao.github.io/ben-ops-notes/doc/templates/database-table-template.md" rel="noopener noreferrer"><code>database-table-template.md</code></a> 模板。</p>
+<h2 id="表设计索引">表设计索引</h2>
+<table>
+<thead>
+<tr>
+<th>表</th>
+<th>模块</th>
+<th>设计文档</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>users / wallets</td>
+<td>用户与钱包</td>
+<td><code>funds-and-ledger.md</code></td>
+</tr>
+<tr>
+<td>wallet_journals / wallet_journal_entries</td>
+<td>复式账本</td>
+<td><code>funds-and-ledger.md</code></td>
+</tr>
+<tr>
+<td>recharge_orders / withdraw_orders / withdraw_disbursements</td>
+<td>充值提现</td>
+<td><code>funds-and-ledger.md</code></td>
+</tr>
+<tr>
+<td>predict_activities / predict_bets</td>
+<td>竞猜</td>
+<td><code>funds-and-ledger.md</code></td>
+</tr>
+<tr>
+<td>live_rooms / live_stream_keys / live_chat_messages_*</td>
+<td>直播</td>
+<td><code>system-architecture.md</code></td>
+</tr>
+<tr>
+<td>admin_audit_logs</td>
+<td>审计</td>
+<td>项目规则</td>
+</tr>
+</tbody>
+</table>
+<h2 id="数据-owner">数据 owner</h2>
+<table>
+<thead>
+<tr>
+<th>数据域</th>
+<th>owner</th>
+<th>主仓</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>用户与钱包</td>
+<td>services/go-app</td>
+<td><code>internal/repository/user/</code>, <code>internal/repository/wallet/</code></td>
+</tr>
+<tr>
+<td>直播间与弹幕</td>
+<td>services/go-app</td>
+<td><code>internal/repository/live/</code></td>
+</tr>
+<tr>
+<td>竞猜活动</td>
+<td>services/go-app</td>
+<td><code>internal/repository/predict/</code></td>
+</tr>
+<tr>
+<td>主播</td>
+<td>services/go-app</td>
+<td><code>internal/repository/admin/</code></td>
+</tr>
+<tr>
+<td>赛事</td>
+<td>services/go-app</td>
+<td><code>internal/repository/match/</code></td>
+</tr>
+<tr>
+<td>审计</td>
+<td>services/go-app</td>
+<td><code>admin_audit_logs</code> 表</td>
+</tr>
+<tr>
+<td>对象存储</td>
+<td>OSS / S3 + CloudFront</td>
+<td>runtime 外</td>
+</tr>
+</tbody>
+</table>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-设计原则-强制">1. 设计原则（强制）</a></li><li style="margin-left:0.0rem"><a href="#2-全集-51-张表清单">2. 全集 51 张表清单</a></li><li style="margin-left:0.0rem"><a href="#3-P0-35-张表索引">3. P0 35 张表索引</a></li><li style="margin-left:0.8rem"><a href="#3-1-域-1-用户与认证-4-张">3.1 域 1 · 用户与认证（4 张）</a></li><li style="margin-left:0.8rem"><a href="#3-2-域-2-钱包账本-8-张-最严谨">3.2 域 2 · 钱包账本（8 张，最严谨）</a></li><li style="margin-left:0.8rem"><a href="#3-3-域-3-直播-6-张">3.3 域 3 · 直播（6 张）</a></li><li style="margin-left:0.8rem"><a href="#3-4-域-4-比赛-5-张">3.4 域 4 · 比赛（5 张）</a></li><li style="margin-left:0.8rem"><a href="#3-5-域-5-竞猜-4-张-核心商业">3.5 域 5 · 竞猜（4 张，核心商业）</a></li><li style="margin-left:0.8rem"><a href="#3-6-域-6-主播-2-张">3.6 域 6 · 主播（2 张）</a></li><li style="margin-left:0.8rem"><a href="#3-7-域-9-系统配置-3-张">3.7 域 9 · 系统配置（3 张）</a></li><li style="margin-left:0.8rem"><a href="#3-8-域-10-审计通用-3-张">3.8 域 10 · 审计通用（3 张）</a></li><li style="margin-left:0.0rem"><a href="#4-ER-关系图">4. ER 关系图</a></li><li style="margin-left:0.0rem"><a href="#5-复式记账模式">5. 复式记账模式</a></li><li style="margin-left:0.8rem"><a href="#5-1-流水写入规范">5.1 流水写入规范</a></li><li style="margin-left:0.8rem"><a href="#5-2-校验约束">5.2 校验约束</a></li><li style="margin-left:0.8rem"><a href="#5-3-账户命名">5.3 账户命名</a></li><li style="margin-left:0.0rem"><a href="#6-分表策略">6. 分表策略</a></li><li style="margin-left:0.0rem"><a href="#7-一致性等级">7. 一致性等级</a></li><li style="margin-left:0.0rem"><a href="#8-字段编码约定">8. 字段编码约定</a></li><li style="margin-left:0.0rem"><a href="#9-已落地的-P1-子集">9. 已落地的 P1 子集</a></li><li style="margin-left:0.8rem"><a href="#9-1-风控告警-MVP-000018_create_risk_tables">9.1 风控告警 MVP（ 000018_create_risk_tables ）</a></li><li style="margin-left:0.8rem"><a href="#9-2-直播间房间级禁言-000045_create_live_room_bans">9.2 直播间房间级禁言（ 000045_create_live_room_bans ）</a></li><li style="margin-left:0.0rem"><a href="#10-待办-P1-P2">10. 待办（P1 / P2）</a></li><li style="margin-left:0.0rem"><a href="#10-迁移指令">10. 迁移指令</a></li><li style="margin-left:0.0rem"><a href="#引用">引用</a></li><li style="margin-left:0.0rem"><a href="#表设计索引">表设计索引</a></li><li style="margin-left:0.0rem"><a href="#数据-owner">数据 owner</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-05-22</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Shell</span><span class="tag">Go</span><span class="tag">MySQL</span><span class="tag">Redis</span><span class="tag">监控告警</span><span class="tag">安全运维</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/main/docs/architecture/data-model.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605220000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B%E8%AE%BE%E8%AE%A1%20%C2%B7%20data-model-02.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>数据模型设计 · data-model。本文属于业务系统运维 / 小蓝直播，对齐 PRD 各模块 §7 数据对象 + funds-and-ledger.md 任何资金变动 = 1 条 wallet_journals 主流水 + ≥2 条 wallet_journal_entries 分录 其他表 32 天数据量预…</p>
+      <p>关键词：小蓝直播、Shell、Go、MySQL、Redis、监控告警、安全运维、故障排查、业务系统运维、业务系统运维 / 小蓝直播、数据模型设计 · data-model</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1aed8eda215a.html"><small>上一篇</small>Kickoff 需求追踪总表</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-31479fdf2b17.html"><small>下一篇</small>数据模型设计 · data-model</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-196500024fc1.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

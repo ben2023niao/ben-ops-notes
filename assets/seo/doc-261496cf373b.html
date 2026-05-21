@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>3. 直播链路架构（双方案并存）｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="3. 直播链路架构（双方案并存）。本文属于业务系统运维 / 小蓝直播，对齐 PRD： kickoff-live.md 、 kickoff-h5.md 、 kickoff-admin.md §3.3&#x27; 直播间管理 v0.2 变更（2026-05-22） ：原 PRD 主播端 5 步流程废弃；主播仅用 OBS 推流…">
+  <meta name="keywords" content="小蓝直播，Linux，Go，Nginx，Redis，监控告警，自动化，CDN，业务系统运维，业务系统运维 / 小蓝直播，3. 直播链路架构（双方案并存）">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-261496cf373b.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-261496cf373b.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605220000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BLinux%2BGo-3.%20%E7%9B%B4%E6%92%AD%E9%93%BE%E8%B7%AF%E6%9E%B6%E6%9E%84%EF%BC%88%E5%8F%8C%E6%96%B9%E6%A1%88%E5%B9%B6%E5%AD%98%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="3. 直播链路架构（双方案并存）">
+  <meta property="og:description" content="3. 直播链路架构（双方案并存）。本文属于业务系统运维 / 小蓝直播，对齐 PRD： kickoff-live.md 、 kickoff-h5.md 、 kickoff-admin.md §3.3&#x27; 直播间管理 v0.2 变更（2026-05-22） ：原 PRD 主播端 5 步流程废弃；主播仅用 OBS 推流…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-261496cf373b.html">
+  <meta property="article:published_time" content="2026-05-22T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-22 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="3. 直播链路架构（双方案并存）">
+  <meta name="twitter:description" content="3. 直播链路架构（双方案并存）。本文属于业务系统运维 / 小蓝直播，对齐 PRD： kickoff-live.md 、 kickoff-h5.md 、 kickoff-admin.md §3.3&#x27; 直播间管理 v0.2 变更（2026-05-22） ：原 PRD 主播端 5 步流程废弃；主播仅用 OBS 推流…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-261496cf373b.html#article","headline":"3. 直播链路架构（双方案并存）","description":"3. 直播链路架构（双方案并存）。本文属于业务系统运维 / 小蓝直播，对齐 PRD： kickoff-live.md 、 kickoff-h5.md 、 kickoff-admin.md §3.3' 直播间管理 v0.2 变更（2026-05-22） ：原 PRD 主播端 5 步流程废弃；主播仅用 OBS 推流…","datePublished":"2026-05-22T00:00:00+08:00","dateModified":"2026-05-22 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Linux","Go","Nginx","Redis","监控告警","自动化","CDN","业务系统运维","业务系统运维 / 小蓝直播","3. 直播链路架构（双方案并存）"],"wordCount":3276,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-261496cf373b.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-261496cf373b.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"3. 直播链路架构（双方案并存）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-261496cf373b.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>3. 直播链路架构（双方案并存）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>3. 直播链路架构（双方案并存）</h1>
+      <p class="lede">3. 直播链路架构（双方案并存）。本文属于业务系统运维 / 小蓝直播，对齐 PRD： kickoff-live.md 、 kickoff-h5.md 、 kickoff-admin.md §3.3&#x27; 直播间管理 v0.2 变更（2026-05-22） ：原 PRD 主播端 5 步流程废弃；主播仅用 OBS 推流…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-22T00:00:00+08:00">发布于 2026-05-22</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">3,276 字</span>
+        <span class="badge">10 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/architecture/live-streaming-architecture.md</code></p>
+<p>整理日期：2026-05-22 00:00｜日期依据：正文日期</p>
+<p>对齐 PRD：<a href="https://ben2023niao.github.io/ben-ops-notes/doc/prd/modules/kickoff-live.md" rel="noopener noreferrer"><code>kickoff-live.md</code></a>、<a href="https://ben2023niao.github.io/ben-ops-notes/doc/prd/modules/kickoff-h5.md" rel="noopener noreferrer"><code>kickoff-h5.md</code></a>、<a href="https://ben2023niao.github.io/ben-ops-notes/doc/prd/modules/kickoff-admin.md" rel="noopener noreferrer"><code>kickoff-admin.md</code></a> §3.3' 直播间管理</p>
+<p><strong>本文档保留两个方案</strong>，ADR-0003 决策时基于团队能力、成本、上线时间窗选定其一。两方案 API 契约对业务层一致。</p>
+<p><strong>v0.2 变更（2026-05-22）</strong>：原 PRD 主播端 5 步流程废弃；主播仅用 OBS 推流，<strong>不使用任何 web 端</strong>。所有 web 端监控/配置职能（房间标题、关联比赛、弹幕监控、大 R 在场、强制关播、推流凭据管理）由"房间管理员"在运营后台承担（详见 <code>kickoff-admin.md §3.3' 直播间管理</code>）。主播大 R 接待通过房间管理员的 TG/电话外部通知。</p>
+</blockquote>
+<h2 id="3-1-共同需求-与方案无关">3.1 共同需求（与方案无关）</h2>
+<ul>
+<li>OBS（RTMP）推流</li>
+<li>1080p / 720p / 480p 三档 ABR</li>
+<li>HTTP-FLV 优先 + HLS 兜底</li>
+<li>录制（DVR）至 OSS</li>
+<li>截图每 30s → AI 鉴黄</li>
+<li>时移（DVR 回看）24h 滚动</li>
+<li>推流鉴权 + 播放鉴权（短 token）</li>
+<li>防盗链（四重防护）</li>
+<li>CDN 边缘分发（双 CDN GSLB）</li>
+<li>主播多设备并发禁止（PRD R-108）</li>
+<li>断流自动重连</li>
+<li>监控：推流稳定性、首帧、卡顿、回源率</li>
+</ul>
+<h2 id="3-2-流量与压力归属-10k-CCU">3.2 流量与压力归属（10k CCU）</h2>
+<table>
+<thead>
+<tr>
+<th>流量</th>
+<th>量级</th>
+<th>谁承担</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>视频拉流出站</td>
+<td><strong>20 Gbps</strong>（1080p × 10k × 2 Mbps）</td>
+<td>CDN 边缘 ≥ 95%</td>
+</tr>
+<tr>
+<td>CDN miss 回源</td>
+<td>1-2 Gbps</td>
+<td>直播 Pull Edge</td>
+</tr>
+<tr>
+<td>OBS 推流入站</td>
+<td>50 主播 × ~5 Mbps = 250 Mbps</td>
+<td>直播 Push Edge</td>
+</tr>
+<tr>
+<td>HLS m3u8 / ts 请求</td>
+<td>~30w QPS</td>
+<td>CDN 边缘</td>
+</tr>
+<tr>
+<td>FLV 长连接</td>
+<td>10k 并发</td>
+<td>CDN 边缘</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键结论</strong>：推流入口压力极小（50 路），出站带宽才是真正瓶颈，必须由 CDN 边缘承接。</p>
+<hr/>
+<h2 id="3-3-方案-A-SRS-自建源站">3.3 方案 A：SRS 自建源站</h2>
+<h3 id="3-3-1-拓扑">3.3.1 拓扑</h3>
+<pre><code>                  推流域名 push.kickoff.tv（DNS GSLB）
+                              │
+                ┌─────────────┴─────────────┐
+                ▼                           ▼
+       [ SRS Push Edge A ]          [ SRS Push Edge B ]
+       (8c/16GB/1Gbps)              (active-active)
+                │                           │
+                └─────────────┬─────────────┘
+                              │ srs forward / cluster
+                              ▼
+                ┌─────────────┴─────────────┐
+                ▼                           ▼
+        [ SRS Origin A ]            [ SRS Origin B ]
+        (16c/32GB/1Gbps + NFS)      (互备)
+                │
+                ├──HTTP hook on_publish───► go-srs-hook (开播校验+授权)
+                ├──HTTP hook on_unpublish─► go-srs-hook (关播+session 结束)
+                ├──HTTP hook on_dvr───────► worker-realtime (录制完成→上传OSS)
+                │
+                ├──RTMP pull──► [ 转码集群 FFmpeg × 4 ]
+                │                  ├─ 1080p 原码
+                │                  ├─ 720p 转码
+                │                  └─ 480p 转码
+                │                  └─► RTMP push 回 SRS Origin（新流名）
+                │
+                ├──DVR FLV/MP4──► 本地共享存储 NFS/Ceph
+                │                  └─► worker-cron 5min 扫描→上传 OSS
+                │
+                └──snapshot──► 截图 worker (每 30s)→OSS→鉴黄 API
+                              │
+                              ▼
+                  ┌───────────┴───────────┐
+                  ▼                       ▼
+          [ SRS Pull Edge × 4 ]   (公网域名 cdn-origin.kickoff.tv)
+              │ 仅暴露给 CDN，IP 白名单
+              ▼
+       [ 腾讯云 CDN ]   [ 火山引擎 CDN ]
+              │             │
+              └──────┬──────┘  GSLB DNS 加权
+                     ▼
+            play.kickoff.tv → 用户播放器
+</code></pre>
+<h3 id="3-3-2-关键决策">3.3.2 关键决策</h3>
+<table>
+<thead>
+<tr>
+<th>决策项</th>
+<th>选择</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>源站软件</td>
+<td><strong>SRS 5.x</strong></td>
+<td>活跃维护；内置 RTMP/HLS/HTTP-FLV/WebRTC/SRT；HTTP API + callback；集群成熟</td>
+</tr>
+<tr>
+<td>拓扑分层</td>
+<td><strong>Push Edge / Origin / Pull Edge 三层分离</strong></td>
+<td>推流接入、转码处理、CDN 回源 各自专责</td>
+</tr>
+<tr>
+<td>推流协议</td>
+<td>RTMP（OBS 默认）</td>
+<td>兼容最广；v1.1 可加 SRT 兜底弱网</td>
+</tr>
+<tr>
+<td>拉流协议-Web</td>
+<td>HTTP-FLV 主 + HLS 兜底</td>
+<td>FLV 1-3s 延迟接近"直播感"</td>
+</tr>
+<tr>
+<td>拉流协议-H5</td>
+<td>HLS 唯一</td>
+<td>iOS Safari 不原生支持 FLV</td>
+</tr>
+<tr>
+<td>转码</td>
+<td><strong>独立 FFmpeg 集群</strong>（不让 Origin 扛 CPU）</td>
+<td>v1 软转；v2 可上 NVENC GPU</td>
+</tr>
+<tr>
+<td>录制</td>
+<td>SRS DVR FLV → worker 转 MP4 → OSS</td>
+<td>内置 hook 触发，异步上传</td>
+</tr>
+<tr>
+<td>截图</td>
+<td>SRS on_publish + FFmpeg 每 30s 抓帧 → OSS → 阿里云内容安全</td>
+<td>鉴黄输入</td>
+</tr>
+<tr>
+<td>时移</td>
+<td>SRS DVR 24h 滚动；前端独立"回看"入口</td>
+<td>赛事复盘场景</td>
+</tr>
+<tr>
+<td>CDN</td>
+<td>双 CDN GSLB（腾讯云 + 火山）</td>
+<td>单 CDN 故障切换</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-3-3-容量规划-10k-CCU">3.3.3 容量规划（10k CCU）</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>规格</th>
+<th>数量</th>
+<th>单机承载</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SRS Push Edge</td>
+<td>8c/16GB/1Gbps</td>
+<td>2</td>
+<td>100 主播 / 500 Mbps 推流入站</td>
+</tr>
+<tr>
+<td>SRS Origin</td>
+<td>16c/32GB/1Gbps + NFS</td>
+<td>2</td>
+<td>同步全部推流；50 路转码触发</td>
+</tr>
+<tr>
+<td>转码集群 FFmpeg</td>
+<td>16c/32GB（v1 软转）/ T4 GPU（v2）</td>
+<td>4</td>
+<td>12 路 1080p→720p+480p 软转</td>
+</tr>
+<tr>
+<td>SRS Pull Edge</td>
+<td>8c/16GB/<strong>10 Gbps</strong></td>
+<td>4</td>
+<td>5000 并发回源 / 10 Gbps 出口</td>
+</tr>
+<tr>
+<td>录制 / 截图 worker</td>
+<td>4c/8GB</td>
+<td>2</td>
+<td>50 路并发处理</td>
+</tr>
+<tr>
+<td>共享存储</td>
+<td>NFS / Ceph 5TB</td>
+<td>1 cluster</td>
+<td>DVR + 转码中转</td>
+</tr>
+</tbody>
+</table>
+<p>CDN 回源率假设 ≤ 10%，回源 ~2 Gbps → 4 × 10 Gbps Edge 容量充足。</p>
+<h3 id="3-3-4-推流鉴权-SRS-HTTP-hook">3.3.4 推流鉴权（SRS HTTP hook）</h3>
+<pre><code>1. 主播在 streamer-portal 完成 5 步流程，点"一键开播"
+2. go-api 校验：主播状态 + 班次 + 房间冲突（PRD R-108 单设备并发）
+3. go-api 生成 push_key:
+   push_key = HMAC-SHA256(secret, streamer_id || session_id || expire_at)
+   推流 URL = rtmp://push.kickoff.tv/live/{stream_name}?key={push_key}&amp;t={expire_at}
+4. go-api 写入 Redis: live:push:{stream_name} = { streamer_id, expire_at }
+5. 返回 URL 给主播端 (OBS 配置)
+6. OBS 推流到 SRS Push Edge
+7. SRS 触发 on_publish hook → go-srs-hook:
+   - HMAC 验签
+   - 校验 expire_at &gt; now
+   - 查 Redis 确认 session 有效
+   - 返回 200 允许 / 403 拒绝
+8. SRS Edge forward 到 Origin，转码 / 分发开始
+</code></pre>
+<h3 id="3-3-5-播放鉴权-短-token-Nginx-Lua">3.3.5 播放鉴权（短 token + Nginx + Lua）</h3>
+<p>SRS 自身 hook 在 CDN 长连接复用场景下不可靠，鉴权前置到 SRS Pull Edge 前面的 <strong>Nginx + Lua</strong>：</p>
+<pre><code>1. 用户进入直播间 → 前端调 GET /api/v1/live/room/{id}/token
+2. go-api 校验：登录 + 房间状态 LIVE
+3. 颁发 [敏感内容已脱敏], room_id || user_id || expire_at_30s)
+4. 返回 play URL:
+   https://play.kickoff.tv/live/{stream_name}.flv?敏感凭据：[已脱敏]
+5. CDN 边缘命中 → 直接返回
+6. CDN miss → 回源 SRS Pull Edge → Nginx + Lua 校验 token HMAC 通过 → SRS 返回流
+7. 前端每 20s 调 /api/v1/live/room/{id}/refresh-token 续期
+</code></pre>
+<h3 id="3-3-6-防盗链四重防护">3.3.6 防盗链四重防护</h3>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>校验</th>
+<th>失败行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. URL token</td>
+<td>HMAC 验签 + 时效（30s）</td>
+<td>403</td>
+</tr>
+<tr>
+<td>2. Referer 白名单</td>
+<td>仅允许 *.kickoff.tv</td>
+<td>403</td>
+</tr>
+<tr>
+<td>3. UA 黑名单</td>
+<td>拦截已知盗播工具 UA</td>
+<td>403</td>
+</tr>
+<tr>
+<td>4. IP 频次</td>
+<td>单 IP 拉流 &gt; 3 个房间/分钟</td>
+<td>限速</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-3-7-断流重连">3.3.7 断流重连</h3>
+<ul>
+<li><strong>当前 ZEGO/WebRTC 口径</strong>：ZegoCloud <code>stream_publish.stop</code> 回调是第一优先级，收到后立即结束会话并推送 <code>room.status.ended</code>。</li>
+<li><strong>主播端业务心跳兜底</strong>：主播端开播成功后通过 <code>/ws/v1/streamer</code> 每 15s 发送 <code>streamer.live.heartbeat</code>，后端写入 <code>live_sessions.last_heartbeat_at</code>。</li>
+<li><strong>自动下播阈值</strong>：worker 每 15s 扫描一次，若直播中 session 连续 60s 没有业务心跳，则把 <code>live_sessions</code> 标记为 <code>ABORTED</code>，把 <code>live_rooms.status</code> 改为 <code>ENDED</code>，并广播 <code>room.status.ended</code>。</li>
+<li><strong>连接心跳区别</strong>：<code>client.ping</code> 只证明 WS 连接活着，不作为直播状态依据；前端必须单独发送 <code>streamer.live.heartbeat</code>。</li>
+<li><strong>前端表现</strong>：收到 <code>room.status.ended</code> 且 <code>reason=streamer_heartbeat_timeout</code> 时，停止播放器并切到"主播已下播/直播流暂不可用"兜底页。</li>
+<li><strong>SRS 侧</strong>：on_unpublish 后 30s 内若新 publish 同 stream_name → 视为重连，session 继续；超 30s → 关闭 session</li>
+<li><strong>客户端</strong>：FLV 播放器自动重连 3 次（1s/3s/5s），失败切 HLS，最终失败显示"主播已离线"</li>
+<li><strong>WS 广播</strong>：<code>room.disconnected</code> / <code>room.recovered</code> / <code>room.ended</code> 三种事件给所有观众</li>
+<li><strong>录制连续性</strong>：同 session 内多次推流合并为一个录制文件</li>
+</ul>
+<h3 id="3-3-8-SRS-HTTP-Callback-与业务集成">3.3.8 SRS HTTP Callback 与业务集成</h3>
+<table>
+<thead>
+<tr>
+<th>Hook</th>
+<th>触发时机</th>
+<th>go-srs-hook 动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>on_publish</code></td>
+<td>主播开始推流</td>
+<td>HMAC 验签 + 状态校验 → 登记 <code>live_sessions</code></td>
+</tr>
+<tr>
+<td><code>on_unpublish</code></td>
+<td>推流断开</td>
+<td>标记 session 结束 + 推 WS <code>room.ended</code></td>
+</tr>
+<tr>
+<td><code>on_play</code></td>
+<td>CDN 首次回源</td>
+<td>仅记日志（鉴权前置到 Nginx）</td>
+</tr>
+<tr>
+<td><code>on_dvr</code></td>
+<td>DVR 文件写完</td>
+<td>上传 OSS + 写 <code>live_recordings</code></td>
+</tr>
+<tr>
+<td><code>on_record_begin</code></td>
+<td>录制开始</td>
+<td>登记开始时间</td>
+</tr>
+<tr>
+<td><code>on_record_end</code></td>
+<td>录制结束</td>
+<td>触发转码 / 截图后处理</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-3-9-SRS-方案优劣">3.3.9 SRS 方案优劣</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>评价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>成本</td>
+<td>中期成本低（无单价×流量）；服务器+带宽成本可控</td>
+</tr>
+<tr>
+<td>控制力</td>
+<td>高（自有源站，定制空间大）</td>
+</tr>
+<tr>
+<td>上线时间</td>
+<td><strong>慢</strong>（需 SRS 集群、转码集群、Nginx+Lua、录制管线、监控全栈搭建）</td>
+</tr>
+<tr>
+<td>团队能力要求</td>
+<td>高（需熟悉 SRS、FFmpeg、流媒体协议）</td>
+</tr>
+<tr>
+<td>故障责任</td>
+<td>自承</td>
+</tr>
+<tr>
+<td>弹性扩缩</td>
+<td>受限（带宽签约、IDC 容量）</td>
+</tr>
+<tr>
+<td>合规 / 内容安全</td>
+<td>自接 AI 鉴黄 + 人工审核</td>
+</tr>
+<tr>
+<td>适合阶段</td>
+<td>团队有流媒体经验、长期持有用户、对成本敏感</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="3-4-方案-B-云直播托管">3.4 方案 B：云直播托管</h2>
+<h3 id="3-4-1-拓扑">3.4.1 拓扑</h3>
+<pre><code>[ 主播 OBS ]
+     │ RTMP
+     ▼
+[ 云直播 服务（腾讯云 LVB / 火山引擎视频云 / 阿里云直播）]
+   ├─► 转码（1080p / 720p / 480p 多档）
+   ├─► 录制（自动存对象存储 OSS）
+   ├─► 截图（每 30s 一张）
+   └─► 边缘分发
+       ├─► HLS（兼容性最好）
+       └─► HTTP-FLV
+           │
+           ▼
+   云厂商内置 CDN（可叠加第二家 CDN 互备）
+           │
+           ▼
+   用户播放器（Web flv.js / hls.js；H5 hls.js）
+</code></pre>
+<h3 id="3-4-2-关键决策">3.4.2 关键决策</h3>
+<table>
+<thead>
+<tr>
+<th>决策项</th>
+<th>选择</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>云直播商</td>
+<td>腾讯云 LVB（主） + 火山引擎（备）</td>
+<td>双厂商互备避免单点</td>
+</tr>
+<tr>
+<td>推流接入</td>
+<td>云直播提供的 push domain</td>
+<td>无需自建源站</td>
+</tr>
+<tr>
+<td>转码</td>
+<td>云直播在线转码 3 档</td>
+<td>厂商管理，按量计费</td>
+</tr>
+<tr>
+<td>拉流</td>
+<td>云直播 + 自带 CDN</td>
+<td>同厂商无回源费</td>
+</tr>
+<tr>
+<td>录制</td>
+<td>云直播录制 → 厂商 OSS → 同步到自有 OSS</td>
+<td>同区域同步免流量费</td>
+</tr>
+<tr>
+<td>截图</td>
+<td>云直播截图回调</td>
+<td>推到自有 worker 鉴黄</td>
+</tr>
+<tr>
+<td>鉴权</td>
+<td>云直播提供的 key+timestamp+sign 鉴权</td>
+<td>厂商自带</td>
+</tr>
+<tr>
+<td>防盗链</td>
+<td>云直播 token + 自定义 referer 白名单</td>
+<td>厂商自带</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-4-3-容量规划">3.4.3 容量规划</h3>
+<p>云直播是 SaaS，<strong>无需容量规划</strong>，按实际推/拉流量计费。
+- 推流单价：~10 元/路·小时（含转码）
+- 拉流单价：~0.2 元/GB（含 CDN）
+- 录制单价：~0.05 元/分钟
+- 截图单价：~0.05 元/张</p>
+<h3 id="3-4-4-推流鉴权-云直播">3.4.4 推流鉴权（云直播）</h3>
+<pre><code>1. go-api 调用云直播 SDK 生成推流 URL：
+   rtmp://push.live.kickoff.tv/live/{stream_name}?[敏感内容已脱敏]
+2. 返回主播端
+3. OBS 推流到云直播
+4. 云直播校验 txSecret + txTime → 允许 / 拒绝
+5. 同时云直播回调 go-srs-hook（云直播也支持 webhook）→ 业务侧登记 session
+</code></pre>
+<h3 id="3-4-5-播放鉴权-云直播">3.4.5 播放鉴权（云直播）</h3>
+<pre><code>1. 用户进入直播间 → 前端调 GET /api/v1/live/room/{id}/token
+2. go-api 调用云直播 SDK 生成播放 URL：
+   https://play.live.kickoff.tv/live/{stream_name}.flv?[敏感内容已脱敏]
+3. 返回前端，播放
+4. 云直播 CDN 校验 txSecret + txTime
+</code></pre>
+<h3 id="3-4-6-与-go-srs-hook-的集成">3.4.6 与 go-srs-hook 的集成</h3>
+<p>云直播提供 webhook 给业务侧推送以下事件：
+- 推流开始 / 结束
+- 录制完成
+- 截图完成
+- 内容安全审核结果</p>
+<p>业务侧 <code>go-srs-hook</code> 服务<strong>对外接口与 SRS 方案一致</strong>，仅内部适配层不同。</p>
+<h3 id="3-4-7-云直播方案优劣">3.4.7 云直播方案优劣</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>评价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>成本</td>
+<td>流量大时贵；GMV 800w 量级，推/拉流费用估算 ~50-100w（赛季 32 天）</td>
+</tr>
+<tr>
+<td>控制力</td>
+<td>低（依赖厂商功能与稳定性）</td>
+</tr>
+<tr>
+<td>上线时间</td>
+<td><strong>快</strong>（1-2 周可完成接入与联调）</td>
+</tr>
+<tr>
+<td>团队能力要求</td>
+<td>低（仅需 SDK 接入）</td>
+</tr>
+<tr>
+<td>故障责任</td>
+<td>厂商主责，SLA 保障（99.9%）</td>
+</tr>
+<tr>
+<td>弹性扩缩</td>
+<td>极佳（无容量上限，按量计费）</td>
+</tr>
+<tr>
+<td>合规 / 内容安全</td>
+<td>厂商自带 AI 鉴黄 + 我方人工复审</td>
+</tr>
+<tr>
+<td>适合阶段</td>
+<td>上线时间紧、团队无流媒体经验、对成本不敏感</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="3-5-双方案对比与决策维度">3.5 双方案对比与决策维度</h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>SRS 自建</th>
+<th>云直播托管</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>上线时间</td>
+<td>4 周</td>
+<td>1-2 周</td>
+</tr>
+<tr>
+<td>团队技能门槛</td>
+<td>流媒体 + Linux 网络 + FFmpeg</td>
+<td>SDK 接入即可</td>
+</tr>
+<tr>
+<td>32 天赛季成本</td>
+<td>~30-50w（服务器+带宽）</td>
+<td>~50-100w（按量）</td>
+</tr>
+<tr>
+<td>故障责任</td>
+<td>自承</td>
+<td>厂商 SLA</td>
+</tr>
+<tr>
+<td>长期成本曲线</td>
+<td>平缓</td>
+<td>线性增长</td>
+</tr>
+<tr>
+<td>可定制性</td>
+<td>高（私有协议、转码参数）</td>
+<td>低</td>
+</tr>
+<tr>
+<td>弹性扩容</td>
+<td>受限（IDC / 带宽）</td>
+<td>极佳</td>
+</tr>
+<tr>
+<td>AI 鉴黄</td>
+<td>自接</td>
+<td>厂商内置</td>
+</tr>
+<tr>
+<td>出海延迟</td>
+<td>自有节点不足</td>
+<td>厂商节点覆盖好</td>
+</tr>
+<tr>
+<td>主播无感切换</td>
+<td>不支持</td>
+<td>支持（多接入点）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-5-1-推荐决策路径-ADR-0003-输入">3.5.1 推荐决策路径（ADR-0003 输入）</h3>
+<table>
+<thead>
+<tr>
+<th>团队/项目实际情况</th>
+<th>推荐方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>有流媒体老手 / 上线时间充裕 / 预算紧 / 长期持有</td>
+<td><strong>SRS 自建</strong></td>
+</tr>
+<tr>
+<td>无流媒体经验 / 上线时间紧 / 重业务轻基建 / 32 天后转型</td>
+<td><strong>云直播托管</strong></td>
+</tr>
+<tr>
+<td>介于两者</td>
+<td><strong>第 1 阶段云直播托管上线，第 2 阶段并行搭 SRS 灰度迁移</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-5-2-业务层抽象">3.5.2 业务层抽象</h3>
+<p><code>internal/infra/live/</code> 提供统一接口：</p>
+<pre><code class="language-go">type LiveService interface {
+    GeneratePushURL(streamerID, sessionID int64, ttl time.Duration) (string, error)
+    GeneratePlayURL(roomID, userID int64, ttl time.Duration) (string, error)
+    KickPublisher(streamName string) error
+    GetSessionStats(streamName string) (*SessionStats, error)
+}
+
+// 两个实现：
+// 1. internal/infra/live/srs/srs.go
+// 2. internal/infra/live/cloud/{tencent|volcengine|aliyun}.go
+</code></pre>
+<p>业务层完全解耦，切换方案只改 DI 注入。</p>
+<hr/>
+<h2 id="3-6-监控指标-两方案通用">3.6 监控指标（两方案通用）</h2>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>阈值</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>推流断开次数</td>
+<td>同主播 1h ≥ 3</td>
+<td>go-srs-hook 统计 + SRS API / 云直播 API</td>
+</tr>
+<tr>
+<td>推流稳定时长 P50</td>
+<td>&lt; 2h 告警（赛事 90 分钟连续推流）</td>
+<td>session 表统计</td>
+</tr>
+<tr>
+<td>Origin/源站 CPU</td>
+<td>&gt; 70% 持续 5min</td>
+<td>node_exporter / 云监控</td>
+</tr>
+<tr>
+<td>在线流数</td>
+<td>与业务 session 不一致 &gt; 5 路</td>
+<td>SRS API / 云直播 API</td>
+</tr>
+<tr>
+<td>转码失败率</td>
+<td>&gt; 1%</td>
+<td>SRS log / 云直播事件</td>
+</tr>
+<tr>
+<td>CDN 回源率</td>
+<td>&gt; 30%</td>
+<td>CDN 厂商 API</td>
+</tr>
+<tr>
+<td>单边 CDN 出口带宽</td>
+<td>触发签约阈值 80%</td>
+<td>CDN 厂商 API</td>
+</tr>
+<tr>
+<td>首帧时间 P99</td>
+<td>&gt; 3s</td>
+<td>播放器埋点</td>
+</tr>
+<tr>
+<td>卡顿率</td>
+<td>&gt; 5%</td>
+<td>播放器埋点</td>
+</tr>
+<tr>
+<td>录制失败次数</td>
+<td>&gt; 0</td>
+<td>hook 回调统计</td>
+</tr>
+<tr>
+<td>截图鉴黄异常</td>
+<td>单房间 1h ≥ 1 次</td>
+<td>AI 内容安全 API</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-7-公共业务表-与方案无关">3.7 公共业务表（与方案无关）</h2>
+<table>
+<thead>
+<tr>
+<th>表</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>streamer_push_keys</code></td>
+<td>推流密钥历史（审计 / 撤销）</td>
+</tr>
+<tr>
+<td><code>live_sessions</code></td>
+<td>一次开播会话</td>
+</tr>
+<tr>
+<td><code>live_recordings</code></td>
+<td>录制文件元数据</td>
+</tr>
+<tr>
+<td><code>live_snapshots</code></td>
+<td>截图元数据 + 鉴黄结果</td>
+</tr>
+</tbody>
+</table>
+<p>DDL 见 <a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/data-model.md" rel="noopener noreferrer">data-model.md</a>。</p>
+<h2 id="3-8-待-ADR-0003-决策">3.8 待 ADR-0003 决策</h2>
+<p>请基于以下输入决策：</p>
+<ol>
+<li>团队是否有 SRS / 流媒体运维经验</li>
+<li>上线时间窗（赛季前 30 天还是 60 天）</li>
+<li>32 天赛季预算上限</li>
+<li>长期是否做"主播经济"持续运营（影响摊销）</li>
+<li>出海用户占比预期</li>
+</ol>
+<p>决策后将本节合并到 ADR-0003，本文档保留两方案作为备查。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#3-1-共同需求-与方案无关">3.1 共同需求（与方案无关）</a></li><li style="margin-left:0.0rem"><a href="#3-2-流量与压力归属-10k-CCU">3.2 流量与压力归属（10k CCU）</a></li><li style="margin-left:0.0rem"><a href="#3-3-方案-A-SRS-自建源站">3.3 方案 A：SRS 自建源站</a></li><li style="margin-left:0.8rem"><a href="#3-3-1-拓扑">3.3.1 拓扑</a></li><li style="margin-left:0.8rem"><a href="#3-3-2-关键决策">3.3.2 关键决策</a></li><li style="margin-left:0.8rem"><a href="#3-3-3-容量规划-10k-CCU">3.3.3 容量规划（10k CCU）</a></li><li style="margin-left:0.8rem"><a href="#3-3-4-推流鉴权-SRS-HTTP-hook">3.3.4 推流鉴权（SRS HTTP hook）</a></li><li style="margin-left:0.8rem"><a href="#3-3-5-播放鉴权-短-token-Nginx-Lua">3.3.5 播放鉴权（短 token + Nginx + Lua）</a></li><li style="margin-left:0.8rem"><a href="#3-3-6-防盗链四重防护">3.3.6 防盗链四重防护</a></li><li style="margin-left:0.8rem"><a href="#3-3-7-断流重连">3.3.7 断流重连</a></li><li style="margin-left:0.8rem"><a href="#3-3-8-SRS-HTTP-Callback-与业务集成">3.3.8 SRS HTTP Callback 与业务集成</a></li><li style="margin-left:0.8rem"><a href="#3-3-9-SRS-方案优劣">3.3.9 SRS 方案优劣</a></li><li style="margin-left:0.0rem"><a href="#3-4-方案-B-云直播托管">3.4 方案 B：云直播托管</a></li><li style="margin-left:0.8rem"><a href="#3-4-1-拓扑">3.4.1 拓扑</a></li><li style="margin-left:0.8rem"><a href="#3-4-2-关键决策">3.4.2 关键决策</a></li><li style="margin-left:0.8rem"><a href="#3-4-3-容量规划">3.4.3 容量规划</a></li><li style="margin-left:0.8rem"><a href="#3-4-4-推流鉴权-云直播">3.4.4 推流鉴权（云直播）</a></li><li style="margin-left:0.8rem"><a href="#3-4-5-播放鉴权-云直播">3.4.5 播放鉴权（云直播）</a></li><li style="margin-left:0.8rem"><a href="#3-4-6-与-go-srs-hook-的集成">3.4.6 与 go-srs-hook 的集成</a></li><li style="margin-left:0.8rem"><a href="#3-4-7-云直播方案优劣">3.4.7 云直播方案优劣</a></li><li style="margin-left:0.0rem"><a href="#3-5-双方案对比与决策维度">3.5 双方案对比与决策维度</a></li><li style="margin-left:0.8rem"><a href="#3-5-1-推荐决策路径-ADR-0003-输入">3.5.1 推荐决策路径（ADR-0003 输入）</a></li><li style="margin-left:0.8rem"><a href="#3-5-2-业务层抽象">3.5.2 业务层抽象</a></li><li style="margin-left:0.0rem"><a href="#3-6-监控指标-两方案通用">3.6 监控指标（两方案通用）</a></li><li style="margin-left:0.0rem"><a href="#3-7-公共业务表-与方案无关">3.7 公共业务表（与方案无关）</a></li><li style="margin-left:0.0rem"><a href="#3-8-待-ADR-0003-决策">3.8 待 ADR-0003 决策</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-05-22</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Linux</span><span class="tag">Go</span><span class="tag">Nginx</span><span class="tag">Redis</span><span class="tag">监控告警</span><span class="tag">自动化</span><span class="tag">CDN</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/architecture/live-streaming-architecture.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605220000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BLinux%2BGo-3.%20%E7%9B%B4%E6%92%AD%E9%93%BE%E8%B7%AF%E6%9E%B6%E6%9E%84%EF%BC%88%E5%8F%8C%E6%96%B9%E6%A1%88%E5%B9%B6%E5%AD%98%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>3. 直播链路架构（双方案并存）。本文属于业务系统运维 / 小蓝直播，对齐 PRD： kickoff-live.md 、 kickoff-h5.md 、 kickoff-admin.md §3.3&#x27; 直播间管理 v0.2 变更（2026-05-22） ：原 PRD 主播端 5 步流程废弃；主播仅用 OBS 推流…</p>
+      <p>关键词：小蓝直播、Linux、Go、Nginx、Redis、监控告警、自动化、CDN、业务系统运维、业务系统运维 / 小蓝直播、3. 直播链路架构（双方案并存）</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3cd6857baa37.html"><small>上一篇</small>1. 总体架构</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-814c22006cd8.html"><small>下一篇</small>4. 资金闭环与账本设计</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-261496cf373b.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

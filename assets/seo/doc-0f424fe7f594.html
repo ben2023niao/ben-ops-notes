@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>9. 安全与鉴权｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="9. 安全与鉴权。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §7.5 、 kickoff-auth.md 、 kickoff-admin.md §权限与风控 v0.2 变更（2026-05-22） ： - C 端登录简化为&quot;账号+密码&quot;，无验证码 - 主播完全无 web 端…">
+  <meta name="keywords" content="小蓝直播，Go，Kubernetes，Redis，监控告警，安全运维，故障排查，源码与配置，业务系统运维，业务系统运维 / 小蓝直播，9. 安全与鉴权">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0f424fe7f594.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0f424fe7f594.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605220000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2BKubernetes-9.%20%E5%AE%89%E5%85%A8%E4%B8%8E%E9%89%B4%E6%9D%83.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="9. 安全与鉴权">
+  <meta property="og:description" content="9. 安全与鉴权。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §7.5 、 kickoff-auth.md 、 kickoff-admin.md §权限与风控 v0.2 变更（2026-05-22） ： - C 端登录简化为&quot;账号+密码&quot;，无验证码 - 主播完全无 web 端…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0f424fe7f594.html">
+  <meta property="article:published_time" content="2026-05-22T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-22 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="9. 安全与鉴权">
+  <meta name="twitter:description" content="9. 安全与鉴权。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §7.5 、 kickoff-auth.md 、 kickoff-admin.md §权限与风控 v0.2 变更（2026-05-22） ： - C 端登录简化为&quot;账号+密码&quot;，无验证码 - 主播完全无 web 端…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0f424fe7f594.html#article","headline":"9. 安全与鉴权","description":"9. 安全与鉴权。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §7.5 、 kickoff-auth.md 、 kickoff-admin.md §权限与风控 v0.2 变更（2026-05-22） ： - C 端登录简化为\"账号+密码\"，无验证码 - 主播完全无 web 端…","datePublished":"2026-05-22T00:00:00+08:00","dateModified":"2026-05-22 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Go","Kubernetes","Redis","监控告警","安全运维","故障排查","源码与配置","业务系统运维","业务系统运维 / 小蓝直播","9. 安全与鉴权"],"wordCount":1981,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0f424fe7f594.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0f424fe7f594.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"9. 安全与鉴权","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0f424fe7f594.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>9. 安全与鉴权</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>9. 安全与鉴权</h1>
+      <p class="lede">9. 安全与鉴权。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §7.5 、 kickoff-auth.md 、 kickoff-admin.md §权限与风控 v0.2 变更（2026-05-22） ： - C 端登录简化为&quot;账号+密码&quot;，无验证码 - 主播完全无 web 端…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-22T00:00:00+08:00">发布于 2026-05-22</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,981 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/architecture/security-and-auth.md</code></p>
+<p>整理日期：2026-05-22 00:00｜日期依据：正文日期</p>
+<p>对齐 PRD：<code>product-prd.md §7.5</code>、<code>kickoff-auth.md</code>、<code>kickoff-admin.md §权限与风控</code></p>
+<p><strong>v0.2 变更（2026-05-22）</strong>：
+- C 端登录简化为"账号+密码"，无验证码
+- 主播完全无 web 端，无独立鉴权（仅 stream_key 推流校验）
+- 后台新增"房间管理员"角色（room_admin），权限范围限定到分配的房间</p>
+</blockquote>
+<h2 id="9-1-两类鉴权身份-v0-2-移除主播-web-鉴权">9.1 两类鉴权身份（v0.2 移除主播 web 鉴权）</h2>
+<table>
+<thead>
+<tr>
+<th>身份</th>
+<th>鉴权方式</th>
+<th>Token 存储</th>
+<th>有效期</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>C 端用户</strong></td>
+<td>账号+密码 → JWT</td>
+<td>客户端 LocalStorage + HttpOnly Cookie（refresh）</td>
+<td>access 2h / refresh 30d</td>
+</tr>
+<tr>
+<td><strong>后台</strong>（含 super / ops / room_admin / finance / risk / moderator）</td>
+<td>账号密码 + TOTP 2FA + IP 白名单</td>
+<td>HttpOnly Secure Cookie</td>
+<td>access 1h / refresh 8h</td>
+</tr>
+<tr>
+<td><strong>主播</strong>（推流）</td>
+<td>OBS 推流时通过 stream_key HMAC 校验（SRS on_publish hook）</td>
+<td>不在客户端持有 token</td>
+<td>stream_key 常驻；后台可轮换</td>
+</tr>
+</tbody>
+</table>
+<h2 id="9-2-JWT-设计">9.2 JWT 设计</h2>
+<h3 id="9-2-1-结构">9.2.1 结构</h3>
+<pre><code class="language-json">{
+  "iss": "kickoff",
+  "sub": "1234567",
+  "aud": "kickoff-web",
+  "exp": 1719411600,
+  "iat": 1719404400,
+  "jti": "uuid",
+  "kid": "k202607",
+  "user_id": 1234,
+  "level": 3,
+  "device_fp": "abc...",
+  "scope": ["user.read","wallet.write","predict.bet"]
+}
+</code></pre>
+<p><code>scope</code> 字段控制接口粒度，后台 token 用更细的 <code>admin.user.freeze</code> / <code>admin.withdraw.approve</code> 等。</p>
+<h3 id="9-2-2-签名算法">9.2.2 签名算法</h3>
+<ul>
+<li><strong>HS256</strong>（v1，简单）+ KMS 托管 secret</li>
+<li>v2 升级 <strong>RS256</strong>（公私钥分离，便于多服务验签）</li>
+<li><code>kid</code> 字段支持轮换（旧 key 保留 7 天）</li>
+</ul>
+<h3 id="9-2-3-刷新机制">9.2.3 刷新机制</h3>
+<pre><code>1. access token 过期 → 客户端调 /auth/refresh + refresh token
+2. 校验 refresh token 哈希在 user_devices 表中且未撤销
+3. 校验设备指纹一致
+4. 颁发新 access + 新 refresh（轮换）
+5. 旧 refresh 立即失效
+</code></pre>
+<h3 id="9-2-4-主动撤销">9.2.4 主动撤销</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>实现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>用户登出</td>
+<td>写 Redis 黑名单 <code>auth:revoked:{jti}</code> TTL = exp-now</td>
+</tr>
+<tr>
+<td>设备顶号</td>
+<td>旧 device 的 refresh hash 标记 revoked，旧 access 进黑名单</td>
+</tr>
+<tr>
+<td>风控冻结</td>
+<td>用户所有 device revoked，所有 access 进黑名单</td>
+</tr>
+<tr>
+<td>密码重置</td>
+<td>同上</td>
+</tr>
+</tbody>
+</table>
+<p>JWT 验签后必查 Redis 黑名单。</p>
+<h2 id="9-3-主播鉴权">9.3 主播鉴权</h2>
+<h3 id="9-3-1-6-位授权码">9.3.1 6 位授权码</h3>
+<ul>
+<li>由后台运营生成，通过外部渠道（微信/邮件）发给主播</li>
+<li>服务端存 SHA256 哈希</li>
+<li>输入错误 3 次 → 锁定 5 min（IP/session 级，不锁账号）</li>
+<li>主播登录后颁发主播专用 JWT（独立 audience <code>kickoff-streamer-portal</code>）</li>
+</ul>
+<h3 id="9-3-2-单设备并发禁止-R-108">9.3.2 单设备并发禁止（R-108）</h3>
+<p>详见 <a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/risk-control-rules.md#622-r-108-主播多设备并发" rel="noopener noreferrer"><code>risk-control-rules.md §6.2.2</code></a>。</p>
+<h3 id="9-3-3-推流密钥">9.3.3 推流密钥</h3>
+<ul>
+<li>业务侧动态生成：<code>HMAC-SHA256(secret, streamer_id || session_id || expire_at)</code></li>
+<li>时间窗 5 min</li>
+<li>SRS 或云直播侧 hook 验签</li>
+<li>旧密钥到期自动失效；新密钥每次开播单独颁发</li>
+</ul>
+<h2 id="9-4-后台鉴权">9.4 后台鉴权</h2>
+<h3 id="9-4-1-三因素">9.4.1 三因素</h3>
+<ol>
+<li><strong>账号 + 密码</strong>（Bcrypt cost=12）</li>
+<li><strong>TOTP 2FA</strong>（Google Authenticator 兼容）</li>
+<li><strong>IP 白名单</strong>（账号粒度配置，仅允许办公网 + VPN 段）</li>
+</ol>
+<h3 id="9-4-2-RBAC">9.4.2 RBAC</h3>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>资源权限</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>super</code></td>
+<td><code>* × *</code></td>
+</tr>
+<tr>
+<td><code>ops</code></td>
+<td><code>dashboard:read</code> + <code>streamer:*</code> + <code>user:read</code> + <code>order:read</code> + <code>moderation:*</code></td>
+</tr>
+<tr>
+<td><code>finance</code></td>
+<td><code>order:*</code> + <code>recon:*</code> + <code>withdraw:approve</code> + <code>audit:read</code></td>
+</tr>
+<tr>
+<td><code>risk</code></td>
+<td><code>risk:*</code> + <code>user:freeze</code> + <code>user:read</code> + <code>audit:read</code></td>
+</tr>
+<tr>
+<td><code>moderator</code></td>
+<td><code>moderation:*</code></td>
+</tr>
+</tbody>
+</table>
+<p>中间件 <code>requirePermission("user.freeze")</code> 装饰所有写操作路由。</p>
+<h3 id="9-4-3-大额操作双人复核">9.4.3 大额操作双人复核</h3>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>触发条件</th>
+<th>复核流程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>手动调余额</td>
+<td>任何金额</td>
+<td>操作人 + 第二审批人，二人必不同</td>
+</tr>
+<tr>
+<td>提现放行</td>
+<td>单笔 &gt; ¥50,000</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>押注退单</td>
+<td>单活动 &gt; 1000 笔</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>主播解封</td>
+<td>—</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>风控规则修改</td>
+<td>HIGH severity 规则</td>
+<td>同上</td>
+</tr>
+</tbody>
+</table>
+<p>实现：操作单 → 待审批 → 第二人审批 → 执行；全程审计。</p>
+<h2 id="9-5-接口防护">9.5 接口防护</h2>
+<h3 id="9-5-1-多维限流">9.5.1 多维限流</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>配置示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>全局</td>
+<td>单 API <code>/predict/bet</code> 全局 200 QPS（防 抗压能力测试）</td>
+</tr>
+<tr>
+<td>单 IP</td>
+<td>1 IP 同 API 60 req/min</td>
+</tr>
+<tr>
+<td>单 UID</td>
+<td>1 UID <code>/predict/bet</code> 5 req/s</td>
+</tr>
+<tr>
+<td>单 UID 全局</td>
+<td>1 UID 全 API 30 req/s</td>
+</tr>
+<tr>
+<td>注册防刷</td>
+<td>同设备 24h ≤ 5 次 / 同 IP ≤ 10 次</td>
+</tr>
+<tr>
+<td>验证码</td>
+<td>同手机 24h ≤ 10 次，60s 冷却</td>
+</tr>
+<tr>
+<td>登录失败</td>
+<td>同账号 5 次 → 锁 5min</td>
+</tr>
+</tbody>
+</table>
+<p>实现：Redis ZSET 滑动窗口 / 令牌桶。</p>
+<h3 id="9-5-2-CSRF">9.5.2 CSRF</h3>
+<ul>
+<li>C 端 Web：JWT 在 Header 中传，CSRF 风险低（无 Cookie）</li>
+<li>后台：Cookie + 双提交 token（同时校验 Header <code>X-CSRF-Token</code>）</li>
+<li>所有写操作 <code>POST/PUT/DELETE</code></li>
+</ul>
+<h3 id="9-5-3-XSS">9.5.3 XSS</h3>
+<ul>
+<li>弹幕 / 昵称 / 房间标题：HTML escape</li>
+<li>富文本字段：白名单 sanitizer</li>
+<li>客户端 React/Vue 默认 escape，避免 dangerouslySetInnerHTML</li>
+</ul>
+<h3 id="9-5-4-SQL-注入">9.5.4 SQL 注入</h3>
+<ul>
+<li>全部参数化查询（sqlc 生成的 Prepared Statement）</li>
+<li>严禁字符串拼接 SQL</li>
+<li>后台搜索字段额外过滤特殊字符</li>
+</ul>
+<h3 id="9-5-5-文件上传">9.5.5 文件上传</h3>
+<ul>
+<li>仅头像、运营素材</li>
+<li>MIME 白名单（image/jpeg, image/png, image/webp）</li>
+<li>大小限制（头像 &lt; 2MB，运营素材 &lt; 10MB）</li>
+<li>服务端二次校验文件头（防 MIME 欺骗）</li>
+<li>存对象存储（不入业务服务器）</li>
+</ul>
+<h3 id="9-5-6-接口签名-v2">9.5.6 接口签名（v2）</h3>
+<p>外部 API（如开放给主播 PC 工具）：HMAC 签名 + nonce + timestamp 防重放。</p>
+<h2 id="9-6-数据安全">9.6 数据安全</h2>
+<h3 id="9-6-1-敏感字段">9.6.1 敏感字段</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>存储</th>
+<th>传输</th>
+<th>显示</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>密码</td>
+<td>Bcrypt 哈希</td>
+<td>明文 over TLS</td>
+<td>不返回</td>
+</tr>
+<tr>
+<td>手机号</td>
+<td>明文 + 索引</td>
+<td>明文 over TLS</td>
+<td>后台默认掩码 <code>138****1234</code></td>
+</tr>
+<tr>
+<td>邮箱</td>
+<td>明文 + 索引</td>
+<td>明文 over TLS</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>身份证</td>
+<td>AES-256（KMS 托管 key）</td>
+<td>TLS</td>
+<td>后台超管可见</td>
+</tr>
+<tr>
+<td>银行卡</td>
+<td>同上</td>
+<td>同上</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>支付宝账号</td>
+<td>哈希用于对账 + 明文加密用于转账</td>
+<td>TLS</td>
+<td>后台默认掩码</td>
+</tr>
+</tbody>
+</table>
+<h3 id="9-6-2-PII-脱敏">9.6.2 PII 脱敏</h3>
+<p>接口出参中间件统一处理：</p>
+<pre><code class="language-go">func MaskPII(s string, type_ MaskType) string {
+    switch type_ {
+    case Phone:    return s[:3] + "****" + s[7:]
+    case Email:    return s[:3] + "****@" + domain
+    case Alipay:   return s[:3] + "****" + s[len(s)-4:]
+    case IDCard:   return s[:6] + "********" + s[14:]
+    }
+}
+</code></pre>
+<p>所有面向后台的"查看完整信息"操作必须二次确认 + 审计。</p>
+<h3 id="9-6-3-TLS">9.6.3 TLS</h3>
+<ul>
+<li>TLS 1.2+ 强制</li>
+<li>HSTS 启用，max-age 1 year</li>
+<li>证书 Let's Encrypt 自动续期</li>
+<li>内网服务间通信 v2 升级 mTLS</li>
+</ul>
+<h3 id="9-6-4-数据库连接">9.6.4 数据库连接</h3>
+<ul>
+<li>TLS 强制</li>
+<li>业务账号 IP 白名单（仅业务 Pod 子网）</li>
+<li>权限分离：业务账号无 DDL 权限；DBA 账号独立</li>
+<li>密码 90 天轮换</li>
+</ul>
+<h2 id="9-7-三方接口安全">9.7 三方接口安全</h2>
+<h3 id="9-7-1-支付回调">9.7.1 支付回调</h3>
+<ul>
+<li>验签必须（微信 HMAC-SHA256 / 支付宝 RSA2）</li>
+<li>回调 IP 白名单（微信 + 支付宝官方 IP）</li>
+<li>回调幂等（third_party_no UNIQUE）</li>
+<li>原始 payload 落库 365 天</li>
+</ul>
+<h3 id="9-7-2-短信通道">9.7.2 短信通道</h3>
+<ul>
+<li>通道密钥 K8s Secret</li>
+<li>下发限流（防恶意刷短信成本授权安全测试）</li>
+<li>验证码使用一次后立即失效</li>
+</ul>
+<h3 id="9-7-3-KYC">9.7.3 KYC</h3>
+<ul>
+<li>阿里云实人认证 API</li>
+<li>用户照片不入业务库，仅入证书厂商</li>
+<li>我方仅存认证状态 + 三方流水号</li>
+</ul>
+<h2 id="9-8-客户端安全">9.8 客户端安全</h2>
+<h3 id="9-8-1-Web">9.8.1 Web</h3>
+<ul>
+<li>CSP（Content-Security-Policy）严格白名单</li>
+<li>X-Frame-Options DENY（防点击链路风险验证）</li>
+<li>X-Content-Type-Options nosniff</li>
+<li>Referrer-Policy strict-origin-when-cross-origin</li>
+</ul>
+<h3 id="9-8-2-H5">9.8.2 H5</h3>
+<ul>
+<li>同 Web</li>
+<li>微信内置浏览器额外注意 token 泄露（不输出到 console）</li>
+</ul>
+<h3 id="9-8-3-OBS-推流端">9.8.3 OBS 推流端</h3>
+<ul>
+<li>推流 URL 显示在主播端时部分掩码（防截图泄露）</li>
+<li>推流密钥时效短（5 min）+ 一次性</li>
+</ul>
+<h2 id="9-9-安全审计">9.9 安全审计</h2>
+<h3 id="9-9-1-内部审计">9.9.1 内部审计</h3>
+<ul>
+<li>季度密码强度检查</li>
+<li>月度未使用账号清理</li>
+<li>月度权限审查（最小权限原则）</li>
+<li>半年外部渗透测试</li>
+</ul>
+<h3 id="9-9-2-合规审计">9.9.2 合规审计</h3>
+<ul>
+<li>用户数据保留期：注销账号后 30 天硬删除（除合规要求保留）</li>
+<li>资金审计日志：永久保留</li>
+<li>风控告警：365 天保留</li>
+<li>数据出境合规：v1 全部数据在境内</li>
+</ul>
+<h3 id="9-9-3-日志审计">9.9.3 日志审计</h3>
+<ul>
+<li>后台访问日志（不仅写操作，读操作也记录）</li>
+<li>资金类全链路 Jaeger 100% 采样</li>
+<li>异常访问模式监控（同账号短期高频敏感操作）</li>
+</ul>
+<h2 id="9-10-安全应急">9.10 安全应急</h2>
+<h3 id="9-10-1-后台账号被攻破">9.10.1 后台账号被攻破</h3>
+<ol>
+<li>立即撤销该账号所有 token（写 Redis 黑名单）</li>
+<li>强制改密 + 2FA 重置</li>
+<li>审计该账号最近 30 天所有操作</li>
+<li>受影响业务回滚 / 补偿</li>
+<li>全员通知 + post-mortem</li>
+</ol>
+<h3 id="9-10-2-密钥泄露">9.10.2 密钥泄露</h3>
+<ol>
+<li>立即轮换泄露密钥</li>
+<li>审计该密钥可访问数据的最近访问日志</li>
+<li>评估影响范围</li>
+<li>通知用户（如涉及）</li>
+<li>安全审计强化</li>
+</ol>
+<h3 id="9-10-3-数据泄露">9.10.3 数据泄露</h3>
+<ol>
+<li>评估泄露规模</li>
+<li>法务介入（合规报告）</li>
+<li>受影响用户通知</li>
+<li>加固防护</li>
+<li>内外部复盘</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#9-1-两类鉴权身份-v0-2-移除主播-web-鉴权">9.1 两类鉴权身份（v0.2 移除主播 web 鉴权）</a></li><li style="margin-left:0.0rem"><a href="#9-2-JWT-设计">9.2 JWT 设计</a></li><li style="margin-left:0.8rem"><a href="#9-2-1-结构">9.2.1 结构</a></li><li style="margin-left:0.8rem"><a href="#9-2-2-签名算法">9.2.2 签名算法</a></li><li style="margin-left:0.8rem"><a href="#9-2-3-刷新机制">9.2.3 刷新机制</a></li><li style="margin-left:0.8rem"><a href="#9-2-4-主动撤销">9.2.4 主动撤销</a></li><li style="margin-left:0.0rem"><a href="#9-3-主播鉴权">9.3 主播鉴权</a></li><li style="margin-left:0.8rem"><a href="#9-3-1-6-位授权码">9.3.1 6 位授权码</a></li><li style="margin-left:0.8rem"><a href="#9-3-2-单设备并发禁止-R-108">9.3.2 单设备并发禁止（R-108）</a></li><li style="margin-left:0.8rem"><a href="#9-3-3-推流密钥">9.3.3 推流密钥</a></li><li style="margin-left:0.0rem"><a href="#9-4-后台鉴权">9.4 后台鉴权</a></li><li style="margin-left:0.8rem"><a href="#9-4-1-三因素">9.4.1 三因素</a></li><li style="margin-left:0.8rem"><a href="#9-4-2-RBAC">9.4.2 RBAC</a></li><li style="margin-left:0.8rem"><a href="#9-4-3-大额操作双人复核">9.4.3 大额操作双人复核</a></li><li style="margin-left:0.0rem"><a href="#9-5-接口防护">9.5 接口防护</a></li><li style="margin-left:0.8rem"><a href="#9-5-1-多维限流">9.5.1 多维限流</a></li><li style="margin-left:0.8rem"><a href="#9-5-2-CSRF">9.5.2 CSRF</a></li><li style="margin-left:0.8rem"><a href="#9-5-3-XSS">9.5.3 XSS</a></li><li style="margin-left:0.8rem"><a href="#9-5-4-SQL-注入">9.5.4 SQL 注入</a></li><li style="margin-left:0.8rem"><a href="#9-5-5-文件上传">9.5.5 文件上传</a></li><li style="margin-left:0.8rem"><a href="#9-5-6-接口签名-v2">9.5.6 接口签名（v2）</a></li><li style="margin-left:0.0rem"><a href="#9-6-数据安全">9.6 数据安全</a></li><li style="margin-left:0.8rem"><a href="#9-6-1-敏感字段">9.6.1 敏感字段</a></li><li style="margin-left:0.8rem"><a href="#9-6-2-PII-脱敏">9.6.2 PII 脱敏</a></li><li style="margin-left:0.8rem"><a href="#9-6-3-TLS">9.6.3 TLS</a></li><li style="margin-left:0.8rem"><a href="#9-6-4-数据库连接">9.6.4 数据库连接</a></li><li style="margin-left:0.0rem"><a href="#9-7-三方接口安全">9.7 三方接口安全</a></li><li style="margin-left:0.8rem"><a href="#9-7-1-支付回调">9.7.1 支付回调</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-05-22</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Go</span><span class="tag">Kubernetes</span><span class="tag">Redis</span><span class="tag">监控告警</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/architecture/security-and-auth.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605220000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2BKubernetes-9.%20%E5%AE%89%E5%85%A8%E4%B8%8E%E9%89%B4%E6%9D%83.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>9. 安全与鉴权。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §7.5 、 kickoff-auth.md 、 kickoff-admin.md §权限与风控 v0.2 变更（2026-05-22） ： - C 端登录简化为&quot;账号+密码&quot;，无验证码 - 主播完全无 web 端…</p>
+      <p>关键词：小蓝直播、Go、Kubernetes、Redis、监控告警、安全运维、故障排查、源码与配置、业务系统运维、业务系统运维 / 小蓝直播、9. 安全与鉴权</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-814c22006cd8.html"><small>上一篇</small>4. 资金闭环与账本设计</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f06a79843c72.html"><small>下一篇</small>Ghome 原型差异扫描（2026-05-22）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0f424fe7f594.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

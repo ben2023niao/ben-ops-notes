@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>4. 资金闭环与账本设计｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="4. 资金闭环与账本设计。本文属于业务系统运维 / 小蓝直播，对齐 PRD： kickoff-wallet.md 、 kickoff-predict.md 、 kickoff-live.md 、 product-prd.md §6.1 本章节是项目最高风险点 。所有资金动作 = 复式记账 + 强一致事务 + 幂等…">
+  <meta name="keywords" content="小蓝直播，Shell，Go，MySQL，Redis，监控告警，故障排查，业务系统运维，业务系统运维 / 小蓝直播，4. 资金闭环与账本设计">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-814c22006cd8.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-814c22006cd8.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605220000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-4.%20%E8%B5%84%E9%87%91%E9%97%AD%E7%8E%AF%E4%B8%8E%E8%B4%A6%E6%9C%AC%E8%AE%BE%E8%AE%A1.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="4. 资金闭环与账本设计">
+  <meta property="og:description" content="4. 资金闭环与账本设计。本文属于业务系统运维 / 小蓝直播，对齐 PRD： kickoff-wallet.md 、 kickoff-predict.md 、 kickoff-live.md 、 product-prd.md §6.1 本章节是项目最高风险点 。所有资金动作 = 复式记账 + 强一致事务 + 幂等…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-814c22006cd8.html">
+  <meta property="article:published_time" content="2026-05-22T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-22 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="4. 资金闭环与账本设计">
+  <meta name="twitter:description" content="4. 资金闭环与账本设计。本文属于业务系统运维 / 小蓝直播，对齐 PRD： kickoff-wallet.md 、 kickoff-predict.md 、 kickoff-live.md 、 product-prd.md §6.1 本章节是项目最高风险点 。所有资金动作 = 复式记账 + 强一致事务 + 幂等…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-814c22006cd8.html#article","headline":"4. 资金闭环与账本设计","description":"4. 资金闭环与账本设计。本文属于业务系统运维 / 小蓝直播，对齐 PRD： kickoff-wallet.md 、 kickoff-predict.md 、 kickoff-live.md 、 product-prd.md §6.1 本章节是项目最高风险点 。所有资金动作 = 复式记账 + 强一致事务 + 幂等…","datePublished":"2026-05-22T00:00:00+08:00","dateModified":"2026-05-22 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Shell","Go","MySQL","Redis","监控告警","故障排查","业务系统运维","业务系统运维 / 小蓝直播","4. 资金闭环与账本设计"],"wordCount":3016,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-814c22006cd8.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-814c22006cd8.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"4. 资金闭环与账本设计","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-814c22006cd8.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>4. 资金闭环与账本设计</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>4. 资金闭环与账本设计</h1>
+      <p class="lede">4. 资金闭环与账本设计。本文属于业务系统运维 / 小蓝直播，对齐 PRD： kickoff-wallet.md 、 kickoff-predict.md 、 kickoff-live.md 、 product-prd.md §6.1 本章节是项目最高风险点 。所有资金动作 = 复式记账 + 强一致事务 + 幂等…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-22T00:00:00+08:00">发布于 2026-05-22</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">3,016 字</span>
+        <span class="badge">9 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/architecture/funds-and-ledger.md</code></p>
+<p>整理日期：2026-05-22 00:00｜日期依据：正文日期</p>
+<p>对齐 PRD：<a href="https://ben2023niao.github.io/ben-ops-notes/doc/prd/modules/kickoff-wallet.md" rel="noopener noreferrer"><code>kickoff-wallet.md</code></a>、<a href="https://ben2023niao.github.io/ben-ops-notes/doc/prd/modules/kickoff-predict.md" rel="noopener noreferrer"><code>kickoff-predict.md</code></a>、<a href="https://ben2023niao.github.io/ben-ops-notes/doc/prd/modules/kickoff-live.md" rel="noopener noreferrer"><code>kickoff-live.md</code></a>、<code>product-prd.md §6.1</code></p>
+<p><strong>本章节是项目最高风险点</strong>。所有资金动作 = <strong>复式记账 + 强一致事务 + 幂等键 + T+1 对账</strong>，无任何例外。</p>
+<p><strong>⚠ v0.2 支付通道方案 TBD（2026-05-22）</strong>：原 PRD 假设"微信 + 支付宝直签"，v0.2 改为<strong>通道方案待重新评估</strong>，可能采用第三方聚合（PingPlusPlus / Lakala / 其他）或海外通道（USDT / Stripe / 其他）。本文档中所有"通道"相关业务规则、限额、回调验签方式 v1 暂按抽象层占位，具体实现待 ADR-0010 决策后补回。底层账本/事务/幂等/对账逻辑与通道无关，<strong>保持不变</strong>。</p>
+</blockquote>
+<h2 id="4-1-总原则">4.1 总原则</h2>
+<ol>
+<li><strong>唯一真相在 MySQL <code>wallet_ledger</code></strong>（复式账本表），任何资金动作必落账</li>
+<li><strong>Redis 只缓存读余额</strong>，绝对不能 INCR/DECR 当账本</li>
+<li><strong>强一致事务隔离级别 <code>REPEATABLE READ</code></strong>，押注 / 派彩 / 充值 / 提现 / 兑换 / 打赏全部走单事务</li>
+<li><strong>资金类接口必须携带 <code>Idempotency-Key</code></strong>，DB UNIQUE + Redis SETNX 双保险</li>
+<li><strong>任何资金状态变更必落审计日志</strong>，<code>audit_log</code> 表保留至少 1 年</li>
+<li><strong>派彩极端缩放保险丝</strong>：Σ命中派彩 &gt; 派彩池时按比例缩放</li>
+<li><strong>主播收益独立账本</strong> <code>streamer_income_ledger</code>，月结、人工出账</li>
+<li><strong>T+1 全量对账</strong>，差异 ≤ 0.05% 才算健康</li>
+</ol>
+<h2 id="4-2-双货币模型">4.2 双货币模型</h2>
+<table>
+<thead>
+<tr>
+<th>货币</th>
+<th>用途</th>
+<th>充值</th>
+<th>提现</th>
+<th>兑换</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RMB</td>
+<td>现金钱包</td>
+<td>微信 / 支付宝</td>
+<td>仅支付宝</td>
+<td>1 RMB → 10 💎（正向）</td>
+</tr>
+<tr>
+<td>💎 钻石</td>
+<td>押注 / 打赏</td>
+<td>RMB 兑换 + 赠送 + 派彩</td>
+<td>反向兑换 RMB（扣 20%）</td>
+<td>10 💎 → 0.8 RMB（反向）</td>
+</tr>
+</tbody>
+</table>
+<p>业务规则严格按 PRD §6.1（首充冷却 14 天、单日/月限额）。等级特权已下线，不再按用户等级设置押注上限。</p>
+<h2 id="4-3-复式账本-wallet_ledger">4.3 复式账本 <code>wallet_ledger</code></h2>
+<h3 id="4-3-1-设计原则">4.3.1 设计原则</h3>
+<ul>
+<li>每笔资金动作产生 <strong>2 行</strong>（debit + credit），借贷必相等</li>
+<li>账户主体可以是用户、平台收款、活动奖池、平台抽水池、主播收益池</li>
+<li>不允许 UPDATE / DELETE，仅 INSERT / SELECT</li>
+</ul>
+<h3 id="4-3-2-op_type-全清单">4.3.2 op_type 全清单</h3>
+<table>
+<thead>
+<tr>
+<th>op_type</th>
+<th>方向</th>
+<th>货币</th>
+<th>业务触发</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RECHARGE_IN</td>
+<td>+</td>
+<td>RMB</td>
+<td>充值到账</td>
+</tr>
+<tr>
+<td>RECHARGE_CLEARING</td>
+<td>-</td>
+<td>RMB</td>
+<td>平台收款清算（debit 对方）</td>
+</tr>
+<tr>
+<td>RECHARGE_BONUS_OUT</td>
+<td>+</td>
+<td>💎</td>
+<td>充值赠送钻石</td>
+</tr>
+<tr>
+<td>EXCHANGE_FWD_OUT</td>
+<td>-</td>
+<td>RMB</td>
+<td>正向兑换扣 RMB</td>
+</tr>
+<tr>
+<td>EXCHANGE_FWD_IN</td>
+<td>+</td>
+<td>💎</td>
+<td>正向兑换收 💎</td>
+</tr>
+<tr>
+<td>EXCHANGE_REV_OUT</td>
+<td>-</td>
+<td>💎</td>
+<td>反向兑换扣 💎</td>
+</tr>
+<tr>
+<td>EXCHANGE_REV_IN</td>
+<td>+</td>
+<td>RMB</td>
+<td>反向兑换收 RMB</td>
+</tr>
+<tr>
+<td>EXCHANGE_FEE</td>
+<td>+</td>
+<td>RMB</td>
+<td>反向兑换 20% 手续费 → 平台手续费池</td>
+</tr>
+<tr>
+<td>WITHDRAW_FREEZE</td>
+<td>冻结</td>
+<td>RMB</td>
+<td>提现申请，冻结金额</td>
+</tr>
+<tr>
+<td>WITHDRAW_OUT</td>
+<td>-</td>
+<td>RMB</td>
+<td>提现审核通过，实际扣减</td>
+</tr>
+<tr>
+<td>WITHDRAW_FEE</td>
+<td>+</td>
+<td>RMB</td>
+<td>提现 2% 平台费 → 平台手续费池</td>
+</tr>
+<tr>
+<td>WITHDRAW_UNFREEZE</td>
+<td>解冻</td>
+<td>RMB</td>
+<td>提现驳回，解除冻结</td>
+</tr>
+<tr>
+<td>BET_OUT</td>
+<td>-</td>
+<td>💎</td>
+<td>押注扣钻</td>
+</tr>
+<tr>
+<td>BET_POOL_IN</td>
+<td>+</td>
+<td>💎</td>
+<td>押注流入活动奖池</td>
+</tr>
+<tr>
+<td>BET_IN</td>
+<td>+</td>
+<td>💎</td>
+<td>派彩入账（中奖）</td>
+</tr>
+<tr>
+<td>BET_POOL_OUT</td>
+<td>-</td>
+<td>💎</td>
+<td>派彩从活动池流出</td>
+</tr>
+<tr>
+<td>BET_RAKE</td>
+<td>+</td>
+<td>💎</td>
+<td>平台抽水 → 平台抽水池</td>
+</tr>
+<tr>
+<td>BET_REFUND</td>
+<td>+</td>
+<td>💎</td>
+<td>退单回退（用户）</td>
+</tr>
+<tr>
+<td>BET_REFUND_POOL_OUT</td>
+<td>-</td>
+<td>💎</td>
+<td>退单时活动池退还</td>
+</tr>
+<tr>
+<td>TIP_OUT</td>
+<td>-</td>
+<td>💎</td>
+<td>打赏扣钻（用户）</td>
+</tr>
+<tr>
+<td>TIP_STREAMER_IN</td>
+<td>+</td>
+<td>💎</td>
+<td>打赏流入主播收益池</td>
+</tr>
+<tr>
+<td>TIP_RAKE</td>
+<td>+</td>
+<td>💎</td>
+<td>打赏平台分成 → 平台分成池</td>
+</tr>
+<tr>
+<td>STREAMER_SETTLE_OUT</td>
+<td>-</td>
+<td>RMB</td>
+<td>主播月结扣减收益池 → 财务出账</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-3-3-示例事务记账">4.3.3 示例事务记账</h3>
+<h4 id="50-rmb-250-50-5">充值 50 RMB（含赠送 250 钻 = 50 × 5 钻/元）</h4>
+<pre><code>事务 ID: T-1001
+  ledger row 1: user_X / RECHARGE_IN / +50.00 RMB
+  ledger row 2: platform_recharge_clearing / RECHARGE_CLEARING / -50.00 RMB
+  ledger row 3: user_X / RECHARGE_BONUS_OUT / +250 💎
+  ledger row 4: platform_gift_pool / RECHARGE_BONUS_OUT / -250 💎
+</code></pre>
+<p>四行同事务 INSERT，借贷必平。</p>
+<h4 id="1000">押注 1000 钻</h4>
+<pre><code>事务 ID: T-2001
+  ledger row 1: user_X / BET_OUT / -1000 💎
+  ledger row 2: predict_activity_Y / BET_POOL_IN / +1000 💎
+</code></pre>
+<h4 id="1700-1000-700">派彩 1700 钻（含本金 1000 + 派彩 700）</h4>
+<pre><code>事务 ID: T-3001
+  ledger row 1: user_X / BET_IN / +1700 💎
+  ledger row 2: predict_activity_Y / BET_POOL_OUT / -1700 💎
+  ledger row 3: platform_rake_pool / BET_RAKE / +平台抽水
+  ledger row 4: predict_activity_Y / BET_POOL_OUT / -平台抽水
+</code></pre>
+<h4 id="100">打赏 100 钻</h4>
+<pre><code>事务 ID: T-4001
+  ledger row 1: user_X / TIP_OUT / -100 💎
+  ledger row 2: streamer_Y_income_pool / TIP_STREAMER_IN / +XX 💎（扣分成后）
+  ledger row 3: platform_tip_rake / TIP_RAKE / +(100-XX) 💎
+</code></pre>
+<h4 id="_1">运营账号加钻 / 送礼</h4>
+<p>运营账号用于测试、活动演示和运营互动，不代表真实用户消费。</p>
+<ol>
+<li>后台给运营账号加钻仍必须走 <code>wallet_journals</code>、<code>wallet_journal_entries</code>、<code>balance_adjustments</code> 和 <code>admin_audit_logs</code>，但对账账户使用 <code>platform:operations</code>，不使用 <code>platform:income</code>，不生成 <code>recharge_orders</code>，不增加 <code>users.cumulative_recharge</code>。</li>
+<li>运营账号在前台送礼仍扣减自身钱包并广播礼物互动，<code>live_tips.is_operator_tip = 1</code>；<code>live_tips.rmb_equiv</code> 保留礼物本身 RMB 等值，供互动历史和审计查看。</li>
+<li>运营账号送礼的 <code>live_tips.settlement_diamond_amount = 0</code>、<code>live_tips.settlement_rmb_equiv = 0</code>；普通用户送礼则与 <code>diamond_amount</code>、<code>rmb_equiv</code> 一致。</li>
+<li><code>live_sessions.settlement_tip_rmb</code> 存主播结算口径，<code>operator_tip_rmb/operator_tip_diamond</code> 单独存运营礼物口径；主播对账使用结算口径，不用礼物总额口径。</li>
+<li><code>is_operator_tip = 1</code> 的送礼会进入 C 端/主播端实时礼物榜、众筹解锁进度等互动展示口径，但不进入真实 GMV、主播收益、主播结算、消费档位和奖励派发。</li>
+<li>如果取消运营账号，只影响后续新发生的送礼；历史 <code>live_tips.is_operator_tip</code> 是发生时快照，不回算。</li>
+</ol>
+<h2 id="4-4-各类资金事务">4.4 各类资金事务</h2>
+<h3 id="4-4-1-充值订单状态机">4.4.1 充值订单状态机</h3>
+<pre><code>[PENDING_PAYMENT] ──支付成功回调──► [PAID] ──记账完成──► [COMPLETED]
+       │                              │
+       ├──超时(30 min)──► [TIMEOUT]   ├──记账失败(系统异常)──► [PAID_BUT_FAIL_LEDGER]
+       │                                                              │
+       │                                                              ▼
+       └──用户取消──► [CANCELLED]                          告警 + 人工补单
+</code></pre>
+<p><strong>关键规范</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>实现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>回调验签</td>
+<td>微信：<code>WECHATPAY-SIGNATURE</code> HMAC-SHA256；支付宝：RSA2</td>
+</tr>
+<tr>
+<td>验签失败</td>
+<td>立即拒绝（不入账）+ 告警</td>
+</tr>
+<tr>
+<td>回调幂等</td>
+<td><code>(channel, third_party_no)</code> 联合 UNIQUE</td>
+</tr>
+<tr>
+<td>回调原始 payload</td>
+<td>全量落 <code>payment_callbacks</code> 表</td>
+</tr>
+<tr>
+<td>重复回调</td>
+<td>直接 ACK 不重入（前置 SELECT 已处理则跳过）</td>
+</tr>
+<tr>
+<td>超时</td>
+<td>二维码 30 min 过期，订单标记 TIMEOUT</td>
+</tr>
+<tr>
+<td>3 min 未到账</td>
+<td>显示"长时间未到账，请联系客服"</td>
+</tr>
+<tr>
+<td>已到账但记账失败</td>
+<td>标记 PAID_BUT_FAIL_LEDGER + 告警，人工跑补单脚本</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-4-2-押注事务">4.4.2 押注事务</h3>
+<p>完整代码示例见 <a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/system-architecture.md#18-数据流写路径示例押注" rel="noopener noreferrer">system-architecture.md §1.8</a>。关键节点：</p>
+<pre><code class="language-sql">BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+SELECT * FROM predict_activities WHERE id = :activity_id FOR UPDATE;
+-- 校验 status = '进行中' AND now &lt; close_at；否则 ROLLBACK
+
+SELECT * FROM user_wallets WHERE user_id = :user_id FOR UPDATE;
+-- 校验 diamond_balance &gt;= :amount；否则 ROLLBACK
+
+-- 校验活动 / 全局风控单次上限 + 当日累计上限（查 predict_bets 当日汇总）
+-- 等级押注上限已下线；触发全局或活动限额则 ROLLBACK
+
+UPDATE user_wallets
+  SET diamond_balance = diamond_balance - :amount,
+      version = version + 1
+  WHERE user_id = :user_id AND version = :prev_version;
+-- 影响行 0 → 并发冲突，ROLLBACK 重试一次
+
+INSERT INTO predict_bets (
+  id, user_id, activity_id, option_key,
+  amount_diamond, rate_at_bet, status,
+  idempotency_key, created_at
+) VALUES (...);
+
+UPDATE predict_activities
+  SET pool_total = pool_total + :amount,
+      participant_count = participant_count + (:is_new_participant ? 1 : 0)
+  WHERE id = :activity_id;
+
+UPDATE user_consume_total
+  SET rmb_equiv_total = rmb_equiv_total + :amount / 10,
+      updated_at = NOW()
+  WHERE user_id = :user_id;
+
+INSERT INTO wallet_ledger (op_type='BET_OUT', user_id, amount=-:amount, ...);
+INSERT INTO wallet_ledger (op_type='BET_POOL_IN', account='predict_activity_:id', amount=+:amount, ...);
+
+INSERT INTO audit_log (action='predict.bet', actor=:user_id, details=JSON, ...);
+
+COMMIT;
+</code></pre>
+<p>事务后：
+- Redis 写最新余额（best-effort，<strong>DB 是真相</strong>）
+- <code>XADD stream:bet.placed</code> 异步通知排行榜/风控 worker</p>
+<h3 id="4-4-3-派彩流程-worker-settle">4.4.3 派彩流程（worker-settle）</h3>
+<pre><code>比赛结束 → 运营在后台输入实际结果 →
+  worker-settle 消费 stream:match.ended:
+
+    1. 锁定该 match 所有 predict_activities → status='派彩中'
+
+    2. 对每个活动:
+       a. 计算派彩池 = pool_total × (1 - rake_rate)  -- 默认 80%
+       b. 找出命中选项的所有 predict_bets
+       c. 计算每人派彩 = bet.amount × bet.rate_at_bet（用快照赔率）
+       d. 极端缩放保险丝:
+          if Σ(命中派彩) &gt; 派彩池:
+             scale = 派彩池 / Σ(命中派彩)
+             每人 payout *= scale
+       e. 批量事务（每批 ≤ 100 用户）:
+          - UPDATE user_wallets SET diamond_balance += payout
+          - UPDATE predict_bets SET status='已开奖', payout_diamond=...
+          - INSERT wallet_ledger × 2/4（命中用户 + 平台抽水）
+          - UPDATE predict_activities SET pool_total -= 派彩总额
+       f. 活动 status = '已开奖'
+       g. INSERT audit_log
+
+    3. 一致性验证:
+       SELECT SUM(amount) FROM wallet_ledger
+         WHERE ref_table='predict_activities' AND ref_id=:id;
+       必须 = 0（容差 &lt; 0.001 💎）；否则报警 + 人工介入
+
+    4. XADD stream:bet.settled → 通知用户站内信 + 推 WS
+</code></pre>
+<h3 id="4-4-4-提现流程">4.4.4 提现流程</h3>
+<pre><code>1. 用户提交 → go-api 校验 KYC 状态 + 限额 → 风控引擎打分
+2. 评分 &lt; 30 (低)：自动放行
+   评分 30-69 (中)：进入"待审核"队列，运营 24h 内人工
+   评分 ≥ 70 (高)：自动驳回 + 通知用户
+   即使评分低，单笔 &gt; ¥5,000 也强制人工审核
+
+3. 申请创建时:
+   - 钱包冻结对应金额（不扣减）
+   - INSERT withdraw_orders (status='待审核' or 'AUTO_APPROVED')
+   - INSERT wallet_ledger (WITHDRAW_FREEZE)
+
+4. 审核通过:
+   - 解冻 + 实际扣减
+   - 调通道（支付宝商家批量付款）
+   - INSERT wallet_ledger (WITHDRAW_OUT)
+   - INSERT wallet_ledger (WITHDRAW_FEE - 平台收 2%)
+   - 通道成功 → status='已到账'
+   - 通道失败 → 自动重试 3 次（间隔 30s/2min/10min）
+   - 仍失败 → status='转账异常' + 告警
+
+5. 审核驳回:
+   - 解冻 + 通知用户原因
+   - INSERT wallet_ledger (WITHDRAW_UNFREEZE)
+   - status='已驳回'
+</code></pre>
+<h3 id="4-4-5-兑换流程">4.4.5 兑换流程</h3>
+<table>
+<thead>
+<tr>
+<th>方向</th>
+<th>流程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>正向 RMB → 💎</td>
+<td>单事务：扣 RMB → 加 💎 → 双向 ledger × 2 行（无手续费）</td>
+</tr>
+<tr>
+<td>反向 💎 → RMB</td>
+<td>单事务：扣 💎 → 加 (10:8) RMB → 收 20% 手续费 → ledger × 4 行；反向当日次数 ≤ 5 校验</td>
+</tr>
+</tbody>
+</table>
+<p>兑换<strong>不计入累计消费</strong>（只有押注消费才计入）。</p>
+<h3 id="4-4-6-主播收益月结">4.4.6 主播收益月结</h3>
+<pre><code>每月 1 日 02:00 跑批 worker-cron:
+
+  1. 拉取上月所有 streamer_income_ledger 行（settled=false）
+  2. 按主播聚合
+  3. 扣平台分成（PRD 待确认比例，默认 50%）
+  4. 生成结算单 streamer_settlement
+  5. 财务侧手工出账（支付宝 / 银行转账）
+  6. 财务确认后：UPDATE streamer_income_ledger SET settled=true, settled_at=NOW()
+  7. INSERT wallet_ledger (STREAMER_SETTLE_OUT)
+  8. INSERT audit_log
+
+主播端 v1 不展示 GMV / 打赏明细（防内幕；PRD 已确认）
+</code></pre>
+<h2 id="4-5-幂等设计">4.5 幂等设计</h2>
+<h3 id="4-5-1-三层防护">4.5.1 三层防护</h3>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>实现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 客户端</td>
+<td><code>Idempotency-Key</code> HTTP Header（UUID v4）</td>
+</tr>
+<tr>
+<td>2. Redis 双保险</td>
+<td><code>SETNX idem:{user_id}:{key} 1 EX 86400</code> 失败则查首次结果</td>
+</tr>
+<tr>
+<td>3. DB 终极防护</td>
+<td><code>predict_bets</code> / <code>recharge_orders</code> / <code>withdraw_orders</code> 表 <code>(user_id, idempotency_key)</code> 联合 UNIQUE</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-5-2-重复请求处理">4.5.2 重复请求处理</h3>
+<ul>
+<li>首次：执行业务，存结果到 Redis</li>
+<li>重复：Redis 命中 → 直接返回首次结果（不重入业务）</li>
+<li>Redis 过期但 DB 唯一冲突：捕获错误后 SELECT 已有订单返回</li>
+</ul>
+<h2 id="4-6-对账-T-1">4.6 对账（T+1）</h2>
+<h3 id="4-6-1-跑批流程">4.6.1 跑批流程</h3>
+<pre><code>每日 02:00 worker-cron:
+
+  1. 拉取昨日通道对账文件:
+     - 微信: 商户后台 .csv API
+     - 支付宝: 商家后台 .csv API
+  2. JOIN 系统订单:
+     - recharge_orders + payment_callbacks
+     - withdraw_orders + transfer_records
+  3. 三类差异检查:
+     a. 系统单边（通道无对应流水）→ "系统多"
+     b. 通道单边（系统无订单）→ 触发补单流程
+     c. 金额不一致 → 标记"金额差异"
+  4. 写 recon_diff 表
+  5. 运营在 Admin Portal 处置:
+     - 补单（系统重建订单）
+     - 挂账（暂搁，等通道补流水）
+     - 核对（人工联系通道）
+  6. 全平账 → 写 admin_audit_log
+  7. 推 Telegram + 邮件告警（差异 &gt; ¥1000 或 &gt; 5 笔 紧急级，双通道兜底）
+</code></pre>
+<h3 id="4-6-2-健康标准">4.6.2 健康标准</h3>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>阈值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单日差异率</td>
+<td>≤ 0.05%</td>
+</tr>
+<tr>
+<td>单日差异金额</td>
+<td>≤ ¥1,000</td>
+</tr>
+<tr>
+<td>单日差异笔数</td>
+<td>≤ 5 笔</td>
+</tr>
+<tr>
+<td>单笔差异金额</td>
+<td>≤ ¥100</td>
+</tr>
+<tr>
+<td>待处理超过 7 天</td>
+<td>0 笔</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-7-资金一致性最终清单">4.7 资金一致性最终清单</h2>
+<p>部署前必须逐项验证：</p>
+<ul>
+<li>[ ] <code>wallet_ledger</code> 复式记账，debit + credit 必同事务</li>
+<li>[ ] <code>user_wallets</code> 带 <code>version</code> 乐观锁</li>
+<li>[ ] DB 层 CHECK 约束：<code>rmb_balance &gt;= 0</code> 且 <code>diamond_balance &gt;= 0</code></li>
+<li>[ ] <code>idempotency_key</code> 在订单表 UNIQUE + Redis SETNX 双保险</li>
+<li>[ ] 充值回调签名验证（微信 HMAC、支付宝 RSA2）</li>
+<li>[ ] <code>payment_callbacks</code> 表保留所有原始 payload</li>
+<li>[ ] 押注 / 派彩事务隔离级别 <code>REPEATABLE READ</code></li>
+<li>[ ] 派彩走 worker-settle 批量处理，单批次事务 ≤ 100 用户</li>
+<li>[ ] <strong>派彩极端缩放保险丝</strong>：Σ命中派彩 &gt; 派彩池时按比例缩放</li>
+<li>[ ] 主播收益独立账本 <code>streamer_income_ledger</code>，月结</li>
+<li>[ ] T+1 对账跑批 + 三类差异处置</li>
+<li>[ ] DB 用户<strong>仅授予 INSERT/SELECT</strong>；UPDATE/DELETE 仅在 schema migration role</li>
+<li>[ ] <code>audit_log</code> retention ≥ 365 天</li>
+<li>[ ] 所有资金动作写 <code>audit.write</code> Kafka topic（或 Redis Stream，按 §5）</li>
+<li>[ ] 资金类接口 P99 &lt; 500ms（押注 / 充值发起）</li>
+<li>[ ] 资金类接口失败率 &lt; 0.05%</li>
+<li>[ ] 跨服务事务 = 0（v1 单库单事务，不引入分布式事务）</li>
+</ul>
+<h2 id="4-8-Redis-不可作账本的硬证据">4.8 Redis 不可作账本的硬证据</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>Redis 行为</th>
+<th>后果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主从切换瞬间</td>
+<td>异步复制延迟 → 主节点写入后从节点未同步</td>
+<td>INCR 计数丢失</td>
+</tr>
+<tr>
+<td>AOF everysec</td>
+<td>1 秒数据丢失风险</td>
+<td>押注/打赏丢失</td>
+</tr>
+<tr>
+<td><code>INCR</code> + <code>EXPIRE</code> 非原子</td>
+<td>TTL 设置失败 → key 不过期</td>
+<td>内存膨胀</td>
+</tr>
+<tr>
+<td>多 key 操作</td>
+<td>无事务跨多 key 强保证（除 Lua）</td>
+<td>不一致</td>
+</tr>
+<tr>
+<td>网络分区</td>
+<td>脑裂</td>
+<td>双写</td>
+</tr>
+</tbody>
+</table>
+<p>Redis 在资金链路的<strong>合法用途</strong>：
+- 缓存只读余额（用于显示，DB 为准）
+- 幂等键 SETNX
+- 限流计数器
+- 热点活动奖池缓存（<strong>展示用</strong>，不参与扣减）</p>
+<h2 id="4-9-涉及表与-DDL">4.9 涉及表与 DDL</h2>
+<table>
+<thead>
+<tr>
+<th>表</th>
+<th>详见</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user_wallets</code></td>
+<td><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/data-model.md" rel="noopener noreferrer">data-model.md §钱包</a></td>
+</tr>
+<tr>
+<td><code>user_consume_total</code></td>
+<td>同上</td>
+</tr>
+<tr>
+<td><code>wallet_ledger</code> ★</td>
+<td>同上</td>
+</tr>
+<tr>
+<td><code>recharge_orders</code></td>
+<td>同上</td>
+</tr>
+<tr>
+<td><code>payment_callbacks</code></td>
+<td>同上</td>
+</tr>
+<tr>
+<td><code>withdraw_orders</code></td>
+<td>同上</td>
+</tr>
+<tr>
+<td><code>exchange_orders</code></td>
+<td>同上</td>
+</tr>
+<tr>
+<td><code>predict_bets</code> ★</td>
+<td>同上</td>
+</tr>
+<tr>
+<td><code>tip_records</code></td>
+<td>同上</td>
+</tr>
+<tr>
+<td><code>streamer_income_ledger</code></td>
+<td>同上</td>
+</tr>
+<tr>
+<td><code>streamer_settlement</code></td>
+<td>同上</td>
+</tr>
+<tr>
+<td><code>recon_diff</code></td>
+<td>同上</td>
+</tr>
+<tr>
+<td><code>audit_log</code></td>
+<td>同上</td>
+</tr>
+</tbody>
+</table>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#4-1-总原则">4.1 总原则</a></li><li style="margin-left:0.0rem"><a href="#4-2-双货币模型">4.2 双货币模型</a></li><li style="margin-left:0.0rem"><a href="#4-3-复式账本-wallet_ledger">4.3 复式账本 wallet_ledger</a></li><li style="margin-left:0.8rem"><a href="#4-3-1-设计原则">4.3.1 设计原则</a></li><li style="margin-left:0.8rem"><a href="#4-3-2-op_type-全清单">4.3.2 op_type 全清单</a></li><li style="margin-left:0.8rem"><a href="#4-3-3-示例事务记账">4.3.3 示例事务记账</a></li><li style="margin-left:0.0rem"><a href="#4-4-各类资金事务">4.4 各类资金事务</a></li><li style="margin-left:0.8rem"><a href="#4-4-1-充值订单状态机">4.4.1 充值订单状态机</a></li><li style="margin-left:0.8rem"><a href="#4-4-2-押注事务">4.4.2 押注事务</a></li><li style="margin-left:0.8rem"><a href="#4-4-3-派彩流程-worker-settle">4.4.3 派彩流程（worker-settle）</a></li><li style="margin-left:0.8rem"><a href="#4-4-4-提现流程">4.4.4 提现流程</a></li><li style="margin-left:0.8rem"><a href="#4-4-5-兑换流程">4.4.5 兑换流程</a></li><li style="margin-left:0.8rem"><a href="#4-4-6-主播收益月结">4.4.6 主播收益月结</a></li><li style="margin-left:0.0rem"><a href="#4-5-幂等设计">4.5 幂等设计</a></li><li style="margin-left:0.8rem"><a href="#4-5-1-三层防护">4.5.1 三层防护</a></li><li style="margin-left:0.8rem"><a href="#4-5-2-重复请求处理">4.5.2 重复请求处理</a></li><li style="margin-left:0.0rem"><a href="#4-6-对账-T-1">4.6 对账（T+1）</a></li><li style="margin-left:0.8rem"><a href="#4-6-1-跑批流程">4.6.1 跑批流程</a></li><li style="margin-left:0.8rem"><a href="#4-6-2-健康标准">4.6.2 健康标准</a></li><li style="margin-left:0.0rem"><a href="#4-7-资金一致性最终清单">4.7 资金一致性最终清单</a></li><li style="margin-left:0.0rem"><a href="#4-8-Redis-不可作账本的硬证据">4.8 Redis 不可作账本的硬证据</a></li><li style="margin-left:0.0rem"><a href="#4-9-涉及表与-DDL">4.9 涉及表与 DDL</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-05-22</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Shell</span><span class="tag">Go</span><span class="tag">MySQL</span><span class="tag">Redis</span><span class="tag">监控告警</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/architecture/funds-and-ledger.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605220000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-4.%20%E8%B5%84%E9%87%91%E9%97%AD%E7%8E%AF%E4%B8%8E%E8%B4%A6%E6%9C%AC%E8%AE%BE%E8%AE%A1.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>4. 资金闭环与账本设计。本文属于业务系统运维 / 小蓝直播，对齐 PRD： kickoff-wallet.md 、 kickoff-predict.md 、 kickoff-live.md 、 product-prd.md §6.1 本章节是项目最高风险点 。所有资金动作 = 复式记账 + 强一致事务 + 幂等…</p>
+      <p>关键词：小蓝直播、Shell、Go、MySQL、Redis、监控告警、故障排查、业务系统运维、业务系统运维 / 小蓝直播、4. 资金闭环与账本设计</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-261496cf373b.html"><small>上一篇</small>3. 直播链路架构（双方案并存）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0f424fe7f594.html"><small>下一篇</small>9. 安全与鉴权</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-814c22006cd8.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
