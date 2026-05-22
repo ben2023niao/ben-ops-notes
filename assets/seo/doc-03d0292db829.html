@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>ADR-0010： 支付通道方案 — v1 大白鲨聚合通道 + Channel 抽象层落地｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="ADR-0010： 支付通道方案 — v1 大白鲨聚合通道 + Channel 抽象层落地。本文属于业务系统运维 / 小蓝直播，ADR-0011 完成 v0.3 PRD 对齐后，钱包业务规则已定： 充值 5% 平台费 + 1:1 折钻 + 提现 5% 平台费 ，但 实际通过哪些支付通道收钱、给钱 未定。 原型 v…">
+  <meta name="keywords" content="小蓝直播，Shell，Go，监控告警，自动化，故障排查，数据库恢复，源码与配置，业务系统运维，业务系统运维 / 小蓝直播，ADR-0010： 支付通道方案 — v1 大白鲨聚合通道 + Channel 抽象层落地">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-03d0292db829.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-03d0292db829.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605230000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-ADR-0010%EF%BC%9A%20%E6%94%AF%E4%BB%98%E9%80%9A%E9%81%93%E6%96%B9%E6%A1%88%20%E2%80%94%20v1%20%E5%A4%A7%E7%99%BD%E9%B2%A8%E8%81%9A%E5%90%88%E9%80%9A%E9%81%93%20%2B%20Channel%20%E6%8A%BD%E8%B1%A1%E5%B1%82%E8%90%BD%E5%9C%B0.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="ADR-0010： 支付通道方案 — v1 大白鲨聚合通道 + Channel 抽象层落地">
+  <meta property="og:description" content="ADR-0010： 支付通道方案 — v1 大白鲨聚合通道 + Channel 抽象层落地。本文属于业务系统运维 / 小蓝直播，ADR-0011 完成 v0.3 PRD 对齐后，钱包业务规则已定： 充值 5% 平台费 + 1:1 折钻 + 提现 5% 平台费 ，但 实际通过哪些支付通道收钱、给钱 未定。 原型 v…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-03d0292db829.html">
+  <meta property="article:published_time" content="2026-05-23T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-23 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="ADR-0010： 支付通道方案 — v1 大白鲨聚合通道 + Channel 抽象层落地">
+  <meta name="twitter:description" content="ADR-0010： 支付通道方案 — v1 大白鲨聚合通道 + Channel 抽象层落地。本文属于业务系统运维 / 小蓝直播，ADR-0011 完成 v0.3 PRD 对齐后，钱包业务规则已定： 充值 5% 平台费 + 1:1 折钻 + 提现 5% 平台费 ，但 实际通过哪些支付通道收钱、给钱 未定。 原型 v…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-03d0292db829.html#article","headline":"ADR-0010： 支付通道方案 — v1 大白鲨聚合通道 + Channel 抽象层落地","description":"ADR-0010： 支付通道方案 — v1 大白鲨聚合通道 + Channel 抽象层落地。本文属于业务系统运维 / 小蓝直播，ADR-0011 完成 v0.3 PRD 对齐后，钱包业务规则已定： 充值 5% 平台费 + 1:1 折钻 + 提现 5% 平台费 ，但 实际通过哪些支付通道收钱、给钱 未定。 原型 v…","datePublished":"2026-05-23T00:00:00+08:00","dateModified":"2026-05-23 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Shell","Go","监控告警","自动化","故障排查","数据库恢复","源码与配置","业务系统运维","业务系统运维 / 小蓝直播","ADR-0010： 支付通道方案 — v1 大白鲨聚合通道 + Channel 抽象层落地"],"wordCount":1962,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-03d0292db829.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-03d0292db829.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"ADR-0010： 支付通道方案 — v1 大白鲨聚合通道 + Channel 抽象层落地","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-03d0292db829.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>ADR-0010： 支付通道方案 — v1 大白鲨聚合通道 + Channel 抽象层落地</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>ADR-0010： 支付通道方案 — v1 大白鲨聚合通道 + Channel 抽象层落地</h1>
+      <p class="lede">ADR-0010： 支付通道方案 — v1 大白鲨聚合通道 + Channel 抽象层落地。本文属于业务系统运维 / 小蓝直播，ADR-0011 完成 v0.3 PRD 对齐后，钱包业务规则已定： 充值 5% 平台费 + 1:1 折钻 + 提现 5% 平台费 ，但 实际通过哪些支付通道收钱、给钱 未定。 原型 v…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-23T00:00:00+08:00">发布于 2026-05-23</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,962 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/decisions/ADR-0010-payment-channels.md</code></p>
+<p>整理日期：2026-05-23 00:00｜日期依据：正文日期</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th><strong>已采纳（v1 = 大白鲨聚合通道）</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>日期</td>
+<td>2026-05-23 初稿 · 2026-05-24 升级</td>
+</tr>
+<tr>
+<td>Owner</td>
+<td>产品 / 后端 / 财务 / 运维</td>
+</tr>
+<tr>
+<td>影响范围</td>
+<td><code>services/go-app/internal/infra/payment/</code>、<code>internal/service/wallet/</code>、<code>internal/http/hook/</code>、<code>config.go</code>、生产合规审查</td>
+</tr>
+<tr>
+<td>相关需求</td>
+<td>WALLET-001~008（充值）、WALLET-101~108（提现）、WALLET-301~302（退款，本 ADR 引入）、ADR-0011 §17</td>
+</tr>
+<tr>
+<td>关联 ADR</td>
+<td><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/ADR-0011-prd-v0.3-align-prototype-v4.45.md" rel="noopener noreferrer">ADR-0011</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-背景">1. 背景</h2>
+<p>ADR-0011 完成 v0.3 PRD 对齐后，钱包业务规则已定：<strong>充值 5% 平台费 + 1:1 折钻 + 提现 5% 平台费</strong>，但<strong>实际通过哪些支付通道收钱、给钱</strong>未定。</p>
+<p>原型 v4.03 演示 5 种通道（微信、支付宝、银联、USDT、e-CNY），逐条评估后发现：自签商户号路径过长（公司主体 + ICP + 各通道审核 1-3 月），不可能赶上 2026 世界杯窗口。</p>
+<h2 id="2-决策-已敲定">2. 决策（已敲定）</h2>
+<blockquote>
+<p>v0.3.2 二次清理(2026-05-24 19:00):删除 wechat/alipay/generic 三个<strong>占位通道</strong>(从未接过真实商户号)的 router/handler/service/config/yaml/OpenAPI 全栈代码;<code>PayConfig</code> 字段仅保留 <code>Shark</code>;<code>PayChannelConfig</code> 类型整体删除。理由:大白鲨已覆盖 alipay/wechat/union 等子通道,占位代码空跑只会误导(让人以为支持多通道直签),违反 YAGNI。未来若新增聚合方/直签通道,按本 ADR §2.6 抽象层新建 <code>infra/payment/&lt;name&gt;/</code> 包即可,无需复活占位代码。</p>
+</blockquote>
+<h3 id="2-1-v1-启用通道-仅大白鲨支付聚合-单通道">2.1 v1 启用通道：<strong>仅大白鲨支付聚合</strong>（单通道）</h3>
+<p>理由：
+- <strong>唯一在世界杯窗口前能上线</strong>的方案。大白鲨自身已对接 6 种子通道（alipay / wechat / union / usdt / dyhbPay / digitalRmb），相当于一次接入覆盖 PRD 5 种支付方式。
+- <strong>接入工时最低</strong>（~2.5d vs 自签 5 通道 × 2-3w）。
+- <strong>商户合规风险转移</strong>给大白鲨，我方仅承担 SaaS 集成层风险。
+- 接口设计已<strong>支持后续切换</strong>：<code>Channel</code> interface + <code>PayConfig.Shark/Wechat/Alipay/...</code> 多组并存，将来自签下来直接 swap。</p>
+<h3 id="2-2-商户号路径-三方聚合-大白鲨">2.2 商户号路径：三方聚合（大白鲨）</h3>
+<table>
+<thead>
+<tr>
+<th>通道</th>
+<th>路径</th>
+<th>v1 实际</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>大白鲨</td>
+<td>商家入驻（含 mercId + appSecret）</td>
+<td>✅ v1 启用</td>
+</tr>
+<tr>
+<td>微信直签 / 支付宝直签 / 银联直签</td>
+<td>公司主体 + ICP，1-3 月周期</td>
+<td>❌ 暂缓</td>
+</tr>
+<tr>
+<td>USDT 自建钱包</td>
+<td>独立工时</td>
+<td>❌ 暂缓（大白鲨已覆盖）</td>
+</tr>
+<tr>
+<td>e-CNY 银行运营机构</td>
+<td>接入门槛极高</td>
+<td>❌ 暂缓</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-3-签名算法">2.3 签名算法</h3>
+<p>大白鲨使用 <strong>MD5 拼接固定字段顺序</strong>，与现有 <code>generic</code> 通道（HMAC-SHA256）不兼容，故 <strong>独立通道实现</strong>（不复用 generic）。</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>签名公式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>下单请求</td>
+<td><code>md5(mercId + money + notifyUrl + tradeNo + type + appSecret)</code></td>
+</tr>
+<tr>
+<td>下单响应</td>
+<td><code>md5(oid + payUrl + appSecret)</code></td>
+</tr>
+<tr>
+<td>付款回调</td>
+<td><code>md5(code + mercId + oid + payMoney + tradeNo + appSecret)</code></td>
+</tr>
+<tr>
+<td>退款回调</td>
+<td><code>md5(code + mercId + oid + tradeNo + appSecret)</code></td>
+</tr>
+<tr>
+<td>支付方式查询</td>
+<td><code>md5(mercId + money.join('') + appSecret)</code>（v1 不接）</td>
+</tr>
+<tr>
+<td>获取汇率</td>
+<td><code>md5(mercId + pType + appSecret)</code>（v1 不接）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>实现位置：<code>internal/infra/payment/shark/sign.go</code>。</p>
+</blockquote>
+<h3 id="2-4-容差与对账-v0-3-2-强化-大白鲨规约-以-payMoney-为权威">2.4 容差与对账（v0.3.2 强化：大白鲨规约「以 payMoney 为权威」）</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>规则</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>入账权威字段</strong></td>
+<td>所有通道一律按回调 <code>payMoney</code>（实际到账）入账，<strong>不</strong>用下单时 <code>RMBAmount</code>；钻石 = <code>floor(payMoney × (1 − 5%))</code></td>
+</tr>
+<tr>
+<td>扫码通道金额（alipay/wechat/union/digitalRmb）</td>
+<td>严格等值匹配（<code>payMoney == RMBAmount</code>）；不一致 → <code>payment_callbacks.processed=2</code>，<strong>不入账、不改订单状态</strong>，转人工对账</td>
+</tr>
+<tr>
+<td>USDT 子通道</td>
+<td><strong>v1 暂不上线</strong>（大白鲨 USDT 单位是 USDT 个数，不换算 RMB，与我方业务的 RMB 基线冲突），需要前端 USDT 输入 + 汇率展示 + 入账逻辑改造，留 v1.x 单独评估</td>
+</tr>
+<tr>
+<td>回调超时</td>
+<td>扫码 30 分钟 / 链上 15 分钟（订单 <code>expires_at</code>）</td>
+</tr>
+<tr>
+<td>补单</td>
+<td>cron 调 <code>/queryOrder</code> 兜底（pending 超 5 分钟轮询）</td>
+</tr>
+<tr>
+<td>重复回调</td>
+<td>三层防护：<code>payment_callbacks (channel, third_party_no) UNIQUE</code> + <code>wallet_journals.idempotency_key UNIQUE</code>（<code>recharge_&lt;orderNo&gt;</code>）+ 订单 <code>SELECT FOR UPDATE</code></td>
+</tr>
+<tr>
+<td>对账周期</td>
+<td>T+1 跑批；以 <code>payment_callbacks</code> + <code>recharge_orders</code> + 大白鲨账单三方对单</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-5-退款策略-半人工">2.5 退款策略：<strong>半人工</strong></h3>
+<p>大白鲨的退款回调（<code>cancelNotifyUrl</code>）由其客服 + 渠道侧主导，我方<strong>不自动扣钻</strong>。流程：</p>
+<ol>
+<li>大白鲨调我方 <code>POST /api/v1/hooks/payment/shark/refund</code></li>
+<li>后端 MD5 验签 → 持久化 <code>payment_callbacks</code> → <code>recharge_orders.status = REFUNDED</code> + 写 <code>admin_audit_logs</code></li>
+<li>在 admin 后台生成「退款待调账」工单</li>
+<li><code>finance_admin</code> 在后台使用现有 <code>/admin/users/{uid}/wallet/adjust</code> 接口手工扣回钻石（受 <code>biz.adjust.max_diamond</code> 上限保护）</li>
+</ol>
+<p>理由：用户可能已用充值的钻石押注/打赏，<strong>自动扣钻会出现钻石负余额</strong>或破坏押注结算，需要人工评估场景后再调账。</p>
+<blockquote>
+<p>后续 v1.x 若需自动化，再扩展 <code>RECHARGE_REFUND_OUT</code> op_type + 余额不足时的策略（拒收 / 记负 / 冲销）。</p>
+</blockquote>
+<h3 id="2-6-抽象层接口-落地版">2.6 抽象层接口（落地版）</h3>
+<pre><code class="language-go">// internal/infra/payment/channel.go
+type Channel interface {
+    Name() string
+    Init(ctx context.Context, req *InitRequest) (*PayHint, error)
+    Query(ctx context.Context, orderNo string) (*OrderStatus, error)
+    VerifyPayCallback(ctx context.Context, rawHeaders, rawBody []byte, sig string) (*Settlement, error)
+    VerifyRefundCallback(ctx context.Context, rawHeaders, rawBody []byte, sig string) (*RefundNotice, error)
+}
+
+type InitRequest struct {
+    OrderNo   string          // 我方 R{snowflake}
+    UserID    uint64
+    Amount    decimal.Decimal // RMB 元，2 位小数
+    Type      string          // 子通道：alipay/wechat/union/usdt/digitalRmb（大白鲨场景）
+    ClientIP  string
+    DeviceID  string
+    NotifyURL string          // 公网回调地址
+}
+
+type PayHint struct {
+    ThirdPartyNo string   // 通道订单号 oid
+    PayURL       string   // 跳转链接 / 收款卡号 JSON
+    Mode         string   // url / sdk / card
+    Raw          []byte   // 通道响应原文，落 ThirdPartyPayload JSON
+}
+
+type Settlement struct {
+    OrderNo      string
+    ThirdPartyNo string
+    PayMoney     decimal.Decimal
+    PaidAt       time.Time
+    Raw          []byte
+}
+
+type RefundNotice struct {
+    OrderNo      string
+    ThirdPartyNo string
+    Raw          []byte
+}
+</code></pre>
+<p>Service 层只依赖 <code>Channel</code> interface；通道注册放 <code>internal/infra/payment/registry.go</code>，按 <code>cfg.Pay.&lt;name&gt;.Enabled</code> 启用。</p>
+<p>v1 只注册 <code>shark</code>，无其他通道实现。</p>
+<h2 id="3-实施分阶段-v1-实际">3. 实施分阶段（v1 实际）</h2>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>范围</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>P0 抽象层骨架</strong></td>
+<td><code>infra/payment/channel.go</code> interface + <code>shark</code> 实现</td>
+<td>✅ 本 PR</td>
+</tr>
+<tr>
+<td><strong>P1 大白鲨集成</strong></td>
+<td>下单 / 付款回调 / 订单查询 / 退款回调</td>
+<td>✅ 本 PR</td>
+</tr>
+<tr>
+<td><strong>P2 第二聚合通道</strong></td>
+<td>备份通道（如 PingPlusPlus），单点故障容灾</td>
+<td>⏸ v1.1 视需求</td>
+</tr>
+<tr>
+<td><strong>P3 自签直连通道</strong></td>
+<td>微信 / 支付宝直签（公司 ICP 下来后）</td>
+<td>⏸ v2</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-风险">4. 风险</h2>
+<table>
+<thead>
+<tr>
+<th>风险</th>
+<th>缓解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>大白鲨单点故障（聚合方宕机 / 跑路）</td>
+<td>(1) 监控付款回调 SLA；(2) P2 引入第二聚合方做主备；(3) 商务侧签 SLA 协议</td>
+</tr>
+<tr>
+<td>MD5 签名被授权安全测试者构造（理论碰撞）</td>
+<td>(1) <code>appSecret</code> 仅从 env 注入不进 git；(2) IP 白名单（大白鲨回调 IP 段）；(3) 二次 <code>/queryOrder</code> 反查</td>
+</tr>
+<tr>
+<td>重复回调（网络抖动 / 大白鲨重试）</td>
+<td><code>wallet_journals.idempotency_key UNIQUE</code> + 订单 <code>SELECT FOR UPDATE</code>（已实现）</td>
+</tr>
+<tr>
+<td>子通道金额币种不一致（USDT 转 RMB）</td>
+<td>以大白鲨回调 <code>payMoney</code> 为权威；不自己换算</td>
+</tr>
+<tr>
+<td>退款冲销破坏押注结算</td>
+<td>§2.5 半人工策略，财务后台手工调账</td>
+</tr>
+<tr>
+<td>三方对账复杂度</td>
+<td><code>payment_callbacks.raw_body</code> 完整留存 + T+1 跑批</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-接入清单-执行项">5. 接入清单（执行项）</h2>
+<ul>
+<li>[x] §2 决策点回填完成</li>
+<li>[x] <code>internal/infra/payment/channel.go</code> interface 落地</li>
+<li>[x] <code>internal/infra/payment/shark/</code> 包实现（sign / client / types / errors）</li>
+<li>[x] <code>services/go-app/internal/config/config.go</code> 加 <code>PayConfig.Shark</code></li>
+<li>[x] <code>services/go-app/config/config.*.yaml</code> 加 <code>pay.shark</code> 占位</li>
+<li>[x] <code>wallet.InitRecharge</code> channel=shark 时调 <code>shark.Init</code></li>
+<li>[x] <code>wallet.MarkRechargeRefundRequested</code>（标 REFUNDED + 审计）</li>
+<li>[x] <code>hook.HandleSharkPay</code> / <code>HandleSharkRefund</code> + 路由 <code>/api/v1/hooks/payment/shark</code> 和 <code>/refund</code></li>
+<li>[x] OpenAPI 契约：<code>RechargeInitResponse.pay_mode</code> + 2 个 hook 路径</li>
+<li>[x] PRD <code>kickoff-wallet.md</code> §4.1.2 标注「v1 通道 = 大白鲨」+ §4.4 退款规则</li>
+<li>[x] service 层单测覆盖 happy / 验签失败 / 重复回调幂等 / 退款 / 80002 黑名单 5 路径</li>
+<li>[x] env binding 落地（<code>bindEnvs</code> 加 6 个 shark key）+ <code>config.example.yaml</code> 标注每个字段对应 env</li>
+<li>[x] router IP 白名单拆分（SRS 路径用 <code>cfg.SRS.AllowedIPs</code>，shark 路径用 <code>cfg.Pay.Shark.AllowedCallerIPs</code>）</li>
+<li>[x] <code>validate()</code> 加 prod 启动前置校验：<code>pay.shark.enabled=true</code> 时强制要求 mercId / appSecret / notify_url / allowed_caller_ips 非空，缺项直接拒启动</li>
+<li>[ ] <strong>联调（owner: <code>@kickoff/backend</code>，等 mercId/appSecret 注入 env）</strong>：跑通沙箱 ¥6 充值</li>
+</ul>
+<h2 id="6-后续动作">6. 后续动作</h2>
+<ul>
+<li>[ ] 联调通过后，把状态 §6 最后一项打勾</li>
+<li>[ ] 生产部署前，财务确认 T+1 对账脚本就位</li>
+<li>[ ] v1.1 视用户量评估是否引入第二聚合方做主备</li>
+</ul>
+<hr/>
+<p><strong>Reviewer</strong>: <code>@kickoff/product</code> + <code>@kickoff/security</code> + <code>@kickoff/devops</code> + <code>@kickoff/finance</code></p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-背景">1. 背景</a></li><li style="margin-left:0.0rem"><a href="#2-决策-已敲定">2. 决策（已敲定）</a></li><li style="margin-left:0.8rem"><a href="#2-1-v1-启用通道-仅大白鲨支付聚合-单通道">2.1 v1 启用通道： 仅大白鲨支付聚合 （单通道）</a></li><li style="margin-left:0.8rem"><a href="#2-2-商户号路径-三方聚合-大白鲨">2.2 商户号路径：三方聚合（大白鲨）</a></li><li style="margin-left:0.8rem"><a href="#2-3-签名算法">2.3 签名算法</a></li><li style="margin-left:0.8rem"><a href="#2-4-容差与对账-v0-3-2-强化-大白鲨规约-以-payMoney-为权威">2.4 容差与对账（v0.3.2 强化：大白鲨规约「以 payMoney 为权威」）</a></li><li style="margin-left:0.8rem"><a href="#2-5-退款策略-半人工">2.5 退款策略： 半人工</a></li><li style="margin-left:0.8rem"><a href="#2-6-抽象层接口-落地版">2.6 抽象层接口（落地版）</a></li><li style="margin-left:0.0rem"><a href="#3-实施分阶段-v1-实际">3. 实施分阶段（v1 实际）</a></li><li style="margin-left:0.0rem"><a href="#4-风险">4. 风险</a></li><li style="margin-left:0.0rem"><a href="#5-接入清单-执行项">5. 接入清单（执行项）</a></li><li style="margin-left:0.0rem"><a href="#6-后续动作">6. 后续动作</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-05-23</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Shell</span><span class="tag">Go</span><span class="tag">监控告警</span><span class="tag">自动化</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/decisions/ADR-0010-payment-channels.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605230000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-ADR-0010%EF%BC%9A%20%E6%94%AF%E4%BB%98%E9%80%9A%E9%81%93%E6%96%B9%E6%A1%88%20%E2%80%94%20v1%20%E5%A4%A7%E7%99%BD%E9%B2%A8%E8%81%9A%E5%90%88%E9%80%9A%E9%81%93%20%2B%20Channel%20%E6%8A%BD%E8%B1%A1%E5%B1%82%E8%90%BD%E5%9C%B0.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>ADR-0010： 支付通道方案 — v1 大白鲨聚合通道 + Channel 抽象层落地。本文属于业务系统运维 / 小蓝直播，ADR-0011 完成 v0.3 PRD 对齐后，钱包业务规则已定： 充值 5% 平台费 + 1:1 折钻 + 提现 5% 平台费 ，但 实际通过哪些支付通道收钱、给钱 未定。 原型 v…</p>
+      <p>关键词：小蓝直播、Shell、Go、监控告警、自动化、故障排查、数据库恢复、源码与配置、业务系统运维、业务系统运维 / 小蓝直播、ADR-0010： 支付通道方案 — v1 大白鲨聚合通道 + Channel 抽象层落地</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c6e893e42419.html"><small>上一篇</small>项目状态</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2ba17c0c4db8.html"><small>下一篇</small>ADR-0011： PRD v0.3 对齐原型 v4.45 — 钱包简化 / 账号信息字证图 / 直播间线路化</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-03d0292db829.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

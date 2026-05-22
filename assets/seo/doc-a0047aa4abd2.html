@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>ADR-0012： realtime / worker v1 内嵌 go-app，目录预留独立拆分｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="ADR-0012： realtime / worker v1 内嵌 go-app，目录预留独立拆分。本文属于业务系统运维 / 小蓝直播，2026-06-07 更新：5000 在线容量目标触发第一阶段拆分，Public API、Public WS、Worker 已按 ADR-0016 拆为独立运行时进程。 本 AD…">
+  <meta name="keywords" content="小蓝直播，Go，Redis，监控告警，源码与配置，业务系统运维，业务系统运维 / 小蓝直播">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a0047aa4abd2.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a0047aa4abd2.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605230000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2BRedis-ADR-0012%EF%BC%9A%20realtime%20-%20worker%20v1%20%E5%86%85%E5%B5%8C%20go-app%EF%BC%8C%E7%9B%AE%E5%BD%95%E9%A2%84%E7%95%99%E7%8B%AC%E7%AB%8B%E6%8B%86%E5%88%86.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="ADR-0012： realtime / worker v1 内嵌 go-app，目录预留独立拆分">
+  <meta property="og:description" content="ADR-0012： realtime / worker v1 内嵌 go-app，目录预留独立拆分。本文属于业务系统运维 / 小蓝直播，2026-06-07 更新：5000 在线容量目标触发第一阶段拆分，Public API、Public WS、Worker 已按 ADR-0016 拆为独立运行时进程。 本 AD…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a0047aa4abd2.html">
+  <meta property="article:published_time" content="2026-05-23T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-23 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="ADR-0012： realtime / worker v1 内嵌 go-app，目录预留独立拆分">
+  <meta name="twitter:description" content="ADR-0012： realtime / worker v1 内嵌 go-app，目录预留独立拆分。本文属于业务系统运维 / 小蓝直播，2026-06-07 更新：5000 在线容量目标触发第一阶段拆分，Public API、Public WS、Worker 已按 ADR-0016 拆为独立运行时进程。 本 AD…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a0047aa4abd2.html#article","headline":"ADR-0012： realtime / worker v1 内嵌 go-app，目录预留独立拆分","description":"ADR-0012： realtime / worker v1 内嵌 go-app，目录预留独立拆分。本文属于业务系统运维 / 小蓝直播，2026-06-07 更新：5000 在线容量目标触发第一阶段拆分，Public API、Public WS、Worker 已按 ADR-0016 拆为独立运行时进程。 本 AD…","datePublished":"2026-05-23T00:00:00+08:00","dateModified":"2026-05-23 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Go","Redis","监控告警","源码与配置","业务系统运维","业务系统运维 / 小蓝直播"],"wordCount":1219,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a0047aa4abd2.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a0047aa4abd2.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"ADR-0012： realtime / worker v1 内嵌 go-app，目录预留独立拆分","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a0047aa4abd2.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>ADR-0012： realtime / worker v1 内嵌 go-app，目录预留独立拆分</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>ADR-0012： realtime / worker v1 内嵌 go-app，目录预留独立拆分</h1>
+      <p class="lede">ADR-0012： realtime / worker v1 内嵌 go-app，目录预留独立拆分。本文属于业务系统运维 / 小蓝直播，2026-06-07 更新：5000 在线容量目标触发第一阶段拆分，Public API、Public WS、Worker 已按 ADR-0016 拆为独立运行时进程。 本 AD…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-23T00:00:00+08:00">发布于 2026-05-23</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,219 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/decisions/ADR-0012-realtime-worker-embedded-in-go-app.md</code></p>
+<p>整理日期：2026-05-23 00:00｜日期依据：正文日期</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>已被 <a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/ADR-0016-api-ws-worker-process-split.md" rel="noopener noreferrer">ADR-0016</a> 取代</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>日期</td>
+<td>2026-05-23</td>
+</tr>
+<tr>
+<td>Owner</td>
+<td>后端 / 运维</td>
+</tr>
+<tr>
+<td>影响范围</td>
+<td><code>services/realtime/</code>、<code>services/worker/</code>、<code>services/go-app/internal/http/wsapi/</code>、<code>internal/pkg/wsx/</code>、<code>framework-check</code></td>
+</tr>
+<tr>
+<td>相关需求</td>
+<td>LIVE-003~006（WS 弹幕/进场）、LIVE-007（打赏 WS 广播）、PRED-* 开奖派彩</td>
+</tr>
+<tr>
+<td>关联 ADR</td>
+<td><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/ADR-001-deployment-strategy.md" rel="noopener noreferrer">ADR-001</a> 部署策略；<a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/ADR-0011-prd-v0.3-align-prototype-v4.45.md" rel="noopener noreferrer">ADR-0011</a> v0.3 对齐</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-背景">1. 背景</h2>
+<blockquote>
+<p>2026-06-07 更新：5000 在线容量目标触发第一阶段拆分，Public API、Public WS、Worker
+已按 <a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/ADR-0016-api-ws-worker-process-split.md" rel="noopener noreferrer">ADR-0016</a> 拆为独立运行时进程。
+本 ADR 仅保留 MVP 历史背景。</p>
+</blockquote>
+<p><code>framework.config.json</code> + <code>project.config.json</code> 都把 <code>realtime</code> 与 <code>worker</code> 标记为 <code>enabled: true</code>：</p>
+<ul>
+<li><strong>realtime</strong> purpose：WebSocket 弹幕 / 进场广播 / 比赛事件推送 / 钱包变动推送</li>
+<li><strong>worker</strong> purpose：竞猜开奖派彩 / 对账跑批 / 异步通知 / 风控规则评估</li>
+</ul>
+<p>但实际仓库里<strong>这两个目录不存在</strong>，导致 <code>scripts/validate-project-overlay.py</code> 报错：</p>
+<pre><code>Project overlay validation failed: enabled service path does not exist: services/realtime
+</code></pre>
+<p>阻塞 <code>make framework-check</code>（17 个 validator 中的 1 个）。</p>
+<p>与此同时，<strong>实际代码已经在 <code>services/go-app</code> 进程内实现了 WS 能力</strong>：</p>
+<ul>
+<li><code>internal/http/wsapi/handlers.go</code>（152 行）：3 个 WS 路由（<code>/ws/v1/live/:room_id</code>、<code>/ws/v1/wallet</code>、<code>/ws/v1/match/:match_id</code>）</li>
+<li><code>internal/pkg/wsx/Hub</code>：连接管理 + 房间广播 + 用户点对点推送</li>
+<li><code>internal/pkg/wsx/protocol.go</code>：消息协议定义</li>
+</ul>
+<p>worker 的部分能力（如开奖派彩）目前没实现，将通过 cron 或 cmd subcommand 临时承担。</p>
+<h2 id="2-决定">2. 决定</h2>
+<p><strong>v1 阶段不拆独立 <code>realtime</code> / <code>worker</code> Go 服务，保持 WS 与 worker 能力内嵌在 <code>services/go-app</code> 进程内</strong>。但保留 <code>services/realtime/</code> 与 <code>services/worker/</code> 目录占位 + README 说明，等触发条件满足时再独立拆分。</p>
+<h3 id="2-1-目录占位">2.1 目录占位</h3>
+<pre><code>services/
+├── go-app/           # 主服务（API + Admin + 内嵌 WS + 内嵌定时任务）
+├── realtime/         # v1 仅 README 占位，实际 WS 由 go-app 进程承担
+│   └── README.md
+└── worker/           # v1 仅 README 占位，实际异步任务由 go-app cron 承担
+    └── README.md
+</code></pre>
+<h3 id="2-2-内嵌方案下的实现位置">2.2 内嵌方案下的实现位置</h3>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>v1 位置</th>
+<th>v2 拆分后目标位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WS Hub + 路由</td>
+<td><code>go-app/internal/http/wsapi/</code> + <code>internal/pkg/wsx/</code></td>
+<td><code>services/realtime/internal/hub/</code></td>
+</tr>
+<tr>
+<td>弹幕广播</td>
+<td><code>go-app</code> Service 内直调 <code>wsx.Hub.BroadcastRoom</code></td>
+<td>经 Redis pub/sub 转发到 realtime</td>
+</tr>
+<tr>
+<td>开奖派彩</td>
+<td><code>go-app</code> cron / cmd subcommand</td>
+<td><code>services/worker/internal/jobs/settle/</code></td>
+</tr>
+<tr>
+<td>对账跑批</td>
+<td>同上</td>
+<td><code>services/worker/internal/jobs/recon/</code></td>
+</tr>
+<tr>
+<td>风控评估</td>
+<td>同上</td>
+<td><code>services/worker/internal/jobs/risk/</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-备选方案对比">3. 备选方案对比</h2>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>优点</th>
+<th>缺点</th>
+<th>取舍</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A-stub（本 ADR 采纳）</strong></td>
+<td>30 分钟解锁 framework-check；不引入跨进程通信复杂度；MVP 单机够用</td>
+<td>framework 声明与实现有"虚拟拆分"；新成员可能误以为 realtime 目录有真代码</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>A-full（独立 Go 服务）</td>
+<td>符合框架声明；为未来扩容预留</td>
+<td>1-2 天工时；引入 Redis pub/sub 跨进程通信；调试 / 部署复杂度翻倍</td>
+<td>❌ v1 不必要</td>
+</tr>
+<tr>
+<td>A-defer（改 enabled: false）</td>
+<td>与实际代码一致</td>
+<td>与 PRD 里"实时推送"需求声明不符；未来重新启用要再改回来</td>
+<td>❌ 改坏声明</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-触发独立拆分的条件">4. 触发独立拆分的条件</h2>
+<p>满足<strong>任一</strong>条件即考虑把 <code>realtime</code> 真的拆出独立服务（写新的 ADR 评审后执行）：</p>
+<ol>
+<li><strong>WS 连接数 ≥ 10,000 并发</strong>（go-app 单进程内存或 goroutine 调度成瓶颈）</li>
+<li><strong>WS 流量影响 API 响应</strong>（弹幕高峰挤占 HTTP handler goroutine，P99 延迟显著上升）</li>
+<li><strong>需要独立扩容 WS 节点</strong>（API 流量 vs WS 流量比例失衡）</li>
+<li><strong>多 region / 多机房同步</strong>需求出现（必须用 Redis pub/sub 或类似机制做跨节点广播）</li>
+</ol>
+<p>worker 拆分的触发条件类似：</p>
+<ol>
+<li><strong>批量任务跑批时间 &gt; 30 分钟</strong>（cron 卡住 go-app 进程）</li>
+<li><strong>派彩任务并发处理能力不足</strong>（高峰期开奖大量赛事并行需要专用 worker pool）</li>
+</ol>
+<h2 id="5-后果">5. 后果</h2>
+<h3 id="5-1-正面后果">5.1 正面后果</h3>
+<ul>
+<li><code>make framework-check</code> 17/17 全绿</li>
+<li>部署架构保持 2 台 EC2 简单切（ADR-0001），无新组件</li>
+<li>单进程内调用 <code>wsx.Hub</code> 零网络开销，比跨进程低延迟</li>
+<li>调试 / 日志聚合 / 配置管理 全部单一来源</li>
+</ul>
+<h3 id="5-2-负面后果与缓解">5.2 负面后果与缓解</h3>
+<table>
+<thead>
+<tr>
+<th>风险</th>
+<th>缓解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>新成员看 framework.config 误以为 realtime 已是独立服务</td>
+<td>历史 README 占位文档曾明确写"v1 内嵌 go-app"；当前状态以 ADR-0016 为准</td>
+</tr>
+<tr>
+<td>WS 流量挤占 API goroutine</td>
+<td>监控 P99；触发条件 1/2 出现时按 §4 流程拆分</td>
+</tr>
+<tr>
+<td>未来真拆分时改动面大</td>
+<td>当前 <code>wsx.Hub</code> 接口已是包级抽象，拆分时主要工作是把 <code>BroadcastRoom</code> 改成发 Redis pub/sub</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-验收口径">6. 验收口径</h2>
+<ul>
+<li>[x] <code>services/realtime/README.md</code> 创建，写明 v1 内嵌 + 拆分触发条件</li>
+<li>[x] <code>services/worker/README.md</code> 创建，写明 v1 内嵌 + 拆分触发条件</li>
+<li>[x] <code>make framework-check</code> 17/17 全绿</li>
+<li>[ ] 监控告警：WS 并发数 / WS goroutine 数 / API P99 接入 Grafana 看板（v1.1 完成）</li>
+</ul>
+<hr/>
+<p><strong>Reviewer</strong>: <code>@kickoff/backend</code> + <code>@kickoff/devops</code></p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-背景">1. 背景</a></li><li style="margin-left:0.0rem"><a href="#2-决定">2. 决定</a></li><li style="margin-left:0.8rem"><a href="#2-1-目录占位">2.1 目录占位</a></li><li style="margin-left:0.8rem"><a href="#2-2-内嵌方案下的实现位置">2.2 内嵌方案下的实现位置</a></li><li style="margin-left:0.0rem"><a href="#3-备选方案对比">3. 备选方案对比</a></li><li style="margin-left:0.0rem"><a href="#4-触发独立拆分的条件">4. 触发独立拆分的条件</a></li><li style="margin-left:0.0rem"><a href="#5-后果">5. 后果</a></li><li style="margin-left:0.8rem"><a href="#5-1-正面后果">5.1 正面后果</a></li><li style="margin-left:0.8rem"><a href="#5-2-负面后果与缓解">5.2 负面后果与缓解</a></li><li style="margin-left:0.0rem"><a href="#6-验收口径">6. 验收口径</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-05-23</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Go</span><span class="tag">Redis</span><span class="tag">监控告警</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/decisions/ADR-0012-realtime-worker-embedded…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605230000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2BRedis-ADR-0012%EF%BC%9A%20realtime%20-%20worker%20v1%20%E5%86%85%E5%B5%8C%20go-app%EF%BC%8C%E7%9B%AE%E5%BD%95%E9%A2%84%E7%95%99%E7%8B%AC%E7%AB%8B%E6%8B%86%E5%88%86.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>ADR-0012： realtime / worker v1 内嵌 go-app，目录预留独立拆分。本文属于业务系统运维 / 小蓝直播，2026-06-07 更新：5000 在线容量目标触发第一阶段拆分，Public API、Public WS、Worker 已按 ADR-0016 拆为独立运行时进程。 本 AD…</p>
+      <p>关键词：小蓝直播、Go、Redis、监控告警、源码与配置、业务系统运维、业务系统运维 / 小蓝直播</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2ba17c0c4db8.html"><small>上一篇</small>ADR-0011： PRD v0.3 对齐原型 v4.45 — 钱包简化 / 账号信息字证图 / 直播间线路化</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-10e9797e7cf7.html"><small>下一篇</small>ADR-001： 部署策略 — Docker + GitLab CI + AWS ECR + 简单切</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a0047aa4abd2.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
