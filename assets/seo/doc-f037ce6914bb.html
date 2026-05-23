@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Agent 工作日志：v0.3.1 OpenAPI handler 实现批次（5 类接口）｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="Agent 工作日志：v0.3.1 OpenAPI handler 实现批次（5 类接口）。本文属于业务系统运维 / 小蓝直播，日期：2026-05-24 Agent：claude-code 任务：实现上一轮 PRD v0.3.1 在 OpenAPI 声明但 backend 未实现的 5 类接口。这是契约第一开发…">
+  <meta name="keywords" content="小蓝直播，Go，监控告警，故障排查，源码与配置，业务系统运维，业务系统运维 / 小蓝直播，Agent 工作日志：v0.3.1 OpenAPI handler 实现批次（5 类接口）">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f037ce6914bb.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f037ce6914bb.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605240000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2B%E7%9B%91%E6%8E%A7%E5%91%8A%E8%AD%A6-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%EF%BC%9Av0.3.1%20OpenAPI%20handler%20%E5%AE%9E%E7%8E%B0%E6%89%B9%E6%AC%A1%EF%BC%885%20%E7%B1%BB%E6%8E%A5%E5%8F%A3%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Agent 工作日志：v0.3.1 OpenAPI handler 实现批次（5 类接口）">
+  <meta property="og:description" content="Agent 工作日志：v0.3.1 OpenAPI handler 实现批次（5 类接口）。本文属于业务系统运维 / 小蓝直播，日期：2026-05-24 Agent：claude-code 任务：实现上一轮 PRD v0.3.1 在 OpenAPI 声明但 backend 未实现的 5 类接口。这是契约第一开发…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f037ce6914bb.html">
+  <meta property="article:published_time" content="2026-05-24T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-24 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Agent 工作日志：v0.3.1 OpenAPI handler 实现批次（5 类接口）">
+  <meta name="twitter:description" content="Agent 工作日志：v0.3.1 OpenAPI handler 实现批次（5 类接口）。本文属于业务系统运维 / 小蓝直播，日期：2026-05-24 Agent：claude-code 任务：实现上一轮 PRD v0.3.1 在 OpenAPI 声明但 backend 未实现的 5 类接口。这是契约第一开发…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f037ce6914bb.html#article","headline":"Agent 工作日志：v0.3.1 OpenAPI handler 实现批次（5 类接口）","description":"Agent 工作日志：v0.3.1 OpenAPI handler 实现批次（5 类接口）。本文属于业务系统运维 / 小蓝直播，日期：2026-05-24 Agent：claude-code 任务：实现上一轮 PRD v0.3.1 在 OpenAPI 声明但 backend 未实现的 5 类接口。这是契约第一开发…","datePublished":"2026-05-24T00:00:00+08:00","dateModified":"2026-05-24 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Go","监控告警","故障排查","源码与配置","业务系统运维","业务系统运维 / 小蓝直播","Agent 工作日志：v0.3.1 OpenAPI handler 实现批次（5 类接口）"],"wordCount":1868,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f037ce6914bb.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f037ce6914bb.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Agent 工作日志：v0.3.1 OpenAPI handler 实现批次（5 类接口）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f037ce6914bb.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>Agent 工作日志：v0.3.1 OpenAPI handler 实现批次（5 类接口）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>Agent 工作日志：v0.3.1 OpenAPI handler 实现批次（5 类接口）</h1>
+      <p class="lede">Agent 工作日志：v0.3.1 OpenAPI handler 实现批次（5 类接口）。本文属于业务系统运维 / 小蓝直播，日期：2026-05-24 Agent：claude-code 任务：实现上一轮 PRD v0.3.1 在 OpenAPI 声明但 backend 未实现的 5 类接口。这是契约第一开发…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-24T00:00:00+08:00">发布于 2026-05-24</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,868 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-24-v031-handlers-implementation.md</code></p>
+<p>整理日期：2026-05-24 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>日期：2026-05-24
+Agent：claude-code
+任务：实现上一轮 PRD v0.3.1 在 OpenAPI 声明但 backend 未实现的 5 类接口。这是契约第一开发的"还债"批次：契约已定，实现兑现。</p>
+<h2 id="输入资料">输入资料</h2>
+<ul>
+<li>PRD：<code>docs/prd/modules/kickoff-admin.md</code> ADM-911~914；<code>docs/prd/modules/kickoff-live.md</code> LIVE-016/017；<code>docs/prd/modules/kickoff-match-detail.md</code> MATCH-015/016；<code>docs/prd/modules/kickoff-wallet.md</code> 支付通道</li>
+<li>需求 ID：LIVE—016 / MATCH—015~016 / ADM—911~914 / WALLET—009~010</li>
+<li>接口契约：<code>docs/api/openapi.yaml</code>（canonical）</li>
+<li>后端归属：services/go-app；adminBearer / userBearer JWT；audit 全覆盖</li>
+</ul>
+<h2 id="本次目标">本次目标</h2>
+<p>实现 5 类 OpenAPI 已声明但 backend 缺 handler 的接口：</p>
+<ol>
+<li><strong>PUT /admin/matches/{id}/phase</strong>（MATCH-016）— admin 手动切换比赛阶段 + WS match.phase.changed 推送</li>
+<li><strong>admin/live-lines CRUD</strong>（ADM-912）— GET / POST / PUT / DELETE / toggle 5 路由</li>
+<li><strong>GET /live/lines + POST /live/lines/select</strong>（LIVE-016）— user 端线路列表 + 切线上报</li>
+<li><strong>GET /admin/ads/h5 + PUT /admin/ads/h5/:position + GET /config/h5-ads</strong>（ADM-913）— H5 4 广告位</li>
+<li><strong>GET /admin/payment-channels + PUT /admin/payment-channels/:code</strong>（ADM-914）— 6 通道开关</li>
+</ol>
+<h2 id="修改文件">修改文件</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>services/go-app/migrations/000011_v031_live_lines_match_phase.up.sql / .down.sql</code></td>
+<td>新增 <code>live_lines</code> 表 + <code>matches.phase/minute/stoppage</code> 列 + <code>home_banners.position</code> 注释扩枚举；3 条线路默认 seed</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/model/match.go</code></td>
+<td>Match struct 加 Phase/Minute/Stoppage 字段；新增 9 个 MatchPhase* 常量 + <code>IsValidMatchPhase</code> + <code>MatchStatusFromPhase</code> 派生函数</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/model/live.go</code></td>
+<td>新增 LiveLine struct（v0.3.1）</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/repository/live/line.go</code></td>
+<td>LineRepository 接口 + lineRepo 实现（ListAll/ListEnabled/FindByID/FindByCode/Create/Update/SoftDelete）</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/dto/admin_modules.go</code></td>
+<td>新增 9 个 DTOs：AdminLiveLineItem / PublicLiveLineItem / AdminLiveLineCreateRequest / AdminLiveLineUpdateRequest / PublicLiveLineSelectRequest / AdminMatchPhaseRequest / H5AdConfig / AdminH5AdUpdateRequest / PublicH5AdsResponse / AdminPaymentChannelItem / AdminPaymentChannelUpdateRequest</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/service/admin/live_line.go</code></td>
+<td>LiveLineService（List/Create/Update/Toggle/Delete）+ 完整 audit</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/service/admin/match.go</code></td>
+<td>新增 UpdatePhase 方法 + WS TypeMatchPhase 广播；phase ↔ status 派生联动</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/service/admin/h5_ads.go</code></td>
+<td>H5AdsService（List/PublicView/Upsert）；4 个 position 数据复用 home_banners 表</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/service/admin/payment_channels.go</code></td>
+<td>PaymentChannelsService（List/Update）；6 通道状态用 system_configs JSON keys 持久化</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/service/live/lines.go</code></td>
+<td>用户侧 LineService（List enabled-only + Select 上报）</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/pkg/wsx/protocol.go</code></td>
+<td>新增 TypeMatchPhase 常量 + MatchPhasePayload struct</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/http/adminapi/{match,live_line,h5_ads,payment_channels}.go</code></td>
+<td>4 个 admin handler 文件（match 在原文件 append UpdatePhase；其余 3 个新文件）</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/http/public/{live_lines,h5_ads}.go</code></td>
+<td>2 个 public handler 新文件</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/http/router/admin.go</code></td>
+<td>注入 lineR / liveLineSvc / h5AdsSvc / paymentChannelsSvc + 9 条新路由</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/http/router/public.go</code></td>
+<td>注入 lineR / liveLineService / h5AdsService + 3 条新路由（含匿名 /config/h5-ads）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="核心决策">核心决策</h2>
+<ol>
+<li><strong>数据复用 vs 新表</strong>：
+   - <strong>新表 <code>live_lines</code></strong>：线路数据有独立生命周期（CRUD / 软删 / 排序），逻辑独立于现有任何表，建表更清晰
+   - <strong>复用 <code>home_banners</code></strong>：H5 4 广告位本质是带 position 维度的"轮播配置"，已有表完全够用；只需扩 position 枚举值（4 个新值），避免重复造轮子；D 位 marquee 文本暂用 link_target 字段承载（避免再加列）
+   - <strong>复用 <code>system_configs</code></strong>：支付通道状态本质是 K-V 配置（enabled set / 推荐 set / 通道独立费率），用既有 system_configs 表 + JSON value 即可</li>
+<li><strong>rowsAffected==0 = upsert insert 分支</strong>：H5 ads + payment_channels 都遵循"先 update；不存在则 insert"；不用 ON DUPLICATE KEY UPDATE 因为没有合适唯一键（home_banners 无 position 唯一索引）</li>
+<li><strong>Match phase → status 派生联动</strong>：admin 切 phase 时自动派生 status（pre_match→UPCOMING / finished→ENDED / else→LIVE），保持 status 与 phase 不冲突，公共 GET /match/{id} 两个字段恒一致</li>
+<li><strong>半场/中场/比赛前/结束态的 minute 强制 NULL</strong>：phase 在 half_time / et_break / pre_match / finished 时 minute 没语义，直接 NULL；其他阶段才看请求传值</li>
+<li><strong>LiveLine.Code 作为 client 切线 ID</strong>：user 端 GET /live/lines 不暴露内部 BIGINT id（防爬+预留未来 ID 迁移空间），返回业务 code（如 "line_2"），select 上报也用 code</li>
+<li><strong>user 端线路 select 是 fail-open</strong>：审计上报失败 / 线路不存在都不阻塞客户端切流（用户体验优先；统计有缺漏可后续补）</li>
+<li><strong>payment_channels.update fee_rate 范围 [0, 0.5]</strong>：5% 是当前默认，给上限 50% 防止误操作打错小数点（5.0 被填进去当 500% 抽水）</li>
+<li><strong>/config/h5-ads 匿名可访问</strong>：home 页加载即拉，无登录前提；与 /home/banner 一致策略</li>
+<li><strong>PaymentChannels.Update 加 requireFinance 角色限制</strong>：通道费率 / 开关属财务敏感，仅 finance_admin 可操作；list 走普通 requireAdmin</li>
+</ol>
+<h2 id="红蓝对抗">红蓝对抗</h2>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>蓝队自检</td>
+<td>(1) migration apply 成功，3 条线路 + matches.phase 列均验证；(2) go build / go vet 全过；(3) go test -race -count=1 ./... 全 ok；(4) integration test 5/5 pass（无 regression）；(5) make framework-check 17/17 全绿</td>
+</tr>
+<tr>
+<td>红队质疑</td>
+<td>(1) H5 ads 用 home_banners 表复用是否埋下未来迁移坑？→ 蓝队答：position 是字符串枚举本就支持扩展；D 位文本借 link_target 字段稍 hacky 但有清晰注释；未来真需要专用表再迁；(2) PaymentChannels 用 system_configs JSON key 而非新表，更新非原子？→ 蓝队答：每个 key 独立 upsert；并发场景：两个 admin 同时改不同 channel 不冲突；同 channel 同字段并发改 = 业务约束（运营单点操作）；(3) match phase ↔ status 派生联动若 admin 手动 PUT /matches/{id} 改 status 是否会和 phase 冲突？→ 蓝队答：现存 Update 方法只改 stage/venue/start_at_ms，不动 status；UpdateScore 自动迁移 status；本次 UpdatePhase 也派生 status — 三路径互不重叠；(4) user 线路 select 是否应阻塞 / 校验线路存在？→ 蓝队答：用户视角切流体验 &gt; 后端审计完整性；线路不存在写 fail audit 即可，告警靠运营看 audit</td>
+</tr>
+<tr>
+<td>合入判断</td>
+<td>允许合入</td>
+</tr>
+</tbody>
+</table>
+<h2 id="完成申请与裁决">完成申请与裁决</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent Claim</td>
+<td>implemented + verified（migration apply + go test 全过 + framework-check 17/17 全绿）</td>
+</tr>
+<tr>
+<td>Project Decision</td>
+<td>pending-review</td>
+</tr>
+</tbody>
+</table>
+<h2 id="需求追踪">需求追踪</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>需求 ID</td>
+<td>LIVE—016 / MATCH—015 / MATCH—016 / ADM—911 / ADM—912 / ADM—913 / ADM—914</td>
+</tr>
+<tr>
+<td>需求总账</td>
+<td><code>docs/prd/requirements.md</code></td>
+</tr>
+<tr>
+<td>模块 PRD</td>
+<td><code>kickoff-live.md</code> / <code>kickoff-match-detail.md</code> / <code>kickoff-admin.md</code></td>
+</tr>
+<tr>
+<td>OpenAPI / Event / DTO</td>
+<td><code>docs/api/openapi.yaml</code> 9 个声明的 endpoints 已全部实现；WS TypeMatchPhase 落地</td>
+</tr>
+<tr>
+<td>验收证据行</td>
+<td><code>docs/qa/acceptance-evidence.md</code> / <code>docs/qa/project-acceptance.md</code>：本次为 OpenAPI 实现，可后续补充端到端验收行</td>
+</tr>
+<tr>
+<td>不涉及契约的原因</td>
+<td>是契约实现，不变更契约</td>
+</tr>
+</tbody>
+</table>
+<h2 id="工程规范">工程规范</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>代码规范</td>
+<td>Go: gofmt + go vet 全过；audit 全覆盖；errcode 统一错误处理</td>
+</tr>
+<tr>
+<td>数据表设计</td>
+<td>新增 live_lines 表（雪花 ID + 软删 + 索引）；matches 加 3 列；home_banners.position 扩枚举（值层不动 schema）</td>
+</tr>
+<tr>
+<td>是否使用表设计模板</td>
+<td>是（live_lines 含 created_at / updated_at / deleted_at + UNIQUE 索引 + 复合索引）</td>
+</tr>
+<tr>
+<td>是否影响账本、事务、幂等或审计</td>
+<td>否（仅配置层；不动钱包/账本）</td>
+</tr>
+<tr>
+<td>规范例外与原因</td>
+<td>H5 ads D 位 marquee 文本暂复用 home_banners.link_target 字段；明确注释 + 后续可单独迁移</td>
+</tr>
+</tbody>
+</table>
+<h2 id="验证记录">验证记录</h2>
+<ul>
+<li>migration <code>000011_v031_live_lines_match_phase.up.sql</code>：apply 成功，验证 <code>SHOW COLUMNS FROM matches LIKE 'phase'</code> 返回 varchar(16) default pre_match；3 条 line_1~3 默认数据可见</li>
+<li><code>go build ./...</code>：通过</li>
+<li><code>go vet ./...</code>：通过</li>
+<li><code>go test -race -count=1 ./...</code>：member / wallet / config / ledger 全 ok</li>
+<li><code>go test -tags=integration -race ./internal/pkg/ledger/...</code>：5/5 pass（无 regression）</li>
+<li><code>make framework-check</code>：17/17 全绿</li>
+</ul>
+<h2 id="后续动作">后续动作</h2>
+<ol>
+<li><strong>admin 前端接入新接口</strong>：apps/admin 端加 4 个新管理页面（直播线路 / 比赛阶段切换 / H5 广告位 / 支付通道）— 独立批次</li>
+<li><strong>端到端验收</strong>：手动启服务 curl 走过 5 类接口的完整 happy path + 异常 path → 补 <code>docs/qa/acceptance-evidence.md</code></li>
+<li><strong>payment_channels 7d 到账率聚合</strong>：当前返回 null（冷启动）；接通 recharge_order 表 7 天 GROUP BY status 聚合</li>
+<li><strong>WS 客户端文档</strong>：apps/h5 / apps/web 前端工程师按 wsx.TypeMatchPhase 协议接入比赛阶段切换显示</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#输入资料">输入资料</a></li><li style="margin-left:0.0rem"><a href="#本次目标">本次目标</a></li><li style="margin-left:0.0rem"><a href="#修改文件">修改文件</a></li><li style="margin-left:0.0rem"><a href="#核心决策">核心决策</a></li><li style="margin-left:0.0rem"><a href="#红蓝对抗">红蓝对抗</a></li><li style="margin-left:0.0rem"><a href="#完成申请与裁决">完成申请与裁决</a></li><li style="margin-left:0.0rem"><a href="#需求追踪">需求追踪</a></li><li style="margin-left:0.0rem"><a href="#工程规范">工程规范</a></li><li style="margin-left:0.0rem"><a href="#验证记录">验证记录</a></li><li style="margin-left:0.0rem"><a href="#后续动作">后续动作</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-05-24</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Go</span><span class="tag">监控告警</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-24-v031-handlers-implem…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605240000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2B%E7%9B%91%E6%8E%A7%E5%91%8A%E8%AD%A6-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%EF%BC%9Av0.3.1%20OpenAPI%20handler%20%E5%AE%9E%E7%8E%B0%E6%89%B9%E6%AC%A1%EF%BC%885%20%E7%B1%BB%E6%8E%A5%E5%8F%A3%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Agent 工作日志：v0.3.1 OpenAPI handler 实现批次（5 类接口）。本文属于业务系统运维 / 小蓝直播，日期：2026-05-24 Agent：claude-code 任务：实现上一轮 PRD v0.3.1 在 OpenAPI 声明但 backend 未实现的 5 类接口。这是契约第一开发…</p>
+      <p>关键词：小蓝直播、Go、监控告警、故障排查、源码与配置、业务系统运维、业务系统运维 / 小蓝直播、Agent 工作日志：v0.3.1 OpenAPI handler 实现批次（5 类接口）</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-29ec6671c813.html"><small>上一篇</small>Agent 工作日志：ledger 集成测试（真实 MySQL 事务）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6e6a09ad2d58.html"><small>下一篇</small>Agent 工作日志：v0.3.1 PRD 对齐原型 v4.45 + OpenAPI 契约扩展</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f037ce6914bb.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

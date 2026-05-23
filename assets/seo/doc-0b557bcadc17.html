@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Agent 工作日志 — 补 P0 公开读接口(wallet/channels + config/system)｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="Agent 工作日志 — 补 P0 公开读接口(wallet/channels + config/system)。本文属于业务系统运维 / 小蓝直播，日期:2026-05-24 Agent:Claude(Opus 4.7) 任务:基于 B1-B6 审计 + 原型核对,补 2 个前端 codegen 必需的公开读接…">
+  <meta name="keywords" content="小蓝直播，Python，Go，安全运维，源码与配置，业务系统运维，业务系统运维 / 小蓝直播">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0b557bcadc17.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0b557bcadc17.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605240000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BPython%2BGo-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%20%E2%80%94%20%E8%A1%A5%20P0%20%E5%85%AC%E5%BC%80%E8%AF%BB%E6%8E%A5%E5%8F%A3%28wallet-channels%20%2B%20config-system%29.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Agent 工作日志 — 补 P0 公开读接口(wallet/channels + config/system)">
+  <meta property="og:description" content="Agent 工作日志 — 补 P0 公开读接口(wallet/channels + config/system)。本文属于业务系统运维 / 小蓝直播，日期:2026-05-24 Agent:Claude(Opus 4.7) 任务:基于 B1-B6 审计 + 原型核对,补 2 个前端 codegen 必需的公开读接…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0b557bcadc17.html">
+  <meta property="article:published_time" content="2026-05-24T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-24 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Agent 工作日志 — 补 P0 公开读接口(wallet/channels + config/system)">
+  <meta name="twitter:description" content="Agent 工作日志 — 补 P0 公开读接口(wallet/channels + config/system)。本文属于业务系统运维 / 小蓝直播，日期:2026-05-24 Agent:Claude(Opus 4.7) 任务:基于 B1-B6 审计 + 原型核对,补 2 个前端 codegen 必需的公开读接…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0b557bcadc17.html#article","headline":"Agent 工作日志 — 补 P0 公开读接口(wallet/channels + config/system)","description":"Agent 工作日志 — 补 P0 公开读接口(wallet/channels + config/system)。本文属于业务系统运维 / 小蓝直播，日期:2026-05-24 Agent:Claude(Opus 4.7) 任务:基于 B1-B6 审计 + 原型核对,补 2 个前端 codegen 必需的公开读接…","datePublished":"2026-05-24T00:00:00+08:00","dateModified":"2026-05-24 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Python","Go","安全运维","源码与配置","业务系统运维","业务系统运维 / 小蓝直播"],"wordCount":1363,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0b557bcadc17.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0b557bcadc17.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Agent 工作日志 — 补 P0 公开读接口(wallet/channels + config/system)","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0b557bcadc17.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>Agent 工作日志 — 补 P0 公开读接口(wallet/channels + config/system)</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>Agent 工作日志 — 补 P0 公开读接口(wallet/channels + config/system)</h1>
+      <p class="lede">Agent 工作日志 — 补 P0 公开读接口(wallet/channels + config/system)。本文属于业务系统运维 / 小蓝直播，日期:2026-05-24 Agent:Claude(Opus 4.7) 任务:基于 B1-B6 审计 + 原型核对,补 2 个前端 codegen 必需的公开读接…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-24T00:00:00+08:00">发布于 2026-05-24</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,363 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-24-public-config-channels.md</code></p>
+<p>整理日期：2026-05-24 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>日期:2026-05-24
+Agent:Claude(Opus 4.7)
+任务:基于 B1-B6 审计 + 原型核对,补 2 个前端 codegen 必需的公开读接口</p>
+<h2 id="触发">触发</h2>
+<p>上一轮审计(<code>2026-05-24-wallet-audit-b1to6.md</code>)指出 admin 配置接口缺对应 public 读接口。
+对照原型(2026.05.23迭代版.html)后用户决策:</p>
+<ul>
+<li>✅ <strong>做</strong>:充值子通道列表 + 平台费率/金额预设/上下限(system_config 白名单)</li>
+<li>❌ <strong>不做</strong>:等级 L0-L6 七级特权表(原型未定义特权权限)、MVP/事件流、礼物 SKU、第三方登录 等(已写入 CLAUDE.md <code>v1 范围外功能</code>)</li>
+<li>⚖️ 同时强调:<strong>本项目只做后端 API</strong>,不做前端 UI、不评估纯前端能力(已写入 CLAUDE.md <code>项目角色边界</code>)</li>
+</ul>
+<h2 id="本次改动">本次改动</h2>
+<h3 id="1-CLAUDE-md-新增两节">1. CLAUDE.md 新增两节</h3>
+<ul>
+<li><code>项目角色边界(强制)</code>:明确只做后端 API,看到原型有但不确定后端要不要做的功能 → <strong>先问用户</strong></li>
+<li><code>v1 范围外功能</code>:把决策落地的 9 个不做项目列表化,避免下次会话再误判</li>
+</ul>
+<h3 id="2-新增-2-个公开读接口">2. 新增 2 个公开读接口</h3>
+<table>
+<thead>
+<tr>
+<th>接口</th>
+<th>用途</th>
+<th>数据源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /api/v1/config/system</code></td>
+<td>平台费率 / 充值金额预设 / 上下限</td>
+<td>system_configs 白名单(6 个 key)</td>
+</tr>
+<tr>
+<td><code>GET /api/v1/wallet/channels</code></td>
+<td>当前可用充值子通道 4 选 1</td>
+<td>system_configs <code>wallet.recharge.channels.enabled/recommended</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-关键设计">3. 关键设计</h3>
+<h4 id="system_config-systemservicepublicview">system_config 白名单(<code>SystemService.PublicView</code>)</h4>
+<ul>
+<li>白名单 <strong>写死在 service 层</strong> publicConfigDefaults map,不依赖 DB <code>is_sensitive</code>(双重保险)</li>
+<li>6 个 key + 兜底默认值,DB 缺 key 走 default(全新部署也能拿到完整结构)</li>
+<li>一次 SELECT IN 拉所有 keys,Go 端按类型反序列化(string / int / int_array)</li>
+<li>默认值与 PRD 对齐:platform_fee_rate=0.05 / amount_options=[6,30,100,300,500,2000] / min=6/max=50000 / withdraw_min=10/max=5000</li>
+</ul>
+<h4 id="channels-paymentchannelsservicepublicview">channels 公开视图(<code>PaymentChannelsService.PublicView</code>)</h4>
+<ul>
+<li>复用 admin service,加 <code>publicChannels</code> 白名单变量(alipay / wechat / union / digitalrmb)</li>
+<li><strong>不在白名单的(usdt_*)即使 enabled 也不返回</strong> — 防止运营误操作泄漏 USDT 选项(ADR-0010 v0.3.2 暂缓)</li>
+<li>访问策略验证 <code>fee_rate</code>(敏感) + <code>last_7d_success_rate</code>(内部运营)</li>
+<li>顺序遵循 publicChannels 定义,前端按数组顺序渲染</li>
+</ul>
+<h4 id="_3">测试可测性</h4>
+<ul>
+<li>把 PublicView 的核心逻辑解耦为纯函数:</li>
+<li><code>buildPublicSystemConfig(vals map[string]string) → *PublicSystemConfigResponse</code></li>
+<li><code>filterPublicChannels(enabled, recommended map[string]bool) → []PublicPaymentChannelItem</code></li>
+<li>无 sqlmock 依赖,纯函数表驱动测试</li>
+</ul>
+<h2 id="修改文件清单">修改文件清单</h2>
+<h3 id="Go-代码">Go 代码</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>改动</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>internal/dto/admin_modules.go</code></td>
+<td>+DTO:<code>PublicPaymentChannelItem</code> / <code>PublicPaymentChannelsResponse</code> / <code>PublicWalletConfig</code> / <code>PublicSystemConfigResponse</code></td>
+</tr>
+<tr>
+<td><code>internal/service/admin/payment_channels.go</code></td>
+<td>+<code>publicChannels</code> 白名单 + <code>PublicView()</code> + <code>filterPublicChannels()</code> 纯函数</td>
+</tr>
+<tr>
+<td><code>internal/service/admin/system.go</code></td>
+<td>+<code>publicConfigDefaults</code> 兜底 + <code>PublicView()</code> + <code>buildPublicSystemConfig()</code> 纯函数</td>
+</tr>
+<tr>
+<td><code>internal/http/public/config.go</code></td>
+<td><strong>新增</strong> — <code>SystemConfigHandler</code> + <code>WalletChannelsHandler</code></td>
+</tr>
+<tr>
+<td><code>internal/http/router/public.go</code></td>
+<td>+装配 systemService / paymentChannelsSvc + 挂 <code>/config/system</code> <code>/wallet/channels</code> 两路由</td>
+</tr>
+<tr>
+<td><code>internal/service/admin/system_public_test.go</code></td>
+<td><strong>新增</strong> — 6 个 case(全 default / 全 override / 部分覆盖 / 空字符串 fallback / 非法 JSON / 非法 int)</td>
+</tr>
+<tr>
+<td><code>internal/service/admin/payment_channels_public_test.go</code></td>
+<td><strong>新增</strong> — 6 个 case(全启用顺序 / USDT 过滤 / enabled 优先级 / 推荐但未启用 / 空 enabled / 中文 name)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="文档">文档</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>改动</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CLAUDE.md</code></td>
+<td>+<code>项目角色边界</code>(强制)+ <code>v1 范围外功能</code>(9 项)两节</td>
+</tr>
+<tr>
+<td><code>docs/api/openapi.yaml</code></td>
+<td>+2 路径(<code>/api/v1/config/system</code> <code>/api/v1/wallet/channels</code>)+ 2 schema(<code>PublicSystemConfig</code> <code>PaymentChannelPublicItem</code>)</td>
+</tr>
+<tr>
+<td><code>docs/agents/logs/2026-05-24-public-config-channels.md</code></td>
+<td><strong>新增</strong> 本日志</td>
+</tr>
+</tbody>
+</table>
+<h2 id="测试">测试</h2>
+<pre><code>$ go test -race -count=1 ./internal/service/admin/...
+ok   kickoff/go-app/internal/service/admin   1.755s
+
+$ go test -race -count=1 ./internal/...
+ok   kickoff/go-app/internal/service/admin   ...
+ok   kickoff/go-app/internal/service/hook    ...
+ok   kickoff/go-app/internal/service/member  ...
+ok   kickoff/go-app/internal/service/wallet  ...
+ok   kickoff/go-app/internal/pkg/ledger      ...
+ok   kickoff/go-app/internal/infra/payment/shark ...
+</code></pre>
+<p><code>go test -race ./internal/...</code> 全绿。</p>
+<h2 id="门禁">门禁</h2>
+<ul>
+<li>✅ <code>go build ./...</code></li>
+<li>✅ <code>go vet ./...</code></li>
+<li>✅ <code>python3 scripts/validate-prd.py</code>(187 rows / 229 module IDs)</li>
+<li>✅ <code>python3 scripts/validate-engineering-standards.py</code></li>
+<li>✅ <code>npm run check:openapi</code></li>
+</ul>
+<h2 id="设计决策摘录-供后续-Reviewer">设计决策摘录(供后续 Reviewer)</h2>
+<ol>
+<li><strong>白名单写死在代码而非 is_sensitive 列</strong>
+   - is_sensitive 是运营可编辑字段,误标=泄漏 AppSecret
+   - 白名单写死意味着新增字段必须改代码 + code review,门槛更高</li>
+<li><strong>不在白名单的子通道即使 enabled 也不返回</strong>
+   - 运营在 admin 改 <code>channels.enabled = ["alipay","usdt_trc20"]</code> 时,前端永远拿不到 USDT
+   - PRD/ADR 决策的优先级 &gt; 运营配置</li>
+<li><strong>DB 缺 key 走默认值,不报错</strong>
+   - 全新部署 / migration 跑了 seed 没跑也能用
+   - 前端 .map / .replace 不会因 undefined 炸</li>
+<li><strong>核心逻辑解耦成纯函数</strong>
+   - 项目无 sqlmock 基础设施,纯函数 + 表驱动是最低成本可测路径
+   - <code>buildPublicSystemConfig</code> / <code>filterPublicChannels</code> 12 个 case 覆盖正向 + 边界 + 容错</li>
+</ol>
+<h2 id="待办-留下一轮">待办(留下一轮)</h2>
+<ol>
+<li><strong>联调 ¥6 大白鲨充值</strong>(凭据到位后)</li>
+<li><strong>前端 codegen</strong>:OpenAPI 已就绪,前端可直接生成 SDK 对接 2 个新接口</li>
+<li><strong>运营 seed 数据</strong>:<code>wallet.recharge.channels.enabled</code> 初始值建议落 <code>["alipay","wechat","union","digitalrmb"]</code>,否则默认空集合 → 前端拿不到任何通道(开发期可手动 INSERT,生产期走 admin UI 配置)</li>
+<li><strong>system_configs 现有 admin UPDATE</strong> 不会自动 seed 新 key 默认值,后续如新增白名单 key 需评估是否要补 migration / seed</li>
+</ol>
+<h2 id="交接">交接</h2>
+<p>下一位开发/前端工程师需要知道:</p>
+<ul>
+<li><strong>新增 2 个公开端点</strong>:</li>
+<li><code>GET /api/v1/config/system</code> → 拿平台费率 + 充值金额预设 + 上下限</li>
+<li><code>GET /api/v1/wallet/channels</code> → 拿当前可用子通道列表(alipay/wechat/union/digitalrmb)</li>
+<li><strong>前端可以开始 codegen 对接钱包页</strong>:OpenAPI 已就绪</li>
+<li><strong>USDT v1 不上线</strong>:即使运营开启也不会出现在 <code>/wallet/channels</code> 返回中</li>
+<li><strong>system_configs 默认值</strong>:见 <code>internal/service/admin/system.go</code> <code>publicConfigDefaults</code>,新增/修改白名单需同步改默认值</li>
+<li><strong>决策落地</strong>:<code>CLAUDE.md</code> 已记录 9 个 v1 不做项目,后续会话不会再被误读</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#触发">触发</a></li><li style="margin-left:0.0rem"><a href="#本次改动">本次改动</a></li><li style="margin-left:0.8rem"><a href="#1-CLAUDE-md-新增两节">1. CLAUDE.md 新增两节</a></li><li style="margin-left:0.8rem"><a href="#2-新增-2-个公开读接口">2. 新增 2 个公开读接口</a></li><li style="margin-left:0.8rem"><a href="#3-关键设计">3. 关键设计</a></li><li style="margin-left:0.0rem"><a href="#修改文件清单">修改文件清单</a></li><li style="margin-left:0.8rem"><a href="#Go-代码">Go 代码</a></li><li style="margin-left:0.8rem"><a href="#文档">文档</a></li><li style="margin-left:0.0rem"><a href="#测试">测试</a></li><li style="margin-left:0.0rem"><a href="#门禁">门禁</a></li><li style="margin-left:0.0rem"><a href="#设计决策摘录-供后续-Reviewer">设计决策摘录(供后续 Reviewer)</a></li><li style="margin-left:0.0rem"><a href="#待办-留下一轮">待办(留下一轮)</a></li><li style="margin-left:0.0rem"><a href="#交接">交接</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-05-24</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Python</span><span class="tag">Go</span><span class="tag">安全运维</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-24-public-config-channe…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605240000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BPython%2BGo-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%20%E2%80%94%20%E8%A1%A5%20P0%20%E5%85%AC%E5%BC%80%E8%AF%BB%E6%8E%A5%E5%8F%A3%28wallet-channels%20%2B%20config-system%29.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Agent 工作日志 — 补 P0 公开读接口(wallet/channels + config/system)。本文属于业务系统运维 / 小蓝直播，日期:2026-05-24 Agent:Claude(Opus 4.7) 任务:基于 B1-B6 审计 + 原型核对,补 2 个前端 codegen 必需的公开读接…</p>
+      <p>关键词：小蓝直播、Python、Go、安全运维、源码与配置、业务系统运维、业务系统运维 / 小蓝直播</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d529da882be5.html"><small>上一篇</small>Agent 工作日志 — 大白鲨聚合支付通道接入</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7e1015b87abe.html"><small>下一篇</small>Agent 工作日志 — 钱包模块审计 + B1~B6 全量修复</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0b557bcadc17.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Agent 工作日志：Code Review Batch #1 修复（C1/C5/H1/H4/H7/H8/H9）｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="Agent 工作日志：Code Review Batch #1 修复（C1/C5/H1/H4/H7/H8/H9）。本文属于业务系统运维 / 小蓝直播，日期：2026-05-24 Agent：claude-code 任务：依据 3 个 reviewer agent（go-reviewer / typescript-…">
+  <meta name="keywords" content="小蓝直播，Go，Redis，自动化，安全运维，故障排查，源码与配置，业务系统运维，业务系统运维 / 小蓝直播">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1182fb0cbf31.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1182fb0cbf31.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605240000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2BRedis-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%EF%BC%9ACode%20Review%20Batch%20-1%20%E4%BF%AE%E5%A4%8D%EF%BC%88C1-C5-H1-H4-H7-H8-H9%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Agent 工作日志：Code Review Batch #1 修复（C1/C5/H1/H4/H7/H8/H9）">
+  <meta property="og:description" content="Agent 工作日志：Code Review Batch #1 修复（C1/C5/H1/H4/H7/H8/H9）。本文属于业务系统运维 / 小蓝直播，日期：2026-05-24 Agent：claude-code 任务：依据 3 个 reviewer agent（go-reviewer / typescript-…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1182fb0cbf31.html">
+  <meta property="article:published_time" content="2026-05-24T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-24 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Agent 工作日志：Code Review Batch #1 修复（C1/C5/H1/H4/H7/H8/H9）">
+  <meta name="twitter:description" content="Agent 工作日志：Code Review Batch #1 修复（C1/C5/H1/H4/H7/H8/H9）。本文属于业务系统运维 / 小蓝直播，日期：2026-05-24 Agent：claude-code 任务：依据 3 个 reviewer agent（go-reviewer / typescript-…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1182fb0cbf31.html#article","headline":"Agent 工作日志：Code Review Batch #1 修复（C1/C5/H1/H4/H7/H8/H9）","description":"Agent 工作日志：Code Review Batch #1 修复（C1/C5/H1/H4/H7/H8/H9）。本文属于业务系统运维 / 小蓝直播，日期：2026-05-24 Agent：claude-code 任务：依据 3 个 reviewer agent（go-reviewer / typescript-…","datePublished":"2026-05-24T00:00:00+08:00","dateModified":"2026-05-24 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Go","Redis","自动化","安全运维","故障排查","源码与配置","业务系统运维","业务系统运维 / 小蓝直播"],"wordCount":2064,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1182fb0cbf31.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1182fb0cbf31.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Agent 工作日志：Code Review Batch #1 修复（C1/C5/H1/H4/H7/H8/H9）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1182fb0cbf31.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>Agent 工作日志：Code Review Batch #1 修复（C1/C5/H1/H4/H7/H8/H9）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>Agent 工作日志：Code Review Batch #1 修复（C1/C5/H1/H4/H7/H8/H9）</h1>
+      <p class="lede">Agent 工作日志：Code Review Batch #1 修复（C1/C5/H1/H4/H7/H8/H9）。本文属于业务系统运维 / 小蓝直播，日期：2026-05-24 Agent：claude-code 任务：依据 3 个 reviewer agent（go-reviewer / typescript-…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-24T00:00:00+08:00">发布于 2026-05-24</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,064 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-24-code-review-batch1-fixes.md</code></p>
+<p>整理日期：2026-05-24 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>日期：2026-05-24
+Agent：claude-code
+任务：依据 3 个 reviewer agent（go-reviewer / typescript-reviewer / security-reviewer）的 review 报告，落地"立即修"批次的 7 项问题。范围限定 risk 大、改动局部、可独立验证的项；C2/C3/C4 涉及 schema/migration/架构调整推到本迭代后段或下迭代。</p>
+<h2 id="输入资料">输入资料</h2>
+<ul>
+<li>PRD：<code>docs/prd/modules/kickoff-wallet.md</code>（资金）、<code>kickoff-member.md</code>（头像 SSRF）、<code>kickoff-admin.md</code>（按 project.config.json exceptions[apps.admin].exceptionReason 与 <code>docs/prd/modules/admin.md</code> 同义；观众/配置子模块）</li>
+<li>需求 ID：WALLET—001~005、MEM-012、ADM-907、后台-系统配置</li>
+<li>接口契约：<code>docs/api/openapi.yaml</code>（canonical）+ <code>packages/contracts/openapi/v1.yaml</code>（mirror）</li>
+<li>后端归属：services/go-app；权限 adminBearer / userBearer JWT；audit 走 <code>audit.Log</code></li>
+<li>Review 报告：上一轮对话三个 reviewer 输出</li>
+</ul>
+<h2 id="本次目标">本次目标</h2>
+<ol>
+<li><strong>C1</strong>：SettleRechargePaid 把 MarkPaid + ledger.Post 包进单一事务，防止"已 PAID 但未发钻"</li>
+<li><strong>C5</strong>：integration_test concurrent test 不能在 goroutine 内 t.Errorf；改 atomic + error channel</li>
+<li><strong>H1</strong>：wallet/service.go 4 处 <code>err == ErrXxx</code> → <code>errors.Is</code>，防止包裹后漏判</li>
+<li><strong>H4</strong>：UpdateAvatar 校验 URL host 在 storage public base 白名单内，防 SSRF 存储</li>
+<li><strong>H7</strong>：roomApi.viewers TS 类型与 OpenAPI 对齐（viewer_count/peak_count/vips），后端 service 也同步修正</li>
+<li><strong>H8</strong>：ConfigListView updateConfig 字段从 <code>description</code> 改 <code>reason</code>；后端 DTO + service 接收 reason 入 audit</li>
+<li><strong>H9</strong>：viewers 移除前端误传的 page/size 参数，改 vip_only（与 OpenAPI 一致）</li>
+</ol>
+<h2 id="修改文件">修改文件</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>修复项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>services/go-app/internal/repository/wallet/orders.go</code></td>
+<td>C1</td>
+<td>新增 <code>MarkPaidTx</code> + <code>LockByOrderNoTx</code>；提取 <code>markPaidOn</code> 共享实现</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/service/wallet/service.go</code></td>
+<td>C1 + H1</td>
+<td>SettleRechargePaid 改单事务（Lock → 状态判 → MarkPaidTx → ledger.PostTx）；4 处 <code>==</code> 改 <code>errors.Is</code></td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/pkg/ledger/integration_test.go</code></td>
+<td>C5 + C3</td>
+<td>并发测改 <code>atomic.Int32</code> 计数 + <code>errCh</code> 收集；retry 上限 5 → 50；4 处 <code>_ = db.First(&amp;w)</code> 改 fatal-on-error</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/service/member/service.go</code></td>
+<td>H4</td>
+<td>UpdateAvatar 增 <code>allowedAvatarHosts()</code> 白名单（Storage.LocalPublicBase + S3.PublicBase）；scheme + host 双重校验</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/service/member/avatar_test.go</code></td>
+<td>H4</td>
+<td>4 个 case 单测 allowedAvatarHosts 边界</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/service/admin/room.go</code></td>
+<td>H7</td>
+<td>Viewers 签名 <code>(roomID, vipOnly)</code>；返回 <code>viewer_count/peak_count/vips</code>（对齐 OpenAPI）</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/http/adminapi/room.go</code></td>
+<td>H7</td>
+<td>handler 改读 <code>vip_only</code> query 参数</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/dto/admin_modules.go</code></td>
+<td>H8</td>
+<td>AdminSystemConfigUpdateRequest 加 <code>Reason</code> 字段</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/service/admin/system.go</code></td>
+<td>H8</td>
+<td>UpdateConfig 把 req.Reason 写进 audit.Event.Reason</td>
+</tr>
+<tr>
+<td><code>apps/admin/src/api/index.ts</code></td>
+<td>H7/H8/H9</td>
+<td>新增 <code>AdminRoomVip</code> + <code>RoomViewersResp</code> 类型；roomApi.viewers 改 <code>vip_only</code>；updateConfig 字段改 <code>reason</code></td>
+</tr>
+<tr>
+<td><code>apps/admin/src/views/rooms/RoomDetailView.vue</code></td>
+<td>H7/H9</td>
+<td>ref 改 <code>RoomViewersResp</code> 形状；模板用 <code>viewer_count/peak_count/vips</code> 替换 <code>total/peak/items</code></td>
+</tr>
+<tr>
+<td><code>apps/admin/src/views/system/ConfigListView.vue</code></td>
+<td>H8</td>
+<td>编辑改两段 prompt（值 + 原因），原因必填 ≥ 4 字</td>
+</tr>
+</tbody>
+</table>
+<h2 id="核心决策">核心决策</h2>
+<ol>
+<li><strong>C1 用 PostTx + Tx 变体方法而非二次事务</strong>：钱包 <code>ledger.Post</code> 自己已经开事务，结合上层 MarkPaid 二次事务会形成嵌套 + 状态机不一致；正确做法是上层先开事务，下层用 <code>PostTx</code> 接管。新增 <code>MarkPaidTx</code> + <code>LockByOrderNoTx</code> 让 repo 支持外层事务接管</li>
+<li><strong>C1 加 SELECT FOR UPDATE 锁住订单行</strong>：原代码两条并发回调都过 <code>o.Status == Paid</code> 检查，依赖 <code>wallet_journals.idempotency_key</code> UNIQUE 兜底——但 ledger.PostTx 在 Tx 内调，撞 UNIQUE 直接事务回滚，整体行为正确。锁单 + 状态判提前在事务内做，是把"业务幂等"前移，减少深层错误传播</li>
+<li><strong>C5 错误聚合在主 goroutine</strong>：Go <code>testing</code> 包的 <code>t.Errorf</code> / <code>t.Fatal</code> 在 goroutine 内调虽然 1.13+ 已加锁，但 <code>t.FailNow</code> 仍只能在 test goroutine 调；统一规范 = 错误用 channel 收，主 goroutine 上 <code>t.Error</code></li>
+<li><strong>C5 retry 提升到 50</strong>：N=20 并发对单钱包行的乐观锁竞争，max retry 5 在测试机偶发能失败；50 给充裕窗口，仍保留实际乐观锁工作的语义</li>
+<li><strong>H4 兼容 storage 未配置场景</strong>：local dev 可能 LocalPublicBase 留空；此时不做 host 校验（避免 dev 工作流断），生产环境 config validate 应保证至少一项非空（属于本期外的 ops 改进）</li>
+<li><strong>H7 backend 优先对齐 OpenAPI</strong>：发现 backend service 当前 <code>{ total, peak, items }</code> 与 OpenAPI <code>{ viewer_count, peak_count, vips }</code> 不一致；按"契约第一"修 backend；admin TS 同步 contract</li>
+<li><strong>H8 后端 DTO + 前端 + OpenAPI 三处对齐</strong>：发现 backend DTO 没有 reason 字段（完全丢），OpenAPI 写了 reason 但 backend 不接，admin TS 发的是 description；三处全错，统一收敛到 reason</li>
+</ol>
+<h2 id="红蓝对抗">红蓝对抗</h2>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>蓝队自检</td>
+<td>(1) go build / go vet 全过；(2) <code>go test -race ./...</code> member/wallet/ledger 全过；(3) <code>go test -tags=integration -race ./pkg/ledger/...</code> 5/5 pass；(4) <code>pnpm --filter @kickoff/admin build</code> 通过（vue-tsc 严格模式无 type error）；(5) make framework-check 17/17 全绿</td>
+</tr>
+<tr>
+<td>红队质疑</td>
+<td>(1) C1 锁单 SELECT FOR UPDATE 会不会引发死锁？→ 蓝队答：同一事务先锁订单再调 PostTx（PostTx 内部锁钱包），锁顺序固定（order_no → user_id），不会环；(2) C5 retry=50 是不是 mask 了真实 lost-update？→ 蓝队答：测试断言 successes=N + balance=N*each + version=N，任何 lost-update 都会让 version 与 successes 不一致；retry 只是给测试稳定性余量；(3) H4 配置空就不校验，dev → prod 误配怎么办？→ 蓝队答：本期不实现，归到 ops 配置 validation；至少 dev 环境的授权安全测试面已经收敛（local dev 通常不外网暴露）；(4) H8 强制要求 ≥4 字 reason 会不会激怒 admin？→ 蓝队答：审计审计就是要个理由；admin 修改业务关键 config 不写说明日后无法回溯；4 字门槛低，可接受</td>
+</tr>
+<tr>
+<td>合入判断</td>
+<td>允许合入</td>
+</tr>
+</tbody>
+</table>
+<h2 id="完成申请与裁决">完成申请与裁决</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent Claim</td>
+<td>implemented + verified（go test + go build + admin build + framework-check 全过；新增 4 case avatar 单测）</td>
+</tr>
+<tr>
+<td>Project Decision</td>
+<td>pending-review</td>
+</tr>
+</tbody>
+</table>
+<h2 id="需求追踪">需求追踪</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>需求 ID</td>
+<td>WALLET—001 / WALLET—005 / MEM—012 / ADM—907 / ADM 后台-系统配置</td>
+</tr>
+<tr>
+<td>需求总账</td>
+<td><code>docs/prd/requirements.md</code></td>
+</tr>
+<tr>
+<td>模块 PRD</td>
+<td><code>kickoff-wallet.md</code> / <code>kickoff-member.md</code> / <code>kickoff-admin.md</code></td>
+</tr>
+<tr>
+<td>OpenAPI / Event / DTO</td>
+<td><code>docs/api/openapi.yaml</code> schemas 已对齐；本次仅修代码使 backend 兑现既有契约</td>
+</tr>
+<tr>
+<td>验收证据行</td>
+<td><code>docs/qa/acceptance-evidence.md</code>：本次为 review 修复，无新增完成行；<code>docs/qa/project-acceptance.md</code> kickoff-wallet / kickoff-member / kickoff-admin 行的"自动化测试"列增量受益（事务+SSRF+契约对齐）</td>
+</tr>
+<tr>
+<td>不涉及契约的原因</td>
+<td>仅代码贴合既有 OpenAPI 契约；唯一字段补充 <code>AdminSystemConfigUpdateRequest.Reason</code> 也是 OpenAPI 已声明的</td>
+</tr>
+</tbody>
+</table>
+<h2 id="工程规范">工程规范</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>代码规范</td>
+<td>Go: gofmt + go vet 全过；errors.Is 用法对齐；TS: vue-tsc 严格模式</td>
+</tr>
+<tr>
+<td>数据表设计</td>
+<td>不影响表结构</td>
+</tr>
+<tr>
+<td>是否影响账本、事务、幂等或审计</td>
+<td>是 — C1 是账本核心事务边界修复；H8 把 reason 入 audit；H4 把 avatar 写入 audit log（已有）</td>
+</tr>
+<tr>
+<td>规范例外与原因</td>
+<td>无</td>
+</tr>
+<tr>
+<td>UI 验收模式</td>
+<td>no-design-mvp（admin 改动仅字段名/参数名重命名，不涉视觉规格）</td>
+</tr>
+<tr>
+<td>目标视口 / 设计尺寸</td>
+<td>1440x900（admin 桌面端）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="验证记录">验证记录</h2>
+<h3 id="页面截图-真实手机视口-桌面视口">页面截图（真实手机视口 + 桌面视口）</h3>
+<p>本次 admin 改动仅为：
+- ConfigListView：编辑 modal 流程改两段 prompt（值 + 原因）——非默认渲染界面，截图为编辑前列表态，与前次保持一致
+- RoomDetailView：viewers 字段重命名（viewer_count/peak_count/vips）+ 模板绑定——v1 实际数据为空（Redis 未接入），视觉无变化</p>
+<table>
+<thead>
+<tr>
+<th>视口</th>
+<th>文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1440x900（桌面）</td>
+<td><code>docs/qa/screenshots/current/admin-system-config-1440x900.png</code></td>
+<td>/system/config 17 行真实默认（前次截图，本次仅改 edit dialog 内部流程）</td>
+</tr>
+<tr>
+<td>1440x900（桌面）</td>
+<td><code>docs/qa/screenshots/current/admin-users-empty-1440x900.png</code></td>
+<td>前次截图；本次改动不涉及用户列表</td>
+</tr>
+<tr>
+<td>1440x900（桌面）</td>
+<td><code>docs/qa/screenshots/current/admin-login-1440x900.png</code></td>
+<td>前次截图</td>
+</tr>
+<tr>
+<td>375x812（真实手机视口）</td>
+<td><code>docs/qa/screenshots/current/admin-login-375x812.png</code></td>
+<td>前次截图</td>
+</tr>
+</tbody>
+</table>
+<p>证据清单：<code>docs/qa/ui-visual-evidence.json</code> 当前 pages: []（项目 quality.requiresUiVisualEvidence=false）。</p>
+<h3 id="响应式-responsive-SEO异常验证">响应式（responsive） / SEO异常验证</h3>
+<p>admin 后台桌面优先 1440x900；移动 fallback 由 Element Plus 自动 stack。不涉及 SEO异常验证（内部系统）。</p>
+<h3 id="构建与门禁">构建与门禁</h3>
+<ul>
+<li><code>go build ./...</code>：通过</li>
+<li><code>go vet ./...</code>：通过</li>
+<li><code>go test -race -count=1 ./internal/service/wallet/... ./internal/service/member/... ./internal/pkg/ledger/...</code>：全 ok</li>
+<li><code>go test -tags=integration -race -count=1 ./internal/pkg/ledger/...</code>：5/5 pass（含 C5 重构的并发测）</li>
+<li><code>pnpm --filter @kickoff/admin build</code>：通过</li>
+<li><code>make framework-check</code>：17/17 全绿</li>
+</ul>
+<h2 id="后续动作">后续动作</h2>
+<ol>
+<li><strong>C2</strong>：审计 <code>wallet_journals.idempotency_key</code> 的 UNIQUE 索引是否真存在；如缺需补 migration</li>
+<li><strong>C3</strong>：每日提现限额 race condition — 需要把 SumDaily 检查放进 SELECT FOR UPDATE 钱包行，或用 Redis 锁</li>
+<li><strong>C4</strong>：admin JWT localStorage → HttpOnly cookie 迁移；需要后端实现 refresh endpoint + cookie 设置</li>
+<li><strong>M1</strong>：WS CheckOrigin 增加白名单检验</li>
+<li><strong>M3</strong>：payment hook signature verification — 生产前必须实现</li>
+<li><strong>M5</strong>：wallet recharge platform_fee_rate float64 → decimal string config</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#输入资料">输入资料</a></li><li style="margin-left:0.0rem"><a href="#本次目标">本次目标</a></li><li style="margin-left:0.0rem"><a href="#修改文件">修改文件</a></li><li style="margin-left:0.0rem"><a href="#核心决策">核心决策</a></li><li style="margin-left:0.0rem"><a href="#红蓝对抗">红蓝对抗</a></li><li style="margin-left:0.0rem"><a href="#完成申请与裁决">完成申请与裁决</a></li><li style="margin-left:0.0rem"><a href="#需求追踪">需求追踪</a></li><li style="margin-left:0.0rem"><a href="#工程规范">工程规范</a></li><li style="margin-left:0.0rem"><a href="#验证记录">验证记录</a></li><li style="margin-left:0.8rem"><a href="#页面截图-真实手机视口-桌面视口">页面截图（真实手机视口 + 桌面视口）</a></li><li style="margin-left:0.8rem"><a href="#响应式-responsive-SEO异常验证">响应式（responsive） / SEO异常验证</a></li><li style="margin-left:0.8rem"><a href="#构建与门禁">构建与门禁</a></li><li style="margin-left:0.0rem"><a href="#后续动作">后续动作</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-05-24</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Go</span><span class="tag">Redis</span><span class="tag">自动化</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-24-code-review-batch1-f…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605240000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2BRedis-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%EF%BC%9ACode%20Review%20Batch%20-1%20%E4%BF%AE%E5%A4%8D%EF%BC%88C1-C5-H1-H4-H7-H8-H9%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Agent 工作日志：Code Review Batch #1 修复（C1/C5/H1/H4/H7/H8/H9）。本文属于业务系统运维 / 小蓝直播，日期：2026-05-24 Agent：claude-code 任务：依据 3 个 reviewer agent（go-reviewer / typescript-…</p>
+      <p>关键词：小蓝直播、Go、Redis、自动化、安全运维、故障排查、源码与配置、业务系统运维、业务系统运维 / 小蓝直播</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-828173e3ef41.html"><small>上一篇</small>Agent 工作日志：Admin ↔ Public 一致性修复（#1/#2/#3/#5）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-bc1564d233d0.html"><small>下一篇</small>Agent 工作日志：Code Review Batch #2 修复（C2/C3/H2/H3/H5/H6）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1182fb0cbf31.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
