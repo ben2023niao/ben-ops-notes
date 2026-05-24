@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>ADR-0014： 广告管理拆分 adslots + adcreatives 两表,替代 homebanners 单表｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="ADR-0014： 广告管理拆分 adslots + adcreatives 两表,替代 homebanners 单表。本文属于业务系统运维 / 小蓝直播，v0.3 时期 admin 用单表 home_banners 管理所有广告位, position 字段( home_top / home_middle / l…">
+  <meta name="keywords" content="小蓝直播，Go，故障排查，数据库恢复，源码与配置，业务系统运维，业务系统运维 / 小蓝直播">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b80ea38d98e0.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b80ea38d98e0.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605250000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2B%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5-ADR-0014%EF%BC%9A%20%E5%B9%BF%E5%91%8A%E7%AE%A1%E7%90%86%E6%8B%86%E5%88%86%20adslots%20%2B%20adcreatives%20%E4%B8%A4%E8%A1%A8%2C%E6%9B%BF%E4%BB%A3%20homebanners%20%E5%8D%95%E8%A1%A8.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="ADR-0014： 广告管理拆分 adslots + adcreatives 两表,替代 homebanners 单表">
+  <meta property="og:description" content="ADR-0014： 广告管理拆分 adslots + adcreatives 两表,替代 homebanners 单表。本文属于业务系统运维 / 小蓝直播，v0.3 时期 admin 用单表 home_banners 管理所有广告位, position 字段( home_top / home_middle / l…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b80ea38d98e0.html">
+  <meta property="article:published_time" content="2026-05-25T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-25 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="ADR-0014： 广告管理拆分 adslots + adcreatives 两表,替代 homebanners 单表">
+  <meta name="twitter:description" content="ADR-0014： 广告管理拆分 adslots + adcreatives 两表,替代 homebanners 单表。本文属于业务系统运维 / 小蓝直播，v0.3 时期 admin 用单表 home_banners 管理所有广告位, position 字段( home_top / home_middle / l…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b80ea38d98e0.html#article","headline":"ADR-0014： 广告管理拆分 adslots + adcreatives 两表,替代 homebanners 单表","description":"ADR-0014： 广告管理拆分 adslots + adcreatives 两表,替代 homebanners 单表。本文属于业务系统运维 / 小蓝直播，v0.3 时期 admin 用单表 home_banners 管理所有广告位, position 字段( home_top / home_middle / l…","datePublished":"2026-05-25T00:00:00+08:00","dateModified":"2026-05-25 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Go","故障排查","数据库恢复","源码与配置","业务系统运维","业务系统运维 / 小蓝直播"],"wordCount":1549,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b80ea38d98e0.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b80ea38d98e0.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"ADR-0014： 广告管理拆分 adslots + adcreatives 两表,替代 homebanners 单表","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b80ea38d98e0.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>ADR-0014： 广告管理拆分 adslots + adcreatives 两表,替代 homebanners 单表</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>ADR-0014： 广告管理拆分 adslots + adcreatives 两表,替代 homebanners 单表</h1>
+      <p class="lede">ADR-0014： 广告管理拆分 adslots + adcreatives 两表,替代 homebanners 单表。本文属于业务系统运维 / 小蓝直播，v0.3 时期 admin 用单表 home_banners 管理所有广告位, position 字段( home_top / home_middle / l…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-25T00:00:00+08:00">发布于 2026-05-25</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,549 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/decisions/ADR-0014-ads-slot-creative-split.md</code></p>
+<p>整理日期：2026-05-25 00:00｜日期依据：正文日期</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>已采纳</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>日期</td>
+<td>2026-05-25</td>
+</tr>
+<tr>
+<td>Owner</td>
+<td>后端 / 运营</td>
+</tr>
+<tr>
+<td>影响范围</td>
+<td>DB schema、admin API、admin UI、public read API、<code>home_banners</code> 表 deprecation</td>
+</tr>
+<tr>
+<td>关联文档</td>
+<td><code>services/go-app/migrations/0012*</code>、<code>0013*</code>、<code>services/go-app/internal/service/admin/ads*</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-背景">1. 背景</h2>
+<p>v0.3 时期 admin 用单表 <code>home_banners</code> 管理所有广告位,<code>position</code> 字段(<code>home_top</code> / <code>home_middle</code> / <code>live_top</code> / <code>h5_sticky</code> / <code>h5_corner</code> / <code>h5_bubble</code> / <code>h5_theater_topbar</code> 7 个值)区分广告位类型。admin UI <code>/system/banner</code> 只暴露 <code>home_top</code>,其余 6 个位运营建不了内容(只能 admin 直接 SQL 改库)。</p>
+<p>业务诉求(2026-05-25):
+- 运营需要管理<strong>所有 7 个广告位</strong> + 未来可能加新位
+- 不同位有不同<strong>渲染规则</strong>(轮播 / 单图 / 跑马灯文字 / 浮窗气泡 / 角标)
+- 不同位有<strong>条数上限</strong>(首页轮播最多 5 条,角标永远 1 条等)
+- 位本身应该可启用/禁用(整位关闭后所有内容不显示),独立于内容级 enable
+- admin UI 应是<strong>位 + 内容</strong>两层视图,而不是平铺所有 banner</p>
+<h2 id="2-决定">2. 决定</h2>
+<p><strong>拆 <code>home_banners</code> 为 <code>ad_slots</code>(位定义)+ <code>ad_creatives</code>(位内容)两表</strong>。</p>
+<h3 id="2-1-表结构">2.1 表结构</h3>
+<pre><code class="language-sql">-- 广告位定义(管理员配置,业务前端按 slot_code 拉)
+ad_slots:
+  id            BIGINT UNSIGNED PRIMARY KEY    (snowflake)
+  slot_code     VARCHAR(64)  UNIQUE NOT NULL    -- 业务 key,前端拉接口按此过滤
+  name          VARCHAR(128) NOT NULL           -- 中文显示名,如"首页顶部轮播"
+  description   VARCHAR(255) NOT NULL DEFAULT ''
+  render_type   VARCHAR(32)  NOT NULL DEFAULT 'carousel'
+                -- carousel / single / marquee / bubble / sticky / corner_badge
+  max_items     INT UNSIGNED NOT NULL DEFAULT 5
+  enabled       TINYINT      NOT NULL DEFAULT 1
+  created_by    BIGINT UNSIGNED NOT NULL
+  updated_by    BIGINT UNSIGNED NULL
+  created_at/updated_at/deleted_at
+  UNIQUE KEY uk_slot_code (slot_code, deleted_at)
+  KEY idx_enabled (enabled, deleted_at)
+
+-- 广告内容(挂在 slot 下)
+ad_creatives:
+  id            BIGINT UNSIGNED PRIMARY KEY    (snowflake)
+  slot_id       BIGINT UNSIGNED NOT NULL        -- FK ad_slots.id
+  title         VARCHAR(128) NOT NULL
+  image_url     VARCHAR(512) NOT NULL DEFAULT ''-- 图广告 URL
+  text_content  VARCHAR(255) NOT NULL DEFAULT ''-- 文字广告(跑马灯 / 气泡)
+  link_type     VARCHAR(16)  NOT NULL DEFAULT 'none'  -- none/external/route/match/predict
+  link_target   VARCHAR(512) NOT NULL DEFAULT ''
+  start_at      DATETIME(3)  NULL               -- NULL = 立即生效
+  end_at        DATETIME(3)  NULL               -- NULL = 永久
+  enabled       TINYINT      NOT NULL DEFAULT 1
+  sort_order    INT UNSIGNED NOT NULL DEFAULT 100
+  click_count   BIGINT UNSIGNED NOT NULL DEFAULT 0
+  created_by    BIGINT UNSIGNED NOT NULL
+  updated_by    BIGINT UNSIGNED NULL
+  created_at/updated_at/deleted_at
+  KEY idx_slot_enabled_sort (slot_id, enabled, sort_order, deleted_at)
+  KEY idx_validity (start_at, end_at)
+  FOREIGN KEY (slot_id) REFERENCES ad_slots(id) ON DELETE RESTRICT
+</code></pre>
+<h3 id="2-2-数据迁移">2.2 数据迁移</h3>
+<p><code>migration 0013_migrate_home_banners_to_ads.up.sql</code>:</p>
+<ol>
+<li>
+<p>插入 7 行到 <code>ad_slots</code>(slot_code 复用现有 position 值,name/render_type/max_items 按规约填):
+   | slot_code | name | render_type | max_items |
+   |---|---|---|---|
+   | <code>home_top</code> | 首页顶部轮播 | carousel | 5 |
+   | <code>home_middle</code> | 首页中部广告位 | carousel | 3 |
+   | <code>live_top</code> | 直播页顶部 | single | 1 |
+   | <code>h5_sticky</code> | 直播 tab 吸底 | sticky | 1 |
+   | <code>h5_corner</code> | 赛程 tab 角标 | corner_badge | 1 |
+   | <code>h5_bubble</code> | 竞猜 tab 气泡 | bubble | 1 |
+   | <code>h5_theater_topbar</code> | 剧场式 TopBar 跑马灯 | marquee | 5 |</p>
+</li>
+<li>
+<p>把 <code>home_banners</code> 所有 row 写入 <code>ad_creatives</code>(slot_id 按 position 查 ad_slots.id),保留 <code>deleted_at</code>/<code>enabled</code>/<code>start_at</code>/<code>end_at</code>/<code>click_count</code> 等历史。</p>
+</li>
+<li>
+<p><code>home_banners</code> 表<strong>保留</strong>(deprecated),不再写。1 周稳定后下个 PR <code>DROP TABLE home_banners</code>。</p>
+</li>
+</ol>
+<p><code>down.sql</code>:
+- 回滚需要 <code>DELETE FROM ad_creatives WHERE created_at &gt;= '&lt;migration_time&gt;'</code> + <code>DELETE FROM ad_slots WHERE created_at &gt;= ...</code>(粗略,不保证 100% 还原)。<strong>破坏性,真要回滚走维护窗口 + 数据库备份恢复</strong>。</p>
+<h3 id="2-3-API">2.3 API</h3>
+<p><strong>admin</strong>:</p>
+<pre><code>GET    /api/v1/admin/ads/slots                       列广告位
+POST   /api/v1/admin/ads/slots                       新建位
+PATCH  /api/v1/admin/ads/slots/:id                   改位
+DELETE /api/v1/admin/ads/slots/:id                   软删位(有内容关联时拒)
+GET    /api/v1/admin/ads/creatives?slot_id=...       列内容
+POST   /api/v1/admin/ads/creatives                   新建内容
+PATCH  /api/v1/admin/ads/creatives/:id               改内容
+DELETE /api/v1/admin/ads/creatives/:id               软删内容
+</code></pre>
+<p><strong>public(通用读取,新增)</strong>:</p>
+<pre><code>GET /api/v1/ads/slots
+GET /api/v1/ads/slots/:slot_code/creatives?limit=...
+</code></pre>
+<p>返回规则:
+- 只返回 <code>ad_slots.enabled = 1</code> 且未软删的广告位。
+- 只返回 <code>ad_creatives.enabled = 1</code>、未软删、且 <code>start_at IS NULL OR start_at &lt;= now</code>、<code>end_at IS NULL OR end_at &gt; now</code> 的广告内容。
+- <code>slot_code</code> 不存在或广告位关闭时,<code>creatives</code> 接口返回 200 + <code>slot: null</code> + <code>items: []</code>,前端按空态处理,避免投放开关变成用户可见错误。
+- public 响应不暴露 <code>created_by</code>、<code>updated_by</code>、<code>deleted_at</code>、内部审计字段。
+- 排序固定为 <code>sort_order ASC, created_at DESC</code>,前端不得自行改排序。
+- <code>limit</code> 不能超过广告位 <code>max_items</code>,服务端二次截断。</p>
+<p>public schema:</p>
+<pre><code class="language-json">{
+  "slot": {
+    "slot_code": "h5_home_hero",
+    "name": "H5 首页顶部轮播",
+    "render_type": "carousel",
+    "max_items": 5
+  },
+  "items": [
+    {
+      "id": "10000000000000001",
+      "title": "夜场福利",
+      "image_url": "https://...",
+      "text_content": "",
+      "link_type": "predict",
+      "link_target": "1234567890",
+      "sort_order": 10
+    }
+  ]
+}
+</code></pre>
+<p><strong>public(首页专用)</strong>:
+- <code>GET /api/v1/home/banner</code> 直接读取 <code>ad_creatives JOIN ad_slots</code>,作为首页 Banner 广告接口。
+- Web 首页使用 <code>slot_code = home_top</code>。
+- H5 首页使用 <code>slot_code = h5_home_hero</code>。
+- 广告位关闭或无生效内容时返回空列表,前端不渲染 Banner。</p>
+<h3 id="2-3-1-标准-slot_code">2.3.1 标准 slot_code</h3>
+<table>
+<thead>
+<tr>
+<th>slot_code</th>
+<th>使用页面</th>
+<th style="text-align: right;">渲染类型</th>
+<th style="text-align: right;">最大条数</th>
+<th>PRD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>home_top</code></td>
+<td>Web 首页顶部 banner</td>
+<td style="text-align: right;">carousel</td>
+<td style="text-align: right;">5</td>
+<td>HOME-002</td>
+</tr>
+<tr>
+<td><code>home_middle</code></td>
+<td>Web 首页时间线下方广告</td>
+<td style="text-align: right;">carousel</td>
+<td style="text-align: right;">3</td>
+<td>HOME-008</td>
+</tr>
+<tr>
+<td><code>h5_home_hero</code></td>
+<td>H5 首页顶部运营 banner</td>
+<td style="text-align: right;">carousel</td>
+<td style="text-align: right;">5</td>
+<td>H5-002</td>
+</tr>
+<tr>
+<td><code>h5_home_live_feed</code></td>
+<td>H5 首页直播列表信息流广告</td>
+<td style="text-align: right;">single</td>
+<td style="text-align: right;">1</td>
+<td>H5-019</td>
+</tr>
+<tr>
+<td><code>h5_sticky</code></td>
+<td>H5 live tab 吸底广告 A</td>
+<td style="text-align: right;">sticky</td>
+<td style="text-align: right;">1</td>
+<td>H5-019</td>
+</tr>
+<tr>
+<td><code>h5_corner</code></td>
+<td>H5 schedule tab 角标广告 B</td>
+<td style="text-align: right;">corner_badge</td>
+<td style="text-align: right;">1</td>
+<td>H5-020</td>
+</tr>
+<tr>
+<td><code>h5_bubble</code></td>
+<td>H5 predict tab 气泡广告 C</td>
+<td style="text-align: right;">bubble</td>
+<td style="text-align: right;">1</td>
+<td>H5-021</td>
+</tr>
+<tr>
+<td><code>h5_theater_topbar</code></td>
+<td>剧场式直播间 TopBar 跑马灯 D</td>
+<td style="text-align: right;">marquee</td>
+<td style="text-align: right;">5</td>
+<td>H5-021b</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-4-admin-UI">2.4 admin UI</h3>
+<p><code>/system/banner</code> → <code>/ads</code>:
+- 左侧:广告位列表(7 个 + 可建新位),点选某位
+- 右侧:该位下的内容列表(可拖拽改 sort_order,可启停,可改时间段,可换图/文)
+- 顶部 toolbar:位的"编辑位定义"按钮(改 max_items / enabled / render_type 等)</p>
+<p>旧的 <code>BannerListView.vue</code> <strong>保留不删</strong>,挂在 <code>/system/banner-legacy</code> 路由(给迁移期 fallback,1 周后删)。新主入口是 <code>/ads</code>。</p>
+<h2 id="3-后果">3. 后果</h2>
+<h3 id="正向">正向</h3>
+<ul>
+<li>✅ 运营自主管所有广告位,不再依赖工程改 SQL</li>
+<li>✅ 每个位独立的 render_type / max_items 表达力强,前端按位渲染不需写硬编码 if</li>
+<li>✅ 加新位只是 <code>INSERT INTO ad_slots</code>,前端按 slot_code 拉新接口不动后端</li>
+<li>✅ public API 以当前新项目契约为准,不保留旧模型分支</li>
+</ul>
+<h3 id="负向">负向</h3>
+<ul>
+<li>⚠️ migration 0013 涉及数据迁移,需要在低峰执行,失败前先备份 home_banners</li>
+<li>⚠️ 改动文件 ~15 个,review 工作量大</li>
+<li>⚠️ admin UI 重写一个 view,前端工作量 1-2h</li>
+</ul>
+<h3 id="灰度策略">灰度策略</h3>
+<ol>
+<li><strong>PR 1(本 ADR)</strong>:后端 + migration + seed,旧 <code>/system/banner</code> UI 不动(它继续调老 API,老 API 直读 home_banners 不受影响)</li>
+<li><strong>PR 2</strong>:admin UI 新 <code>/ads</code> view 上线,旧 <code>BannerListView</code> 移到 <code>/system/banner-legacy</code></li>
+<li><strong>PR 3</strong>(1 周后):删除 home_banners 表 + admin SystemService 里 banner CRUD 代码</li>
+</ol>
+<h2 id="4-关联">4. 关联</h2>
+<ul>
+<li>取代:<code>home_banners</code> 单表方案(原 0007 migration)</li>
+<li>影响:<code>SystemService.ListBanners</code> / <code>UpsertBanner</code>(保留 deprecated)、<code>H5AdsService</code>(内部改读新表)、<code>HomeService.GetBanners</code>(同上)</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-背景">1. 背景</a></li><li style="margin-left:0.0rem"><a href="#2-决定">2. 决定</a></li><li style="margin-left:0.8rem"><a href="#2-1-表结构">2.1 表结构</a></li><li style="margin-left:0.8rem"><a href="#2-2-数据迁移">2.2 数据迁移</a></li><li style="margin-left:0.8rem"><a href="#2-3-API">2.3 API</a></li><li style="margin-left:0.8rem"><a href="#2-3-1-标准-slot_code">2.3.1 标准 slot_code</a></li><li style="margin-left:0.8rem"><a href="#2-4-admin-UI">2.4 admin UI</a></li><li style="margin-left:0.0rem"><a href="#3-后果">3. 后果</a></li><li style="margin-left:0.8rem"><a href="#正向">正向</a></li><li style="margin-left:0.8rem"><a href="#负向">负向</a></li><li style="margin-left:0.8rem"><a href="#灰度策略">灰度策略</a></li><li style="margin-left:0.0rem"><a href="#4-关联">4. 关联</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-05-25</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Go</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/decisions/ADR-0014-ads-slot-creative-split.…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605250000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2B%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5-ADR-0014%EF%BC%9A%20%E5%B9%BF%E5%91%8A%E7%AE%A1%E7%90%86%E6%8B%86%E5%88%86%20adslots%20%2B%20adcreatives%20%E4%B8%A4%E8%A1%A8%2C%E6%9B%BF%E4%BB%A3%20homebanners%20%E5%8D%95%E8%A1%A8.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>ADR-0014： 广告管理拆分 adslots + adcreatives 两表,替代 homebanners 单表。本文属于业务系统运维 / 小蓝直播，v0.3 时期 admin 用单表 home_banners 管理所有广告位, position 字段( home_top / home_middle / l…</p>
+      <p>关键词：小蓝直播、Go、故障排查、数据库恢复、源码与配置、业务系统运维、业务系统运维 / 小蓝直播</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-46f0c547074b.html"><small>上一篇</small>ADR-0013： 快速验证阶段 — 两机协作部署(GitLab build runner + 部署机 deploy runner)</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3a12b86adb70.html"><small>下一篇</small>Agent 工作日志 · admin-api-prototype-alignment-fixes</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b80ea38d98e0.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

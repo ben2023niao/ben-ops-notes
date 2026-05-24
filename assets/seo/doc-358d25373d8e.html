@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>日志聚合 + 实时告警接入指南｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="日志聚合 + 实时告警接入指南。本文属于业务系统运维 / 小蓝直播，状态:v0.3.3 后端已就绪;部署侧 fluent-bit / Sentry 配置由 ops 完成。 部署形态: docker-compose 两机方案 (不上 k8s,见下方决策)。 结论 :2 台机器上 k8s 是显著过度设计,选 dock…">
+  <meta name="keywords" content="小蓝直播，Shell，Go，Docker，Kubernetes，Nginx，MySQL，Redis，业务系统运维，业务系统运维 / 小蓝直播，日志聚合 + 实时告警接入指南">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-358d25373d8e.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-358d25373d8e.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605251234-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-%E6%97%A5%E5%BF%97%E8%81%9A%E5%90%88%20%2B%20%E5%AE%9E%E6%97%B6%E5%91%8A%E8%AD%A6%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="日志聚合 + 实时告警接入指南">
+  <meta property="og:description" content="日志聚合 + 实时告警接入指南。本文属于业务系统运维 / 小蓝直播，状态:v0.3.3 后端已就绪;部署侧 fluent-bit / Sentry 配置由 ops 完成。 部署形态: docker-compose 两机方案 (不上 k8s,见下方决策)。 结论 :2 台机器上 k8s 是显著过度设计,选 dock…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-358d25373d8e.html">
+  <meta property="article:published_time" content="2026-05-25T12:34:00+08:00">
+  <meta property="article:modified_time" content="2026-05-25 12:34">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="日志聚合 + 实时告警接入指南">
+  <meta name="twitter:description" content="日志聚合 + 实时告警接入指南。本文属于业务系统运维 / 小蓝直播，状态:v0.3.3 后端已就绪;部署侧 fluent-bit / Sentry 配置由 ops 完成。 部署形态: docker-compose 两机方案 (不上 k8s,见下方决策)。 结论 :2 台机器上 k8s 是显著过度设计,选 dock…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-358d25373d8e.html#article","headline":"日志聚合 + 实时告警接入指南","description":"日志聚合 + 实时告警接入指南。本文属于业务系统运维 / 小蓝直播，状态:v0.3.3 后端已就绪;部署侧 fluent-bit / Sentry 配置由 ops 完成。 部署形态: docker-compose 两机方案 (不上 k8s,见下方决策)。 结论 :2 台机器上 k8s 是显著过度设计,选 dock…","datePublished":"2026-05-25T12:34:00+08:00","dateModified":"2026-05-25 12:34","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Shell","Go","Docker","Kubernetes","Nginx","MySQL","Redis","业务系统运维","业务系统运维 / 小蓝直播","日志聚合 + 实时告警接入指南"],"wordCount":1636,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-358d25373d8e.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-358d25373d8e.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"日志聚合 + 实时告警接入指南","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-358d25373d8e.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>日志聚合 + 实时告警接入指南</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>日志聚合 + 实时告警接入指南</h1>
+      <p class="lede">日志聚合 + 实时告警接入指南。本文属于业务系统运维 / 小蓝直播，状态:v0.3.3 后端已就绪;部署侧 fluent-bit / Sentry 配置由 ops 完成。 部署形态: docker-compose 两机方案 (不上 k8s,见下方决策)。 结论 :2 台机器上 k8s 是显著过度设计,选 dock…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-25T12:34:00+08:00">发布于 2026-05-25</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,636 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/operations/logging-and-alerting.md</code></p>
+<p>整理日期：2026-05-25 12:34｜日期依据：正文日期</p>
+<p>状态:v0.3.3 后端已就绪;部署侧 fluent-bit / Sentry 配置由 ops 完成。
+部署形态:<strong>docker-compose 两机方案</strong>(不上 k8s,见下方决策)。</p>
+</blockquote>
+<h2 id="部署架构决策-为什么不上-k8s">部署架构决策(为什么不上 k8s)</h2>
+<p>当前规模:<strong>2 台机器</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>k8s 单机/小集群</th>
+<th>docker-compose 两机</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>控制面开销</td>
+<td>api-server + etcd + scheduler + kubelet 至少吃 1.5G 内存 + 1 核 CPU</td>
+<td>0(docker daemon 即可)</td>
+</tr>
+<tr>
+<td>学习/运维成本</td>
+<td>高(YAML 海 + Helm + Ingress + StorageClass)</td>
+<td>低(docker-compose up -d)</td>
+</tr>
+<tr>
+<td>故障半径</td>
+<td>k8s 控制面挂 = 业务全挂</td>
+<td>单 service 挂 = 单 service 挂</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>≥ 5 节点 + 多服务弹性伸缩</td>
+<td>2-3 节点 + 几个服务 + 手动切流量</td>
+</tr>
+</tbody>
+</table>
+<p><strong>结论</strong>:2 台机器上 k8s 是显著过度设计,选 docker-compose。等真到 5+ 节点 + 多服务编排需求再考虑 k3s/k8s。</p>
+<h2 id="两机部署架构">两机部署架构</h2>
+<table>
+<thead>
+<tr>
+<th>机器</th>
+<th>角色</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>机 A</strong>(主)</td>
+<td>nginx + go-app(api + admin) + redis-master + fluent-bit</td>
+</tr>
+<tr>
+<td><strong>机 B</strong>(从)</td>
+<td>mysql + redis-replica + 定时备份 + fluent-bit</td>
+</tr>
+</tbody>
+</table>
+<p>故障切换:<strong>手动</strong>(写 <code>runbook.md</code>),5 分钟内切流量到机 B 临时降级,牺牲短暂可用性换运维简单。</p>
+<h2 id="总体架构">总体架构</h2>
+<pre><code>┌───────────┐  stdout JSON  ┌──────────────┐  push  ┌──────────────┐
+│  go-app   │ ────────────► │  fluent-bit  │ ─────► │  Grafana     │ ◄── 业务看板 + 告警
+│           │     (zap)     │  (compose)   │        │  Cloud Loki  │
+│           │                └──────────────┘        └──────────────┘
+│           │       Error+ 级别                      ┌──────────────┐
+│           │  ─────────────────────────────────────►│  sentry.io   │ ── Telegram bot + 邮件
+└───────────┘     (sentry-go SDK,异步)              └──────────────┘
+</code></pre>
+<p>两条独立链路:
+- <strong>聚合查询 / 业务看板</strong>:Loki(SaaS),索引全量日志,Grafana 看板
+- <strong>实时错误告警</strong>:Sentry(SaaS),Error+ 自动 capture + 栈帧聚合 + 通知</p>
+<h2 id="后端就绪情况-无需运维改动">后端就绪情况(无需运维改动)</h2>
+<h3 id="1-结构化日志">1. 结构化日志</h3>
+<p><code>zap.NewProductionConfig()</code> 输出 JSON 到 stdout,docker <code>json-file</code> driver 即可被 fluent-bit 抓取。</p>
+<p>字段约定:</p>
+<pre><code class="language-json">{
+  "ts": "2026-05-25T12:34:56.789Z",
+  "level": "error",
+  "msg": "AES decrypt failed, holder name fallback to empty",
+  "trace_id": "...",
+  "request_id": "...",
+  "user_id": 184,
+  "event_type": "wallet.bank_account.decrypt_failed",
+  "severity": "critical",
+  "finance_risk": "critical",
+  "biz_id": "BANK_ACC_123",
+  "cipher_len": 128,
+  "error": "..."
+}
+</code></pre>
+<h3 id="2-标准字段工厂">2. 标准字段工厂</h3>
+<p>新代码统一用 <code>pkg/logger</code> 工厂,避免 key 拼写漂移:</p>
+<pre><code class="language-go">import "kickoff/go-app/internal/pkg/logger"
+
+logger.L(ctx).Error("decrypt failed",
+    logger.Event(logger.EventFinanceRiskDecrypt),
+    logger.Sev(logger.SeverityCritical),
+    logger.FinanceRisk(logger.SeverityCritical),
+    logger.BizID(orderNo),
+    zap.Error(err))
+</code></pre>
+<p>事件类型清单见 <code>internal/pkg/logger/fields.go</code>。新增事件必须在此登记。</p>
+<h3 id="3-Sentry-自动推送">3. Sentry 自动推送</h3>
+<p><code>logger.InitWithSentry()</code> 已接通,DSN 非空时:
+- Error/Warn 自动推 Sentry(<code>min_level</code> 可调)
+- <code>event_type</code> / <code>severity</code> / <code>finance_risk</code> / <code>biz_id</code> / <code>trace_id</code> 等自动成 Sentry tag
+- 其余字段进 <code>zap_fields</code> context
+- 进程退出 <code>FlushSentry()</code> 兜底</p>
+<h2 id="部署侧配置">部署侧配置</h2>
+<h3 id="A-fluent-bit-docker-compose">A. fluent-bit(docker-compose)</h3>
+<p>机 A 的 <code>docker-compose.yml</code>:</p>
+<pre><code class="language-yaml">services:
+  go-app:
+    image: kickoff/go-app:v0.3.3
+    container_name: go-app
+    restart: unless-stopped
+    environment:
+      - APP_APP_ENV=production
+      - APP_APP_LOG_LEVEL=info
+      - APP_APP_SENTRY_DSN=${SENTRY_DSN}
+      - APP_APP_SENTRY_ENVIRONMENT=production
+      - APP_APP_SENTRY_RELEASE=${GIT_TAG}
+      - APP_APP_SENTRY_MIN_LEVEL=error
+      - APP_APP_SENTRY_SAMPLE_RATE=1.0
+      - APP_APP_SENTRY_FLUSH_TIMEOUT_MS=2000
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
+        max-file: "5"
+        tag: "{{.Name}}"
+
+  fluent-bit:
+    image: fluent/fluent-bit:3.0
+    container_name: fluent-bit
+    restart: unless-stopped
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - ./parsers.conf:/fluent-bit/etc/parsers.conf:ro
+    depends_on: [go-app]
+</code></pre>
+<p><code>fluent-bit.conf</code>:</p>
+<pre><code class="language-ini">[SERVICE]
+    Parsers_File parsers.conf
+    Flush 5
+    Log_Level info
+
+[INPUT]
+    Name tail
+    Tag docker.go-app
+    Path /var/lib/docker/containers/*/*-json.log
+    Parser docker
+    Refresh_Interval 5
+    # 只抓 go-app 容器的日志(按 attrs.tag 过滤)
+    Path_Key file
+
+[FILTER]
+    Name grep
+    Match docker.go-app
+    Regex file go-app
+
+[FILTER]
+    Name parser
+    Match docker.go-app
+    Key_Name log
+    Parser json
+    Reserve_Data On
+
+[OUTPUT]
+    Name loki
+    Match docker.go-app
+    Host logs-prod-006.grafana.net   # Grafana Cloud Loki endpoint
+    Port 443
+    Tls On
+    Http_User ${GRAFANA_USER}
+    Http_Passwd ${GRAFANA_API_KEY}
+    Labels job=go-app,host=${HOST_NAME},env=production
+    LabelKeys event_type,severity,finance_risk,level
+    LineFormat json
+</code></pre>
+<p><code>parsers.conf</code>(标准):</p>
+<pre><code class="language-ini">[PARSER]
+    Name docker
+    Format json
+    Time_Key time
+    Time_Format %Y-%m-%dT%H:%M:%S.%LZ
+    Time_Keep On
+</code></pre>
+<p>机 B 同样部署一份 fluent-bit(读 mysql/redis docker 日志),<code>Labels host=mach-b</code>。</p>
+<h3 id="B-Sentry-接入">B. Sentry 接入</h3>
+<ol>
+<li><strong>sentry.io 后台</strong>:创建项目(选 Go),拿 DSN</li>
+<li><strong>服务端 env</strong>(写 <code>.env</code>,加 <code>.gitignore</code>):
+   <code>bash
+   SENTRY_DSN=https://&lt;key&gt;@o123456.ingest.sentry.io/&lt;project&gt;
+   GIT_TAG=v0.3.3</code></li>
+<li><strong>Sentry Alert Rules</strong>(后台 → Alerts → Create Alert):
+   - <code>tag:event_type=wallet.recharge.amount_mismatch</code> → Telegram + 邮件(立即页人)
+   - <code>tag:finance_risk=critical</code> → Telegram + 邮件
+   - <code>tag:event_type=payment.callback.state_stuck</code> 任意 → Telegram 开发群
+   - Issue count &gt; 10/min → 邮件</li>
+<li><strong>集成 Telegram bot + 邮件</strong>:
+   - <strong>Telegram</strong>:<code>@BotFather</code> 建 bot 拿 token;<code>@kickoff_alerts</code> 群把 bot 拉进去拿 chat_id<ul>
+<li>Sentry 用 generic Webhook,target URL:<code>https://api.telegram.org/bot&lt;TOKEN&gt;/sendMessage?chat_id=&lt;CHAT_ID&gt;</code></li>
+<li>或在 Sentry 外加一层中转(<code>scripts/sentry-to-tg.sh</code>,把 Sentry JSON body 转成 Markdown 推 TG),格式更好看</li>
+<li><strong>邮件</strong>:Sentry 后台 → User Settings → Notifications → 加邮件订阅,critical 走邮件,error 仅看板</li>
+<li><strong>可选 PagerDuty / Opsgenie</strong>:夜间 critical 自动电话(本期不上,留 critical 双通道兜底即可)</li>
+</ul>
+</li>
+</ol>
+<h3 id="C-Grafana-Loki-业务看板">C. Grafana / Loki 业务看板</h3>
+<p><strong>Grafana Cloud 免费档</strong>(50 GB Loki + 14 天保留 + Grafana 看板,3 用户),够 2 机初期用。</p>
+<p>注册 → 拿到 <code>GRAFANA_USER</code> / <code>GRAFANA_API_KEY</code> 填上面 fluent-bit.conf。</p>
+<p>基于日志规则(LogQL)告警:</p>
+<pre><code># 24h 内 finance_risk 事件总数 &gt; 5 触发
+sum(rate({job="go-app"} | json | finance_risk != "" [24h])) &gt; 5
+
+# 充值失败率 &gt; 5%
+sum(rate({job="go-app"} | json | event_type=~"wallet.recharge.*" | level="error" [5m]))
+/
+sum(rate({job="go-app"} | json | event_type=~"wallet.recharge.*" [5m])) &gt; 0.05
+</code></pre>
+<p>详细告警规则模板:后续 ops 在 Grafana 后台落地。</p>
+<h2 id="推荐-SaaS-选型-避免自建">推荐 SaaS 选型(避免自建)</h2>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>自建成本</th>
+<th>推荐 SaaS</th>
+<th>免费档够用度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>日志聚合</td>
+<td>Loki + Grafana + 对象存储 ≈ 半台机</td>
+<td><strong>Grafana Cloud</strong></td>
+<td>50 GB/月,2 机用足够</td>
+</tr>
+<tr>
+<td>错误告警</td>
+<td>Sentry self-hosted 至少 4G 内存</td>
+<td><strong>sentry.io</strong></td>
+<td>5k events/月,初期足够</td>
+</tr>
+<tr>
+<td>国内备选</td>
+<td>—</td>
+<td><strong>阿里云 SLS / 腾讯云 CLS</strong></td>
+<td>按量 ¥10-50/月,延迟更低</td>
+</tr>
+</tbody>
+</table>
+<p><strong>结论</strong>:除非合规强制要求数据不出境(目前 PRD 没要求),否则<strong>全部走 SaaS</strong>。两机的运维心智负担足够低,可专注业务。</p>
+<h2 id="关键事件-告警通道对照">关键事件 → 告警通道对照</h2>
+<table>
+<thead>
+<tr>
+<th>event_type</th>
+<th>severity</th>
+<th>通道</th>
+<th>处理 SLA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>wallet.bank_account.decrypt_failed</code></td>
+<td>critical</td>
+<td>Telegram + 邮件</td>
+<td>1h</td>
+</tr>
+<tr>
+<td><code>wallet.recharge.amount_mismatch</code></td>
+<td>critical</td>
+<td>Telegram + 邮件(抄送财务)</td>
+<td>4h(人工对账)</td>
+</tr>
+<tr>
+<td><code>payment.callback.state_stuck</code></td>
+<td>error</td>
+<td>Telegram 开发群</td>
+<td>8h</td>
+</tr>
+<tr>
+<td><code>payment.callback.malformed_json</code></td>
+<td>warning</td>
+<td>Sentry 看板</td>
+<td>24h</td>
+</tr>
+<tr>
+<td><code>wallet.recharge.third_party_match_failed</code></td>
+<td>error</td>
+<td>Telegram 开发群</td>
+<td>8h</td>
+</tr>
+<tr>
+<td><code>wallet.recharge.order_leaked_to_sweeper</code></td>
+<td>warning</td>
+<td>Sentry 看板</td>
+<td>24h</td>
+</tr>
+<tr>
+<td><code>config.enc_key.invalid</code></td>
+<td>critical</td>
+<td>启动失败 + Telegram + 邮件</td>
+<td>启动即查</td>
+</tr>
+</tbody>
+</table>
+<h2 id="验证清单-prod-上线前">验证清单(prod 上线前)</h2>
+<ul>
+<li>[ ] <code>.env</code> 已写 <code>SENTRY_DSN</code> / <code>GRAFANA_USER</code> / <code>GRAFANA_API_KEY</code>(不进 git,文件权限 600)</li>
+<li>[ ] <code>docker-compose up -d</code> 拉起 go-app + fluent-bit</li>
+<li>[ ] 测试错误能在 Sentry 看到(打条 Error 日志或访问报错路由)</li>
+<li>[ ] Grafana Cloud 能查到 <code>{job="go-app"}</code> 日志流</li>
+<li>[ ] 上述 7 个 event_type 的告警规则已在 Sentry 后台启用</li>
+<li>[ ] Telegram bot + 邮件 已联通(各发一条 test alert)</li>
+<li>[ ] 机 A 故障切机 B 的 runbook 已写并演练 ≥ 1 次</li>
+</ul>
+<h2 id="字段保留约定">字段保留约定</h2>
+<p><strong>改字段名 = 破坏告警</strong>。新增字段随意,改名 / 删除需要同步运维侧告警规则。
+受影响 key:
+- <code>event_type</code> / <code>severity</code> / <code>finance_risk</code> / <code>biz_id</code>(Loki/Sentry 索引)
+- <code>trace_id</code> / <code>request_id</code> / <code>user_id</code>(链路追踪)
+- <code>trade_no</code> / <code>order_no</code> / <code>cb_id</code> / <code>channel</code>(资金对账)</p>
+<p>完整清单见 <code>internal/pkg/logger/sentry_hook.go</code> <code>sentryTagKeys</code>。</p>
+<h2 id="扩容信号-什么时候才上-k8s">扩容信号(什么时候才上 k8s)</h2>
+<p>满足以下<strong>任一</strong>条件再考虑 k3s/k8s,否则保持 docker-compose:</p>
+<ul>
+<li>节点数 ≥ 5</li>
+<li>微服务数 ≥ 6 且需要相互调用编排</li>
+<li>业务出现"早晚高峰需 3x 弹性扩容"的需求</li>
+<li>团队有专职 SRE(1 人以上)</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#部署架构决策-为什么不上-k8s">部署架构决策(为什么不上 k8s)</a></li><li style="margin-left:0.0rem"><a href="#两机部署架构">两机部署架构</a></li><li style="margin-left:0.0rem"><a href="#总体架构">总体架构</a></li><li style="margin-left:0.0rem"><a href="#后端就绪情况-无需运维改动">后端就绪情况(无需运维改动)</a></li><li style="margin-left:0.8rem"><a href="#1-结构化日志">1. 结构化日志</a></li><li style="margin-left:0.8rem"><a href="#2-标准字段工厂">2. 标准字段工厂</a></li><li style="margin-left:0.8rem"><a href="#3-Sentry-自动推送">3. Sentry 自动推送</a></li><li style="margin-left:0.0rem"><a href="#部署侧配置">部署侧配置</a></li><li style="margin-left:0.8rem"><a href="#A-fluent-bit-docker-compose">A. fluent-bit(docker-compose)</a></li><li style="margin-left:0.8rem"><a href="#B-Sentry-接入">B. Sentry 接入</a></li><li style="margin-left:0.8rem"><a href="#C-Grafana-Loki-业务看板">C. Grafana / Loki 业务看板</a></li><li style="margin-left:0.0rem"><a href="#推荐-SaaS-选型-避免自建">推荐 SaaS 选型(避免自建)</a></li><li style="margin-left:0.0rem"><a href="#关键事件-告警通道对照">关键事件 → 告警通道对照</a></li><li style="margin-left:0.0rem"><a href="#验证清单-prod-上线前">验证清单(prod 上线前)</a></li><li style="margin-left:0.0rem"><a href="#字段保留约定">字段保留约定</a></li><li style="margin-left:0.0rem"><a href="#扩容信号-什么时候才上-k8s">扩容信号(什么时候才上 k8s)</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-05-25</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Shell</span><span class="tag">Go</span><span class="tag">Docker</span><span class="tag">Kubernetes</span><span class="tag">Nginx</span><span class="tag">MySQL</span><span class="tag">Redis</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/operations/logging-and-alerting.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605251234-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-%E6%97%A5%E5%BF%97%E8%81%9A%E5%90%88%20%2B%20%E5%AE%9E%E6%97%B6%E5%91%8A%E8%AD%A6%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>日志聚合 + 实时告警接入指南。本文属于业务系统运维 / 小蓝直播，状态:v0.3.3 后端已就绪;部署侧 fluent-bit / Sentry 配置由 ops 完成。 部署形态: docker-compose 两机方案 (不上 k8s,见下方决策)。 结论 :2 台机器上 k8s 是显著过度设计,选 dock…</p>
+      <p>关键词：小蓝直播、Shell、Go、Docker、Kubernetes、Nginx、MySQL、Redis、业务系统运维、业务系统运维 / 小蓝直播、日志聚合 + 实时告警接入指南</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a0be44965929.html"><small>上一篇</small>Kickoff 首页 模块 PRD · kickoff-home</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-149865c80bb2.html"><small>下一篇</small>Agent Log — 风控告警 MVP 落地</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-358d25373d8e.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
