@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Agent 工作日志 · disable-level-privileges｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="Agent 工作日志 · disable-level-privileges。本文属于业务系统运维 / 小蓝直播，日期：2026-05-26 Agent：Codex 任务：下线等级特权逻辑，修复低等级用户无法发送弹幕 PRD： docs/prd/modules/kickoff-live.md 、 docs/prd/…">
+  <meta name="keywords" content="小蓝直播，Shell，Python，Go，自动化，CDN，安全运维，故障排查，业务系统运维，业务系统运维 / 小蓝直播，Agent 工作日志 · disable-level-privileges">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cecd4ee58e9a.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cecd4ee58e9a.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605260000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BPython-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%20%C2%B7%20disable-level-privileges.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Agent 工作日志 · disable-level-privileges">
+  <meta property="og:description" content="Agent 工作日志 · disable-level-privileges。本文属于业务系统运维 / 小蓝直播，日期：2026-05-26 Agent：Codex 任务：下线等级特权逻辑，修复低等级用户无法发送弹幕 PRD： docs/prd/modules/kickoff-live.md 、 docs/prd/…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cecd4ee58e9a.html">
+  <meta property="article:published_time" content="2026-05-26T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-26 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Agent 工作日志 · disable-level-privileges">
+  <meta name="twitter:description" content="Agent 工作日志 · disable-level-privileges。本文属于业务系统运维 / 小蓝直播，日期：2026-05-26 Agent：Codex 任务：下线等级特权逻辑，修复低等级用户无法发送弹幕 PRD： docs/prd/modules/kickoff-live.md 、 docs/prd/…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cecd4ee58e9a.html#article","headline":"Agent 工作日志 · disable-level-privileges","description":"Agent 工作日志 · disable-level-privileges。本文属于业务系统运维 / 小蓝直播，日期：2026-05-26 Agent：Codex 任务：下线等级特权逻辑，修复低等级用户无法发送弹幕 PRD： docs/prd/modules/kickoff-live.md 、 docs/prd/…","datePublished":"2026-05-26T00:00:00+08:00","dateModified":"2026-05-26 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Shell","Python","Go","自动化","CDN","安全运维","故障排查","业务系统运维","业务系统运维 / 小蓝直播","Agent 工作日志 · disable-level-privileges"],"wordCount":2272,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cecd4ee58e9a.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cecd4ee58e9a.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Agent 工作日志 · disable-level-privileges","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cecd4ee58e9a.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>Agent 工作日志 · disable-level-privileges</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>Agent 工作日志 · disable-level-privileges</h1>
+      <p class="lede">Agent 工作日志 · disable-level-privileges。本文属于业务系统运维 / 小蓝直播，日期：2026-05-26 Agent：Codex 任务：下线等级特权逻辑，修复低等级用户无法发送弹幕 PRD： docs/prd/modules/kickoff-live.md 、 docs/prd/…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-26T00:00:00+08:00">发布于 2026-05-26</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,272 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-26-disable-level-privileges.md</code></p>
+<p>整理日期：2026-05-26 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>日期：2026-05-26
+Agent：Codex
+任务：下线等级特权逻辑，修复低等级用户无法发送弹幕</p>
+<h2 id="输入资料">输入资料</h2>
+<ul>
+<li>PRD：<code>docs/prd/modules/kickoff-live.md</code>、<code>docs/prd/modules/kickoff-predict.md</code>、<code>docs/prd/modules/kickoff-h5.md</code>、<code>docs/prd/modules/kickoff-member.md</code>、<code>docs/prd/modules/kickoff-home.md</code>、<code>docs/prd/modules/kickoff-admin.md</code></li>
+<li>需求 ID：LIVE-005、LIVE-006、LIVE-017、PRED-016、H5-026、HOME-010、MEM-002、MEM-008、ADM-402、ADM-907、ADM-908</li>
+<li>设计图：用户提供的接口截图</li>
+<li>设计图文件名：telegram-cloud-photo-size-5-6100591549361098949-y.jpg</li>
+<li>设计图尺寸：830 x 484</li>
+<li>视觉要点：接口返回 <code>30004</code> / <code>等级不足，无法发送弹幕</code>，与当前产品口径冲突</li>
+<li>接口/契约：<code>docs/api/openapi.yaml</code>、<code>packages/contracts/openapi/v1.yaml</code></li>
+<li>团队可读文档：<code>docs/frontend-integration.md</code></li>
+<li>AI/工具控制文件：<code>AGENTS.md</code></li>
+<li>项目 Overlay：不涉及</li>
+<li>其他：遵守 <code>AGENTS.md</code> §14，不修改 <code>apps/web/**</code></li>
+</ul>
+<h2 id="本次目标">本次目标</h2>
+<ol>
+<li>写入项目规则：等级特权已下线，不再按旧 H5 原型恢复等级门槛或等级特效。</li>
+<li>修复服务端发弹幕因 <code>user.level</code> 为 0 返回等级不足的问题。</li>
+<li>去除代码中的等级特权行为，包括弹幕颜色、进场特效、竞猜等级限额、等级配置接口、用户等级展示字段和后台等级配置管理。</li>
+</ol>
+<h2 id="修改文件">修改文件</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AGENTS.md</code></td>
+<td>新增“产品口径：等级特权已下线”，明确发弹幕不需要等级</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/service/live/service.go</code></td>
+<td>删除发弹幕等级门槛，弹幕颜色统一为默认色</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/service/live/service_test.go</code></td>
+<td>增加 L0 用户可发送弹幕测试，更新默认色断言</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/service/predict/service.go</code></td>
+<td>删除投注单次/单日等级限额逻辑</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/http/public/level.go</code></td>
+<td>删除公开等级配置接口实现</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/dto/level.go</code></td>
+<td>删除等级配置响应 DTO</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/http/router/public.go</code></td>
+<td>下线 <code>GET /api/v1/level/config</code></td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/http/router/admin.go</code></td>
+<td>下线后台 <code>level-config</code> 管理路由</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/http/adminapi/system_dashboard.go</code></td>
+<td>删除后台等级配置 handler</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/service/admin/system.go</code></td>
+<td>删除后台等级配置读写逻辑</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/dto/auth.go</code></td>
+<td>用户响应不再包含 <code>level</code> / <code>level_name</code></td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/dto/member.go</code></td>
+<td>个人中心不再包含 <code>level_name</code> / <code>level_progress</code></td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/pkg/wsx/protocol.go</code></td>
+<td>弹幕和进场 WS payload 不再携带用户等级</td>
+</tr>
+<tr>
+<td><code>apps/admin/src/api/index.ts</code></td>
+<td>后台 API client 移除等级配置与用户等级字段</td>
+</tr>
+<tr>
+<td><code>apps/admin/src/views/users/UserListView.vue</code></td>
+<td>用户列表移除等级列</td>
+</tr>
+<tr>
+<td><code>apps/admin/src/views/users/UserDetailView.vue</code></td>
+<td>用户详情移除等级展示</td>
+</tr>
+<tr>
+<td><code>apps/admin/src/views/rooms/RoomDetailView.vue</code></td>
+<td>房间观众列表移除 VIP/等级口径</td>
+</tr>
+<tr>
+<td><code>docs/prd/modules/kickoff-live.md</code></td>
+<td>更新直播间 PRD：弹幕、进场、rank_badge 不再按等级实现</td>
+</tr>
+<tr>
+<td><code>docs/prd/modules/kickoff-predict.md</code></td>
+<td>更新竞猜 PRD：投注限额不再按等级区分</td>
+</tr>
+<tr>
+<td><code>docs/prd/modules/kickoff-h5.md</code></td>
+<td>更新 H5 PRD：等级徽章、L5+ 标识、L6 广播不交付</td>
+</tr>
+<tr>
+<td><code>docs/prd/modules/kickoff-home.md</code></td>
+<td>首页等级特权入口改为不交付</td>
+</tr>
+<tr>
+<td><code>docs/prd/modules/kickoff-member.md</code></td>
+<td>个人中心升级进度和等级弹窗改为不交付</td>
+</tr>
+<tr>
+<td><code>docs/prd/modules/kickoff-admin.md</code></td>
+<td>后台观众/弹幕/用户管理去掉等级特权口径</td>
+</tr>
+<tr>
+<td><code>docs/prd/product-prd.md</code></td>
+<td>产品总 PRD 明确 C 端用户等级体系已下线</td>
+</tr>
+<tr>
+<td><code>docs/api/openapi.yaml</code></td>
+<td>更新接口契约描述，移除等级特权口径</td>
+</tr>
+<tr>
+<td><code>packages/contracts/openapi/v1.yaml</code></td>
+<td>同步前端可读契约</td>
+</tr>
+</tbody>
+</table>
+<h2 id="核心决策">核心决策</h2>
+<ol>
+<li>历史 <code>level</code> 字段允许兼容保留，但不得再参与权限、限额、颜色、特效或排序。</li>
+<li>发弹幕的服务端限制只保留登录、直播间状态、字数、频控、账户状态等非等级条件。</li>
+<li><code>/level/config</code> 和后台 <code>/level-config</code> 不再作为产品接口提供；历史表/字段仅按已发布 migration 留存，不作为功能入口。</li>
+</ol>
+<h2 id="框架价值判断">框架价值判断</h2>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本次沉淀属于规则、模板、脚本、技术栈适配器，还是项目资产</td>
+<td>项目资产与项目规则</td>
+</tr>
+<tr>
+<td>哪些内容可复用到下一个项目</td>
+<td>“旧原型冲突时以项目 AGENTS 产品口径为准”的规则写法</td>
+</tr>
+<tr>
+<td>哪些内容只属于当前项目</td>
+<td>小蓝看夜场的等级特权下线口径</td>
+</tr>
+<tr>
+<td>是否可规模化到多 Agent、多端、多 Web surface、多服务或 Go Gin + Laravel</td>
+<td>可作为多 Agent 约束，防止后续按旧原型回填等级特权</td>
+</tr>
+<tr>
+<td>是否涉及 Scale Profile：mvp / growth / scale / enterprise</td>
+<td>mvp</td>
+</tr>
+<tr>
+<td>是否影响项目 Overlay：project.config.json / docs/project</td>
+<td>不影响</td>
+</tr>
+<tr>
+<td>是否增加了自动校验或 CI 门禁</td>
+<td>增加服务层回归测试</td>
+</tr>
+<tr>
+<td>是否降低了 Agent 偷懒空间</td>
+<td>是，AGENTS 明确禁止按旧原型恢复等级特权</td>
+</tr>
+</tbody>
+</table>
+<h2 id="需求追踪">需求追踪</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>需求 ID</td>
+<td>LIVE-005、LIVE-006、LIVE-017、PRED-016、H5-026、HOME-010、MEM-002、MEM-008、ADM-402、ADM-907、ADM-908</td>
+</tr>
+<tr>
+<td>需求总账</td>
+<td><code>docs/prd/requirements.md</code></td>
+</tr>
+<tr>
+<td>模块 PRD</td>
+<td><code>docs/prd/modules/kickoff-live.md</code>、<code>docs/prd/modules/kickoff-predict.md</code>、<code>docs/prd/modules/kickoff-h5.md</code>、<code>docs/prd/modules/kickoff-home.md</code>、<code>docs/prd/modules/kickoff-member.md</code>、<code>docs/prd/modules/kickoff-admin.md</code></td>
+</tr>
+<tr>
+<td>OpenAPI / Event / DTO</td>
+<td><code>docs/api/openapi.yaml</code>、<code>packages/contracts/openapi/v1.yaml</code></td>
+</tr>
+<tr>
+<td>验收证据行</td>
+<td><code>docs/qa/project-acceptance.md</code>、<code>docs/qa/acceptance-evidence.md</code></td>
+</tr>
+<tr>
+<td>不涉及契约的原因</td>
+<td>涉及契约，已同步</td>
+</tr>
+</tbody>
+</table>
+<h2 id="工程规范">工程规范</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>代码规范</td>
+<td><code>docs/quality/code-standards.md</code></td>
+</tr>
+<tr>
+<td>数据表设计</td>
+<td><code>docs/architecture/database-design-standards.md</code></td>
+</tr>
+<tr>
+<td>是否影响数据表 / migration / 索引</td>
+<td>不新增 migration；历史 <code>level</code> / <code>level_configs</code> 字段表按已发布 migration 留存，不再由业务读写为特权</td>
+</tr>
+<tr>
+<td>是否使用表设计模板</td>
+<td>不涉及</td>
+</tr>
+<tr>
+<td>是否影响账本、事务、幂等或审计</td>
+<td>不影响资金账本；竞猜投注仍保留原事务与活动限制</td>
+</tr>
+<tr>
+<td>规范例外与原因</td>
+<td>无</td>
+</tr>
+</tbody>
+</table>
+<h2 id="架构能力门禁">架构能力门禁</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>架构能力门禁</td>
+<td><code>docs/architecture/capability-gates.md</code></td>
+</tr>
+<tr>
+<td>结构化证据</td>
+<td><code>docs/qa/architecture-capability-evidence.json</code></td>
+</tr>
+<tr>
+<td>是否只是 CRUD</td>
+<td>否，涉及业务规则收敛</td>
+</tr>
+<tr>
+<td>涉及能力</td>
+<td>权限安全 / 数据一致性</td>
+</tr>
+<tr>
+<td>不适用项及原因</td>
+<td>不涉及异步、CDN、搜索、推荐</td>
+</tr>
+<tr>
+<td>当前 MVP 边界</td>
+<td>去除等级特权，保留基础互动与活动配置限制</td>
+</tr>
+<tr>
+<td>未来迁移成本</td>
+<td>如未来恢复会员体系，需要重新 PRD、ADR、契约和风控评审</td>
+</tr>
+<tr>
+<td>升级触发指标</td>
+<td>新增会员权益或等级付费能力</td>
+</tr>
+<tr>
+<td>高风险触发项</td>
+<td>权限 / 用户数据</td>
+</tr>
+<tr>
+<td>能力门禁结论</td>
+<td>允许合入</td>
+</tr>
+</tbody>
+</table>
+<h2 id="运维影响">运维影响</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>运维就绪</td>
+<td><code>docs/operations/ops-readiness.md</code></td>
+</tr>
+<tr>
+<td>部署</td>
+<td>需要发布 go-app 服务</td>
+</tr>
+<tr>
+<td>回滚</td>
+<td>回滚本次提交即可恢复旧逻辑，但产品口径不建议回滚</td>
+</tr>
+<tr>
+<td>密钥</td>
+<td>不涉及</td>
+</tr>
+<tr>
+<td>备份恢复</td>
+<td>不涉及</td>
+</tr>
+<tr>
+<td>观测</td>
+<td>不涉及新增指标；接口错误率可观测低等级弹幕恢复情况</td>
+</tr>
+<tr>
+<td>Runbook</td>
+<td>不涉及</td>
+</tr>
+</tbody>
+</table>
+<h2 id="红蓝对抗">红蓝对抗</h2>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>蓝队自检</td>
+<td>低等级用户发送弹幕已有回归测试；公开/后台等级配置接口已下线；用户响应和 WS payload 不再输出等级特权字段</td>
+</tr>
+<tr>
+<td>红队质疑</td>
+<td>历史客户端可能继续请求 <code>/level/config</code>；产品口径为接口下线，前端需同步删除旧调用</td>
+</tr>
+<tr>
+<td>合入判断</td>
+<td>可提交 Reviewer 复核</td>
+</tr>
+</tbody>
+</table>
+<h2 id="完成申请与裁决">完成申请与裁决</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent Claim</td>
+<td>implemented / verified</td>
+</tr>
+<tr>
+<td>Project Decision</td>
+<td>pending-review</td>
+</tr>
+<tr>
+<td>完成申请</td>
+<td>已实现并验证发弹幕不再依赖等级，等级特权旧口径已从后端逻辑、后台管理、契约文档中移除</td>
+</tr>
+<tr>
+<td>完成裁决</td>
+<td>待 Reviewer / Owner / QA / CI / Release Manager 裁决</td>
+</tr>
+</tbody>
+</table>
+<h2 id="验证记录">验证记录</h2>
+<table>
+<thead>
+<tr>
+<th>命令/方式</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>./devtools/framework status</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>python3 scripts/validate-runtime-environment.py</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>python3 scripts/validate-prd.py</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>python3 scripts/validate-engineering-standards.py</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>python3 scripts/validate-capability-gates.py</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>python3 scripts/validate-completion-claims.py</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>cd services/go-app &amp;&amp; go test ./internal/service/live -run TestSendDanmakuAllowsLevelZeroUser -count=1</code></td>
+<td>修复前失败，复现 <code>等级不足，无法发送弹幕</code></td>
+</tr>
+<tr>
+<td><code>cd services/go-app &amp;&amp; go test ./internal/service/live -run 'TestSendDanmaku|TestListDanmaku' -count=1</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>cd services/go-app &amp;&amp; go test ./...</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>npm run build --workspace apps/admin</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>npm run check:openapi</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>npm run check:contract</code></td>
+<td>通过</td>
+</tr>
+</tbody>
+</table>
+<h2 id="前端页面验收">前端页面验收</h2>
+<p>本次未修改 <code>apps/web/**</code>、<code>apps/mobile/**</code>；已修改允许范围内的 <code>apps/admin/**</code>，移除后台用户等级展示和 VIP 观众口径。</p>
+<h2 id="风险与待办">风险与待办</h2>
+<ol>
+<li>H5/Web 前端仍需删除旧的等级弹窗、等级进场、等级弹幕和 <code>/level/config</code> 调用。</li>
+<li>线上发布后建议观察弹幕发送接口 30004 / 403 类错误是否下降。</li>
+<li>如未来新增会员权益，需要重新走 PRD、ADR、契约和风控评审，不得直接复用旧等级原型。</li>
+</ol>
+<h2 id="交接说明">交接说明</h2>
+<p>下一位 Agent 或工程师需要知道：</p>
+<ol>
+<li>不要根据旧 H5 原型恢复 L0/L1/L6 等级门槛、等级颜色或等级广播。</li>
+<li>历史 <code>level</code> 字段仅为已发布表结构遗留，不再作为权限、特权或展示字段。</li>
+<li>本次未修改 H5 实现，若前端仍展示等级特权，需要由前端团队按新契约删除旧调用和旧 UI。</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#输入资料">输入资料</a></li><li style="margin-left:0.0rem"><a href="#本次目标">本次目标</a></li><li style="margin-left:0.0rem"><a href="#修改文件">修改文件</a></li><li style="margin-left:0.0rem"><a href="#核心决策">核心决策</a></li><li style="margin-left:0.0rem"><a href="#框架价值判断">框架价值判断</a></li><li style="margin-left:0.0rem"><a href="#需求追踪">需求追踪</a></li><li style="margin-left:0.0rem"><a href="#工程规范">工程规范</a></li><li style="margin-left:0.0rem"><a href="#架构能力门禁">架构能力门禁</a></li><li style="margin-left:0.0rem"><a href="#运维影响">运维影响</a></li><li style="margin-left:0.0rem"><a href="#红蓝对抗">红蓝对抗</a></li><li style="margin-left:0.0rem"><a href="#完成申请与裁决">完成申请与裁决</a></li><li style="margin-left:0.0rem"><a href="#验证记录">验证记录</a></li><li style="margin-left:0.0rem"><a href="#前端页面验收">前端页面验收</a></li><li style="margin-left:0.0rem"><a href="#风险与待办">风险与待办</a></li><li style="margin-left:0.0rem"><a href="#交接说明">交接说明</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-05-26</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Go</span><span class="tag">自动化</span><span class="tag">CDN</span><span class="tag">安全运维</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-26-disable-level-privil…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605260000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BPython-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%20%C2%B7%20disable-level-privileges.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Agent 工作日志 · disable-level-privileges。本文属于业务系统运维 / 小蓝直播，日期：2026-05-26 Agent：Codex 任务：下线等级特权逻辑，修复低等级用户无法发送弹幕 PRD： docs/prd/modules/kickoff-live.md 、 docs/prd/…</p>
+      <p>关键词：小蓝直播、Shell、Python、Go、自动化、CDN、安全运维、故障排查、业务系统运维、业务系统运维 / 小蓝直播、Agent 工作日志 · disable-level-privileges</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8dbe65d78542.html"><small>上一篇</small>Agent 工作日志 · data-enc-key-base64-fix</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6c470602b5f4.html"><small>下一篇</small>Agent 工作日志 · live-ws-contract-fix</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cecd4ee58e9a.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

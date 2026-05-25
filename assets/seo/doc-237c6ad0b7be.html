@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Web 端直播间 WebSocket / 弹幕接口契约脱节清单（待后端修复）｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="Web 端直播间 WebSocket / 弹幕接口契约脱节清单（待后端修复）。本文属于业务系统运维 / 小蓝直播，Web 直播间已完成去 mock：弹幕、进场、连击、观看人数改走 GET /danmaku 历史 + WS 推送，主推竞猜走 /activities ，打赏接真实 POST /tip 。前端 严格按契…">
+  <meta name="keywords" content="小蓝直播，故障排查，数据库恢复，源码与配置，业务系统运维，业务系统运维 / 小蓝直播，Web 端直播间 WebSocket / 弹幕接口契约脱节清单（待后端修复）">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-237c6ad0b7be.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-237c6ad0b7be.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605260000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2B%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5%2B%E6%95%B0%E6%8D%AE%E5%BA%93%E6%81%A2%E5%A4%8D-Web%20%E7%AB%AF%E7%9B%B4%E6%92%AD%E9%97%B4%20WebSocket%20-%20%E5%BC%B9%E5%B9%95%E6%8E%A5%E5%8F%A3%E5%A5%91%E7%BA%A6%E8%84%B1%E8%8A%82%E6%B8%85%E5%8D%95%EF%BC%88%E5%BE%85%E5%90%8E%E7%AB%AF%E4%BF%AE%E5%A4%8D%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Web 端直播间 WebSocket / 弹幕接口契约脱节清单（待后端修复）">
+  <meta property="og:description" content="Web 端直播间 WebSocket / 弹幕接口契约脱节清单（待后端修复）。本文属于业务系统运维 / 小蓝直播，Web 直播间已完成去 mock：弹幕、进场、连击、观看人数改走 GET /danmaku 历史 + WS 推送，主推竞猜走 /activities ，打赏接真实 POST /tip 。前端 严格按契…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-237c6ad0b7be.html">
+  <meta property="article:published_time" content="2026-05-26T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-26 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Web 端直播间 WebSocket / 弹幕接口契约脱节清单（待后端修复）">
+  <meta name="twitter:description" content="Web 端直播间 WebSocket / 弹幕接口契约脱节清单（待后端修复）。本文属于业务系统运维 / 小蓝直播，Web 直播间已完成去 mock：弹幕、进场、连击、观看人数改走 GET /danmaku 历史 + WS 推送，主推竞猜走 /activities ，打赏接真实 POST /tip 。前端 严格按契…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-237c6ad0b7be.html#article","headline":"Web 端直播间 WebSocket / 弹幕接口契约脱节清单（待后端修复）","description":"Web 端直播间 WebSocket / 弹幕接口契约脱节清单（待后端修复）。本文属于业务系统运维 / 小蓝直播，Web 直播间已完成去 mock：弹幕、进场、连击、观看人数改走 GET /danmaku 历史 + WS 推送，主推竞猜走 /activities ，打赏接真实 POST /tip 。前端 严格按契…","datePublished":"2026-05-26T00:00:00+08:00","dateModified":"2026-05-26 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","故障排查","数据库恢复","源码与配置","业务系统运维","业务系统运维 / 小蓝直播","Web 端直播间 WebSocket / 弹幕接口契约脱节清单（待后端修复）"],"wordCount":1076,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-237c6ad0b7be.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-237c6ad0b7be.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Web 端直播间 WebSocket / 弹幕接口契约脱节清单（待后端修复）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-237c6ad0b7be.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>Web 端直播间 WebSocket / 弹幕接口契约脱节清单（待后端修复）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>Web 端直播间 WebSocket / 弹幕接口契约脱节清单（待后端修复）</h1>
+      <p class="lede">Web 端直播间 WebSocket / 弹幕接口契约脱节清单（待后端修复）。本文属于业务系统运维 / 小蓝直播，Web 直播间已完成去 mock：弹幕、进场、连击、观看人数改走 GET /danmaku 历史 + WS 推送，主推竞猜走 /activities ，打赏接真实 POST /tip 。前端 严格按契…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-26T00:00:00+08:00">发布于 2026-05-26</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,076 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-26-web-live-ws-contract-mismatch.md</code></p>
+<p>整理日期：2026-05-26 00:00｜日期依据：文件名日期</p>
+<p>日期：2026-05-26
+来源：apps/web 直播间去 mock、对接真实接口 + WS 联调
+用途：交后端团队对接，推动 WS 推送与弹幕接口按 OpenAPI 契约 §16 修复
+权威契约：<code>https://admin-dev.54-151-131-132.sslip.io/docs/openapi.yaml</code> §16（唯一源 <code>packages/contracts/openapi/v1.yaml</code>）
+实测对象：<code>wss://api-dev.54-151-131-132.sslip.io/ws/v1/live/{room_id}</code>、<code>GET /api/v1/live/room/{room_id}/danmaku</code>
+实测房间：<code>21102876273147905</code>（常驻测试直播间，<code>match: null</code>、无竞猜活动）</p>
+</blockquote>
+<h2 id="结论先行">结论先行</h2>
+<p>Web 直播间已完成去 mock：弹幕、进场、连击、观看人数改走 <code>GET /danmaku</code> 历史 + WS 推送，主推竞猜走 <code>/activities</code>，打赏接真实 <code>POST /tip</code>。前端<strong>严格按契约 §16 的 type 码与字段实现，未做任何字段适配</strong>（按团队约定，前端不写转换器迁就后端错误返回）。</p>
+<p>但实测当前 dev 后端的 WS 推送协议与契约脱节，导致<strong>对接当前后端时 WS 弹幕 / 进场 / 连击 / 观看人数不生效</strong>；弹幕历史接口直接 500。后端按契约修齐后，前端无需改动即可恢复。</p>
+<p>下列各项均经实测核实（WS 握手抓帧 + curl）。</p>
+<hr/>
+<h2 id="W1-阻断-WS-envelope-结构与契约-16-3-不符">W1【阻断】WS envelope 结构与契约 §16.3 不符</h2>
+<p><strong>影响</strong>：所有 WS 推送均无法被前端正确识别 / 去重。</p>
+<p><strong>契约定义</strong>（§16.3 双向通用 envelope）：</p>
+<pre><code class="language-json">{ "type": "live.danmaku.received", "msg_id": "01H9XYZ-...-ABC", "ts": 1719404400123, "trace_id": "abc123", "data": { } }
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>契约</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td>string</td>
+<td>类型码（§16.6）</td>
+</tr>
+<tr>
+<td><code>msg_id</code></td>
+<td>string</td>
+<td>消息唯一 ID，<strong>客户端按此去重（§16.8 强制）</strong></td>
+</tr>
+<tr>
+<td><code>ts</code></td>
+<td>int64</td>
+<td>服务端 Unix ms</td>
+</tr>
+<tr>
+<td><code>trace_id</code></td>
+<td>string</td>
+<td>链路追踪</td>
+</tr>
+<tr>
+<td><code>data</code></td>
+<td>object</td>
+<td>类型相关 payload</td>
+</tr>
+</tbody>
+</table>
+<p><strong>后端实际推送</strong>（握手后立即抓到的帧）：</p>
+<pre><code class="language-json">{ "type": "viewer_count", "data": { "count": 1 }, "ts_ms": 1779788188037 }
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>契约字段</th>
+<th>后端实际</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ts</code></td>
+<td><code>ts_ms</code></td>
+<td>字段名不符</td>
+</tr>
+<tr>
+<td><code>msg_id</code></td>
+<td>（缺）</td>
+<td>缺字段，且 §16.8 要求按 msg_id 去重，无此字段则无法去重</td>
+</tr>
+<tr>
+<td><code>trace_id</code></td>
+<td>（缺）</td>
+<td>缺字段</td>
+</tr>
+</tbody>
+</table>
+<p><strong>建议</strong>：envelope 补齐 <code>msg_id</code> / <code>trace_id</code>，<code>ts_ms</code> 改 <code>ts</code>。</p>
+<hr/>
+<h2 id="W2-阻断-WS-type-码-data-字段与契约-16-6-不符-观看人数">W2【阻断】WS type 码 / data 字段与契约 §16.6 不符（观看人数）</h2>
+<p><strong>影响</strong>：观看人数实时刷新不生效（前端监听 <code>live.viewer.count.updated</code>，收不到）。</p>
+<p><strong>契约定义</strong>（§16.6 直播间通道 S→C）：</p>
+<table>
+<thead>
+<tr>
+<th>type 码</th>
+<th>data 关键字段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>live.viewer.count.updated</code></td>
+<td><code>viewer_count, peak_count</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>后端实际</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>契约</th>
+<th>后端实际</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>type <code>live.viewer.count.updated</code></td>
+<td><code>viewer_count</code></td>
+<td>类型码不符（契约规则 <code>&lt;channel&gt;.&lt;entity&gt;.&lt;action&gt;</code> 点分小写，后端用扁平下划线码）</td>
+</tr>
+<tr>
+<td><code>data.viewer_count</code></td>
+<td><code>data.count</code></td>
+<td>字段名不符</td>
+</tr>
+<tr>
+<td><code>data.peak_count</code></td>
+<td>（缺）</td>
+<td>缺字段</td>
+</tr>
+</tbody>
+</table>
+<p><strong>其余 type 码大概率同样脱节，但未抓到样本</strong>：测试房间 <code>match: null</code>、无进行中竞猜，仅推 <code>viewer_count</code>，未能观察到以下契约事件的实际形态，请后端自查全表对齐 §16.6，或提供一个有进行中赛事 / 可发弹幕的房间以便前端复核：</p>
+<ul>
+<li><code>live.danmaku.received</code>（<code>user_id, nickname, level, color, content, sent_ts</code>）</li>
+<li><code>live.enter.normal / highlight / banner / fullscreen / global</code>（<code>user_id, nickname, level[, source_room_id]</code>）</li>
+<li><code>live.tip.combo</code>（<code>user_id, nickname, combo_count, diamond_amount</code>）</li>
+<li><code>live.system.notice</code> / <code>live.danmaku.deleted</code> 等</li>
+</ul>
+<p><strong>建议</strong>：WS type 码全表 + data 字段按 §16.6 对齐。</p>
+<hr/>
+<h2 id="W3-严重-GET-api-v1-live-room-room_id-danmaku-弹幕历史-500">W3【严重】<code>GET /api/v1/live/room/{room_id}/danmaku</code> 弹幕历史 500</h2>
+<p><strong>影响</strong>：进房拉不到历史弹幕。前端已对该兜底接口静默降级（不弹 toast），但历史始终为空。</p>
+<p><strong>契约定义</strong>：返回 <code>LiveDanmaku[]</code>（<code>msg_id, room_id, user, content, color, sent_at, sent_ts</code>），支持 query <code>since_ts</code> / <code>limit</code>。</p>
+<p><strong>后端实际返回</strong>：</p>
+<pre><code class="language-json">{ "code": 10001, "message": "服务器异常", "data": null }
+</code></pre>
+<p><strong>建议</strong>：修复该接口 500。</p>
+<hr/>
+<h2 id="附-处理原则">附：处理原则</h2>
+<ul>
+<li>上述脱节前端<strong>未做适配映射</strong>，按契约 type 码 / 字段实现 + 仅加防御性降级（弹幕历史失败静默不阻塞实时链路）。</li>
+<li>修复方向应为「后端对齐契约 §16」或「先改契约 <code>packages/contracts/openapi/v1.yaml</code> 再 <code>make openapi</code> 同步、前端按新契约调整」，两者择一，避免前后端各自为政。</li>
+<li>WS 心跳（<code>client.ping</code> / <code>server.pong</code>，§16.4）、重连（§16.5）、close code（§16.7）前端已按契约实现；若后端实现有出入，请一并在本清单补充。</li>
+</ul>
+<p>验证：单测 9/9 通过；typecheck 无新增报错；浏览器实测 desktop + 移动 theater 渲染正常、聊天为空（无 mock）、竞猜卡按 activities 隐藏、后端 danmaku 500 时无 toast 刷屏。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#结论先行">结论先行</a></li><li style="margin-left:0.0rem"><a href="#W1-阻断-WS-envelope-结构与契约-16-3-不符">W1【阻断】WS envelope 结构与契约 §16.3 不符</a></li><li style="margin-left:0.0rem"><a href="#W2-阻断-WS-type-码-data-字段与契约-16-6-不符-观看人数">W2【阻断】WS type 码 / data 字段与契约 §16.6 不符（观看人数）</a></li><li style="margin-left:0.0rem"><a href="#W3-严重-GET-api-v1-live-room-room_id-danmaku-弹幕历史-500">W3【严重】 GET /api/v1/live/room/{room_id}/danmaku 弹幕历史 500</a></li><li style="margin-left:0.0rem"><a href="#附-处理原则">附：处理原则</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-05-26</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-26-web-live-ws-contract…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605260000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2B%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5%2B%E6%95%B0%E6%8D%AE%E5%BA%93%E6%81%A2%E5%A4%8D-Web%20%E7%AB%AF%E7%9B%B4%E6%92%AD%E9%97%B4%20WebSocket%20-%20%E5%BC%B9%E5%B9%95%E6%8E%A5%E5%8F%A3%E5%A5%91%E7%BA%A6%E8%84%B1%E8%8A%82%E6%B8%85%E5%8D%95%EF%BC%88%E5%BE%85%E5%90%8E%E7%AB%AF%E4%BF%AE%E5%A4%8D%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Web 端直播间 WebSocket / 弹幕接口契约脱节清单（待后端修复）。本文属于业务系统运维 / 小蓝直播，Web 直播间已完成去 mock：弹幕、进场、连击、观看人数改走 GET /danmaku 历史 + WS 推送，主推竞猜走 /activities ，打赏接真实 POST /tip 。前端 严格按契…</p>
+      <p>关键词：小蓝直播、故障排查、数据库恢复、源码与配置、业务系统运维、业务系统运维 / 小蓝直播、Web 端直播间 WebSocket / 弹幕接口契约脱节清单（待后端修复）</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-65866d2a9438.html"><small>上一篇</small>Agent 工作日志：H5 直播间接口契约与前端文档对齐</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cdd1b5677b47.html"><small>下一篇</small>Web 端联调发现的后端契约脱节清单（待后端修复）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-237c6ad0b7be.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
