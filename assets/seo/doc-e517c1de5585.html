@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>H5 公开 API 黑盒测试问题报告（第 2 轮 · 修复后复测）｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="H5 公开 API 黑盒测试问题报告（第 2 轮 · 修复后复测）。本文属于业务系统运维 / 小蓝直播，API base ： https://api-dev.54-151-131-132.sslip.io （dev 共享环境） 测试方式 ：前端 Playwright 实际请求抓取 + curl 直连补测，与权威契…">
+  <meta name="keywords" content="小蓝直播，Shell，故障排查，源码与配置，业务系统运维，业务系统运维 / 小蓝直播，H5 公开 API 黑盒测试问题报告（第 2 轮 · 修复后复测）">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e517c1de5585.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e517c1de5585.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605270000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2B%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5-H5%20%E5%85%AC%E5%BC%80%20API%20%E9%BB%91%E7%9B%92%E6%B5%8B%E8%AF%95%E9%97%AE%E9%A2%98%E6%8A%A5%E5%91%8A%EF%BC%88%E7%AC%AC%202%20%E8%BD%AE%20%C2%B7%20%E4%BF%AE%E5%A4%8D%E5%90%8E%E5%A4%8D%E6%B5%8B%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="H5 公开 API 黑盒测试问题报告（第 2 轮 · 修复后复测）">
+  <meta property="og:description" content="H5 公开 API 黑盒测试问题报告（第 2 轮 · 修复后复测）。本文属于业务系统运维 / 小蓝直播，API base ： https://api-dev.54-151-131-132.sslip.io （dev 共享环境） 测试方式 ：前端 Playwright 实际请求抓取 + curl 直连补测，与权威契…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e517c1de5585.html">
+  <meta property="article:published_time" content="2026-05-27T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-27 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="H5 公开 API 黑盒测试问题报告（第 2 轮 · 修复后复测）">
+  <meta name="twitter:description" content="H5 公开 API 黑盒测试问题报告（第 2 轮 · 修复后复测）。本文属于业务系统运维 / 小蓝直播，API base ： https://api-dev.54-151-131-132.sslip.io （dev 共享环境） 测试方式 ：前端 Playwright 实际请求抓取 + curl 直连补测，与权威契…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e517c1de5585.html#article","headline":"H5 公开 API 黑盒测试问题报告（第 2 轮 · 修复后复测）","description":"H5 公开 API 黑盒测试问题报告（第 2 轮 · 修复后复测）。本文属于业务系统运维 / 小蓝直播，API base ： https://api-dev.54-151-131-132.sslip.io （dev 共享环境） 测试方式 ：前端 Playwright 实际请求抓取 + curl 直连补测，与权威契…","datePublished":"2026-05-27T00:00:00+08:00","dateModified":"2026-05-27 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Shell","故障排查","源码与配置","业务系统运维","业务系统运维 / 小蓝直播","H5 公开 API 黑盒测试问题报告（第 2 轮 · 修复后复测）"],"wordCount":1923,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e517c1de5585.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e517c1de5585.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"H5 公开 API 黑盒测试问题报告（第 2 轮 · 修复后复测）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e517c1de5585.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>H5 公开 API 黑盒测试问题报告（第 2 轮 · 修复后复测）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>H5 公开 API 黑盒测试问题报告（第 2 轮 · 修复后复测）</h1>
+      <p class="lede">H5 公开 API 黑盒测试问题报告（第 2 轮 · 修复后复测）。本文属于业务系统运维 / 小蓝直播，API base ： https://api-dev.54-151-131-132.sslip.io （dev 共享环境） 测试方式 ：前端 Playwright 实际请求抓取 + curl 直连补测，与权威契…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-27T00:00:00+08:00">发布于 2026-05-27</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,923 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/apps/web/docs/test-reports/api-issues.md</code></p>
+<p>整理日期：2026-05-27 00:00｜日期依据：正文日期</p>
+</blockquote>
+<h2 id="概要">概要</h2>
+<ul>
+<li><strong>测试时间</strong>：2026-05-27（UTC+8）</li>
+<li><strong>API base</strong>：<code>https://api-dev.54-151-131-132.sslip.io</code>（dev 共享环境）</li>
+<li><strong>测试方式</strong>：前端 Playwright 实际请求抓取 + curl 直连补测，与权威契约比对</li>
+<li><strong>契约来源</strong>：admin-dev <code>/docs/openapi.yaml</code>（拉取至 <code>/tmp/kickoff-openapi.yaml</code>，OpenAPI 3.x）</li>
+<li><strong>统一响应格式</strong>：<code>{code, message, data, trace_id, timestamp}</code> —— 被测端点均符合 envelope 约定</li>
+<li><strong>对比基线</strong>：第 1 轮报告 <code>test-reports1/api-issues.md</code>（fix 42c9119 后复测）</li>
+</ul>
+<h3 id="总体结论">总体结论</h3>
+<p>上一轮多项后端隐患已修复（提现限额、profile 形状、竞猜活动形状、MatchStage 枚举改小写），envelope / 鉴权 401 / 资源 404 / 参数校验普遍正确，测试期间无真实扣款落单。</p>
+<p>本轮遗留问题集中在 <strong>赛事（Match）模块契约脱节</strong>（status=<code>UNKNOWN</code>、stage=<code>semi_final</code> 与契约不符、<code>/match/{id}</code> 返回 HomeMatch 形而非 Match）和几处 <strong>配置 / 错误码</strong> 细节。</p>
+<table>
+<thead>
+<tr>
+<th>严重度</th>
+<th>数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1</td>
+<td>3</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>6</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="一-上一轮问题复测-已修复">一、上一轮问题复测：已修复 ✅</h2>
+<table>
+<thead>
+<tr>
+<th>上轮编号</th>
+<th>问题</th>
+<th>本轮状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ISS-04</td>
+<td>提现限额自相矛盾（max=50000/daily=200000）</td>
+<td>✅ 已修复——<code>withdraw/info</code> 返回 <code>max_amount_rmb=5000.00</code>、<code>daily_max_rmb=5000.00</code>，与业务规则一致；并补齐 monthly/kyc/available_channels=[alipay] 等字段</td>
+</tr>
+<tr>
+<td>—（旧 profile drift）</td>
+<td><code>/me/profile</code> 扁平 rmb_balance/diamond_balance</td>
+<td>✅ 已对齐——返回嵌套 <code>wallet:{diamond_balance,diamond_frozen,diamond_withdrawable}</code> + <code>account/username/cumulative_recharge_rmb</code></td>
+</tr>
+<tr>
+<td>—（旧 predict drift）</td>
+<td><code>predict/activities</code> 缺 options/market_type</td>
+<td>✅ 已对齐——返回 <code>match_brief/market_type/pool_total/options[{option_key,name,rate,...}]</code></td>
+</tr>
+<tr>
+<td>ISS-03（部分）</td>
+<td>MatchStage 枚举大小写脱节</td>
+<td>⚠️ 部分修复——契约已改小写 <code>[group_stage,round_of_16,quarter,semi,final,third_place]</code>，<code>group_stage/final</code> 已与后端一致；但后端半决赛仍返回 <code>semi_final</code>≠契约 <code>semi</code>（见 ISS-A3）</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="二-本轮问题汇总表">二、本轮问题汇总表</h2>
+<table>
+<thead>
+<tr>
+<th>编号</th>
+<th>端点</th>
+<th>关联用例</th>
+<th>严重度</th>
+<th>问题</th>
+<th>实际 vs 契约</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ISS-A1</td>
+<td>GET <code>/api/v1/home/today-matches</code>、<code>/schedule/days</code>、<code>/match/{id}</code>、<code>/match/{id}/score</code></td>
+<td>TC-SCH、TC-LIVE-007</td>
+<td><strong>P1</strong></td>
+<td><code>status</code> 返回 <code>"UNKNOWN"</code>，不在任何枚举内，且永不切换状态</td>
+<td>HomeMatch.status 枚举 <code>[UPCOMING,LIVE,ENDED,CANCEL]</code> / Match.status=<code>MatchStatus</code>；实际全部 <code>UNKNOWN</code></td>
+</tr>
+<tr>
+<td>ISS-A2</td>
+<td>GET <code>/api/v1/match/{id}</code></td>
+<td>—</td>
+<td><strong>P1</strong></td>
+<td>赛事详情 data 仍是 HomeMatch 形，非契约 <code>Match</code> schema</td>
+<td>实际 <code>match_no/round/start_at_ms/home_score/away_score</code>；契约 <code>kickoff_at/kickoff_ts/score_home/score_away/group_name/period/phase/minute/stoppage/mvp_*</code></td>
+</tr>
+<tr>
+<td>ISS-A3</td>
+<td>全部含 stage 的端点</td>
+<td>TC-SCH-005</td>
+<td><strong>P1</strong></td>
+<td>半决赛 stage 值与契约不符</td>
+<td>实际 <code>semi_final</code>；契约 <code>MatchStage</code> 枚举为 <code>semi</code>（前端 STAGE_LABEL 双键 <code>semi</code>/<code>semi_final</code> 兜底）</td>
+</tr>
+<tr>
+<td>ISS-A4</td>
+<td>GET <code>/api/v1/match/{id}/score</code></td>
+<td>—</td>
+<td>P2</td>
+<td>字段名脱节</td>
+<td>实际 <code>home_score/away_score/status/updated_at_ms</code>；契约 <code>score_home/score_away/period/minute/status(MatchStatus)</code></td>
+</tr>
+<tr>
+<td>ISS-A5</td>
+<td>GET <code>/api/v1/match/{id}/goals</code></td>
+<td>—</td>
+<td>P2</td>
+<td>data 包裹层不一致</td>
+<td>实际 <code>{items:[]}</code>；契约 data 直接是数组 <code>[MatchGoal]</code></td>
+</tr>
+<tr>
+<td>ISS-A6</td>
+<td>POST <code>/api/v1/wallet/recharge/init</code></td>
+<td>TC-RCG-008/015</td>
+<td>P2</td>
+<td>「通道未启用」返回 HTTP 500 + 通用码 10001</td>
+<td>已知业务状态不应 500；应受控 4xx + 业务码。响应体 <code>{code:10001,"大白鲨支付通道未启用"}</code></td>
+</tr>
+<tr>
+<td>ISS-A7</td>
+<td>GET <code>/config/system</code> vs <code>/wallet/recharge/breakdown</code></td>
+<td>TC-RCG-006</td>
+<td>P2</td>
+<td>最小充值两处不一致</td>
+<td>config <code>recharge_min_amount=6</code>；breakdown 实拒 &lt;10「单次充值不能低于 10 RMB」</td>
+</tr>
+<tr>
+<td>ISS-A8</td>
+<td>GET <code>/config/system</code></td>
+<td>TC-RCG-001</td>
+<td>P2</td>
+<td>预设金额配置可疑</td>
+<td><code>recharge_amount_options=[6,30,100,300,500,2000]</code>（含 6、30 碎额，与常见预设/前端不一致，需确认是否有效配置）</td>
+</tr>
+<tr>
+<td>ISS-A9</td>
+<td>POST <code>/api/v1/auth/register</code></td>
+<td>TC-AUTH-010</td>
+<td>P2</td>
+<td>业务规则「账号首字符非数字」未校验</td>
+<td><code>account=1abcde9</code> 注册返回 <code>code 0</code> 成功（前端严格拦截，后端未校验；契约 pattern <code>^[a-zA-Z0-9_]{6,20}$</code> 也未约束首字符）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>附带轻微项（未单列）：<code>home/hot-predicts</code>、<code>predict/activities</code> 部分活动 <code>match_id</code> 返回空串 <code>""</code>（应为 SnowflakeId 或 null）。</p>
+</blockquote>
+<hr/>
+<h2 id="三-P1-详情">三、P1 详情</h2>
+<h3 id="ISS-A1-status-UNKNOWN-不在枚举且状态永不切换-P1">ISS-A1 <code>status:"UNKNOWN"</code> 不在枚举且状态永不切换（P1）</h3>
+<ul>
+<li><strong>现象</strong>：<code>home/today-matches</code>、<code>schedule/days</code>、<code>match/{id}</code>、<code>match/{id}/score</code> 的赛事 <code>status</code> 全部返回 <code>"UNKNOWN"</code>。</li>
+<li><strong>契约</strong>：<code>HomeMatch.status</code> 枚举 <code>[UPCOMING,LIVE,ENDED,CANCEL]</code>；<code>Match.status</code> 引用 <code>MatchStatus</code>=<code>[UPCOMING,LIVE,ENDED,CANCEL]</code>。<code>UNKNOWN</code> 不在任一枚举。</li>
+<li><strong>影响</strong>：前端被迫把 <code>UNKNOWN</code> 映射为「未开赛」，已过开赛时间的赛事也不切换（TC-SCH-002/009、TC-LIVE-007 倒计时归零状态切换无法验证）。这是首页/赛程「状态不实时」的根因（前端按映射处理，不写适配）。</li>
+<li><strong>建议</strong>：后端按开赛时间 / 赛况返回正确的 <code>MatchStatus</code> 枚举值。</li>
+</ul>
+<h3 id="ISS-A2-match-id-返回-HomeMatch-形而非契约-Match-P1">ISS-A2 <code>/match/{id}</code> 返回 HomeMatch 形而非契约 Match（P1）</h3>
+<ul>
+<li><strong>实际 keys</strong>：<code>id, match_no, stage, round, status, start_at_ms, venue, home_team, away_team, home_score, away_score</code>。</li>
+<li><strong>契约 Match</strong>：<code>id, stage, group_name, home_team, away_team, venue, kickoff_at, kickoff_ts, status, score_home, score_away, period, phase, minute, stoppage, mvp_player, mvp_team</code>。</li>
+<li><strong>脱节</strong>：时间字段 <code>start_at_ms</code>（契约 <code>kickoff_at/kickoff_ts</code>）、比分 <code>home_score/away_score</code>（契约 <code>score_home/score_away</code>）、多了 <code>match_no/round</code>、缺 <code>group_name/period/phase/minute/stoppage/mvp_*</code>。</li>
+<li><strong>建议</strong>：<code>/match/{id}</code> 按 <code>Match</code> schema 返回完整详情字段。</li>
+</ul>
+<h3 id="ISS-A3-半决赛-stage-值-semi_final-契约-semi-P1">ISS-A3 半决赛 stage 值 <code>semi_final</code> ≠ 契约 <code>semi</code>（P1）</h3>
+<ul>
+<li><strong>现象</strong>：后端各端点半决赛返回 <code>stage:"semi_final"</code>；契约 <code>MatchStage</code> 枚举为 <code>semi</code>。<code>group_stage</code>、<code>final</code> 已一致。</li>
+<li><strong>影响</strong>：契约消费方（ts-sdk 类型）按 <code>semi</code> 生成，<code>semi_final</code> 为枚举外值。前端 <code>adapters.ts</code> STAGE_LABEL 已用 <code>semi</code>/<code>semi_final</code> 双键兜底（源码注释亦标注此 drift）。</li>
+<li><strong>建议</strong>：后端统一返回契约规范值 <code>semi</code>（或契约补 <code>semi_final</code>），二选一对齐。</li>
+</ul>
+<hr/>
+<h2 id="四-P2-详情">四、P2 详情</h2>
+<ul>
+<li><strong>ISS-A4 <code>/match/{id}/score</code></strong>：实际 <code>home_score/away_score/status/updated_at_ms</code>；契约 <code>score_home/score_away/period/minute/status</code>。字段名 + 缺字段 + status=UNKNOWN。</li>
+<li><strong>ISS-A5 <code>/match/{id}/goals</code></strong>：data 包成 <code>{items:[]}</code>，契约 data 应直接是 <code>[MatchGoal]</code> 数组。</li>
+<li><strong>ISS-A6 <code>recharge/init</code> 500</strong>：通道未启用属已知业务条件，返回 HTTP 500 + 通用内部错误码 10001（前端能展示 message，但 500 不利于区分系统故障与业务拒绝）。建议改受控 4xx + 专用业务码。</li>
+<li><strong>ISS-A7 最小充值不一致</strong>：<code>config/system.recharge_min_amount=6</code> 与 <code>recharge/breakdown</code> 实拒 &lt;10 矛盾，二者应统一（业务规则 / 用例为 10）。</li>
+<li><strong>ISS-A8 预设金额可疑</strong>：<code>recharge_amount_options=[6,30,100,300,500,2000]</code> 含 6、30 碎额，与产品预设不符，需确认是否为有效运营配置（前端目前未消费此字段，硬编码自己的预设，见 web 报告 N-03）。</li>
+<li><strong>ISS-A9 注册首字符校验缺失</strong>：后端接受 <code>1abcde9</code>（首字符数字）注册成功，业务规则要求首字符非数字。前端已严格拦截，后端应补齐（防直连接口绕过）。</li>
+</ul>
+<hr/>
+<h2 id="五-通过项-happy-path-已修复确认">五、通过项（happy path / 已修复确认）</h2>
+<ul>
+<li><strong>auth</strong>：register happy（返回 access/refresh token + user）；弱密码/账号过短/非法字符/重复账号/未成年 → 对应 400/409；login happy + 错误密码 401；refresh happy + 坏 token 401；pick-end 200。</li>
+<li><strong>home</strong>：<code>live-rooms</code> 返回 3 个 LIVE 房间含 <code>streamer.display_name</code>（本轮已有真实主播名「彭于晏」）；<code>my-predicts</code>（鉴权）正常。</li>
+<li><strong>wallet</strong>：<code>recharge/breakdown?amount=100&amp;channel=alipay</code> → fee 5.00 / net 95.00 / diamond 95（费率正确）；下界 7 拒、上界 50001 拒（「单次充值不能高于 50000 RMB」，后端有兜底）；<code>withdraw/info</code> 限额已对齐 5000；<code>recharge-records/withdraw-records</code> 空分页结构正确；写接口无 token → 401。</li>
+<li><strong>config / ads</strong>：<code>config/system</code> wallet 配置齐全（fee 0.05 / diamond_rmb 1.00 / withdraw 10~5000）；<code>ads/slots</code> 返回 H5 各 slot creative。</li>
+<li><strong>predict</strong>：<code>activities</code> 返回 5 条，status OPEN/CLOSED/SETTLED 符合枚举，options/match_brief/market_type 齐全；<code>bet</code> 无 token 401、金额越界 400、CLOSED/已截止活动 400（校验先于扣款，无落单）。</li>
+<li><strong>me</strong>：<code>profile</code>（鉴权）返回嵌套 wallet + cumulative_recharge_rmb；<code>PATCH /me/username</code> 校验 + 改名成功。</li>
+</ul>
+<hr/>
+<h2 id="六-未能测试的端点及原因">六、未能测试的端点及原因</h2>
+<table>
+<thead>
+<tr>
+<th>端点</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST <code>/wallet/recharge/init</code> 成功路径 + status/cancel 轮询</td>
+<td>dev「大白鲨支付通道未启用」（init 返回 500），无可用通道，避免真实下单</td>
+</tr>
+<tr>
+<td>POST <code>/wallet/withdraw/submit</code> 成功路径</td>
+<td>需绑定支付宝 + 可提现余额（当前 0），且 dev 无充值通道造钻石</td>
+</tr>
+<tr>
+<td>POST <code>/live/room/{id}/tip</code> 成功路径</td>
+<td>打赏需钻石余额（当前 0），未充值，避免扣款</td>
+</tr>
+<tr>
+<td>POST <code>/predict/bet</code> 成功落单</td>
+<td>需余额 + 处于真正可押注（OPEN 且未过 close_ts）的活动；现有活动多已截止/开奖</td>
+</tr>
+<tr>
+<td>POST <code>/me/kyc/submit</code></td>
+<td>依赖第三方实人 <code>biz_token</code>，无法构造</td>
+</tr>
+</tbody>
+</table>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#概要">概要</a></li><li style="margin-left:0.8rem"><a href="#总体结论">总体结论</a></li><li style="margin-left:0.0rem"><a href="#一-上一轮问题复测-已修复">一、上一轮问题复测：已修复 ✅</a></li><li style="margin-left:0.0rem"><a href="#二-本轮问题汇总表">二、本轮问题汇总表</a></li><li style="margin-left:0.0rem"><a href="#三-P1-详情">三、P1 详情</a></li><li style="margin-left:0.8rem"><a href="#ISS-A1-status-UNKNOWN-不在枚举且状态永不切换-P1">ISS-A1 status:&quot;UNKNOWN&quot; 不在枚举且状态永不切换（P1）</a></li><li style="margin-left:0.8rem"><a href="#ISS-A2-match-id-返回-HomeMatch-形而非契约-Match-P1">ISS-A2 /match/{id} 返回 HomeMatch 形而非契约 Match（P1）</a></li><li style="margin-left:0.8rem"><a href="#ISS-A3-半决赛-stage-值-semi_final-契约-semi-P1">ISS-A3 半决赛 stage 值 semi_final ≠ 契约 semi （P1）</a></li><li style="margin-left:0.0rem"><a href="#四-P2-详情">四、P2 详情</a></li><li style="margin-left:0.0rem"><a href="#五-通过项-happy-path-已修复确认">五、通过项（happy path / 已修复确认）</a></li><li style="margin-left:0.0rem"><a href="#六-未能测试的端点及原因">六、未能测试的端点及原因</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-05-27</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Shell</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/apps/web/docs/test-reports/api-issues.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605270000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2B%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5-H5%20%E5%85%AC%E5%BC%80%20API%20%E9%BB%91%E7%9B%92%E6%B5%8B%E8%AF%95%E9%97%AE%E9%A2%98%E6%8A%A5%E5%91%8A%EF%BC%88%E7%AC%AC%202%20%E8%BD%AE%20%C2%B7%20%E4%BF%AE%E5%A4%8D%E5%90%8E%E5%A4%8D%E6%B5%8B%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>H5 公开 API 黑盒测试问题报告（第 2 轮 · 修复后复测）。本文属于业务系统运维 / 小蓝直播，API base ： https://api-dev.54-151-131-132.sslip.io （dev 共享环境） 测试方式 ：前端 Playwright 实际请求抓取 + curl 直连补测，与权威契…</p>
+      <p>关键词：小蓝直播、Shell、故障排查、源码与配置、业务系统运维、业务系统运维 / 小蓝直播、H5 公开 API 黑盒测试问题报告（第 2 轮 · 修复后复测）</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3de9d8ff3849.html"><small>上一篇</small>Agent 工作日志 · web-live-danmaku-overlay</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a4e674b3e8bc.html"><small>下一篇</small>Web / H5 端问题报告（第 2 轮 · 修复后复测）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e517c1de5585.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
