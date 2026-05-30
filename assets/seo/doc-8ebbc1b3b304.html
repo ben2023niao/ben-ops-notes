@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Agent 工作日志：敏感词词库 + admin 创建主播返 initpassword D3｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="Agent 工作日志：敏感词词库 + admin 创建主播返 initpassword D3。本文属于业务系统运维 / 小蓝直播，日期:2026-05-31 Agent:siggod / go-app 任务:实现弹幕敏感词缓存 + 检测;admin 新增主播自动生成 8 位临时密码并返回 PRD: docs/pr…">
+  <meta name="keywords" content="小蓝直播，Shell，Go，监控告警，自动化，安全运维，故障排查，数据库恢复，业务系统运维，业务系统运维 / 小蓝直播，Agent 工作日志：敏感词词库 + admin 创建主播返 initpassword D3">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8ebbc1b3b304.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8ebbc1b3b304.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605310000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%EF%BC%9A%E6%95%8F%E6%84%9F%E8%AF%8D%E8%AF%8D%E5%BA%93%20%2B%20admin%20%E5%88%9B%E5%BB%BA%E4%B8%BB%E6%92%AD%E8%BF%94%20initpassword%20D3.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Agent 工作日志：敏感词词库 + admin 创建主播返 initpassword D3">
+  <meta property="og:description" content="Agent 工作日志：敏感词词库 + admin 创建主播返 initpassword D3。本文属于业务系统运维 / 小蓝直播，日期:2026-05-31 Agent:siggod / go-app 任务:实现弹幕敏感词缓存 + 检测;admin 新增主播自动生成 8 位临时密码并返回 PRD: docs/pr…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8ebbc1b3b304.html">
+  <meta property="article:published_time" content="2026-05-31T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-31 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Agent 工作日志：敏感词词库 + admin 创建主播返 initpassword D3">
+  <meta name="twitter:description" content="Agent 工作日志：敏感词词库 + admin 创建主播返 initpassword D3。本文属于业务系统运维 / 小蓝直播，日期:2026-05-31 Agent:siggod / go-app 任务:实现弹幕敏感词缓存 + 检测;admin 新增主播自动生成 8 位临时密码并返回 PRD: docs/pr…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8ebbc1b3b304.html#article","headline":"Agent 工作日志：敏感词词库 + admin 创建主播返 initpassword D3","description":"Agent 工作日志：敏感词词库 + admin 创建主播返 initpassword D3。本文属于业务系统运维 / 小蓝直播，日期:2026-05-31 Agent:siggod / go-app 任务:实现弹幕敏感词缓存 + 检测;admin 新增主播自动生成 8 位临时密码并返回 PRD: docs/pr…","datePublished":"2026-05-31T00:00:00+08:00","dateModified":"2026-05-31 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Shell","Go","监控告警","自动化","安全运维","故障排查","数据库恢复","业务系统运维","业务系统运维 / 小蓝直播","Agent 工作日志：敏感词词库 + admin 创建主播返 initpassword D3"],"wordCount":1774,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8ebbc1b3b304.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8ebbc1b3b304.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Agent 工作日志：敏感词词库 + admin 创建主播返 initpassword D3","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8ebbc1b3b304.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>Agent 工作日志：敏感词词库 + admin 创建主播返 initpassword D3</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>Agent 工作日志：敏感词词库 + admin 创建主播返 initpassword D3</h1>
+      <p class="lede">Agent 工作日志：敏感词词库 + admin 创建主播返 initpassword D3。本文属于业务系统运维 / 小蓝直播，日期:2026-05-31 Agent:siggod / go-app 任务:实现弹幕敏感词缓存 + 检测;admin 新增主播自动生成 8 位临时密码并返回 PRD: docs/pr…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-31T00:00:00+08:00">发布于 2026-05-31</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,774 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-31-streamer-forbidden-d3.md</code></p>
+<p>整理日期：2026-05-31 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>日期:2026-05-31
+Agent:siggod / go-app
+任务:实现弹幕敏感词缓存 + 检测;admin 新增主播自动生成 8 位临时密码并返回</p>
+<h2 id="输入资料">输入资料</h2>
+<ul>
+<li>PRD:<code>docs/prd/modules/kickoff-admin.md</code> §直播运营违规告警、ADM-303 主播签约</li>
+<li>需求 ID:LIVE-101 D3</li>
+<li>接口/契约:<code>packages/contracts/openapi/v1.yaml</code> <code>/api/v1/admin/streamers</code> POST 调整</li>
+<li>上游 commit:<code>cd20297 feat(streamer): 开播/下播/改房间 + Zego webhook 兜底 [LIVE-101 D2]</code></li>
+</ul>
+<h2 id="本次目标">本次目标</h2>
+<ol>
+<li>敏感词词库内存缓存(原子指针),启动加载 + 5min 异步 reload,DB 失败保留旧值</li>
+<li>弹幕检测:BLOCK 拒发,MASK 替换 + 落库标记,ALERT 允许 + 落库标记</li>
+<li>admin 创建主播:自动 username + 8 位 init_password(明文返回仅 1 次),bcrypt 落库,[敏感内容已脱敏]</li>
+<li>live SendDanmaku 接入 forbidden checker,违规字段写入 live_chat_messages_*</li>
+</ol>
+<h2 id="修改文件">修改文件</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>packages/contracts/openapi/v1.yaml</code></td>
+<td>adminStreamerCreate 加 username 入参,返 init_password/username/streamer_no</td>
+</tr>
+<tr>
+<td><code>docs/api/openapi.yaml</code></td>
+<td>重生</td>
+</tr>
+<tr>
+<td><code>internal/model/forbidden_word.go</code></td>
+<td>NEW:ForbiddenWord 模型 + 严重度/动作常量</td>
+</tr>
+<tr>
+<td><code>internal/repository/forbiddenword/repo.go</code></td>
+<td>NEW:ListEnabled() 一次性全量,用于启动 + 定时同步</td>
+</tr>
+<tr>
+<td><code>internal/service/moderation/forbidden.go</code></td>
+<td>NEW:ForbiddenChecker 原子指针缓存 + Reload/StartAutoReload + Check;action 严重度走 priority 映射(BLOCK &gt; ALERT &gt; MASK &gt; NONE)</td>
+</tr>
+<tr>
+<td><code>internal/service/moderation/forbidden_test.go</code></td>
+<td>NEW:8 个 case 覆盖 hit/mask/alert/block/严重度选最重/dict 为空/reload 失败保留旧值/重复词去重</td>
+</tr>
+<tr>
+<td><code>internal/model/live.go</code></td>
+<td>LiveChatMessage 加 ViolationFlag/Severity/Action/Words/Handled 字段(B 段 migration 已加列)</td>
+</tr>
+<tr>
+<td><code>internal/service/live/service.go</code></td>
+<td>加 DanmakuChecker 接口(避免 live 反向依赖 moderation) + SetForbiddenChecker;SendDanmaku 接检测 + 三动作分流</td>
+</tr>
+<tr>
+<td><code>internal/service/live/forbidden_danmaku_test.go</code></td>
+<td>NEW:capturingChatRepo 捕获 inserted msg,4 个 case 覆盖 BLOCK/MASK/ALERT/无 checker</td>
+</tr>
+<tr>
+<td><code>internal/http/router/forbidden_adapter.go</code></td>
+<td>NEW:把 moderation.CheckResult 转 livesvc.ModerationResult,单向依赖</td>
+</tr>
+<tr>
+<td><code>internal/http/router/public.go</code></td>
+<td>装配 forbiddenChecker:启动加载 + 5min auto reload + 注入 liveService</td>
+</tr>
+<tr>
+<td><code>internal/dto/admin_modules.go</code></td>
+<td>加 AdminStreamerCreateResponse(id/streamer_no/username/init_password) + 入参 username 可选</td>
+</tr>
+<tr>
+<td><code>internal/service/admin/streamer.go</code></td>
+<td>Create 返 *AdminStreamerCreateResponse;生成 8 位 init_password(crypto/rand,排除易混 0/O/1/l/I)+ bcrypt + [敏感内容已脱敏]</td>
+</tr>
+<tr>
+<td><code>internal/service/admin/streamer_init_password_test.go</code></td>
+<td>NEW:3 case 覆盖长度/排除字符/随机性</td>
+</tr>
+<tr>
+<td><code>internal/http/adminapi/streamer.go</code></td>
+<td>Create handler 返 res 透传(原 gin.H{id} → svc 自然返 envelope)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="核心决策">核心决策</h2>
+<ol>
+<li><strong>缓存用 atomic.Pointer 而非 sync.RWMutex</strong>:Check 是热路径(每条弹幕都调),原子指针读 0 锁,reload 整体替换;实测词量 &lt; 1000 时 contains 扫一遍 &lt; 100us</li>
+<li><strong>action priority 映射函数化</strong>:DB 数值(1=NONE 2=MASK 3=BLOCK 4=ALERT)与业务严重度顺序不一致,单独函数明确 BLOCK &gt; ALERT &gt; MASK &gt; NONE 避免误读</li>
+<li><strong>live → moderation 单向依赖</strong>:live 包定义 <code>DanmakuChecker interface { Check(string) ModerationResult }</code>,router 装配时 adapter 转 shape;避免 live 反向 import 内容审核包</li>
+<li><strong>init_password 排除易混字符</strong>:字符集 53 个(去 0/O/o/1/l/L/I/i),8 位空间 ~6e13,运营截图/口传场景错认率显著下降</li>
+<li><strong>[敏感内容已脱敏] 在 service.Create 写入</strong>:与 D1 streamer.ChangePassword 联动,主播首登强制改密;无需 D1 端动手</li>
+<li><strong>forbidden DB 失败不阻塞启动</strong>:Reload 失败时 logger.Warn + checker 退化为空 dict(穿透模式),所有弹幕放行但有日志可追;比因为 forbidden_words 表暂时不可用导致 API server 启不起来更安全</li>
+</ol>
+<h2 id="框架价值判断">框架价值判断</h2>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本次沉淀属于规则、模板、脚本、技术栈适配器,还是项目资产</td>
+<td>项目资产 + atomic-pointer 内存缓存模式可外推</td>
+</tr>
+<tr>
+<td>哪些内容可复用到下一个项目</td>
+<td>atomic.Pointer 词库缓存模式、init_password 字符集设计、live↔moderation 单向依赖 adapter</td>
+</tr>
+<tr>
+<td>哪些内容只属于当前项目</td>
+<td>live_chat_messages 月分表的 violation 列定义</td>
+</tr>
+<tr>
+<td>是否可规模化到多 Agent、多端、多 Web surface、多服务或 Go Gin + Laravel</td>
+<td>缓存模式可,init_password 模式可,可以下沉成 pkg/passwordgen</td>
+</tr>
+<tr>
+<td>是否涉及 Scale Profile:mvp / growth / scale / enterprise</td>
+<td>mvp(词量 &lt; 1000);growth 阶段词量上来需换 AC 自动机</td>
+</tr>
+<tr>
+<td>是否影响项目 Overlay</td>
+<td>否</td>
+</tr>
+<tr>
+<td>是否增加了自动校验或 CI 门禁</td>
+<td>单测 +15 个 case(moderation 8 + live 4 + admin 3)</td>
+</tr>
+<tr>
+<td>是否降低了 Agent 偷懒空间</td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<h2 id="需求追踪">需求追踪</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>需求 ID</td>
+<td>LIVE-101 D3</td>
+</tr>
+<tr>
+<td>需求总账</td>
+<td><code>docs/prd/requirements.md</code></td>
+</tr>
+<tr>
+<td>模块 PRD</td>
+<td>kickoff-admin.md §违规告警 + ADM-303 主播签约</td>
+</tr>
+<tr>
+<td>OpenAPI / Event / DTO</td>
+<td>v1.yaml adminStreamerCreate 已重生</td>
+</tr>
+<tr>
+<td>验收证据行</td>
+<td>待 D smoke 阶段补</td>
+</tr>
+</tbody>
+</table>
+<h2 id="工程规范">工程规范</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>是否影响数据表 / migration / 索引</td>
+<td>B 段已加 forbidden_words 表 + live_chat_messages.violation_* 列</td>
+</tr>
+<tr>
+<td>是否使用表设计模板</td>
+<td>是</td>
+</tr>
+<tr>
+<td>是否影响账本、事务、幂等或审计</td>
+<td>影响审计:audit.Log admin.streamer.create 加 username 字段</td>
+</tr>
+<tr>
+<td>规范例外与原因</td>
+<td>无</td>
+</tr>
+</tbody>
+</table>
+<h2 id="架构能力门禁">架构能力门禁</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>是否只是 CRUD</td>
+<td>否</td>
+</tr>
+<tr>
+<td>涉及能力</td>
+<td>缓存(atomic.Pointer 词库)+ 权限安全(主播首登强制改密)+ 内容审核</td>
+</tr>
+<tr>
+<td>高风险触发项</td>
+<td>主播账号安全(init_password 明文回包仅 1 次,运营泄漏即账号失守)</td>
+</tr>
+<tr>
+<td>能力门禁结论</td>
+<td>允许合入</td>
+</tr>
+</tbody>
+</table>
+<h2 id="运维影响">运维影响</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>部署</td>
+<td>影响 cmd/api binary,启动多 1 个 reload goroutine,需重启</td>
+</tr>
+<tr>
+<td>回滚</td>
+<td>git revert + 不存在依赖的 schema 变化</td>
+</tr>
+<tr>
+<td>密钥</td>
+<td>不影响</td>
+</tr>
+<tr>
+<td>备份恢复</td>
+<td>不影响</td>
+</tr>
+<tr>
+<td>观测</td>
+<td>启动 log "forbidden_words reloaded count=N",reload 失败 Warn</td>
+</tr>
+<tr>
+<td>Runbook</td>
+<td>后台批量改完词需触发 reload(本期靠 5min 周期,运营改完 &lt; 5min 生效)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="红蓝对抗">红蓝对抗</h2>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>蓝队自检</td>
+<td>检测在原文上做 contains,MASK 后立刻替换避免次轮误命中;priority 函数显式排序避免数值陷阱;crypto/rand 取代 math/rand 防 init_password 可预测</td>
+</tr>
+<tr>
+<td>红队质疑</td>
+<td>(1) contains 算法无法识别拆字(草字头 → ⺾),v1.x 用 AC + 同形字归一;(2) init_password 仅一次返回,运营截图后聊天软件历史是授权安全测试面,Runbook 须强调即时清理;(3) reload goroutine 未做 ctx 取消测试,需 graceful shutdown 时校验</td>
+</tr>
+<tr>
+<td>合入判断</td>
+<td>合入(以上风险 v1.x 内迭代)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="完成申请与裁决">完成申请与裁决</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent Claim</td>
+<td>implemented</td>
+</tr>
+<tr>
+<td>Project Decision</td>
+<td>pending-review</td>
+</tr>
+</tbody>
+</table>
+<h2 id="验证记录">验证记录</h2>
+<table>
+<thead>
+<tr>
+<th>命令/方式</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>go build ./...</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>go vet ./...</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>go test -race -count=1 ./internal/service/moderation/... ./internal/service/live/... ./internal/service/streamer/... ./internal/service/admin/...</code></td>
+<td>全过</td>
+</tr>
+<tr>
+<td><code>make openapi</code></td>
+<td>docs/api/openapi.yaml 重生 + swagger-cli 通过</td>
+</tr>
+</tbody>
+</table>
+<h2 id="风险与待办">风险与待办</h2>
+<ol>
+<li>forbidden_words 后台 CRUD 接口未做,运营暂时只能直接改 DB + 等 5min reload(本期不影响主播主流程)</li>
+<li>弹幕 MASK 后落库的是 mask 后文本,原文找不回;后台违规审计若要看原文,需后续加 raw_content 字段</li>
+<li>live SendDanmaku 接口本期没改 OpenAPI(检测对前端透明:BLOCK 走 ErrParam,前端原有错误处理即可)</li>
+</ol>
+<h2 id="交接说明">交接说明</h2>
+<p>下一位 Agent / 工程师需要知道:</p>
+<ol>
+<li>运营在后台改词,本期没接 Reload 触发接口,改完等 5min 自动 reload;手动可在 admin debug 接口里加 POST /admin/moderation/forbidden-words/reload 调 forbiddenChecker.Reload(ctx)</li>
+<li>admin 创建主播返 init_password 明文,<strong>前端必须只显示一次 + 提示运营截图发给主播</strong>,不要存到任何持久化(localStorage / Cookie / 表单回填)</li>
+<li>D smoke 待跑:重启 api → adminStreamerCreate 拿 username/init_password → streamer login → start live → 发弹幕(命中/不命中)→ stop live</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#输入资料">输入资料</a></li><li style="margin-left:0.0rem"><a href="#本次目标">本次目标</a></li><li style="margin-left:0.0rem"><a href="#修改文件">修改文件</a></li><li style="margin-left:0.0rem"><a href="#核心决策">核心决策</a></li><li style="margin-left:0.0rem"><a href="#框架价值判断">框架价值判断</a></li><li style="margin-left:0.0rem"><a href="#需求追踪">需求追踪</a></li><li style="margin-left:0.0rem"><a href="#工程规范">工程规范</a></li><li style="margin-left:0.0rem"><a href="#架构能力门禁">架构能力门禁</a></li><li style="margin-left:0.0rem"><a href="#运维影响">运维影响</a></li><li style="margin-left:0.0rem"><a href="#红蓝对抗">红蓝对抗</a></li><li style="margin-left:0.0rem"><a href="#完成申请与裁决">完成申请与裁决</a></li><li style="margin-left:0.0rem"><a href="#验证记录">验证记录</a></li><li style="margin-left:0.0rem"><a href="#风险与待办">风险与待办</a></li><li style="margin-left:0.0rem"><a href="#交接说明">交接说明</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-05-31</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Shell</span><span class="tag">Go</span><span class="tag">监控告警</span><span class="tag">自动化</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-31-streamer-forbidden-d…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605310000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%EF%BC%9A%E6%95%8F%E6%84%9F%E8%AF%8D%E8%AF%8D%E5%BA%93%20%2B%20admin%20%E5%88%9B%E5%BB%BA%E4%B8%BB%E6%92%AD%E8%BF%94%20initpassword%20D3.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Agent 工作日志：敏感词词库 + admin 创建主播返 initpassword D3。本文属于业务系统运维 / 小蓝直播，日期:2026-05-31 Agent:siggod / go-app 任务:实现弹幕敏感词缓存 + 检测;admin 新增主播自动生成 8 位临时密码并返回 PRD: docs/pr…</p>
+      <p>关键词：小蓝直播、Shell、Go、监控告警、自动化、安全运维、故障排查、数据库恢复、业务系统运维、业务系统运维 / 小蓝直播、Agent 工作日志：敏感词词库 + admin 创建主播返 initpassword D3</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2b8aa866eaf3.html"><small>上一篇</small>Agent 工作日志：主播端鉴权 D1</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8546fc8fb2c8.html"><small>下一篇</small>dev-env-hotfix-502</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8ebbc1b3b304.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

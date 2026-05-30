@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Agent 工作日志：LIVE-101 D 阶段 smoke + 修两个落库 bug｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="Agent 工作日志：LIVE-101 D 阶段 smoke + 修两个落库 bug。本文属于业务系统运维 / 小蓝直播，日期:2026-05-31 Agent:siggod / go-app 任务:三端联调 smoke + 修 live_chat_messages 列名错配 D1 commit: 133f6da…">
+  <meta name="keywords" content="小蓝直播，Shell，Go，MySQL，自动化，故障排查，源码与配置，业务系统运维，业务系统运维 / 小蓝直播，Agent 工作日志：LIVE-101 D 阶段 smoke + 修两个落库 bug">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-843daf03deb9.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-843daf03deb9.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605310000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%EF%BC%9ALIVE-101%20D%20%E9%98%B6%E6%AE%B5%20smoke%20%2B%20%E4%BF%AE%E4%B8%A4%E4%B8%AA%E8%90%BD%E5%BA%93%20bug.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Agent 工作日志：LIVE-101 D 阶段 smoke + 修两个落库 bug">
+  <meta property="og:description" content="Agent 工作日志：LIVE-101 D 阶段 smoke + 修两个落库 bug。本文属于业务系统运维 / 小蓝直播，日期:2026-05-31 Agent:siggod / go-app 任务:三端联调 smoke + 修 live_chat_messages 列名错配 D1 commit: 133f6da…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-843daf03deb9.html">
+  <meta property="article:published_time" content="2026-05-31T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-05-31 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Agent 工作日志：LIVE-101 D 阶段 smoke + 修两个落库 bug">
+  <meta name="twitter:description" content="Agent 工作日志：LIVE-101 D 阶段 smoke + 修两个落库 bug。本文属于业务系统运维 / 小蓝直播，日期:2026-05-31 Agent:siggod / go-app 任务:三端联调 smoke + 修 live_chat_messages 列名错配 D1 commit: 133f6da…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-843daf03deb9.html#article","headline":"Agent 工作日志：LIVE-101 D 阶段 smoke + 修两个落库 bug","description":"Agent 工作日志：LIVE-101 D 阶段 smoke + 修两个落库 bug。本文属于业务系统运维 / 小蓝直播，日期:2026-05-31 Agent:siggod / go-app 任务:三端联调 smoke + 修 live_chat_messages 列名错配 D1 commit: 133f6da…","datePublished":"2026-05-31T00:00:00+08:00","dateModified":"2026-05-31 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Shell","Go","MySQL","自动化","故障排查","源码与配置","业务系统运维","业务系统运维 / 小蓝直播","Agent 工作日志：LIVE-101 D 阶段 smoke + 修两个落库 bug"],"wordCount":1161,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-843daf03deb9.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-843daf03deb9.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Agent 工作日志：LIVE-101 D 阶段 smoke + 修两个落库 bug","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-843daf03deb9.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>Agent 工作日志：LIVE-101 D 阶段 smoke + 修两个落库 bug</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>Agent 工作日志：LIVE-101 D 阶段 smoke + 修两个落库 bug</h1>
+      <p class="lede">Agent 工作日志：LIVE-101 D 阶段 smoke + 修两个落库 bug。本文属于业务系统运维 / 小蓝直播，日期:2026-05-31 Agent:siggod / go-app 任务:三端联调 smoke + 修 live_chat_messages 列名错配 D1 commit: 133f6da…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-05-31T00:00:00+08:00">发布于 2026-05-31</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,161 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-31-streamer-d-smoke.md</code></p>
+<p>整理日期：2026-05-31 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>日期:2026-05-31
+Agent:siggod / go-app
+任务:三端联调 smoke + 修 live_chat_messages 列名错配</p>
+<h2 id="输入资料">输入资料</h2>
+<ul>
+<li>D1 commit:<code>133f6da feat(streamer): 主播端鉴权 5 接口 + 独立 JWT subject</code></li>
+<li>D2 commit:<code>cd20297 feat(streamer): 开播/下播/改房间 + Zego webhook 兜底</code></li>
+<li>D3 commit:<code>c33a454 feat(streamer): 弹幕敏感词缓存 + 主播 init_password 自动生成</code></li>
+</ul>
+<h2 id="本次目标">本次目标</h2>
+<ol>
+<li>全流程 curl smoke:admin → create streamer → approve → login → 改房间 → start live → 弹幕命中三动作 → stop live → change password → 旧密码失效</li>
+<li>修发现的两个 bug(都是 D3 模型层未对齐 B 段 migration 实际列名)</li>
+</ol>
+<h2 id="修改文件">修改文件</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>internal/model/live.go</code></td>
+<td>LiveChatMessage 列名修正:Severity/Action/Words/Handled → violation_severity/violation_action/violation_words/violation_handled(B 段 migration 实际列名,D3 model 写错为短名)</td>
+</tr>
+<tr>
+<td><code>internal/service/live/service.go</code></td>
+<td>未命中时 wordsJSON 写 "[]"(violation_words 是 MySQL JSON 列,空字符串触发 invalid JSON)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="核心决策">核心决策</h2>
+<ol>
+<li><strong>列名以 DB 为准,不改 schema</strong>:DB 列已落 violation_ 前缀(B 段 commit b6ca5f5 已定),改 model 比改 migration 影响面小</li>
+<li><strong>JSON 列空值用 <code>[]</code> 而非 NULL</strong>:violation_words 设了 NOT NULL?(看 DDL 是 NULL allowed,但 GORM 写 "" 时 MySQL JSON 验证报错);统一 <code>[]</code> 占位语义明确,也方便后台 SQL 直接 JSON_LENGTH 判空</li>
+</ol>
+<h2 id="smoke-步骤-实测结果">smoke 步骤 + 实测结果</h2>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>命令</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. admin 登录</td>
+<td><code>POST /admin/auth/login kickoff_admin/Admin1234!</code></td>
+<td>拿 token</td>
+</tr>
+<tr>
+<td>2. admin 创主播</td>
+<td><code>POST /admin/streamers</code></td>
+<td>返 <code>[敏感内容已脱敏]</code>username=siggod_smoke01`</td>
+</tr>
+<tr>
+<td>3. admin 审批</td>
+<td><code>POST /admin/streamers/{id}/approve</code></td>
+<td>OK</td>
+</tr>
+<tr>
+<td>4. 主播登录</td>
+<td><code>POST /streamer/auth/login siggod_smoke01/HZpd3VNY</code></td>
+<td>拿 token,`[敏感内容已脱敏]</td>
+</tr>
+<tr>
+<td>5. 主播 me</td>
+<td><code>GET /streamer/me</code></td>
+<td>self 信息正确</td>
+</tr>
+<tr>
+<td>6. 主播看房间</td>
+<td><code>GET /streamer/me/rooms</code></td>
+<td>items=[] (尚未关联)</td>
+</tr>
+<tr>
+<td>7. DB 改 streamer_id 关联房间</td>
+<td><code>UPDATE live_rooms SET streamer_id=...</code></td>
+<td>关联成功</td>
+</tr>
+<tr>
+<td>8. 主播改房间</td>
+<td><code>PATCH /streamer/rooms/{id}</code> <code>{title, tags:[足球,深夜]}</code></td>
+<td>OK,tags 落库</td>
+</tr>
+<tr>
+<td>9. 主播开播</td>
+<td><code>POST /streamer/rooms/{id}/start</code></td>
+<td>返 zego_app_id/token/server,stream_no=rm_room1_1780221761</td>
+</tr>
+<tr>
+<td>10. 主播再开播</td>
+<td>同上</td>
+<td>409 <code>房间已在直播中</code> ✅</td>
+</tr>
+<tr>
+<td>11. 刷 Zego token</td>
+<td><code>POST /streamer/rooms/{id}/refresh-zego-token</code></td>
+<td>OK</td>
+</tr>
+<tr>
+<td>12. 弹幕-正常</td>
+<td><code>POST /live/room/{id}/danmaku "今天比赛真精彩"</code></td>
+<td>code=0,violation_flag=0</td>
+</tr>
+<tr>
+<td>13. 弹幕-BLOCK</td>
+<td>"加我赌博群"</td>
+<td>20001 <code>内容含违禁词,请修改后再发</code> ✅ 不落库</td>
+</tr>
+<tr>
+<td>14. 弹幕-MASK</td>
+<td>"草啊太精彩"</td>
+<td>code=0,DB 落库 <code>*啊太精彩</code>,violation_flag=1 action=2 words=["草"]</td>
+</tr>
+<tr>
+<td>15. 弹幕-ALERT</td>
+<td>"看广告免费送金币"</td>
+<td>code=0,DB 原文落库,violation_flag=1 action=4 words=["广告"]</td>
+</tr>
+<tr>
+<td>16. 主播下播</td>
+<td><code>POST /streamer/rooms/{id}/stop</code></td>
+<td>OK,room→ENDED(3),session→ENDED(2) duration_sec=319</td>
+</tr>
+<tr>
+<td>17. 主播改密</td>
+<td><code>POST /streamer/auth/change-password</code> 旧→新</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>18. 用新密码登录</td>
+<td>login</td>
+<td>OK,[敏感内容已脱敏]</td>
+</tr>
+<tr>
+<td>19. 用旧密码登录</td>
+<td>login</td>
+<td>30001 <code>账号或密码错误</code> ✅</td>
+</tr>
+</tbody>
+</table>
+<h2 id="框架价值判断">框架价值判断</h2>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本次沉淀属于规则、模板、脚本、技术栈适配器,还是项目资产</td>
+<td>项目资产 + bug fix</td>
+</tr>
+<tr>
+<td>哪些内容可复用到下一个项目</td>
+<td>列名对齐前 grep migration 实际列名的检查清单</td>
+</tr>
+<tr>
+<td>哪些内容只属于当前项目</td>
+<td>violation_* 列定义</td>
+</tr>
+<tr>
+<td>是否影响数据表 / migration / 索引</td>
+<td>否(model 列名修正,不改 schema)</td>
+</tr>
+<tr>
+<td>是否使用表设计模板</td>
+<td>n/a</td>
+</tr>
+<tr>
+<td>是否影响账本、事务、幂等或审计</td>
+<td>否</td>
+</tr>
+<tr>
+<td>规范例外与原因</td>
+<td>无</td>
+</tr>
+</tbody>
+</table>
+<h2 id="工程规范">工程规范</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>是否影响数据表 / migration / 索引</td>
+<td>否</td>
+</tr>
+<tr>
+<td>是否使用表设计模板</td>
+<td>n/a</td>
+</tr>
+<tr>
+<td>是否影响账本、事务、幂等或审计</td>
+<td>否</td>
+</tr>
+<tr>
+<td>规范例外与原因</td>
+<td>无</td>
+</tr>
+</tbody>
+</table>
+<h2 id="架构能力门禁">架构能力门禁</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>是否只是 CRUD</td>
+<td>否,直播 + 内容审核全链路</td>
+</tr>
+<tr>
+<td>涉及能力</td>
+<td>已覆盖鉴权 / 状态机 / 内容审核 / 缓存 / Webhook</td>
+</tr>
+<tr>
+<td>高风险触发项</td>
+<td>直播状态 + 主播账号</td>
+</tr>
+<tr>
+<td>能力门禁结论</td>
+<td>smoke 通过,允许合入</td>
+</tr>
+</tbody>
+</table>
+<h2 id="验证记录">验证记录</h2>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>go build ./...</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>go vet ./...</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>go test -race -count=1 ./internal/service/live/...</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td>上表 19 步 curl smoke</td>
+<td>全通过</td>
+</tr>
+</tbody>
+</table>
+<h2 id="风险与待办">风险与待办</h2>
+<ol>
+<li>Zego webhook 实际回调未在 smoke 跑(ZegoCloud Console 未配置 dev 公网回调),靠单测覆盖兜底</li>
+<li>forbidden_words 后台 CRUD 接口仍未做(本期仅手动 INSERT 测试),v1.x 内补</li>
+<li><code>live_chat_messages</code> 月分表的 violation 列名前缀(<code>violation_*</code>)与 model 字段名(短名)曾错配,后续加新月份分表时确保 DDL 模板与 model 一起更新</li>
+</ol>
+<h2 id="交接说明">交接说明</h2>
+<p>下一位 Agent / 工程师需要知道:</p>
+<ol>
+<li>启动 api 必须带 <code>APP_ZEGO_APP_ID</code> + 32 字节 <code>APP_ZEGO_SERVER_SECRET</code>,否则直播相关接口降级 503(<code>ErrFeatureClosed</code>)</li>
+<li>forbidden_words 改完等 ≤5min 自动 reload,或重启 api 立刻生效;启动 log 会打 <code>forbidden_words reloaded count=N</code></li>
+<li>月份分表 (<code>live_chat_messages_YYYYMM</code>) 必须由 cron 提前建,缺月份会让弹幕 INSERT 返 500;本地 dev 缺 202607,生产前 cron 须就位</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#输入资料">输入资料</a></li><li style="margin-left:0.0rem"><a href="#本次目标">本次目标</a></li><li style="margin-left:0.0rem"><a href="#修改文件">修改文件</a></li><li style="margin-left:0.0rem"><a href="#核心决策">核心决策</a></li><li style="margin-left:0.0rem"><a href="#smoke-步骤-实测结果">smoke 步骤 + 实测结果</a></li><li style="margin-left:0.0rem"><a href="#框架价值判断">框架价值判断</a></li><li style="margin-left:0.0rem"><a href="#工程规范">工程规范</a></li><li style="margin-left:0.0rem"><a href="#架构能力门禁">架构能力门禁</a></li><li style="margin-left:0.0rem"><a href="#验证记录">验证记录</a></li><li style="margin-left:0.0rem"><a href="#风险与待办">风险与待办</a></li><li style="margin-left:0.0rem"><a href="#交接说明">交接说明</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-05-31</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Shell</span><span class="tag">Go</span><span class="tag">MySQL</span><span class="tag">自动化</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-31-streamer-d-smoke.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202605310000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%EF%BC%9ALIVE-101%20D%20%E9%98%B6%E6%AE%B5%20smoke%20%2B%20%E4%BF%AE%E4%B8%A4%E4%B8%AA%E8%90%BD%E5%BA%93%20bug.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Agent 工作日志：LIVE-101 D 阶段 smoke + 修两个落库 bug。本文属于业务系统运维 / 小蓝直播，日期:2026-05-31 Agent:siggod / go-app 任务:三端联调 smoke + 修 live_chat_messages 列名错配 D1 commit: 133f6da…</p>
+      <p>关键词：小蓝直播、Shell、Go、MySQL、自动化、故障排查、源码与配置、业务系统运维、业务系统运维 / 小蓝直播、Agent 工作日志：LIVE-101 D 阶段 smoke + 修两个落库 bug</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-628c2bb658a1.html"><small>上一篇</small>dev-env-compose-payment-config</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-98476d6e1237.html"><small>下一篇</small>Agent 工作日志：主播端开播/下播 + Zego webhook D2</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-843daf03deb9.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
