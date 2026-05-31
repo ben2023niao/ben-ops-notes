@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Kickoff C 端直播间接入指南｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="Kickoff C 端直播间接入指南。本文属于业务系统运维 / 小蓝直播，给前端开发的最小可用文档。看完这一份,直播间页面所有功能(视频 + 弹幕 + 打赏特效 + 投票 + 众筹)都能接通。 ❌ flv_url / hls_url / m3u8 — 已废弃,SRS 自建时代的产物,现在没有 ❌ 用 WS 推视频…">
+  <meta name="keywords" content="小蓝直播，CDN，安全运维，故障排查，业务系统运维，业务系统运维 / 小蓝直播，Kickoff C 端直播间接入指南">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cf7b8dc8714c.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cf7b8dc8714c.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606010000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BCDN%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4-Kickoff%20C%20%E7%AB%AF%E7%9B%B4%E6%92%AD%E9%97%B4%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Kickoff C 端直播间接入指南">
+  <meta property="og:description" content="Kickoff C 端直播间接入指南。本文属于业务系统运维 / 小蓝直播，给前端开发的最小可用文档。看完这一份,直播间页面所有功能(视频 + 弹幕 + 打赏特效 + 投票 + 众筹)都能接通。 ❌ flv_url / hls_url / m3u8 — 已废弃,SRS 自建时代的产物,现在没有 ❌ 用 WS 推视频…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cf7b8dc8714c.html">
+  <meta property="article:published_time" content="2026-06-01T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-06-01 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Kickoff C 端直播间接入指南">
+  <meta name="twitter:description" content="Kickoff C 端直播间接入指南。本文属于业务系统运维 / 小蓝直播，给前端开发的最小可用文档。看完这一份,直播间页面所有功能(视频 + 弹幕 + 打赏特效 + 投票 + 众筹)都能接通。 ❌ flv_url / hls_url / m3u8 — 已废弃,SRS 自建时代的产物,现在没有 ❌ 用 WS 推视频…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cf7b8dc8714c.html#article","headline":"Kickoff C 端直播间接入指南","description":"Kickoff C 端直播间接入指南。本文属于业务系统运维 / 小蓝直播，给前端开发的最小可用文档。看完这一份,直播间页面所有功能(视频 + 弹幕 + 打赏特效 + 投票 + 众筹)都能接通。 ❌ flv_url / hls_url / m3u8 — 已废弃,SRS 自建时代的产物,现在没有 ❌ 用 WS 推视频…","datePublished":"2026-06-01T00:00:00+08:00","dateModified":"2026-06-01 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","CDN","安全运维","故障排查","业务系统运维","业务系统运维 / 小蓝直播","Kickoff C 端直播间接入指南"],"wordCount":2212,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cf7b8dc8714c.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cf7b8dc8714c.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Kickoff C 端直播间接入指南","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cf7b8dc8714c.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>Kickoff C 端直播间接入指南</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>Kickoff C 端直播间接入指南</h1>
+      <p class="lede">Kickoff C 端直播间接入指南。本文属于业务系统运维 / 小蓝直播，给前端开发的最小可用文档。看完这一份,直播间页面所有功能(视频 + 弹幕 + 打赏特效 + 投票 + 众筹)都能接通。 ❌ flv_url / hls_url / m3u8 — 已废弃,SRS 自建时代的产物,现在没有 ❌ 用 WS 推视频…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-01T00:00:00+08:00">发布于 2026-06-01</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,212 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/api/c-end-integration.html</code></p>
+<p>整理日期：2026-06-01 00:00｜日期依据：正文日期</p>
+</blockquote>
+<p>给前端开发的最小可用文档。看完这一份,直播间页面所有功能(视频 + 弹幕 + 打赏特效 + 投票 + 众筹)都能接通。</p>
+<h2 id="①-架构总览-两条独立链路">① 架构总览 — 两条独立链路</h2>
+<p>C 端直播间页面要起两个连接,完全独立:</p>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│ 链路 ①:🎥 音视频流(走 ZegoCloud,不经我们后端)                │
+│                                                                  │
+│   主播浏览器(SDK)─── WebRTC ───► ☁️ Zego 云 ─── WebRTC ───► 你 │
+│   startPublishingStream                       startPlayingStream │
+│                                                                  │
+│   你只需要:GET /play-url 拿 6 个参数 → ZegoExpressEngine 拉流  │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 链路 ②:💬 业务事件(我们自有 WebSocket)                        │
+│                                                                  │
+│   你 ◄── WebSocket /ws/v1/client ── 我们后端 Hub                │
+│                                                                  │
+│   推送内容(server → client):                                   │
+│     · 弹幕(别人发的)                                           │
+│     · 打赏特效(别人送的)                                       │
+│     · 投票实时票数变化                                           │
+│     · 众筹累计 / 阶段达成                                        │
+│                                                                  │
+│   弹幕发送 + 打赏 + 投票 投票本身走 HTTP POST,不走 WS          │
+└─────────────────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>常见误解清掉</strong></p>
+<p>❌ <code>flv_url</code> / <code>hls_url</code> / <code>m3u8</code> — 已废弃,SRS 自建时代的产物,现在没有</p>
+<p>❌ 用 WS 推视频 — WS 只推业务事件,视频流走 WebRTC(Zego SDK 自己处理)</p>
+<p>❌ 主播用 OBS 推流 — 不需要,主播端也用 Zego SDK 推</p>
+<h2 id="②-关键-URL-dev-环境">② 关键 URL(dev 环境)</h2>
+<table>
+<thead>
+<tr>
+<th>用途</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REST API 接口文档(docs 站)</td>
+<td><a href="https://admin-dev.54-151-131-132.sslip.io/docs" rel="noopener noreferrer">https://admin-dev.54-151-131-132.sslip.io/docs</a></td>
+</tr>
+<tr>
+<td>API 根路径</td>
+<td><code>https://api-dev.54-151-131-132.sslip.io/api/v1</code></td>
+</tr>
+<tr>
+<td>WebSocket C 端统一入口</td>
+<td><code>wss://api-dev.54-151-131-132.sslip.io/ws/v1/client</code></td>
+</tr>
+<tr>
+<td>ZegoCloud Web SDK npm</td>
+<td><code>zego-express-engine-webrtc</code>(最新版 3.12.0+)</td>
+</tr>
+<tr>
+<td>本指南(你正在看的)</td>
+<td><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/c-end-integration.html" rel="noopener noreferrer">/docs/c-end-integration.html</a></td>
+</tr>
+<tr>
+<td>WS 事件协议表</td>
+<td><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/websocket.html" rel="noopener noreferrer">/docs/websocket.html</a></td>
+</tr>
+<tr>
+<td>OpenAPI 接口浏览器</td>
+<td><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/index.html" rel="noopener noreferrer">/docs/</a>(本站首页)</td>
+</tr>
+<tr>
+<td>拉流 smoke 测试页(仓库内,本地双击打开)</td>
+<td><code>apps/web/docs/zego-play-smoke.html</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="③-完整-C-端代码-直接抄">③ 完整 C 端代码(直接抄)</h2>
+<p>下面是一个完整的 C 端直播间组件的最小实现。包含:进房 → 视频出图 → 订阅业务事件 → 发弹幕 → 送礼 → 投票。</p>
+<h3 id="3-1-安装依赖">3.1 安装依赖</h3>
+<pre><code>pnpm add zego-express-engine-webrtc
+</code></pre>
+<h3 id="3-2-完整组件代码">3.2 完整组件代码</h3>
+<pre><code>// LiveRoom.tsx / LiveRoom.vue 的核心逻辑
+import { ZegoExpressEngine } from 'zego-express-engine-webrtc';
+
+const API = 'https://api-dev.54-151-131-132.sslip.io/api/v1';
+const WS  = 'wss://api-dev.54-151-131-132.sslip.io/ws/v1/client';
+
+async function enterLiveRoom(roomId, accessToken /* 用户 JWT,未登录传 null */) {
+
+  // ===== 链路 ①:拉视频流 =====
+  // 1. 拿 Zego 接入参数
+  const playRes = await fetch(`${API}/live/room/${roomId}/play-url`, {
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {}
+  }).then(r =&gt; r.json());
+  if (playRes.code !== 0) throw new Error(playRes.message);
+  const p = playRes.data;
+
+  // 2. 初始化 Zego SDK + 登录房间 + 拉流
+  const engine = new ZegoExpressEngine(p.zego_app_id, p.zego_server);
+  await engine.loginRoom(p.zego_room_id, p.zego_token, {
+    userID: p.zego_user_id,
+    userName: p.zego_user_id,
+  });
+  const remoteStream = await engine.startPlayingStream(p.zego_stream_id);
+  document.getElementById('video').srcObject = remoteStream; // 视频出图
+
+  // 3. token 即将过期回调(可选,Zego SDK 自动提醒)
+  engine.on('tokenWillExpire', async () =&gt; {
+    const refreshed = await fetch(`${API}/live/room/${roomId}/refresh-token`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}` }
+    }).then(r =&gt; r.json());
+    engine.renewToken(p.zego_room_id, refreshed.data.zego_token);
+  });
+
+  // ===== 链路 ②:订阅业务事件(WS) =====
+  const ws = new WebSocket(WS +
+    (accessToken ? `?敏感凭据：[已脱敏] : ''));
+
+  ws.onopen = () =&gt; {
+    ws.send(JSON.stringify({
+      type: 'client.subscribe',
+      data: { channels: [`room:${roomId}`] }
+    }));
+  };
+  ws.onmessage = (e) =&gt; {
+    const env = JSON.parse(e.data);
+    switch (env.type) {
+      // 别人发的弹幕 — 飞到弹幕层
+      case 'live.danmaku.received':
+        addDanmaku(env.data); // { nickname, content, color, sent_ts }
+        break;
+
+      // 别人送的打赏 — 播特效
+      case 'live.tip.combo':
+        playTipEffect(env.data); // { nickname, combo_count, diamond_amount }
+        break;
+
+      // 房间在线人数(30s 一次)
+      case 'live.viewer.count.updated':
+        setViewerCount(env.data.viewer_count);
+        break;
+
+      // === LIVE-102 投票 ===
+      case 'live.vote.started':
+        renderVoteCard(env.data); // 完整 vote 详情含 options[]
+        break;
+      case 'live.vote.tick':
+        // 用 votes_count 直接覆盖,不要 +1(后端可能合并)
+        updateVoteOption(env.data.vote_id, env.data.option_id, env.data.votes_count);
+        setVoteTotal(env.data.total_votes);
+        break;
+      case 'live.vote.ended':
+        // winner_option_id 为 null = 平票或无人投
+        showVoteResult(env.data);
+        break;
+
+      // === LIVE-102 众筹解锁 ===
+      case 'live.crowdfund.progress':
+        updateCrowdfundBar(env.data.cumulative_diamond, env.data.next_stage);
+        break;
+      case 'live.crowdfund.stage_unlocked':
+        showStageUnlockedToast(env.data.stage); // "🎉 主播唱歌 已解锁!"
+        break;
+
+      // 房间关播 — 沿用原有关播兜底逻辑
+      case 'room.status.ended':
+        showEndedOverlay();
+        break;
+    }
+  };
+
+  // 返回清理函数,组件销毁时调
+  return async () =&gt; {
+    ws.close();
+    engine.stopPlayingStream(p.zego_stream_id);
+    await engine.logoutRoom(p.zego_room_id);
+  };
+}
+
+// ===== 用户操作 — 都走 HTTP,不走 WS =====
+
+async function sendDanmaku(roomId, content, token) {
+  return fetch(`${API}/live/room/${roomId}/danmaku`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ content })
+  }).then(r =&gt; r.json());
+}
+
+async function sendTip(roomId, giftId, giftName, diamondAmount, quantity, token) {
+  return fetch(`${API}/live/room/${roomId}/tip`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Idempotency-Key': crypto.randomUUID(), // 资金接口要幂等键
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ gift_id: giftId, gift_name: giftName, diamond_amount: diamondAmount, quantity })
+  }).then(r =&gt; r.json());
+}
+
+async function castVote(roomId, voteId, optionId, token) {
+  // 一人限一票,重复 cast 后端幂等返回 is_new=false + 旧票据,不会改投
+  const r = await fetch(`${API}/live/room/${roomId}/votes/${voteId}/cast`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ option_id: optionId })
+  }).then(r =&gt; r.json());
+  if (r.data.is_new) toast('投票成功');
+  else toast('您已投过 ' + r.data.my_vote_option_id);
+}
+
+// 进房间时拉一次"当前是否有 ongoing 投票"
+async function checkActiveVote(roomId) {
+  const r = await fetch(`${API}/live/room/${roomId}/votes/active`).then(r =&gt; r.json());
+  if (r.code === 0) renderVoteCard(r.data);
+  else if (r.code === 10004) hideVoteCard(); // 404 = 没有 ongoing,正常
+}
+</code></pre>
+<p><strong>就这么多。</strong>视频靠 Zego SDK,业务事件靠 WS,用户操作靠 HTTP。三套独立,各管各的。</p>
+<h2 id="④-WS-事件清单-直播间频道">④ WS 事件清单(直播间频道)</h2>
+<table>
+<thead>
+<tr>
+<th>type</th>
+<th>触发</th>
+<th>data 关键字段</th>
+<th>前端要做什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>live.danmaku.received</code></td>
+<td>有人发弹幕</td>
+<td>nickname, content, color, sent_ts</td>
+<td>飞过弹幕层</td>
+</tr>
+<tr>
+<td><code>live.tip.combo</code></td>
+<td>有人送礼</td>
+<td>nickname, combo_count, diamond_amount</td>
+<td>播打赏特效</td>
+</tr>
+<tr>
+<td><code>live.viewer.count.updated</code></td>
+<td>在线人数变化(30s 批次)</td>
+<td>viewer_count, peak_count</td>
+<td>顶部小数字</td>
+</tr>
+<tr>
+<td><code>live.vote.started</code></td>
+<td>主播发起新投票</td>
+<td>vote_id, title, ends_at_ms, options[]</td>
+<td>渲染投票卡 + 倒计时</td>
+</tr>
+<tr>
+<td><code>live.vote.tick</code></td>
+<td>有人投票后</td>
+<td>vote_id, option_id, votes_count, total_votes</td>
+<td><strong>用 votes_count 覆盖</strong>(别 +1)</td>
+</tr>
+<tr>
+<td><code>live.vote.ended</code></td>
+<td>投票到期 / 主播下播</td>
+<td>vote_id, winner_option_id, options[]</td>
+<td>显示最终结果;winner=null 表示平票</td>
+</tr>
+<tr>
+<td><code>live.crowdfund.progress</code></td>
+<td>每次有人送礼后</td>
+<td>cumulative_diamond, next_stage?</td>
+<td>用 cumulative_diamond 覆盖进度条</td>
+</tr>
+<tr>
+<td><code>live.crowdfund.stage_unlocked</code></td>
+<td>累计第一次达到某阶段</td>
+<td>stage{name, action_text}, amount_at_achieved</td>
+<td>"🎉 主播 X 已解锁" toast</td>
+</tr>
+<tr>
+<td><code>room.status.ended</code></td>
+<td>主播下播 / 后端自动下播</td>
+<td>room_id, status, reason?</td>
+<td>沿用原有关播兜底逻辑；C 端不需要上报心跳，<code>reason=streamer_heartbeat_timeout</code> 只用于可选文案区分</td>
+</tr>
+<tr>
+<td><code>room.banned</code></td>
+<td>房间被封禁</td>
+<td>—</td>
+<td>显示「房间已封禁」+ 踢出</td>
+</tr>
+</tbody>
+</table>
+<p><strong>每条 WS 消息的外层包装</strong>:</p>
+<pre><code>{
+  "type": "live.vote.tick",          // 上表里的 type
+  "msg_id": "uuid",
+  "ts": 1717252384000,                // 服务端时间
+  "trace_id": "uuid",
+  "data": { ...上表里的 data 字段... } // 你关心的就这个
+}
+</code></pre>
+<h2 id="⑤-错误处理-重连">⑤ 错误处理 / 重连</h2>
+<h3 id="视频流-Zego-自己重连-不用管">视频流(Zego 自己重连,不用管)</h3>
+<pre><code>engine.on('playerStateUpdate', (state) =&gt; {
+  // state.state: NO_PLAY / PLAY_REQUESTING / PLAYING
+  // Zego SDK 内部已经做断线重连,你只需要监听 UI 显示状态
+  if (state.state === 'PLAY_REQUESTING') showLoading();
+  else if (state.state === 'PLAYING') hideLoading();
+});
+</code></pre>
+<h3 id="WS-重连-自己实现指数退避">WS 重连(自己实现指数退避)</h3>
+<pre><code>function connectWS(roomId, token, attempt = 0) {
+  const ws = new WebSocket(WS + (token ? `?敏感凭据：[已脱敏] : ''));
+  ws.onclose = () =&gt; {
+    const delay = Math.min(1000 * 2 ** attempt, 30000); // 1s, 2s, 4s, ... 30s 封顶
+    setTimeout(() =&gt; connectWS(roomId, token, attempt + 1), delay);
+  };
+  ws.onopen = () =&gt; {
+    attempt = 0;
+    ws.send(JSON.stringify({ type: 'client.subscribe', data: { channels: [`room:${roomId}`] } }));
+  };
+  return ws;
+}
+</code></pre>
+<h3 id="HTTP-错误码">HTTP 错误码</h3>
+<table>
+<thead>
+<tr>
+<th>code</th>
+<th>含义</th>
+<th>处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>成功</td>
+<td>data 一定有值</td>
+</tr>
+<tr>
+<td>10001 ~ 19999</td>
+<td>参数 / 系统类</td>
+<td>显示 message,可重试</td>
+</tr>
+<tr>
+<td>20001</td>
+<td>资源冲突(如:已投过 / 投票已结束)</td>
+<td>提示并停留,别再调</td>
+</tr>
+<tr>
+<td>20003</td>
+<td>直播未开始</td>
+<td>显示「主播未开播」</td>
+</tr>
+<tr>
+<td>10004</td>
+<td>资源不存在(如:没有 ongoing 投票)</td>
+<td>隐藏对应 UI,正常情况</td>
+</tr>
+<tr>
+<td>30001 ~ 39999</td>
+<td>权限 / 未登录</td>
+<td>跳登录</td>
+</tr>
+</tbody>
+</table>
+<h2 id="⑥-自己-smoke-测试">⑥ 自己 smoke 测试</h2>
+<p>前端开发期间,可以独立验证两条链路:</p>
+<table>
+<thead>
+<tr>
+<th>验证什么</th>
+<th>怎么做</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① <strong>video 出图</strong>(整条 Zego 链路)</td>
+<td>本地打开仓库内 <code>apps/web/docs/zego-play-smoke.html</code>,输入 dev 主播正在直播的 room_id,看视频框</td>
+</tr>
+<tr>
+<td>② <strong>WS 事件能收到</strong></td>
+<td>浏览器 DevTools 连接 <code>wss://api-dev.../ws/v1/client</code> 后发送 <code>{"type":"client.subscribe","data":{"channels":["room:{room_id}"]}}</code>,在 admin 后台发个测试弹幕,看控制台</td>
+</tr>
+<tr>
+<td>③ <strong>HTTP 操作有效</strong></td>
+<td>docs 站 <code>/docs</code> 选对应接口,直接 Try it out</td>
+</tr>
+</tbody>
+</table>
+<h2 id="⑦-常见疑问">⑦ 常见疑问</h2>
+<h3 id="Q1-为什么-play-url-不再返-flv_url-hls_url-m3u8">Q1: 为什么 play-url 不再返 flv_url / hls_url / m3u8?</h3>
+<p>那是 SRS 自建 CDN 时代的产物,<strong>已经不用了</strong>。Zego WebRTC 拉流延迟 &lt; 500ms,多档自动协商,前端只需要 ZegoExpressEngine.startPlayingStream(streamID) 一句话。</p>
+<h3 id="Q2-主播怎么推流-需要-OBS-吗">Q2: 主播怎么推流?需要 OBS 吗?</h3>
+<p><strong>不要 OBS</strong>。主播也是浏览器开页面,用同一个 ZegoExpressEngine.startPublishingStream(streamID) 推流。后端 <code>POST /streamer/rooms/:room_id/start</code> 返回主播版 Zego 参数(token Privilege = Login+Publish)。</p>
+<h3 id="Q3-WS-上看不到-vote_tick-crowdfund-progress">Q3: WS 上看不到 vote_tick / crowdfund.progress?</h3>
+<ol>
+<li>检查 WS URL 是否 <code>/ws/v1/client</code>,并已发送 <code>client.subscribe</code> 订阅 <code>room:{room_id}</code></li>
+<li>主播必须真的在直播中(房间 status=LIVE + 有 active session)</li>
+<li>触发条件:vote_tick 需要有人投票;crowdfund.progress 需要有人送礼。空闲房间不会推</li>
+</ol>
+<h3 id="Q4-未登录用户能看视频但不能发弹幕-投票">Q4: 未登录用户能看视频但不能发弹幕/投票?</h3>
+<p>对。视频 + WS 订阅匿名可见;弹幕 / 打赏 / 投票必须登录。<code>play-url</code> 接口未登录会返 guest_ Zego userID,登录后是 viewer_{user_id}。</p>
+<h3 id="Q5-zego_token-多久过期-要不要主动续">Q5: zego_token 多久过期?要不要主动续?</h3>
+<p>默认 2 小时。Zego SDK 会在过期前回调 <code>tokenWillExpire</code>,你只需在该回调里调 <code>POST /live/room/:room_id/refresh-token</code> 再 <code>engine.renewToken()</code>,看上面 §3.2 示例。</p>
+<h3 id="Q6-投票为什么-cast-之后没收到-vote_tick">Q6: 投票为什么 cast 之后没收到 vote_tick?</h3>
+<p>WS 是给"房间里其他人"的同步通道,你自己投完成功后端会返回成功,但 vote_tick 是广播事件,理论上你也收得到。如果没收到检查 WS 连接是否 alive。</p>
+<hr/>
+<p>最后更新 2026-06-01 · 有问题问后端 siggod</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#①-架构总览-两条独立链路">① 架构总览 — 两条独立链路</a></li><li style="margin-left:0.0rem"><a href="#②-关键-URL-dev-环境">② 关键 URL(dev 环境)</a></li><li style="margin-left:0.0rem"><a href="#③-完整-C-端代码-直接抄">③ 完整 C 端代码(直接抄)</a></li><li style="margin-left:0.8rem"><a href="#3-1-安装依赖">3.1 安装依赖</a></li><li style="margin-left:0.8rem"><a href="#3-2-完整组件代码">3.2 完整组件代码</a></li><li style="margin-left:0.0rem"><a href="#④-WS-事件清单-直播间频道">④ WS 事件清单(直播间频道)</a></li><li style="margin-left:0.0rem"><a href="#⑤-错误处理-重连">⑤ 错误处理 / 重连</a></li><li style="margin-left:0.8rem"><a href="#视频流-Zego-自己重连-不用管">视频流(Zego 自己重连,不用管)</a></li><li style="margin-left:0.8rem"><a href="#WS-重连-自己实现指数退避">WS 重连(自己实现指数退避)</a></li><li style="margin-left:0.8rem"><a href="#HTTP-错误码">HTTP 错误码</a></li><li style="margin-left:0.0rem"><a href="#⑥-自己-smoke-测试">⑥ 自己 smoke 测试</a></li><li style="margin-left:0.0rem"><a href="#⑦-常见疑问">⑦ 常见疑问</a></li><li style="margin-left:0.8rem"><a href="#Q1-为什么-play-url-不再返-flv_url-hls_url-m3u8">Q1: 为什么 play-url 不再返 flv_url / hls_url / m3u8?</a></li><li style="margin-left:0.8rem"><a href="#Q2-主播怎么推流-需要-OBS-吗">Q2: 主播怎么推流?需要 OBS 吗?</a></li><li style="margin-left:0.8rem"><a href="#Q3-WS-上看不到-vote_tick-crowdfund-progress">Q3: WS 上看不到 vote_tick / crowdfund.progress?</a></li><li style="margin-left:0.8rem"><a href="#Q4-未登录用户能看视频但不能发弹幕-投票">Q4: 未登录用户能看视频但不能发弹幕/投票?</a></li><li style="margin-left:0.8rem"><a href="#Q5-zego_token-多久过期-要不要主动续">Q5: zego_token 多久过期?要不要主动续?</a></li><li style="margin-left:0.8rem"><a href="#Q6-投票为什么-cast-之后没收到-vote_tick">Q6: 投票为什么 cast 之后没收到 vote_tick?</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-06-01</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">CDN</span><span class="tag">安全运维</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/api/c-end-integration.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606010000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BCDN%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4-Kickoff%20C%20%E7%AB%AF%E7%9B%B4%E6%92%AD%E9%97%B4%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Kickoff C 端直播间接入指南。本文属于业务系统运维 / 小蓝直播，给前端开发的最小可用文档。看完这一份,直播间页面所有功能(视频 + 弹幕 + 打赏特效 + 投票 + 众筹)都能接通。 ❌ flv_url / hls_url / m3u8 — 已废弃,SRS 自建时代的产物,现在没有 ❌ 用 WS 推视频…</p>
+      <p>关键词：小蓝直播、CDN、安全运维、故障排查、业务系统运维、业务系统运维 / 小蓝直播、Kickoff C 端直播间接入指南</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-78c4f8a5a61b.html"><small>上一篇</small>Agent 工作日志 · sports-live-pull-demo</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cc7abcb49f8f.html"><small>下一篇</small>live-host-streamer-login-integration</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cf7b8dc8714c.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>live-host-streamer-login-integration｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="live-host-streamer-login-integration。本文属于业务系统运维 / 小蓝直播，日期：2026-06-01 Agent：Codex 任务：接入 apps/live-host 主播登录接口，并补开发环境 API 代理 PRD： docs/prd/modules/README.md （主…">
+  <meta name="keywords" content="小蓝直播，Shell，Python，Go，安全运维，故障排查，数据库恢复，源码与配置，业务系统运维，业务系统运维 / 小蓝直播，live-host-streamer-login-integration">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cc7abcb49f8f.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cc7abcb49f8f.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606010000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BPython-live-host-streamer-login-integration.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="live-host-streamer-login-integration">
+  <meta property="og:description" content="live-host-streamer-login-integration。本文属于业务系统运维 / 小蓝直播，日期：2026-06-01 Agent：Codex 任务：接入 apps/live-host 主播登录接口，并补开发环境 API 代理 PRD： docs/prd/modules/README.md （主…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cc7abcb49f8f.html">
+  <meta property="article:published_time" content="2026-06-01T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-06-01 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="live-host-streamer-login-integration">
+  <meta name="twitter:description" content="live-host-streamer-login-integration。本文属于业务系统运维 / 小蓝直播，日期：2026-06-01 Agent：Codex 任务：接入 apps/live-host 主播登录接口，并补开发环境 API 代理 PRD： docs/prd/modules/README.md （主…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cc7abcb49f8f.html#article","headline":"live-host-streamer-login-integration","description":"live-host-streamer-login-integration。本文属于业务系统运维 / 小蓝直播，日期：2026-06-01 Agent：Codex 任务：接入 apps/live-host 主播登录接口，并补开发环境 API 代理 PRD： docs/prd/modules/README.md （主…","datePublished":"2026-06-01T00:00:00+08:00","dateModified":"2026-06-01 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Shell","Python","Go","安全运维","故障排查","数据库恢复","源码与配置","业务系统运维","业务系统运维 / 小蓝直播","live-host-streamer-login-integration"],"wordCount":1687,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cc7abcb49f8f.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cc7abcb49f8f.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"live-host-streamer-login-integration","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cc7abcb49f8f.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>live-host-streamer-login-integration</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>live-host-streamer-login-integration</h1>
+      <p class="lede">live-host-streamer-login-integration。本文属于业务系统运维 / 小蓝直播，日期：2026-06-01 Agent：Codex 任务：接入 apps/live-host 主播登录接口，并补开发环境 API 代理 PRD： docs/prd/modules/README.md （主…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-01T00:00:00+08:00">发布于 2026-06-01</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,687 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-06-01-live-host-streamer-login-integration.md</code></p>
+<p>整理日期：2026-06-01 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>日期：2026-06-01
+Agent：Codex
+任务：接入 <code>apps/live-host</code> 主播登录接口，并补开发环境 API 代理</p>
+<h2 id="输入资料">输入资料</h2>
+<ul>
+<li>PRD：<code>docs/prd/modules/README.md</code>（主播端历史说明）、<code>apps/live-host/README.md</code></li>
+<li>需求 ID：<code>STR-001</code></li>
+<li>设计图：不涉及</li>
+<li>设计图文件名：不涉及</li>
+<li>设计图尺寸：不涉及</li>
+<li>视觉要点：沿用现有主播端登录页与设备调试页</li>
+<li>接口/契约：<code>docs/api/openapi.yaml</code>、<code>packages/contracts/openapi/v1.yaml</code>、<code>services/go-app/internal/http/streamerapi/auth.go</code></li>
+<li>团队可读文档：<code>AGENTS.md</code></li>
+<li>AI/工具控制文件：<code>AGENTS.md</code></li>
+<li>项目 Overlay：<code>project.config.json</code></li>
+<li>其他：开发环境已配置 <code>NUXT_PUBLIC_API_URL</code></li>
+</ul>
+<h2 id="本次目标">本次目标</h2>
+<ol>
+<li>将 <code>live-host</code> 登录接口从占位 <code>/host/auth/*</code> 切换为真实 <code>/streamer/auth/*</code></li>
+<li>兼容当前后端返回结构并持久化主播登录态</li>
+<li>为开发环境补 <code>/api</code> 代理，避免浏览器直接跨域请求 <code>api-dev</code></li>
+</ol>
+<h2 id="修改文件">修改文件</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apps/live-host/nuxt.config.ts</code></td>
+<td>支持 <code>NUXT_PUBLIC_API_URL</code>，dev 下为 <code>/api</code> 启用 Nitro <code>devProxy</code></td>
+</tr>
+<tr>
+<td><code>apps/live-host/app/composables/useAuth.ts</code></td>
+<td>对齐主播登录/登出接口与 <code>me + token</code> 响应结构</td>
+</tr>
+<tr>
+<td><code>apps/live-host/app/pages/login.vue</code></td>
+<td>改进登录错误处理，接入新 auth composable</td>
+</tr>
+<tr>
+<td><code>apps/live-host/app/pages/index.vue</code></td>
+<td>使用真实主播信息展示页头，开播跳转传真实显示名</td>
+</tr>
+<tr>
+<td><code>apps/live-host/app/layouts/default.vue</code></td>
+<td>顶栏展示真实主播字段</td>
+</tr>
+<tr>
+<td><code>apps/live-host/.env.example</code></td>
+<td>改为 <code>NUXT_PUBLIC_API_URL</code> 主配置，保留 <code>API_BASE</code> 覆盖</td>
+</tr>
+<tr>
+<td><code>apps/live-host/.env.staging</code></td>
+<td>同上</td>
+</tr>
+<tr>
+<td><code>apps/live-host/app/components/devices/DevicePicker.vue</code></td>
+<td>清理未使用 props 变量，修复 lint</td>
+</tr>
+<tr>
+<td><code>apps/live-host/app/components/studio/DanmuList.vue</code></td>
+<td>显式导入 <code>nextTick</code>，修复 lint</td>
+</tr>
+<tr>
+<td><code>apps/live-host/app/components/studio/GiftBannerLayer.vue</code></td>
+<td>显式导入 <code>nextTick</code>，修复 lint</td>
+</tr>
+<tr>
+<td><code>apps/live-host/app/components/studio/ToastStack.vue</code></td>
+<td>显式导入 <code>useToast</code>，修复 lint</td>
+</tr>
+<tr>
+<td><code>apps/live-host/app/pages/studio/[room_id].vue</code></td>
+<td>显式导入 <code>useToast</code>，修复 lint</td>
+</tr>
+</tbody>
+</table>
+<h2 id="核心决策">核心决策</h2>
+<ol>
+<li><code>NUXT_PUBLIC_API_URL</code> 视为 API 实际目标地址；浏览器默认直连该地址，只有显式将 <code>NUXT_PUBLIC_API_BASE</code> 设为空串时才走本地 <code>/api</code> 代理。</li>
+<li>鉴于 OpenAPI 与 Go 服务在主播 token 字段上存在漂移，前端按真实登录结构 <code>data.me + data.token</code> 落地，并兼容额外 token 字段。</li>
+<li>保留现有设备调试/开播流程，不在本次扩展“我的房间”与“开播签发 Zego token”接口，避免扩大改动面。</li>
+<li>后续排查发现 <code>api-dev</code> 已对 <code>http://localhost:3001</code> 放行 CORS，因此将默认策略改为“浏览器直连 <code>NUXT_PUBLIC_API_URL</code>”；本地 <code>/api</code> 代理仅作为显式启用的兜底方案。</li>
+</ol>
+<h2 id="框架价值判断">框架价值判断</h2>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本次沉淀属于规则、模板、脚本、技术栈适配器，还是项目资产</td>
+<td>项目资产 + Nuxt dev 代理适配</td>
+</tr>
+<tr>
+<td>哪些内容可复用到下一个项目</td>
+<td><code>NUXT_PUBLIC_API_URL</code> + devProxy 的同源代理思路</td>
+</tr>
+<tr>
+<td>哪些内容只属于当前项目</td>
+<td>主播端 <code>/api/v1/streamer/auth/*</code> 契约与本地 storage key</td>
+</tr>
+<tr>
+<td>是否可规模化到多 Agent、多端、多 Web surface、多服务或 Go Gin + Laravel</td>
+<td>可复用到同类 Nuxt SPA + Go API 项目</td>
+</tr>
+<tr>
+<td>是否涉及 Scale Profile：mvp / growth / scale / enterprise</td>
+<td><code>mvp</code></td>
+</tr>
+<tr>
+<td>是否影响项目 Overlay：project.config.json / docs/project</td>
+<td>否</td>
+</tr>
+<tr>
+<td>是否增加了自动校验或 CI 门禁</td>
+<td>否</td>
+</tr>
+<tr>
+<td>是否降低了 Agent 偷懒空间</td>
+<td>是，避免继续使用占位接口与错误 env 名称</td>
+</tr>
+</tbody>
+</table>
+<h2 id="需求追踪">需求追踪</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>需求 ID</td>
+<td><code>STR-001</code></td>
+</tr>
+<tr>
+<td>需求总账</td>
+<td><code>docs/prd/requirements.md</code></td>
+</tr>
+<tr>
+<td>模块 PRD</td>
+<td>当前主 PRD 已废弃主播端，实际以 <code>apps/live-host/README.md</code> + OpenAPI 为准</td>
+</tr>
+<tr>
+<td>OpenAPI / Event / DTO</td>
+<td><code>docs/api/openapi.yaml</code>、<code>packages/contracts/openapi/v1.yaml</code>、<code>services/go-app/internal/dto/streamer.go</code></td>
+</tr>
+<tr>
+<td>验收证据行</td>
+<td><code>docs/qa/acceptance-evidence.md</code></td>
+</tr>
+<tr>
+<td>不涉及契约的原因</td>
+<td>不适用，本次直接对齐契约</td>
+</tr>
+</tbody>
+</table>
+<h2 id="工程规范">工程规范</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>代码规范</td>
+<td><code>docs/quality/code-standards.md</code></td>
+</tr>
+<tr>
+<td>数据表设计</td>
+<td><code>docs/architecture/database-design-standards.md</code></td>
+</tr>
+<tr>
+<td>是否影响数据表 / migration / 索引</td>
+<td>否</td>
+</tr>
+<tr>
+<td>是否使用表设计模板</td>
+<td>不涉及</td>
+</tr>
+<tr>
+<td>是否影响账本、事务、幂等或审计</td>
+<td>否</td>
+</tr>
+<tr>
+<td>规范例外与原因</td>
+<td>无</td>
+</tr>
+</tbody>
+</table>
+<h2 id="架构能力门禁">架构能力门禁</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>架构能力门禁</td>
+<td><code>docs/architecture/capability-gates.md</code></td>
+</tr>
+<tr>
+<td>结构化证据</td>
+<td>不涉及</td>
+</tr>
+<tr>
+<td>是否只是 CRUD</td>
+<td>否，属于前端鉴权接线与运行时代理</td>
+</tr>
+<tr>
+<td>涉及能力</td>
+<td>权限安全</td>
+</tr>
+<tr>
+<td>不适用项及原因</td>
+<td>不涉及异步、账本、迁移、统计</td>
+</tr>
+<tr>
+<td>当前 MVP 边界</td>
+<td>仅接登录/登出，不扩主播开播业务接口</td>
+</tr>
+<tr>
+<td>未来迁移成本</td>
+<td>低；后续接 refresh / 我的房间 / start-live 可继续在现有 composable 上扩展</td>
+</tr>
+<tr>
+<td>升级触发指标</td>
+<td>主播端需要自动续签或多房间切换时</td>
+</tr>
+<tr>
+<td>高风险触发项</td>
+<td>权限</td>
+</tr>
+<tr>
+<td>能力门禁结论</td>
+<td>允许合入</td>
+</tr>
+</tbody>
+</table>
+<h2 id="运维影响">运维影响</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>运维就绪</td>
+<td><code>docs/operations/ops-readiness.md</code></td>
+</tr>
+<tr>
+<td>部署</td>
+<td>仅影响前端运行时 env 读取与开发代理；不影响生产入口</td>
+</tr>
+<tr>
+<td>回滚</td>
+<td>回滚 <code>live-host</code> 相关前端文件即可</td>
+</tr>
+<tr>
+<td>密钥</td>
+<td>更新了 <code>.env.example</code> / <code>.env.staging</code> 的 API 变量说明；未新增 secret</td>
+</tr>
+<tr>
+<td>备份恢复</td>
+<td>不涉及</td>
+</tr>
+<tr>
+<td>观测</td>
+<td>不涉及</td>
+</tr>
+<tr>
+<td>Runbook</td>
+<td>不涉及</td>
+</tr>
+</tbody>
+</table>
+<h2 id="红蓝对抗">红蓝对抗</h2>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>蓝队自检</td>
+<td>登录接口、登出接口、dev 代理、类型检查、全量 lint 均已验证</td>
+</tr>
+<tr>
+<td>红队质疑</td>
+<td>OpenAPI 与后端 token 字段存在漂移，已在前端兼容处理但仍建议后端统一契约</td>
+</tr>
+<tr>
+<td>合入判断</td>
+<td>可合入</td>
+</tr>
+</tbody>
+</table>
+<h2 id="完成申请与裁决">完成申请与裁决</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent Claim</td>
+<td>verified</td>
+</tr>
+<tr>
+<td>Project Decision</td>
+<td>pending-review</td>
+</tr>
+<tr>
+<td>完成申请</td>
+<td>已实现并验证主播登录接入与开发代理</td>
+</tr>
+<tr>
+<td>完成裁决</td>
+<td>待 Reviewer / Owner / QA</td>
+</tr>
+</tbody>
+</table>
+<h2 id="验证记录">验证记录</h2>
+<table>
+<thead>
+<tr>
+<th>命令/方式</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>./devtools/framework status</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>python3 scripts/validate-runtime-environment.py</code></td>
+<td>失败，环境缺少 Python <code>PIL</code> 依赖，不是本次代码引入</td>
+</tr>
+<tr>
+<td><code>python3 scripts/validate-prd.py</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>python3 scripts/validate-engineering-standards.py</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>python3 scripts/validate-capability-gates.py</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>python3 scripts/validate-completion-claims.py</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>./node_modules/.bin/nuxt typecheck</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>./node_modules/.bin/eslint . --cache --cache-location /tmp/live-host-eslint-cache</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>curl -i -X POST https://api-dev.54-151-131-132.sslip.io/api/v1/streamer/auth/login ...</code></td>
+<td>远端接口存在，返回 400/401，非 404</td>
+</tr>
+</tbody>
+</table>
+<h2 id="风险与待办">风险与待办</h2>
+<ol>
+<li>主播端仍未接 <code>/api/v1/streamer/me/rooms</code>、<code>/rooms/{room_id}/start</code>、<code>/refresh-zego-token</code>，当前开播流程继续依赖本地 Zego dev token。</li>
+<li>OpenAPI 中主播 token schema 与 Go 实现不一致，建议后端统一为单一真实契约。</li>
+<li>项目级 runtime validator 依赖 Python <code>PIL</code>，当前执行环境缺依赖，CI/本地环境需补装。</li>
+</ol>
+<h2 id="交接说明">交接说明</h2>
+<p>下一位 Agent 或工程师需要知道：</p>
+<ol>
+<li>开发环境推荐只配 <code>NUXT_PUBLIC_API_URL</code>；前端请求继续写 <code>/api/...</code>，由 Nuxt dev proxy 转发。</li>
+<li><code>useAuth</code> 已持久化 access/refresh token 和主播 <code>me</code> 信息，可继续扩 refresh 逻辑。</li>
+<li>若继续接通“我的房间/开播”链路，应优先使用现有主播端 OpenAPI 路径，不要再依赖 <code>.env</code> 中的假 <code>roomID/userID</code>。</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#输入资料">输入资料</a></li><li style="margin-left:0.0rem"><a href="#本次目标">本次目标</a></li><li style="margin-left:0.0rem"><a href="#修改文件">修改文件</a></li><li style="margin-left:0.0rem"><a href="#核心决策">核心决策</a></li><li style="margin-left:0.0rem"><a href="#框架价值判断">框架价值判断</a></li><li style="margin-left:0.0rem"><a href="#需求追踪">需求追踪</a></li><li style="margin-left:0.0rem"><a href="#工程规范">工程规范</a></li><li style="margin-left:0.0rem"><a href="#架构能力门禁">架构能力门禁</a></li><li style="margin-left:0.0rem"><a href="#运维影响">运维影响</a></li><li style="margin-left:0.0rem"><a href="#红蓝对抗">红蓝对抗</a></li><li style="margin-left:0.0rem"><a href="#完成申请与裁决">完成申请与裁决</a></li><li style="margin-left:0.0rem"><a href="#验证记录">验证记录</a></li><li style="margin-left:0.0rem"><a href="#风险与待办">风险与待办</a></li><li style="margin-left:0.0rem"><a href="#交接说明">交接说明</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-06-01</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Go</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-06-01-live-host-streamer-l…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606010000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BPython-live-host-streamer-login-integration.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>live-host-streamer-login-integration。本文属于业务系统运维 / 小蓝直播，日期：2026-06-01 Agent：Codex 任务：接入 apps/live-host 主播登录接口，并补开发环境 API 代理 PRD： docs/prd/modules/README.md （主…</p>
+      <p>关键词：小蓝直播、Shell、Python、Go、安全运维、故障排查、数据库恢复、源码与配置、业务系统运维、业务系统运维 / 小蓝直播、live-host-streamer-login-integration</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cf7b8dc8714c.html"><small>上一篇</small>Kickoff C 端直播间接入指南</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cf4636b70e5b.html"><small>下一篇</small>2026-06-02 Admin Streamer Avatar Upload</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cc7abcb49f8f.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
