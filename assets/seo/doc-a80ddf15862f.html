@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Packages 分层与公共包边界｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="Packages 分层与公共包边界。本文属于业务系统运维 / 小蓝直播，packages 是公共能力目录，不是杂物间。AI Agent 新增公共代码前，必须先判断平台、来源和消费者，不能把 Go、PHP、前端、UI、生成物混放到一个 shared 目录。 JSON Schema / DTO schema。">
+  <meta name="keywords" content="小蓝直播，Go，故障排查，业务系统运维，业务系统运维 / 小蓝直播，Packages 分层与公共包边界">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a80ddf15862f.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a80ddf15862f.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2B%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5-Packages%20%E5%88%86%E5%B1%82%E4%B8%8E%E5%85%AC%E5%85%B1%E5%8C%85%E8%BE%B9%E7%95%8C.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Packages 分层与公共包边界">
+  <meta property="og:description" content="Packages 分层与公共包边界。本文属于业务系统运维 / 小蓝直播，packages 是公共能力目录，不是杂物间。AI Agent 新增公共代码前，必须先判断平台、来源和消费者，不能把 Go、PHP、前端、UI、生成物混放到一个 shared 目录。 JSON Schema / DTO schema。">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a80ddf15862f.html">
+  <meta property="article:published_time" content="2026-06-04T01:09:00.439682+08:00">
+  <meta property="article:modified_time" content="2026-06-04 01:09">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Packages 分层与公共包边界">
+  <meta name="twitter:description" content="Packages 分层与公共包边界。本文属于业务系统运维 / 小蓝直播，packages 是公共能力目录，不是杂物间。AI Agent 新增公共代码前，必须先判断平台、来源和消费者，不能把 Go、PHP、前端、UI、生成物混放到一个 shared 目录。 JSON Schema / DTO schema。">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a80ddf15862f.html#article","headline":"Packages 分层与公共包边界","description":"Packages 分层与公共包边界。本文属于业务系统运维 / 小蓝直播，packages 是公共能力目录，不是杂物间。AI Agent 新增公共代码前，必须先判断平台、来源和消费者，不能把 Go、PHP、前端、UI、生成物混放到一个 shared 目录。 JSON Schema / DTO schema。","datePublished":"2026-06-04T01:09:00.439682+08:00","dateModified":"2026-06-04 01:09","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Go","故障排查","业务系统运维","业务系统运维 / 小蓝直播","Packages 分层与公共包边界"],"wordCount":692,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a80ddf15862f.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a80ddf15862f.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Packages 分层与公共包边界","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a80ddf15862f.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>Packages 分层与公共包边界</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>Packages 分层与公共包边界</h1>
+      <p class="lede">Packages 分层与公共包边界。本文属于业务系统运维 / 小蓝直播，packages 是公共能力目录，不是杂物间。AI Agent 新增公共代码前，必须先判断平台、来源和消费者，不能把 Go、PHP、前端、UI、生成物混放到一个 shared 目录。 JSON Schema / DTO schema。</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-04T01:09:00.439682+08:00">发布于 2026-06-04</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">692 字</span>
+        <span class="badge">2 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/architecture/package-boundaries.md</code></p>
+<p>整理日期：2026-06-04 01:09｜日期依据：文件创建/修改时间</p>
+</blockquote>
+<p><code>packages</code> 是公共能力目录，不是杂物间。AI Agent 新增公共代码前，必须先判断平台、来源和消费者，不能把 Go、PHP、前端、UI、生成物混放到一个 <code>shared</code> 目录。</p>
+<h2 id="1-推荐结构">1. 推荐结构</h2>
+<pre><code class="language-text">packages/
+  contracts/              # 平台无关契约源头
+    openapi/
+    events.md
+    errors.md
+
+  generated/              # 从 contracts 生成，不手写业务逻辑
+    ts/
+    go/
+    php/
+
+  ts/                     # TypeScript 生态公共包
+    shared/
+    web/
+    mobile/
+
+  ui/                     # 设计 token 和 UI 组件
+    tokens/
+    web/
+    mobile/
+
+  go/                     # Go 多服务公共包
+    kit/
+    httpx/
+    observability/
+
+  php/                    # PHP / Laravel 公共包
+    support/
+    filament/
+</code></pre>
+<h2 id="2-依赖方向">2. 依赖方向</h2>
+<pre><code class="language-text">apps/mobile      -&gt; packages/ts/mobile
+apps/mobile      -&gt; packages/ui/mobile
+apps/mobile      -&gt; packages/generated/ts
+
+apps/web     -&gt; packages/ts/web
+apps/web     -&gt; packages/ui/web
+apps/web     -&gt; packages/ui/tokens
+apps/web     -&gt; packages/generated/ts
+
+apps/admin -&gt; packages/ts/web
+apps/admin -&gt; packages/ui/web
+apps/admin -&gt; packages/ui/tokens
+apps/admin -&gt; packages/generated/ts
+
+services/go-app     -&gt; packages/go/*
+services/go-app     -&gt; packages/generated/go
+
+services/realtime -&gt; packages/go/*
+services/worker   -&gt; packages/go/*
+
+services/laravel-app -&gt; packages/php/*
+services/laravel-app -&gt; packages/generated/php
+</code></pre>
+<p>禁止：</p>
+<pre><code class="language-text">packages/ts/*     -&gt; packages/go/*
+packages/go/*     -&gt; packages/ts/*
+packages/php/*    -&gt; packages/go/*
+packages/ui/*     -&gt; services/*
+packages/contracts -&gt; apps/* 或 services/* implementation
+</code></pre>
+<h2 id="3-Contracts-与-Generated">3. Contracts 与 Generated</h2>
+<p><code>packages/contracts</code> 是源头：</p>
+<ol>
+<li>OpenAPI。</li>
+<li>事件契约。</li>
+<li>错误码。</li>
+<li>JSON Schema / DTO schema。</li>
+</ol>
+<p><code>packages/generated</code> 是生成物：</p>
+<ol>
+<li><code>generated/ts</code> 给前端、Nuxt、React Native 使用。</li>
+<li><code>generated/go</code> 给 Go 服务使用。</li>
+<li><code>generated/php</code> 给 Laravel 使用。</li>
+</ol>
+<p>生成物不得手写业务逻辑。修改 API 字段时，先改 <code>contracts</code>，再重新生成。</p>
+<h2 id="4-TypeScript-包">4. TypeScript 包</h2>
+<pre><code class="language-text">packages/ts/shared
+packages/ts/web
+packages/ts/mobile
+</code></pre>
+<p>规则：</p>
+<ol>
+<li><code>ts/shared</code> 只放 TS 通用常量、纯函数、环境无关类型。</li>
+<li><code>ts/web</code> 只放 Nuxt/Web/浏览器相关 helper。</li>
+<li><code>ts/mobile</code> 只放 React Native/App 相关 helper。</li>
+<li>API 字段类型优先从 <code>generated/ts</code> 引入，不手写重复 DTO。</li>
+</ol>
+<h2 id="5-UI-包">5. UI 包</h2>
+<pre><code class="language-text">packages/ui/tokens
+packages/ui/web
+packages/ui/mobile
+</code></pre>
+<p>规则：</p>
+<ol>
+<li><code>tokens</code> 放 CSS-first token，供 Tailwind CSS v4 和其他端消费。</li>
+<li><code>web</code> 放 Nuxt/Vue/Web UI。</li>
+<li><code>mobile</code> 放 React Native UI。</li>
+<li>UI 包不调用业务 API。</li>
+<li>页面级业务流程不放 UI 包。</li>
+</ol>
+<h2 id="6-Go-包">6. Go 包</h2>
+<pre><code class="language-text">packages/go/kit
+packages/go/httpx
+packages/go/observability
+</code></pre>
+<p>规则：</p>
+<ol>
+<li>只给多个 Go 服务复用。</li>
+<li>服务私有代码留在 <code>services/*/internal</code>。</li>
+<li>不放业务 use case、repository、handler。</li>
+</ol>
+<h2 id="7-PHP-包">7. PHP 包</h2>
+<pre><code class="language-text">packages/php/support
+packages/php/filament
+</code></pre>
+<p>规则：</p>
+<ol>
+<li>只给 PHP/Laravel 使用。</li>
+<li>Laravel app 私有逻辑留在 <code>services/laravel-app/app</code>。</li>
+<li>不放具体业务 Resource、Controller、Model、Job。</li>
+</ol>
+<h2 id="8-Agent-判断规则">8. Agent 判断规则</h2>
+<p>新增公共代码前必须回答：</p>
+<ol>
+<li>这个代码是否被至少两个 app/service 复用？</li>
+<li>它属于 contracts、generated、ts、ui、go、php 哪一类？</li>
+<li>它是否引用了平台私有运行时？</li>
+<li>它是否会让另一个平台被迫安装不需要的依赖？</li>
+<li>如果只给单个服务使用，为什么不放在该服务内部？</li>
+</ol>
+<p>没有明确答案时，默认放在 app/service 私有目录，不放 <code>packages</code>。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-推荐结构">1. 推荐结构</a></li><li style="margin-left:0.0rem"><a href="#2-依赖方向">2. 依赖方向</a></li><li style="margin-left:0.0rem"><a href="#3-Contracts-与-Generated">3. Contracts 与 Generated</a></li><li style="margin-left:0.0rem"><a href="#4-TypeScript-包">4. TypeScript 包</a></li><li style="margin-left:0.0rem"><a href="#5-UI-包">5. UI 包</a></li><li style="margin-left:0.0rem"><a href="#6-Go-包">6. Go 包</a></li><li style="margin-left:0.0rem"><a href="#7-PHP-包">7. PHP 包</a></li><li style="margin-left:0.0rem"><a href="#8-Agent-判断规则">8. Agent 判断规则</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-06-04</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Go</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/architecture/package-boundaries.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2B%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5-Packages%20%E5%88%86%E5%B1%82%E4%B8%8E%E5%85%AC%E5%85%B1%E5%8C%85%E8%BE%B9%E7%95%8C.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Packages 分层与公共包边界。本文属于业务系统运维 / 小蓝直播，packages 是公共能力目录，不是杂物间。AI Agent 新增公共代码前，必须先判断平台、来源和消费者，不能把 Go、PHP、前端、UI、生成物混放到一个 shared 目录。 JSON Schema / DTO schema。</p>
+      <p>关键词：小蓝直播、Go、故障排查、业务系统运维、业务系统运维 / 小蓝直播、Packages 分层与公共包边界</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f94bee023ebd.html"><small>上一篇</small>Observability Baseline</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2c8b800a2d29.html"><small>下一篇</small>支付通道选型：三方 vs 四方</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a80ddf15862f.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

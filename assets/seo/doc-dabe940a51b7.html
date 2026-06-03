@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>数据表设计规范｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="数据表设计规范。本文属于业务系统运维 / 小蓝直播，本规范定义团队默认 MySQL 表设计底线。项目可以选择 PostgreSQL、MongoDB 或其他存储，但必须在 ADR 和 docs/project/constraints.md 中说明替代规范；没有替代说明时，默认按本文执行。">
+  <meta name="keywords" content="小蓝直播，MySQL，安全运维，源码与配置，业务系统运维，业务系统运维 / 小蓝直播，数据表设计规范">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dabe940a51b7.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dabe940a51b7.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BMySQL%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4-%E6%95%B0%E6%8D%AE%E8%A1%A8%E8%AE%BE%E8%AE%A1%E8%A7%84%E8%8C%83.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="数据表设计规范">
+  <meta property="og:description" content="数据表设计规范。本文属于业务系统运维 / 小蓝直播，本规范定义团队默认 MySQL 表设计底线。项目可以选择 PostgreSQL、MongoDB 或其他存储，但必须在 ADR 和 docs/project/constraints.md 中说明替代规范；没有替代说明时，默认按本文执行。">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dabe940a51b7.html">
+  <meta property="article:published_time" content="2026-06-04T01:09:00.438382+08:00">
+  <meta property="article:modified_time" content="2026-06-04 01:09">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="数据表设计规范">
+  <meta name="twitter:description" content="数据表设计规范。本文属于业务系统运维 / 小蓝直播，本规范定义团队默认 MySQL 表设计底线。项目可以选择 PostgreSQL、MongoDB 或其他存储，但必须在 ADR 和 docs/project/constraints.md 中说明替代规范；没有替代说明时，默认按本文执行。">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dabe940a51b7.html#article","headline":"数据表设计规范","description":"数据表设计规范。本文属于业务系统运维 / 小蓝直播，本规范定义团队默认 MySQL 表设计底线。项目可以选择 PostgreSQL、MongoDB 或其他存储，但必须在 ADR 和 docs/project/constraints.md 中说明替代规范；没有替代说明时，默认按本文执行。","datePublished":"2026-06-04T01:09:00.438382+08:00","dateModified":"2026-06-04 01:09","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","MySQL","安全运维","源码与配置","业务系统运维","业务系统运维 / 小蓝直播","数据表设计规范"],"wordCount":1237,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dabe940a51b7.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dabe940a51b7.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"数据表设计规范","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dabe940a51b7.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>数据表设计规范</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>数据表设计规范</h1>
+      <p class="lede">数据表设计规范。本文属于业务系统运维 / 小蓝直播，本规范定义团队默认 MySQL 表设计底线。项目可以选择 PostgreSQL、MongoDB 或其他存储，但必须在 ADR 和 docs/project/constraints.md 中说明替代规范；没有替代说明时，默认按本文执行。</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-04T01:09:00.438382+08:00">发布于 2026-06-04</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,237 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/architecture/database-design-standards.md</code></p>
+<p>整理日期：2026-06-04 01:09｜日期依据：文件创建/修改时间</p>
+</blockquote>
+<p>本规范定义团队默认 MySQL 表设计底线。项目可以选择 PostgreSQL、MongoDB 或其他存储，但必须在 ADR 和 <code>docs/project/constraints.md</code> 中说明替代规范；没有替代说明时，默认按本文执行。</p>
+<h2 id="1-命名">1. 命名</h2>
+<ol>
+<li>表名使用小写 snake_case，默认使用复数名词，例如 <code>users</code>、<code>audit_logs</code>。</li>
+<li>字段名使用小写 snake_case。</li>
+<li>主键统一命名为 <code>id</code>。</li>
+<li>外键字段使用 <code>&lt;singular&gt;_id</code>，例如 <code>user_id</code>、<code>order_id</code>。</li>
+<li>布尔字段使用 <code>is_</code>、<code>has_</code>、<code>can_</code> 前缀。</li>
+<li>时间字段使用 <code>_at</code> 后缀，例如 <code>created_at</code>、<code>paid_at</code>。</li>
+<li>状态字段使用 <code>_status</code> 后缀，例如 <code>order_status</code>、<code>review_status</code>。</li>
+<li>索引名称必须表达用途：<code>idx_&lt;table&gt;_&lt;columns&gt;</code>、<code>uniq_&lt;table&gt;_&lt;columns&gt;</code>。</li>
+</ol>
+<h2 id="2-主键">2. 主键</h2>
+<ol>
+<li>默认使用 <code>BIGINT UNSIGNED AUTO_INCREMENT</code> 或框架等价类型。</li>
+<li>需要跨库、跨区域、离线生成或外部暴露 ID 时，可以使用 UUID/ULID，但必须写 ADR。</li>
+<li>外部展示 ID、订单号、流水号不等同于主键，应单独建唯一业务键。</li>
+<li>多租户表必须显式包含 <code>tenant_id</code> 或等价隔离字段，并在唯一索引中考虑租户边界。</li>
+</ol>
+<h2 id="3-字段">3. 字段</h2>
+<ol>
+<li>所有字段必须有明确类型、是否可空、默认值和说明。</li>
+<li>非业务必需字段默认 <code>NOT NULL</code>。</li>
+<li>字符串长度按业务上限设计，不用无意义超大 varchar。</li>
+<li>金额使用最小货币单位整数，例如 <code>amount_minor BIGINT</code>，并配套 <code>currency_code CHAR(3)</code>。</li>
+<li>金币、积分、次数、库存等使用整数，不使用 float。</li>
+<li>比率、折扣、汇率使用 DECIMAL 或带精度整数，并说明精度。</li>
+<li>JSON 字段只能用于扩展属性、外部回调原文或低频配置；高频查询字段必须拆成显式列。</li>
+<li>PII 字段必须标记敏感性，必要时加密、脱敏或独立权限控制。</li>
+</ol>
+<h2 id="4-索引">4. 索引</h2>
+<ol>
+<li>每个外键或逻辑关联字段必须评估索引。</li>
+<li>查询路径必须从 PRD/API/后台列表反推索引，不为猜测场景建索引。</li>
+<li>唯一业务约束必须建唯一索引，不能只靠代码判断。</li>
+<li>组合索引按过滤条件、排序条件和基数设计，并记录主要查询场景。</li>
+<li>高写入表谨慎增加索引，必须说明写放大成本。</li>
+<li>分页默认使用稳定排序字段，避免大 offset；大数据列表优先 cursor/keyset pagination。</li>
+</ol>
+<h2 id="5-约束">5. 约束</h2>
+<ol>
+<li>单服务拥有的数据表，优先使用数据库唯一约束和必要外键。</li>
+<li>跨服务或大流量场景可以使用逻辑外键，但必须保留索引、数据 owner 和一致性校验方案。</li>
+<li>状态字段不建议使用 MySQL ENUM 作为默认方案，优先使用字符串/小整数加应用层 enum，避免状态扩展困难。</li>
+<li>删除策略必须明确：硬删除、软删除、冷静期、归档或匿名化。</li>
+<li><code>deleted_at</code> 只在业务需要软删除时添加，不作为所有表默认字段。</li>
+</ol>
+<h2 id="6-迁移">6. 迁移</h2>
+<ol>
+<li>所有表结构变更必须通过 migration，不允许手改数据库后再补文档。</li>
+<li>迁移文件名必须包含时间和动作，例如 <code>202605170001_create_users_table</code>。</li>
+<li>线上变更遵守 expand -&gt; backfill -&gt; contract：先加兼容字段，再回填，再切读写，最后删除旧字段。</li>
+<li>大表变更必须评估锁表、回滚、耗时和灰度方案。</li>
+<li>删除字段、改类型、改唯一约束属于高风险变更，必须有 ADR 或 migration plan。</li>
+<li>Migration 必须和 <code>docs/architecture/data-model.md</code>、模块 PRD、OpenAPI/DTO 保持一致。</li>
+</ol>
+<h2 id="7-账本">7. 账本</h2>
+<p>涉及余额、金币、订单、扣费、收益、积分、库存等强一致数据时：</p>
+<ol>
+<li>必须有流水表或账本表，不能只更新余额快照。</li>
+<li>账本写入必须在服务端事务中完成。</li>
+<li>必须有幂等键，例如 <code>idempotency_key</code> 或唯一业务单号。</li>
+<li>必须记录变动前后值或可重放的 delta。</li>
+<li>必须记录业务来源，例如 <code>source_type</code>、<code>source_id</code>。</li>
+<li>必须记录操作方和 trace id。</li>
+<li>对账、补偿和审计查询必须有索引。</li>
+</ol>
+<h2 id="8-审计">8. 审计</h2>
+<p>后台、权限、资金、审核、处罚、数据删除、配置变更等敏感操作必须有审计日志：</p>
+<ol>
+<li>操作人：<code>actor_id</code>、<code>actor_type</code>。</li>
+<li>操作对象：<code>target_type</code>、<code>target_id</code>。</li>
+<li>操作动作：<code>action</code>。</li>
+<li>操作前后摘要：<code>before_snapshot</code>、<code>after_snapshot</code> 或 delta。</li>
+<li>请求来源：<code>ip</code>、<code>user_agent</code>、<code>trace_id</code>。</li>
+<li>结果：<code>result</code>、<code>error_code</code>。</li>
+<li>时间：<code>created_at</code>。</li>
+</ol>
+<p>审计日志默认只追加，不更新、不删除；如因合规必须清理，需要独立 retention 策略。</p>
+<h2 id="9-表设计模板">9. 表设计模板</h2>
+<p>新增核心表前，必须在 <code>docs/architecture/data-model.md</code> 或模块 PRD 中登记表设计，推荐使用：</p>
+<pre><code class="language-text">docs/templates/database-table-template.md
+</code></pre>
+<p>表设计必须说明：</p>
+<ol>
+<li>表归属服务和数据 owner。</li>
+<li>需求 ID。</li>
+<li>字段、类型、可空、默认值、说明。</li>
+<li>索引和唯一约束。</li>
+<li>事务、幂等、审计、删除策略。</li>
+<li>主要查询路径和容量预估。</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-命名">1. 命名</a></li><li style="margin-left:0.0rem"><a href="#2-主键">2. 主键</a></li><li style="margin-left:0.0rem"><a href="#3-字段">3. 字段</a></li><li style="margin-left:0.0rem"><a href="#4-索引">4. 索引</a></li><li style="margin-left:0.0rem"><a href="#5-约束">5. 约束</a></li><li style="margin-left:0.0rem"><a href="#6-迁移">6. 迁移</a></li><li style="margin-left:0.0rem"><a href="#7-账本">7. 账本</a></li><li style="margin-left:0.0rem"><a href="#8-审计">8. 审计</a></li><li style="margin-left:0.0rem"><a href="#9-表设计模板">9. 表设计模板</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-06-04</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">MySQL</span><span class="tag">安全运维</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/architecture/database-design-standards.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BMySQL%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4-%E6%95%B0%E6%8D%AE%E8%A1%A8%E8%AE%BE%E8%AE%A1%E8%A7%84%E8%8C%83.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>数据表设计规范。本文属于业务系统运维 / 小蓝直播，本规范定义团队默认 MySQL 表设计底线。项目可以选择 PostgreSQL、MongoDB 或其他存储，但必须在 ADR 和 docs/project/constraints.md 中说明替代规范；没有替代说明时，默认按本文执行。</p>
+      <p>关键词：小蓝直播、MySQL、安全运维、源码与配置、业务系统运维、业务系统运维 / 小蓝直播、数据表设计规范</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8a7303e20f94.html"><small>上一篇</small>7. 容量规划与性能</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-36ca5c7e1f49.html"><small>下一篇</small>文档双视图模型</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dabe940a51b7.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Webhook 设计：支付回调 + SRS 直播回调｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="Webhook 设计：支付回调 + SRS 直播回调。本文属于业务系统运维 / 小蓝直播，对齐 contracts /api/v1/hooks/* 7 个接口（payment 3 + srs 4）。 资金安全 + 直播鉴权两个最关键的外部回调入口，必须严格按本文实现。 本期实现 ： generic 完整链路；we…">
+  <meta name="keywords" content="小蓝直播，Shell，Go，Nginx，自动化，安全运维，故障排查，源码与配置，业务系统运维，业务系统运维 / 小蓝直播，Webhook 设计：支付回调 + SRS 直播回调">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-25dd949e497b.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-25dd949e497b.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-Webhook%20%E8%AE%BE%E8%AE%A1%EF%BC%9A%E6%94%AF%E4%BB%98%E5%9B%9E%E8%B0%83%20%2B%20SRS%20%E7%9B%B4%E6%92%AD%E5%9B%9E%E8%B0%83.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Webhook 设计：支付回调 + SRS 直播回调">
+  <meta property="og:description" content="Webhook 设计：支付回调 + SRS 直播回调。本文属于业务系统运维 / 小蓝直播，对齐 contracts /api/v1/hooks/* 7 个接口（payment 3 + srs 4）。 资金安全 + 直播鉴权两个最关键的外部回调入口，必须严格按本文实现。 本期实现 ： generic 完整链路；we…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-25dd949e497b.html">
+  <meta property="article:published_time" content="2026-06-04T01:09:00.443020+08:00">
+  <meta property="article:modified_time" content="2026-06-04 01:09">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Webhook 设计：支付回调 + SRS 直播回调">
+  <meta name="twitter:description" content="Webhook 设计：支付回调 + SRS 直播回调。本文属于业务系统运维 / 小蓝直播，对齐 contracts /api/v1/hooks/* 7 个接口（payment 3 + srs 4）。 资金安全 + 直播鉴权两个最关键的外部回调入口，必须严格按本文实现。 本期实现 ： generic 完整链路；we…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-25dd949e497b.html#article","headline":"Webhook 设计：支付回调 + SRS 直播回调","description":"Webhook 设计：支付回调 + SRS 直播回调。本文属于业务系统运维 / 小蓝直播，对齐 contracts /api/v1/hooks/* 7 个接口（payment 3 + srs 4）。 资金安全 + 直播鉴权两个最关键的外部回调入口，必须严格按本文实现。 本期实现 ： generic 完整链路；we…","datePublished":"2026-06-04T01:09:00.443020+08:00","dateModified":"2026-06-04 01:09","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Shell","Go","Nginx","自动化","安全运维","故障排查","源码与配置","业务系统运维","业务系统运维 / 小蓝直播","Webhook 设计：支付回调 + SRS 直播回调"],"wordCount":1945,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-25dd949e497b.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-25dd949e497b.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Webhook 设计：支付回调 + SRS 直播回调","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-25dd949e497b.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>Webhook 设计：支付回调 + SRS 直播回调</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>Webhook 设计：支付回调 + SRS 直播回调</h1>
+      <p class="lede">Webhook 设计：支付回调 + SRS 直播回调。本文属于业务系统运维 / 小蓝直播，对齐 contracts /api/v1/hooks/* 7 个接口（payment 3 + srs 4）。 资金安全 + 直播鉴权两个最关键的外部回调入口，必须严格按本文实现。 本期实现 ： generic 完整链路；we…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-04T01:09:00.443020+08:00">发布于 2026-06-04</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,945 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/architecture/webhook-design.md</code></p>
+<p>整理日期：2026-06-04 01:09｜日期依据：文件创建/修改时间</p>
+<p>对齐 contracts <code>/api/v1/hooks/*</code> 7 个接口（payment 3 + srs 4）。
+资金安全 + 直播鉴权两个最关键的外部回调入口，必须严格按本文实现。</p>
+</blockquote>
+<hr/>
+<h2 id="1-总体原则">1. 总体原则</h2>
+<table>
+<thead>
+<tr>
+<th>原则</th>
+<th>落地</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>快响应慢处理</strong></td>
+<td>&lt; 100ms 返回 200，业务可异步落地，避免重试风暴</td>
+</tr>
+<tr>
+<td><strong>必持久化原文</strong></td>
+<td>所有 hook 一进门就写 <code>payment_callbacks</code> 表，验签/处理失败也存（审计依据）</td>
+</tr>
+<tr>
+<td><strong>必验签</strong></td>
+<td>HMAC-SHA256 / RSA2，密钥从 env 读取</td>
+</tr>
+<tr>
+<td><strong>必幂等</strong></td>
+<td>资金类用 <code>wallet_journals.idempotency_key</code>；SRS 类用业务状态机+乐观锁</td>
+</tr>
+<tr>
+<td><strong>失败可重放</strong></td>
+<td><code>payment_callbacks.processed=2</code> 由定时任务扫描重跑</td>
+</tr>
+<tr>
+<td><strong>fail-open vs fail-close</strong></td>
+<td>支付回调签名失败 → fail-close（不入账）；SRS 鉴权失败 → fail-close（拒绝推流）</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="2-支付回调-payment_callback">2. 支付回调（payment_callback）</h2>
+<h3 id="2-1-接口">2.1 接口</h3>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>通道</th>
+<th>验签算法</th>
+<th>密钥 env</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST /api/v1/hooks/payment/wechat</code></td>
+<td>微信支付</td>
+<td>HMAC-SHA256 + 证书</td>
+<td><code>APP_PAY_WECHAT_KEY</code></td>
+</tr>
+<tr>
+<td><code>POST /api/v1/hooks/payment/alipay</code></td>
+<td>支付宝</td>
+<td>RSA2 (body.sign)</td>
+<td><code>APP_PAY_ALIPAY_PUBKEY</code></td>
+</tr>
+<tr>
+<td><code>POST /api/v1/hooks/payment/generic</code></td>
+<td>通用通道（联调用）</td>
+<td>HMAC-SHA256(body)</td>
+<td><code>APP_PAY_GENERIC_KEY</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>本期实现</strong>：<code>generic</code> 完整链路；wechat/alipay 占位（持久化原文 + verified=0 + 返回 200，后续接入真通道时填验签）。</p>
+<h3 id="2-2-数据流-5-步">2.2 数据流（5 步）</h3>
+<pre><code>┌─────────────────────┐
+│   第三方支付平台     │
+└──────────┬──────────┘
+           │ POST /api/v1/hooks/payment/generic
+           │ Header:  X-Signature: &lt;hex&gt;
+           │ Body:    {"channel_no":"wx_xxx","order_no":"R20...","amount":"100.00","status":"PAID","paid_at":...}
+           ↓
+┌─────────────────────────────────────────────────┐
+│  hookPaymentCallback handler                    │
+│                                                 │
+│  STEP 1. 持久化原文                              │
+│  ─────────────────                              │
+│  INSERT payment_callbacks (                     │
+│    channel="generic",                           │
+│    callback_type="recharge",                    │
+│    third_party_no, order_no,                    │
+│    raw_headers, raw_body, signature,            │
+│    verified=0, processed=0)                     │
+│                                                 │
+│  STEP 2. 验签                                    │
+│  ───────                                        │
+│  expected = HMAC-SHA256(body, APP_PAY_KEY)      │
+│  if expected != X-Signature:                    │
+│    UPDATE payment_callbacks SET verified=2      │
+│    return 200 {"code":0,"message":"ok"}         │
+│    （即使签名失败也返回 200，避免第三方重试，    │
+│       排查走 verified=2 审计）                   │
+│                                                 │
+│  STEP 3. 去重                                    │
+│  ──────                                         │
+│  if payment_callbacks WHERE                     │
+│     channel + third_party_no 已存在 processed=1 │
+│  → 直接 ACK，不再入账                            │
+│                                                 │
+│  STEP 4. 业务入账（幂等保护）                    │
+│  ─────────                                      │
+│  walletService.SettleRechargePaid(              │
+│    order_no, channel_no, paid_at)               │
+│                                                 │
+│  内部:                                          │
+│    - SELECT recharge_orders WHERE order_no=...  │
+│    - if status == PAID → return nil（幂等）     │
+│    - MarkPaid(status: 1→3)                      │
+│    - ledger.Post(                               │
+│        idempotency_key = "recharge_" + order_no │
+│        Direction = IN, Currency = Diamond,      │
+│        Entries = [user:UID Debit, platform:     │
+│                   recharge Credit])             │
+│                                                 │
+│  STEP 5. 标记完成                                │
+│  ────────                                       │
+│  UPDATE payment_callbacks SET                   │
+│    verified = 1, processed = 1,                 │
+│    processed_at = NOW(3)                        │
+│  return 200 {"code":0,"message":"ok"}           │
+└─────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="2-3-错误处理矩阵">2.3 错误处理矩阵</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>HTTP</th>
+<th>code</th>
+<th>verified</th>
+<th>processed</th>
+<th>是否重试</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>正常入账</td>
+<td>200</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>否</td>
+</tr>
+<tr>
+<td>签名错误</td>
+<td>200</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>否（人工查 verified=2）</td>
+</tr>
+<tr>
+<td>订单不存在</td>
+<td>200</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>否（持久化原文留证）</td>
+</tr>
+<tr>
+<td>订单已支付（重复回调）</td>
+<td>200</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>否（幂等成功）</td>
+</tr>
+<tr>
+<td>入账失败（DB 抖动）</td>
+<td>200</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>是（cron 重扫 processed=2）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键决策</strong>：所有情况都返回 HTTP 200 + body code=0，<strong>让第三方满意，自己背责任</strong>。失败的处理结果记在 <code>processed</code> 字段，由我们的 cron 重试，不让第三方触发雪崩。</p>
+<h3 id="2-4-验签算法-generic">2.4 验签算法（generic）</h3>
+<pre><code class="language-go">// 请求头：X-Signature: &lt;hex&gt;
+// 请求体：raw bytes（不重新编排）
+// 密钥：env APP_PAY_GENERIC_KEY (32 bytes recommended)
+
+mac := hmac.New(sha256.New, []byte(secret))
+mac.Write(rawBody)
+expected := hex.EncodeToString(mac.Sum(nil))
+
+if !hmac.Equal([]byte(expected), []byte(headerSig)) {
+    // 验签失败
+}
+</code></pre>
+<p><strong>注意</strong>：用 <code>hmac.Equal</code> 而非 <code>==</code>，防 timing attack。</p>
+<hr/>
+<h2 id="3-SRS-直播回调">3. SRS 直播回调</h2>
+<h3 id="3-1-接口">3.1 接口</h3>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>触发时机</th>
+<th>是否阻塞</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST /api/v1/hooks/srs/on_publish</code></td>
+<td>OBS 开始推流</td>
+<td><strong>阻塞</strong>：code !=0 SRS 拒绝推流</td>
+</tr>
+<tr>
+<td><code>POST /api/v1/hooks/srs/on_unpublish</code></td>
+<td>OBS 断开推流</td>
+<td>非阻塞，只是通知</td>
+</tr>
+<tr>
+<td><code>POST /api/v1/hooks/srs/on_dvr</code></td>
+<td>录像分片落盘</td>
+<td>非阻塞</td>
+</tr>
+<tr>
+<td><code>POST /api/v1/hooks/srs/on_snapshot</code></td>
+<td>截图生成</td>
+<td>非阻塞</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-2-SRS-请求格式">3.2 SRS 请求格式</h3>
+<p>SRS 固定格式（不可定制）：</p>
+<pre><code class="language-json">{
+  "action": "on_publish",
+  "client_id": "abcd1234",
+  "ip": "203.0.113.1",
+  "vhost": "__defaultVhost__",
+  "app": "live",
+  "stream": "room_R0001_keyabc",
+  "param": "?敏感凭据：[已脱敏]
+}
+</code></pre>
+<p><code>stream</code> 字段约定格式：<code>room_{ROOM_NO}_key{STREAM_KEY_LAST_8_HEX}</code>，或更严：完整密钥放在 <code>param</code> 的 query。</p>
+<h3 id="3-3-on_publish-鉴权流程">3.3 on_publish 鉴权流程</h3>
+<pre><code>1. 持久化到 payment_callbacks (channel=srs, callback_type=on_publish)
+2. 校验源 IP 在白名单（env APP_SRS_ALLOWED_IPS）—— 不在白名单 → code:403
+3. 解析 stream + param 提取 stream_key
+4. SELECT live_stream_keys WHERE stream_key=? AND active=1
+5. 不存在 / 非 active → code:401（rotated 的 key 自然被拒）
+6. 校验 live_rooms.status：
+   - 1=未开播 → 允许
+   - 2=已在直播 → code:409（同房间不允许并发推流）
+   - 4=封禁 → code:403
+7. 创建 live_sessions(room_id, streamer_id, status=1, start_at=NOW)
+8. UPDATE live_rooms SET status=2, last_start_at=NOW
+9. processed=1，返回 200 {"code":0}
+</code></pre>
+<p><strong>关键点</strong>：SRS 只看 body 里的 <code>code</code>，<strong>code==0 才放行推流</strong>。HTTP status 必须 200，否则 SRS 当作错误重试。</p>
+<h3 id="3-4-on_unpublish-流程">3.4 on_unpublish 流程</h3>
+<pre><code>1. 持久化原文
+2. 找最新的 live_sessions WHERE room_id=? AND status=1 ORDER BY start_at DESC LIMIT 1
+3. 不存在 → 直接返回 200 {"code":0}（幂等：忽略孤儿 unpublish）
+4. UPDATE live_sessions:
+     status=2(已结束), end_at=NOW, duration_sec=NOW-start_at
+5. UPDATE live_rooms SET status=3(已结束), last_end_at=NOW
+6. 异步任务（本期不实现）：
+     - 统计本场打赏总额 → live_sessions.total_tip_rmb
+     - 统计本场弹幕数 → live_sessions.total_chat
+     - 统计峰值在线 → live_sessions.peak_viewers
+7. 返回 200 {"code":0}
+</code></pre>
+<h3 id="3-5-on_dvr-on_snapshot">3.5 on_dvr / on_snapshot</h3>
+<p>本期实现：仅持久化原文 + 返回 200。后续接入 OSS 时取出 file 字段同步到房间封面/录像表。</p>
+<h3 id="3-6-SRS-配置-参考">3.6 SRS 配置（参考）</h3>
+<pre><code class="language-nginx"># srs.conf
+vhost __defaultVhost__ {
+    http_hooks {
+        enabled         on;
+        on_publish      http://kickoff-api/api/v1/hooks/srs/on_publish;
+        on_unpublish    http://kickoff-api/api/v1/hooks/srs/on_unpublish;
+        on_dvr          http://kickoff-api/api/v1/hooks/srs/on_dvr;
+        on_snapshot     http://kickoff-api/api/v1/hooks/srs/on_snapshot;
+    }
+    dvr {
+        enabled         on;
+        dvr_path        /opt/srs/objs/nginx/html/dvr/[app]/[stream]/[2006]/[01]/[02]/[15].[04].[05].[999].flv;
+        dvr_plan        session;
+    }
+}
+</code></pre>
+<h3 id="3-7-鉴权策略">3.7 鉴权策略</h3>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>措施</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L1 网络</td>
+<td>SRS 部署在内网；nginx/ingress 限制 hook 接口来源 IP</td>
+</tr>
+<tr>
+<td>L2 应用</td>
+<td><code>APP_SRS_ALLOWED_IPS</code> env 白名单二次校验</td>
+</tr>
+<tr>
+<td>L3 业务</td>
+<td>stream_key 是密钥（DB 落盘 + 后台轮换）</td>
+</tr>
+</tbody>
+</table>
+<p>SRS 原生不支持 HMAC 签名头。如果要更强签名，可以：
+- 在 SRS 前架一层 nginx，nginx 计算签名注入到 hook 请求
+- 或者在 stream_key 里嵌时间戳 + HMAC，提高对抗回放的成本</p>
+<p>本期实现 L1+L2+L3。</p>
+<hr/>
+<h2 id="4-数据库表使用">4. 数据库表使用</h2>
+<h3 id="4-1-payment_callbacks-所有-hook-共用">4.1 payment_callbacks（所有 hook 共用）</h3>
+<pre><code class="language-sql">INSERT payment_callbacks (
+  id, channel, callback_type,
+  third_party_no, order_no,
+  raw_headers, raw_body, signature,
+  verified, processed,
+  client_ip, received_at
+)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>取值（payment）</th>
+<th>取值（srs）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>channel</td>
+<td>wechat/alipay/generic</td>
+<td>srs</td>
+</tr>
+<tr>
+<td>callback_type</td>
+<td>recharge</td>
+<td>on_publish/on_unpublish/on_dvr/on_snapshot</td>
+</tr>
+<tr>
+<td>third_party_no</td>
+<td>微信/支付宝交易号</td>
+<td>SRS client_id</td>
+</tr>
+<tr>
+<td>order_no</td>
+<td>我们的 recharge order_no</td>
+<td>SRS stream（路径）</td>
+</tr>
+<tr>
+<td>raw_headers</td>
+<td>HTTP 头 JSON</td>
+<td>同</td>
+</tr>
+<tr>
+<td>raw_body</td>
+<td>请求体原文</td>
+<td>同</td>
+</tr>
+<tr>
+<td>signature</td>
+<td>签名字符串</td>
+<td>空（SRS 无签名）</td>
+</tr>
+<tr>
+<td>verified</td>
+<td>0/1/2</td>
+<td>1（不验签，靠 IP 白名单）</td>
+</tr>
+<tr>
+<td>processed</td>
+<td>0/1/2</td>
+<td>0/1/2</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-2-资金链路-payment">4.2 资金链路（payment）</h3>
+<p>依赖 <code>recharge_orders</code> + <code>wallets</code> + <code>wallet_journals</code> + <code>wallet_journal_entries</code>，全部已有 DDL。</p>
+<h3 id="4-3-直播链路-srs">4.3 直播链路（srs）</h3>
+<p>依赖 <code>live_rooms</code> + <code>live_sessions</code> + <code>live_stream_keys</code>，全部已有 DDL。</p>
+<hr/>
+<h2 id="5-实现清单">5. 实现清单</h2>
+<h3 id="5-1-新增文件">5.1 新增文件</h3>
+<pre><code>internal/
+├── http/hook/
+│   ├── payment.go          payment generic + wechat + alipay handler
+│   └── srs.go              srs on_publish/on_unpublish/on_dvr/on_snapshot handler
+├── service/hook/
+│   ├── payment.go          支付回调业务（验签 → 入账）
+│   └── srs.go              直播回调业务（鉴权 → 状态机）
+├── repository/hook/
+│   └── callback.go         payment_callbacks 表读写
+├── repository/live/
+│   └── live.go             live_rooms / live_sessions / live_stream_keys
+└── model/
+    ├── live.go             live 域 GORM 实体
+    └── callback.go         payment_callbacks
+</code></pre>
+<h3 id="5-2-复用现有">5.2 复用现有</h3>
+<ul>
+<li><code>pkg/cryptox.HMACSHA256Hex</code>（验签）</li>
+<li><code>pkg/ledger.Post</code>（充值入账）</li>
+<li><code>service/wallet.SettleRechargePaid</code>（资金端口，hook service 调用）</li>
+<li><code>pkg/snowflake</code>（session/callback id）</li>
+</ul>
+<h3 id="5-3-router-装配">5.3 router 装配</h3>
+<pre><code class="language-go">// 内网 hook，不挂业务限流 / 不挂业务 auth
+hook := r.Group("/api/v1/hooks")
+hook.POST("/payment/wechat",   srcIPCheckMW, paymentH.Wechat)
+hook.POST("/payment/alipay",   srcIPCheckMW, paymentH.Alipay)
+hook.POST("/payment/generic",  srcIPCheckMW, paymentH.Generic)
+
+hook.POST("/srs/on_publish",   srsIPCheckMW, srsH.OnPublish)
+hook.POST("/srs/on_unpublish", srsIPCheckMW, srsH.OnUnpublish)
+hook.POST("/srs/on_dvr",       srsIPCheckMW, srsH.OnDvr)
+hook.POST("/srs/on_snapshot",  srsIPCheckMW, srsH.OnSnapshot)
+</code></pre>
+<p><code>srcIPCheckMW</code> 二选一：env 配置允许的 IP 列表，不在白名单 → 403。</p>
+<hr/>
+<h2 id="6-配置补充">6. 配置补充</h2>
+<pre><code class="language-yaml"># config/config.local.yaml
+pay:
+  wechat:
+    enabled: false      # 本期占位
+    merchant_id: ""
+  alipay:
+    enabled: false
+    app_id: ""
+  generic:
+    enabled: true       # 联调用
+
+srs:
+  allowed_ips:           # CIDR / 单 IP 都支持
+    - "203.0.113.1/32"
+    - "203.0.113.1/8"
+</code></pre>
+<p>敏感密钥走 env：
+- <code>APP_PAY_GENERIC_KEY</code>（32 字节）
+- <code>APP_PAY_WECHAT_KEY</code>（后续）
+- <code>APP_PAY_ALIPAY_PUBKEY</code>（后续）</p>
+<hr/>
+<h2 id="7-测试矩阵">7. 测试矩阵</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>hook</th>
+<th>期望</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>正常充值回调</td>
+<td>payment/generic</td>
+<td>DB: recharge.status=PAID, wallet.diamond +N, ledger 配平</td>
+</tr>
+<tr>
+<td>错误签名</td>
+<td>payment/generic</td>
+<td>200 + verified=2 + 余额不变</td>
+</tr>
+<tr>
+<td>重复回调</td>
+<td>payment/generic</td>
+<td>200 + processed=1（幂等），余额不变第二次</td>
+</tr>
+<tr>
+<td>订单不存在</td>
+<td>payment/generic</td>
+<td>200 + verified=1 + processed=2，留证</td>
+</tr>
+<tr>
+<td>OBS 推流（正确 key）</td>
+<td>srs/on_publish</td>
+<td>code:0 + session 创建 + room.status=2</td>
+</tr>
+<tr>
+<td>OBS 推流（错 key）</td>
+<td>srs/on_publish</td>
+<td>code:401 + SRS 拒推</td>
+</tr>
+<tr>
+<td>OBS 推流（同房间并发）</td>
+<td>srs/on_publish</td>
+<td>code:409 拒第二条</td>
+</tr>
+<tr>
+<td>OBS 断开</td>
+<td>srs/on_unpublish</td>
+<td>session.status=2 + room.status=3</td>
+</tr>
+<tr>
+<td>非白名单 IP</td>
+<td>任何 hook</td>
+<td>403（不进业务）</td>
+</tr>
+</tbody>
+</table>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-总体原则">1. 总体原则</a></li><li style="margin-left:0.0rem"><a href="#2-支付回调-payment_callback">2. 支付回调（payment_callback）</a></li><li style="margin-left:0.8rem"><a href="#2-1-接口">2.1 接口</a></li><li style="margin-left:0.8rem"><a href="#2-2-数据流-5-步">2.2 数据流（5 步）</a></li><li style="margin-left:0.8rem"><a href="#2-3-错误处理矩阵">2.3 错误处理矩阵</a></li><li style="margin-left:0.8rem"><a href="#2-4-验签算法-generic">2.4 验签算法（generic）</a></li><li style="margin-left:0.0rem"><a href="#3-SRS-直播回调">3. SRS 直播回调</a></li><li style="margin-left:0.8rem"><a href="#3-1-接口">3.1 接口</a></li><li style="margin-left:0.8rem"><a href="#3-2-SRS-请求格式">3.2 SRS 请求格式</a></li><li style="margin-left:0.8rem"><a href="#3-3-on_publish-鉴权流程">3.3 on_publish 鉴权流程</a></li><li style="margin-left:0.8rem"><a href="#3-4-on_unpublish-流程">3.4 on_unpublish 流程</a></li><li style="margin-left:0.8rem"><a href="#3-5-on_dvr-on_snapshot">3.5 on_dvr / on_snapshot</a></li><li style="margin-left:0.8rem"><a href="#3-6-SRS-配置-参考">3.6 SRS 配置（参考）</a></li><li style="margin-left:0.8rem"><a href="#3-7-鉴权策略">3.7 鉴权策略</a></li><li style="margin-left:0.0rem"><a href="#4-数据库表使用">4. 数据库表使用</a></li><li style="margin-left:0.8rem"><a href="#4-1-payment_callbacks-所有-hook-共用">4.1 payment_callbacks（所有 hook 共用）</a></li><li style="margin-left:0.8rem"><a href="#4-2-资金链路-payment">4.2 资金链路（payment）</a></li><li style="margin-left:0.8rem"><a href="#4-3-直播链路-srs">4.3 直播链路（srs）</a></li><li style="margin-left:0.0rem"><a href="#5-实现清单">5. 实现清单</a></li><li style="margin-left:0.8rem"><a href="#5-1-新增文件">5.1 新增文件</a></li><li style="margin-left:0.8rem"><a href="#5-2-复用现有">5.2 复用现有</a></li><li style="margin-left:0.8rem"><a href="#5-3-router-装配">5.3 router 装配</a></li><li style="margin-left:0.0rem"><a href="#6-配置补充">6. 配置补充</a></li><li style="margin-left:0.0rem"><a href="#7-测试矩阵">7. 测试矩阵</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-06-04</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Shell</span><span class="tag">Go</span><span class="tag">Nginx</span><span class="tag">自动化</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/architecture/webhook-design.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-Webhook%20%E8%AE%BE%E8%AE%A1%EF%BC%9A%E6%94%AF%E4%BB%98%E5%9B%9E%E8%B0%83%20%2B%20SRS%20%E7%9B%B4%E6%92%AD%E5%9B%9E%E8%B0%83.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Webhook 设计：支付回调 + SRS 直播回调。本文属于业务系统运维 / 小蓝直播，对齐 contracts /api/v1/hooks/* 7 个接口（payment 3 + srs 4）。 资金安全 + 直播鉴权两个最关键的外部回调入口，必须严格按本文实现。 本期实现 ： generic 完整链路；we…</p>
+      <p>关键词：小蓝直播、Shell、Go、Nginx、自动化、安全运维、故障排查、源码与配置、业务系统运维、业务系统运维 / 小蓝直播、Webhook 设计：支付回调 + SRS 直播回调</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-454f5df6bae9.html"><small>上一篇</small>Web 应用、官网与下载页策略</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d4cb251c44e0.html"><small>下一篇</small>前端联调指南</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-25dd949e497b.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

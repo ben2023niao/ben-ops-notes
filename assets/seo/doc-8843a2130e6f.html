@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Go Gin + Laravel 后端技术线｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="Go Gin + Laravel 后端技术线。本文属于业务系统运维 / 小蓝直播，Laravel 在 Monorepo 中不是被拆散，而是在 services/laravel-app/ 内保持完整 Laravel 应用结构。更详细的 Laravel 领域目录、Filament、Jobs、routes/api 拆分…">
+  <meta name="keywords" content="小蓝直播，Shell，Go，Docker，Nginx，MySQL，Redis，自动化，业务系统运维，业务系统运维 / 小蓝直播，Go Gin + Laravel 后端技术线">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8843a2130e6f.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8843a2130e6f.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-Go%20Gin%20%2B%20Laravel%20%E5%90%8E%E7%AB%AF%E6%8A%80%E6%9C%AF%E7%BA%BF.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Go Gin + Laravel 后端技术线">
+  <meta property="og:description" content="Go Gin + Laravel 后端技术线。本文属于业务系统运维 / 小蓝直播，Laravel 在 Monorepo 中不是被拆散，而是在 services/laravel-app/ 内保持完整 Laravel 应用结构。更详细的 Laravel 领域目录、Filament、Jobs、routes/api 拆分…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8843a2130e6f.html">
+  <meta property="article:published_time" content="2026-06-04T01:09:00.437836+08:00">
+  <meta property="article:modified_time" content="2026-06-04 01:09">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Go Gin + Laravel 后端技术线">
+  <meta name="twitter:description" content="Go Gin + Laravel 后端技术线。本文属于业务系统运维 / 小蓝直播，Laravel 在 Monorepo 中不是被拆散，而是在 services/laravel-app/ 内保持完整 Laravel 应用结构。更详细的 Laravel 领域目录、Filament、Jobs、routes/api 拆分…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8843a2130e6f.html#article","headline":"Go Gin + Laravel 后端技术线","description":"Go Gin + Laravel 后端技术线。本文属于业务系统运维 / 小蓝直播，Laravel 在 Monorepo 中不是被拆散，而是在 services/laravel-app/ 内保持完整 Laravel 应用结构。更详细的 Laravel 领域目录、Filament、Jobs、routes/api 拆分…","datePublished":"2026-06-04T01:09:00.437836+08:00","dateModified":"2026-06-04 01:09","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Shell","Go","Docker","Nginx","MySQL","Redis","自动化","业务系统运维","业务系统运维 / 小蓝直播","Go Gin + Laravel 后端技术线"],"wordCount":1926,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8843a2130e6f.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8843a2130e6f.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Go Gin + Laravel 后端技术线","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8843a2130e6f.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>Go Gin + Laravel 后端技术线</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>Go Gin + Laravel 后端技术线</h1>
+      <p class="lede">Go Gin + Laravel 后端技术线。本文属于业务系统运维 / 小蓝直播，Laravel 在 Monorepo 中不是被拆散，而是在 services/laravel-app/ 内保持完整 Laravel 应用结构。更详细的 Laravel 领域目录、Filament、Jobs、routes/api 拆分…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-04T01:09:00.437836+08:00">发布于 2026-06-04</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,926 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/architecture/backend-stack-go-gin-laravel.md</code></p>
+<p>整理日期：2026-06-04 01:09｜日期依据：文件创建/修改时间</p>
+</blockquote>
+<p>本文件是团队公共 AI 框架的 P0 后端技术栈适配说明。新项目如果采用团队默认后端栈，优先使用：</p>
+<pre><code class="language-text">Go + Gin       核心 API、高并发服务、网关、实时、worker
+PHP + Laravel 完整 Laravel 应用服务，承载 Web/API/Filament/Console/Jobs
+</code></pre>
+<p>本文件是公共框架规则，不是某个项目的业务 PRD。具体业务接口仍以 <code>packages/contracts</code> 和项目 PRD 为准。</p>
+<p>后端实现必须同时遵守：</p>
+<pre><code class="language-text">docs/quality/code-standards.md
+docs/architecture/database-design-standards.md
+</code></pre>
+<h2 id="1-推荐目录">1. 推荐目录</h2>
+<pre><code class="language-text">services/
+  go-app/                 # Go Gin：核心应用服务
+    cmd/
+      api/                # Public API 入口
+      admin/              # Admin API 入口，可选；当 OpenAPI owner 指向 services/go-app 时使用
+      migrate/            # 迁移或维护命令，可选
+    internal/
+      config/             # 配置加载
+      http/
+        public/           # 面向 App/Web 的 API handler
+        admin/            # 面向后台管理的 API handler
+        middleware/       # auth、trace、rate limit
+      application/        # usecase / command / query
+      domain/             # 领域模型、领域服务、领域事件
+      repository/         # repository interface
+      infrastructure/     # mysql、redis、queue、third-party adapter
+      observability/      # log、metrics、trace
+    migrations/           # 如 Go 服务持有表结构
+    tests/
+  laravel-app/           # Laravel：完整应用服务，Web/API/Admin API/Filament/Console/Jobs
+    app/
+      Console/Commands/
+      DTO/
+      Enums/
+      Exceptions/
+      Filament/
+      Http/Controllers/
+      Http/Requests/
+      Http/Resources/
+      Jobs/
+      Models/
+      Services/
+      Support/
+    config/modules/
+    database/migrations/
+    routes/api/
+    tests/Feature/
+    tests/Unit/
+  realtime/            # Go：WebSocket、事件、在线状态
+  worker/              # Go 或 Laravel Queue，按项目配置
+packages/
+  contracts/           # OpenAPI、事件、错误码、DTO
+  generated/go/        # 从契约生成的 Go DTO/client
+  generated/php/       # 从契约生成的 PHP DTO/client
+  go/                  # Go 多服务公共包
+  php/                 # PHP/Laravel 公共包
+docs/
+  architecture/
+  api/
+  qa/
+  agents/logs/
+</code></pre>
+<p>Laravel 在 Monorepo 中不是被拆散，而是在 <code>services/laravel-app/</code> 内保持完整 Laravel 应用结构。更详细的 Laravel 领域目录、Filament、Jobs、routes/api 拆分见：</p>
+<pre><code class="language-text">docs/architecture/laravel-monorepo-structure.md
+</code></pre>
+<p>目录边界：</p>
+<ol>
+<li><code>services/go-app</code> 不依赖 Laravel 应用代码。</li>
+<li><code>services/laravel-app</code> 不依赖 Go 内部包。</li>
+<li>两者只能通过数据库、消息队列、事件或 HTTP 契约协作。</li>
+<li>跨服务字段、错误码、事件必须放在 <code>packages/contracts</code>。</li>
+<li>业务规则必须写入 <code>docs/prd</code> 或 <code>docs/architecture</code>，不能只藏在 Controller/Handler 里。</li>
+</ol>
+<h2 id="2-服务分工">2. 服务分工</h2>
+<table>
+<thead>
+<tr>
+<th>领域</th>
+<th>默认归属</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>用户登录、核心用户态、公开 API</td>
+<td>Go Gin</td>
+<td>高并发、接口稳定、方便水平扩展。</td>
+</tr>
+<tr>
+<td>订单、钱包、账本、扣费</td>
+<td>Go Gin</td>
+<td>强事务、幂等、审计和性能优先。</td>
+</tr>
+<tr>
+<td>实时连接、在线状态、消息事件</td>
+<td>Go</td>
+<td>长连接和资源控制优先。</td>
+</tr>
+<tr>
+<td>Filament 后台、角色权限、菜单</td>
+<td>Laravel</td>
+<td>后台生态和 CRUD 效率高。</td>
+</tr>
+<tr>
+<td>用户管理、内容审核、举报处理</td>
+<td>Laravel</td>
+<td>运营流程复杂，Laravel 开发效率高。</td>
+</tr>
+<tr>
+<td>Web 页面、配置、活动、Banner、报表</td>
+<td>Laravel</td>
+<td>Laravel/Filament/Blade/Inertia 等生态选择灵活。</td>
+</tr>
+<tr>
+<td>定时任务/异步任务</td>
+<td>Go 或 Laravel Queue</td>
+<td>按任务归属选择，必须幂等。</td>
+</tr>
+</tbody>
+</table>
+<p>如果某个业务同时影响 Go 和 Laravel，必须先写清服务边界：</p>
+<pre><code class="language-text">契约 owner：哪个服务暴露 API
+数据 owner：哪个服务拥有写权限
+事件 owner：哪个服务发布事件
+审计 owner：哪个服务记录审计
+</code></pre>
+<h2 id="3-OpenAPI-归属规则">3. OpenAPI 归属规则</h2>
+<p>OpenAPI 不属于 Go，也不属于 Laravel，而是跨团队契约。</p>
+<p><code>apps/admin</code> 也不决定后台 API 属于谁。前后端分离后台必须先在 <code>docs/api/admin-api.md</code> 和 OpenAPI 中标注 owner service，再分别派生 Go 或 Laravel 实现任务。</p>
+<p>建议拆分：</p>
+<pre><code class="language-text">packages/contracts/openapi/
+  index.yaml
+  paths/
+    public-auth.yaml       # owner: services/go-app
+    public-users.yaml      # owner: services/go-app
+    admin-users.yaml       # owner: services/laravel-app 或 services/go-app/admin
+    admin-reports.yaml     # owner: services/laravel-app 或 services/go-app/admin
+  schemas/
+    user.yaml
+    admin.yaml
+    error.yaml
+</code></pre>
+<p>每个 path 文件必须在文件头或旁边文档标注：</p>
+<pre><code class="language-text">ownerService: services/go-app
+runtime: go
+framework: gin
+</code></pre>
+<p>或：</p>
+<pre><code class="language-text">ownerService: services/laravel-app
+runtime: php
+framework: laravel
+</code></pre>
+<p>变更规则：</p>
+<ol>
+<li>新接口先改 OpenAPI，再写 Gin Handler 或 Laravel Controller。</li>
+<li>前端 mock、后端实现、测试用例都围绕 OpenAPI。</li>
+<li>Go 和 Laravel 返回的错误结构必须一致。</li>
+<li>破坏性字段变更必须写 ADR 或 migration plan。</li>
+</ol>
+<h2 id="4-Go-Gin-工程规则">4. Go Gin 工程规则</h2>
+<p>推荐结构：</p>
+<pre><code class="language-text">internal/http/          # Gin router、handler、response mapper
+internal/application/   # use case / service
+internal/domain/        # 实体、领域规则、接口
+internal/infrastructure/ # MySQL、Redis、队列、第三方 SDK
+internal/middleware/    # auth、trace、recover、rate limit
+</code></pre>
+<p>Gin 规则：</p>
+<ol>
+<li>Handler 只做参数绑定、鉴权上下文、调用 use case、返回响应。</li>
+<li>业务规则不得堆在 Handler。</li>
+<li>请求体验证必须对应 OpenAPI schema。</li>
+<li>所有响应使用统一 error envelope。</li>
+<li>高风险写操作必须要求 idempotency key。</li>
+<li>数据库事务必须在 application 或 infra 层明确，不在 Handler 里散写。</li>
+<li>测试至少包含 handler test、use case test、高风险 repository/transaction test。</li>
+</ol>
+<p>Go Gin 推荐命令：</p>
+<pre><code class="language-bash">cd services/go-app
+go test ./...
+go test -race ./...
+go vet ./...
+</code></pre>
+<h2 id="5-Laravel-工程规则">5. Laravel 工程规则</h2>
+<p>简化推荐结构：</p>
+<pre><code class="language-text">app/Http/Controllers/   # 只接 HTTP，不写复杂业务
+app/Http/Requests/      # 请求校验
+app/Actions/            # 单一业务动作
+app/Services/           # 跨动作服务
+app/Models/             # Eloquent model
+app/Policies/           # 权限
+database/migrations/    # 表结构
+tests/Feature/          # API/权限/流程测试
+tests/Unit/             # 服务和规则测试
+</code></pre>
+<p>复杂业务或内容/采集/搜索/SEO异常验证/广告项目，推荐使用领域化 Laravel 结构：</p>
+<pre><code class="language-text">app/DTO/
+app/Enums/
+app/Filament/Resources/
+app/Http/Controllers/{Domain}/
+app/Http/Requests/{Domain}/
+app/Http/Resources/{Domain}/
+app/Jobs/{Domain}/
+app/Services/{Domain}/
+routes/api/{domain}.php
+config/modules/{domain}.php
+</code></pre>
+<p>Laravel 规则：</p>
+<ol>
+<li>Controller 只做 request、policy、action、resource response。</li>
+<li>FormRequest 必须承接请求校验。</li>
+<li>Policy/Gate 必须承接后台权限。</li>
+<li>业务动作优先放入 Action，避免 Controller 肥大。</li>
+<li>Resource/DTO 输出必须对齐 OpenAPI schema。</li>
+<li>后台敏感操作必须写 audit log。</li>
+<li>migration 必须可重复部署，不手改线上表。</li>
+<li>Queue job 必须幂等，失败可重试。</li>
+</ol>
+<p>Laravel 推荐命令：</p>
+<pre><code class="language-bash">cd services/laravel-app
+composer install
+php artisan test
+php artisan migrate --pretend
+php artisan route:list
+</code></pre>
+<p>如果项目使用 Pint/PHPStan/Psalm，也必须加入 <code>npm run check</code> 或 CI。</p>
+<h2 id="6-数据库与事务边界">6. 数据库与事务边界</h2>
+<p>默认原则：</p>
+<ol>
+<li>一个表只能有一个主要写入 owner。</li>
+<li>Go 和 Laravel 不同时随意写同一核心表。</li>
+<li>如果必须共享表，必须在 <code>docs/architecture/data-model.md</code> 标出 owner 和允许写入场景。</li>
+<li>资金、订单、账本、扣费默认由 Go 服务持有写权限。</li>
+<li>后台审核、运营配置默认由 Laravel 持有写权限。</li>
+<li>跨服务同步优先使用事件或明确 API，不靠双方私下读写彼此内部状态。</li>
+</ol>
+<h2 id="7-测试门禁">7. 测试门禁</h2>
+<p>Go Gin 服务至少：</p>
+<pre><code class="language-text">go test ./...
+handler contract tests
+high-risk transaction tests
+</code></pre>
+<p>Laravel 服务至少：</p>
+<pre><code class="language-text">php artisan test
+Feature tests for auth/permission/audit
+migration check
+</code></pre>
+<p>跨服务 ECC 至少：</p>
+<pre><code class="language-text">前端 -&gt; Go API -&gt; 数据变化
+后台 -&gt; Laravel API -&gt; 审计日志
+Laravel 审核动作 -&gt; Go 公开 API 状态变化
+高风险流程 -&gt; 账本/审计/权限闭环
+</code></pre>
+<p>只跑 Go 或只跑 Laravel 都不能证明项目闭环。</p>
+<h2 id="8-部署建议">8. 部署建议</h2>
+<p>单 VPS / Docker Compose 起步：</p>
+<pre><code class="language-text">nginx
+app-mobile/web static
+app-admin/web static
+go-app-go-gin
+laravel-app
+realtime-go
+worker-go-or-laravel
+mysql
+redis
+</code></pre>
+<p>路由示例，具体前缀由项目在 <code>infra/deploy/</code> 的网关或 Nginx 配置中决定：</p>
+<pre><code class="language-text">/api/v1/*        -&gt; services/go-app
+/admin/*         -&gt; services/laravel-app Filament
+/laravel/api/*   -&gt; services/laravel-app API
+/realtime/*      -&gt; services/realtime
+</code></pre>
+<p>部署门禁：</p>
+<ol>
+<li>Go 和 Laravel 都必须输出健康检查。</li>
+<li><code>.env.example</code> 必须覆盖两个服务。</li>
+<li>Laravel app key、queue、cache、session、DB 配置必须分环境。</li>
+<li>Go 和 Laravel 日志都必须可被采集。</li>
+<li>回滚必须说明数据库 migration 的处理方式。</li>
+</ol>
+<h2 id="9-Agent-工作要求">9. Agent 工作要求</h2>
+<p>当任务涉及 Go Gin：</p>
+<ol>
+<li>先读 OpenAPI owner。</li>
+<li>再改 Gin route/handler/use case。</li>
+<li>补 Go test。</li>
+<li>日志写明 handler、use case、事务和错误码。</li>
+</ol>
+<p>当任务涉及 Laravel：</p>
+<ol>
+<li>先读 OpenAPI owner。</li>
+<li>再改 route/controller/request/action/resource。</li>
+<li>补 Feature test。</li>
+<li>日志写明 permission、audit、migration 和队列影响。</li>
+</ol>
+<p>当任务同时涉及 Go Gin + Laravel：</p>
+<ol>
+<li>必须写服务边界。</li>
+<li>必须写跨服务 ECC。</li>
+<li>必须写红蓝对抗。</li>
+<li>不能只验证其中一端。</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-推荐目录">1. 推荐目录</a></li><li style="margin-left:0.0rem"><a href="#2-服务分工">2. 服务分工</a></li><li style="margin-left:0.0rem"><a href="#3-OpenAPI-归属规则">3. OpenAPI 归属规则</a></li><li style="margin-left:0.0rem"><a href="#4-Go-Gin-工程规则">4. Go Gin 工程规则</a></li><li style="margin-left:0.0rem"><a href="#5-Laravel-工程规则">5. Laravel 工程规则</a></li><li style="margin-left:0.0rem"><a href="#6-数据库与事务边界">6. 数据库与事务边界</a></li><li style="margin-left:0.0rem"><a href="#7-测试门禁">7. 测试门禁</a></li><li style="margin-left:0.0rem"><a href="#8-部署建议">8. 部署建议</a></li><li style="margin-left:0.0rem"><a href="#9-Agent-工作要求">9. Agent 工作要求</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-06-04</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Shell</span><span class="tag">Go</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">MySQL</span><span class="tag">Redis</span><span class="tag">自动化</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/architecture/backend-stack-go-gin-laravel.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-Go%20Gin%20%2B%20Laravel%20%E5%90%8E%E7%AB%AF%E6%8A%80%E6%9C%AF%E7%BA%BF.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Go Gin + Laravel 后端技术线。本文属于业务系统运维 / 小蓝直播，Laravel 在 Monorepo 中不是被拆散，而是在 services/laravel-app/ 内保持完整 Laravel 应用结构。更详细的 Laravel 领域目录、Filament、Jobs、routes/api 拆分…</p>
+      <p>关键词：小蓝直播、Shell、Go、Docker、Nginx、MySQL、Redis、自动化、业务系统运维、业务系统运维 / 小蓝直播、Go Gin + Laravel 后端技术线</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4ae1179e2280.html"><small>上一篇</small>Agent Log Governance</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6d617d408e5c.html"><small>下一篇</small>复杂业务架构能力门禁</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8843a2130e6f.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

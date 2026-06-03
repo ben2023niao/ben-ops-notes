@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>运维就绪规范｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="运维就绪规范。本文属于业务系统运维 / 小蓝直播，运维就绪不是“能部署一次”，而是项目上线后具备可恢复性：能部署、能回滚、能观测、能审计、能恢复数据、能处理故障。 本规范是公共框架底线。项目可以在 docs/project/** 或 ADR 中加严，但不能低于本文要求。 Scale Profile 来自 proj…">
+  <meta name="keywords" content="小蓝直播，Nginx，Redis，监控告警，自动化，安全运维，故障排查，数据库恢复，业务系统运维，业务系统运维 / 小蓝直播，运维就绪规范">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53cd6de14b72.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53cd6de14b72.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BNginx%2BRedis-%E8%BF%90%E7%BB%B4%E5%B0%B1%E7%BB%AA%E8%A7%84%E8%8C%83.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="运维就绪规范">
+  <meta property="og:description" content="运维就绪规范。本文属于业务系统运维 / 小蓝直播，运维就绪不是“能部署一次”，而是项目上线后具备可恢复性：能部署、能回滚、能观测、能审计、能恢复数据、能处理故障。 本规范是公共框架底线。项目可以在 docs/project/** 或 ADR 中加严，但不能低于本文要求。 Scale Profile 来自 proj…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53cd6de14b72.html">
+  <meta property="article:published_time" content="2026-06-04T01:09:00.445979+08:00">
+  <meta property="article:modified_time" content="2026-06-04 01:09">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="运维就绪规范">
+  <meta name="twitter:description" content="运维就绪规范。本文属于业务系统运维 / 小蓝直播，运维就绪不是“能部署一次”，而是项目上线后具备可恢复性：能部署、能回滚、能观测、能审计、能恢复数据、能处理故障。 本规范是公共框架底线。项目可以在 docs/project/** 或 ADR 中加严，但不能低于本文要求。 Scale Profile 来自 proj…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53cd6de14b72.html#article","headline":"运维就绪规范","description":"运维就绪规范。本文属于业务系统运维 / 小蓝直播，运维就绪不是“能部署一次”，而是项目上线后具备可恢复性：能部署、能回滚、能观测、能审计、能恢复数据、能处理故障。 本规范是公共框架底线。项目可以在 docs/project/** 或 ADR 中加严，但不能低于本文要求。 Scale Profile 来自 proj…","datePublished":"2026-06-04T01:09:00.445979+08:00","dateModified":"2026-06-04 01:09","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Nginx","Redis","监控告警","自动化","安全运维","故障排查","数据库恢复","业务系统运维","业务系统运维 / 小蓝直播","运维就绪规范"],"wordCount":1248,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53cd6de14b72.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53cd6de14b72.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"运维就绪规范","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53cd6de14b72.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>运维就绪规范</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>运维就绪规范</h1>
+      <p class="lede">运维就绪规范。本文属于业务系统运维 / 小蓝直播，运维就绪不是“能部署一次”，而是项目上线后具备可恢复性：能部署、能回滚、能观测、能审计、能恢复数据、能处理故障。 本规范是公共框架底线。项目可以在 docs/project/** 或 ADR 中加严，但不能低于本文要求。 Scale Profile 来自 proj…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-04T01:09:00.445979+08:00">发布于 2026-06-04</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,248 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/operations/ops-readiness.md</code></p>
+<p>整理日期：2026-06-04 01:09｜日期依据：文件创建/修改时间</p>
+</blockquote>
+<p>运维就绪不是“能部署一次”，而是项目上线后具备可恢复性：能部署、能回滚、能观测、能审计、能恢复数据、能处理故障。</p>
+<p>本规范是公共框架底线。项目可以在 <code>docs/project/**</code> 或 ADR 中加严，但不能低于本文要求。</p>
+<h2 id="1-分级">1. 分级</h2>
+<table>
+<thead>
+<tr>
+<th>级别</th>
+<th>适用阶段</th>
+<th>必须具备</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mvp</code></td>
+<td>内测、试运营、小流量</td>
+<td>环境说明、部署步骤、回滚步骤、基础日志、health check、密钥不进 Git。</td>
+</tr>
+<tr>
+<td><code>growth</code></td>
+<td>增长期、付费或稳定用户</td>
+<td>监控告警、备份恢复、staging 验收、队列/缓存/数据库指标。</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>大流量、多服务、多团队</td>
+<td>SLO、灰度、限流、熔断、压测、容量评审、故障演练。</td>
+</tr>
+<tr>
+<td><code>enterprise</code></td>
+<td>企业级、合规、强审计</td>
+<td>变更审批、密钥轮换、权限隔离、审计报表、灾备演练。</td>
+</tr>
+</tbody>
+</table>
+<p>Scale Profile 来自 <code>project.config.json</code>。公共框架默认 <code>mvp</code>，但项目一旦启用真实支付、真实用户、后台处罚、账本、视频通话或高价值数据，至少要按 <code>growth</code> 检查。</p>
+<h2 id="2-环境">2. 环境</h2>
+<p>每个项目必须维护环境矩阵：</p>
+<pre><code class="language-text">docs/qa/test-environments.md
+</code></pre>
+<p>至少说明：</p>
+<ol>
+<li><code>local</code>、<code>dev</code>、<code>staging</code>、<code>production</code> 的用途。</li>
+<li>每个环境的基础 URL、数据库/存储、部署或启动命令。</li>
+<li>哪些环境允许 mock、fixture、测试 key。</li>
+<li>哪些环境禁止真实支付、真实短信、真实第三方回调。</li>
+<li>哪个环境是上线前验收环境。</li>
+</ol>
+<p>规则：</p>
+<ol>
+<li><code>local</code> 不能作为上线验收依据。</li>
+<li><code>staging</code> 未配置时，不能声明生产可上线。</li>
+<li><code>production</code> 禁止未登记 mock/fallback/fixture。</li>
+</ol>
+<h2 id="3-部署">3. 部署</h2>
+<p>部署策略记录在：</p>
+<pre><code class="language-text">docs/operations/deployment-strategy.md
+infra/deploy/README.md
+</code></pre>
+<p>必须说明：</p>
+<ol>
+<li>每个 app/service 的构建命令、产物和启动命令。</li>
+<li>Nginx/Gateway/静态资源/API/Worker/Realtime 的部署边界。</li>
+<li>端口、健康检查路径、日志路径。</li>
+<li>数据库迁移执行顺序。</li>
+<li>部署后 smoke test 和关键链路检查。</li>
+</ol>
+<p>推荐部署后检查：</p>
+<pre><code class="language-text">health check -&gt; 静态资源 200 -&gt; API 鉴权 -&gt; DB/Redis 连通 -&gt; Worker 心跳 -&gt; 关键业务接口 -&gt; 日志/监控可见
+</code></pre>
+<h2 id="4-回滚">4. 回滚</h2>
+<p>每次上线前必须知道如何回滚：</p>
+<ol>
+<li>前端静态资源回滚到上一构建产物。</li>
+<li>API 服务回滚到上一 image/commit/tag。</li>
+<li>Worker 先暂停消费，再回滚，再恢复消费。</li>
+<li>Realtime 服务回滚时必须考虑连接重连和兼容协议。</li>
+<li>数据库变更优先向前兼容，避免依赖数据库回滚。</li>
+<li>配置和第三方开关必须可回退。</li>
+</ol>
+<p>破坏性 migration、协议变更、数据清理、权限模型变更必须写 ADR 或发布计划。</p>
+<h2 id="5-配置与密钥">5. 配置与密钥</h2>
+<p>密钥规范见：</p>
+<pre><code class="language-text">docs/operations/secrets-management.md
+</code></pre>
+<p>底线：</p>
+<ol>
+<li>真实 secret 不进 Git。</li>
+<li><code>.env.example</code> 必须列出必需变量、用途、是否 secret、默认值策略。</li>
+<li>dev/staging/production 密钥必须分离。</li>
+<li>第三方服务必须区分测试 key 和生产 key。</li>
+<li>密钥 owner、轮换策略和泄漏处置必须明确。</li>
+</ol>
+<h2 id="6-备份与恢复">6. 备份与恢复</h2>
+<p>备份恢复规范见：</p>
+<pre><code class="language-text">docs/operations/backup-restore.md
+</code></pre>
+<p>底线：</p>
+<ol>
+<li>数据库必须有备份策略。</li>
+<li>对象存储、上传文件、审计日志、账本流水必须明确是否备份。</li>
+<li>必须说明 RPO/RTO。</li>
+<li>必须有恢复演练或恢复步骤。</li>
+<li>高风险上线前必须确认最近一次备份可用。</li>
+</ol>
+<h2 id="7-观测">7. 观测</h2>
+<p>观测基线见：</p>
+<pre><code class="language-text">docs/architecture/observability-baseline.md
+</code></pre>
+<p>最低要求：</p>
+<ol>
+<li>每个服务有 health check。</li>
+<li>每个请求有 request id 或 trace id。</li>
+<li>访问日志、错误日志、后台审计日志分层。</li>
+<li>登录、支付、账本、通话、消息、审核等关键业务有业务指标。</li>
+<li>Worker 有队列积压、失败、重试、死信指标。</li>
+<li>production 告警必须绑定责任人和 runbook。</li>
+</ol>
+<h2 id="8-故障处理">8. 故障处理</h2>
+<p>故障响应规范见：</p>
+<pre><code class="language-text">docs/operations/incident-response.md
+docs/templates/ops-runbook-template.md
+</code></pre>
+<p>每类高风险服务至少需要 runbook：</p>
+<ol>
+<li>API 5xx 或 502/504。</li>
+<li>数据库连接、慢查询、锁等待。</li>
+<li>Redis/缓存故障。</li>
+<li>Worker 积压或死信。</li>
+<li>第三方回调失败。</li>
+<li>证书、域名、磁盘、内存、CPU。</li>
+<li>支付/账本/审核/权限异常。</li>
+</ol>
+<h2 id="9-上线准入">9. 上线准入</h2>
+<p>上线前至少满足：</p>
+<ol>
+<li><code>npm run check</code> 通过。</li>
+<li><code>npm run check:ops</code> 通过。</li>
+<li>测试环境矩阵有 <code>staging</code> 和 <code>production</code> 说明。</li>
+<li>部署、回滚、密钥、备份恢复、故障响应文档齐全。</li>
+<li>高风险数据变更有备份和回滚策略。</li>
+<li>运行时日志、监控、告警可见。</li>
+<li>Agent 日志写明运维影响和验证结果。</li>
+</ol>
+<h2 id="10-不允许完成的情况">10. 不允许完成的情况</h2>
+<p>以下情况不能声明“上线完成”：</p>
+<ol>
+<li>只在本机跑通，没有 dev/staging/production 说明。</li>
+<li>只有部署步骤，没有回滚步骤。</li>
+<li>真实 secret 写在代码、README、日志或 PRD 中。</li>
+<li>数据库有破坏性变更但没有备份和恢复方案。</li>
+<li>production 仍依赖未登记 mock/fallback/fixture。</li>
+<li>没有 health check、日志或基本故障排查入口。</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-分级">1. 分级</a></li><li style="margin-left:0.0rem"><a href="#2-环境">2. 环境</a></li><li style="margin-left:0.0rem"><a href="#3-部署">3. 部署</a></li><li style="margin-left:0.0rem"><a href="#4-回滚">4. 回滚</a></li><li style="margin-left:0.0rem"><a href="#5-配置与密钥">5. 配置与密钥</a></li><li style="margin-left:0.0rem"><a href="#6-备份与恢复">6. 备份与恢复</a></li><li style="margin-left:0.0rem"><a href="#7-观测">7. 观测</a></li><li style="margin-left:0.0rem"><a href="#8-故障处理">8. 故障处理</a></li><li style="margin-left:0.0rem"><a href="#9-上线准入">9. 上线准入</a></li><li style="margin-left:0.0rem"><a href="#10-不允许完成的情况">10. 不允许完成的情况</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-06-04</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Nginx</span><span class="tag">Redis</span><span class="tag">监控告警</span><span class="tag">自动化</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/operations/ops-readiness.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BNginx%2BRedis-%E8%BF%90%E7%BB%B4%E5%B0%B1%E7%BB%AA%E8%A7%84%E8%8C%83.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>运维就绪规范。本文属于业务系统运维 / 小蓝直播，运维就绪不是“能部署一次”，而是项目上线后具备可恢复性：能部署、能回滚、能观测、能审计、能恢复数据、能处理故障。 本规范是公共框架底线。项目可以在 docs/project/** 或 ADR 中加严，但不能低于本文要求。 Scale Profile 来自 proj…</p>
+      <p>关键词：小蓝直播、Nginx、Redis、监控告警、自动化、安全运维、故障排查、数据库恢复、业务系统运维、业务系统运维 / 小蓝直播、运维就绪规范</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9dc33dff31e6.html"><small>上一篇</small>MR 门禁</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d540ae27dcac.html"><small>下一篇</small>配置与密钥管理规范</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53cd6de14b72.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

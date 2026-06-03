@@ -1,0 +1,831 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>7. 容量规划与性能｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="7. 容量规划与性能。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §7 非功能需求 目标：10000 CCU、8000 DAU 峰值、50 主播在线、决赛日单日 GMV ≥ ¥150,000、赛季总 GMV ≥ ¥800w C 端 API：99.9%（赛季 32 天累计 &lt;…">
+  <meta name="keywords" content="小蓝直播，Shell，Python，Go，Kubernetes，MySQL，Redis，监控告警，业务系统运维，业务系统运维 / 小蓝直播，7. 容量规划与性能">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8a7303e20f94.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8a7303e20f94.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BPython-7.%20%E5%AE%B9%E9%87%8F%E8%A7%84%E5%88%92%E4%B8%8E%E6%80%A7%E8%83%BD.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="7. 容量规划与性能">
+  <meta property="og:description" content="7. 容量规划与性能。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §7 非功能需求 目标：10000 CCU、8000 DAU 峰值、50 主播在线、决赛日单日 GMV ≥ ¥150,000、赛季总 GMV ≥ ¥800w C 端 API：99.9%（赛季 32 天累计 &lt;…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8a7303e20f94.html">
+  <meta property="article:published_time" content="2026-06-04T01:09:00.438143+08:00">
+  <meta property="article:modified_time" content="2026-06-04 01:09">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="7. 容量规划与性能">
+  <meta name="twitter:description" content="7. 容量规划与性能。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §7 非功能需求 目标：10000 CCU、8000 DAU 峰值、50 主播在线、决赛日单日 GMV ≥ ¥150,000、赛季总 GMV ≥ ¥800w C 端 API：99.9%（赛季 32 天累计 &lt;…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8a7303e20f94.html#article","headline":"7. 容量规划与性能","description":"7. 容量规划与性能。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §7 非功能需求 目标：10000 CCU、8000 DAU 峰值、50 主播在线、决赛日单日 GMV ≥ ¥150,000、赛季总 GMV ≥ ¥800w C 端 API：99.9%（赛季 32 天累计 <…","datePublished":"2026-06-04T01:09:00.438143+08:00","dateModified":"2026-06-04 01:09","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Shell","Python","Go","Kubernetes","MySQL","Redis","监控告警","业务系统运维","业务系统运维 / 小蓝直播","7. 容量规划与性能"],"wordCount":2161,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8a7303e20f94.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8a7303e20f94.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"7. 容量规划与性能","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8a7303e20f94.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>7. 容量规划与性能</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>7. 容量规划与性能</h1>
+      <p class="lede">7. 容量规划与性能。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §7 非功能需求 目标：10000 CCU、8000 DAU 峰值、50 主播在线、决赛日单日 GMV ≥ ¥150,000、赛季总 GMV ≥ ¥800w C 端 API：99.9%（赛季 32 天累计 &lt;…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-04T01:09:00.438143+08:00">发布于 2026-06-04</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,161 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/architecture/capacity-and-performance.md</code></p>
+<p>整理日期：2026-06-04 01:09｜日期依据：文件创建/修改时间</p>
+<p>对齐 PRD：<code>product-prd.md §7 非功能需求</code></p>
+<p>目标：10000 CCU、8000 DAU 峰值、50 主播在线、决赛日单日 GMV ≥ ¥150,000、赛季总 GMV ≥ ¥800w</p>
+</blockquote>
+<h2 id="7-1-SLO-服务等级目标">7.1 SLO（服务等级目标）</h2>
+<h3 id="7-1-1-API-类">7.1.1 API 类</h3>
+<table>
+<thead>
+<tr>
+<th>接口</th>
+<th>P50</th>
+<th>P99</th>
+<th>错误率</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>首页聚合</td>
+<td>&lt; 80ms</td>
+<td>&lt; 300ms</td>
+<td>&lt; 0.1%</td>
+<td>缓存命中</td>
+</tr>
+<tr>
+<td>赛程接口</td>
+<td>&lt; 50ms</td>
+<td>&lt; 200ms</td>
+<td>&lt; 0.1%</td>
+<td>缓存</td>
+</tr>
+<tr>
+<td>进入直播间（拉房间元数据 + token）</td>
+<td>&lt; 100ms</td>
+<td>&lt; 500ms</td>
+<td>&lt; 0.1%</td>
+<td>—</td>
+</tr>
+<tr>
+<td>押注下单</td>
+<td>&lt; 150ms</td>
+<td>&lt; 500ms</td>
+<td>&lt; 0.05%</td>
+<td>强一致写</td>
+</tr>
+<tr>
+<td>打赏下单</td>
+<td>&lt; 100ms</td>
+<td>&lt; 500ms</td>
+<td>&lt; 0.1%</td>
+<td>—</td>
+</tr>
+<tr>
+<td>充值发起</td>
+<td>&lt; 200ms</td>
+<td>&lt; 800ms</td>
+<td>&lt; 0.1%</td>
+<td>含通道调用</td>
+</tr>
+<tr>
+<td>提现申请</td>
+<td>&lt; 200ms</td>
+<td>&lt; 800ms</td>
+<td>&lt; 0.1%</td>
+<td>同步风控</td>
+</tr>
+<tr>
+<td>登录</td>
+<td>&lt; 200ms</td>
+<td>&lt; 800ms</td>
+<td>&lt; 0.5%</td>
+<td>含密码哈希</td>
+</tr>
+<tr>
+<td>注册</td>
+<td>&lt; 300ms</td>
+<td>&lt; 1000ms</td>
+<td>&lt; 0.5%</td>
+<td>含短信下发</td>
+</tr>
+</tbody>
+</table>
+<h3 id="7-1-2-实时-直播类">7.1.2 实时 / 直播类</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>视频首帧（P95）</td>
+<td>&lt; 2s</td>
+</tr>
+<tr>
+<td>卡顿率</td>
+<td>&lt; 3%</td>
+</tr>
+<tr>
+<td>WebSocket 推送延迟（P99）</td>
+<td>&lt; 100ms</td>
+</tr>
+<tr>
+<td>弹幕广播延迟（P95）</td>
+<td>&lt; 200ms</td>
+</tr>
+<tr>
+<td>直播断流恢复时间</td>
+<td>&lt; 10s</td>
+</tr>
+</tbody>
+</table>
+<h3 id="7-1-3-异步类">7.1.3 异步类</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>派彩跑批（1 万命中用户）</td>
+<td>&lt; 60s</td>
+</tr>
+<tr>
+<td>充值回调到账延迟</td>
+<td>&lt; 30s</td>
+</tr>
+<tr>
+<td>提现转账延迟</td>
+<td>10-30 min</td>
+</tr>
+<tr>
+<td>T+1 对账完成</td>
+<td>当日 02:00 起 &lt; 30 min</td>
+</tr>
+<tr>
+<td>月结跑批</td>
+<td>每月 1 日 &lt; 4h</td>
+</tr>
+</tbody>
+</table>
+<h3 id="7-1-4-可用性">7.1.4 可用性</h3>
+<ul>
+<li>C 端 API：99.9%（赛季 32 天累计 &lt; 43 min 不可用）</li>
+<li>直播链路：99.9%（CDN + 源站双活）</li>
+<li>后台：99.5%</li>
+<li>资金接口：99.95%</li>
+</ul>
+<h2 id="7-2-10k-CCU-压力分布">7.2 10k CCU 压力分布</h2>
+<table>
+<thead>
+<tr>
+<th>压力点</th>
+<th>峰值</th>
+<th>承接组件</th>
+<th>优化策略</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>视频拉流出站</td>
+<td>20 Gbps</td>
+<td>CDN 边缘</td>
+<td>双 CDN GSLB</td>
+</tr>
+<tr>
+<td>HLS 切片请求</td>
+<td>30w QPS</td>
+<td>CDN 边缘</td>
+<td>长缓存 60s</td>
+</tr>
+<tr>
+<td>FLV 长连接</td>
+<td>10k</td>
+<td>CDN 边缘</td>
+<td>长连接复用</td>
+</tr>
+<tr>
+<td>CDN 回源带宽</td>
+<td>1-2 Gbps</td>
+<td>直播 Pull Edge</td>
+<td>边缘缓存</td>
+</tr>
+<tr>
+<td>推流入站</td>
+<td>250 Mbps</td>
+<td>直播 Push Edge</td>
+<td>Anycast</td>
+</tr>
+<tr>
+<td>WS 长连接</td>
+<td>10k</td>
+<td>go-ws × 3 Pod</td>
+<td>单 Pod 5k 上限</td>
+</tr>
+<tr>
+<td>弹幕入站</td>
+<td>1k QPS</td>
+<td>go-ws → Redis Pub/Sub</td>
+<td>客户端节流 3s/条</td>
+</tr>
+<tr>
+<td>弹幕扇出</td>
+<td>5w msg/s</td>
+<td>Redis Pub/Sub</td>
+<td>一对多广播</td>
+</tr>
+<tr>
+<td>押注下单</td>
+<td>800 QPS</td>
+<td>go-api + MySQL</td>
+<td>限流 + 幂等 + 单事务</td>
+</tr>
+<tr>
+<td>打赏下单</td>
+<td>500 QPS</td>
+<td>go-api + MySQL</td>
+<td>连击 3s 内合并</td>
+</tr>
+<tr>
+<td>充值/提现</td>
+<td>50 QPS</td>
+<td>go-api</td>
+<td>—</td>
+</tr>
+<tr>
+<td>首页 / 赛程</td>
+<td>2000 QPS</td>
+<td>CDN + Redis</td>
+<td>缓存命中 ≥ 95%</td>
+</tr>
+<tr>
+<td>在线心跳</td>
+<td>333 QPS</td>
+<td>go-ws + Redis HLL</td>
+<td>HyperLogLog 近似</td>
+</tr>
+<tr>
+<td>Redis QPS（综合）</td>
+<td>5w</td>
+<td>Sentinel</td>
+<td>主写 / 从读 / Pipeline</td>
+</tr>
+<tr>
+<td>MySQL TPS</td>
+<td>3000</td>
+<td>主库</td>
+<td>索引 + 慢查询治理</td>
+</tr>
+</tbody>
+</table>
+<h2 id="7-3-关键组件容量与扩容触发">7.3 关键组件容量与扩容触发</h2>
+<h3 id="7-3-1-直播源站">7.3.1 直播源站</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>单机容量</th>
+<th>v1 部署</th>
+<th>扩容触发</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SRS Push Edge / 云直播推流入口</td>
+<td>100 主播 / 节点</td>
+<td>2 节点</td>
+<td>主播数 &gt; 150</td>
+</tr>
+<tr>
+<td>SRS Origin</td>
+<td>50 路转码 / 节点</td>
+<td>2 节点</td>
+<td>转码路数 &gt; 80</td>
+</tr>
+<tr>
+<td>SRS Pull Edge</td>
+<td>5000 并发 / 10 Gbps</td>
+<td>4 节点</td>
+<td>回源率 &gt; 30% 或 单节点 &gt; 80%</td>
+</tr>
+<tr>
+<td>转码集群 FFmpeg</td>
+<td>12 路 1080p→720p+480p</td>
+<td>4 节点</td>
+<td>转码任务排队</td>
+</tr>
+</tbody>
+</table>
+<h3 id="7-3-2-后端服务">7.3.2 后端服务</h3>
+<table>
+<thead>
+<tr>
+<th>Pod</th>
+<th>单 Pod 上限</th>
+<th>v1 数量</th>
+<th>扩容触发</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>go-api</td>
+<td>800 QPS</td>
+<td>4</td>
+<td>CPU &gt; 70% / QPS &gt; 600 持续 5min</td>
+</tr>
+<tr>
+<td>go-admin</td>
+<td>200 QPS</td>
+<td>2</td>
+<td>—</td>
+</tr>
+<tr>
+<td>go-ws</td>
+<td>5000 长连</td>
+<td>3</td>
+<td>连接数 &gt; 4000 / Pod</td>
+</tr>
+<tr>
+<td>worker-settle</td>
+<td>5000 行/s 批写</td>
+<td>2</td>
+<td>队列堆积 &gt; 5min</td>
+</tr>
+<tr>
+<td>worker-realtime</td>
+<td>2000 msg/s</td>
+<td>2</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>worker-risk</td>
+<td>1000 msg/s</td>
+<td>2</td>
+<td>同上</td>
+</tr>
+</tbody>
+</table>
+<h3 id="7-3-3-数据库">7.3.3 数据库</h3>
+<table>
+<thead>
+<tr>
+<th>资源</th>
+<th>v1 配置</th>
+<th>单机上限</th>
+<th>升级触发</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MySQL 主</td>
+<td>16c / 64GB / NVMe / 1TB</td>
+<td>TPS 3000 / 连接 1000</td>
+<td>TPS &gt; 2000 持续 5min 或 连接 &gt; 80%</td>
+</tr>
+<tr>
+<td>MySQL 从 × 2</td>
+<td>同上</td>
+<td>—</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>Redis Sentinel</td>
+<td>1 主 2 从 / 8GB</td>
+<td>10w QPS / 6GB 可用</td>
+<td>QPS &gt; 7w 或 内存 &gt; 80%</td>
+</tr>
+<tr>
+<td>Kafka（如启用）</td>
+<td>3 broker / 16c / 32GB / SSD</td>
+<td>50MB/s / broker</td>
+<td>堆积 &gt; 10w / Topic</td>
+</tr>
+</tbody>
+</table>
+<h3 id="7-3-4-数据规模-32-天赛季末预估">7.3.4 数据规模（32 天赛季末预估）</h3>
+<table>
+<thead>
+<tr>
+<th>表</th>
+<th>行数</th>
+<th>单行大小</th>
+<th>总量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>users</td>
+<td>5w</td>
+<td>1KB</td>
+<td>50MB</td>
+</tr>
+<tr>
+<td>user_wallets</td>
+<td>5w</td>
+<td>0.5KB</td>
+<td>25MB</td>
+</tr>
+<tr>
+<td>wallet_ledger</td>
+<td><strong>200w</strong>（每用户 ~40 笔×2 行）</td>
+<td>0.5KB</td>
+<td>1GB</td>
+</tr>
+<tr>
+<td>recharge_orders</td>
+<td>10w</td>
+<td>1KB</td>
+<td>100MB</td>
+</tr>
+<tr>
+<td>withdraw_orders</td>
+<td>5000</td>
+<td>1KB</td>
+<td>5MB</td>
+</tr>
+<tr>
+<td>predict_activities</td>
+<td>500</td>
+<td>2KB</td>
+<td>1MB</td>
+</tr>
+<tr>
+<td>predict_bets</td>
+<td><strong>50w</strong>（押注）</td>
+<td>1KB</td>
+<td>500MB</td>
+</tr>
+<tr>
+<td>tip_records</td>
+<td><strong>10w</strong></td>
+<td>0.5KB</td>
+<td>50MB</td>
+</tr>
+<tr>
+<td>live_sessions</td>
+<td>1500（50 主播 × 32 天）</td>
+<td>1KB</td>
+<td>1.5MB</td>
+</tr>
+<tr>
+<td>danmaku（分 16 表）</td>
+<td><strong>5000w</strong>（每天 150w × 32）</td>
+<td>0.5KB</td>
+<td>25GB</td>
+</tr>
+<tr>
+<td>match_events</td>
+<td>5000</td>
+<td>0.5KB</td>
+<td>2.5MB</td>
+</tr>
+<tr>
+<td>audit_log</td>
+<td>50w</td>
+<td>1KB</td>
+<td>500MB</td>
+</tr>
+<tr>
+<td>risk_alerts</td>
+<td>1w</td>
+<td>1KB</td>
+<td>10MB</td>
+</tr>
+</tbody>
+</table>
+<p><strong>总计 v1 MySQL 数据量 ~30 GB</strong>（含弹幕分表），单库完全容纳。</p>
+<h2 id="7-4-优化策略清单">7.4 优化策略清单</h2>
+<h3 id="7-4-1-接口层">7.4.1 接口层</h3>
+<ul>
+<li><strong>限流</strong>：滑动窗口 + 多维度（IP / UID / API 路径）；关键接口 <code>/predict/bet</code> 200 QPS 全局 + 5 QPS 单用户</li>
+<li><strong>熔断</strong>：触发上游错误率 &gt; 30% → 暂停 30s，降级返回 cached 数据</li>
+<li><strong>超时</strong>：上游调用全部超时配置（DB 1s / Redis 100ms / 三方支付 3s）</li>
+<li><strong>重试</strong>：仅幂等接口；指数退避 1s/3s/9s 最多 3 次</li>
+<li><strong>降级</strong>：CDN 故障 → 静态首页；Redis 故障 → 直读 DB + 严格限流；MQ 故障 → 业务降级（关闭非关键异步通知）</li>
+</ul>
+<h3 id="7-4-2-缓存层">7.4.2 缓存层</h3>
+<ul>
+<li><strong>热点活动赔率</strong>：进入直播间 / 首页时高频读 → 强缓存 30s + singleflight 防击穿</li>
+<li><strong>多级缓存</strong>：进程内 LRU（10s TTL，避免抖动）+ Redis（30s TTL，跨实例共享）</li>
+<li><strong>TTL 随机化</strong>：基础 TTL ± 20%，防雪崩</li>
+<li><strong>缓存预热</strong>：每场比赛开赛前 10min 预热相关活动 / 赛事 / 直播间元数据</li>
+<li><strong>失效驱动而非过期驱动</strong>：业务变更主动 DEL，配合短 TTL 兜底</li>
+<li><strong>布隆过滤器</strong>：用户 ID / 房间 ID 防穿透</li>
+</ul>
+<h3 id="7-4-3-数据库层">7.4.3 数据库层</h3>
+<ul>
+<li><strong>索引治理</strong>：开发期间 <code>EXPLAIN</code> 强制；每周慢查询 review</li>
+<li><strong>批量写入</strong>：派彩、对账走批量 SQL，单事务 ≤ 100 行</li>
+<li><strong>连接池</strong>：MySQL <code>MaxOpenConns=200, MaxIdleConns=50, ConnMaxLifetime=30min</code></li>
+<li><strong>预编译</strong>：所有 SQL 走 sqlc 生成的 Prepared Statement</li>
+<li><strong>慢查询阈值</strong>：&gt; 100ms 进 <code>mysql-slow.log</code>，每日 review</li>
+<li><strong>避免锁等待</strong>：<code>SELECT FOR UPDATE</code> 仅锁单行，避免范围锁；事务尽量短</li>
+</ul>
+<h3 id="7-4-4-异步层">7.4.4 异步层</h3>
+<ul>
+<li><strong>削峰</strong>：押注、打赏的"通知"路径走 Streams，主流程不阻塞</li>
+<li><strong>批量消费</strong>：派彩 worker 一次拉 100 个事件批处理</li>
+<li><strong>死信处理</strong>：消费失败 3 次进死信队列，每日扫告警</li>
+</ul>
+<h3 id="7-4-5-水平扩展">7.4.5 水平扩展</h3>
+<ul>
+<li>Go API / WS 网关 / Worker <strong>全部无状态</strong>，K8s HPA 自动扩容</li>
+<li>HPA 指标：CPU &gt; 70% 持续 3min 或 QPS &gt; threshold</li>
+<li>最大副本数提前设上限（防成本失控），单服务 ≤ 10 Pod</li>
+</ul>
+<h2 id="7-5-压测计划">7.5 压测计划</h2>
+<h3 id="7-5-1-压测阶段-赛季前-T-7-T-3">7.5.1 压测阶段（赛季前 T-7 ~ T-3）</h3>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>范围</th>
+<th>目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单接口压测</td>
+<td>押注 / 充值 / 提现 / 首页 / 进入直播间</td>
+<td>找性能瓶颈，达成 SLO</td>
+</tr>
+<tr>
+<td>直播链路压测</td>
+<td>1k 并发拉流 + 5 主播推流</td>
+<td>验证 CDN 命中率 / 回源压力</td>
+</tr>
+<tr>
+<td>弹幕压测</td>
+<td>1k 并发 WS 连接 + 100 msg/s 入站</td>
+<td>验证扇出延迟 &lt; 100ms</td>
+</tr>
+<tr>
+<td>派彩压测</td>
+<td>模拟 1w 命中用户的批量结算</td>
+<td>&lt; 60s 完成</td>
+</tr>
+<tr>
+<td>全链路压测</td>
+<td>8k CCU + 50 主播 + 200 押注/s + 100 打赏/s + 500 弹幕/s 持续 1h</td>
+<td>全链路 SLO 达标</td>
+</tr>
+<tr>
+<td>极端场景</td>
+<td>决赛日 1w 命中 + 100 并发押注/s</td>
+<td>无穿仓，对账归零</td>
+</tr>
+</tbody>
+</table>
+<h3 id="7-5-2-混沌测试-赛季前-T-5">7.5.2 混沌测试（赛季前 T-5）</h3>
+<table>
+<thead>
+<tr>
+<th>故障注入</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MySQL 主切从</td>
+<td>业务降级 &lt; 30s 自动恢复</td>
+</tr>
+<tr>
+<td>Redis 主切换</td>
+<td>业务能短暂降级到 DB（错误率 &lt; 1%）</td>
+</tr>
+<tr>
+<td>SRS Origin 重启</td>
+<td>推流自动切到备 Origin</td>
+</tr>
+<tr>
+<td>CDN A 故障</td>
+<td>DNS GSLB 自动切 CDN B &lt; 60s</td>
+</tr>
+<tr>
+<td>通道 A（微信）故障</td>
+<td>R-604 触发，告警 + 引导用户切支付宝</td>
+</tr>
+<tr>
+<td>Kafka/Streams 堆积</td>
+<td>业务降级，关键链路（资金）不受影响</td>
+</tr>
+<tr>
+<td>网络丢包 30%</td>
+<td>客户端重试 + 服务端幂等</td>
+</tr>
+</tbody>
+</table>
+<h3 id="7-5-3-工具">7.5.3 工具</h3>
+<ul>
+<li><strong>wrk</strong> / <strong>vegeta</strong>：HTTP API 压测</li>
+<li><strong>k6</strong>：脚本化场景压测</li>
+<li><strong>ghz</strong>：gRPC（未来）</li>
+<li><strong>artillery</strong>：WebSocket 压测</li>
+<li><strong>ffmpeg + ffplay</strong>：模拟主播推流 + 观众拉流</li>
+<li><strong>chaos-mesh</strong>：K8s 混沌注入</li>
+<li><strong>mysql-tools</strong>：mysqlslap / sysbench</li>
+<li><strong>redis-benchmark</strong>：Redis 压测</li>
+</ul>
+<h3 id="7-5-4-验收标准">7.5.4 验收标准</h3>
+<p>每场景必须满足：</p>
+<ol>
+<li>SLO 全部达标（§7.1）</li>
+<li>错误率 ≤ 0.1%</li>
+<li>资金对账 = 0 差异</li>
+<li>CPU / 内存 / 连接 / IO 无异常爆涨</li>
+<li>监控告警全部正常触发（验证告警链路）</li>
+</ol>
+<h2 id="7-6-决赛日预案">7.6 决赛日预案</h2>
+<h3 id="7-6-1-预估场景">7.6.1 预估场景</h3>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>平时</th>
+<th>决赛日预估</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CCU 峰值</td>
+<td>8000</td>
+<td><strong>15000-20000</strong></td>
+</tr>
+<tr>
+<td>押注 QPS 峰值</td>
+<td>200</td>
+<td><strong>1500</strong></td>
+</tr>
+<tr>
+<td>打赏 QPS 峰值</td>
+<td>100</td>
+<td><strong>800</strong></td>
+</tr>
+<tr>
+<td>单场押注总额</td>
+<td>5w 钻</td>
+<td><strong>50w-100w 钻</strong></td>
+</tr>
+<tr>
+<td>单场命中用户数</td>
+<td>1000</td>
+<td><strong>10000+</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="7-6-2-提前-1-周准备">7.6.2 提前 1 周准备</h3>
+<ul>
+<li>直播源站 Pull Edge 扩到 8 节点（v1 4 节点）</li>
+<li>CDN 双厂商签约峰值带宽各加 30%</li>
+<li>go-api / go-ws 副本数提前扩到 8 / 6</li>
+<li>MySQL 主从切换演练</li>
+<li>决赛 24h 前禁止任何变更</li>
+<li>全员 on-call 待命</li>
+</ul>
+<h3 id="7-6-3-应急降级开关-运行时可配">7.6.3 应急降级开关（运行时可配）</h3>
+<table>
+<thead>
+<tr>
+<th>开关</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>feature.predict.enabled</code></td>
+<td>关闭后所有押注接口返回"赛事过热，请稍后重试"</td>
+</tr>
+<tr>
+<td><code>feature.tip.combo.disabled</code></td>
+<td>关闭连击合并，每次打赏独立写库（性能↓但简单）</td>
+</tr>
+<tr>
+<td><code>feature.danmaku.broadcast.throttle</code></td>
+<td>弹幕广播降级：仅 L3+ 用户的弹幕广播</td>
+</tr>
+<tr>
+<td><code>feature.home.cache.aggressive</code></td>
+<td>首页强缓存 5min → 30s，源站压力↑但精度↑（反向开关）</td>
+</tr>
+<tr>
+<td><code>feature.live.fallback.hls</code></td>
+<td>强制所有用户切 HLS（如 FLV 链路异常）</td>
+</tr>
+</tbody>
+</table>
+<p>开关用 Redis Hash 存储，go-api 启动加载 + 5s 监听。</p>
+<h2 id="7-7-监控大盘-容量视角">7.7 监控大盘（容量视角）</h2>
+<p><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/deployment-and-monitoring.md" rel="noopener noreferrer">deployment-and-monitoring.md</a> §监控大盘。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#7-1-SLO-服务等级目标">7.1 SLO（服务等级目标）</a></li><li style="margin-left:0.8rem"><a href="#7-1-1-API-类">7.1.1 API 类</a></li><li style="margin-left:0.8rem"><a href="#7-1-2-实时-直播类">7.1.2 实时 / 直播类</a></li><li style="margin-left:0.8rem"><a href="#7-1-3-异步类">7.1.3 异步类</a></li><li style="margin-left:0.8rem"><a href="#7-1-4-可用性">7.1.4 可用性</a></li><li style="margin-left:0.0rem"><a href="#7-2-10k-CCU-压力分布">7.2 10k CCU 压力分布</a></li><li style="margin-left:0.0rem"><a href="#7-3-关键组件容量与扩容触发">7.3 关键组件容量与扩容触发</a></li><li style="margin-left:0.8rem"><a href="#7-3-1-直播源站">7.3.1 直播源站</a></li><li style="margin-left:0.8rem"><a href="#7-3-2-后端服务">7.3.2 后端服务</a></li><li style="margin-left:0.8rem"><a href="#7-3-3-数据库">7.3.3 数据库</a></li><li style="margin-left:0.8rem"><a href="#7-3-4-数据规模-32-天赛季末预估">7.3.4 数据规模（32 天赛季末预估）</a></li><li style="margin-left:0.0rem"><a href="#7-4-优化策略清单">7.4 优化策略清单</a></li><li style="margin-left:0.8rem"><a href="#7-4-1-接口层">7.4.1 接口层</a></li><li style="margin-left:0.8rem"><a href="#7-4-2-缓存层">7.4.2 缓存层</a></li><li style="margin-left:0.8rem"><a href="#7-4-3-数据库层">7.4.3 数据库层</a></li><li style="margin-left:0.8rem"><a href="#7-4-4-异步层">7.4.4 异步层</a></li><li style="margin-left:0.8rem"><a href="#7-4-5-水平扩展">7.4.5 水平扩展</a></li><li style="margin-left:0.0rem"><a href="#7-5-压测计划">7.5 压测计划</a></li><li style="margin-left:0.8rem"><a href="#7-5-1-压测阶段-赛季前-T-7-T-3">7.5.1 压测阶段（赛季前 T-7 ~ T-3）</a></li><li style="margin-left:0.8rem"><a href="#7-5-2-混沌测试-赛季前-T-5">7.5.2 混沌测试（赛季前 T-5）</a></li><li style="margin-left:0.8rem"><a href="#7-5-3-工具">7.5.3 工具</a></li><li style="margin-left:0.8rem"><a href="#7-5-4-验收标准">7.5.4 验收标准</a></li><li style="margin-left:0.0rem"><a href="#7-6-决赛日预案">7.6 决赛日预案</a></li><li style="margin-left:0.8rem"><a href="#7-6-1-预估场景">7.6.1 预估场景</a></li><li style="margin-left:0.8rem"><a href="#7-6-2-提前-1-周准备">7.6.2 提前 1 周准备</a></li><li style="margin-left:0.8rem"><a href="#7-6-3-应急降级开关-运行时可配">7.6.3 应急降级开关（运行时可配）</a></li><li style="margin-left:0.0rem"><a href="#7-7-监控大盘-容量视角">7.7 监控大盘（容量视角）</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-06-04</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Go</span><span class="tag">Kubernetes</span><span class="tag">MySQL</span><span class="tag">Redis</span><span class="tag">监控告警</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/architecture/capacity-and-performance.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BPython-7.%20%E5%AE%B9%E9%87%8F%E8%A7%84%E5%88%92%E4%B8%8E%E6%80%A7%E8%83%BD.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>7. 容量规划与性能。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §7 非功能需求 目标：10000 CCU、8000 DAU 峰值、50 主播在线、决赛日单日 GMV ≥ ¥150,000、赛季总 GMV ≥ ¥800w C 端 API：99.9%（赛季 32 天累计 &lt;…</p>
+      <p>关键词：小蓝直播、Shell、Python、Go、Kubernetes、MySQL、Redis、监控告警、业务系统运维、业务系统运维 / 小蓝直播、7. 容量规划与性能</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6d617d408e5c.html"><small>上一篇</small>复杂业务架构能力门禁</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dabe940a51b7.html"><small>下一篇</small>数据表设计规范</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8a7303e20f94.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

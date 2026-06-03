@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>前端联调指南｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="前端联调指南。本文属于业务系统运维 / 小蓝直播，这是给 apps/web （用户端 Nuxt 4）和 apps/admin （管理后台 Vue 3 + Element Plus）的对接说明。后端 Go 服务在 services/go-app 。 C 端账号 ：种子中 没有 C 端用户 ，前端自己用 /api/v…">
+  <meta name="keywords" content="小蓝直播，Shell，Python，Go，Docker，Nginx，MySQL，Redis，业务系统运维，业务系统运维 / 小蓝直播，前端联调指南">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d4cb251c44e0.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d4cb251c44e0.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BPython-%E5%89%8D%E7%AB%AF%E8%81%94%E8%B0%83%E6%8C%87%E5%8D%97.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="前端联调指南">
+  <meta property="og:description" content="前端联调指南。本文属于业务系统运维 / 小蓝直播，这是给 apps/web （用户端 Nuxt 4）和 apps/admin （管理后台 Vue 3 + Element Plus）的对接说明。后端 Go 服务在 services/go-app 。 C 端账号 ：种子中 没有 C 端用户 ，前端自己用 /api/v…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d4cb251c44e0.html">
+  <meta property="article:published_time" content="2026-06-04T01:09:00.444545+08:00">
+  <meta property="article:modified_time" content="2026-06-04 01:09">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="前端联调指南">
+  <meta name="twitter:description" content="前端联调指南。本文属于业务系统运维 / 小蓝直播，这是给 apps/web （用户端 Nuxt 4）和 apps/admin （管理后台 Vue 3 + Element Plus）的对接说明。后端 Go 服务在 services/go-app 。 C 端账号 ：种子中 没有 C 端用户 ，前端自己用 /api/v…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d4cb251c44e0.html#article","headline":"前端联调指南","description":"前端联调指南。本文属于业务系统运维 / 小蓝直播，这是给 apps/web （用户端 Nuxt 4）和 apps/admin （管理后台 Vue 3 + Element Plus）的对接说明。后端 Go 服务在 services/go-app 。 C 端账号 ：种子中 没有 C 端用户 ，前端自己用 /api/v…","datePublished":"2026-06-04T01:09:00.444545+08:00","dateModified":"2026-06-04 01:09","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Shell","Python","Go","Docker","Nginx","MySQL","Redis","业务系统运维","业务系统运维 / 小蓝直播","前端联调指南"],"wordCount":2348,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d4cb251c44e0.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d4cb251c44e0.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"前端联调指南","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d4cb251c44e0.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>前端联调指南</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>前端联调指南</h1>
+      <p class="lede">前端联调指南。本文属于业务系统运维 / 小蓝直播，这是给 apps/web （用户端 Nuxt 4）和 apps/admin （管理后台 Vue 3 + Element Plus）的对接说明。后端 Go 服务在 services/go-app 。 C 端账号 ：种子中 没有 C 端用户 ，前端自己用 /api/v…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-04T01:09:00.444545+08:00">发布于 2026-06-04</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,348 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/frontend-integration.md</code></p>
+<p>整理日期：2026-06-04 01:09｜日期依据：文件创建/修改时间</p>
+<p>这是给 <strong>apps/web</strong>（用户端 Nuxt 4）和 <strong>apps/admin</strong>（管理后台 Vue 3 + Element Plus）的对接说明。后端 Go 服务在 <code>services/go-app</code>。</p>
+</blockquote>
+<hr/>
+<h2 id="1-一键启动后端">1. 一键启动后端</h2>
+<pre><code class="language-bash"># 仅第一次：安装依赖
+make bootstrap
+
+# 启动 MySQL + Redis（docker compose）+ migration + 种子数据
+make dev-up
+
+# 启动 Public API（前端 web/h5 用）— 监听 :8080
+make api
+
+# 另开终端启动 Admin API（前端 admin 用）— 监听 :8081
+make admin
+</code></pre>
+<p>启动后访问：</p>
+<table>
+<thead>
+<tr>
+<th>服务</th>
+<th>URL</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Public API</td>
+<td>http://localhost:8080</td>
+<td>用户端调用</td>
+</tr>
+<tr>
+<td>Admin API</td>
+<td>http://localhost:8081</td>
+<td>管理后台调用</td>
+</tr>
+<tr>
+<td>MySQL</td>
+<td>203.0.113.1:13306</td>
+<td>账号 kickoff / kickoff_dev</td>
+</tr>
+<tr>
+<td>Redis</td>
+<td>203.0.113.1:16379</td>
+<td>无密码</td>
+</tr>
+<tr>
+<td>API 文档</td>
+<td>打开 <code>docs/api/index.html</code>（推荐 <code>python3 -m http.server</code> 跑在 docs/api/）</td>
+<td>Stoplight Elements</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="2-测试账号">2. 测试账号</h2>
+<p>种子已建好，密码统一 <strong><code>Admin1234!</code></strong>：</p>
+<table>
+<thead>
+<tr>
+<th>用户名</th>
+<th>角色</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kickoff_admin</code></td>
+<td>super_admin</td>
+<td>超级管理员，所有功能可用</td>
+</tr>
+<tr>
+<td><code>cs_admin</code></td>
+<td>cs_admin</td>
+<td>客服管理员</td>
+</tr>
+<tr>
+<td><code>finance_admin</code></td>
+<td>finance_admin</td>
+<td>财务管理员（审批提现/调账）</td>
+</tr>
+<tr>
+<td><code>room_admin</code></td>
+<td>room_admin</td>
+<td>房间管理员（已分配 R0001/R0002）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Admin 登录</strong>：</p>
+<pre><code class="language-http">POST http://localhost:8081/api/v1/admin/auth/login
+Content-Type: application/json
+
+{
+  "username": "kickoff_admin",
+  "password": "Admin1234!"
+}
+</code></pre>
+<p><strong>C 端账号</strong>：种子中<strong>没有 C 端用户</strong>，前端自己用 <code>/api/v1/auth/register</code> 注册即可。</p>
+<hr/>
+<h2 id="3-引入-TypeScript-SDK-推荐">3. 引入 TypeScript SDK（推荐）</h2>
+<p>后端所有接口都有 OpenAPI 契约（<code>docs/api/openapi.yaml</code>），前端可以直接生成 TS 类型 + 强类型 HTTP 客户端。</p>
+<h3 id="安装">安装</h3>
+<p><code>pnpm-workspace.yaml</code> 里已经包含 <code>packages/ts-sdk</code>。</p>
+<p>在前端 <code>apps/web/package.json</code> 或 <code>apps/admin/package.json</code> 里加：</p>
+<pre><code class="language-json">{
+  "dependencies": {
+    "@kickoff/ts-sdk": "workspace:*"
+  }
+}
+</code></pre>
+<h3 id="使用">使用</h3>
+<pre><code class="language-ts">// composables/useApi.ts (Nuxt) 或 src/api/client.ts (Vue)
+import { createKickoffClient } from '@kickoff/ts-sdk'
+
+export const client = createKickoffClient({
+  baseUrl: import.meta.env.VITE_API_BASE,            // e.g. http://localhost:8080
+  [敏感内容已脱敏] =&gt; useAuthStore().accessToken,  // pinia store
+  onUnauthorized: () =&gt; useAuthStore().logout(),
+})
+
+// 完全类型安全
+const { data, error } = await client.POST('/api/v1/auth/login', {
+  body: { account: 'demo', 敏感凭据：[已脱敏] },
+})
+
+// 类型推断
+type LoginRes = NonNullable&lt;typeof data&gt;['data']     // AuthResponse
+</code></pre>
+<h3 id="重新生成-后端契约改了之后">重新生成（后端契约改了之后）</h3>
+<pre><code class="language-bash"># 在 monorepo 根目录
+make sdk           # = pnpm --filter @kickoff/ts-sdk run generate
+</code></pre>
+<p>会更新 <code>packages/ts-sdk/src/generated/schema.ts</code>（前端自动跟随）。</p>
+<hr/>
+<h2 id="4-请求-响应统一约定">4. 请求 / 响应统一约定</h2>
+<h3 id="4-1-响应-envelope">4.1 响应 envelope</h3>
+<p>所有 API 返回统一结构：</p>
+<pre><code class="language-jsonc">{
+  "code": 0,                    // 0=成功；非 0 见错误码表
+  "message": "ok",
+  "data": { ... },              // 业务数据（失败时为 null）
+  "trace_id": "uuid",           // 追踪 ID（前端贴到 bug 报告里方便后端查）
+  "timestamp": 1779482635343    // unix ms
+}
+</code></pre>
+<h3 id="4-2-错误码">4.2 错误码</h3>
+<p>5 位正整数：</p>
+<table>
+<thead>
+<tr>
+<th>段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1xxxx</td>
+<td>系统错误（10001 internal / 10004 rate-limited / 10007 feature-closed）</td>
+</tr>
+<tr>
+<td>2xxxx</td>
+<td>业务错误（20001 param / 20003 conflict / 20004 idempotency / 20101 余额不足 / 20201 押注超限 / 20301 比赛未直播 / 20401 KYC required）</td>
+</tr>
+<tr>
+<td>3xxxx</td>
+<td>权限错误（30001 unauthorized / 30002 token expired / 30003 token invalid / 30004 forbidden / 30005 admin scope）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-3-字段类型">4.3 字段类型</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>JSON 表达</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BIGINT ID</td>
+<td><code>"20581585086578689"</code></td>
+<td><strong>字符串</strong>，避免 JS Number 精度丢失</td>
+</tr>
+<tr>
+<td>RMB 金额</td>
+<td><code>"100.50"</code></td>
+<td><strong>字符串</strong>，保留 2 位小数</td>
+</tr>
+<tr>
+<td>钻石数量</td>
+<td><code>1000</code></td>
+<td>int64</td>
+</tr>
+<tr>
+<td>时间</td>
+<td><code>1779482635343</code></td>
+<td>unix ms (int64)</td>
+</tr>
+<tr>
+<td>状态</td>
+<td><code>"PENDING"</code> / <code>"PAID"</code></td>
+<td>大写字符串枚举</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-4-必带-header">4.4 必带 header</h3>
+<table>
+<thead>
+<tr>
+<th>Header</th>
+<th>何时</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Authorization: Bearer &lt;token&gt;</code></td>
+<td>登录后所有受保护接口</td>
+<td>JWT access token (2h TTL)</td>
+</tr>
+<tr>
+<td><code>X-Idempotency-Key: &lt;uuid v4&gt;</code></td>
+<td>资金类写接口（recharge/withdraw/exchange/bet/tip）</td>
+<td>客户端生成 UUID，同 key 重复请求会被拒（10004 / 20004）</td>
+</tr>
+<tr>
+<td><code>X-Trace-Id</code></td>
+<td>可选</td>
+<td>客户端可生成 trace ID 自带；不带服务端会生成</td>
+</tr>
+<tr>
+<td><code>X-Request-Id</code></td>
+<td>可选</td>
+<td>跨服务链路 ID（nginx/api-gateway 注入）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-5-限流">4.5 限流</h3>
+<table>
+<thead>
+<tr>
+<th>接口</th>
+<th>限制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/api/v1/auth/login</code></td>
+<td>10 次 / 分钟 / IP</td>
+</tr>
+<tr>
+<td><code>/api/v1/auth/register</code></td>
+<td>10 次 / 分钟 / IP</td>
+</tr>
+</tbody>
+</table>
+<p>超过返回 HTTP 429 + body <code>{code: 10004, message: "请求过于频繁"}</code> + header <code>Retry-After: &lt;seconds&gt;</code>。</p>
+<hr/>
+<h2 id="5-关键流程示例">5. 关键流程示例</h2>
+<h3 id="5-1-C-端注册-登录">5.1 C 端注册 + 登录</h3>
+<pre><code class="language-ts">// 1. 注册
+const reg = await client.POST('/api/v1/auth/register', {
+  body: { account: 'demo01', 敏感凭据：[已脱敏] nickname: '演示账号' },
+})
+// reg.data 即 AuthResponse：含 user_id + token.access_token + token.refresh_token
+
+// 2. 存 token
+useAuthStore().setTokens(reg.data!.data!.token)
+
+// 3. 后续请求会自动带 Authorization 头
+</code></pre>
+<h3 id="5-2-充值-等待回调-余额变更">5.2 充值 → 等待回调 → 余额变更</h3>
+<pre><code class="language-ts">// 1. 发起充值（拿 idem key）
+const idem = crypto.randomUUID()
+const init = await client.POST('/api/v1/wallet/recharge/init', {
+  headers: { 'X-Idempotency-Key': idem },
+  body: { channel: 'wechat', rmb_amount: '100.00' },
+})
+const orderNo = init.data!.data!.order_no
+// 跳转到 init.data.data.pay_url（生产环境）；本地测试可手动触发 hook
+
+// 2. 轮询状态（或用 WebSocket 监听）
+const status = await client.GET('/api/v1/wallet/recharge/{order_no}/status', {
+  params: { path: { order_no: orderNo } },
+})
+// status.data.data.status 变成 "PAID" 后，钻石余额已到账
+</code></pre>
+<h3 id="5-3-押注">5.3 押注</h3>
+<pre><code class="language-ts">const idem = crypto.randomUUID()
+const bet = await client.POST('/api/v1/predict/bet', {
+  headers: { 'X-Idempotency-Key': idem },
+  body: { activity_id: '101', option_id: '10011', bet_amount: 500 },
+})
+// 钻石余额自动扣 500；bet.status 初始 = "PLACED"
+</code></pre>
+<h3 id="5-4-Admin-登录-balance-adjust">5.4 Admin 登录 + balance-adjust</h3>
+<pre><code class="language-ts">const login = await adminClient.POST('/api/v1/admin/auth/login', {
+  body: { username: 'kickoff_admin', 敏感凭据：[已脱敏] },
+})
+// JWT subject="admin"，前端用 admin token 调 /api/v1/admin/*
+
+// 给用户加 200 💎
+await adminClient.POST('/api/v1/admin/users/{id}/balance-adjust', {
+  params: { path: { id: '20581585086578689' } },
+  body: { currency: 'diamond', direction: 'add', amount: '200', reason: '客服补偿' },
+})
+// 后端走 ledger 复式记账 + 写 balance_adjustments 表 + admin_audit_logs
+</code></pre>
+<hr/>
+<h2 id="6-CORS">6. CORS</h2>
+<p>已配置允许：
+- <code>http://localhost:3000</code> / <code>:3001</code>（Nuxt dev）
+- <code>http://localhost:5173</code>（Vite/Vue dev）
+- <code>http://localhost:8082</code>（Vue CLI 备用）</p>
+<p>如果前端 dev server 在其他端口，改 <code>services/go-app/config/config.local.yaml</code> 的 <code>server.cors.allow_origins</code> 重启 api。</p>
+<hr/>
+<h2 id="7-常见问题">7. 常见问题</h2>
+<h3 id="Q1-401-unauthorized">Q1: 401 unauthorized</h3>
+<ul>
+<li>access token 过期（2h TTL）→ 用 refresh token 调 <code>/auth/refresh</code> 换新对</li>
+<li>refresh token 也过期（30d）→ 重新登录</li>
+</ul>
+<h3 id="Q2-20004-幂等键冲突">Q2: 20004 幂等键冲突</h3>
+<ul>
+<li>同一 <code>X-Idempotency-Key</code> 二次请求会被拒。每次资金操作前 <code>crypto.randomUUID()</code> 重新生成</li>
+</ul>
+<h3 id="Q3-资金类接口都返回-20003-conflict">Q3: 资金类接口都返回 20003 conflict</h3>
+<ul>
+<li>检查请求体里的 ID 字段（user_id / order_no）是不是字符串而非 number — JS Number 会丢失 BIGINT 精度</li>
+</ul>
+<h3 id="Q4-拉不到列表数据">Q4: 拉不到列表数据</h3>
+<ul>
+<li>先 <code>make dev-up</code> 灌 seed</li>
+<li>列表分页：默认 page=1, size=20，传 query <code>?page=2&amp;size=50</code></li>
+</ul>
+<h3 id="Q5-弹幕表查不到">Q5: 弹幕表查不到</h3>
+<ul>
+<li>弹幕按月分表 <code>live_chat_messages_YYYYMM</code>。每月 1 日需运营提前建好下月表（本期手动）</li>
+</ul>
+<h3 id="Q6-直播间状态不对">Q6: 直播间状态不对</h3>
+<ul>
+<li>房间状态机：1=IDLE / 2=LIVE / 3=ENDED / 4=BANNED</li>
+<li>拉流地址 <code>/play-url</code> 仅在 LIVE 状态返回；其他状态返回 20301</li>
+</ul>
+<h3 id="Q7-重置数据库">Q7: 重置数据库</h3>
+<pre><code class="language-bash">make dev-reset   # 销毁数据卷 + 重新 dev-up + seed
+</code></pre>
+<h3 id="Q8-怎么测-SRS-hook">Q8: 怎么测 SRS hook</h3>
+<ul>
+<li>当前 docker-compose 注释了 SRS 容器</li>
+<li>用 <code>curl</code> 模拟回调：</li>
+</ul>
+<pre><code class="language-bash">curl -X POST http://localhost:8080/api/v1/hooks/srs/on_publish \
+  -H 'Content-Type: application/json' \
+  -d '{"action":"on_publish","stream":"room_R0001_keysk_r0001_aabbccddeeff1122"}'
+# 返回 {"code":0} 即表示推流被放行
+</code></pre>
+<hr/>
+<h2 id="8-H5-直播间接口对接口径">8. H5 直播间接口对接口径</h2>
+<p>原型里的 <code>/rooms/{id}</code>、<code>/tip</code>、<code>/bets</code> 是产品说明简写；联调必须使用 OpenAPI 中的 <code>/api/v1/*</code> 路径。</p>
+<table>
+<thead>
+<tr>
+<th>产品原型场景</th>
+<th>后端接口</th>
+<th>响应/请求口径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>进入直播间</td>
+<td><code>GET /api/v1/live/room/{room_id}</code></td>
+<td><code>data</code> 是 <code>LiveRoom</code>，含主播、状态、观看数、关联比赛与比分快照。</td>
+</tr>
+<tr>
+<td>拉流</td>
+<td><code>GET /api/v1/live/room/{room_id}/play-url</code></td>
+<td><code>data.flv_url</code> / <code>data.hls_url</code> / <code>data.expire_at</code>。</td>
+</tr>
+<tr>
+<td>播放 token 续期</td>
+<td><code>POST /api/v1/live/room/{room_id}/refresh-token</code></td>
+<td>需登录；返回 <code>play_token</code> / <code>expire_at</code>。</td>
+</tr>
+<tr>
+<td>弹幕历史</td>
+<td><code>GET /api/v1/live/room/{room_id}/danmaku?limit=50</code></td>
+<td><code>data.items[]</code> 是 <code>LiveDanmaku[]</code>，不是 <code>data[]</code>。</td>
+</tr>
+<tr>
+<td>发弹幕</td>
+<td><code>POST /api/v1/live/room/{room_id}/danmaku</code></td>
+<td>body <code>{ "content": "..." }</code>；v0.3.1 上限 100 字；登录用户均可发，不需要等级。</td>
+</tr>
+<tr>
+<td>打赏</td>
+<td><code>POST /api/v1/live/room/{room_id}/tip</code></td>
+<td>body <code>{ "diamond_amount": 100, "client_combo_seq": 1 }</code>；字段不是 <code>amount</code>。</td>
+</tr>
+<tr>
+<td>直播间竞猜卡</td>
+<td><code>GET /api/v1/live/room/{room_id}/activities</code></td>
+<td><code>data.main</code> 是主推活动；<code>data.all[]</code> 是全部可展示活动。</td>
+</tr>
+<tr>
+<td>直播线路</td>
+<td><code>GET /api/v1/live/lines?room_id={room_id}</code></td>
+<td><code>data.items[]</code> 是后端启用线路；<code>auto</code> 由前端自行添加。</td>
+</tr>
+<tr>
+<td>线路选择</td>
+<td><code>POST /api/v1/live/lines/select</code></td>
+<td>body <code>{ "room_id": "...", "line_id": "auto" }</code> 或真实线路 code。</td>
+</tr>
+<tr>
+<td>房间 WS</td>
+<td><code>WS /ws/v1/live/{room_id}</code></td>
+<td>弹幕、进场、打赏、观看数、下播/封禁事件。</td>
+</tr>
+<tr>
+<td>比分 WS</td>
+<td><code>WS /ws/v1/match/{match_id}</code></td>
+<td><code>match_id</code> 从房间元数据取；断线兜底 <code>GET /api/v1/match/{match_id}/score</code>。</td>
+</tr>
+</tbody>
+</table>
+<p>当前 v0.3.1 的线路选择只做上报与统计，<code>play-url</code> 尚未按 <code>line_id</code> 返回不同 CDN 地址；前端可以保留线路 UI，但不要假设切线会改变播放 URL。</p>
+<p>后台已有对应管理入口：</p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>页面</th>
+<th>核心接口</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>直播间管理</td>
+<td><code>apps/admin/src/views/rooms/RoomListView.vue</code> / <code>RoomDetailView.vue</code></td>
+<td><code>/api/v1/admin/rooms*</code></td>
+</tr>
+<tr>
+<td>管理员账号</td>
+<td><code>apps/admin/src/views/admins/AdminAccountListView.vue</code></td>
+<td><code>/api/v1/admin/admins*</code>；仅 <code>super_admin</code> 可新增/启用/禁用管理员账号。</td>
+</tr>
+<tr>
+<td>直播线路</td>
+<td><code>apps/admin/src/views/live-lines/LiveLineListView.vue</code></td>
+<td><code>/api/v1/admin/live-lines*</code></td>
+</tr>
+<tr>
+<td>主播管理</td>
+<td><code>apps/admin/src/views/streamers/StreamerListView.vue</code></td>
+<td><code>/api/v1/admin/streamers*</code></td>
+</tr>
+<tr>
+<td>竞猜活动</td>
+<td><code>apps/admin/src/views/predict/PredictListView.vue</code></td>
+<td><code>/api/v1/admin/predict/activities*</code></td>
+</tr>
+<tr>
+<td>用户运营标签</td>
+<td><code>apps/admin/src/views/users/UserListView.vue</code> / <code>UserDetailView.vue</code></td>
+<td><code>/api/v1/admin/users*</code> 返回 <code>spender_tier</code> / <code>total_tip_diamond</code>；大 R 按累计送出打赏钻石计算，不是等级特权。</td>
+</tr>
+</tbody>
+</table>
+<p>已实现但后台页面还未完整做 UI 的房间能力：切换主播、切换关联比赛、会话历史、删除弹幕和禁言操作。接口可用，UI 仍需补齐。房间管理员分配已在房间详情页提供基础 UI。</p>
+<p>前端注意：旧原型里的 <code>level</code>、等级弹幕颜色、等级进场、等级投注上限、等级不足无法发弹幕都已废弃。C 端不要展示或依赖等级特权；后台如需识别大 R，只使用 <code>spender_tier</code> 和 <code>total_tip_diamond</code>。</p>
+<hr/>
+<h2 id="9-后端联调期可能动的接口">9. 后端联调期可能动的接口</h2>
+<p>以下接口可能在前端联调过程中有微调，前端最好用 <code>@kickoff/ts-sdk</code> 而不是手写：</p>
+<ul>
+<li>列表接口的 query 参数命名</li>
+<li>错误码细分（特别是 2xxxx 业务错误）</li>
+<li>状态字符串大小写</li>
+<li>资金类接口的 idempotency_key scope</li>
+</ul>
+<p>约定：<strong>契约（v1.yaml）变更时</strong>，后端一定会 <code>make openapi &amp;&amp; make sdk</code> 重新生成；前端 <code>pnpm install</code> 拉最新即可。</p>
+<hr/>
+<h2 id="10-联系方式">10. 联系方式</h2>
+<ul>
+<li>后端接口问题 / 错误码不明：把 <code>trace_id</code> 贴出来，后端能查到完整日志</li>
+<li>联调环境挂了：<code>make dev-reset</code> 重置</li>
+<li>想要新的种子数据：编辑 <code>scripts/seed/seed.sql</code> 然后 <code>make seed</code></li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-一键启动后端">1. 一键启动后端</a></li><li style="margin-left:0.0rem"><a href="#2-测试账号">2. 测试账号</a></li><li style="margin-left:0.0rem"><a href="#3-引入-TypeScript-SDK-推荐">3. 引入 TypeScript SDK（推荐）</a></li><li style="margin-left:0.8rem"><a href="#安装">安装</a></li><li style="margin-left:0.8rem"><a href="#使用">使用</a></li><li style="margin-left:0.8rem"><a href="#重新生成-后端契约改了之后">重新生成（后端契约改了之后）</a></li><li style="margin-left:0.0rem"><a href="#4-请求-响应统一约定">4. 请求 / 响应统一约定</a></li><li style="margin-left:0.8rem"><a href="#4-1-响应-envelope">4.1 响应 envelope</a></li><li style="margin-left:0.8rem"><a href="#4-2-错误码">4.2 错误码</a></li><li style="margin-left:0.8rem"><a href="#4-3-字段类型">4.3 字段类型</a></li><li style="margin-left:0.8rem"><a href="#4-4-必带-header">4.4 必带 header</a></li><li style="margin-left:0.8rem"><a href="#4-5-限流">4.5 限流</a></li><li style="margin-left:0.0rem"><a href="#5-关键流程示例">5. 关键流程示例</a></li><li style="margin-left:0.8rem"><a href="#5-1-C-端注册-登录">5.1 C 端注册 + 登录</a></li><li style="margin-left:0.8rem"><a href="#5-2-充值-等待回调-余额变更">5.2 充值 → 等待回调 → 余额变更</a></li><li style="margin-left:0.8rem"><a href="#5-3-押注">5.3 押注</a></li><li style="margin-left:0.8rem"><a href="#5-4-Admin-登录-balance-adjust">5.4 Admin 登录 + balance-adjust</a></li><li style="margin-left:0.0rem"><a href="#6-CORS">6. CORS</a></li><li style="margin-left:0.0rem"><a href="#7-常见问题">7. 常见问题</a></li><li style="margin-left:0.8rem"><a href="#Q1-401-unauthorized">Q1: 401 unauthorized</a></li><li style="margin-left:0.8rem"><a href="#Q2-20004-幂等键冲突">Q2: 20004 幂等键冲突</a></li><li style="margin-left:0.8rem"><a href="#Q3-资金类接口都返回-20003-conflict">Q3: 资金类接口都返回 20003 conflict</a></li><li style="margin-left:0.8rem"><a href="#Q4-拉不到列表数据">Q4: 拉不到列表数据</a></li><li style="margin-left:0.8rem"><a href="#Q5-弹幕表查不到">Q5: 弹幕表查不到</a></li><li style="margin-left:0.8rem"><a href="#Q6-直播间状态不对">Q6: 直播间状态不对</a></li><li style="margin-left:0.8rem"><a href="#Q7-重置数据库">Q7: 重置数据库</a></li><li style="margin-left:0.8rem"><a href="#Q8-怎么测-SRS-hook">Q8: 怎么测 SRS hook</a></li><li style="margin-left:0.0rem"><a href="#8-H5-直播间接口对接口径">8. H5 直播间接口对接口径</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-06-04</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Go</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">MySQL</span><span class="tag">Redis</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/frontend-integration.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BPython-%E5%89%8D%E7%AB%AF%E8%81%94%E8%B0%83%E6%8C%87%E5%8D%97.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>前端联调指南。本文属于业务系统运维 / 小蓝直播，这是给 apps/web （用户端 Nuxt 4）和 apps/admin （管理后台 Vue 3 + Element Plus）的对接说明。后端 Go 服务在 services/go-app 。 C 端账号 ：种子中 没有 C 端用户 ，前端自己用 /api/v…</p>
+      <p>关键词：小蓝直播、Shell、Python、Go、Docker、Nginx、MySQL、Redis、业务系统运维、业务系统运维 / 小蓝直播、前端联调指南</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-25dd949e497b.html"><small>上一篇</small>Webhook 设计：支付回调 + SRS 直播回调</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-057afba03d68.html"><small>下一篇</small>后台管理端范围</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d4cb251c44e0.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

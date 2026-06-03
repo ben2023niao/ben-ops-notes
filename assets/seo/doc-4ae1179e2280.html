@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Agent Log Governance｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="Agent Log Governance。本文属于业务系统运维 / 小蓝直播，乌托邦 要求每个项目保留 Agent 日志，但日志边界必须清楚： 新项目不能继承 乌托邦 框架仓库的历史日志。每个项目的 docs/agents/logs/ 只记录该项目自己的任务、验证、红蓝对抗、风险和交接。 删除复制进来的 docs…">
+  <meta name="keywords" content="小蓝直播，Shell，源码与配置，业务系统运维，业务系统运维 / 小蓝直播，Agent Log Governance">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4ae1179e2280.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4ae1179e2280.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2B%E6%BA%90%E7%A0%81%E4%B8%8E%E9%85%8D%E7%BD%AE-Agent%20Log%20Governance.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Agent Log Governance">
+  <meta property="og:description" content="Agent Log Governance。本文属于业务系统运维 / 小蓝直播，乌托邦 要求每个项目保留 Agent 日志，但日志边界必须清楚： 新项目不能继承 乌托邦 框架仓库的历史日志。每个项目的 docs/agents/logs/ 只记录该项目自己的任务、验证、红蓝对抗、风险和交接。 删除复制进来的 docs…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4ae1179e2280.html">
+  <meta property="article:published_time" content="2026-06-04T01:09:00.437646+08:00">
+  <meta property="article:modified_time" content="2026-06-04 01:09">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Agent Log Governance">
+  <meta name="twitter:description" content="Agent Log Governance。本文属于业务系统运维 / 小蓝直播，乌托邦 要求每个项目保留 Agent 日志，但日志边界必须清楚： 新项目不能继承 乌托邦 框架仓库的历史日志。每个项目的 docs/agents/logs/ 只记录该项目自己的任务、验证、红蓝对抗、风险和交接。 删除复制进来的 docs…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4ae1179e2280.html#article","headline":"Agent Log Governance","description":"Agent Log Governance。本文属于业务系统运维 / 小蓝直播，乌托邦 要求每个项目保留 Agent 日志，但日志边界必须清楚： 新项目不能继承 乌托邦 框架仓库的历史日志。每个项目的 docs/agents/logs/ 只记录该项目自己的任务、验证、红蓝对抗、风险和交接。 删除复制进来的 docs…","datePublished":"2026-06-04T01:09:00.437646+08:00","dateModified":"2026-06-04 01:09","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Shell","源码与配置","业务系统运维","业务系统运维 / 小蓝直播","Agent Log Governance"],"wordCount":890,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4ae1179e2280.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4ae1179e2280.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Agent Log Governance","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4ae1179e2280.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>Agent Log Governance</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>Agent Log Governance</h1>
+      <p class="lede">Agent Log Governance。本文属于业务系统运维 / 小蓝直播，乌托邦 要求每个项目保留 Agent 日志，但日志边界必须清楚： 新项目不能继承 乌托邦 框架仓库的历史日志。每个项目的 docs/agents/logs/ 只记录该项目自己的任务、验证、红蓝对抗、风险和交接。 删除复制进来的 docs…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-04T01:09:00.437646+08:00">发布于 2026-06-04</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">890 字</span>
+        <span class="badge">3 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/architecture/agent-log-governance.md</code></p>
+<p>整理日期：2026-06-04 01:09｜日期依据：文件创建/修改时间</p>
+</blockquote>
+<h2 id="1-设计目标">1. 设计目标</h2>
+<p>乌托邦 要求每个项目保留 Agent 日志，但日志边界必须清楚：</p>
+<pre><code class="language-text">项目日志是项目事实源。
+框架日志是框架事实源。
+汇总平台是观察层。
+</code></pre>
+<p>新项目不能继承 乌托邦 框架仓库的历史日志。每个项目的 <code>docs/agents/logs/</code> 只记录该项目自己的任务、验证、红蓝对抗、风险和交接。</p>
+<h2 id="2-三类日志">2. 三类日志</h2>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>存放位置</th>
+<th>作用</th>
+<th>是否复制到新项目</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>框架日志</td>
+<td>乌托邦 仓库 <code>docs/agents/logs/</code></td>
+<td>记录 乌托邦 自身规则、模板、脚本、门禁如何演进</td>
+<td>否</td>
+</tr>
+<tr>
+<td>项目日志</td>
+<td>业务项目 <code>docs/agents/logs/</code></td>
+<td>记录该项目自己的需求、实现、验证、风险和交接</td>
+<td>项目内产生</td>
+</tr>
+<tr>
+<td>汇总日志索引</td>
+<td>乌托邦 Log Hub</td>
+<td>跨项目只读采集、搜索、统计、风险分析和框架反哺</td>
+<td>只读采集</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-初始化规则">3. 初始化规则</h2>
+<p>新项目初始化时必须执行日志净化：</p>
+<ol>
+<li>删除复制进来的 <code>docs/agents/logs/*.md</code>。</li>
+<li>删除 <code>docs/agents/logs/_template/</code>。</li>
+<li>保留或创建 <code>docs/agents/logs/.gitkeep</code>。</li>
+<li>只生成当前项目的 bootstrap 日志。</li>
+<li>不允许出现 <code>FRAMEWORK-xxx</code> 或 <code>FRAMEWORK-QA-xxx</code> 这类 乌托邦 框架需求 ID。</li>
+</ol>
+<p><code>framework.sync.json</code> 不得同步 <code>docs/agents/logs/**</code>。公共框架只能同步日志规则和日志模板，例如：</p>
+<pre><code class="language-text">docs/agents/rules/logging-rules.md
+docs/templates/agent-log-template.md
+docs/architecture/agent-log-governance.md
+</code></pre>
+<h2 id="4-项目日志规则">4. 项目日志规则</h2>
+<p>项目日志必须回答：</p>
+<ol>
+<li>本次任务来自哪个项目需求 ID。</li>
+<li>读取了哪些项目资料。</li>
+<li>修改了哪些项目文件。</li>
+<li>验证命令是否真实执行。</li>
+<li>红蓝对抗结论是什么。</li>
+<li>哪些问题要反哺 乌托邦。</li>
+</ol>
+<p>项目可以在日志中提到 乌托邦，但不能把 乌托邦 框架仓库的历史日志复制为项目日志。</p>
+<h2 id="5-乌托邦-Log-Hub">5. 乌托邦 Log Hub</h2>
+<p>跨项目汇总不应该靠复制日志文件，而应该建设独立工程：</p>
+<pre><code class="language-text">乌托邦 Log Hub
+  GitLab API / CI Artifact / scheduled crawler
+  Markdown parser
+  PostgreSQL
+  Search index
+  Web dashboard
+</code></pre>
+<p>Log Hub 通过只读采集读取各项目的 <code>docs/agents/logs/*.md</code>，不反向修改业务项目。</p>
+<h2 id="6-推荐采集流程">6. 推荐采集流程</h2>
+<pre><code class="language-text">Project A docs/agents/logs/*.md
+Project B docs/agents/logs/*.md
+Project C docs/agents/logs/*.md
+        ↓
+GitLab API / CI artifact
+        ↓
+Log parser
+        ↓
+PostgreSQL + Search index
+        ↓
+风险报表 / Agent 表现 / 框架摩擦 / 复用候选
+</code></pre>
+<h2 id="7-推荐数据模型">7. 推荐数据模型</h2>
+<table>
+<thead>
+<tr>
+<th>表</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>projects</code></td>
+<td>项目基础信息、仓库地址、owner、状态。</td>
+</tr>
+<tr>
+<td><code>repositories</code></td>
+<td>GitLab/GitHub 仓库信息和默认分支。</td>
+</tr>
+<tr>
+<td><code>agent_logs</code></td>
+<td>单条 Agent 日志索引、需求 ID、Agent、日期、结论。</td>
+</tr>
+<tr>
+<td><code>validation_runs</code></td>
+<td>日志提到的验证命令和结果。</td>
+</tr>
+<tr>
+<td><code>risks</code></td>
+<td>风险、阻塞、未完成事项和 owner。</td>
+</tr>
+<tr>
+<td><code>framework_feedback</code></td>
+<td>从项目日志抽取出的 乌托邦 框架优化建议。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="8-反哺机制">8. 反哺机制</h2>
+<p>项目日志中出现框架摩擦时：</p>
+<ol>
+<li>项目内先记录风险和临时处理。</li>
+<li>Log Hub 汇总相似问题。</li>
+<li>同类问题多次出现后，创建 乌托邦 框架 MR。</li>
+<li>框架 MR 更新规则、模板、validator 或文档。</li>
+<li>各项目通过 <code>.ai-framework</code> 升级获取改进。</li>
+</ol>
+<h2 id="9-最低验收">9. 最低验收</h2>
+<ol>
+<li><code>scripts/init-project.sh</code> 初始化后，新项目只包含当前项目 bootstrap 日志。</li>
+<li><code>scripts/template-self-check.sh</code> 检查新项目没有继承 乌托邦 历史日志。</li>
+<li><code>scripts/validate-agent-log-boundaries.py</code> 检查 <code>framework.sync.json</code> 不同步 <code>docs/agents/logs/**</code>。</li>
+<li>项目日志中如出现 乌托邦 框架需求 ID，必须失败。</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-设计目标">1. 设计目标</a></li><li style="margin-left:0.0rem"><a href="#2-三类日志">2. 三类日志</a></li><li style="margin-left:0.0rem"><a href="#3-初始化规则">3. 初始化规则</a></li><li style="margin-left:0.0rem"><a href="#4-项目日志规则">4. 项目日志规则</a></li><li style="margin-left:0.0rem"><a href="#5-乌托邦-Log-Hub">5. 乌托邦 Log Hub</a></li><li style="margin-left:0.0rem"><a href="#6-推荐采集流程">6. 推荐采集流程</a></li><li style="margin-left:0.0rem"><a href="#7-推荐数据模型">7. 推荐数据模型</a></li><li style="margin-left:0.0rem"><a href="#8-反哺机制">8. 反哺机制</a></li><li style="margin-left:0.0rem"><a href="#9-最低验收">9. 最低验收</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-06-04</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Shell</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/architecture/agent-log-governance.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2B%E6%BA%90%E7%A0%81%E4%B8%8E%E9%85%8D%E7%BD%AE-Agent%20Log%20Governance.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Agent Log Governance。本文属于业务系统运维 / 小蓝直播，乌托邦 要求每个项目保留 Agent 日志，但日志边界必须清楚： 新项目不能继承 乌托邦 框架仓库的历史日志。每个项目的 docs/agents/logs/ 只记录该项目自己的任务、验证、红蓝对抗、风险和交接。 删除复制进来的 docs…</p>
+      <p>关键词：小蓝直播、Shell、源码与配置、业务系统运维、业务系统运维 / 小蓝直播、Agent Log Governance</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-053421e9a0c1.html"><small>上一篇</small>后台管理平台架构</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8843a2130e6f.html"><small>下一篇</small>Go Gin + Laravel 后端技术线</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4ae1179e2280.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>技术栈与架构方案｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="技术栈与架构方案。本文属于业务系统运维 / 小蓝直播，版本：v0.2 日期：{{DATE}} 状态：Template {{PROJECT_NAME}} 采用 Monorepo + AI 工程团队模式。技术栈选择优先服务于： 让前端、后端、测试和 AI Agent 围绕契约并行开发。 让团队常用技术栈可以复用同一套…">
+  <meta name="keywords" content="小蓝直播，Shell，Go，Nginx，MySQL，Redis，自动化，安全运维，业务系统运维，业务系统运维 / 小蓝直播，技术栈与架构方案">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a3c7209a5d6.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a3c7209a5d6.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-%E6%8A%80%E6%9C%AF%E6%A0%88%E4%B8%8E%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="技术栈与架构方案">
+  <meta property="og:description" content="技术栈与架构方案。本文属于业务系统运维 / 小蓝直播，版本：v0.2 日期：{{DATE}} 状态：Template {{PROJECT_NAME}} 采用 Monorepo + AI 工程团队模式。技术栈选择优先服务于： 让前端、后端、测试和 AI Agent 围绕契约并行开发。 让团队常用技术栈可以复用同一套…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a3c7209a5d6.html">
+  <meta property="article:published_time" content="2026-06-04T01:09:00.440902+08:00">
+  <meta property="article:modified_time" content="2026-06-04 01:09">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="技术栈与架构方案">
+  <meta name="twitter:description" content="技术栈与架构方案。本文属于业务系统运维 / 小蓝直播，版本：v0.2 日期：{{DATE}} 状态：Template {{PROJECT_NAME}} 采用 Monorepo + AI 工程团队模式。技术栈选择优先服务于： 让前端、后端、测试和 AI Agent 围绕契约并行开发。 让团队常用技术栈可以复用同一套…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a3c7209a5d6.html#article","headline":"技术栈与架构方案","description":"技术栈与架构方案。本文属于业务系统运维 / 小蓝直播，版本：v0.2 日期：{{DATE}} 状态：Template {{PROJECT_NAME}} 采用 Monorepo + AI 工程团队模式。技术栈选择优先服务于： 让前端、后端、测试和 AI Agent 围绕契约并行开发。 让团队常用技术栈可以复用同一套…","datePublished":"2026-06-04T01:09:00.440902+08:00","dateModified":"2026-06-04 01:09","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Shell","Go","Nginx","MySQL","Redis","自动化","安全运维","业务系统运维","业务系统运维 / 小蓝直播","技术栈与架构方案"],"wordCount":1718,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a3c7209a5d6.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a3c7209a5d6.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"技术栈与架构方案","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a3c7209a5d6.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>技术栈与架构方案</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>技术栈与架构方案</h1>
+      <p class="lede">技术栈与架构方案。本文属于业务系统运维 / 小蓝直播，版本：v0.2 日期：{{DATE}} 状态：Template {{PROJECT_NAME}} 采用 Monorepo + AI 工程团队模式。技术栈选择优先服务于： 让前端、后端、测试和 AI Agent 围绕契约并行开发。 让团队常用技术栈可以复用同一套…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-04T01:09:00.440902+08:00">发布于 2026-06-04</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,718 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/architecture/technology-stack.md</code></p>
+<p>整理日期：2026-06-04 01:09｜日期依据：文件创建/修改时间</p>
+</blockquote>
+<p>版本：v0.2
+日期：{{DATE}}
+状态：Template</p>
+<h2 id="1-目标">1. 目标</h2>
+<p>{{PROJECT_NAME}} 采用 Monorepo + AI 工程团队模式。技术栈选择优先服务于：</p>
+<ol>
+<li>稳定扩展优先。</li>
+<li>让前端、后端、测试和 AI Agent 围绕契约并行开发。</li>
+<li>让团队常用技术栈可以复用同一套目录、Git、日志、QA 和发布门禁。</li>
+<li>Demo 阶段可快速部署，后续可平滑拆分服务。</li>
+<li>技术栈选择必须显式写入 <code>framework.config.json</code> 和 ADR，不能靠口头约定。</li>
+</ol>
+<h2 id="2-公共技术栈适配原则">2. 公共技术栈适配原则</h2>
+<p>公共 AI 框架不强制所有项目使用同一套语言或框架。它约束的是：</p>
+<ol>
+<li>技术栈必须被声明。</li>
+<li>技术栈必须有对应目录、脚本、测试和部署适配器。</li>
+<li>技术栈变化必须写 ADR。</li>
+<li>业务契约优先于具体框架实现。</li>
+</ol>
+<p>团队当前优先沉淀一条组合后端技术线：</p>
+<pre><code class="language-text">Go Gin + Laravel
+</code></pre>
+<p>细则见：</p>
+<pre><code class="language-text">docs/architecture/backend-stack-go-gin-laravel.md
+</code></pre>
+<p>同时保留两条语言能力：</p>
+<table>
+<thead>
+<tr>
+<th>技术线</th>
+<th>优先级</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Go Gin</td>
+<td>P0</td>
+<td>高并发 API、实时服务、worker、网关、长连接、强性能服务。</td>
+</tr>
+<tr>
+<td>PHP / Laravel</td>
+<td>P0</td>
+<td>完整 Laravel 应用服务、传统业务 CRUD、运营配置、内容审核、快速 MVP。</td>
+</tr>
+<tr>
+<td>Nuxt 4 + Tailwind CSS v4</td>
+<td>P0</td>
+<td>官网落地页、PC 站、H5、公开 Web 产品站。</td>
+</tr>
+<tr>
+<td>其他语言/框架</td>
+<td>P2</td>
+<td>需要先补适配文档、脚本和 QA 门禁后再使用。</td>
+</tr>
+</tbody>
+</table>
+<p>团队默认 Web 技术线：</p>
+<pre><code class="language-text">Nuxt 4 + Tailwind CSS v4
+</code></pre>
+<p>细则见：</p>
+<pre><code class="language-text">docs/architecture/web-stack-nuxt-tailwind.md
+</code></pre>
+<h2 id="3-Go-适配器">3. Go 适配器</h2>
+<p>Go 是团队优先技术线之一。团队默认优先 Go Gin，其他框架作为可选适配：</p>
+<table>
+<thead>
+<tr>
+<th>框架</th>
+<th>优点</th>
+<th>风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>net/http + ServeMux</td>
+<td>标准库、依赖少、升级稳定、适合早期清晰薄切片</td>
+<td>中间件和工程组织需要自己约定。</td>
+</tr>
+<tr>
+<td>Gin</td>
+<td>团队默认优先；生态成熟、资料多、团队容易上手</td>
+<td>风格较轻，需要自己组织工程边界。</td>
+</tr>
+<tr>
+<td>Fiber</td>
+<td>性能好、API 简洁</td>
+<td>基于 fasthttp，部分标准库兼容习惯不同。</td>
+</tr>
+<tr>
+<td>Echo</td>
+<td>简洁、稳定、中间件清晰</td>
+<td>国内团队熟悉度略低于 Gin。</td>
+</tr>
+</tbody>
+</table>
+<p>选择规则：</p>
+<ol>
+<li>团队标准项目优先 Gin。</li>
+<li>快速薄切片或低依赖服务可选 <code>net/http</code>。</li>
+<li>中间件结构清晰优先 Echo。</li>
+<li>明确需要 fasthttp 性能模型时再选 Fiber。</li>
+</ol>
+<p>实践说明：某次早期项目实践曾使用 Go 标准库 <code>net/http</code> + <code>http.NewServeMux()</code>，而不是 Gin。因此框架必须区分“团队默认推荐”和“具体项目事实”。</p>
+<h2 id="4-PHP-Laravel-适配器">4. PHP / Laravel 适配器</h2>
+<p>PHP 是团队优先技术线之一，Laravel 作为 P0 默认候选。</p>
+<table>
+<thead>
+<tr>
+<th>框架</th>
+<th>优点</th>
+<th>风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Laravel</td>
+<td>生态成熟、后台和 CRUD 效率高、队列/任务/权限/ORM 体系完整</td>
+<td>需要严格服务层、DTO、契约和测试边界，避免控制器肥大。</td>
+</tr>
+<tr>
+<td>Symfony</td>
+<td>组件化强、企业级结构清晰</td>
+<td>上手和团队统一成本略高。</td>
+</tr>
+<tr>
+<td>Slim</td>
+<td>轻量 API</td>
+<td>大型业务需要补齐工程约束。</td>
+</tr>
+</tbody>
+</table>
+<p>Laravel 项目必须遵守：</p>
+<ol>
+<li>API 字段以 <code>packages/contracts</code> 为准，不能在 Controller 内私自发明字段。</li>
+<li>请求校验使用 FormRequest 或等价机制。</li>
+<li>业务逻辑进入 Service/Action，不堆在 Controller。</li>
+<li>金额、订单、权限、审核等高风险逻辑必须有 Feature Test 和审计日志。</li>
+<li>数据库变更必须有 migration，禁止手改线上表结构。</li>
+<li>队列任务必须幂等，回调必须可重放。</li>
+<li>OpenAPI 更新必须早于 Controller 实现。</li>
+</ol>
+<h2 id="5-Go-PHP-混合服务边界">5. Go + PHP 混合服务边界</h2>
+<p>当一个项目同时使用 Go 和 PHP 时，默认边界如下：</p>
+<table>
+<thead>
+<tr>
+<th>服务类型</th>
+<th>推荐技术</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>高频 API、实时、网关、worker</td>
+<td>Go</td>
+<td>优先稳定、并发和资源控制。</td>
+</tr>
+<tr>
+<td>Web/API、Filament 后台、CRUD、配置、审核、采集任务</td>
+<td>Laravel</td>
+<td>优先开发效率和 Laravel 生态。</td>
+</tr>
+<tr>
+<td>共享契约</td>
+<td>OpenAPI / events</td>
+<td>不归属 Go 或 PHP，统一放 <code>packages/contracts</code>。</td>
+</tr>
+<tr>
+<td>共享业务规则</td>
+<td>docs/prd、docs/architecture</td>
+<td>不写进某个服务私有 README。</td>
+</tr>
+</tbody>
+</table>
+<p>如果 Go 服务和 Laravel 服务都暴露 API，必须：</p>
+<ol>
+<li>在 <code>packages/contracts/openapi/</code> 标注 owner service。</li>
+<li>在 <code>docs/api/</code> 说明路由归属。</li>
+<li>在部署策略中说明网关或 Nginx 路由。</li>
+<li>在 ECC 测试中覆盖跨服务链路。</li>
+</ol>
+<h2 id="6-数据库设计原则">6. 数据库设计原则</h2>
+<p>数据库类型由项目选择，团队默认优先 MySQL。MySQL 作为核心事实来源时，必须优先保证一致性和可追踪。</p>
+<p>关键原则：</p>
+<ol>
+<li>金币账本强事务。</li>
+<li>订单必须幂等。</li>
+<li>支付回调必须幂等。</li>
+<li>礼物、通话扣费、任务奖励都必须有账本记录。</li>
+<li>用户余额不得以客户端为准。</li>
+<li>预留分库分表扩展空间。</li>
+</ol>
+<p>预留策略：</p>
+<ol>
+<li>所有核心表使用全局唯一 ID。</li>
+<li>大表预留 <code>user_id</code>、<code>created_at</code> 等分片和归档字段。</li>
+<li>金币账本、消息、通话记录、订单等高增长表提前设计索引。</li>
+<li>避免跨库强事务作为长期依赖。</li>
+</ol>
+<h2 id="7-Redis-使用范围">7. Redis 使用范围</h2>
+<p>Redis 用于提升性能和支撑实时能力，但不是核心资金事实来源。</p>
+<p>适用：</p>
+<ol>
+<li>在线状态。</li>
+<li>WebSocket 连接路由。</li>
+<li>世界频道 Pub/Sub。</li>
+<li>限流。</li>
+<li>短期验证码/登录态辅助。</li>
+<li>分布式锁。</li>
+<li>轻量异步队列。</li>
+</ol>
+<p>不适用：</p>
+<ol>
+<li>金币最终余额事实来源。</li>
+<li>订单最终状态事实来源。</li>
+<li>审核最终状态事实来源。</li>
+</ol>
+<h2 id="8-高风险业务原则">8. 高风险业务原则</h2>
+<p>不论选择 Go、Laravel 还是其他框架，高风险业务规则一致：</p>
+<ol>
+<li>账本强事务。</li>
+<li>订单幂等。</li>
+<li>支付回调幂等。</li>
+<li>权限服务端校验。</li>
+<li>审核、处罚、删除必须有审计日志。</li>
+<li>客户端状态不能作为资金、权限和审核事实来源。</li>
+</ol>
+<p>账本建议：</p>
+<pre><code class="language-text">CoinLedger
+  id
+  user_id
+  direction        IN / OUT
+  amount
+  balance_after
+  type             RECHARGE / CALL_CHARGE / GIFT_SEND / TASK_REWARD / ADMIN_ADJUST
+  biz_id
+  idempotency_key
+  created_at
+</code></pre>
+<p>订单建议：</p>
+<pre><code class="language-text">Order
+  id
+  user_id
+  provider
+  provider_order_id
+  product_id
+  amount_usd
+  coins
+  bonus_coins
+  status
+  idempotency_key
+  created_at
+  paid_at
+</code></pre>
+<h2 id="9-Demo-单-VPS-部署">9. Demo 单 VPS 部署</h2>
+<p>Demo 阶段可使用单 VPS：</p>
+<pre><code class="language-text">Nginx
+apps/* static
+services/* API
+services/realtime
+services/worker
+MySQL
+Redis
+</code></pre>
+<p>后续扩展：</p>
+<pre><code class="language-text">server-web
+server-go-app
+server-realtime
+server-worker
+server-db
+server-cache
+server-observability
+</code></pre>
+<h2 id="10-后台运营复杂度">10. 后台运营复杂度</h2>
+<p>后续可能存在复杂运营后台，因此后台端需要预留：</p>
+<ol>
+<li>RBAC 权限。</li>
+<li>审计日志。</li>
+<li>用户管理。</li>
+<li>主播审核。</li>
+<li>内容审核。</li>
+<li>订单和账本查询。</li>
+<li>运营配置。</li>
+<li>数据看板。</li>
+</ol>
+<h2 id="11-新项目必须确认">11. 新项目必须确认</h2>
+<p>以下问题不阻塞 PRD 初稿，但进入实现前必须确认：</p>
+<ol>
+<li>API 服务使用 Go、Laravel，还是 Go + Laravel 混合。</li>
+<li>Go 框架选择 <code>net/http</code>、Gin、Echo 或 Fiber。</li>
+<li>PHP 框架选择 Laravel、Symfony 或 Slim。</li>
+<li>前端/客户端框架。</li>
+<li>数据库、缓存、队列。</li>
+<li>部署方式和环境边界。</li>
+<li>高风险模块的测试和审计策略。</li>
+</ol>
+<p>技术栈最终选择必须同步到：</p>
+<pre><code class="language-text">framework.config.json
+docs/architecture/technology-stack.md
+docs/decisions/ADR-0002-technology-stack.md
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-目标">1. 目标</a></li><li style="margin-left:0.0rem"><a href="#2-公共技术栈适配原则">2. 公共技术栈适配原则</a></li><li style="margin-left:0.0rem"><a href="#3-Go-适配器">3. Go 适配器</a></li><li style="margin-left:0.0rem"><a href="#4-PHP-Laravel-适配器">4. PHP / Laravel 适配器</a></li><li style="margin-left:0.0rem"><a href="#5-Go-PHP-混合服务边界">5. Go + PHP 混合服务边界</a></li><li style="margin-left:0.0rem"><a href="#6-数据库设计原则">6. 数据库设计原则</a></li><li style="margin-left:0.0rem"><a href="#7-Redis-使用范围">7. Redis 使用范围</a></li><li style="margin-left:0.0rem"><a href="#8-高风险业务原则">8. 高风险业务原则</a></li><li style="margin-left:0.0rem"><a href="#9-Demo-单-VPS-部署">9. Demo 单 VPS 部署</a></li><li style="margin-left:0.0rem"><a href="#10-后台运营复杂度">10. 后台运营复杂度</a></li><li style="margin-left:0.0rem"><a href="#11-新项目必须确认">11. 新项目必须确认</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-06-04</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Shell</span><span class="tag">Go</span><span class="tag">Nginx</span><span class="tag">MySQL</span><span class="tag">Redis</span><span class="tag">自动化</span><span class="tag">安全运维</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/architecture/technology-stack.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-%E6%8A%80%E6%9C%AF%E6%A0%88%E4%B8%8E%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>技术栈与架构方案。本文属于业务系统运维 / 小蓝直播，版本：v0.2 日期：{{DATE}} 状态：Template {{PROJECT_NAME}} 采用 Monorepo + AI 工程团队模式。技术栈选择优先服务于： 让前端、后端、测试和 AI Agent 围绕契约并行开发。 让团队常用技术栈可以复用同一套…</p>
+      <p>关键词：小蓝直播、Shell、Go、Nginx、MySQL、Redis、自动化、安全运维、业务系统运维、业务系统运维 / 小蓝直播、技术栈与架构方案</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5e5871772aab.html"><small>上一篇</small>规模化架构轨道</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-471fa2541bcd.html"><small>下一篇</small>乌托邦 架构思想与使用说明</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a3c7209a5d6.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

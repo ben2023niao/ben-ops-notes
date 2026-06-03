@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>容器化项目增删运维手册｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="容器化项目增删运维手册。本文属于业务系统运维 / 小蓝直播，前端容器内不跑 nginx； web-prod 运行 Nuxt SSR， admin-prod / live-host-prod 用 Node 静态服务监听端口。 宝塔在服务器外层做反向代理，只需要代理到容器暴露端口。 web-prod / admin-…">
+  <meta name="keywords" content="小蓝直播，Linux，Shell，Python，Go，Docker，Nginx，MySQL，业务系统运维，业务系统运维 / 小蓝直播，容器化项目增删运维手册">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6db1df438d2a.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6db1df438d2a.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606040150-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BLinux%2BShell-%E5%AE%B9%E5%99%A8%E5%8C%96%E9%A1%B9%E7%9B%AE%E5%A2%9E%E5%88%A0%E8%BF%90%E7%BB%B4%E6%89%8B%E5%86%8C.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="容器化项目增删运维手册">
+  <meta property="og:description" content="容器化项目增删运维手册。本文属于业务系统运维 / 小蓝直播，前端容器内不跑 nginx； web-prod 运行 Nuxt SSR， admin-prod / live-host-prod 用 Node 静态服务监听端口。 宝塔在服务器外层做反向代理，只需要代理到容器暴露端口。 web-prod / admin-…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6db1df438d2a.html">
+  <meta property="article:published_time" content="2026-06-04T01:50:41.170221+08:00">
+  <meta property="article:modified_time" content="2026-06-04 01:50">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="容器化项目增删运维手册">
+  <meta name="twitter:description" content="容器化项目增删运维手册。本文属于业务系统运维 / 小蓝直播，前端容器内不跑 nginx； web-prod 运行 Nuxt SSR， admin-prod / live-host-prod 用 Node 静态服务监听端口。 宝塔在服务器外层做反向代理，只需要代理到容器暴露端口。 web-prod / admin-…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6db1df438d2a.html#article","headline":"容器化项目增删运维手册","description":"容器化项目增删运维手册。本文属于业务系统运维 / 小蓝直播，前端容器内不跑 nginx； web-prod 运行 Nuxt SSR， admin-prod / live-host-prod 用 Node 静态服务监听端口。 宝塔在服务器外层做反向代理，只需要代理到容器暴露端口。 web-prod / admin-…","datePublished":"2026-06-04T01:50:41.170221+08:00","dateModified":"2026-06-04 01:50","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Linux","Shell","Python","Go","Docker","Nginx","MySQL","业务系统运维","业务系统运维 / 小蓝直播","容器化项目增删运维手册"],"wordCount":2324,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6db1df438d2a.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6db1df438d2a.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"容器化项目增删运维手册","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6db1df438d2a.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>容器化项目增删运维手册</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>容器化项目增删运维手册</h1>
+      <p class="lede">容器化项目增删运维手册。本文属于业务系统运维 / 小蓝直播，前端容器内不跑 nginx； web-prod 运行 Nuxt SSR， admin-prod / live-host-prod 用 Node 静态服务监听端口。 宝塔在服务器外层做反向代理，只需要代理到容器暴露端口。 web-prod / admin-…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-04T01:50:41.170221+08:00">发布于 2026-06-04</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,324 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/operations/containerized-service-runbook.md</code></p>
+<p>整理日期：2026-06-04 01:50｜日期依据：文件创建/修改时间</p>
+</blockquote>
+<p>本文面向后续运维接手，覆盖当前 Docker Compose + <code>dev-cicd.sh</code> 发布方式下，新增或删除前端 / 后端项目时需要改哪些文件、按什么顺序验证、哪里不能放密钥。</p>
+<h2 id="1-当前边界">1. 当前边界</h2>
+<p>当前容器化发布采用以下原则：</p>
+<ul>
+<li>前端容器内不跑 nginx；<code>web-prod</code> 运行 Nuxt SSR，<code>admin-prod</code> / <code>live-host-prod</code> 用 Node 静态服务监听端口。</li>
+<li>宝塔在服务器外层做反向代理，只需要代理到容器暴露端口。</li>
+<li><code>web-prod</code> / <code>admin-prod</code> / <code>live-host-prod</code> 共用 <code>kickoff-frontend:${BUILD_ENV}</code> 镜像，避免三端重复构建。</li>
+<li><code>docker compose --profile deploy</code> 是部署模式；普通 <code>docker compose up --build</code> 是本地 dev 模式。</li>
+<li>真实密钥只放部署机 <code>.env</code> / <code>.cicd.env</code>，不写进 git；根目录不再要求 <code>.env.stg</code> / <code>.env.prod</code>。</li>
+<li><code>.ai-framework/</code>、<code>docs/</code>、<code>scripts/validate-*</code> 等工程期产物不能进入运行时镜像。</li>
+</ul>
+<p>当前服务端口：</p>
+<table>
+<thead>
+<tr>
+<th>服务</th>
+<th>Compose service</th>
+<th>容器名</th>
+<th>端口</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C 端 Web</td>
+<td><code>web</code> / <code>web-prod</code></td>
+<td><code>kickoff-web</code> / <code>kickoff-web-prod</code></td>
+<td><code>3000</code></td>
+<td>Nuxt SSR</td>
+</tr>
+<tr>
+<td>主播端</td>
+<td><code>live-host</code> / <code>live-host-prod</code></td>
+<td><code>kickoff-live-host</code> / <code>kickoff-live-host-prod</code></td>
+<td><code>3030</code></td>
+<td>Nuxt 静态 SPA</td>
+</tr>
+<tr>
+<td>运营后台</td>
+<td><code>admin-web</code> / <code>admin-prod</code></td>
+<td><code>kickoff-admin-web</code> / <code>kickoff-admin-prod</code></td>
+<td><code>5174</code></td>
+<td>Vite 静态 SPA</td>
+</tr>
+<tr>
+<td>Public API</td>
+<td><code>api</code></td>
+<td><code>kickoff-api</code></td>
+<td><code>8080</code></td>
+<td>Go API</td>
+</tr>
+<tr>
+<td>Admin API</td>
+<td><code>admin-api</code></td>
+<td><code>kickoff-admin-api</code></td>
+<td><code>8081</code></td>
+<td>Go Admin API</td>
+</tr>
+<tr>
+<td>MySQL</td>
+<td><code>mysql</code></td>
+<td><code>kickoff-mysql</code></td>
+<td><code>13306</code></td>
+<td>本地映射端口</td>
+</tr>
+<tr>
+<td>Redis</td>
+<td><code>redis</code></td>
+<td><code>kickoff-redis</code></td>
+<td><code>16379</code></td>
+<td>本地映射端口</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-Telegram-通知配置">2. Telegram 通知配置</h2>
+<p><code>dev-cicd.sh</code> 会自动读取部署机本地的 <code>.cicd.env</code>：</p>
+<pre><code class="language-bash">cd /opt/xiaolan_watches_the_game_at_night
+install -m 600 /dev/null .cicd.env
+vi .cicd.env
+</code></pre>
+<p>内容示例：</p>
+<pre><code class="language-bash">[敏感内容已脱敏]
+TG_CHAT_ID="&lt;TG_CHAT_ID&gt;"
+</code></pre>
+<p>如果发布任务把脚本放到其他目录，可以通过 <code>CICD_ENV_FILE</code> 指定：</p>
+<pre><code class="language-bash">CICD_ENV_FILE=/etc/kickoff/dev-cicd.env sh dev-cicd.sh
+</code></pre>
+<p>注意：</p>
+<ul>
+<li><code>.cicd.env</code> 不提交 git。</li>
+<li>不把 <code>.env</code>、<code>.cicd.env</code> 发到 Telegram。</li>
+<li>机器人 token 泄露后必须立刻在 BotFather 重置。</li>
+</ul>
+<h2 id="3-新增前端项目流程">3. 新增前端项目流程</h2>
+<p>新增前端前，先确认这些信息：</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>目录</td>
+<td><code>apps/ops-dashboard</code></td>
+</tr>
+<tr>
+<td>package name</td>
+<td><code>@kickoff/ops-dashboard</code></td>
+</tr>
+<tr>
+<td>本地端口 / 部署端口</td>
+<td><code>3040</code></td>
+</tr>
+<tr>
+<td>产物类型</td>
+<td>Nuxt SSR / Nuxt 静态 SPA / Vite 静态 SPA</td>
+</tr>
+<tr>
+<td>对外域名</td>
+<td>宝塔反向代理域名</td>
+</tr>
+<tr>
+<td>API base</td>
+<td>Public API 或 Admin API</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-1-准备应用包">3.1 准备应用包</h3>
+<p><code>apps/&lt;name&gt;/package.json</code> 至少需要这些脚本：</p>
+<pre><code class="language-json">{
+  "name": "@kickoff/ops-dashboard",
+  "scripts": {
+    "dev": "nuxt dev --host 0.0.0.0 --port 3040",
+    "build:stg": "nuxt generate --dotenv .env.stg",
+    "build:prod": "nuxt generate --dotenv .env.prod"
+  }
+}
+</code></pre>
+<p>如果是 SSR 项目，<code>build:stg</code> / <code>build:prod</code> 使用 <code>nuxt build</code>；如果是纯静态项目，使用 <code>nuxt generate</code> 或 <code>vite build</code>。</p>
+<h3 id="3-2-增加-dev-Compose-服务">3.2 增加 dev Compose 服务</h3>
+<p>在 <code>docker-compose.yml</code> 的 <code>FRONTEND (DEV MODE)</code> 下增加服务：</p>
+<pre><code class="language-yaml">  ops-dashboard:
+    &lt;&lt;: *frontend-dev-service
+    container_name: kickoff-ops-dashboard
+    environment:
+      &lt;&lt;: *frontend-dev-env
+      NUXT_PUBLIC_API_BASE: https://api-dev.example.com
+      NUXT_PUBLIC_APP_NAME: 小蓝运营看板
+    command: sh -c "pnpm --filter @kickoff/ops-dashboard exec nuxt dev --host 0.0.0.0 --port 3040"
+    ports:
+      - "3040:3040"
+    depends_on:
+      frontend-deps:
+        condition: service_completed_successfully
+      api:
+        condition: service_started
+</code></pre>
+<p>如果项目调用 Admin API，把依赖改成 <code>admin-api</code>，并让浏览器请求对应 Admin API 域名。</p>
+<h3 id="3-3-增加-deploy-Compose-服务">3.3 增加 deploy Compose 服务</h3>
+<p>如果是静态 SPA，使用 <code>static-server.mjs</code>：</p>
+<pre><code class="language-yaml">  ops-dashboard-prod:
+    profiles: ["deploy"]
+    image: kickoff-frontend:${BUILD_ENV:-stg}
+    build:
+      context: .
+      dockerfile: infra/docker/frontend-prod.Dockerfile
+      args:
+        BUILD_ENV: ${BUILD_ENV:-stg}
+    container_name: kickoff-ops-dashboard-prod
+    working_dir: /workspace
+    ports:
+      - "3040:3040"
+    command: node infra/docker/static-server.mjs apps/ops-dashboard/.output/public 3040
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_started
+</code></pre>
+<p>如果是 Nuxt SSR，命令改成：</p>
+<pre><code class="language-yaml">    command: node apps/ops-dashboard/.output/server/index.mjs
+</code></pre>
+<h3 id="3-4-更新前端部署镜像">3.4 更新前端部署镜像</h3>
+<p>在 <code>infra/docker/frontend-prod.Dockerfile</code> 的 build 阶段增加：</p>
+<pre><code class="language-dockerfile">RUN pnpm --filter @kickoff/ops-dashboard run build:${BUILD_ENV}
+</code></pre>
+<p>runtime 阶段增加 package manifest 和产物：</p>
+<pre><code class="language-dockerfile">COPY apps/ops-dashboard/package.json ./apps/ops-dashboard/package.json
+COPY --from=build /workspace/apps/ops-dashboard/.output ./apps/ops-dashboard/.output
+</code></pre>
+<p>如果产物是 Vite <code>dist</code>：</p>
+<pre><code class="language-dockerfile">COPY --from=build /workspace/apps/ops-dashboard/dist ./apps/ops-dashboard/dist
+</code></pre>
+<h3 id="3-5-更新-dev-cicd-sh">3.5 更新 <code>dev-cicd.sh</code></h3>
+<p>新增环境 URL：</p>
+<pre><code class="language-sh">PROD_OPS_DASHBOARD="http://203.0.113.1:3040"
+DEV_OPS_DASHBOARD="http://203.0.113.1:3040"
+</code></pre>
+<p>在分支判断中赋值：</p>
+<pre><code class="language-sh">OPS_DASHBOARD_URL=$PROD_OPS_DASHBOARD
+# 或
+OPS_DASHBOARD_URL=$DEV_OPS_DASHBOARD
+</code></pre>
+<p>把 deploy 服务加入列表：</p>
+<pre><code class="language-sh">DEPLOY_SERVICES="mysql redis migrate api admin-api web-prod admin-prod live-host-prod ops-dashboard-prod"
+</code></pre>
+<p>增加健康检查：</p>
+<pre><code class="language-sh">check_url "运营看板" "$OPS_DASHBOARD_URL/"
+</code></pre>
+<p>Telegram 成功报告里补访问地址。</p>
+<h3 id="3-6-宝塔配置">3.6 宝塔配置</h3>
+<p>在宝塔里新增站点或反向代理：</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>目标协议</td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td>目标 IP</td>
+<td>部署机内网 IP 或 <code>203.0.113.1</code></td>
+</tr>
+<tr>
+<td>目标端口</td>
+<td><code>3040</code></td>
+</tr>
+<tr>
+<td>WebSocket</td>
+<td>只有实时连接需要时才开启</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-7-前端新增验证">3.7 前端新增验证</h3>
+<pre><code class="language-bash">sh -n dev-cicd.sh
+docker compose config --quiet
+docker compose build ops-dashboard
+BUILD_ENV=stg docker compose --profile deploy build web-prod
+BUILD_ENV=stg docker compose --profile deploy up -d --no-build ops-dashboard-prod
+curl -fsS http://203.0.113.1:3040/
+</code></pre>
+<p>验证通过后更新：</p>
+<ul>
+<li><code>README.md</code></li>
+<li><code>infra/deploy/README.md</code></li>
+<li>本文档中的当前服务表</li>
+<li><code>docs/agents/logs/&lt;日期&gt;-&lt;任务&gt;.md</code></li>
+</ul>
+<h2 id="4-删除前端项目流程">4. 删除前端项目流程</h2>
+<p>删除前端项目前，先确认外部入口已经下线：</p>
+<ol>
+<li>在宝塔停用或删除对应反向代理。</li>
+<li>确认没有发布任务、监控、第三方回调仍引用该域名。</li>
+<li>通知业务确认可删除。</li>
+</ol>
+<p>代码和部署侧按以下顺序处理：</p>
+<ol>
+<li>从 <code>dev-cicd.sh</code> 删除 URL 常量、分支赋值、健康检查、Telegram 展示。</li>
+<li>从 <code>docker-compose.yml</code> 删除 dev 服务和 <code>*-prod</code> deploy 服务。</li>
+<li>从 <code>infra/docker/frontend-prod.Dockerfile</code> 删除 <code>RUN pnpm --filter ... build:${BUILD_ENV}</code>、package manifest COPY、产物 COPY。</li>
+<li>从 <code>pnpm-workspace.yaml</code> 或相关 workspace 配置删除包引用，前提是该包已从仓库删除。</li>
+<li>删除或归档 <code>apps/&lt;name&gt;</code>。</li>
+<li>更新 README、运维文档、Agent 工作日志。</li>
+<li>执行验证：</li>
+</ol>
+<pre><code class="language-bash">sh -n dev-cicd.sh
+docker compose config --quiet
+BUILD_ENV=stg docker compose --profile deploy build web-prod
+</code></pre>
+<p>示例：删除 <code>live-host</code></p>
+<ul>
+<li>删除 <code>live-host</code>、<code>live-host-prod</code>。</li>
+<li>删除端口 <code>3030</code> 的宝塔反向代理。</li>
+<li>删除 <code>dev-cicd.sh</code> 中 <code>LIVE_HOST_URL</code> 和健康检查。</li>
+<li>删除 <code>frontend-prod.Dockerfile</code> 中 <code>@kickoff/live-host</code> 的 build 与产物 COPY。</li>
+</ul>
+<h2 id="5-新增后端项目流程">5. 新增后端项目流程</h2>
+<p>新增后端项目前，先确认它属于哪种类型：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>建议方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>新 HTTP API</td>
+<td>在 <code>services/go-app/cmd/&lt;name&gt;</code> 增加新入口，复用现有配置、日志、DB、Redis</td>
+</tr>
+<tr>
+<td>后台管理能力</td>
+<td>优先接入现有 <code>admin-api</code>，并更新 OpenAPI / contracts</td>
+</tr>
+<tr>
+<td>异步任务</td>
+<td>增加 <code>worker</code> 或 cron 型入口，不暴露公网端口</td>
+</tr>
+<tr>
+<td>实时服务</td>
+<td>独立端口，明确 WebSocket / TCP / UDP 协议与反代方式</td>
+</tr>
+</tbody>
+</table>
+<h3 id="5-1-后端代码要求">5.1 后端代码要求</h3>
+<p>如果新增 HTTP 服务，必须具备：</p>
+<ul>
+<li><code>/healthz</code> 健康检查。</li>
+<li>配置从 env / yaml 读取，不能硬编码密钥。</li>
+<li>需要 DB 时走 migration，已上线 migration 不直接改。</li>
+<li>涉及接口时同步 <code>docs/api/openapi.yaml</code> 和 <code>packages/contracts/</code>。</li>
+<li>涉及资金 / 审计 / RBAC 时按 <code>AGENTS.md</code> 红线执行。</li>
+</ul>
+<h3 id="5-2-增加-Compose-服务">5.2 增加 Compose 服务</h3>
+<p>示例：新增 <code>realtime-api</code>，监听 <code>8090</code>：</p>
+<pre><code class="language-yaml">  realtime-api:
+    build:
+      context: .
+      dockerfile: infra/docker/go-dev.Dockerfile
+    container_name: kickoff-realtime-api
+    working_dir: /workspace/services/go-app
+    environment:
+      &lt;&lt;: *go-env
+      APP_HTTP_ADDR: :8090
+    volumes:
+      - .:/workspace
+      - go_mod_cache:/go/pkg/mod
+      - go_build_cache:/root/.cache/go-build
+    command: sh -c "go mod download &amp;&amp; go run ./cmd/realtime"
+    ports:
+      - "8090:8090"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+</code></pre>
+<p>如果部署态需要独立镜像，优先复用现有 Go Dockerfile 模式；不要把 docs、framework、源码无关文件复制进 runtime。</p>
+<h3 id="5-3-更新-dev-cicd-sh">5.3 更新 <code>dev-cicd.sh</code></h3>
+<p>新增 URL：</p>
+<pre><code class="language-sh">PROD_REALTIME_API="http://203.0.113.1:8090"
+DEV_REALTIME_API="http://203.0.113.1:8090"
+</code></pre>
+<p>加入服务列表：</p>
+<pre><code class="language-sh">DEPLOY_SERVICES="mysql redis migrate api admin-api realtime-api web-prod admin-prod live-host-prod"
+</code></pre>
+<p>增加健康检查：</p>
+<pre><code class="language-sh">check_url "Realtime API" "$REALTIME_API_URL/healthz"
+</code></pre>
+<p>如果这个后端服务需要暴露公网，在宝塔或网关补反向代理；如果只给内网服务调用，不要开放公网入口。</p>
+<h3 id="5-4-后端新增验证">5.4 后端新增验证</h3>
+<pre><code class="language-bash">go test ./...
+sh -n dev-cicd.sh
+docker compose config --quiet
+docker compose build realtime-api
+docker compose up -d realtime-api
+curl -fsS http://203.0.113.1:8090/healthz
+</code></pre>
+<p>如果新增接口：</p>
+<pre><code class="language-bash">npm run check:openapi
+npm run check:contract
+</code></pre>
+<h2 id="6-删除后端项目流程">6. 删除后端项目流程</h2>
+<p>删除后端前，先做下线确认：</p>
+<ol>
+<li>确认没有前端、第三方、定时任务、内部服务仍调用。</li>
+<li>停掉宝塔 / 网关入口。</li>
+<li>如果有数据库表，不直接删生产数据；先走归档、冻结、灰度下线。</li>
+<li>如果有消息队列或定时任务，先清理消费者和计划任务。</li>
+</ol>
+<p>代码和部署侧按以下顺序处理：</p>
+<ol>
+<li>从 <code>dev-cicd.sh</code> 删除 URL、服务名、健康检查、报告展示。</li>
+<li>从 <code>docker-compose.yml</code> 删除服务。</li>
+<li>删除对应 Dockerfile 构建入口或镜像 COPY 逻辑。</li>
+<li>删除 systemd / 宝塔 / 监控 / 告警配置。</li>
+<li>如果删除 API，更新 OpenAPI、contracts、前端 API client。</li>
+<li>migration 不直接回滚已上线历史；新增 down migration 只用于新迁移回滚，不用于删除生产历史表。</li>
+<li>执行验证：</li>
+</ol>
+<pre><code class="language-bash">go test ./...
+docker compose config --quiet
+sh -n dev-cicd.sh
+</code></pre>
+<p>示例：删除旧 <code>admin-api</code></p>
+<ul>
+<li>先确认 <code>apps/admin</code> 已迁移到新 Admin API。</li>
+<li>宝塔停止旧 <code>/api/v1/admin</code> 反向代理。</li>
+<li>删除 <code>admin-api</code> 健康检查和 compose 服务。</li>
+<li>更新 <code>VITE_PROXY_TARGET</code>、OpenAPI、README。</li>
+<li>跑 <code>go test ./...</code> 和 <code>docker compose config --quiet</code>。</li>
+</ul>
+<h2 id="7-发布前后检查清单">7. 发布前后检查清单</h2>
+<p>发布前：</p>
+<pre><code class="language-bash">git fetch origin
+git status --short
+git rev-list --left-right --count HEAD...@{upstream}
+./devtools/framework status
+python3 scripts/validate-runtime-environment.py
+python3 scripts/validate-prd.py
+python3 scripts/validate-engineering-standards.py
+python3 scripts/validate-capability-gates.py
+python3 scripts/validate-completion-claims.py
+sh -n dev-cicd.sh
+docker compose config --quiet
+</code></pre>
+<p>发布后：</p>
+<pre><code class="language-bash">docker compose --profile deploy ps
+curl -fsS http://203.0.113.1:8080/healthz
+curl -fsS http://203.0.113.1:8081/healthz
+curl -fsS http://203.0.113.1:3000/
+curl -fsS http://203.0.113.1:3030/
+curl -fsS http://203.0.113.1:5174/
+</code></pre>
+<p>镜像边界检查：</p>
+<pre><code class="language-bash">docker run --rm kickoff-frontend:stg sh -c 'test ! -e /workspace/docs &amp;&amp; test ! -e /workspace/.ai-framework'
+docker run --rm kickoff-frontend:stg find /workspace -name "*.go" 2&gt;/dev/null | head
+docker images kickoff-frontend:stg --format "{{.Size}}"
+</code></pre>
+<p><code>find</code> 不应输出 Go 源码；如果输出源码或 docs/framework 文件，先修 <code>.dockerignore</code> / Dockerfile，再发布。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-当前边界">1. 当前边界</a></li><li style="margin-left:0.0rem"><a href="#2-Telegram-通知配置">2. Telegram 通知配置</a></li><li style="margin-left:0.0rem"><a href="#3-新增前端项目流程">3. 新增前端项目流程</a></li><li style="margin-left:0.8rem"><a href="#3-1-准备应用包">3.1 准备应用包</a></li><li style="margin-left:0.8rem"><a href="#3-2-增加-dev-Compose-服务">3.2 增加 dev Compose 服务</a></li><li style="margin-left:0.8rem"><a href="#3-3-增加-deploy-Compose-服务">3.3 增加 deploy Compose 服务</a></li><li style="margin-left:0.8rem"><a href="#3-4-更新前端部署镜像">3.4 更新前端部署镜像</a></li><li style="margin-left:0.8rem"><a href="#3-5-更新-dev-cicd-sh">3.5 更新 dev-cicd.sh</a></li><li style="margin-left:0.8rem"><a href="#3-6-宝塔配置">3.6 宝塔配置</a></li><li style="margin-left:0.8rem"><a href="#3-7-前端新增验证">3.7 前端新增验证</a></li><li style="margin-left:0.0rem"><a href="#4-删除前端项目流程">4. 删除前端项目流程</a></li><li style="margin-left:0.0rem"><a href="#5-新增后端项目流程">5. 新增后端项目流程</a></li><li style="margin-left:0.8rem"><a href="#5-1-后端代码要求">5.1 后端代码要求</a></li><li style="margin-left:0.8rem"><a href="#5-2-增加-Compose-服务">5.2 增加 Compose 服务</a></li><li style="margin-left:0.8rem"><a href="#5-3-更新-dev-cicd-sh">5.3 更新 dev-cicd.sh</a></li><li style="margin-left:0.8rem"><a href="#5-4-后端新增验证">5.4 后端新增验证</a></li><li style="margin-left:0.0rem"><a href="#6-删除后端项目流程">6. 删除后端项目流程</a></li><li style="margin-left:0.0rem"><a href="#7-发布前后检查清单">7. 发布前后检查清单</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-06-04</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Go</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">MySQL</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/operations/containerized-service-runbook.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606040150-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BLinux%2BShell-%E5%AE%B9%E5%99%A8%E5%8C%96%E9%A1%B9%E7%9B%AE%E5%A2%9E%E5%88%A0%E8%BF%90%E7%BB%B4%E6%89%8B%E5%86%8C.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>容器化项目增删运维手册。本文属于业务系统运维 / 小蓝直播，前端容器内不跑 nginx； web-prod 运行 Nuxt SSR， admin-prod / live-host-prod 用 Node 静态服务监听端口。 宝塔在服务器外层做反向代理，只需要代理到容器暴露端口。 web-prod / admin-…</p>
+      <p>关键词：小蓝直播、Linux、Shell、Python、Go、Docker、Nginx、MySQL、业务系统运维、业务系统运维 / 小蓝直播、容器化项目增删运维手册</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4cfb91c30bd9.html"><small>上一篇</small>UI Page Acceptance Card</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-bdd65513f4f5.html"><small>下一篇</small>Agent 工作日志 · bug-27603-hide-bet-orders-menu</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6db1df438d2a.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
