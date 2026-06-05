@@ -1,0 +1,1124 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Kickoff WebSocket 协议｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="Kickoff WebSocket 协议。本文属于业务系统运维 / 小蓝直播，对齐 docs/api/conventions.md §16 + PRD v0.2。本页面是 WebSocket 实时推送的权威说明。HTTP REST API 见 API 文档 。 原则 ：WebSocket 仅承担 实时推送 和少量…">
+  <meta name="keywords" content="小蓝直播，Redis，监控告警，安全运维，故障排查，数据库恢复，业务系统运维，业务系统运维 / 小蓝直播，Kickoff WebSocket 协议">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-17dd20671520.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-17dd20671520.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606061735-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BRedis%2B%E7%9B%91%E6%8E%A7%E5%91%8A%E8%AD%A6-Kickoff%20WebSocket%20%E5%8D%8F%E8%AE%AE.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Kickoff WebSocket 协议">
+  <meta property="og:description" content="Kickoff WebSocket 协议。本文属于业务系统运维 / 小蓝直播，对齐 docs/api/conventions.md §16 + PRD v0.2。本页面是 WebSocket 实时推送的权威说明。HTTP REST API 见 API 文档 。 原则 ：WebSocket 仅承担 实时推送 和少量…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-17dd20671520.html">
+  <meta property="article:published_time" content="2026-06-06T17:35:52.572112+08:00">
+  <meta property="article:modified_time" content="2026-06-06 17:35">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Kickoff WebSocket 协议">
+  <meta name="twitter:description" content="Kickoff WebSocket 协议。本文属于业务系统运维 / 小蓝直播，对齐 docs/api/conventions.md §16 + PRD v0.2。本页面是 WebSocket 实时推送的权威说明。HTTP REST API 见 API 文档 。 原则 ：WebSocket 仅承担 实时推送 和少量…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-17dd20671520.html#article","headline":"Kickoff WebSocket 协议","description":"Kickoff WebSocket 协议。本文属于业务系统运维 / 小蓝直播，对齐 docs/api/conventions.md §16 + PRD v0.2。本页面是 WebSocket 实时推送的权威说明。HTTP REST API 见 API 文档 。 原则 ：WebSocket 仅承担 实时推送 和少量…","datePublished":"2026-06-06T17:35:52.572112+08:00","dateModified":"2026-06-06 17:35","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Redis","监控告警","安全运维","故障排查","数据库恢复","业务系统运维","业务系统运维 / 小蓝直播","Kickoff WebSocket 协议"],"wordCount":3501,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-17dd20671520.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-17dd20671520.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Kickoff WebSocket 协议","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-17dd20671520.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>Kickoff WebSocket 协议</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>Kickoff WebSocket 协议</h1>
+      <p class="lede">Kickoff WebSocket 协议。本文属于业务系统运维 / 小蓝直播，对齐 docs/api/conventions.md §16 + PRD v0.2。本页面是 WebSocket 实时推送的权威说明。HTTP REST API 见 API 文档 。 原则 ：WebSocket 仅承担 实时推送 和少量…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-06T17:35:52.572112+08:00">发布于 2026-06-06</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">3,501 字</span>
+        <span class="badge">11 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/api/websocket.html</code></p>
+<p>整理日期：2026-06-06 17:35｜日期依据：文件创建/修改时间</p>
+</blockquote>
+<p>对齐 <code>docs/api/conventions.md §16</code> + PRD v0.2。本页面是 WebSocket 实时推送的权威说明。HTTP REST API 见 <a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/index.html" rel="noopener noreferrer">API 文档</a>。</p>
+<p><strong>原则</strong>：WebSocket 仅承担<strong>实时推送</strong>和少量<strong>实时态上行</strong>（心跳/已读/输入中）。所有<strong>资金类操作必须走 HTTP</strong>（押注/打赏/充值/提现），WS 只做事后通知（如"押注成功"、"派彩到账"）。</p>
+<h2 id="协议总览">协议总览</h2>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>协议</td>
+<td>WebSocket（RFC 6455）</td>
+</tr>
+<tr>
+<td>传输</td>
+<td>JSON 文本帧（非二进制）</td>
+</tr>
+<tr>
+<td>鉴权</td>
+<td>JWT，连接时通过 query string `?敏感凭据：[已脱敏] 传入</td>
+</tr>
+<tr>
+<td>消息格式</td>
+<td><a href="#envelope">统一 envelope</a>：<code>{ type, msg_id, ts, data }</code></td>
+</tr>
+<tr>
+<td>心跳间隔</td>
+<td>客户端每 <strong>30s</strong> 发 <code>client.ping</code></td>
+</tr>
+<tr>
+<td>断连超时</td>
+<td>客户端 60s 无 <code>server.pong</code> → 重连</td>
+</tr>
+<tr>
+<td>主播业务心跳</td>
+<td>主播端开播后每 <strong>15s</strong> 发 <code>streamer.live.heartbeat</code>；60s 未收到则后端自动下播</td>
+</tr>
+<tr>
+<td>消息去重</td>
+<td>客户端按 <code>msg_id</code> 24h LRU 去重</td>
+</tr>
+<tr>
+<td>重连</td>
+<td>指数退避 1/3/9/30/60s，最多 10 次，重连必须重新鉴权</td>
+</tr>
+<tr>
+<td>断线补推</td>
+<td>不补推（关键资金类用 HTTP 兜底拉取）</td>
+</tr>
+<tr>
+<td>单消息大小</td>
+<td>≤ 4 KB</td>
+</tr>
+<tr>
+<td>单 UID 并发连接</td>
+<td>≤ 5</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-个通道">6 个通道</h2>
+<table>
+<thead>
+<tr>
+<th>通道</th>
+<th>URL</th>
+<th>用途</th>
+<th>鉴权</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C 端统一连接</td>
+<td><code>/ws/v1/client</code></td>
+<td>H5/Web 统一入口；登录用户自动接收钱包/个人通知，进入页面后订阅 room/match</td>
+<td>JWT 可选</td>
+</tr>
+<tr>
+<td>主播端统一连接</td>
+<td><code>/ws/v1/streamer</code></td>
+<td>主播工作台统一入口；订阅 room/match 接收弹幕、打赏、话术、投票/众筹事件</td>
+<td>主播 JWT</td>
+</tr>
+<tr>
+<td>直播间（Deprecated）</td>
+<td><code>/ws/v1/live/{room_id}</code></td>
+<td>旧 H5 兼容入口；新版不再接</td>
+<td>JWT 可选</td>
+</tr>
+<tr>
+<td>钱包（Deprecated）</td>
+<td><code>/ws/v1/wallet</code></td>
+<td>旧 H5 兼容入口；新版不再接</td>
+<td>JWT</td>
+</tr>
+<tr>
+<td>比赛（Deprecated）</td>
+<td><code>/ws/v1/match/{match_id}</code></td>
+<td>旧 H5 兼容入口；新版不再接</td>
+<td>JWT 可选</td>
+</tr>
+<tr>
+<td>后台事件流</td>
+<td><code>/ws/v1/admin/events</code></td>
+<td>风控告警 / 对账差异 / KPI 实时</td>
+<td>Admin JWT</td>
+</tr>
+<tr>
+<td>房间管理员监控</td>
+<td><code>/ws/v1/admin/rooms/{id}/danmaku</code></td>
+<td>房间弹幕 / 观众进出 / 打赏</td>
+<td>Admin JWT + 房间权限</td>
+</tr>
+</tbody>
+</table>
+<h2 id="鉴权与连接">鉴权与连接</h2>
+<pre><code>// JavaScript 示例
+const 敏感凭据：[已脱敏]
+const ws = new WebSocket(`wss://api.kickoff.tv/ws/v1/client?敏感凭据：[已脱敏]
+
+ws.onopen = () =&gt; {
+  ws.send(JSON.stringify({ type: 'client.subscribe', data: { channels: [`room:${roomId}`] } }));
+};
+ws.onmessage = (ev) =&gt; handleMessage(JSON.parse(ev.data));
+ws.onclose = (ev) =&gt; handleClose(ev.code, ev.reason);
+ws.onerror = (e) =&gt; console.error(e);
+</code></pre>
+<p><strong>失败立即关闭</strong>：鉴权失败服务端推送 <code>server.error</code> 后用 close code <code>4001</code> 主动断开。客户端应跳登录页，不重连。</p>
+<h2 id="消息-envelope">消息 envelope</h2>
+<p>所有 WS 消息（上行 + 下行）统一结构：</p>
+<pre><code>{
+  "type": "live.danmaku.received",
+  "msg_id": "01H9XYZ-7B3K-4N2P-...-ABC",
+  "ts": 1719404400123,
+  "trace_id": "abc123def456",
+  "data": { ... }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td>string</td>
+<td>类型码（snake_case + 点分隔，如 <code>live.danmaku.received</code>）</td>
+</tr>
+<tr>
+<td><code>msg_id</code></td>
+<td>string</td>
+<td>消息唯一 ID（ULID / UUID），客户端 24h LRU 去重</td>
+</tr>
+<tr>
+<td><code>ts</code></td>
+<td>int64</td>
+<td>服务端 Unix 毫秒时间戳</td>
+</tr>
+<tr>
+<td><code>trace_id</code></td>
+<td>string</td>
+<td>链路追踪 ID（可选）</td>
+</tr>
+<tr>
+<td><code>data</code></td>
+<td>object</td>
+<td>类型相关 payload</td>
+</tr>
+</tbody>
+</table>
+<h2 id="心跳">心跳</h2>
+<p>客户端每 <strong>30 秒</strong>发一次 <code>client.ping</code>：</p>
+<pre><code>// 上行（客户端 → 服务端）
+{ "type": "client.ping", "ts": 1719404400000 }
+
+// 下行（服务端 → 客户端）
+{ "type": "server.pong", "ts": 1719404400123 }
+</code></pre>
+<p>客户端 60s 内未收到 <code>server.pong</code> → 视为断开 → 触发重连。</p>
+<p><strong>注意</strong>：<code>client.ping</code> 只用于 WebSocket 连接保活，不会更新直播间状态。主播是否还在直播，必须看下面的主播业务心跳。</p>
+<h3 id="主播业务心跳-streamer-live-heartbeat">主播业务心跳 <code>streamer.live.heartbeat</code></h3>
+<p>主播端开播成功后，必须在 `/ws/v1/streamer?敏感凭据：[已脱敏] 上每 <strong>15 秒</strong>发送一次：</p>
+<pre><code>{
+  "type": "streamer.live.heartbeat",
+  "data": {
+    "room_id": "9001",
+    "session_id": "10001",
+    "zego_room_id": "R001",
+    "zego_stream_id": "rm_R001_10001"
+  }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>是否必传</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>room_id</code></td>
+<td>必传</td>
+<td>直播间 ID；后端校验该房间是否属于当前主播且状态为 <code>LIVE</code></td>
+</tr>
+<tr>
+<td><code>session_id</code></td>
+<td>建议传</td>
+<td>开播接口 <code>StreamerStartLiveResponse.session_id</code>；传了会校验是否等于当前 active session</td>
+</tr>
+<tr>
+<td><code>zego_room_id</code></td>
+<td>建议传</td>
+<td>开播接口 <code>zego_room_id</code>；传了会校验是否等于 <code>live_rooms.room_no</code></td>
+</tr>
+<tr>
+<td><code>zego_stream_id</code></td>
+<td>建议传</td>
+<td>开播接口 <code>stream_no</code>；传了会校验是否等于当前 <code>live_sessions.stream_no</code></td>
+</tr>
+</tbody>
+</table>
+<p>后端连续 <strong>60 秒</strong>未收到主播业务心跳时，会把直播间置为 <code>ENDED</code>，并向 <code>room:{room_id}</code> 广播原有的 <code>room.status.ended</code>，<code>reason=streamer_heartbeat_timeout</code>。C 端不需要上报心跳；如果已经处理关播事件，则无需新增接入，<code>reason</code> 只用于可选文案区分。</p>
+<h2 id="重连规则">重连规则</h2>
+<table>
+<thead>
+<tr>
+<th>事件</th>
+<th>客户端行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>网络断开 / 心跳超时</td>
+<td>指数退避：1s / 3s / 9s / 30s / 60s</td>
+</tr>
+<tr>
+<td>最多重试</td>
+<td>10 次</td>
+</tr>
+<tr>
+<td>每次重连</td>
+<td>重新鉴权（带最新 access token，过期先 refresh）</td>
+</tr>
+<tr>
+<td>服务端关闭（close code 4xxx）</td>
+<td>视 code 决定（详见下表）</td>
+</tr>
+<tr>
+<td>用户主动关闭</td>
+<td>不重连</td>
+</tr>
+</tbody>
+</table>
+<p><strong>不补推</strong>：服务端重连后<strong>不补推断开期间的消息</strong>。关键资金类（充值到账 / 派彩）走 HTTP <code>/wallet/notifications</code> 兜底拉取。</p>
+<h2 id="WebSocket-Close-Code">WebSocket Close Code</h2>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>含义</th>
+<th>客户端动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1000</td>
+<td>正常关闭</td>
+<td>不重连（用户主动）</td>
+</tr>
+<tr>
+<td>1001</td>
+<td>远端离开（关闭浏览器）</td>
+<td>不重连</td>
+</tr>
+<tr>
+<td>1006</td>
+<td>异常断开</td>
+<td>自动重连</td>
+</tr>
+<tr>
+<td>1011</td>
+<td>服务端错误</td>
+<td>自动重连</td>
+</tr>
+<tr>
+<td><strong>4001</strong></td>
+<td>鉴权失败</td>
+<td>跳登录页</td>
+</tr>
+<tr>
+<td><strong>4002</strong></td>
+<td>鉴权过期</td>
+<td>refresh 后重连</td>
+</tr>
+<tr>
+<td><strong>4003</strong></td>
+<td>无订阅权限</td>
+<td>不重连，UI 提示</td>
+</tr>
+<tr>
+<td><strong>4004</strong></td>
+<td>通道不存在</td>
+<td>不重连</td>
+</tr>
+<tr>
+<td><strong>4006</strong></td>
+<td>顶号下线</td>
+<td>跳登录页（账号已在其他设备登录）</td>
+</tr>
+<tr>
+<td><strong>4429</strong></td>
+<td>限流</td>
+<td>60s 后重连</td>
+</tr>
+<tr>
+<td><strong>4500</strong></td>
+<td>服务端错误</td>
+<td>自动重连</td>
+</tr>
+</tbody>
+</table>
+<h2 id="类型码-通用控制-双向">类型码：通用控制（双向）</h2>
+<table>
+<thead>
+<tr>
+<th>类型码</th>
+<th>方向</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>client.ping</code></td>
+<td>客户端→服务端</td>
+<td>心跳</td>
+</tr>
+<tr>
+<td><code>server.pong</code></td>
+<td>服务端→客户端</td>
+<td>心跳应答</td>
+</tr>
+<tr>
+<td><code>client.subscribe</code></td>
+<td>客户端→服务端</td>
+<td>订阅子主题</td>
+</tr>
+<tr>
+<td><code>client.unsubscribe</code></td>
+<td>客户端→服务端</td>
+<td>退订</td>
+</tr>
+<tr>
+<td><code>streamer.live.heartbeat</code></td>
+<td>主播端→服务端</td>
+<td>主播开播后的业务心跳；每 15s 发送，60s 超时自动下播</td>
+</tr>
+<tr>
+<td><code>server.error</code></td>
+<td>服务端→客户端</td>
+<td>错误（含 code/message/close 字段）</td>
+</tr>
+<tr>
+<td><code>server.kicked</code></td>
+<td>服务端→客户端</td>
+<td>服务端踢下线（顶号 / 封禁），随后断开</td>
+</tr>
+</tbody>
+</table>
+<pre><code>// server.error 示例
+{
+  "type": "server.error",
+  "data": {
+    "code": 30001,
+    "message": "鉴权失败",
+    "close": true
+  }
+}
+</code></pre>
+<h2 id="类型码-直播间频道-room-room_id">类型码：直播间频道 <code>room:{room_id}</code></h2>
+<p><strong>进场推送</strong>（等级特权已下线，不做等级差异化）：</p>
+<table>
+<thead>
+<tr>
+<th>类型码</th>
+<th>触发</th>
+<th>data 关键字段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>live.enter.normal</code></td>
+<td>普通进场</td>
+<td>user_id, nickname</td>
+</tr>
+<tr>
+<td><code>live.enter.banner</code></td>
+<td>L4 进场（全屏轻 banner）</td>
+<td>同上</td>
+</tr>
+<tr>
+<td><code>live.enter.fullscreen</code></td>
+<td>L5 进场（全屏中级特效）</td>
+<td>同上</td>
+</tr>
+<tr>
+<td><code>live.enter.global</code></td>
+<td>L6 进场（<strong>全平台震撼广播 + 跨房间</strong>）</td>
+<td>user_id, nickname, level, source_room_id</td>
+</tr>
+</tbody>
+</table>
+<p><strong>L0 游客不推进场</strong>（PRD §3.1 等级特权已规定，进场提示 = "—"）。</p>
+<p><strong>v1 不做离场推送</strong>（原型未画；主流直播平台也不推离场）。</p>
+<p><strong>弹幕 / 系统 / 状态</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>类型码</th>
+<th>方向</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>live.danmaku.received</code></td>
+<td>服务端→客户端</td>
+<td>收到弹幕</td>
+</tr>
+<tr>
+<td><code>client.danmaku.send</code></td>
+<td>客户端→服务端</td>
+<td>发弹幕（HTTP 兜底为主，WS 可选）</td>
+</tr>
+<tr>
+<td><code>live.tip.combo</code></td>
+<td>服务端→客户端</td>
+<td>打赏连击 banner（user_id, combo_count, diamond_amount）</td>
+</tr>
+<tr>
+<td><code>live.viewer.count.updated</code></td>
+<td>服务端→客户端</td>
+<td>观看人数 + 峰值（30s 批量推全房间）</td>
+</tr>
+<tr>
+<td><code>live.system.notice</code></td>
+<td>服务端→客户端</td>
+<td>系统消息（房间内升级广播 / 风控提示）</td>
+</tr>
+<tr>
+<td><code>live.muted.notify</code></td>
+<td>服务端→客户端</td>
+<td>你被禁言（mute_until_ts, reason）</td>
+</tr>
+<tr>
+<td><code>live.user.muted</code></td>
+<td>服务端→客户端</td>
+<td>其他用户被禁言</td>
+</tr>
+<tr>
+<td><code>live.danmaku.deleted</code></td>
+<td>服务端→客户端</td>
+<td>弹幕被删除</td>
+</tr>
+<tr>
+<td><code>room.status.live</code></td>
+<td>服务端→客户端</td>
+<td>房间开播</td>
+</tr>
+<tr>
+<td><code>room.status.disconnected</code></td>
+<td>服务端→客户端</td>
+<td>断流</td>
+</tr>
+<tr>
+<td><code>room.status.recovered</code></td>
+<td>服务端→客户端</td>
+<td>断流恢复</td>
+</tr>
+<tr>
+<td><code>room.status.ended</code></td>
+<td>服务端→客户端</td>
+<td>关播</td>
+</tr>
+<tr>
+<td><code>room.title.updated</code></td>
+<td>服务端→客户端</td>
+<td>房间标题改了（运营改）</td>
+</tr>
+<tr>
+<td><code>room.match.changed</code></td>
+<td>服务端→客户端</td>
+<td>关联比赛切换</td>
+</tr>
+<tr>
+<td><code>room.banned</code></td>
+<td>服务端→客户端</td>
+<td>房间被封禁</td>
+</tr>
+</tbody>
+</table>
+<pre><code>// room.status.ended 示例；业务心跳超时时 reason 固定为 streamer_heartbeat_timeout
+{
+  "type": "room.status.ended",
+  "msg_id": "uuid",
+  "ts": 1719404400000,
+  "trace_id": "trace-id",
+  "data": {
+    "room_id": "9001",
+    "status": "ENDED",
+    "reason": "streamer_heartbeat_timeout"
+  }
+}
+</code></pre>
+<h3 id="LIVE-102-众筹解锁-投票-房间频道">LIVE-102 众筹解锁 + 投票(房间频道)</h3>
+<p>属于 <code>room:{room_id}</code> 同一频道；C 端通过 <code>/ws/v1/client</code> 发送 <code>client.subscribe</code> 订阅即可,无需额外鉴权。</p>
+<table>
+<thead>
+<tr>
+<th>类型码</th>
+<th>触发</th>
+<th>data 关键字段 / 前端行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>live.crowdfund.progress</code></td>
+<td>每次有人送礼后(可能节流)</td>
+<td><code>session_id, cumulative_diamond, next_stage?{id,stage_no,name,threshold_diamond,action_text}</code> <em>前端</em>：用 <code>cumulative_diamond</code> 直接覆盖进度条,<strong>不要假设 increment</strong>；<code>next_stage=null</code> 表示全部阶段已达成。</td>
+</tr>
+<tr>
+<td><code>live.crowdfund.stage_unlocked</code></td>
+<td>本场累计第一次达到某阶段阈值</td>
+<td><code>session_id, stage{...}, amount_at_achieved, achieved_at_ms</code> <em>前端</em>：弹「主播 XX 已解锁」toast + 已达成阶段卡片打勾；主播侧同步播 toast 提醒履约。同一阶段同一 session 仅广播 1 次(uk_session_stage)。</td>
+</tr>
+<tr>
+<td><code>live.vote.started</code></td>
+<td>主播发起新投票后立即推</td>
+<td><code>vote_id, title, duration_sec, started_at_ms, ends_at_ms, options[{id, option_no, name, votes_count=0}]</code> <em>前端</em>：渲染投票卡 + 倒计时；同房间只可能有一个 ongoing 投票。</td>
+</tr>
+<tr>
+<td><code>live.vote.tick</code></td>
+<td>每次 C 端 cast 后</td>
+<td><code>vote_id, option_id, votes_count, total_votes</code> <em>前端</em>：按 option_id 用 <code>votes_count</code> 直接覆盖该项票数,<strong>不要做 +1</strong>(同一秒可能合并)；<code>total_votes</code> 同步覆盖。</td>
+</tr>
+<tr>
+<td><code>live.vote.ended</code></td>
+<td>到期(cron 5s 扫描) / 主播下播</td>
+<td><code>vote_id, winner_option_id?, total_votes, ended_at_ms, options[{...final tally}]</code> <em>前端</em>：展示获奖选项 + 最终票数排行；<code>winner_option_id=null</code> 表示平票或 0 票。状态切到 ended 后<strong>不再允许 cast</strong>(后端会拒)。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="类型码-钱包个人频道-user-user_id">类型码：钱包个人频道 <code>user:{user_id}</code></h2>
+<p>当前用户的资金事件流。所有钱包变动都会在这里推送一次。</p>
+<table>
+<thead>
+<tr>
+<th>类型码</th>
+<th>触发</th>
+<th>data 关键字段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>wallet.balance.updated</code></td>
+<td>余额变动（任何原因）</td>
+<td>rmb_balance, diamond_balance</td>
+</tr>
+<tr>
+<td><code>wallet.recharge.success</code></td>
+<td>充值到账</td>
+<td>order_no, amount_rmb, bonus_diamond, balance_rmb_after</td>
+</tr>
+<tr>
+<td><code>wallet.recharge.failed</code></td>
+<td>充值失败</td>
+<td>order_no, reason</td>
+</tr>
+<tr>
+<td><code>wallet.withdraw.submitted</code></td>
+<td>提现申请提交</td>
+<td>order_no, amount_rmb</td>
+</tr>
+<tr>
+<td><code>wallet.withdraw.approved</code></td>
+<td>提现放行</td>
+<td>order_no, amount_rmb</td>
+</tr>
+<tr>
+<td><code>wallet.withdraw.rejected</code></td>
+<td>提现驳回</td>
+<td>order_no, reason</td>
+</tr>
+<tr>
+<td><code>wallet.withdraw.success</code></td>
+<td>提现到账</td>
+<td>order_no, actual_amount_rmb</td>
+</tr>
+<tr>
+<td><code>wallet.withdraw.failed</code></td>
+<td>提现转账失败</td>
+<td>order_no, reason</td>
+</tr>
+<tr>
+<td><code>wallet.exchange.success</code></td>
+<td>兑换成功</td>
+<td>direction, from_amount, to_amount</td>
+</tr>
+<tr>
+<td><code>wallet.bet.placed</code></td>
+<td>押注成功</td>
+<td>bet_id, activity_id, amount_diamond, balance_diamond_after</td>
+</tr>
+<tr>
+<td><code>wallet.bet.settled</code></td>
+<td>派彩入账</td>
+<td>bet_id, payout_diamond, balance_diamond_after, is_winner</td>
+</tr>
+<tr>
+<td><code>wallet.bet.refunded</code></td>
+<td>退单到账</td>
+<td>bet_id, amount_diamond, balance_diamond_after</td>
+</tr>
+<tr>
+<td><code>wallet.tip.committed</code></td>
+<td>打赏成功（自己端）</td>
+<td>room_id, diamond_amount, balance_diamond_after</td>
+</tr>
+<tr>
+<td><code>wallet.notification.received</code></td>
+<td>站内信</td>
+<td>title, body, link, severity</td>
+</tr>
+</tbody>
+</table>
+<h2 id="类型码-比赛频道-match-match_id">类型码：比赛频道 <code>match:{match_id}</code></h2>
+<p>由运营在后台手动录入触发（v0.2 无第三方数据源，仅比分 + 进球）。</p>
+<table>
+<thead>
+<tr>
+<th>类型码</th>
+<th>触发</th>
+<th>data 关键字段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>match.score.updated</code></td>
+<td>比分变化</td>
+<td>match_id, score_home, score_away, period</td>
+</tr>
+<tr>
+<td><code>match.goal.added</code></td>
+<td>新增进球</td>
+<td>match_id, minute, team_code, player, score_home_after, score_away_after</td>
+</tr>
+<tr>
+<td><code>match.status.changed</code></td>
+<td>状态变化（未开赛/进行中/已结束）</td>
+<td>match_id, old_status, new_status</td>
+</tr>
+<tr>
+<td><code>match.mvp.published</code></td>
+<td>MVP 公布</td>
+<td>match_id, mvp_player, mvp_team</td>
+</tr>
+</tbody>
+</table>
+<h2 id="类型码-用户个人事件">类型码：用户个人事件</h2>
+<table>
+<thead>
+<tr>
+<th>类型码</th>
+<th>触发</th>
+<th>data 关键字段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user.system.announcement</code></td>
+<td>系统公告</td>
+<td>title, body, link, severity</td>
+</tr>
+<tr>
+<td><code>user.profile.updated</code></td>
+<td>后台调整你的资料</td>
+<td>fields_changed: [...]</td>
+</tr>
+<tr>
+<td><code>user.frozen</code></td>
+<td>账号被冻结</td>
+<td>reason</td>
+</tr>
+<tr>
+<td><code>user.unfrozen</code></td>
+<td>账号被解冻</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h2 id="类型码-后台事件流-ws-v1-admin-events-仅后台">类型码：后台事件流 <code>/ws/v1/admin/events</code> 仅后台</h2>
+<table>
+<thead>
+<tr>
+<th>类型码</th>
+<th>触发</th>
+<th>data 关键字段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>admin.risk.alert.new</code></td>
+<td>新增风控告警</td>
+<td>alert_id, rule_id, severity, target_type, target_id</td>
+</tr>
+<tr>
+<td><code>admin.recon.diff.new</code></td>
+<td>对账新差异</td>
+<td>recon_date, channel, diff_count, diff_amount</td>
+</tr>
+<tr>
+<td><code>admin.streamer.live</code></td>
+<td>主播开播</td>
+<td>streamer_id, room_id, match_id, started_at</td>
+</tr>
+<tr>
+<td><code>admin.streamer.ended</code></td>
+<td>主播下播</td>
+<td>streamer_id, session_id, ended_at</td>
+</tr>
+<tr>
+<td><code>admin.streamer.disconnected</code></td>
+<td>主播断流</td>
+<td>streamer_id, session_id</td>
+</tr>
+<tr>
+<td><code>admin.payment.callback.failed</code></td>
+<td>支付回调失败</td>
+<td>channel, order_no, reason</td>
+</tr>
+<tr>
+<td><code>admin.withdraw.high_risk</code></td>
+<td>提现高风险新单</td>
+<td>order_no, user_id, amount_rmb, risk_score</td>
+</tr>
+<tr>
+<td><code>admin.dashboard.kpi.updated</code></td>
+<td>看板 KPI 实时</td>
+<td>gmv_today, online_users, live_streamers, bets_today</td>
+</tr>
+<tr>
+<td><code>admin.system.alert</code></td>
+<td>系统告警（DB/Redis/Kafka 异常）</td>
+<td>severity, source, message</td>
+</tr>
+</tbody>
+</table>
+<h2 id="类型码-房间管理员监控-ws-v1-admin-rooms-id-danmaku-仅后台">类型码：房间管理员监控 <code>/ws/v1/admin/rooms/{id}/danmaku</code> 仅后台</h2>
+<table>
+<thead>
+<tr>
+<th>类型码</th>
+<th>触发</th>
+<th>data 关键字段 / 节流</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>admin.room.danmaku</code></td>
+<td>房间弹幕实时</td>
+<td>msg_id, user_id, nickname, content, forbidden_hit</td>
+</tr>
+<tr>
+<td><code>admin.room.viewer.enter</code></td>
+<td>任意观众进场</td>
+<td><strong>5s 服务端聚合</strong>，超量降级为 "N 人进入"</td>
+</tr>
+<tr>
+<td><code>admin.room.viewer.leave</code></td>
+<td>任意观众离场</td>
+<td>同上节流</td>
+</tr>
+<tr>
+<td><code>admin.room.tip.received</code></td>
+<td>打赏到房间</td>
+<td>user_id, nickname, diamond_amount, combo_count</td>
+</tr>
+<tr>
+<td><code>admin.room.stats</code></td>
+<td>房间实时统计</td>
+<td>viewer_count, peak_count, danmaku_count, gmv_diamond（10s 刷新）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="客户端实现要点">客户端实现要点</h2>
+<ol>
+<li><strong>必须有 msg_id 去重</strong>：用 LRU（24h，10000 条容量）</li>
+<li><strong>必须有心跳</strong>：30s 间隔，60s 超时</li>
+<li><strong>必须重新鉴权后重连</strong>：每次重连前 refresh access token</li>
+<li><strong>关键资金类有 HTTP 兜底</strong>：派彩到账 / 充值到账 等不要单靠 WS（断线丢失风险）</li>
+<li><strong>大 R 进场是关键业务</strong>：房间管理员侧必须能 100% 收到（不要节流过滤掉）</li>
+<li><strong>错误处理</strong>：收到 <code>server.error</code> 时按 code 处理（30001 跳登录 / 10429 重试）</li>
+</ol>
+<h2 id="消息去重">消息去重</h2>
+<pre><code>class WsMessageDedupe {
+    constructor(capacity = 10000, ttlMs = 24 * 3600 * 1000) {
+        this.cache = new Map();   // msg_id → ts
+        this.capacity = capacity;
+        this.ttlMs = ttlMs;
+    }
+    isDuplicate(msgId) {
+        const now = Date.now();
+        // 清理过期
+        if (this.cache.size &gt; this.capacity) {
+            for (const [k, v] of this.cache) {
+                if (now - v &gt; this.ttlMs) this.cache.delete(k);
+                if (this.cache.size &lt; this.capacity * 0.8) break;
+            }
+        }
+        if (this.cache.has(msgId)) return true;
+        this.cache.set(msgId, now);
+        return false;
+    }
+}
+</code></pre>
+<h2 id="完整客户端示例-TypeScript-伪代码">完整客户端示例（TypeScript 伪代码）</h2>
+<pre><code>class KickoffWebSocket {
+    private ws: WebSocket | null = null;
+    private retryCount = 0;
+    private retryDelays = [1000, 3000, 9000, 30000, 60000];
+    private maxRetries = 10;
+    private heartbeatTimer: number | null = null;
+    private pongTimeout: number | null = null;
+    private dedupe = new WsMessageDedupe();
+    private handlers = new Map&lt;string, (data: any) =&gt; void&gt;();
+
+    constructor(
+        private channels: string[],     // 如 ['room:12345']
+        private [敏感内容已脱敏] =&gt; Promise&lt;string&gt;,
+    ) {}
+
+    async connect() {
+        const 敏感凭据：[已脱敏] this.getToken();
+        const url = `wss://api.kickoff.tv/ws/v1/client?敏感凭据：[已脱敏]
+        this.ws = new WebSocket(url);
+
+        this.ws.onopen = () =&gt; {
+            console.log('[WS] connected', this.channels);
+            this.retryCount = 0;
+            this.ws?.send(JSON.stringify({ type: 'client.subscribe', data: { channels: this.channels } }));
+            this.startHeartbeat();
+        };
+
+        this.ws.onmessage = (ev) =&gt; {
+            const msg = JSON.parse(ev.data);
+
+            // 心跳应答
+            if (msg.type === 'server.pong') {
+                this.clearPongTimeout();
+                return;
+            }
+
+            // 消息去重
+            if (msg.msg_id &amp;&amp; this.dedupe.isDuplicate(msg.msg_id)) return;
+
+            // 错误处理
+            if (msg.type === 'server.error') {
+                this.handleError(msg.data);
+                return;
+            }
+
+            // 顶号
+            if (msg.type === 'server.kicked') {
+                this.cleanup();
+                window.location.href = '/login?reason=kicked';
+                return;
+            }
+
+            // 业务事件分发
+            const handler = this.handlers.get(msg.type);
+            if (handler) handler(msg.data);
+        };
+
+        this.ws.onclose = (ev) =&gt; {
+            this.cleanup();
+            console.log('[WS] closed', ev.code, ev.reason);
+
+            switch (ev.code) {
+                case 1000:        // 正常关闭
+                case 1001:        // 用户离开
+                    return;       // 不重连
+                case 4001:        // 鉴权失败
+                    window.location.href = '/login';
+                    return;
+                case 4002:        // 鉴权过期
+                    this.reconnect(0);  // refresh 后立即重连
+                    return;
+                case 4003:        // 无订阅权限
+                case 4004:        // 通道不存在
+                    return;       // 不重连
+                case 4006:        // 顶号
+                    window.location.href = '/login?reason=kicked';
+                    return;
+                case 4429:        // 限流
+                    setTimeout(() =&gt; this.reconnect(), 60000);
+                    return;
+                default:
+                    this.reconnect();
+            }
+        };
+    }
+
+    on(type: string, handler: (data: any) =&gt; void) {
+        this.handlers.set(type, handler);
+    }
+
+    private startHeartbeat() {
+        this.heartbeatTimer = window.setInterval(() =&gt; {
+            this.ws?.send(JSON.stringify({ type: 'client.ping', ts: Date.now() }));
+            this.pongTimeout = window.setTimeout(() =&gt; {
+                console.warn('[WS] pong timeout, reconnecting');
+                this.ws?.close();
+            }, 60000);
+        }, 30000);
+    }
+
+    private clearPongTimeout() {
+        if (this.pongTimeout) {
+            clearTimeout(this.pongTimeout);
+            this.pongTimeout = null;
+        }
+    }
+
+    private reconnect(forcedDelayMs?: number) {
+        if (this.retryCount &gt;= this.maxRetries) {
+            console.error('[WS] max retries reached');
+            return;
+        }
+        const delay = forcedDelayMs ?? this.retryDelays[Math.min(this.retryCount, this.retryDelays.length - 1)];
+        this.retryCount++;
+        setTimeout(() =&gt; this.connect(), delay);
+    }
+
+    private cleanup() {
+        if (this.heartbeatTimer) clearInterval(this.heartbeatTimer);
+        this.clearPongTimeout();
+    }
+
+    private handleError(data: { code: number, message: string, close?: boolean }) {
+        console.error('[WS] server.error', data);
+        // 按错误码处理（30001 跳登录等）
+    }
+}
+
+// 使用
+const ws = new KickoffWebSocket([`room:${roomId}`], async () =&gt; {
+    return await refreshTokenIfNeeded();
+});
+
+ws.on('live.danmaku.received', (data) =&gt; {
+    appendDanmaku(data);
+});
+ws.on('live.enter.global', (data) =&gt; {
+    showGlobalBroadcast(data);
+});
+
+await ws.connect();
+</code></pre>
+<p><strong>对接清单</strong>：</p>
+<p>✓ 鉴权（JWT query token）</p>
+<p>✓ 心跳（30s ping + 60s pong timeout）</p>
+<p>✓ 重连（指数退避 + 重新鉴权）</p>
+<p>✓ msg_id 去重（24h LRU）</p>
+<p>✓ Close code 分类处理</p>
+<p>✓ server.error 错误码映射</p>
+<p>✓ 关键资金类 HTTP 兜底</p>
+<p>版本：v1.0 · 2026-05-22 · 对齐 PRD v0.2 + conventions.md §16 · 类型码总数 65 个</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#协议总览">协议总览</a></li><li style="margin-left:0.0rem"><a href="#6-个通道">6 个通道</a></li><li style="margin-left:0.0rem"><a href="#鉴权与连接">鉴权与连接</a></li><li style="margin-left:0.0rem"><a href="#消息-envelope">消息 envelope</a></li><li style="margin-left:0.0rem"><a href="#心跳">心跳</a></li><li style="margin-left:0.8rem"><a href="#主播业务心跳-streamer-live-heartbeat">主播业务心跳 streamer.live.heartbeat</a></li><li style="margin-left:0.0rem"><a href="#重连规则">重连规则</a></li><li style="margin-left:0.0rem"><a href="#WebSocket-Close-Code">WebSocket Close Code</a></li><li style="margin-left:0.0rem"><a href="#类型码-通用控制-双向">类型码：通用控制（双向）</a></li><li style="margin-left:0.0rem"><a href="#类型码-直播间频道-room-room_id">类型码：直播间频道 room:{room_id}</a></li><li style="margin-left:0.8rem"><a href="#LIVE-102-众筹解锁-投票-房间频道">LIVE-102 众筹解锁 + 投票(房间频道)</a></li><li style="margin-left:0.0rem"><a href="#类型码-钱包个人频道-user-user_id">类型码：钱包个人频道 user:{user_id}</a></li><li style="margin-left:0.0rem"><a href="#类型码-比赛频道-match-match_id">类型码：比赛频道 match:{match_id}</a></li><li style="margin-left:0.0rem"><a href="#类型码-用户个人事件">类型码：用户个人事件</a></li><li style="margin-left:0.0rem"><a href="#类型码-后台事件流-ws-v1-admin-events-仅后台">类型码：后台事件流 /ws/v1/admin/events 仅后台</a></li><li style="margin-left:0.0rem"><a href="#类型码-房间管理员监控-ws-v1-admin-rooms-id-danmaku-仅后台">类型码：房间管理员监控 /ws/v1/admin/rooms/{id}/danmaku 仅后台</a></li><li style="margin-left:0.0rem"><a href="#客户端实现要点">客户端实现要点</a></li><li style="margin-left:0.0rem"><a href="#消息去重">消息去重</a></li><li style="margin-left:0.0rem"><a href="#完整客户端示例-TypeScript-伪代码">完整客户端示例（TypeScript 伪代码）</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-06-06</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Redis</span><span class="tag">监控告警</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/api/websocket.html</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606061735-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BRedis%2B%E7%9B%91%E6%8E%A7%E5%91%8A%E8%AD%A6-Kickoff%20WebSocket%20%E5%8D%8F%E8%AE%AE.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Kickoff WebSocket 协议。本文属于业务系统运维 / 小蓝直播，对齐 docs/api/conventions.md §16 + PRD v0.2。本页面是 WebSocket 实时推送的权威说明。HTTP REST API 见 API 文档 。 原则 ：WebSocket 仅承担 实时推送 和少量…</p>
+      <p>关键词：小蓝直播、Redis、监控告警、安全运维、故障排查、数据库恢复、业务系统运维、业务系统运维 / 小蓝直播、Kickoff WebSocket 协议</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-337c503bbbab.html"><small>上一篇</small>Agent 工作日志 · zego-publish-stop-host-guard</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3ac19f47a0d9.html"><small>下一篇</small>2026-06-07 bug 28778 room session history</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-17dd20671520.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

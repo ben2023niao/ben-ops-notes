@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Agent 工作日志 · bug-28420-recharge-timeout-worker｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="Agent 工作日志 · bug-28420-recharge-timeout-worker。本文属于业务系统运维 / 小蓝直播，日期：2026-06-06 Agent：Codex 任务：修复禅道 Bug 28420，充值订单超过 30 分钟未完成后自动失效 PRD： docs/prd/modules/kicko…">
+  <meta name="keywords" content="小蓝直播，Shell，Python，Go，Redis，故障排查，业务系统运维，业务系统运维 / 小蓝直播，Agent 工作日志 · bug-28420-recharge-timeout-worker">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dfd1bbcb1f99.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dfd1bbcb1f99.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606060000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BPython-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%20%C2%B7%20bug-28420-recharge-timeout-worker.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Agent 工作日志 · bug-28420-recharge-timeout-worker">
+  <meta property="og:description" content="Agent 工作日志 · bug-28420-recharge-timeout-worker。本文属于业务系统运维 / 小蓝直播，日期：2026-06-06 Agent：Codex 任务：修复禅道 Bug 28420，充值订单超过 30 分钟未完成后自动失效 PRD： docs/prd/modules/kicko…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dfd1bbcb1f99.html">
+  <meta property="article:published_time" content="2026-06-06T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-06-06 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Agent 工作日志 · bug-28420-recharge-timeout-worker">
+  <meta name="twitter:description" content="Agent 工作日志 · bug-28420-recharge-timeout-worker。本文属于业务系统运维 / 小蓝直播，日期：2026-06-06 Agent：Codex 任务：修复禅道 Bug 28420，充值订单超过 30 分钟未完成后自动失效 PRD： docs/prd/modules/kicko…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dfd1bbcb1f99.html#article","headline":"Agent 工作日志 · bug-28420-recharge-timeout-worker","description":"Agent 工作日志 · bug-28420-recharge-timeout-worker。本文属于业务系统运维 / 小蓝直播，日期：2026-06-06 Agent：Codex 任务：修复禅道 Bug 28420，充值订单超过 30 分钟未完成后自动失效 PRD： docs/prd/modules/kicko…","datePublished":"2026-06-06T00:00:00+08:00","dateModified":"2026-06-06 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Shell","Python","Go","Redis","故障排查","业务系统运维","业务系统运维 / 小蓝直播","Agent 工作日志 · bug-28420-recharge-timeout-worker"],"wordCount":1130,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dfd1bbcb1f99.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dfd1bbcb1f99.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Agent 工作日志 · bug-28420-recharge-timeout-worker","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dfd1bbcb1f99.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>Agent 工作日志 · bug-28420-recharge-timeout-worker</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>Agent 工作日志 · bug-28420-recharge-timeout-worker</h1>
+      <p class="lede">Agent 工作日志 · bug-28420-recharge-timeout-worker。本文属于业务系统运维 / 小蓝直播，日期：2026-06-06 Agent：Codex 任务：修复禅道 Bug 28420，充值订单超过 30 分钟未完成后自动失效 PRD： docs/prd/modules/kicko…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-06T00:00:00+08:00">发布于 2026-06-06</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,130 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-06-06-bug-28420-recharge-timeout-worker.md</code></p>
+<p>整理日期：2026-06-06 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>日期：2026-06-06
+Agent：Codex
+任务：修复禅道 Bug 28420，充值订单超过 30 分钟未完成后自动失效</p>
+<h2 id="输入资料">输入资料</h2>
+<ul>
+<li>PRD：<code>docs/prd/modules/kickoff-wallet.md</code></li>
+<li>需求 ID：WALLET-007</li>
+<li>接口/契约：<code>GET /api/v1/wallet/recharge-records</code>，<code>GET /api/v1/wallet/recharge/{order_no}/status</code></li>
+<li>AI/工具控制文件：<code>AGENTS.md</code>，<code>/Users/qx/project/zandao_debug_fix_skills/SKILL.md</code></li>
+<li>其他：禅道 <code>https://pm.jsyyds.com/index.php?m=bug&amp;f=view&amp;bugID=28420</code></li>
+</ul>
+<h2 id="本次目标">本次目标</h2>
+<ol>
+<li>充值订单超过 30 分钟仍处于 <code>PENDING/PAYING</code> 时自动变更为失效态。</li>
+<li>保持现有 OpenAPI/H5 契约不变，继续使用 <code>FAILED</code> 表示超时取消展示。</li>
+<li>使用 Redis 延迟队列作为主路径，并保留审计与历史订单补投。</li>
+</ol>
+<h2 id="修改文件">修改文件</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>services/go-app/cmd/api/main.go</code></td>
+<td>API 启动时注入审计 DB，并挂载 asynq 充值过期 worker</td>
+</tr>
+<tr>
+<td><code>services/go-app/go.mod</code> / <code>services/go-app/go.sum</code></td>
+<td>新增 <code>github.com/hibiken/asynq</code> 延迟队列依赖</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/pkg/jobqueue/recharge_expiry.go</code></td>
+<td>封装 <code>wallet.recharge.expire</code> 延迟任务、payload、taskID</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/pkg/jobqueue/recharge_expiry_test.go</code></td>
+<td>覆盖延迟任务 payload / taskID</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/http/router/public.go</code></td>
+<td>public 钱包服务注入充值过期队列 client</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/worker/recharge_expiry.go</code></td>
+<td>启动 asynq server，消费单笔充值过期任务，并启动时 backfill 历史未完成订单</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/worker/recharge_expiry_test.go</code></td>
+<td>覆盖单笔任务 handler 和坏 payload 不重试</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/repository/wallet/orders.go</code></td>
+<td>单笔过期事务更新、历史未完成订单 backfill 查询、保留批量兜底</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/repository/wallet/orders_test.go</code></td>
+<td>覆盖过期查询和 backfill 查询范围</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/service/wallet/service.go</code></td>
+<td>下单成功后投递充值过期延迟任务；投递失败则取消订单并 fail closed</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/service/wallet/sweeper.go</code></td>
+<td>单笔过期消费、历史订单补投、超时审计</td>
+</tr>
+</tbody>
+</table>
+<h2 id="核心决策">核心决策</h2>
+<ol>
+<li>当前框架只提供 worker 目录/规则，不提供通用延迟队列；选用 <code>github.com/hibiken/asynq</code> 作为 Redis 延迟队列包，并继续遵守 ADR-0012 的 v1 内嵌 worker 架构。</li>
+<li>不新增 <code>TIMEOUT</code> 枚举，避免破坏已部署 OpenAPI/H5 类型；后端将超时订单标记为现有 <code>FAILED</code>，H5 已展示为“超时取消”。</li>
+<li>新订单创建后用 <code>ProcessAt(expires_at)</code> 投递单笔延迟任务，taskID 使用 <code>recharge-expiry:{order_no}</code> 幂等去重；worker 消费时事务内 <code>SELECT FOR UPDATE</code>，并写 <code>wallet.recharge.timeout_failed</code> 审计。</li>
+<li>启动时仅做一次历史未完成订单 backfill，把旧订单补投队列；<code>SweepExpiredRecharges</code> 保留为人工/应急兜底，不作为主路径。</li>
+</ol>
+<h2 id="需求追踪">需求追踪</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>需求 ID</td>
+<td>WALLET-007</td>
+</tr>
+<tr>
+<td>需求总账</td>
+<td><code>docs/prd/requirements.md</code></td>
+</tr>
+<tr>
+<td>模块 PRD</td>
+<td><code>docs/prd/modules/kickoff-wallet.md</code></td>
+</tr>
+<tr>
+<td>OpenAPI / Event / DTO</td>
+<td>不变，仍返回 <code>RechargeOrderStatus=FAILED</code></td>
+</tr>
+<tr>
+<td>不涉及契约的原因</td>
+<td>前端类型和 OpenAPI 已存在 <code>FAILED</code>，H5 已把 <code>FAILED</code> 渲染为超时取消</td>
+</tr>
+</tbody>
+</table>
+<h2 id="工程规范">工程规范</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>是否影响数据表 / migration / 索引</td>
+<td>不影响，<code>recharge_orders.expires_at</code> 和 <code>idx_status_expires</code> 已存在</td>
+</tr>
+<tr>
+<td>是否影响账本、事务、幂等或审计</td>
+<td>影响订单状态事务与审计；不写账本，因为未支付订单没有资金入账</td>
+</tr>
+<tr>
+<td>规范例外与原因</td>
+<td>不适用；已使用 Redis 延迟队列包 asynq，未引入新的外部基础设施</td>
+</tr>
+</tbody>
+</table>
+<h2 id="架构能力门禁">架构能力门禁</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>涉及能力</td>
+<td>异步、数据一致性、审计</td>
+</tr>
+<tr>
+<td>当前 MVP 边界</td>
+<td>asynq server 内嵌在 go-app 进程，使用现有 Redis 做 broker</td>
+</tr>
+<tr>
+<td>未来迁移成本</td>
+<td>可拆到独立 worker 服务，订单状态和 API 契约无需变化</td>
+</tr>
+<tr>
+<td>高风险触发项</td>
+<td>资金、订单</td>
+</tr>
+<tr>
+<td>能力门禁结论</td>
+<td>允许合入</td>
+</tr>
+</tbody>
+</table>
+<h2 id="验证记录">验证记录</h2>
+<table>
+<thead>
+<tr>
+<th>命令/方式</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>git fetch origin &amp;&amp; git status --short &amp;&amp; git rev-list --left-right --count HEAD...@{upstream}</code></td>
+<td>已执行，本地与 upstream 同步</td>
+</tr>
+<tr>
+<td><code>./devtools/framework status</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>python3 scripts/validate-runtime-environment.py</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>python3 scripts/validate-prd.py</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>python3 scripts/validate-engineering-standards.py</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>python3 scripts/validate-capability-gates.py</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>python3 scripts/validate-completion-claims.py</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>go test ./internal/pkg/jobqueue ./internal/repository/wallet ./internal/service/wallet ./internal/worker</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>go test ./...</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>./devtools/framework check</code></td>
+<td>通过</td>
+</tr>
+</tbody>
+</table>
+<h2 id="风险与待办">风险与待办</h2>
+<ol>
+<li>asynq 依赖 Redis；Redis 不可用时下单会 fail closed，避免产生不会自动失效的支付单。</li>
+<li>超时后如果第三方极晚回调支付成功，当前状态机不会自动入账，应按异常回调/人工对账处理。</li>
+<li>若产品后续要求 API 明确返回 <code>TIMEOUT</code>，需要单独更新 OpenAPI、DTO、后台和 H5 类型。</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#输入资料">输入资料</a></li><li style="margin-left:0.0rem"><a href="#本次目标">本次目标</a></li><li style="margin-left:0.0rem"><a href="#修改文件">修改文件</a></li><li style="margin-left:0.0rem"><a href="#核心决策">核心决策</a></li><li style="margin-left:0.0rem"><a href="#需求追踪">需求追踪</a></li><li style="margin-left:0.0rem"><a href="#工程规范">工程规范</a></li><li style="margin-left:0.0rem"><a href="#架构能力门禁">架构能力门禁</a></li><li style="margin-left:0.0rem"><a href="#验证记录">验证记录</a></li><li style="margin-left:0.0rem"><a href="#风险与待办">风险与待办</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-06-06</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Go</span><span class="tag">Redis</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-06-06-bug-28420-recharge-t…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606060000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BPython-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%20%C2%B7%20bug-28420-recharge-timeout-worker.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Agent 工作日志 · bug-28420-recharge-timeout-worker。本文属于业务系统运维 / 小蓝直播，日期：2026-06-06 Agent：Codex 任务：修复禅道 Bug 28420，充值订单超过 30 分钟未完成后自动失效 PRD： docs/prd/modules/kicko…</p>
+      <p>关键词：小蓝直播、Shell、Python、Go、Redis、故障排查、业务系统运维、业务系统运维 / 小蓝直播、Agent 工作日志 · bug-28420-recharge-timeout-worker</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8d8d1c83334b.html"><small>上一篇</small>Agent 工作日志 · admin-danmaku-enter-content</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d7e5a244f16f.html"><small>下一篇</small>Agent 工作日志 · bug-28477-room-mute</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dfd1bbcb1f99.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
