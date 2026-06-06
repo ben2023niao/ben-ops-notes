@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>2026-06-07 live room WS token fallback｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="2026-06-07 live room WS token fallback。本文属于业务系统运维 / 小蓝直播，日期：2026-06-07 Agent：Codex 任务：排查 H5 直播间 WebSocket 失败，并修复公开直播间 WS 携带无效 token 时直接断连的问题。 截图现象： GET /api/…">
+  <meta name="keywords" content="小蓝直播，Go，Nginx，安全运维，故障排查，数据库恢复，业务系统运维，业务系统运维 / 小蓝直播，2026-06-07 live room WS token fallback">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4d3c65726d6b.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4d3c65726d6b.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606070000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2BNginx-2026-06-07%20live%20room%20WS%20token%20fallback.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="2026-06-07 live room WS token fallback">
+  <meta property="og:description" content="2026-06-07 live room WS token fallback。本文属于业务系统运维 / 小蓝直播，日期：2026-06-07 Agent：Codex 任务：排查 H5 直播间 WebSocket 失败，并修复公开直播间 WS 携带无效 token 时直接断连的问题。 截图现象： GET /api/…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4d3c65726d6b.html">
+  <meta property="article:published_time" content="2026-06-07T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-06-07 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="2026-06-07 live room WS token fallback">
+  <meta name="twitter:description" content="2026-06-07 live room WS token fallback。本文属于业务系统运维 / 小蓝直播，日期：2026-06-07 Agent：Codex 任务：排查 H5 直播间 WebSocket 失败，并修复公开直播间 WS 携带无效 token 时直接断连的问题。 截图现象： GET /api/…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4d3c65726d6b.html#article","headline":"2026-06-07 live room WS token fallback","description":"2026-06-07 live room WS token fallback。本文属于业务系统运维 / 小蓝直播，日期：2026-06-07 Agent：Codex 任务：排查 H5 直播间 WebSocket 失败，并修复公开直播间 WS 携带无效 token 时直接断连的问题。 截图现象： GET /api/…","datePublished":"2026-06-07T00:00:00+08:00","dateModified":"2026-06-07 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Go","Nginx","安全运维","故障排查","数据库恢复","业务系统运维","业务系统运维 / 小蓝直播","2026-06-07 live room WS token fallback"],"wordCount":786,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4d3c65726d6b.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4d3c65726d6b.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-06-07 live room WS token fallback","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4d3c65726d6b.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>2026-06-07 live room WS token fallback</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>2026-06-07 live room WS token fallback</h1>
+      <p class="lede">2026-06-07 live room WS token fallback。本文属于业务系统运维 / 小蓝直播，日期：2026-06-07 Agent：Codex 任务：排查 H5 直播间 WebSocket 失败，并修复公开直播间 WS 携带无效 token 时直接断连的问题。 截图现象： GET /api/…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-07T00:00:00+08:00">发布于 2026-06-07</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">786 字</span>
+        <span class="badge">3 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-06-07-live-room-ws-token-fallback.md</code></p>
+<p>整理日期：2026-06-07 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>日期：2026-06-07
+Agent：Codex
+任务：排查 H5 直播间 WebSocket 失败，并修复公开直播间 WS 携带无效 token 时直接断连的问题。</p>
+<h2 id="输入资料">输入资料</h2>
+<ul>
+<li>页面：<code>https://web-dev.54-151-131-132.sslip.io/live/22821611455381505</code></li>
+<li>截图现象：<code>GET /api/v1/live/room/{room_id}/votes/active 404</code>，<code>wss://api-dev.54-151-131-132.sslip.io/ws/v1/live/{room_id}?敏感凭据：[已脱敏] failed</code></li>
+<li>需求 ID：<code>LIVE-004</code></li>
+<li>接口/契约：<code>docs/api/conventions.md</code> WebSocket 公共协议；旧直播间 WS <code>GET /ws/v1/live/{room_id}</code> JWT 可选。</li>
+</ul>
+<h2 id="数据链路">数据链路</h2>
+<ol>
+<li>H5 直播间进入页读取 <code>apps/web/app/composables/useLiveSocket.ts</code>，用当前 C 端 access token 拼接 `/ws/v1/live/{room_id}?敏感凭据：[已脱敏]</li>
+<li>Nginx <code>api-dev</code> 将 <code>/ws/</code> 反代到 <code>kickoff-ws:8082</code>。</li>
+<li><code>cmd/ws</code> 装配 <code>router.BuildPublicWS</code>，注册 <code>GET /ws/v1/live/:room_id</code> 到 <code>wsapi.Handler.LiveRoom</code>。</li>
+<li><code>LiveRoom</code> 解析 room id，然后用 <code>parseUserID</code> 解析 query token。</li>
+<li>修复前：token 过期、格式错误或 subject 不匹配时，<code>LiveRoom</code> 直接 <code>401</code>，浏览器 WebSocket 握手失败。</li>
+<li>修复后：旧直播间 WS 是公开频道，token 解析失败只降级为游客 <code>userID=0</code>，继续完成 WebSocket 升级；钱包/主播 WS 仍强鉴权。</li>
+</ol>
+<h2 id="修改文件">修改文件</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>services/go-app/internal/http/wsapi/handlers.go</code></td>
+<td><code>/ws/v1/live/:room_id</code> token 解析失败时降级游客，不阻断公开直播间连接。</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/http/wsapi/handlers_test.go</code></td>
+<td>增加坏 token 不应在升级前返回 401 的回归测试。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="线上排查结论">线上排查结论</h2>
+<ul>
+<li><code>GET /api/v1/live/room/{room_id}/votes/active</code> 线上返回的是业务错误 <code>404 + code=20002 当前房间没有进行中的投票</code>，不是路由丢失。</li>
+<li><code>wss://api-dev.../ws/v1/live/{room_id}</code> 无 token 可正常连接，说明 Nginx 和 <code>kickoff-ws</code> 进程可用。</li>
+<li>携带坏 token 时线上会在握手前返回 <code>401</code>，与浏览器控制台 <code>WebSocket failed</code> 现象一致。</li>
+<li>最近远端提交 <code>3d7f66c feat(live-host): 直播流程调整</code> 只改 <code>apps/live-host</code>，没有改 H5 <code>apps/web</code> 的 WS 代码。</li>
+</ul>
+<h2 id="工程规范">工程规范</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>是否影响数据表 / migration / 索引</td>
+<td>否</td>
+</tr>
+<tr>
+<td>是否影响账本、事务、幂等或审计</td>
+<td>否</td>
+</tr>
+<tr>
+<td>是否影响 OpenAPI REST 契约</td>
+<td>否，WebSocket 旧入口既有约定为 JWT 可选</td>
+</tr>
+<tr>
+<td>是否影响权限安全</td>
+<td>放宽范围仅限公开直播间广播频道；不订阅用户私有频道，不影响钱包/主播 WS</td>
+</tr>
+</tbody>
+</table>
+<h2 id="验证记录">验证记录</h2>
+<table>
+<thead>
+<tr>
+<th>命令/方式</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>curl -i https://api-dev.54-151-131-132.sslip.io/api/v1/live/room/22821611455381505/votes/active</code></td>
+<td>返回 JSON 业务 404：<code>code=20002</code></td>
+</tr>
+<tr>
+<td>Node WebSocket 无 token 连接 <code>/ws/v1/live/22821611455381505</code></td>
+<td>可 <code>open</code> 后正常关闭</td>
+</tr>
+<tr>
+<td>Node WebSocket 坏 token 连接线上旧逻辑</td>
+<td>复现握手失败；curl 升级头返回 <code>401</code></td>
+</tr>
+<tr>
+<td><code>go test ./internal/http/wsapi -run 'TestLiveRoomFallsBackToGuestWhenTokenInvalid|TestParseUserID|TestParseClientUserID|TestParseStreamerID' -count=1</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>go test ./internal/http/wsapi ./internal/http/router -count=1</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>go test ./... -count=1</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>go vet ./...</code></td>
+<td>通过</td>
+</tr>
+</tbody>
+</table>
+<h2 id="风险与回滚">风险与回滚</h2>
+<ul>
+<li>风险：过期登录用户会按游客接入旧直播间 WS，不能收到个人频道消息；这是公开频道兜底，优先保证看播不断。</li>
+<li>回滚：恢复 <code>LiveRoom</code> 中 <code>parseUserID</code> 失败即 <code>AbortWithStatus(401)</code> 的逻辑。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#输入资料">输入资料</a></li><li style="margin-left:0.0rem"><a href="#数据链路">数据链路</a></li><li style="margin-left:0.0rem"><a href="#修改文件">修改文件</a></li><li style="margin-left:0.0rem"><a href="#线上排查结论">线上排查结论</a></li><li style="margin-left:0.0rem"><a href="#工程规范">工程规范</a></li><li style="margin-left:0.0rem"><a href="#验证记录">验证记录</a></li><li style="margin-left:0.0rem"><a href="#风险与回滚">风险与回滚</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-06-07</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Go</span><span class="tag">Nginx</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-06-07-live-room-ws-token-f…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606070000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2BNginx-2026-06-07%20live%20room%20WS%20token%20fallback.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>2026-06-07 live room WS token fallback。本文属于业务系统运维 / 小蓝直播，日期：2026-06-07 Agent：Codex 任务：排查 H5 直播间 WebSocket 失败，并修复公开直播间 WS 携带无效 token 时直接断连的问题。 截图现象： GET /api/…</p>
+      <p>关键词：小蓝直播、Go、Nginx、安全运维、故障排查、数据库恢复、业务系统运维、业务系统运维 / 小蓝直播、2026-06-07 live room WS token fallback</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3ac19f47a0d9.html"><small>上一篇</small>2026-06-07 bug 28778 room session history</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-93a1c43eaf4d.html"><small>下一篇</small>ADR-0016： Public API / WebSocket / Worker 进程拆分</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4d3c65726d6b.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
