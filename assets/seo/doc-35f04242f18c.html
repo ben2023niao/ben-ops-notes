@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Agent 工作日志 · admin-data-reset｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="Agent 工作日志 · admin-data-reset。本文属于业务系统运维 / 小蓝直播，日期：2026-06-08 Agent：Codex 任务：后台数据初始化与 2026 世界杯默认数据导入 PRD： docs/prd/modules/kickoff-admin.md （admin 模块等价文档；门禁固…">
+  <meta name="keywords" content="小蓝直播，Linux，Shell，Go，MySQL，监控告警，自动化，安全运维，业务系统运维，业务系统运维 / 小蓝直播，Agent 工作日志 · admin-data-reset">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-35f04242f18c.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-35f04242f18c.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606080000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BLinux%2BShell-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%20%C2%B7%20admin-data-reset.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Agent 工作日志 · admin-data-reset">
+  <meta property="og:description" content="Agent 工作日志 · admin-data-reset。本文属于业务系统运维 / 小蓝直播，日期：2026-06-08 Agent：Codex 任务：后台数据初始化与 2026 世界杯默认数据导入 PRD： docs/prd/modules/kickoff-admin.md （admin 模块等价文档；门禁固…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-35f04242f18c.html">
+  <meta property="article:published_time" content="2026-06-08T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-06-08 00:00">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Agent 工作日志 · admin-data-reset">
+  <meta name="twitter:description" content="Agent 工作日志 · admin-data-reset。本文属于业务系统运维 / 小蓝直播，日期：2026-06-08 Agent：Codex 任务：后台数据初始化与 2026 世界杯默认数据导入 PRD： docs/prd/modules/kickoff-admin.md （admin 模块等价文档；门禁固…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-35f04242f18c.html#article","headline":"Agent 工作日志 · admin-data-reset","description":"Agent 工作日志 · admin-data-reset。本文属于业务系统运维 / 小蓝直播，日期：2026-06-08 Agent：Codex 任务：后台数据初始化与 2026 世界杯默认数据导入 PRD： docs/prd/modules/kickoff-admin.md （admin 模块等价文档；门禁固…","datePublished":"2026-06-08T00:00:00+08:00","dateModified":"2026-06-08 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Linux","Shell","Go","MySQL","监控告警","自动化","安全运维","业务系统运维","业务系统运维 / 小蓝直播","Agent 工作日志 · admin-data-reset"],"wordCount":1722,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-35f04242f18c.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-35f04242f18c.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Agent 工作日志 · admin-data-reset","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-35f04242f18c.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>Agent 工作日志 · admin-data-reset</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>Agent 工作日志 · admin-data-reset</h1>
+      <p class="lede">Agent 工作日志 · admin-data-reset。本文属于业务系统运维 / 小蓝直播，日期：2026-06-08 Agent：Codex 任务：后台数据初始化与 2026 世界杯默认数据导入 PRD： docs/prd/modules/kickoff-admin.md （admin 模块等价文档；门禁固…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-08T00:00:00+08:00">发布于 2026-06-08</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,722 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-06-08-admin-data-reset.md</code></p>
+<p>整理日期：2026-06-08 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>日期：2026-06-08
+Agent：Codex
+任务：后台数据初始化与 2026 世界杯默认数据导入</p>
+<h2 id="输入资料">输入资料</h2>
+<ul>
+<li>PRD：<code>docs/prd/modules/kickoff-admin.md</code>（admin 模块等价文档；门禁固定字符串对应 <code>docs/prd/modules/admin.md</code>）</li>
+<li>需求 ID：ADM-930</li>
+<li>接口/契约：<code>docs/api/openapi.yaml</code>、<code>packages/contracts/openapi/v1.yaml</code></li>
+<li>用户资料：<code>/Users/qx/Downloads/2026世界杯赛程表&amp;参赛国.xlsx</code></li>
+<li>AI/工具控制文件：<code>AGENTS.md</code></li>
+</ul>
+<h2 id="本次目标">本次目标</h2>
+<ol>
+<li>后台提供可复用的数据初始化入口，不需要每次 SSH 到服务器执行脚本。</li>
+<li>支持上传 2026 世界杯赛程 Excel，预览清理范围与导入摘要，再确认执行。</li>
+<li>支持“只重导世界杯默认数据”和“上线前全量清测试数据”两种范围。</li>
+</ol>
+<h2 id="修改文件">修改文件</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>services/go-app/internal/service/admin/data_reset.go</code></td>
+<td>新增 Excel 解析、清理计划、DB 锁、事务执行、审计</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/http/adminapi/data_reset.go</code></td>
+<td>新增 admin multipart 预览/执行接口</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/http/router/admin.go</code></td>
+<td>挂载 super_admin-only 数据初始化路由</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/dto/data_reset.go</code></td>
+<td>新增数据初始化 DTO</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/model/match.go</code></td>
+<td>增加 <code>round_of_32</code> 阶段常量</td>
+</tr>
+<tr>
+<td><code>services/go-app/internal/service/admin/data_reset_test.go</code></td>
+<td>覆盖 Excel 解析和清理范围分层</td>
+</tr>
+<tr>
+<td><code>apps/admin/src/views/system/data-reset.vue</code></td>
+<td>新增后台系统管理数据初始化页面</td>
+</tr>
+<tr>
+<td><code>apps/admin/src/api/modules/data-reset.ts</code></td>
+<td>新增后台 API client</td>
+</tr>
+<tr>
+<td><code>apps/admin/src/router/routes/modules/system.ts</code></td>
+<td>新增系统管理菜单</td>
+</tr>
+<tr>
+<td><code>apps/admin/src/locales/langs/*/dataReset.json</code></td>
+<td>新增页面文案</td>
+</tr>
+<tr>
+<td><code>docs/api/openapi.yaml</code>、<code>packages/contracts/openapi/v1.yaml</code></td>
+<td>新增接口契约和 schema</td>
+</tr>
+<tr>
+<td><code>docs/prd/modules/kickoff-admin.md</code></td>
+<td>新增 ADM-930 需求追踪</td>
+</tr>
+</tbody>
+</table>
+<h2 id="核心决策">核心决策</h2>
+<ol>
+<li><code>worldcup-seed-reset</code> 只清赛事、LSJ、直播间、主播和直播测试数据，不清用户/客服/钱包。</li>
+<li><code>prelaunch-full-reset</code> 在世界杯重导基础上清 C 端用户、客服、钱包、订单、支付回调、风控告警等上线前测试数据。</li>
+<li>淘汰赛未知席位用技术占位球队导入，避免破坏 <code>matches.home_team_id/away_team_id</code> 非空约束；后续运营可替换实际球队。</li>
+<li>执行使用 MySQL <code>GET_LOCK</code> 串行化，并在同一事务中清理和导入；执行写 <code>admin_audit_logs</code>。</li>
+</ol>
+<h2 id="需求追踪">需求追踪</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>需求 ID</td>
+<td>ADM-930</td>
+</tr>
+<tr>
+<td>模块 PRD</td>
+<td><code>docs/prd/modules/kickoff-admin.md</code></td>
+</tr>
+<tr>
+<td>OpenAPI / DTO</td>
+<td><code>adminDataResetPreview</code>、<code>adminDataResetExecute</code></td>
+</tr>
+<tr>
+<td>验收证据行</td>
+<td><code>docs/qa/acceptance-evidence.md</code></td>
+</tr>
+<tr>
+<td>不涉及 migration 的原因</td>
+<td>复用现有 teams / match_groups / matches / match_brackets / live / user / wallet 等表，不新增表</td>
+</tr>
+<tr>
+<td>Admin API ownerService</td>
+<td><code>services/go-app</code></td>
+</tr>
+<tr>
+<td>Admin API contract</td>
+<td><code>packages/contracts/openapi/v1.yaml</code>、<code>docs/api/openapi.yaml</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="工程规范">工程规范</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>是否影响账本、事务、幂等或审计</td>
+<td>影响事务和审计；清理/导入在事务中执行，执行结果写审计</td>
+</tr>
+<tr>
+<td>是否影响数据表 / migration / 索引</td>
+<td>不新增 DDL</td>
+</tr>
+<tr>
+<td>高风险触发项</td>
+<td>用户数据 / 生产发布</td>
+</tr>
+</tbody>
+</table>
+<h2 id="验证记录">验证记录</h2>
+<table>
+<thead>
+<tr>
+<th>命令/方式</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>go test ./internal/service/admin</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>go test ./internal/http/adminapi ./internal/http/router</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>go test ./...</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>pnpm --dir apps/admin typecheck</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>pnpm --dir apps/admin build:stg</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>npm run check:openapi</code></td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>npm run check:contract</code></td>
+<td>通过</td>
+</tr>
+</tbody>
+</table>
+<h2 id="前端页面验收">前端页面验收</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UI 验收模式</td>
+<td>wireframe</td>
+</tr>
+<tr>
+<td>对应设计图</td>
+<td>无独立设计图；后台工具页沿用现有 Vben + Element Plus 表单、表格、提示组件</td>
+</tr>
+<tr>
+<td>目标视口 / 设计尺寸</td>
+<td>桌面后台工作台，主要验收 1440×900；表格和确认区支持宽度收缩换行</td>
+</tr>
+<tr>
+<td>API 接口路径</td>
+<td><code>POST /api/v1/admin/system/data-reset/preview</code>、<code>POST /api/v1/admin/system/data-reset/execute</code></td>
+</tr>
+<tr>
+<td>后台权限与审计</td>
+<td>路由限制 <code>super_admin</code>；执行接口写 <code>admin.data_reset.execute</code> 审计</td>
+</tr>
+<tr>
+<td>构建验证</td>
+<td><code>pnpm --dir apps/admin typecheck</code>、<code>pnpm --dir apps/admin build:stg</code> 均通过</td>
+</tr>
+<tr>
+<td>页面截图</td>
+<td>Playwright 登录 mock 后真实渲染目标页：<code>docs/qa/screenshots/current/admin-data-reset-375x812.png</code>、<code>docs/qa/screenshots/current/admin-data-reset-390x844.png</code>、<code>docs/qa/screenshots/current/admin-data-reset-768x1024.png</code>、<code>docs/qa/screenshots/current/admin-data-reset-1440x900.png</code></td>
+</tr>
+<tr>
+<td>UI 视觉证据 manifest</td>
+<td><code>docs/qa/ui-visual-evidence.json</code></td>
+</tr>
+<tr>
+<td>真实手机视口</td>
+<td>已验证 375x812、390x844；按钮、说明和上传区域换行正常，无明显文本溢出</td>
+</tr>
+<tr>
+<td>平板/桌面视口</td>
+<td>已验证 768x1024、1440x900；后台工具页保持现有 Vben 布局和 Element Plus 控件风格</td>
+</tr>
+<tr>
+<td>占位原因</td>
+<td><code>placeholder_team_count</code> 是 Excel 淘汰赛未知席位（如 A1 / 第 3 名）导入时的占位球队统计字段，不是 mock / scaffold / UI 摆设；占位球队用于满足 <code>matches.home_team_id/away_team_id</code> 非空约束，后续运营可替换真实球队。</td>
+</tr>
+<tr>
+<td>H5/Web 响应式与 SEO异常验证</td>
+<td>本次不修改 <code>apps/web</code>；响应式、SEO异常验证 title / description 不涉及。本次 1440x900 桌面和 375x812 手机视口仅覆盖后台管理页。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="红蓝对抗">红蓝对抗</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>蓝队自检</td>
+<td>ADM-930 已形成后台页面 + <code>services/go-app</code> admin API + OpenAPI 契约 + service 测试闭环；执行入口限制 <code>super_admin</code>，清理导入在事务内完成，并写审计。</td>
+</tr>
+<tr>
+<td>红队质疑</td>
+<td>这是高风险数据操作，误执行会清空测试/预发布环境核心业务数据；Excel 内容如果缺 sheet 或淘汰赛占位异常，直接导入会污染正式默认数据。</td>
+</tr>
+<tr>
+<td>蓝队回应</td>
+<td>页面必须先预览，再输入后端返回的确认短语才能执行；后端校验 <code>.xlsx</code>、sheet、行数据和清理 scope，并在事务里串行执行。正式服执行前仍必须按运维流程做 DB 备份。</td>
+</tr>
+<tr>
+<td>合入判断</td>
+<td>允许合入 dev 验证；正式服只允许在备份完成、Excel 由产品确认后执行。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="风险与待办">风险与待办</h2>
+<ol>
+<li>正式执行前应先做数据库备份；页面已要求预览和确认短语，但不能替代备份。</li>
+<li>Excel 当前淘汰赛场次数与标准 104 场口径不一致时会给 warnings，是否按原样上线由产品/运营确认。</li>
+<li>初始化会清理 live_rooms/streamers，执行后需要重新创建真实主播和直播间。</li>
+</ol>
+<h2 id="线上预览-500-追踪">线上预览 500 追踪</h2>
+<p>时间：2026-06-08
+接口：<code>POST /api/v1/admin/system/data-reset/preview</code></p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>现象</td>
+<td>dev 上传真实 <code>2026世界杯赛程表&amp;参赛国.xlsx</code> 预览返回 <code>code=10001</code>、<code>message=服务器异常</code>。</td>
+</tr>
+<tr>
+<td>数据链路</td>
+<td>admin 页面 multipart 上传 → <code>adminapi.DataResetHandler.Preview</code> → <code>DataResetService.Preview</code> → Excel 解析 → 清理计划行数预览 → 返回预览结果。</td>
+</tr>
+<tr>
+<td>根因 1</td>
+<td>Excel 日期/时间为数字 serial，例如 <code>46185</code> + <code>0.125</code>，旧解析只支持 <code>2026-06-12 03:00</code> 字符串。</td>
+</tr>
+<tr>
+<td>根因 2</td>
+<td>dev 数据库可能存在老结构 <code>reward_prize_details</code>，预览统计 SQL 直接引用 <code>room_id/session_id/user_id/tip_id/granted_at</code> 会触发内部错误。</td>
+</tr>
+<tr>
+<td>修复</td>
+<td>支持 Excel serial 日期/时间；<code>reward_prize_details</code> 清理前按实际列存在性拼接条件和更新字段，兼容老表结构。</td>
+</tr>
+<tr>
+<td>回归测试</td>
+<td><code>go test ./internal/service/admin -count=1</code>、<code>go test ./...</code> 均通过。</td>
+</tr>
+<tr>
+<td>合入判断</td>
+<td>允许合入；属于 ADM-930 数据初始化工具线上兼容修复。</td>
+</tr>
+</tbody>
+</table>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#输入资料">输入资料</a></li><li style="margin-left:0.0rem"><a href="#本次目标">本次目标</a></li><li style="margin-left:0.0rem"><a href="#修改文件">修改文件</a></li><li style="margin-left:0.0rem"><a href="#核心决策">核心决策</a></li><li style="margin-left:0.0rem"><a href="#需求追踪">需求追踪</a></li><li style="margin-left:0.0rem"><a href="#工程规范">工程规范</a></li><li style="margin-left:0.0rem"><a href="#验证记录">验证记录</a></li><li style="margin-left:0.0rem"><a href="#前端页面验收">前端页面验收</a></li><li style="margin-left:0.0rem"><a href="#红蓝对抗">红蓝对抗</a></li><li style="margin-left:0.0rem"><a href="#风险与待办">风险与待办</a></li><li style="margin-left:0.0rem"><a href="#线上预览-500-追踪">线上预览 500 追踪</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-06-08</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Go</span><span class="tag">MySQL</span><span class="tag">监控告警</span><span class="tag">自动化</span><span class="tag">安全运维</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-06-08-admin-data-reset.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606080000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BLinux%2BShell-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%20%C2%B7%20admin-data-reset.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Agent 工作日志 · admin-data-reset。本文属于业务系统运维 / 小蓝直播，日期：2026-06-08 Agent：Codex 任务：后台数据初始化与 2026 世界杯默认数据导入 PRD： docs/prd/modules/kickoff-admin.md （admin 模块等价文档；门禁固…</p>
+      <p>关键词：小蓝直播、Linux、Shell、Go、MySQL、监控告警、自动化、安全运维、业务系统运维、业务系统运维 / 小蓝直播、Agent 工作日志 · admin-data-reset</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7841781a70cd.html"><small>上一篇</small>Agent Log - Streamer Mixed Stream Contract</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8e6143ba8583.html"><small>下一篇</small>Agent 工作日志 · admin-match-stage-label</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-35f04242f18c.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
