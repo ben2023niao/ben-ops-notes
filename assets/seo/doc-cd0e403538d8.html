@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Agent 接入引导卡重做 Implementation Plan｜业务系统运维 / GHOME｜BEN.OPS</title>
+  <meta name="description" content="Agent 接入引导卡重做 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or su…">
+  <meta name="keywords" content="GHOME，Shell，Docker，安全运维，故障排查，业务系统运维，业务系统运维 / GHOME，Agent 接入引导卡重做 Implementation Plan">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cd0e403538d8.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cd0e403538d8.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606100000-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BShell-Agent%20%E6%8E%A5%E5%85%A5%E5%BC%95%E5%AF%BC%E5%8D%A1%E9%87%8D%E5%81%9A%20Implementation%20Plan.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Agent 接入引导卡重做 Implementation Plan">
+  <meta property="og:description" content="Agent 接入引导卡重做 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or su…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cd0e403538d8.html">
+  <meta property="article:published_time" content="2026-06-10T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-06-10 00:00">
+  <meta property="article:section" content="业务系统运维 / GHOME">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Agent 接入引导卡重做 Implementation Plan">
+  <meta name="twitter:description" content="Agent 接入引导卡重做 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or su…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cd0e403538d8.html#article","headline":"Agent 接入引导卡重做 Implementation Plan","description":"Agent 接入引导卡重做 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or su…","datePublished":"2026-06-10T00:00:00+08:00","dateModified":"2026-06-10 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","GHOME"],"keywords":["GHOME","Shell","Docker","安全运维","故障排查","业务系统运维","业务系统运维 / GHOME","Agent 接入引导卡重做 Implementation Plan"],"wordCount":3043,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cd0e403538d8.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cd0e403538d8.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / GHOME","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Agent 接入引导卡重做 Implementation Plan","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cd0e403538d8.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / GHOME</span> › <span>Agent 接入引导卡重做 Implementation Plan</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / GHOME</div>
+      <h1>Agent 接入引导卡重做 Implementation Plan</h1>
+      <p class="lede">Agent 接入引导卡重做 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or su…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-10T00:00:00+08:00">发布于 2026-06-10</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">3,043 字</span>
+        <span class="badge">9 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/ghome/docs/superpowers/plans/2026-06-10-agent-onboarding-card-redesign.md</code></p>
+<p>整理日期：2026-06-10 00:00｜日期依据：文件名日期</p>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 把运营后台 <code>/agent-clients</code> 简陋的"配对通道"卡片重做成「可复制话术 + 三步引导 + 内联输码」的接入引导卡,不改配对的信任模型与后端逻辑。</p>
+<p><strong>Architecture:</strong> 纯前端/文案改动。<code>page.tsx</code> 服务端组件计算数据并渲染三状态引导卡;新增两个小客户端组件(复制按钮、可折叠容器);把独立的 <code>/agent-clients/pair</code> 输码页内联进卡片并删除;<code>confirmPairingAction</code> 失败分支改为回跳列表页透出错误;同步 <code>pair.md</code> 的 Agent 侧步骤文案。后端、Prisma、scopes、token、<code>confirmPairingCode</code> 均不动。</p>
+<p><strong>Tech Stack:</strong> Next.js 15(App Router,Server Components + Server Actions)、React 19、TypeScript、Playwright(e2e)。</p>
+<p>设计文档:<code>docs/superpowers/specs/2026-06-10-agent-onboarding-card-redesign-design.md</code></p>
+<hr/>
+<h2 id="文件结构">文件结构</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>责任</th>
+<th>改动</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apps/admin/components/CopyButton.tsx</code></td>
+<td>复制任意文本 + "已复制"反馈的客户端按钮</td>
+<td>新建</td>
+</tr>
+<tr>
+<td><code>apps/admin/components/CollapsibleCard.tsx</code></td>
+<td>默认展开、可手动收起的客户端容器</td>
+<td>新建</td>
+</tr>
+<tr>
+<td><code>apps/admin/app/(admin)/agent-clients/actions.ts</code></td>
+<td><code>confirmPairingAction</code> 失败回跳改为 <code>/agent-clients?pairError=…</code></td>
+<td>改</td>
+</tr>
+<tr>
+<td><code>apps/admin/app/(admin)/agent-clients/page.tsx</code></td>
+<td>三状态引导卡:话术+复制、②提示、③内联输码、错误条、通道开关收编、折叠;表格不变</td>
+<td>重写</td>
+</tr>
+<tr>
+<td><code>apps/admin/app/(admin)/agent-clients/pair/page.tsx</code></td>
+<td>输码内联后冗余</td>
+<td>删除</td>
+</tr>
+<tr>
+<td><code>apps/admin/lib/agent-api/pairing-skill-md.ts</code></td>
+<td><code>renderPairingSkillMd</code> 步骤文案对齐内联后 UI</td>
+<td>改</td>
+</tr>
+<tr>
+<td><code>apps/admin/e2e/agent-clients.spec.ts</code></td>
+<td>配对流程走列表页内联输码 + 复制按钮断言</td>
+<td>改</td>
+</tr>
+</tbody>
+</table>
+<p><strong>验证说明:</strong> 每个任务用 <code>pnpm --filter @ghome/admin typecheck</code> 做快速门禁(宿主机需 Node 20 + pnpm 9;或用 <code>docker compose run --rm admin pnpm typecheck</code>)。e2e 需起全栈(<code>docker compose up -d</code>),集中在最后一个任务跑。本特性是 UI/文案改动,集成正确性由 e2e 保证,无需新增后端单测。</p>
+<hr/>
+<h3 id="Task-1-CopyButton-客户端组件">Task 1: CopyButton 客户端组件</h3>
+<p><strong>Files:</strong>
+- Create: <code>apps/admin/components/CopyButton.tsx</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 创建组件</strong></li>
+</ul>
+<p>参照同目录 <code>TokenRevealBanner.tsx</code> 的 <code>navigator.clipboard</code> 用法。</p>
+<pre><code class="language-tsx">"use client";
+
+import { useState } from "react";
+
+export function CopyButton({
+  text,
+  label = "复制",
+  copiedLabel = "已复制",
+}: {
+  text: string;
+  label?: string;
+  copiedLabel?: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  return (
+    &lt;button
+      type="button"
+      className="btn-secondary"
+      style={{ whiteSpace: "nowrap" }}
+      onClick={() =&gt; {
+        navigator.clipboard.writeText(text).then(() =&gt; setCopied(true));
+      }}
+    &gt;
+      {copied ? copiedLabel : label}
+    &lt;/button&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 类型检查</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin typecheck</code>
+Expected: PASS(无类型错误)</p>
+<ul>
+<li>[ ] <strong>Step 3: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/components/CopyButton.tsx
+git commit -m "feat(admin): 新增 CopyButton 复制按钮组件"
+</code></pre>
+<hr/>
+<h3 id="Task-2-CollapsibleCard-客户端组件">Task 2: CollapsibleCard 客户端组件</h3>
+<p><strong>Files:</strong>
+- Create: <code>apps/admin/components/CollapsibleCard.tsx</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 创建组件</strong></li>
+</ul>
+<p>默认展开;收起后只剩一个切换按钮(显示 <code>closedLabel</code>)。折叠态不持久化。</p>
+<pre><code class="language-tsx">"use client";
+
+import { useState, type ReactNode } from "react";
+
+export function CollapsibleCard({
+  children,
+  defaultOpen = true,
+  openLabel = "收起",
+  closedLabel = "展开",
+}: {
+  children: ReactNode;
+  defaultOpen?: boolean;
+  openLabel?: string;
+  closedLabel?: string;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    &lt;div&gt;
+      &lt;button
+        type="button"
+        className="btn-secondary"
+        style={{ marginBottom: open ? 16 : 0 }}
+        onClick={() =&gt; setOpen((v) =&gt; !v)}
+      &gt;
+        {open ? openLabel : closedLabel}
+      &lt;/button&gt;
+      {open &amp;&amp; children}
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 类型检查</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin typecheck</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 3: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/components/CollapsibleCard.tsx
+git commit -m "feat(admin): 新增 CollapsibleCard 可折叠容器组件"
+</code></pre>
+<hr/>
+<h3 id="Task-3-confirmPairingAction-失败回跳改到列表页">Task 3: confirmPairingAction 失败回跳改到列表页</h3>
+<p><strong>Files:</strong>
+- Modify: <code>apps/admin/app/(admin)/agent-clients/actions.ts</code></p>
+<p>输码内联进列表卡片后,错误要回到 <code>/agent-clients</code>(用 <code>pairError</code> 参数),不再回到即将删除的 <code>/pair</code> 页。成功分支(跳 <code>edit?token</code>)不变。</p>
+<ul>
+<li>[ ] <strong>Step 1: 改两处失败 redirect</strong></li>
+</ul>
+<p>找到 <code>confirmPairingAction</code> 函数体,把:</p>
+<pre><code class="language-ts">  if (!code) redirect("/agent-clients/pair?error=invalid_request");
+  const res = await confirmPairingCode(code, me, name);
+  if (!res.ok) redirect(`/agent-clients/pair?error=${res.code}`);
+</code></pre>
+<p>改为:</p>
+<pre><code class="language-ts">  if (!code) redirect("/agent-clients?pairError=invalid_request");
+  const res = await confirmPairingCode(code, me, name);
+  if (!res.ok) redirect(`/agent-clients?pairError=${res.code}`);
+</code></pre>
+<p>该函数其余部分(成功后 <code>logAuditAction</code> 与 <code>redirect(\</code>/agent-clients/${res.client.id}/edit?敏感凭据：[已脱敏]</p>
+<ul>
+<li>[ ] <strong>Step 2: 类型检查</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin typecheck</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 3: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/app/\(admin\)/agent-clients/actions.ts
+git commit -m "refactor(admin): 配对失败回跳列表页(为内联输码做准备)"
+</code></pre>
+<hr/>
+<h3 id="Task-4-重写引导卡-page-tsx">Task 4: 重写引导卡 page.tsx</h3>
+<p><strong>Files:</strong>
+- Modify(整文件重写): <code>apps/admin/app/(admin)/agent-clients/page.tsx</code></p>
+<p>三状态:通道关 → 开启 CTA;通道开+无 Agent → 引导卡展开;通道开+有 Agent → 引导卡裹进 <code>CollapsibleCard</code>。话术内嵌 <code>pairUrl</code>;③ 输码表单 <code>action={confirmPairingAction}</code>;错误条读 <code>searchParams.pairError</code>。下方客户端表格保持现状。</p>
+<ul>
+<li>[ ] <strong>Step 1: 用以下完整内容替换整个文件</strong></li>
+</ul>
+<pre><code class="language-tsx">import { headers } from "next/headers";
+import Link from "next/link";
+import { listAgentClients } from "@/lib/agent-clients-db";
+import { isPairingEnabled } from "@/lib/agent-pairing-db";
+import { setPairingChannelAction, confirmPairingAction, rotateAction } from "./actions";
+import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
+import { CopyButton } from "@/components/CopyButton";
+import { CollapsibleCard } from "@/components/CollapsibleCard";
+
+export const dynamic = "force-dynamic";
+
+const PAIR_PATH = "/agent/pair.md";
+
+const PAIR_ERRORS: Record&lt;string, string&gt; = {
+  invalid_request: "请填写配对码。",
+  invalid_code: "配对码无效(不存在)。请让 Agent 重新读取获取新码。",
+  code_used: "该配对码已被使用。请让 Agent 重新读取获取新码。",
+  code_expired: "该配对码已过期(30 分钟有效)。请让 Agent 重新读取获取新码。",
+  pairing_disabled: "公开配对通道当前已关闭,无法完成配对。",
+};
+
+function buildSnippet(pairUrl: string): string {
+  return `这是我想让你接入的内容站。阅读 ${pairUrl} 并按页面说明完成配对,然后把拿到的 8 位配对码发给我。如果遇到安全风险,请与我逐一确认。`;
+}
+
+export default async function AgentClientsPage({
+  searchParams,
+}: {
+  searchParams: Promise&lt;{ pairError?: string }&gt;;
+}) {
+  const [{ pairError }, clients, pairingEnabled, h] = await Promise.all([
+    searchParams,
+    listAgentClients(),
+    isPairingEnabled(),
+    headers(),
+  ]);
+  // 部署可用 ADMIN_BASE_URL 覆盖;否则按当前访问的 host 实时拼出完整可达 URL。
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  const proto = h.get("x-forwarded-proto") ?? "http";
+  const base = process.env.ADMIN_BASE_URL ?? (host ? `${proto}://${host}` : "");
+  const pairUrl = base + PAIR_PATH;
+  const snippet = buildSnippet(pairUrl);
+  const enableBound = setPairingChannelAction.bind(null, true);
+  const disableBound = setPairingChannelAction.bind(null, false);
+  const errorMsg = pairError ? (PAIR_ERRORS[pairError] ?? "配对失败,请重试。") : null;
+
+  const guideBody = (
+    &lt;&gt;
+      {errorMsg &amp;&amp; (
+        &lt;div
+          className="dash-section"
+          style={{ borderColor: "var(--danger, #c0392b)", color: "var(--danger, #c0392b)", marginBottom: 16 }}
+        &gt;
+          {errorMsg}
+        &lt;/div&gt;
+      )}
+
+      &lt;div style={{ marginBottom: 18 }}&gt;
+        &lt;div style={{ fontSize: 12, color: "var(--text-3)", letterSpacing: "0.04em", marginBottom: 8 }}&gt;
+          ① 把这段发给你的 Agent
+        &lt;/div&gt;
+        &lt;div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}&gt;
+          &lt;div
+            style={{
+              flex: 1,
+              border: "1px solid var(--border, #e2e2e2)",
+              borderRadius: 8,
+              padding: "12px 14px",
+              fontSize: 13,
+              lineHeight: 1.7,
+              background: "var(--bg-2, #fafafa)",
+            }}
+          &gt;
+            {snippet}
+          &lt;/div&gt;
+          &lt;CopyButton text={snippet} /&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 18 }}&gt;
+        ② Agent 读取后会返回一串 &lt;strong&gt;8 位配对码&lt;/strong&gt;。
+      &lt;/div&gt;
+
+      &lt;div&gt;
+        &lt;div style={{ fontSize: 12, color: "var(--text-3)", letterSpacing: "0.04em", marginBottom: 8 }}&gt;
+          ③ 把配对码填到这里完成接入
+        &lt;/div&gt;
+        &lt;form action={confirmPairingAction} style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}&gt;
+          &lt;input
+            name="code"
+            required
+            autoComplete="off"
+            className="form-input"
+            placeholder="8 位配对码"
+            style={{ width: 160, letterSpacing: "0.15em" }}
+          /&gt;
+          &lt;input name="name" className="form-input" placeholder="Agent 名称(可选)" style={{ width: 200 }} /&gt;
+          &lt;button type="submit" className="btn-primary"&gt;校验并接入&lt;/button&gt;
+        &lt;/form&gt;
+        &lt;div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 8 }}&gt;
+          校验通过后,本页会一次性显示该 Agent 的 token。
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/&gt;
+  );
+
+  return (
+    &lt;&gt;
+      &lt;div className="page-header"&gt;
+        &lt;h1&gt;Agent 接入&lt;/h1&gt;
+      &lt;/div&gt;
+
+      &lt;div className="dash-section" style={{ marginBottom: 16 }}&gt;
+        &lt;div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}&gt;
+          &lt;h2 style={{ marginTop: 0 }}&gt;接入一个 AI Agent&lt;/h2&gt;
+          &lt;span style={{ fontSize: 13 }}&gt;
+            {pairingEnabled ? (
+              &lt;span style={{ color: "#16a34a" }}&gt;● 公开通道已开启&lt;/span&gt;
+            ) : (
+              &lt;span style={{ color: "var(--text-3)" }}&gt;○ 公开通道未开启&lt;/span&gt;
+            )}
+            {"　"}
+            &lt;Link href="/agent-clients/pairing-codes" style={{ color: "var(--primary)" }}&gt;
+              配对码日志
+            &lt;/Link&gt;
+          &lt;/span&gt;
+        &lt;/div&gt;
+
+        {pairingEnabled ? (
+          &lt;&gt;
+            &lt;p style={{ color: "var(--text-2)", marginTop: 4 }}&gt;
+              Agent 自助读取配对页,你在第 ③ 步输码确认即可接入。
+            &lt;/p&gt;
+            &lt;form action={disableBound} style={{ marginBottom: 16 }}&gt;
+              &lt;button type="submit" className="btn-secondary"&gt;关闭通道&lt;/button&gt;
+            &lt;/form&gt;
+            {clients.length === 0 ? (
+              guideBody
+            ) : (
+              &lt;CollapsibleCard defaultOpen openLabel="收起" closedLabel="+ 接入新 Agent"&gt;
+                {guideBody}
+              &lt;/CollapsibleCard&gt;
+            )}
+          &lt;/&gt;
+        ) : (
+          &lt;&gt;
+            &lt;p style={{ color: "var(--text-2)", marginTop: 4 }}&gt;
+              公开自助配对通道未开启,开启后即可把配对话术发给 Agent。
+            &lt;/p&gt;
+            &lt;form action={enableBound}&gt;
+              &lt;button type="submit" className="btn-primary"&gt;开启通道&lt;/button&gt;
+            &lt;/form&gt;
+          &lt;/&gt;
+        )}
+      &lt;/div&gt;
+
+      &lt;div className="dash-section" style={{ padding: 0, overflow: "hidden" }}&gt;
+        &lt;table className="dash-table"&gt;
+          &lt;thead&gt;
+            &lt;tr&gt;
+              &lt;th&gt;名称&lt;/th&gt;
+              &lt;th&gt;来源&lt;/th&gt;
+              &lt;th&gt;Token 前缀&lt;/th&gt;
+              &lt;th&gt;Scopes&lt;/th&gt;
+              &lt;th&gt;状态&lt;/th&gt;
+              &lt;th&gt;最近使用&lt;/th&gt;
+              &lt;th&gt;过期&lt;/th&gt;
+              &lt;th /&gt;
+            &lt;/tr&gt;
+          &lt;/thead&gt;
+          &lt;tbody&gt;
+            {clients.length === 0 ? (
+              &lt;tr&gt;
+                &lt;td colSpan={8} style={{ textAlign: "center", color: "var(--text-3)" }}&gt;
+                  暂无数据
+                &lt;/td&gt;
+              &lt;/tr&gt;
+            ) : (
+              clients.map((c) =&gt; (
+                &lt;tr key={c.id}&gt;
+                  &lt;td&gt;{c.name}&lt;/td&gt;
+                  &lt;td&gt;{c.origin === "self-paired" ? "自助" : "管理员"}&lt;/td&gt;
+                  &lt;td&gt;&lt;code&gt;{c.tokenPrefix}…&lt;/code&gt;&lt;/td&gt;
+                  &lt;td&gt;{c.scopes.join(", ") || "—"}&lt;/td&gt;
+                  &lt;td&gt;{c.disabled ? "已停用" : "启用"}&lt;/td&gt;
+                  &lt;td&gt;{c.lastUsedAt ? c.lastUsedAt.toISOString().slice(0, 16).replace("T", " ") : "—"}&lt;/td&gt;
+                  &lt;td&gt;{c.expiresAt ? c.expiresAt.toISOString().slice(0, 10) : "—"}&lt;/td&gt;
+                  &lt;td&gt;
+                    &lt;Link href={`/agent-clients/${c.id}/edit`} style={{ color: "var(--primary)" }}&gt;
+                      编辑
+                    &lt;/Link&gt;
+                    {"　"}
+                    &lt;form action={rotateAction.bind(null, c.id)} style={{ display: "inline" }}&gt;
+                      &lt;ConfirmSubmitButton
+                        confirm={`轮换会立即作废 ${c.name} 当前 token,确定?`}
+                        style={{ background: "none", border: "none", padding: 0, color: "var(--primary)", cursor: "pointer" }}
+                      &gt;
+                        轮换
+                      &lt;/ConfirmSubmitButton&gt;
+                    &lt;/form&gt;
+                  &lt;/td&gt;
+                &lt;/tr&gt;
+              ))
+            )}
+          &lt;/tbody&gt;
+        &lt;/table&gt;
+      &lt;/div&gt;
+    &lt;/&gt;
+  );
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 类型检查 + 构建</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin typecheck &amp;&amp; pnpm --filter @ghome/admin build</code>
+Expected: typecheck PASS;build 成功(无 "use client"/server action 边界报错)</p>
+<ul>
+<li>[ ] <strong>Step 3: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/app/\(admin\)/agent-clients/page.tsx
+git commit -m "feat(admin): 重做 Agent 接入引导卡(话术+三步+内联输码)"
+</code></pre>
+<hr/>
+<h3 id="Task-5-删除冗余的独立输码页">Task 5: 删除冗余的独立输码页</h3>
+<p><strong>Files:</strong>
+- Delete: <code>apps/admin/app/(admin)/agent-clients/pair/page.tsx</code></p>
+<p>输码已内联进列表卡,<code>/agent-clients/pair</code> 路由不再被任何处链接(Task 4 已移除入口),且 <code>confirmPairingAction</code> 不再回跳它(Task 3)。</p>
+<ul>
+<li>[ ] <strong>Step 1: 删除文件</strong></li>
+</ul>
+<pre><code class="language-bash">git rm apps/admin/app/\(admin\)/agent-clients/pair/page.tsx
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 确认无悬挂引用 + 构建</strong></li>
+</ul>
+<p>Run: <code>grep -rn "agent-clients/pair" apps/admin/app apps/admin/lib apps/admin/components</code>
+Expected: 无任何结果(注意:<code>pairing-codes</code> 是另一个路由,不受影响;<code>pair.md</code> 文案在 Task 6 处理)</p>
+<p>Run: <code>pnpm --filter @ghome/admin build</code>
+Expected: 构建成功</p>
+<ul>
+<li>[ ] <strong>Step 3: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add -A apps/admin/app/\(admin\)/agent-clients
+git commit -m "refactor(admin): 删除内联后冗余的独立配对输码页"
+</code></pre>
+<hr/>
+<h3 id="Task-6-同步-pair-md-的-Agent-侧步骤文案">Task 6: 同步 pair.md 的 Agent 侧步骤文案</h3>
+<p><strong>Files:</strong>
+- Modify: <code>apps/admin/lib/agent-api/pairing-skill-md.ts</code></p>
+<p>内联后已无独立「输入配对码」按钮,Agent 文档里给 owner 的步骤要对齐新 UI。</p>
+<ul>
+<li>[ ] <strong>Step 1: 改 <code>renderPairingSkillMd</code> 的步骤 2、3</strong></li>
+</ul>
+<p>把:</p>
+<pre><code class="language-ts">    "2. 顶部导航进入「Agent 接入」→ 点「输入配对码」",
+    "3. 填入这串配对码(可选填一个 Agent 名称)并提交",
+</code></pre>
+<p>改为:</p>
+<pre><code class="language-ts">    "2. 顶部导航进入「Agent 接入」",
+    "3. 在「接入一个 AI Agent」卡片第 ③ 步填入这串配对码(可选填一个 Agent 名称)并提交",
+</code></pre>
+<p>其余行(1、4、5 及前后文)保持不变。</p>
+<ul>
+<li>[ ] <strong>Step 2: 类型检查</strong></li>
+</ul>
+<p>Run: <code>pnpm --filter @ghome/admin typecheck</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 3: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/lib/agent-api/pairing-skill-md.ts
+git commit -m "docs(admin): pair.md 步骤文案对齐内联输码 UI"
+</code></pre>
+<hr/>
+<h3 id="Task-7-更新-e2e-走内联输码流程">Task 7: 更新 e2e 走内联输码流程</h3>
+<p><strong>Files:</strong>
+- Modify: <code>apps/admin/e2e/agent-clients.spec.ts</code></p>
+<p>现有用例跳 <code>/agent-clients/pair</code> 并点「校验并完成配对」、失败回 <code>/pair?error=</code>。改为在 <code>/agent-clients</code> 列表页内联输码、按钮「校验并接入」、失败回 <code>/agent-clients?pairError=</code>,并加一条"复制话术按钮存在"的断言。</p>
+<ul>
+<li>[ ] <strong>Step 1: 改 owner 确认段(原 36–40 行)</strong></li>
+</ul>
+<p>把:</p>
+<pre><code class="language-ts">  // 4. owner confirms in Admin (logged-in)
+  await page.goto(`${BASE}/agent-clients/pair`);
+  await page.locator('input[name="code"]').fill(code);
+  await page.locator('input[name="name"]').fill(agentName);
+  await page.getByRole("button", { name: "校验并完成配对" }).click();
+</code></pre>
+<p>改为:</p>
+<pre><code class="language-ts">  // 4. owner confirms in Admin — 列表页内联输码卡
+  await page.goto(`${BASE}/agent-clients`);
+  await expect(page.getByRole("button", { name: "复制" })).toBeVisible();
+  await page.locator('input[name="code"]').fill(code);
+  await page.locator('input[name="name"]').fill(agentName);
+  await page.getByRole("button", { name: "校验并接入" }).click();
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: 改"重用旧码失败"段(原 53–57 行)</strong></li>
+</ul>
+<p>把:</p>
+<pre><code class="language-ts">  // 7. reusing the same code now fails (friendly error on the confirm page)
+  await page.goto(`${BASE}/agent-clients/pair`);
+  await page.locator('input[name="code"]').fill(code);
+  await page.getByRole("button", { name: "校验并完成配对" }).click();
+  await page.waitForURL(/\/agent-clients\/pair\?error=code_used/);
+</code></pre>
+<p>改为:</p>
+<pre><code class="language-ts">  // 7. reusing the same code now fails (friendly error on the list card)
+  await page.goto(`${BASE}/agent-clients`);
+  await page.locator('input[name="code"]').fill(code);
+  await page.getByRole("button", { name: "校验并接入" }).click();
+  await page.waitForURL(/\/agent-clients\?pairError=code_used/);
+  await expect(page.getByText("该配对码已被使用。请让 Agent 重新读取获取新码。")).toBeVisible();
+</code></pre>
+<p>其余段(登录、开/关通道、读 pair.md 取码、token 调 API、列表行轮换)保持不变。</p>
+<ul>
+<li>[ ] <strong>Step 3: 起全栈并跑该 e2e</strong></li>
+</ul>
+<p>Run:</p>
+<pre><code class="language-bash">docker compose up -d
+pnpm --filter @ghome/admin e2e -- agent-clients.spec.ts
+</code></pre>
+<p>Expected: 该 spec 全绿(配对→token 可用→重用旧码报错并透出中文→轮换→关闭通道)</p>
+<ul>
+<li>[ ] <strong>Step 4: 提交</strong></li>
+</ul>
+<pre><code class="language-bash">git add apps/admin/e2e/agent-clients.spec.ts
+git commit -m "test(admin): e2e 配对流程改走列表页内联输码"
+</code></pre>
+<hr/>
+<h2 id="完成判定">完成判定</h2>
+<ul>
+<li><code>/agent-clients</code> 顶部为引导卡,含可一键复制、内嵌正确 <code>pairUrl</code> 的话术。</li>
+<li>输码在卡内就地完成;<code>/agent-clients/pair</code> 路由已删除且无悬挂引用。</li>
+<li>通道开/关、配对码日志入口在卡片内,行为与现状等价。</li>
+<li>三状态(通道关 / 通道开无 Agent / 通道开有 Agent)渲染正确。</li>
+<li><code>pair.md</code> 的 owner 步骤文案与新 UI 一致。</li>
+<li>e2e <code>agent-clients.spec.ts</code> 全绿,既有配对/发 token 行为不变。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#文件结构">文件结构</a></li><li style="margin-left:0.8rem"><a href="#Task-1-CopyButton-客户端组件">Task 1: CopyButton 客户端组件</a></li><li style="margin-left:0.8rem"><a href="#Task-2-CollapsibleCard-客户端组件">Task 2: CollapsibleCard 客户端组件</a></li><li style="margin-left:0.8rem"><a href="#Task-3-confirmPairingAction-失败回跳改到列表页">Task 3: confirmPairingAction 失败回跳改到列表页</a></li><li style="margin-left:0.8rem"><a href="#Task-4-重写引导卡-page-tsx">Task 4: 重写引导卡 page.tsx</a></li><li style="margin-left:0.8rem"><a href="#Task-5-删除冗余的独立输码页">Task 5: 删除冗余的独立输码页</a></li><li style="margin-left:0.8rem"><a href="#Task-6-同步-pair-md-的-Agent-侧步骤文案">Task 6: 同步 pair.md 的 Agent 侧步骤文案</a></li><li style="margin-left:0.8rem"><a href="#Task-7-更新-e2e-走内联输码流程">Task 7: 更新 e2e 走内联输码流程</a></li><li style="margin-left:0.0rem"><a href="#完成判定">完成判定</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / GHOME</li>
+          <li>日期：2026-06-10</li>
+          <li>标签：<span class="tag">GHOME</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">安全运维</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/ghome/docs/superpowers/plans/2026-06-10-agent-onboarding-card-redesi…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606100000-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BShell-Agent%20%E6%8E%A5%E5%85%A5%E5%BC%95%E5%AF%BC%E5%8D%A1%E9%87%8D%E5%81%9A%20Implementation%20Plan.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Agent 接入引导卡重做 Implementation Plan。本文属于业务系统运维 / GHOME，For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or su…</p>
+      <p>关键词：GHOME、Shell、Docker、安全运维、故障排查、业务系统运维、业务系统运维 / GHOME、Agent 接入引导卡重做 Implementation Plan</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-52b17498e7cc.html"><small>上一篇</small>Agent 工作日志 · web-live-sentry-release</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f7d9ecadb623.html"><small>下一篇</small>Agent 接入引导卡重做 — 设计</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cd0e403538d8.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

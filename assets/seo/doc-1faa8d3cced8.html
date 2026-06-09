@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>主播端 LSJ + ZEGO 云播放器接入说明｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="主播端 LSJ + ZEGO 云播放器接入说明。本文属于业务系统运维 / 小蓝直播，关联需求：LIVE-101 适用端：主播端 Web、C 端 Web、Go 后端 C 端不拉 match_stream_id ，也不拉独立的新混流 ID；整场直播播放 ID 保持 start.stream_no 。主播端的核心动作是…">
+  <meta name="keywords" content="小蓝直播，Shell，Go，监控告警，安全运维，源码与配置，业务系统运维，业务系统运维 / 小蓝直播，主播端 LSJ + ZEGO 云播放器接入说明">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1faa8d3cced8.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1faa8d3cced8.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606100047-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-%E4%B8%BB%E6%92%AD%E7%AB%AF%20LSJ%20%2B%20ZEGO%20%E4%BA%91%E6%92%AD%E6%94%BE%E5%99%A8%E6%8E%A5%E5%85%A5%E8%AF%B4%E6%98%8E.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="主播端 LSJ + ZEGO 云播放器接入说明">
+  <meta property="og:description" content="主播端 LSJ + ZEGO 云播放器接入说明。本文属于业务系统运维 / 小蓝直播，关联需求：LIVE-101 适用端：主播端 Web、C 端 Web、Go 后端 C 端不拉 match_stream_id ，也不拉独立的新混流 ID；整场直播播放 ID 保持 start.stream_no 。主播端的核心动作是…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1faa8d3cced8.html">
+  <meta property="article:published_time" content="2026-06-10T00:47:20.249805+08:00">
+  <meta property="article:modified_time" content="2026-06-10 00:47">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="主播端 LSJ + ZEGO 云播放器接入说明">
+  <meta name="twitter:description" content="主播端 LSJ + ZEGO 云播放器接入说明。本文属于业务系统运维 / 小蓝直播，关联需求：LIVE-101 适用端：主播端 Web、C 端 Web、Go 后端 C 端不拉 match_stream_id ，也不拉独立的新混流 ID；整场直播播放 ID 保持 start.stream_no 。主播端的核心动作是…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1faa8d3cced8.html#article","headline":"主播端 LSJ + ZEGO 云播放器接入说明","description":"主播端 LSJ + ZEGO 云播放器接入说明。本文属于业务系统运维 / 小蓝直播，关联需求：LIVE-101 适用端：主播端 Web、C 端 Web、Go 后端 C 端不拉 match_stream_id ，也不拉独立的新混流 ID；整场直播播放 ID 保持 start.stream_no 。主播端的核心动作是…","datePublished":"2026-06-10T00:47:20.249805+08:00","dateModified":"2026-06-10 00:47","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Shell","Go","监控告警","安全运维","源码与配置","业务系统运维","业务系统运维 / 小蓝直播","主播端 LSJ + ZEGO 云播放器接入说明"],"wordCount":1742,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1faa8d3cced8.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1faa8d3cced8.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"主播端 LSJ + ZEGO 云播放器接入说明","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1faa8d3cced8.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>主播端 LSJ + ZEGO 云播放器接入说明</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>主播端 LSJ + ZEGO 云播放器接入说明</h1>
+      <p class="lede">主播端 LSJ + ZEGO 云播放器接入说明。本文属于业务系统运维 / 小蓝直播，关联需求：LIVE-101 适用端：主播端 Web、C 端 Web、Go 后端 C 端不拉 match_stream_id ，也不拉独立的新混流 ID；整场直播播放 ID 保持 start.stream_no 。主播端的核心动作是…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-10T00:47:20.249805+08:00">发布于 2026-06-10</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,742 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/api/streamer-lsj-zego-cloud-player.md</code></p>
+<p>整理日期：2026-06-10 00:47｜日期依据：文件创建/修改时间</p>
+</blockquote>
+<p>关联需求：LIVE-101
+适用端：主播端 Web、C 端 Web、Go 后端</p>
+<h2 id="目标链路">目标链路</h2>
+<pre><code class="language-text">LSJ 比赛源
+  -&gt; Go 后端调用 LSJ play 获取 m3u8
+  -&gt; Go 后端调用 ZEGO 云播放器 CreatePlayer
+  -&gt; ZEGO 云播放器推比赛流 match_stream_id 到 ZEGO 房间
+
+主播端 Web
+  -&gt; 拉 match_stream_id 预览比赛源
+  -&gt; 推主播摄像头/麦克风 host_stream_id(start.stream_no)
+  -&gt; 使用 ZEGO Web SDK 混流 match_stream_id + host_stream_id
+  -&gt; 输出到 mixed_stream_id(推荐复用 start.stream_no)
+
+C 端 Web
+  -&gt; 始终只拉 start.stream_no,不因混流切换 stream_id
+</code></pre>
+<h2 id="三条-ZEGO-流">三条 ZEGO 流</h2>
+<table>
+<thead>
+<tr>
+<th>流</th>
+<th>生产方</th>
+<th>消费方</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>match_stream_id</code></td>
+<td>ZEGO 云播放器</td>
+<td>主播端 Web</td>
+<td>比赛源预览、混流输入</td>
+</tr>
+<tr>
+<td><code>host_stream_id</code></td>
+<td>主播端 Web</td>
+<td>ZEGO 混流任务</td>
+<td>主播摄像头、麦克风、解说；必须等于 <code>start.stream_no</code></td>
+</tr>
+<tr>
+<td><code>mixed_stream_id</code></td>
+<td>ZEGO 混流任务</td>
+<td>C 端 Web</td>
+<td>混流输出流；推荐复用 <code>start.stream_no</code> 保证 C 端不切流</td>
+</tr>
+</tbody>
+</table>
+<p>C 端不拉 <code>match_stream_id</code>，也不拉独立的新混流 ID；整场直播播放 ID 保持 <code>start.stream_no</code>。主播端的核心动作是预览比赛源、推自己的流、发起混流并回写混流状态。</p>
+<h2 id="后台运营流程">后台运营流程</h2>
+<p>LSJ 是当前唯一赛事源。后台不允许手填 m3u8 地址，必须保存 LSJ 线路标识：</p>
+<pre><code class="language-text">app_name
+stream_name
+</code></pre>
+<p>流程：</p>
+<ol>
+<li>后台创建赛事时点击「选择 LSJ 直播」，从 LSJ 上游赛事/线路列表里选择对应比赛源；保存后后端会先创建赛事，再绑定 LSJ 源。</li>
+<li>如需调整线路，后台可在赛事列表点击「LSJ源」重新绑定：
+   <code>PUT /api/v1/admin/matches/{id}/lsj-source</code></li>
+<li>后台创建直播间时关联主播和赛事；这一步只建业务房间和推流密钥，不拉 LSJ，不创建 ZEGO 云播放器。</li>
+<li>后台进入直播间详情的「节目流」区域，点击「开播准备」：
+   <code>POST /api/v1/admin/rooms/{id}/prepare-live</code></li>
+<li>后端实时调用 LSJ <code>sportsLive/play</code>，再调用 ZEGO 云播放器 <code>CreatePlayer</code>。</li>
+<li>后端保存并返回 <code>match_stream_id</code>。</li>
+</ol>
+<p>后台发起后，主播端再进入房间推自己的流。</p>
+<p>后台页面入口：</p>
+<ul>
+<li>赛事管理：<code>赛事管理 / 赛事列表 / LSJ源</code></li>
+<li>新建直播间：<code>直播管理 / 直播间管理 / 新建房间</code>，关联已绑定 LSJ 源的赛事</li>
+<li>开播准备：<code>直播管理 / 直播间管理 / 监控 / 节目流</code></li>
+</ul>
+<p>后台状态判断：</p>
+<ul>
+<li>赛事没有 LSJ 源时，直播间不能准备节目流。</li>
+<li><code>prepare-live</code> 成功后，房间节目状态为 <code>MATCH_STREAM_READY</code>。</li>
+<li>主播端 SDK 混流成功并回写后，房间节目状态为 <code>MIXED_STREAM_READY</code>。</li>
+</ul>
+<h2 id="主播端接入顺序">主播端接入顺序</h2>
+<h3 id="1-获取房间节目配置">1. 获取房间节目配置</h3>
+<p>主播端 Web 调：</p>
+<pre><code class="language-http">GET /api/v1/streamer/rooms/{room_id}/program
+</code></pre>
+<p>返回：</p>
+<pre><code class="language-json">{
+  "room_id": "业务直播间 ID",
+  "zego_room_id": "ZEGO 房间 ID",
+  "match_stream_id": "match_xxx",
+  "host_stream_id": null,
+  "mixed_stream_id": null,
+  "status": "MATCH_STREAM_READY"
+}
+</code></pre>
+<p>主播端不要选择 LSJ 源，不要接触 LSJ m3u8，不要用 hls.js 播 LSJ 源。</p>
+<p>主播端使用字段：</p>
+<ul>
+<li><code>zego_room_id</code>：ZEGO 登录/拉流/推流所在房间。</li>
+<li><code>match_stream_id</code>：比赛源流，主播端拉流预览和混流输入。</li>
+<li><code>host_stream_id</code>：主播自己的摄像头/麦克风流 ID；如果接口为空，前端按现有主播端命名规则生成并推流。</li>
+<li><code>mixed_stream_id</code>：回写后用于确认当前房间已经有最终节目流。</li>
+</ul>
+<h3 id="2-主播端拉比赛源预览">2. 主播端拉比赛源预览</h3>
+<p>主播端 Web 使用 ZEGO Web SDK 拉：</p>
+<pre><code class="language-text">match_stream_id
+</code></pre>
+<p>用途：</p>
+<ul>
+<li>确认比赛源是否正常。</li>
+<li>作为后续混流输入。</li>
+</ul>
+<h3 id="3-主播端推自己的流">3. 主播端推自己的流</h3>
+<p>主播端 Web 使用现有 ZEGO 推流流程推：</p>
+<pre><code class="language-text">host_stream_id
+</code></pre>
+<p>内容：</p>
+<ul>
+<li>主播摄像头</li>
+<li>主播麦克风</li>
+<li>解说音频</li>
+</ul>
+<h3 id="4-主播端发起-ZEGO-混流">4. 主播端发起 ZEGO 混流</h3>
+<p>主播端 Web 使用 ZEGO Web SDK 混流能力：</p>
+<pre><code class="language-text">input:
+  match_stream_id
+  host_stream_id
+
+output:
+  mixed_stream_id(推荐等于 start.stream_no)
+</code></pre>
+<p>建议布局：</p>
+<ul>
+<li><code>match_stream_id</code>：全屏主画面。</li>
+<li><code>host_stream_id</code>：右下角或右侧解说小窗。</li>
+<li>音频：保留比赛音频和主播麦克风；如需压低比赛音量，由前端混流参数控制。</li>
+</ul>
+<h3 id="5-主播端回写混流输出">5. 主播端回写混流输出</h3>
+<p>混流成功后，主播端 Web 调：</p>
+<pre><code class="language-http">POST /api/v1/streamer/rooms/{room_id}/mixed-stream
+</code></pre>
+<p>入参：</p>
+<pre><code class="language-json">{
+  "mixed_stream_id": "start接口返回的stream_no",
+  "host_stream_id": "start接口返回的stream_no"
+}
+</code></pre>
+<p>后端保存 <code>mixed_stream_id</code> 并标记当前节目已完成混流。为保证 C 端无缝观看，<code>mixed_stream_id</code> 推荐直接复用 <code>start.stream_no</code>，不要生成新的 <code>mix_xxx</code> 让 C 端切流。</p>
+<h2 id="C-端播放">C 端播放</h2>
+<p>C 端整场直播只拉稳定播放 ID：</p>
+<pre><code class="language-text">start.stream_no
+</code></pre>
+<p>C 端不需要知道 LSJ、<code>player_id</code>、<code>match_stream_id</code>、<code>host_stream_id</code>，也不需要在混流成功后停旧流重拉新流。</p>
+<p>实现口径：</p>
+<ul>
+<li><code>GET /api/v1/live/room/{room_id}/play-url</code> 返回 <code>zego_stream_id</code>，普通直播和赛事混流都应保持同一个 <code>start.stream_no</code>。</li>
+<li>普通直播可以调用 <code>mixed-stream</code> 统一前端流程，但必须传 <code>mixed_stream_id = host_stream_id = start.stream_no</code>；后端只做校验和审计，不写赛事节目流表。</li>
+</ul>
+<h2 id="接口文档深链">接口文档深链</h2>
+<p>后台-赛事管理：</p>
+<ul>
+<li><a href="https://admin-dev.54-151-131-132.sslip.io/docs/#/operations/adminSportsLiveSearch" rel="noopener noreferrer">adminSportsLiveSearch</a> - <code>GET /api/v1/admin/sports-live</code></li>
+<li><a href="https://admin-dev.54-151-131-132.sslip.io/docs/#/operations/adminMatchBindLSJSource" rel="noopener noreferrer">adminMatchBindLSJSource</a> - <code>PUT /api/v1/admin/matches/{id}/lsj-source</code></li>
+<li><a href="https://admin-dev.54-151-131-132.sslip.io/docs/#/operations/adminMatchLSJSource" rel="noopener noreferrer">adminMatchLSJSource</a> - <code>GET /api/v1/admin/matches/{id}/lsj-source</code></li>
+</ul>
+<p>后台-直播间管理：</p>
+<ul>
+<li><a href="https://admin-dev.54-151-131-132.sslip.io/docs/#/operations/adminRoomPrepareLive" rel="noopener noreferrer">adminRoomPrepareLive</a> - <code>POST /api/v1/admin/rooms/{id}/prepare-live</code></li>
+<li><a href="https://admin-dev.54-151-131-132.sslip.io/docs/#/operations/adminRoomProgram" rel="noopener noreferrer">adminRoomProgram</a> - <code>GET /api/v1/admin/rooms/{id}/program</code></li>
+</ul>
+<p>主播端-推流：</p>
+<ul>
+<li><a href="https://admin-dev.54-151-131-132.sslip.io/docs/#/operations/streamerRoomProgram" rel="noopener noreferrer">streamerRoomProgram</a> - <code>GET /api/v1/streamer/rooms/{room_id}/program</code></li>
+<li><a href="https://admin-dev.54-151-131-132.sslip.io/docs/#/operations/streamerRoomMixedStreamReport" rel="noopener noreferrer">streamerRoomMixedStreamReport</a> - <code>POST /api/v1/streamer/rooms/{room_id}/mixed-stream</code></li>
+</ul>
+<p>C 端播放：</p>
+<ul>
+<li><a href="https://admin-dev.54-151-131-132.sslip.io/docs/#/operations/livePlayUrl" rel="noopener noreferrer">livePlayUrl</a> - <code>GET /api/v1/live/room/{room_id}/play-url</code></li>
+</ul>
+<p><code>prepare-live</code> 会创建 ZEGO 云播放器并保存 <code>player_id</code>、<code>match_stream_id</code>。<code>DeletePlayer</code> 已有底层适配，用于真实联调后清理云播放器；业务自动清理 worker 后续再补。</p>
+<h2 id="前端交付清单">前端交付清单</h2>
+<p>主播端 Web：</p>
+<ol>
+<li>进入后台已准备的直播间后，先调 <code>GET /api/v1/streamer/rooms/{room_id}/program</code>。</li>
+<li>使用 <code>zego_room_id</code> 登录 ZEGO 房间。</li>
+<li>拉 <code>match_stream_id</code> 作为赛事源预览。</li>
+<li>按现有 ZEGO 推流能力推主播摄像头/麦克风为 <code>host_stream_id</code>。</li>
+<li>使用 ZEGO Web SDK 发起混流，输入 <code>match_stream_id + host_stream_id</code>，输出 <code>mixed_stream_id</code>，推荐等于 <code>start.stream_no</code>。</li>
+<li>混流成功后调 <code>POST /api/v1/streamer/rooms/{room_id}/mixed-stream</code> 回写 <code>mixed_stream_id</code> 和 <code>host_stream_id</code>。</li>
+</ol>
+<p>C 端 Web：</p>
+<ol>
+<li>进入房间后调现有播放接口 <a href="https://admin-dev.54-151-131-132.sslip.io/docs/#/operations/livePlayUrl" rel="noopener noreferrer">livePlayUrl</a>。</li>
+<li>对赛事直播，只播放后端返回的稳定 <code>zego_stream_id</code>，不要因混流切换 stream ID。</li>
+<li>不接触 LSJ m3u8，不拉 <code>match_stream_id</code>，不拉 <code>host_stream_id</code>。</li>
+</ol>
+<h2 id="真实联调命令">真实联调命令</h2>
+<p>本地/服务器具备真实密钥时，可跑供应商链路测试：</p>
+<pre><code class="language-bash">cd services/go-app
+RUN_REAL_LSJ_ZEGO=1 \
+APP_LIVE_SOURCE_LSJ_ENABLED=true \
+APP_LIVE_SOURCE_LSJ_BASE_URL=https://zhlsaj.zrr4ij4.site/lsjapi \
+APP_LIVE_SOURCE_LSJ_APPID=&lt;lsj_appid&gt; \
+APP_LIVE_SOURCE_LSJ_APPKEY=&lt;lsj_appkey&gt; \
+APP_ZEGO_APPID=&lt;zego_appid&gt; \
+[敏感内容已脱敏] \
+go test ./pkg/zego -run TestRealLSJToZegoCloudPlayer -count=1 -v
+</code></pre>
+<p>如果当天 <code>sportsLive/search</code> 没有可播放比赛，可指定已知线路：</p>
+<pre><code class="language-bash">REAL_LSJ_APP_NAME=&lt;app_name&gt; REAL_LSJ_STREAM_NAME=&lt;stream_name&gt; ...
+</code></pre>
+<h2 id="注意事项">注意事项</h2>
+<ol>
+<li>LSJ <code>main_url</code> / <code>backup_url</code> 是上游敏感源，目标方案不返回前端。</li>
+<li><code>match_stream_id</code> 是比赛源在 ZEGO 房间内的流 ID，前端可以拉。</li>
+<li><code>mixed_stream_id</code> 是混流输出流 ID，推荐复用 <code>start.stream_no</code>；C 端只拉稳定 <code>zego_stream_id</code>。</li>
+<li>ZEGO 云播放器需要提前开通权限；同一 AppID 默认运行中的云播放器数量有限，需按并发预估申请额度。</li>
+<li>LSJ 如果只提供普通 HLS，源头延迟仍取决于 HLS 切片窗口；ZEGO 只能降低云播放器转推和房间内分发链路延迟。</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#目标链路">目标链路</a></li><li style="margin-left:0.0rem"><a href="#三条-ZEGO-流">三条 ZEGO 流</a></li><li style="margin-left:0.0rem"><a href="#后台运营流程">后台运营流程</a></li><li style="margin-left:0.0rem"><a href="#主播端接入顺序">主播端接入顺序</a></li><li style="margin-left:0.8rem"><a href="#1-获取房间节目配置">1. 获取房间节目配置</a></li><li style="margin-left:0.8rem"><a href="#2-主播端拉比赛源预览">2. 主播端拉比赛源预览</a></li><li style="margin-left:0.8rem"><a href="#3-主播端推自己的流">3. 主播端推自己的流</a></li><li style="margin-left:0.8rem"><a href="#4-主播端发起-ZEGO-混流">4. 主播端发起 ZEGO 混流</a></li><li style="margin-left:0.8rem"><a href="#5-主播端回写混流输出">5. 主播端回写混流输出</a></li><li style="margin-left:0.0rem"><a href="#C-端播放">C 端播放</a></li><li style="margin-left:0.0rem"><a href="#接口文档深链">接口文档深链</a></li><li style="margin-left:0.0rem"><a href="#前端交付清单">前端交付清单</a></li><li style="margin-left:0.0rem"><a href="#真实联调命令">真实联调命令</a></li><li style="margin-left:0.0rem"><a href="#注意事项">注意事项</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-06-10</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Shell</span><span class="tag">Go</span><span class="tag">监控告警</span><span class="tag">安全运维</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/api/streamer-lsj-zego-cloud-player.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606100047-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-%E4%B8%BB%E6%92%AD%E7%AB%AF%20LSJ%20%2B%20ZEGO%20%E4%BA%91%E6%92%AD%E6%94%BE%E5%99%A8%E6%8E%A5%E5%85%A5%E8%AF%B4%E6%98%8E.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>主播端 LSJ + ZEGO 云播放器接入说明。本文属于业务系统运维 / 小蓝直播，关联需求：LIVE-101 适用端：主播端 Web、C 端 Web、Go 后端 C 端不拉 match_stream_id ，也不拉独立的新混流 ID；整场直播播放 ID 保持 start.stream_no 。主播端的核心动作是…</p>
+      <p>关键词：小蓝直播、Shell、Go、监控告警、安全运维、源码与配置、业务系统运维、业务系统运维 / 小蓝直播、主播端 LSJ + ZEGO 云播放器接入说明</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d1571a34974a.html"><small>上一篇</small>主播端接入指南</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e24737af4ba5.html"><small>下一篇</small>构建期 vs 运行时边界</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1faa8d3cced8.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
