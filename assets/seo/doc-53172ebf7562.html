@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Ghome 测试环境部署说明｜业务系统运维 / GHOME｜BEN.OPS</title>
+  <meta name="description" content="Ghome 测试环境部署说明。本文属于业务系统运维 / GHOME，测试部署不再启动本地 postgres 和 adminer 容器。数据库通过 .env.test 中的连接串访问。 ```bash title=&quot;宿主机执行&quot; docker --version docker compose version">
+  <meta name="keywords" content="GHOME，Shell，Docker，自动化，安全运维，故障排查，源码与配置，业务系统运维，业务系统运维 / GHOME，Ghome 测试环境部署说明">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53172ebf7562.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53172ebf7562.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606120349-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BShell-Ghome%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E9%83%A8%E7%BD%B2%E8%AF%B4%E6%98%8E.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Ghome 测试环境部署说明">
+  <meta property="og:description" content="Ghome 测试环境部署说明。本文属于业务系统运维 / GHOME，测试部署不再启动本地 postgres 和 adminer 容器。数据库通过 .env.test 中的连接串访问。 ```bash title=&quot;宿主机执行&quot; docker --version docker compose version">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53172ebf7562.html">
+  <meta property="article:published_time" content="2026-06-12T03:49:41.745421+08:00">
+  <meta property="article:modified_time" content="2026-06-12 03:49">
+  <meta property="article:section" content="业务系统运维 / GHOME">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Ghome 测试环境部署说明">
+  <meta name="twitter:description" content="Ghome 测试环境部署说明。本文属于业务系统运维 / GHOME，测试部署不再启动本地 postgres 和 adminer 容器。数据库通过 .env.test 中的连接串访问。 ```bash title=&quot;宿主机执行&quot; docker --version docker compose version">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53172ebf7562.html#article","headline":"Ghome 测试环境部署说明","description":"Ghome 测试环境部署说明。本文属于业务系统运维 / GHOME，测试部署不再启动本地 postgres 和 adminer 容器。数据库通过 .env.test 中的连接串访问。 ```bash title=\"宿主机执行\" docker --version docker compose version","datePublished":"2026-06-12T03:49:41.745421+08:00","dateModified":"2026-06-12 03:49","inLanguage":"zh-CN","articleSection":["业务系统运维","GHOME"],"keywords":["GHOME","Shell","Docker","自动化","安全运维","故障排查","源码与配置","业务系统运维","业务系统运维 / GHOME","Ghome 测试环境部署说明"],"wordCount":1836,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53172ebf7562.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53172ebf7562.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / GHOME","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Ghome 测试环境部署说明","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53172ebf7562.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / GHOME</span> › <span>Ghome 测试环境部署说明</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / GHOME</div>
+      <h1>Ghome 测试环境部署说明</h1>
+      <p class="lede">Ghome 测试环境部署说明。本文属于业务系统运维 / GHOME，测试部署不再启动本地 postgres 和 adminer 容器。数据库通过 .env.test 中的连接串访问。 ```bash title=&quot;宿主机执行&quot; docker --version docker compose version</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-12T03:49:41.745421+08:00">发布于 2026-06-12</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,836 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/ghome/docs/deployment/test-environment-deploy.md</code></p>
+<p>整理日期：2026-06-12 03:49｜日期依据：文件创建/修改时间</p>
+</blockquote>
+<p>本文档记录 Ghome Web 工程在测试环境的容器化部署流程。当前测试环境采用应用容器部署到云服务器、数据库连接远程 PostgreSQL/RDS 的方式。</p>
+<h2 id="1-部署架构">1. 部署架构</h2>
+<p>测试环境包含以下服务：</p>
+<pre><code class="language-text">云服务器
+  ghome-test-migrate       一次性任务：执行 Prisma migration
+  ghome-test-seed          一次性任务：灌入测试初始数据
+  ghome-test-build-web     一次性任务：构建前台 .next
+  ghome-test-build-admin   一次性任务：构建后台 .next
+  ghome-test-web           常驻服务：前台 next start，端口 3000
+  ghome-test-admin         常驻服务：后台 next start，端口 3100
+
+远程 PostgreSQL/RDS
+  ghome_test 空库
+</code></pre>
+<p>测试部署不再启动本地 <code>postgres</code> 和 <code>adminer</code> 容器。数据库通过 <code>.env.test</code> 中的连接串访问。</p>
+<h2 id="2-前置条件">2. 前置条件</h2>
+<p>在宿主机执行，确认云服务器具备 Docker：</p>
+<p>```bash title="宿主机执行"
+docker --version
+docker compose version</p>
+<pre><code>
+云服务器需要能访问远程 PostgreSQL/RDS 的 5432 端口。RDS 安全组建议只允许测试应用服务器私有 IP 和堡垒机访问，不建议开放公网 5432。
+
+可以在宿主机执行临时 PostgreSQL 客户端容器，验证远程数据库连接：
+
+```bash title="宿主机执行"
+docker run --rm postgres:16.4-alpine \
+  psql "postgresql://&lt;user&gt;:&lt;password&gt;@&lt;rds-endpoint&gt;:5432/ghome_test?sslmode=require" \
+  -c "select current_database();"
+</code></pre>
+<h2 id="3-代码目录">3. 代码目录</h2>
+<p>进入包含 <code>docker-compose.test.yml</code> 的 Web 工程目录：</p>
+<p>```bash title="宿主机执行"
+cd /opt/ghome/web</p>
+<pre><code>
+实际路径按服务器上的代码目录调整。
+
+## 4. 配置 .env.test
+
+从模板创建真实测试配置：
+
+```bash title="宿主机执行"
+cp .env.test.example .env.test
+vim .env.test
+</code></pre>
+<p><code>.env.test</code> 不提交 Git，且已被 <code>.gitignore</code> 和 <code>.dockerignore</code> 忽略。</p>
+<p>测试环境示例：</p>
+<pre><code class="language-env">NODE_ENV=production
+
+DATABASE_URL_BUILD=postgresql://&lt;user&gt;:&lt;password&gt;@&lt;rds-endpoint&gt;:5432/ghome_test?sslmode=require&amp;connection_limit=1
+DATABASE_URL_RUNTIME=postgresql://&lt;user&gt;:&lt;password&gt;@&lt;rds-endpoint&gt;:5432/ghome_test?sslmode=require&amp;connection_limit=5
+
+NEXT_PUBLIC_WEB_BASE_URL=http://&lt;test-app-public-ip&gt;:3000
+
+[敏感内容已脱敏] rand -hex 32&gt;
+[敏感内容已脱敏] rand -hex 32&gt;
+
+[敏感内容已脱敏] rand -hex 32&gt;
+AUTH_TRUST_HOST=true
+
+WEB_BASE_URL=http://web:3000
+ADMIN_BASE_URL=http://&lt;test-app-public-ip&gt;:3100
+
+[敏感内容已脱敏] rand -hex 32&gt;
+</code></pre>
+<p>说明：</p>
+<ul>
+<li><code>DATABASE_URL_BUILD</code> 用于 <code>migrate</code>、<code>seed</code>、<code>build-web</code>、<code>build-admin</code>，建议 <code>connection_limit=1</code>，避免 Next.js 构建期预渲染大量页面时打满数据库连接。</li>
+<li><code>DATABASE_URL_RUNTIME</code> 用于 <code>web</code>、<code>admin</code> 运行期，测试环境可从 <code>connection_limit=5</code> 起步。</li>
+<li><code>WEB_BASE_URL=http://web:3000</code> 是 admin 容器访问 web 容器的 Docker 内部地址。</li>
+<li><code>NEXT_PUBLIC_WEB_BASE_URL</code> 和 <code>ADMIN_BASE_URL</code> 是外部访问地址。测试期没有域名时可使用公网 IP + 端口；有域名后改为 HTTPS 地址。</li>
+</ul>
+<h2 id="5-生成-Secret">5. 生成 Secret</h2>
+<p>在服务器上生成 4 个独立 secret：</p>
+<p>```bash title="宿主机执行"
+echo "[敏感内容已脱敏] rand -hex 32)"
+echo "[敏感内容已脱敏] rand -hex 32)"
+echo "[敏感内容已脱敏] rand -hex 32)"
+echo "[敏感内容已脱敏] rand -hex 32)"</p>
+<pre><code>
+将输出填入 `.env.test` 对应变量。
+
+各 secret 用途：
+
+| 变量 | 用途 |
+| --- | --- |
+| `IP_HASH_SECRET` | 生成点击日志中的 IP 哈希，避免保存明文 IP |
+| `REVALIDATE_SECRET` | admin 调 web `/api/revalidate` 的 Bearer token，web/admin 必须一致 |
+| `AUTH_SECRET` | Auth.js/NextAuth 后台登录 session/JWT 签名密钥 |
+| `CRON_SECRET` | 调用 `/api/cron/aggregate-clicks` 的 Bearer token |
+
+测试环境和生产环境不要共用 secret。
+
+## 6. 首次空库初始化
+
+远程数据库为空时，先执行 migration：
+
+```bash title="宿主机执行"
+docker compose -f docker-compose.test.yml run --rm migrate
+</code></pre>
+<p>再灌入测试初始数据：</p>
+<p>```bash title="宿主机执行"
+docker compose -f docker-compose.test.yml run --rm seed</p>
+<pre><code>
+说明：
+
+- `migrate` 会在容器内部执行 Prisma migration。
+- `seed` 会在容器内部执行测试初始数据灌入。
+
+测试环境可以重复执行 seed；生产环境是否 seed 需要单独评估。
+
+## 7. 构建并启动服务
+
+启动前台和后台：
+
+```bash title="宿主机执行"
+docker compose -f docker-compose.test.yml up -d web admin
+</code></pre>
+<p>该宿主机命令会触发以下容器依赖顺序：</p>
+<pre><code class="language-text">migrate
+  -&gt; build-web
+  -&gt; build-admin
+  -&gt; web
+  -&gt; admin
+</code></pre>
+<p>其中：</p>
+<ul>
+<li><code>build-web</code> 和 <code>build-admin</code> 是一次性构建任务，构建完成后退出。</li>
+<li><code>web</code> 和 <code>admin</code> 是常驻服务，只执行 <code>next start</code>。</li>
+<li><code>.next</code> 构建产物通过 Docker named volume 在 build 容器和 runtime 容器之间共享。</li>
+</ul>
+<p>查看状态：</p>
+<p>```bash title="宿主机执行"
+docker compose -f docker-compose.test.yml ps</p>
+<pre><code>
+查看日志：
+
+```bash title="宿主机执行"
+docker compose -f docker-compose.test.yml logs -f web admin
+</code></pre>
+<h2 id="8-访问验证">8. 访问验证</h2>
+<p>前台：</p>
+<pre><code class="language-text">http://&lt;test-app-public-ip&gt;:3000
+http://&lt;test-app-public-ip&gt;:3000/apps
+http://&lt;test-app-public-ip&gt;:3000/api/search?q=健身
+</code></pre>
+<p>后台：</p>
+<pre><code class="language-text">http://&lt;test-app-public-ip&gt;:3100/signin
+</code></pre>
+<p>数据库行数抽查：</p>
+<p>```bash title="宿主机执行"
+docker run --rm postgres:16.4-alpine \
+  psql "postgresql://<user>:<password>@<rds-endpoint>:5432/ghome_test?sslmode=require" \
+  -c "select count(<em>) from apps; select count(</em>) from videos; select count(*) from admin_users;"</rds-endpoint></password></user></p>
+<pre><code>
+当前 seed 后的典型结果：
+
+```text
+apps        9
+videos      20
+admin_users 3
+</code></pre>
+<h2 id="9-常用运维命令">9. 常用运维命令</h2>
+<p>重新构建并启动：</p>
+<p>```bash title="宿主机执行"
+docker compose -f docker-compose.test.yml up -d --build web admin</p>
+<pre><code>
+只重新跑 migration：
+
+```bash title="宿主机执行"
+docker compose -f docker-compose.test.yml run --rm migrate
+</code></pre>
+<p>只重新跑 seed：</p>
+<p>```bash title="宿主机执行"
+docker compose -f docker-compose.test.yml run --rm seed</p>
+<pre><code>
+停止应用：
+
+```bash title="宿主机执行"
+docker compose -f docker-compose.test.yml stop web admin
+</code></pre>
+<p>停止并移除测试应用容器和网络：</p>
+<p>```bash title="宿主机执行"
+docker compose -f docker-compose.test.yml down</p>
+<pre><code>
+清理构建产物 volume 后重新构建：
+
+```bash title="宿主机执行"
+docker compose -f docker-compose.test.yml down -v
+docker compose -f docker-compose.test.yml up -d web admin
+</code></pre>
+<h2 id="10-版本升级发布">10. 版本升级发布</h2>
+<p>如果本次代码包含 <code>packages/db/prisma/migrations</code> 下的新目录，需要先在测试库执行数据库迁移，再重建应用容器。</p>
+<p>```bash title="宿主机执行"
+docker compose -f docker-compose.test.yml run --rm migrate
+docker compose -f docker-compose.test.yml up --build -d web admin</p>
+<pre><code>
+近期涉及的数据库迁移：
+
+- `20260610010000_outbound_redirect_tokens`：保存短期跳转 token、消费状态和基础访问风险数据。
+- `20260610020000_search_query_stats`：保存站内搜索关键词聚合统计，用于首页和搜索页展示动态热门搜索。
+
+发布时必须先完成 migration，否则相关功能会因为缺少表结构而失败。
+
+本地开发环境如果已经启动过容器，命名卷里可能缓存旧版 Prisma Client。迁移后如遇到 `prisma.outboundRedirectToken` 或 `prisma.searchQueryStat` 不存在，执行：
+
+```bash title="宿主机执行"
+docker compose exec -T web sh -c 'pnpm --filter @ghome/db exec prisma generate'
+docker compose restart web
+</code></pre>
+<h2 id="11-常见问题">11. 常见问题</h2>
+<h3 id="11-1-Next-js-build-报数据库连接失败">11.1 Next.js build 报数据库连接失败</h3>
+<p>如果日志中有：</p>
+<pre><code class="language-text">sorry, too many clients already
+</code></pre>
+<p>或 Prisma 报：</p>
+<pre><code class="language-text">P1001 Can't reach database server
+</code></pre>
+<p>可能是构建期并行预渲染页面导致数据库连接数被打满。确认：</p>
+<pre><code class="language-env">DATABASE_URL_BUILD=...&amp;connection_limit=1
+</code></pre>
+<p>远程 RDS 的最大连接数也需要足够支撑构建和运行。</p>
+<h3 id="11-2-admin-调-web-revalidate-失败">11.2 admin 调 web revalidate 失败</h3>
+<p>确认：</p>
+<pre><code class="language-env">REVALIDATE_SECRET
+WEB_BASE_URL=http://web:3000
+</code></pre>
+<p><code>REVALIDATE_SECRET</code> 在 web/admin 中必须一致。<code>WEB_BASE_URL</code> 在 Docker 网络内应指向 <code>web:3000</code>。</p>
+<h3 id="11-3-后台登录-session-异常">11.3 后台登录 session 异常</h3>
+<p>确认：</p>
+<pre><code class="language-env">AUTH_SECRET
+AUTH_TRUST_HOST=true
+ADMIN_BASE_URL=http://&lt;test-app-public-ip&gt;:3100
+</code></pre>
+<p>修改 <code>AUTH_SECRET</code> 会导致已有登录 session 失效。</p>
+<h2 id="12-安全注意事项">12. 安全注意事项</h2>
+<ul>
+<li><code>.env.test</code> 不提交 Git。</li>
+<li>不要将 <code>.env.test</code> 打入 Docker 镜像或公开传输。</li>
+<li>测试环境 <code>3100</code> 后台端口建议只开放给测试人员 IP。</li>
+<li>RDS 5432 不对公网开放。</li>
+<li>测试环境和生产环境使用不同 secret。</li>
+<li>如果截图或日志暴露了数据库密码，应及时轮换测试库密码。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-部署架构">1. 部署架构</a></li><li style="margin-left:0.0rem"><a href="#2-前置条件">2. 前置条件</a></li><li style="margin-left:0.0rem"><a href="#3-代码目录">3. 代码目录</a></li><li style="margin-left:0.0rem"><a href="#5-生成-Secret">5. 生成 Secret</a></li><li style="margin-left:0.0rem"><a href="#8-访问验证">8. 访问验证</a></li><li style="margin-left:0.0rem"><a href="#9-常用运维命令">9. 常用运维命令</a></li><li style="margin-left:0.0rem"><a href="#10-版本升级发布">10. 版本升级发布</a></li><li style="margin-left:0.0rem"><a href="#11-常见问题">11. 常见问题</a></li><li style="margin-left:0.8rem"><a href="#11-1-Next-js-build-报数据库连接失败">11.1 Next.js build 报数据库连接失败</a></li><li style="margin-left:0.8rem"><a href="#11-2-admin-调-web-revalidate-失败">11.2 admin 调 web revalidate 失败</a></li><li style="margin-left:0.8rem"><a href="#11-3-后台登录-session-异常">11.3 后台登录 session 异常</a></li><li style="margin-left:0.0rem"><a href="#12-安全注意事项">12. 安全注意事项</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / GHOME</li>
+          <li>日期：2026-06-12</li>
+          <li>标签：<span class="tag">GHOME</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">自动化</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/ghome/docs/deployment/test-environment-deploy.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606120349-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BShell-Ghome%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E9%83%A8%E7%BD%B2%E8%AF%B4%E6%98%8E.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Ghome 测试环境部署说明。本文属于业务系统运维 / GHOME，测试部署不再启动本地 postgres 和 adminer 容器。数据库通过 .env.test 中的连接串访问。 ```bash title=&quot;宿主机执行&quot; docker --version docker compose version</p>
+      <p>关键词：GHOME、Shell、Docker、自动化、安全运维、故障排查、源码与配置、业务系统运维、业务系统运维 / GHOME、Ghome 测试环境部署说明</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4d1d484363e6.html"><small>上一篇</small>线上环境 queue-watchdog.sh 队列守护说明</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-269b3f7b9f57.html"><small>下一篇</small>通用型原型对比与实现 Skill 设计稿</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-53172ebf7562.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
