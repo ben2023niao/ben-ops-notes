@@ -1,0 +1,908 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>线上环境宝塔反向代理固定配置运维手册｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="线上环境宝塔反向代理固定配置运维手册。本文属于业务系统运维 / 游点涩，文档日期：2026-06-16 22:04 环境：游点涩线上环境（main 分支） 分类：网络调整 用途：记录游点涩 H5 线上宝塔 Nginx 反向代理的当前正常配置、加锁原因、后续修改流程、验证方法和回滚方法。 宝塔面板会根据自己的站点数…">
+  <meta name="keywords" content="游点涩，Linux，Shell，Docker，Nginx，CDN，DNS，故障排查，业务系统运维，业务系统运维 / 游点涩，线上环境宝塔反向代理固定配置运维手册，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-01350151b898.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-01350151b898.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606162204-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E5%AE%9D%E5%A1%94%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E5%9B%BA%E5%AE%9A%E9%85%8D%E7%BD%AE%E8%BF%90%E7%BB%B4%E6%89%8B%E5%86%8C.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="线上环境宝塔反向代理固定配置运维手册">
+  <meta property="og:description" content="线上环境宝塔反向代理固定配置运维手册。本文属于业务系统运维 / 游点涩，文档日期：2026-06-16 22:04 环境：游点涩线上环境（main 分支） 分类：网络调整 用途：记录游点涩 H5 线上宝塔 Nginx 反向代理的当前正常配置、加锁原因、后续修改流程、验证方法和回滚方法。 宝塔面板会根据自己的站点数…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-01350151b898.html">
+  <meta property="article:published_time" content="2026-06-16T22:04:00+08:00">
+  <meta property="article:modified_time" content="2026-06-16 22:04">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="线上环境宝塔反向代理固定配置运维手册">
+  <meta name="twitter:description" content="线上环境宝塔反向代理固定配置运维手册。本文属于业务系统运维 / 游点涩，文档日期：2026-06-16 22:04 环境：游点涩线上环境（main 分支） 分类：网络调整 用途：记录游点涩 H5 线上宝塔 Nginx 反向代理的当前正常配置、加锁原因、后续修改流程、验证方法和回滚方法。 宝塔面板会根据自己的站点数…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-01350151b898.html#article","headline":"线上环境宝塔反向代理固定配置运维手册","description":"线上环境宝塔反向代理固定配置运维手册。本文属于业务系统运维 / 游点涩，文档日期：2026-06-16 22:04 环境：游点涩线上环境（main 分支） 分类：网络调整 用途：记录游点涩 H5 线上宝塔 Nginx 反向代理的当前正常配置、加锁原因、后续修改流程、验证方法和回滚方法。 宝塔面板会根据自己的站点数…","datePublished":"2026-06-16T22:04:00+08:00","dateModified":"2026-06-16 22:04","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Linux","Shell","Docker","Nginx","CDN","DNS","故障排查","业务系统运维","业务系统运维 / 游点涩","线上环境宝塔反向代理固定配置运维手册","php"],"wordCount":5623,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-01350151b898.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-01350151b898.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"线上环境宝塔反向代理固定配置运维手册","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-01350151b898.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>线上环境宝塔反向代理固定配置运维手册</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>线上环境宝塔反向代理固定配置运维手册</h1>
+      <p class="lede">线上环境宝塔反向代理固定配置运维手册。本文属于业务系统运维 / 游点涩，文档日期：2026-06-16 22:04 环境：游点涩线上环境（main 分支） 分类：网络调整 用途：记录游点涩 H5 线上宝塔 Nginx 反向代理的当前正常配置、加锁原因、后续修改流程、验证方法和回滚方法。 宝塔面板会根据自己的站点数…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-16T22:04:00+08:00">发布于 2026-06-16</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">5,623 字</span>
+        <span class="badge">17 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-06-16-2204-【网络调整】线上环境宝塔反向代理固定配置运维手册.md</code></p>
+<p>整理日期：2026-06-16 22:04｜日期依据：文件名日期</p>
+</blockquote>
+<p>文档日期：2026-06-16 22:04
+环境：游点涩线上环境（main 分支）
+分类：网络调整</p>
+<p>服务器：<code>16.208.5.147</code></p>
+<p>用途：记录游点涩 H5 线上宝塔 Nginx 反向代理的当前正常配置、加锁原因、后续修改流程、验证方法和回滚方法。</p>
+<h2 id="先看结论">先看结论</h2>
+<p>宝塔面板会根据自己的站点数据重新生成 vhost 配置，尤其是 <code>#PROXY-CONF</code> 区域。之前手动写在主 vhost 里的反代规则会被面板保存动作覆盖，导致：</p>
+<ul>
+<li><code>/_nuxt/</code> 静态资源可能被错误转发或丢失 CORS 头。</li>
+<li><code>/api</code>、<code>/channel</code>、<code>/customer</code> 可能不再走后端 PHP。</li>
+<li>API 请求可能缺少 <code>version</code>、<code>deviceType</code>、<code>time</code> 等头，返回“数据封装错误”。</li>
+<li>CloudFront 回源 Host 可能因为宝塔 DB 中的错误域名而匹配不到正确站点。</li>
+</ul>
+<p>当前修复方式：</p>
+<ul>
+<li>主 vhost 只保留基础站点、证书、<code>location /</code> 到 Nuxt SSR。</li>
+<li>固定分流规则放到宝塔 <code>extension/&lt;domain&gt;/00-youdianse-fixed-reverse-proxy.conf</code>。</li>
+<li>三个主 vhost 和三个固定扩展文件使用 <code>chattr +i</code> 加锁。</li>
+<li>宝塔 <code>site.db</code> 的 CloudFront 域名已修正为 <code>d38owkgqvg83bq.cloudfront.net</code>。</li>
+<li>2026-06-18：<code>h5.youdianse.com</code> 和 <code>youdianse.com</code> 的宝塔重定向都指向 <code>https://www.youdianse.com$request_uri</code>。注意 <code>h5.youdianse.com.conf</code> 仍是独立 active vhost，所以也必须 include <code>redirect/youdianse.com/*.conf</code>。</li>
+</ul>
+<p>正常状态下，宝塔保存配置时如果尝试覆盖这些文件，会被系统拒绝。后续要改配置，需要先手动解锁，改完测试通过后重新加锁。</p>
+<h2 id="当前流量结构">当前流量结构</h2>
+<p>涉及的 H5 域名：</p>
+<pre><code class="language-text">new.youdianse.com
+h5.youdianse.com
+h5.youdianse-main.xyz
+</code></pre>
+<p>CloudFront 域名：</p>
+<pre><code class="language-text">d38owkgqvg83bq.cloudfront.net
+</code></pre>
+<p>当前分流：</p>
+<pre><code class="language-text">浏览器
+  |
+  |-- https://h5.youdianse.com/           -&gt; CloudFront -&gt; 宝塔 h5.youdianse.com vhost -&gt; 301 https://www.youdianse.com$request_uri
+  |-- https://youdianse.com/              -&gt; 宝塔 youdianse.com vhost -&gt; 301 https://www.youdianse.com$request_uri
+  |-- https://www.youdianse.com/          -&gt; 宝塔 new.youdianse.com vhost
+  |-- https://new.youdianse.com/          -&gt; 宝塔 new.youdianse.com vhost
+  |-- https://h5.youdianse-main.xyz/      -&gt; 宝塔 h5.youdianse-main.xyz vhost
+  |
+宝塔 Nginx
+  |
+  |-- /                                  -&gt; http://203.0.113.1:3003
+  |-- /_nuxt/                            -&gt; http://203.0.113.1:3003 + CORS
+  |-- /api/ /channel/ /customer/         -&gt; http://203.0.113.1:8088 + API header fallback
+</code></pre>
+<p>上游服务：</p>
+<pre><code class="language-text">前端 Nuxt SSR：http://203.0.113.1:3003
+后端 PHP API：http://203.0.113.1:8088
+</code></pre>
+<p>API 缺失头兜底：</p>
+<pre><code class="language-text">version    -&gt; 2.1.1
+deviceType -&gt; web
+time       -&gt; $time_iso8601
+</code></pre>
+<h2 id="线上文件清单">线上文件清单</h2>
+<p>主 vhost 配置：</p>
+<pre><code class="language-text">/www/server/panel/vhost/nginx/new.youdianse.com.conf
+/www/server/panel/vhost/nginx/h5.youdianse.com.conf
+/www/server/panel/vhost/nginx/h5.youdianse-main.xyz.conf
+</code></pre>
+<p>固定扩展配置：</p>
+<pre><code class="language-text">/www/server/panel/vhost/nginx/extension/new.youdianse.com/00-youdianse-fixed-reverse-proxy.conf
+/www/server/panel/vhost/nginx/extension/h5.youdianse.com/00-youdianse-fixed-reverse-proxy.conf
+/www/server/panel/vhost/nginx/extension/h5.youdianse-main.xyz/00-youdianse-fixed-reverse-proxy.conf
+</code></pre>
+<p>宝塔站点数据库：</p>
+<pre><code class="language-text">/www/server/panel/data/db/site.db
+</code></pre>
+<p>当前导出：</p>
+<pre><code class="language-text">ops/production/baota-snapshots/20260618-2225/
+ops/production/baota-snapshots/20260618-2225/system/nginx-full-effective.conf
+ops/production/baota-snapshots/20260618-2225/db/domain.txt
+</code></pre>
+<p>本地文档：</p>
+<pre><code class="language-text">docs/2026-06-16-2204-【网络调整】线上环境宝塔反向代理固定配置运维手册.md
+ops/production/2026-07-06-1608-【运维记录】线上环境服务器速查.md
+ops/production/baota-snapshots/README.md
+</code></pre>
+<h2 id="为什么不直接在主配置里写全部规则">为什么不直接在主配置里写全部规则</h2>
+<p>宝塔会管理主 vhost 文件，并在面板保存、证书更新、反向代理设置保存时重写部分配置。高风险区域是：</p>
+<pre><code class="language-nginx">#PROXY-CONF-START
+...
+#PROXY-CONF-END
+</code></pre>
+<p>如果把 <code>/api</code>、<code>/_nuxt</code>、API 头兜底全部写在这里，宝塔下一次保存就可能恢复成面板 DB 里的单一代理地址。之前面板列表里显示 H5 域名代理到 <code>http://203.0.113.1:8088</code>，这会让页面路由和静态资源都错误地回到后端 PHP。</p>
+<p>现在把关键规则放在：</p>
+<pre><code class="language-text">/www/server/panel/vhost/nginx/extension/&lt;domain&gt;/00-youdianse-fixed-reverse-proxy.conf
+</code></pre>
+<p>主 vhost 里已有：</p>
+<pre><code class="language-nginx">include /www/server/panel/vhost/nginx/extension/&lt;domain&gt;/*.conf;
+</code></pre>
+<p>这样即使主 vhost 以后被重写，扩展规则也有独立文件承载。同时对主 vhost 和扩展文件加锁，阻止宝塔自动覆盖当前生效状态。</p>
+<h2 id="当前加锁状态">当前加锁状态</h2>
+<p>查看锁：</p>
+<pre><code class="language-bash">VHOST=/www/server/panel/vhost/nginx
+lsattr "$VHOST/new.youdianse.com.conf" \
+  "$VHOST/h5.youdianse.com.conf" \
+  "$VHOST/h5.youdianse-main.xyz.conf" \
+  "$VHOST/extension/new.youdianse.com/00-youdianse-fixed-reverse-proxy.conf" \
+  "$VHOST/extension/h5.youdianse.com/00-youdianse-fixed-reverse-proxy.conf" \
+  "$VHOST/extension/h5.youdianse-main.xyz/00-youdianse-fixed-reverse-proxy.conf"
+</code></pre>
+<p>正常应看到每行包含 <code>i</code>：</p>
+<pre><code class="language-text">----i---------e------- /www/server/panel/vhost/nginx/new.youdianse.com.conf
+</code></pre>
+<p><code>i</code> 表示 immutable，不允许写入、覆盖、删除、重命名。即使 root 也需要先 <code>chattr -i</code> 解锁。</p>
+<h2 id="标准修改流程">标准修改流程</h2>
+<p>所有修改都按这个顺序走：</p>
+<pre><code class="language-text">1. SSH 登录宝塔服务器
+2. 记录当前 sha256 和 lsattr
+3. 备份 DB、主配置、扩展配置
+4. 解锁
+5. 修改配置
+6. nginx -t
+7. reload
+8. curl 验证业务
+9. 重新加锁
+10. 重新导出配置
+</code></pre>
+<h3 id="1-登录服务器">1. 登录服务器</h3>
+<pre><code class="language-bash">ssh -i 16.208.5.147_id_ed25519 root@16.208.5.147
+</code></pre>
+<h3 id="2-记录当前状态">2. 记录当前状态</h3>
+<pre><code class="language-bash">VHOST=/www/server/panel/vhost/nginx
+
+lsattr "$VHOST/new.youdianse.com.conf" \
+  "$VHOST/h5.youdianse.com.conf" \
+  "$VHOST/h5.youdianse-main.xyz.conf" \
+  "$VHOST/extension/new.youdianse.com/00-youdianse-fixed-reverse-proxy.conf" \
+  "$VHOST/extension/h5.youdianse.com/00-youdianse-fixed-reverse-proxy.conf" \
+  "$VHOST/extension/h5.youdianse-main.xyz/00-youdianse-fixed-reverse-proxy.conf"
+
+sha256sum "$VHOST/new.youdianse.com.conf" \
+  "$VHOST/h5.youdianse.com.conf" \
+  "$VHOST/h5.youdianse-main.xyz.conf" \
+  "$VHOST/extension/new.youdianse.com/00-youdianse-fixed-reverse-proxy.conf" \
+  "$VHOST/extension/h5.youdianse.com/00-youdianse-fixed-reverse-proxy.conf" \
+  "$VHOST/extension/h5.youdianse-main.xyz/00-youdianse-fixed-reverse-proxy.conf"
+</code></pre>
+<h3 id="3-备份">3. 备份</h3>
+<pre><code class="language-bash">TS=$(date +%Y%m%d%H%M%S)
+VHOST=/www/server/panel/vhost/nginx
+DB=/www/server/panel/data/db/site.db
+
+cp "$DB" "$DB.bak.manual.$TS"
+
+for site in new.youdianse.com h5.youdianse.com h5.youdianse-main.xyz; do
+  cp "$VHOST/$site.conf" "$VHOST/$site.conf.bak.manual.$TS"
+  cp "$VHOST/extension/$site/00-youdianse-fixed-reverse-proxy.conf" \
+    "$VHOST/extension/$site/00-youdianse-fixed-reverse-proxy.conf.bak.manual.$TS"
+done
+
+echo "backup_ts=$TS"
+</code></pre>
+<h3 id="4-解锁">4. 解锁</h3>
+<pre><code class="language-bash">VHOST=/www/server/panel/vhost/nginx
+
+chattr -i "$VHOST/new.youdianse.com.conf"
+chattr -i "$VHOST/h5.youdianse.com.conf"
+chattr -i "$VHOST/h5.youdianse-main.xyz.conf"
+chattr -i "$VHOST/extension/new.youdianse.com/00-youdianse-fixed-reverse-proxy.conf"
+chattr -i "$VHOST/extension/h5.youdianse.com/00-youdianse-fixed-reverse-proxy.conf"
+chattr -i "$VHOST/extension/h5.youdianse-main.xyz/00-youdianse-fixed-reverse-proxy.conf"
+</code></pre>
+<p>解锁后再确认：</p>
+<pre><code class="language-bash">lsattr "$VHOST/new.youdianse.com.conf" \
+  "$VHOST/h5.youdianse.com.conf" \
+  "$VHOST/h5.youdianse-main.xyz.conf" \
+  "$VHOST/extension/new.youdianse.com/00-youdianse-fixed-reverse-proxy.conf" \
+  "$VHOST/extension/h5.youdianse.com/00-youdianse-fixed-reverse-proxy.conf" \
+  "$VHOST/extension/h5.youdianse-main.xyz/00-youdianse-fixed-reverse-proxy.conf"
+</code></pre>
+<p>此时不应再看到 <code>i</code>。</p>
+<h3 id="5-修改配置">5. 修改配置</h3>
+<p>按修改目标选择下面对应章节。</p>
+<h2 id="修改场景-1-改前端-Nuxt-上游地址">修改场景 1：改前端 Nuxt 上游地址</h2>
+<p>当前前端上游：</p>
+<pre><code class="language-text">http://203.0.113.1:3003
+</code></pre>
+<p>需要修改两个位置：</p>
+<ul>
+<li>主 vhost 的 <code>location /</code></li>
+<li>扩展配置的 <code>location ^~ /_nuxt/</code></li>
+</ul>
+<p>批量替换示例：</p>
+<pre><code class="language-bash">VHOST=/www/server/panel/vhost/nginx
+OLD='http://203.0.113.1:3003'
+NEW='http://新前端IP:新端口'
+
+for site in new.youdianse.com h5.youdianse.com h5.youdianse-main.xyz; do
+  sed -i "s#$OLD#$NEW#g" "$VHOST/$site.conf"
+  sed -i "s#$OLD#$NEW#g" "$VHOST/extension/$site/00-youdianse-fixed-reverse-proxy.conf"
+done
+</code></pre>
+<p>检查：</p>
+<pre><code class="language-bash">grep -Rni "proxy_pass" \
+  /www/server/panel/vhost/nginx/new.youdianse.com.conf \
+  /www/server/panel/vhost/nginx/h5.youdianse.com.conf \
+  /www/server/panel/vhost/nginx/h5.youdianse-main.xyz.conf \
+  /www/server/panel/vhost/nginx/extension/new.youdianse.com/00-youdianse-fixed-reverse-proxy.conf \
+  /www/server/panel/vhost/nginx/extension/h5.youdianse.com/00-youdianse-fixed-reverse-proxy.conf \
+  /www/server/panel/vhost/nginx/extension/h5.youdianse-main.xyz/00-youdianse-fixed-reverse-proxy.conf
+</code></pre>
+<h2 id="修改场景-2-改后端-API-上游地址">修改场景 2：改后端 API 上游地址</h2>
+<p>当前后端 API 上游：</p>
+<pre><code class="language-text">http://203.0.113.1:8088
+</code></pre>
+<p>只需要改扩展配置里的 API <code>proxy_pass</code>：</p>
+<pre><code class="language-bash">VHOST=/www/server/panel/vhost/nginx
+OLD='http://203.0.113.1:8088'
+NEW='http://新后端IP:新端口'
+
+for site in new.youdianse.com h5.youdianse.com h5.youdianse-main.xyz; do
+  sed -i "s#$OLD#$NEW#g" "$VHOST/extension/$site/00-youdianse-fixed-reverse-proxy.conf"
+done
+</code></pre>
+<p>检查：</p>
+<pre><code class="language-bash">grep -Rni "203.0.113.1:8088\|新后端IP" \
+  /www/server/panel/vhost/nginx/extension/new.youdianse.com/00-youdianse-fixed-reverse-proxy.conf \
+  /www/server/panel/vhost/nginx/extension/h5.youdianse.com/00-youdianse-fixed-reverse-proxy.conf \
+  /www/server/panel/vhost/nginx/extension/h5.youdianse-main.xyz/00-youdianse-fixed-reverse-proxy.conf
+</code></pre>
+<h2 id="修改场景-3-新增-API-路径前缀">修改场景 3：新增 API 路径前缀</h2>
+<p>当前 API 匹配：</p>
+<pre><code class="language-nginx">location ~ ^/(api|channel|customer)(/|$) {
+</code></pre>
+<p>如果新增 <code>/pay</code> 也要走后端 PHP，改成：</p>
+<pre><code class="language-nginx">location ~ ^/(api|channel|customer|pay)(/|$) {
+</code></pre>
+<p>三份扩展配置都要改：</p>
+<pre><code class="language-bash">VHOST=/www/server/panel/vhost/nginx
+
+for site in new.youdianse.com h5.youdianse.com h5.youdianse-main.xyz; do
+  sed -i 's#location ~ \^/(api|channel|customer)(/|$)#location ~ ^/(api|channel|customer|pay)(/|$)#' \
+    "$VHOST/extension/$site/00-youdianse-fixed-reverse-proxy.conf"
+done
+</code></pre>
+<p>注意：Nginx 正则里括号、竖线和 <code>$</code> 很容易被 shell 误处理。改完必须用 <code>nginx -t</code>。</p>
+<h2 id="修改场景-4-改-CDN-静态资源-CORS">修改场景 4：改 CDN 静态资源 CORS</h2>
+<p>当前 <code>/_nuxt/</code> 静态资源允许任意来源：</p>
+<pre><code class="language-nginx">add_header Access-Control-Allow-Origin "*" always;
+</code></pre>
+<p>如果要改成只允许指定来源，例如只允许 <code>https://h5.youdianse.com</code>：</p>
+<pre><code class="language-nginx">add_header Access-Control-Allow-Origin "https://h5.youdianse.com" always;
+</code></pre>
+<p>三份扩展配置都要改：</p>
+<pre><code class="language-bash">VHOST=/www/server/panel/vhost/nginx
+
+for site in new.youdianse.com h5.youdianse.com h5.youdianse-main.xyz; do
+  sed -i 's#add_header Access-Control-Allow-Origin "\\*" always;#add_header Access-Control-Allow-Origin "https://h5.youdianse.com" always;#' \
+    "$VHOST/extension/$site/00-youdianse-fixed-reverse-proxy.conf"
+done
+</code></pre>
+<p>当前业务有多个域名、CloudFront 域名和跨站加载场景，收紧 CORS 前要先确认所有页面来源。</p>
+<h2 id="修改场景-5-增加-CloudFront-回源域名">修改场景 5：增加 CloudFront 回源域名</h2>
+<p>如果 CloudFront 分配域名变化，或者新增一个 CloudFront origin Host，需要改两处：</p>
+<h3 id="1-主-vhost-的-server_name">1. 主 vhost 的 <code>server_name</code></h3>
+<p><code>d38owkgqvg83bq.cloudfront.net</code> 当前写在：</p>
+<pre><code class="language-text">/www/server/panel/vhost/nginx/new.youdianse.com.conf
+</code></pre>
+<p>检查：</p>
+<pre><code class="language-bash">grep -n "server_name" /www/server/panel/vhost/nginx/new.youdianse.com.conf
+</code></pre>
+<p>新增域名时，把新域名追加到 <code>server_name</code> 行，末尾保留分号。</p>
+<h3 id="2-宝塔-DB-的-domain-表">2. 宝塔 DB 的 <code>domain</code> 表</h3>
+<p>宝塔面板读域名列表时会使用：</p>
+<pre><code class="language-text">/www/server/panel/data/db/site.db
+</code></pre>
+<p>查看当前域名：</p>
+<pre><code class="language-bash">sqlite3 -header -column /www/server/panel/data/db/site.db \
+  "select id,pid,name,port,addtime from domain where name like '%cloudfront%' or name like '%youdianse%' order by id;"
+</code></pre>
+<p>如果只是修正旧值：</p>
+<pre><code class="language-bash">sqlite3 /www/server/panel/data/db/site.db \
+  "update domain set name='新cloudfront域名' where name='旧cloudfront域名';"
+</code></pre>
+<p>如果是新增域名到 <code>new.youdianse.com</code> 这个站点，需要先确认 <code>pid</code>。当前 <code>new.youdianse.com</code> 对应 <code>sites.id=23</code>，所以 domain 表里 <code>pid=23</code>。</p>
+<p>新增示例：</p>
+<pre><code class="language-bash">sqlite3 /www/server/panel/data/db/site.db \
+  "insert into domain(pid,name,port,addtime) values(23,'新cloudfront域名',80,datetime('now','localtime'));"
+</code></pre>
+<p>新增前先确认不要重复：</p>
+<pre><code class="language-bash">sqlite3 -header -column /www/server/panel/data/db/site.db \
+  "select * from domain where name='新cloudfront域名';"
+</code></pre>
+<h2 id="修改场景-6-新增一个-H5-域名">修改场景 6：新增一个 H5 域名</h2>
+<p>推荐做法：</p>
+<pre><code class="language-text">1. 先在宝塔面板创建反向代理站点或复制现有 vhost。
+2. 确认主 vhost 有 include extension/&lt;新域名&gt;/*.conf。
+3. 把固定扩展配置复制过去。
+4. 主 vhost 的 location / 指向前端 Nuxt。
+5. 如果该域名也有 API，扩展配置保留 API 分流。
+6. nginx -t &amp;&amp; nginx -s reload。
+7. curl 验证。
+8. chattr +i 锁住主 vhost 和固定扩展配置。
+9. 更新本地文档和服务器导出。
+</code></pre>
+<p>复制扩展配置示例：</p>
+<pre><code class="language-bash">VHOST=/www/server/panel/vhost/nginx
+NEW_SITE=example.youdianse.com
+
+mkdir -p "$VHOST/extension/$NEW_SITE"
+cp "$VHOST/extension/new.youdianse.com/00-youdianse-fixed-reverse-proxy.conf" \
+  "$VHOST/extension/$NEW_SITE/00-youdianse-fixed-reverse-proxy.conf"
+</code></pre>
+<p>主 vhost 里必须有：</p>
+<pre><code class="language-nginx">include /www/server/panel/vhost/nginx/extension/example.youdianse.com/*.conf;
+</code></pre>
+<p>加锁：</p>
+<pre><code class="language-bash">chattr +i "$VHOST/$NEW_SITE.conf"
+chattr +i "$VHOST/extension/$NEW_SITE/00-youdianse-fixed-reverse-proxy.conf"
+</code></pre>
+<h2 id="修改后测试">修改后测试</h2>
+<p>每次改完必须执行：</p>
+<pre><code class="language-bash">nginx -t
+</code></pre>
+<p>通过后 reload：</p>
+<pre><code class="language-bash">nginx -s reload
+</code></pre>
+<h3 id="本机回源测试">本机回源测试</h3>
+<p>在宝塔服务器本机测试，不经过 DNS 和 CDN：</p>
+<pre><code class="language-bash">curl -sS -D - -o /dev/null http://203.0.113.1/ \
+  -H 'Host: new.youdianse.com'
+
+curl -sS -D - -o /dev/null http://203.0.113.1/_nuxt/BACjjO3D.js \
+  -H 'Host: d38owkgqvg83bq.cloudfront.net' \
+  -H 'Origin: https://www.bochuang99.com'
+
+curl -sS -D - -o /dev/null -X OPTIONS http://203.0.113.1/_nuxt/BACjjO3D.js \
+  -H 'Host: d38owkgqvg83bq.cloudfront.net' \
+  -H 'Origin: https://www.bochuang99.com' \
+  -H 'Access-Control-Request-Method: GET'
+</code></pre>
+<p>预期：</p>
+<pre><code class="language-text">/                       -&gt; 200
+/_nuxt/*.js             -&gt; 200
+OPTIONS /_nuxt/*.js     -&gt; 204
+</code></pre>
+<p>静态资源响应头应包含：</p>
+<pre><code class="language-text">Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET, HEAD, OPTIONS
+Cross-Origin-Resource-Policy: cross-origin
+</code></pre>
+<h3 id="公网测试">公网测试</h3>
+<pre><code class="language-bash">curl -I -L --max-time 20 https://new.youdianse.com/
+curl -I -L --max-time 20 https://h5.youdianse.com/
+curl -I -L --max-time 20 https://h5.youdianse-main.xyz/
+</code></pre>
+<p>预期：</p>
+<pre><code class="language-text">HTTP/2 200
+content-type: text/html;charset=utf-8
+x-powered-by: Nuxt
+</code></pre>
+<p>CloudFront 静态资源：</p>
+<pre><code class="language-bash">curl -sS -D - -o /dev/null --max-time 20 \
+  'https://d38owkgqvg83bq.cloudfront.net/_nuxt/BACjjO3D.js' \
+  -H 'Origin: https://www.bochuang99.com'
+</code></pre>
+<p>预期：</p>
+<pre><code class="language-text">HTTP/2 200
+access-control-allow-origin: *
+</code></pre>
+<p>CloudFront 预检：</p>
+<pre><code class="language-bash">curl -sS -D - -o /dev/null --max-time 20 -X OPTIONS \
+  'https://d38owkgqvg83bq.cloudfront.net/_nuxt/BACjjO3D.js' \
+  -H 'Origin: https://www.bochuang99.com' \
+  -H 'Access-Control-Request-Method: GET'
+</code></pre>
+<p>预期：</p>
+<pre><code class="language-text">HTTP/2 204
+access-control-allow-origin: *
+</code></pre>
+<p>API 头兜底测试：</p>
+<pre><code class="language-bash">curl -sS --max-time 20 -X POST \
+  'https://new.youdianse.com/api/v1/modules/home' \
+  -H 'accept: */*' \
+  -H 'content-type: application/json' \
+  --data '{}' | wc -c
+</code></pre>
+<p>预期：返回加密响应体长度，不再返回明文：</p>
+<pre><code class="language-text">{"status":"n","error":"数据封装错误!","errorCode":2001}
+</code></pre>
+<p>注意：这个测试请求体不是正式前端加密请求，所以只用于确认 Nginx 头兜底是否生效。真正业务以浏览器页面和正式 API 请求为准。</p>
+<h2 id="修改后重新加锁">修改后重新加锁</h2>
+<p>验证通过后立刻加锁：</p>
+<pre><code class="language-bash">VHOST=/www/server/panel/vhost/nginx
+
+chattr +i "$VHOST/new.youdianse.com.conf"
+chattr +i "$VHOST/h5.youdianse.com.conf"
+chattr +i "$VHOST/h5.youdianse-main.xyz.conf"
+chattr +i "$VHOST/extension/new.youdianse.com/00-youdianse-fixed-reverse-proxy.conf"
+chattr +i "$VHOST/extension/h5.youdianse.com/00-youdianse-fixed-reverse-proxy.conf"
+chattr +i "$VHOST/extension/h5.youdianse-main.xyz/00-youdianse-fixed-reverse-proxy.conf"
+</code></pre>
+<p>确认：</p>
+<pre><code class="language-bash">lsattr "$VHOST/new.youdianse.com.conf" \
+  "$VHOST/h5.youdianse.com.conf" \
+  "$VHOST/h5.youdianse-main.xyz.conf" \
+  "$VHOST/extension/new.youdianse.com/00-youdianse-fixed-reverse-proxy.conf" \
+  "$VHOST/extension/h5.youdianse.com/00-youdianse-fixed-reverse-proxy.conf" \
+  "$VHOST/extension/h5.youdianse-main.xyz/00-youdianse-fixed-reverse-proxy.conf"
+</code></pre>
+<h2 id="修改后重新导出">修改后重新导出</h2>
+<p>每次线上配置变更后，建议重新导出一份：</p>
+<pre><code class="language-bash">TS=$(date +%Y%m%d-%H%M%S)
+VHOST=/www/server/panel/vhost/nginx
+EXPORT="$VHOST/exports/youdianse-reverse-proxy-$TS"
+
+mkdir -p "$EXPORT/main" "$EXPORT/extension" "$EXPORT/db"
+
+cp "$VHOST/new.youdianse.com.conf" "$EXPORT/main/"
+cp "$VHOST/h5.youdianse.com.conf" "$EXPORT/main/"
+cp "$VHOST/h5.youdianse-main.xyz.conf" "$EXPORT/main/"
+
+for site in new.youdianse.com h5.youdianse.com h5.youdianse-main.xyz; do
+  mkdir -p "$EXPORT/extension/$site"
+  cp "$VHOST/extension/$site/00-youdianse-fixed-reverse-proxy.conf" "$EXPORT/extension/$site/"
+  cp "$VHOST/extension/$site/site_total.conf" "$EXPORT/extension/$site/" 2&gt;/dev/null || true
+done
+
+sqlite3 -header -column /www/server/panel/data/db/site.db \
+  "select id,pid,name,port,addtime from domain where name like '%youdianse%' or name like '%cloudfront%' order by id;" \
+  &gt; "$EXPORT/db/domain_rows.txt"
+
+lsattr "$VHOST/new.youdianse.com.conf" \
+  "$VHOST/h5.youdianse.com.conf" \
+  "$VHOST/h5.youdianse-main.xyz.conf" \
+  "$VHOST/extension/new.youdianse.com/00-youdianse-fixed-reverse-proxy.conf" \
+  "$VHOST/extension/h5.youdianse.com/00-youdianse-fixed-reverse-proxy.conf" \
+  "$VHOST/extension/h5.youdianse-main.xyz/00-youdianse-fixed-reverse-proxy.conf" \
+  &gt; "$EXPORT/lsattr.txt"
+
+find "$EXPORT" -type f -print | sort | xargs sha256sum &gt; "$EXPORT/sha256sum.txt"
+tar -C "$VHOST/exports" -czf "$EXPORT.tar.gz" "$(basename "$EXPORT")"
+
+echo "$EXPORT"
+echo "$EXPORT.tar.gz"
+</code></pre>
+<h2 id="安全验证宝塔覆盖不会生效">安全验证宝塔覆盖不会生效</h2>
+<p>不要用生产配置文件做覆盖测试。可以用临时文件验证同一台机器上的 <code>chattr +i</code> 行为：</p>
+<pre><code class="language-bash">tmp=/tmp/baota-immutable-overwrite-test-$$.conf
+printf "original\n" &gt; "$tmp"
+chattr +i "$tmp"
+
+if printf "overwritten\n" &gt; "$tmp"; then
+  echo "ERROR: immutable did not block overwrite"
+else
+  echo "OK: immutable blocked overwrite"
+fi
+
+chattr -i "$tmp"
+rm -f "$tmp"
+</code></pre>
+<p>同时只读检查生产文件：</p>
+<pre><code class="language-bash">VHOST=/www/server/panel/vhost/nginx
+lsattr "$VHOST/new.youdianse.com.conf" \
+  "$VHOST/h5.youdianse.com.conf" \
+  "$VHOST/h5.youdianse-main.xyz.conf" \
+  "$VHOST/extension/new.youdianse.com/00-youdianse-fixed-reverse-proxy.conf" \
+  "$VHOST/extension/h5.youdianse.com/00-youdianse-fixed-reverse-proxy.conf" \
+  "$VHOST/extension/h5.youdianse-main.xyz/00-youdianse-fixed-reverse-proxy.conf"
+
+nginx -t
+</code></pre>
+<h2 id="回滚方法">回滚方法</h2>
+<h3 id="回滚-Nginx-配置">回滚 Nginx 配置</h3>
+<p>先找到备份：</p>
+<pre><code class="language-bash">VHOST=/www/server/panel/vhost/nginx
+ls -lh "$VHOST"/*.bak.* | tail -n 30
+find "$VHOST/extension" -name "*.bak.*" -type f | sort | tail -n 30
+</code></pre>
+<p>解锁：</p>
+<pre><code class="language-bash">VHOST=/www/server/panel/vhost/nginx
+
+chattr -i "$VHOST/new.youdianse.com.conf"
+chattr -i "$VHOST/h5.youdianse.com.conf"
+chattr -i "$VHOST/h5.youdianse-main.xyz.conf"
+chattr -i "$VHOST/extension/new.youdianse.com/00-youdianse-fixed-reverse-proxy.conf"
+chattr -i "$VHOST/extension/h5.youdianse.com/00-youdianse-fixed-reverse-proxy.conf"
+chattr -i "$VHOST/extension/h5.youdianse-main.xyz/00-youdianse-fixed-reverse-proxy.conf"
+</code></pre>
+<p>恢复指定备份，例如：</p>
+<pre><code class="language-bash">TS=20260616135122
+VHOST=/www/server/panel/vhost/nginx
+
+cp "$VHOST/new.youdianse.com.conf.bak.fixproxy.$TS" "$VHOST/new.youdianse.com.conf"
+cp "$VHOST/h5.youdianse.com.conf.bak.fixproxy.$TS" "$VHOST/h5.youdianse.com.conf"
+cp "$VHOST/h5.youdianse-main.xyz.conf.bak.fixproxy.$TS" "$VHOST/h5.youdianse-main.xyz.conf"
+</code></pre>
+<p>如果要恢复扩展配置：</p>
+<pre><code class="language-bash">TS=20260616135327
+VHOST=/www/server/panel/vhost/nginx
+
+for site in new.youdianse.com h5.youdianse.com h5.youdianse-main.xyz; do
+  cp "$VHOST/extension/$site/00-youdianse-fixed-reverse-proxy.conf.bak.headers.$TS" \
+    "$VHOST/extension/$site/00-youdianse-fixed-reverse-proxy.conf"
+done
+</code></pre>
+<p>测试并 reload：</p>
+<pre><code class="language-bash">nginx -t
+nginx -s reload
+</code></pre>
+<p>重新加锁：</p>
+<pre><code class="language-bash">VHOST=/www/server/panel/vhost/nginx
+
+chattr +i "$VHOST/new.youdianse.com.conf"
+chattr +i "$VHOST/h5.youdianse.com.conf"
+chattr +i "$VHOST/h5.youdianse-main.xyz.conf"
+chattr +i "$VHOST/extension/new.youdianse.com/00-youdianse-fixed-reverse-proxy.conf"
+chattr +i "$VHOST/extension/h5.youdianse.com/00-youdianse-fixed-reverse-proxy.conf"
+chattr +i "$VHOST/extension/h5.youdianse-main.xyz/00-youdianse-fixed-reverse-proxy.conf"
+</code></pre>
+<h3 id="回滚宝塔-DB">回滚宝塔 DB</h3>
+<p>DB 备份示例：</p>
+<pre><code class="language-text">/www/server/panel/data/db/site.db.bak.fixproxy.20260616135122
+/www/server/panel/data/db/site.db.bak.manual.&lt;timestamp&gt;
+</code></pre>
+<p>回滚前先停止面板写入风险，至少不要同时在宝塔页面保存站点配置。</p>
+<pre><code class="language-bash">DB=/www/server/panel/data/db/site.db
+cp "$DB" "$DB.bak.before-db-rollback.$(date +%Y%m%d%H%M%S)"
+cp "$DB.bak.fixproxy.20260616135122" "$DB"
+</code></pre>
+<p>检查：</p>
+<pre><code class="language-bash">sqlite3 -header -column /www/server/panel/data/db/site.db \
+  "select id,pid,name,port,addtime from domain where name like '%cloudfront%' or name like '%youdianse%' order by id;"
+</code></pre>
+<h2 id="当前固定扩展配置内容">当前固定扩展配置内容</h2>
+<p>三份扩展配置内容一致：</p>
+<pre><code class="language-nginx"># Fixed reverse proxy rules for youdianse H5.
+# Keep this file outside Baota's generated #PROXY-CONF block so panel saves
+# do not remove the API split, version fallback, or CDN asset CORS headers.
+
+set $youdianse_api_version $http_version;
+if ($youdianse_api_version = "") {
+  set $youdianse_api_version "2.1.1";
+}
+
+set $youdianse_api_device_type $http_devicetype;
+if ($youdianse_api_device_type = "") {
+  set $youdianse_api_device_type "web";
+}
+
+set $youdianse_api_time $http_time;
+if ($youdianse_api_time = "") {
+  set $youdianse_api_time $time_iso8601;
+}
+
+location ^~ /_nuxt/ {
+  if ($request_method = OPTIONS) {
+    return 204;
+  }
+
+  proxy_pass http://203.0.113.1:3003;
+  proxy_set_header Host $http_host;
+  proxy_set_header X-Real-IP $remote_addr;
+  proxy_set_header X-Real-Port $remote_port;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Proto $scheme;
+  proxy_set_header X-Forwarded-Host $host;
+  proxy_set_header X-Forwarded-Port $server_port;
+  proxy_set_header REMOTE-HOST $remote_addr;
+  proxy_connect_timeout 60s;
+  proxy_send_timeout 600s;
+  proxy_read_timeout 600s;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection $connection_upgrade;
+
+  add_header Access-Control-Allow-Origin "*" always;
+  add_header Access-Control-Allow-Methods "GET, HEAD, OPTIONS" always;
+  add_header Access-Control-Allow-Headers "Origin, Range, Accept, Content-Type" always;
+  add_header Cross-Origin-Resource-Policy "cross-origin" always;
+  add_header Strict-Transport-Security "max-age=31536000" always;
+}
+
+location ~ ^/(api|channel|customer)(/|$) {
+  client_max_body_size 50m;
+  proxy_pass http://203.0.113.1:8088;
+  proxy_set_header Host $http_host;
+  proxy_set_header version $youdianse_api_version;
+  proxy_set_header deviceType $youdianse_api_device_type;
+  proxy_set_header time $youdianse_api_time;
+  proxy_set_header X-Real-IP $remote_addr;
+  proxy_set_header X-Real-Port $remote_port;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Proto $scheme;
+  proxy_set_header X-Forwarded-Host $host;
+  proxy_set_header X-Forwarded-Port $server_port;
+  proxy_set_header REMOTE-HOST $remote_addr;
+  proxy_connect_timeout 60s;
+  proxy_send_timeout 600s;
+  proxy_read_timeout 600s;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection $connection_upgrade;
+}
+</code></pre>
+<h2 id="常见问题定位">常见问题定位</h2>
+<h3 id="1-宝塔面板保存提示失败或配置不生效">1. 宝塔面板保存提示失败或配置不生效</h3>
+<p>先看是否加锁：</p>
+<pre><code class="language-bash">lsattr /www/server/panel/vhost/nginx/new.youdianse.com.conf
+</code></pre>
+<p>如果有 <code>i</code>，这是预期行为。需要按标准流程解锁后再改。</p>
+<h3 id="2-Operation-not-permitted">2. <code>Operation not permitted</code></h3>
+<p>通常是文件有 immutable 锁。</p>
+<p>解锁：</p>
+<pre><code class="language-bash">chattr -i /path/to/file
+</code></pre>
+<p>改完记得：</p>
+<pre><code class="language-bash">chattr +i /path/to/file
+</code></pre>
+<h3 id="3-_nuxt-js-404">3. <code>/_nuxt/*.js</code> 404</h3>
+<p>检查：</p>
+<pre><code class="language-bash">grep -Rni "_nuxt\|proxy_pass" /www/server/panel/vhost/nginx/extension/new.youdianse.com/
+curl -sS -D - -o /dev/null http://203.0.113.1/_nuxt/BACjjO3D.js -H 'Host: new.youdianse.com'
+</code></pre>
+<p>重点确认：</p>
+<ul>
+<li><code>location ^~ /_nuxt/</code> 是否存在。</li>
+<li><code>proxy_pass</code> 是否指向 Nuxt SSR：<code>http://203.0.113.1:3003</code>。</li>
+<li>Nuxt 容器是否正在运行并且该资源真实存在。</li>
+</ul>
+<h3 id="4-静态资源跨域">4. 静态资源跨域</h3>
+<p>检查：</p>
+<pre><code class="language-bash">curl -sS -D - -o /dev/null \
+  'https://d38owkgqvg83bq.cloudfront.net/_nuxt/BACjjO3D.js' \
+  -H 'Origin: https://www.bochuang99.com'
+</code></pre>
+<p>必须有：</p>
+<pre><code class="language-text">access-control-allow-origin: *
+cross-origin-resource-policy: cross-origin
+</code></pre>
+<p>如果没有，检查扩展配置里的 <code>add_header ... always;</code> 是否存在，以及 CloudFront 是否缓存了旧响应。</p>
+<h3 id="5-API-返回-数据封装错误">5. API 返回“数据封装错误”</h3>
+<p>检查 API 反代是否给后端补头：</p>
+<pre><code class="language-bash">grep -Rni "proxy_set_header version\|proxy_set_header deviceType\|proxy_set_header time" \
+  /www/server/panel/vhost/nginx/extension/new.youdianse.com/00-youdianse-fixed-reverse-proxy.conf
+</code></pre>
+<p>应包含：</p>
+<pre><code class="language-nginx">proxy_set_header version $youdianse_api_version;
+proxy_set_header deviceType $youdianse_api_device_type;
+proxy_set_header time $youdianse_api_time;
+</code></pre>
+<p>再测试：</p>
+<pre><code class="language-bash">curl -sS --max-time 20 -X POST \
+  'https://new.youdianse.com/api/v1/modules/home' \
+  -H 'accept: */*' \
+  -H 'content-type: application/json' \
+  --data '{}'
+</code></pre>
+<p>如果返回加密字符串，说明 Nginx 必需头兜底已生效。正式业务仍需要前端发送正确加密请求体。</p>
+<h3 id="6-ERR_TOO_MANY_REDIRECTS">6. <code>ERR_TOO_MANY_REDIRECTS</code></h3>
+<p>优先检查：</p>
+<pre><code class="language-bash">grep -Rni "HTTP_TO_HTTPS\|rewrite\|return 301\|error_page 497" \
+  /www/server/panel/vhost/nginx/new.youdianse.com.conf \
+  /www/server/panel/vhost/nginx/h5.youdianse.com.conf \
+  /www/server/panel/vhost/nginx/h5.youdianse-main.xyz.conf
+</code></pre>
+<p>常见原因：</p>
+<ul>
+<li>CloudFront Viewer 到 Origin 的协议策略和源站强制 HTTPS 互相打架。</li>
+<li>宝塔主 vhost 被重写，出现重复跳转规则。</li>
+<li>CDN 缓存了旧的 301/302。</li>
+</ul>
+<h3 id="7-CloudFront-仍然拿到旧内容">7. CloudFront 仍然拿到旧内容</h3>
+<p>先看是否 CloudFront 缓存命中：</p>
+<pre><code class="language-bash">curl -sS -D - -o /dev/null https://h5.youdianse.com/ | grep -i "x-cache"
+</code></pre>
+<p>如果是旧缓存，做 CloudFront invalidation。至少清：</p>
+<pre><code class="language-text">/
+/_nuxt/*
+/api/*
+</code></pre>
+<p>如果只是 Nuxt 构建文件换了 hash，通常新 hash 不需要清缓存；如果旧 hash 曾经缓存了 404 或错误 CORS，建议清 <code>/_nuxt/*</code>。</p>
+<h2 id="本次已验证结果">本次已验证结果</h2>
+<p>2026-06-16 验证结果：</p>
+<pre><code class="language-text">nginx -t                                              OK
+https://new.youdianse.com/                            200
+https://h5.youdianse.com/                             200, CloudFront
+https://h5.youdianse-main.xyz/                        200
+https://d38owkgqvg83bq.cloudfront.net/_nuxt/BACjjO3D.js 200, CORS OK
+OPTIONS /_nuxt/BACjjO3D.js                            204, CORS OK
+API 缺头兜底测试                                      返回加密响应体，不再明文数据封装错误
+</code></pre>
+<p>安全覆盖验证：</p>
+<pre><code class="language-text">生产文件只读检查：六个关键文件都有 immutable i 锁
+临时文件覆盖模拟：Operation not permitted
+覆盖模拟后：生产文件 sha256 未变化
+</code></pre>
+<h2 id="本次备份记录">本次备份记录</h2>
+<p>主配置和 DB 备份时间戳：</p>
+<pre><code class="language-text">20260616135122
+</code></pre>
+<p>API 头兜底扩展配置二次备份时间戳：</p>
+<pre><code class="language-text">20260616135327
+</code></pre>
+<p>备份文件位置：</p>
+<pre><code class="language-text">/www/server/panel/data/db/site.db.bak.fixproxy.20260616135122
+/www/server/panel/vhost/nginx/*.conf.bak.fixproxy.20260616135122
+/www/server/panel/vhost/nginx/extension/&lt;domain&gt;/00-youdianse-fixed-reverse-proxy.conf.bak.headers.20260616135327
+</code></pre>
+<p>导出文件：</p>
+<pre><code class="language-text">/www/server/panel/vhost/nginx/exports/youdianse-reverse-proxy-20260616-135327
+/www/server/panel/vhost/nginx/exports/youdianse-reverse-proxy-20260616-135327.tar.gz
+</code></pre>
+<h2 id="运维注意事项">运维注意事项</h2>
+<ul>
+<li>不要在宝塔面板里随手保存这三个 H5 站点的反代配置；如果文件还锁着，保存会失败或不完整。</li>
+<li>如果必须用宝塔面板改，先解锁，改完马上 <code>nginx -t</code>、reload、curl 验证、重新加锁。</li>
+<li>不要把 <code>/api</code>、<code>/_nuxt</code> 固定规则重新塞回主 vhost 的 <code>#PROXY-CONF</code> 区域。</li>
+<li>不要只改一个域名的扩展配置，三个 H5 域名应保持一致，除非明确要做灰度。</li>
+<li>改 CloudFront 域名时，Nginx <code>server_name</code> 和宝塔 <code>site.db.domain</code> 都要同步。</li>
+<li>改前端上游时，主 vhost 的 <code>location /</code> 和扩展配置的 <code>/_nuxt/</code> 都要同步。</li>
+<li>改后端上游时，扩展配置的 API <code>proxy_pass</code> 要同步。</li>
+<li>每次线上改完，都更新服务器导出和本地文档。</li>
+</ul>
+<h2 id="自动加域名计划任务">自动加域名计划任务</h2>
+<p>2026-06-22 已在宝塔服务器新增计划任务，专门给 <code>new.youdianse.com</code> 加域名，避免人工解锁、改 <code>server_name</code>、同步 <code>site.db</code> 时出错。域名清单直接维护在宝塔计划任务脚本最上方的 <code>H5_DOMAIN_LIST</code>。</p>
+<p>线上位置：</p>
+<pre><code class="language-text">/www/server/youdianse-ops/baota-add-new-youdianse-domains.py
+/www/server/cron/707e5625cf9d0828483ef7c1e9ad4b61
+/www/server/cron/707e5625cf9d0828483ef7c1e9ad4b61.log
+</code></pre>
+<p>宝塔计划任务名称：</p>
+<pre><code class="language-text">游点涩 new.youdianse.com 自动加域名
+</code></pre>
+<p>处理流程：</p>
+<pre><code class="language-text">校验 H5_DOMAIN_LIST -&gt; 缺失时备份 Nginx 配置和 site.db -&gt; 解锁 -&gt; 写 server_name
+-&gt; 写 site.db.domain(pid=23) -&gt; nginx -t -&gt; reload -&gt; 重新加锁 -&gt; Telegram 通知
+</code></pre>
+<p>域名已经存在时只校验，不备份、不 reload、不发 Telegram 成功通知。失败时会从备份还原旧配置和旧 <code>site.db</code>，再重新加锁。</p>
+<p>追加域名时，在宝塔计划任务脚本最上方的 <code>H5_DOMAIN_LIST</code> 保留原有域名并追加新域名：</p>
+<pre><code class="language-bash">read -r -d '' H5_DOMAIN_LIST &lt;&lt;'DOMAINS' || true
+youdianse.vip
+youdianse.one
+youdianse.me
+ydsplay.net
+ydsgames.com
+ydsplay.com
+example.com
+www.example.com
+DOMAINS
+</code></pre>
+<p>保存后最多等 2 分钟自动执行。也可以手动触发：</p>
+<pre><code class="language-bash">flock -xn /www/server/cron/707e5625cf9d0828483ef7c1e9ad4b61.lock \
+  -c /www/server/cron/707e5625cf9d0828483ef7c1e9ad4b61
+</code></pre>
+<p>只验证不修改：</p>
+<pre><code class="language-bash">/usr/bin/python3 -u /www/server/youdianse-ops/baota-add-new-youdianse-domains.py \
+  --dry-run --no-notify \
+  --domain example.com
+</code></pre>
+<p>2026-06-22 已用该任务测试加入：</p>
+<pre><code class="language-text">youdianse.vip
+youdianse.one
+youdianse.me
+ydsplay.net
+ydsgames.com
+</code></pre>
+<p>验证结果：</p>
+<pre><code class="language-text">nginx -t OK
+site.db.domain pid=23 OK
+宝塔域名管理可见 OK
+curl --resolve 直连宝塔 5 个域名均 HTTP/2 200
+Telegram 通知已发送
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#先看结论">先看结论</a></li><li style="margin-left:0.0rem"><a href="#当前流量结构">当前流量结构</a></li><li style="margin-left:0.0rem"><a href="#线上文件清单">线上文件清单</a></li><li style="margin-left:0.0rem"><a href="#为什么不直接在主配置里写全部规则">为什么不直接在主配置里写全部规则</a></li><li style="margin-left:0.0rem"><a href="#当前加锁状态">当前加锁状态</a></li><li style="margin-left:0.0rem"><a href="#标准修改流程">标准修改流程</a></li><li style="margin-left:0.8rem"><a href="#1-登录服务器">1. 登录服务器</a></li><li style="margin-left:0.8rem"><a href="#2-记录当前状态">2. 记录当前状态</a></li><li style="margin-left:0.8rem"><a href="#3-备份">3. 备份</a></li><li style="margin-left:0.8rem"><a href="#4-解锁">4. 解锁</a></li><li style="margin-left:0.8rem"><a href="#5-修改配置">5. 修改配置</a></li><li style="margin-left:0.0rem"><a href="#修改场景-1-改前端-Nuxt-上游地址">修改场景 1：改前端 Nuxt 上游地址</a></li><li style="margin-left:0.0rem"><a href="#修改场景-2-改后端-API-上游地址">修改场景 2：改后端 API 上游地址</a></li><li style="margin-left:0.0rem"><a href="#修改场景-3-新增-API-路径前缀">修改场景 3：新增 API 路径前缀</a></li><li style="margin-left:0.0rem"><a href="#修改场景-4-改-CDN-静态资源-CORS">修改场景 4：改 CDN 静态资源 CORS</a></li><li style="margin-left:0.0rem"><a href="#修改场景-5-增加-CloudFront-回源域名">修改场景 5：增加 CloudFront 回源域名</a></li><li style="margin-left:0.8rem"><a href="#1-主-vhost-的-server_name">1. 主 vhost 的 server_name</a></li><li style="margin-left:0.8rem"><a href="#2-宝塔-DB-的-domain-表">2. 宝塔 DB 的 domain 表</a></li><li style="margin-left:0.0rem"><a href="#修改场景-6-新增一个-H5-域名">修改场景 6：新增一个 H5 域名</a></li><li style="margin-left:0.0rem"><a href="#修改后测试">修改后测试</a></li><li style="margin-left:0.8rem"><a href="#本机回源测试">本机回源测试</a></li><li style="margin-left:0.8rem"><a href="#公网测试">公网测试</a></li><li style="margin-left:0.0rem"><a href="#修改后重新加锁">修改后重新加锁</a></li><li style="margin-left:0.0rem"><a href="#修改后重新导出">修改后重新导出</a></li><li style="margin-left:0.0rem"><a href="#安全验证宝塔覆盖不会生效">安全验证宝塔覆盖不会生效</a></li><li style="margin-left:0.0rem"><a href="#回滚方法">回滚方法</a></li><li style="margin-left:0.8rem"><a href="#回滚-Nginx-配置">回滚 Nginx 配置</a></li><li style="margin-left:0.8rem"><a href="#回滚宝塔-DB">回滚宝塔 DB</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-06-16</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">CDN</span><span class="tag">DNS</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-06-16-2204-【网络调…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606162204-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E5%AE%9D%E5%A1%94%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E5%9B%BA%E5%AE%9A%E9%85%8D%E7%BD%AE%E8%BF%90%E7%BB%B4%E6%89%8B%E5%86%8C.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>线上环境宝塔反向代理固定配置运维手册。本文属于业务系统运维 / 游点涩，文档日期：2026-06-16 22:04 环境：游点涩线上环境（main 分支） 分类：网络调整 用途：记录游点涩 H5 线上宝塔 Nginx 反向代理的当前正常配置、加锁原因、后续修改流程、验证方法和回滚方法。 宝塔面板会根据自己的站点数…</p>
+      <p>关键词：游点涩、Linux、Shell、Docker、Nginx、CDN、DNS、故障排查、业务系统运维、业务系统运维 / 游点涩、线上环境宝塔反向代理固定配置运维手册、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-48ef210feb8a.html"><small>上一篇</small>2026-06-16 生产配置修复</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7f02cccc6cb8.html"><small>下一篇</small>Ghome 上线和维护速查</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-01350151b898.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
