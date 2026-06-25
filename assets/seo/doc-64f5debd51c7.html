@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>正式环境定时任务与飞机通知改造复刻提示词｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="正式环境定时任务与飞机通知改造复刻提示词。本文属于业务系统运维 / 游点涩，文档日期：2026-06-25 环境：游点涩测试环境（dev 分支；正式环境复刻参考） 分类：运维记录 用途：把测试环境已经完成的“清理仓库定时任务清单、明确外部可视化系统管理、CICD Web 重启前发飞机群说明”改造，按同样思路同步到…">
+  <meta name="keywords" content="游点涩，Linux，Shell，Python，Docker，Nginx，监控告警，自动化，业务系统运维，业务系统运维 / 游点涩，正式环境定时任务与飞机通知改造复刻提示词，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-64f5debd51c7.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-64f5debd51c7.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606250910-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E6%AD%A3%E5%BC%8F%E7%8E%AF%E5%A2%83%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E4%B8%8E%E9%A3%9E%E6%9C%BA%E9%80%9A%E7%9F%A5%E6%94%B9%E9%80%A0%E5%A4%8D%E5%88%BB%E6%8F%90%E7%A4%BA%E8%AF%8D.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="正式环境定时任务与飞机通知改造复刻提示词">
+  <meta property="og:description" content="正式环境定时任务与飞机通知改造复刻提示词。本文属于业务系统运维 / 游点涩，文档日期：2026-06-25 环境：游点涩测试环境（dev 分支；正式环境复刻参考） 分类：运维记录 用途：把测试环境已经完成的“清理仓库定时任务清单、明确外部可视化系统管理、CICD Web 重启前发飞机群说明”改造，按同样思路同步到…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-64f5debd51c7.html">
+  <meta property="article:published_time" content="2026-06-25T09:10:00+08:00">
+  <meta property="article:modified_time" content="2026-06-25 09:10">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="正式环境定时任务与飞机通知改造复刻提示词">
+  <meta name="twitter:description" content="正式环境定时任务与飞机通知改造复刻提示词。本文属于业务系统运维 / 游点涩，文档日期：2026-06-25 环境：游点涩测试环境（dev 分支；正式环境复刻参考） 分类：运维记录 用途：把测试环境已经完成的“清理仓库定时任务清单、明确外部可视化系统管理、CICD Web 重启前发飞机群说明”改造，按同样思路同步到…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-64f5debd51c7.html#article","headline":"正式环境定时任务与飞机通知改造复刻提示词","description":"正式环境定时任务与飞机通知改造复刻提示词。本文属于业务系统运维 / 游点涩，文档日期：2026-06-25 环境：游点涩测试环境（dev 分支；正式环境复刻参考） 分类：运维记录 用途：把测试环境已经完成的“清理仓库定时任务清单、明确外部可视化系统管理、CICD Web 重启前发飞机群说明”改造，按同样思路同步到…","datePublished":"2026-06-25T09:10:00+08:00","dateModified":"2026-06-25 09:10","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Linux","Shell","Python","Docker","Nginx","监控告警","自动化","业务系统运维","业务系统运维 / 游点涩","正式环境定时任务与飞机通知改造复刻提示词","php"],"wordCount":2247,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-64f5debd51c7.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-64f5debd51c7.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"正式环境定时任务与飞机通知改造复刻提示词","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-64f5debd51c7.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>正式环境定时任务与飞机通知改造复刻提示词</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>正式环境定时任务与飞机通知改造复刻提示词</h1>
+      <p class="lede">正式环境定时任务与飞机通知改造复刻提示词。本文属于业务系统运维 / 游点涩，文档日期：2026-06-25 环境：游点涩测试环境（dev 分支；正式环境复刻参考） 分类：运维记录 用途：把测试环境已经完成的“清理仓库定时任务清单、明确外部可视化系统管理、CICD Web 重启前发飞机群说明”改造，按同样思路同步到…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-06-25T09:10:00+08:00">发布于 2026-06-25</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,247 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-06-25-0910-【运维记录】测试环境到正式环境定时任务与飞机通知改造复刻提示词.md</code></p>
+<p>整理日期：2026-06-25 09:10｜日期依据：文件名日期</p>
+</blockquote>
+<p>环境标签：混合</p>
+<p>文档日期：2026-06-25
+环境：游点涩测试环境（dev 分支；正式环境复刻参考）
+分类：运维记录</p>
+<p>用途：把测试环境已经完成的“清理仓库定时任务清单、明确外部可视化系统管理、CICD Web 重启前发飞机群说明”改造，按同样思路同步到正式环境 main 分支。</p>
+<p>把下面整段提示词发给 AI，先把占位符补齐，再让 AI 执行。</p>
+<pre><code class="language-text">你是运维自动化助手。我要在“正式环境 / main 分支”做一套和测试环境相同的定时任务边界清理，并在重启发布机器人前往 Telegram 飞机群说明本次更新优化内容。
+
+核心背景：
+1. 业务定时任务已经由外部可视化系统统一管理，不在 docker-youdianse-php 运维仓库维护调度清单。
+2. 线上定时任务入口：https://cron.youdianse-main.xyz
+3. 测试定时任务入口：https://cron.youdianse-test.xyz
+4. 后端发布入口仍是 CICD Web：
+   - 线上后端发布：https://cicd.youdianse-main.xyz
+   - 测试后端发布：https://cicd.youdianse-test.xyz
+5. php-cron 容器仍保留，但它只是外部可视化系统调用 PHP 任务的执行环境，不负责保存调度时间。
+
+正式环境信息：
+- 运维仓库本地路径：&lt;LOCAL_MAIN_REPO_PATH&gt;
+- 正式分支：main
+- 正式服务器：&lt;MAIN_SERVER_IP&gt;
+- SSH：&lt;MAIN_SSH_USER&gt;@&lt;MAIN_SERVER_IP&gt;
+- SSH key 或登录方式：&lt;MAIN_SSH_KEY_OR_LOGIN_METHOD&gt;
+- 服务器运维目录：&lt;MAIN_SERVER_OPS_DIR&gt;
+- CICD Web 管理脚本：./cicd-web.sh
+- CICD Web 正式访问地址：https://cicd.youdianse-main.xyz
+- 线上定时任务地址：https://cron.youdianse-main.xyz
+- Telegram 飞机群：&lt;OPS_TELEGRAM_GROUP_NAME&gt;
+- Telegram token/chat_id 来源：服务器本地 cicd-web/runtime/secrets.env 或 cicd-web/config/settings.json；不要打印敏感值。
+
+参考测试环境已完成的改动：
+- 测试提交：fdf788a Remove repo cron schedules
+- 测试服务器验证结果：
+  - 本地和远端 `cron/` 目录不存在。
+  - README 已明确业务定时任务走外部可视化系统。
+  - `docs/2026-06-25-0900-【运维记录】测试环境CICD-Web自动更新与定时任务边界说明.md` 已改成边界说明，禁止恢复 `cron/`。
+  - CICD Web 重启前已发送 Telegram 更新说明。
+
+目标：
+1. 删除 main 分支仓库里的 `cron/cicd-web-auto-update`。
+2. 删除 main 分支仓库里的 `cron/youdianse-cron`。
+3. 如果删除后 `cron/` 目录为空，目录不再保留。
+4. README 顶部或固定信息处明确：
+   - 线上定时任务：https://cron.youdianse-main.xyz
+   - 测试定时任务：https://cron.youdianse-test.xyz
+   - 业务定时任务由外部可视化系统管理。
+   - 本仓库不保存、不安装业务定时任务清单。
+5. README 中所有“从 `cron/youdianse-cron` 生成 root crontab / 安装 `/etc/cron.d` / 复制 cron 清单”的旧说明都要删除或改成禁止项。
+6. 文档中保留 `php-cron` 的正确定位：
+   - `php-cron` 容器只提供 PHP 执行环境。
+   - 外部系统通过 `/usr/local/bin/cron-task-runner.sh &lt;Class&gt; &lt;method&gt;` 调用业务任务。
+   - 队列仍由 `/usr/local/bin/queue-watchdog.sh` 守护。
+7. 重写旧的自动更新/定时任务提示词文档，明确：
+   - 禁止创建 `cron/` 目录。
+   - 禁止恢复 `cron/youdianse-cron`。
+   - 禁止恢复 `cron/cicd-web-auto-update`。
+   - 禁止从仓库生成 root crontab managed block。
+   - 禁止安装 `/etc/cron.d/youdianse-cron`。
+   - 禁止安装 `/etc/cron.d/cicd-web-auto-update`。
+8. 如果代码里有对 `cron/youdianse-cron` 的特殊预览、注释或提示，也一并清理。
+9. 提交并推送 main 分支。
+10. 正式服务器拉取 main 后，重启 CICD Web。
+11. 重启前必须发 Telegram 飞机群说明本次更新优化了什么。
+
+本地修改步骤：
+1. 进入 main 分支仓库：
+   cd &lt;LOCAL_MAIN_REPO_PATH&gt;
+   git status --short --branch
+   git branch --show-current
+2. 搜索所有定时任务旧入口：
+   rg -n "cron/|youdianse-cron|cicd-web-auto-update|root crontab|/etc/cron\\.d|MANAGED CRON|业务 cron|定时任务" -S README.md docs docker-compose.yml cicd-web entrypoint ops *.py *.sh
+3. 删除历史调度清单：
+   - `cron/cicd-web-auto-update`
+   - `cron/youdianse-cron`
+   如果 `cron/` 没有其他文件，删除空目录。
+4. 修改 README：
+   - 增加或更新运维入口：
+     前端发布
+     • 测试前端：点击下方 🧪 测试前端发布 按钮。
+     • 线上前端：点击下方 🚀 线上前端发布 按钮。
+
+     后端与定时任务
+     • 线上后端发布：https://cicd.youdianse-main.xyz
+     • 线上定时任务：https://cron.youdianse-main.xyz
+     • 测试后端发布：https://cicd.youdianse-test.xyz
+     • 测试定时任务：https://cron.youdianse-test.xyz
+
+     配置修改
+     • 配置仓库：https://18game.18git.com/root/docker-youdianse-php
+     • 线上：选择 main 分支，修改 nginx / php / env，等待 2 分钟后到线上 CICD 发布更新配置。
+     • 测试：选择 dev 分支，修改 nginx / php / env，等待 2 分钟后到测试 CICD 发布更新配置。
+
+     文档与联系人
+     • 帮助文档：https://doc.youdianse.com
+     • 文档更新：联系运维到游点涩测试服务器更新。
+     • 数据 / 打包机 / 域名：@Kermit0824
+     • 文档 / 日常发布 / 监控：@jett_yunwei
+     • 疑难杂症 / 业务模块调整：@Ben_Bird
+   - 删除或改写所有 `cron/youdianse-cron`、`cron/cicd-web-auto-update`、`root crontab managed block`、`/etc/cron.d` 安装说明。
+   - 明确写：不要在本仓库恢复 `cron/` 目录，也不要把业务定时任务写回 root crontab 或 `/etc/cron.d`。
+5. 修改 docs：
+   - 将旧自动更新/定时任务提示词重写成边界说明。
+   - 文档中必须清楚写出两个外部定时任务入口。
+6. 修改代码注释：
+   - `docker-compose.yml` 中关于 cron 清单的注释改成“定时任务由外部可视化系统管理，本仓库不保存或挂载 cron 清单”。
+   - 如果 UI 文件特殊识别 `cron/youdianse-cron`，删除这个特殊判断。
+
+本地验证：
+1. 语法检查：
+   python3 -m py_compile cicd-web-auto-update.py cicd-web.py cicd-web/core.py cicd-web/ui_helpers.py
+   bash -n cicd-web.sh entrypoint/cron-task-runner.sh entrypoint/queue-watchdog.sh entrypoint/cron-entrypoint.sh entrypoint/web-entrypoint.sh
+2. diff 检查：
+   git diff --check
+3. 确认 `cron/` 不再被 Git 跟踪：
+   git ls-files cron
+   预期无输出。
+4. 确认工作区没有 `cron/` 目录：
+   test ! -d cron &amp;&amp; echo "cron directory absent: OK"
+5. 搜索确认没有旧安装教程残留：
+   rg -n "生成 root crontab|安装 root crontab|业务任务从 cron/youdianse-cron|cron/youdianse-cron 仍作为|sed -n '1,20p' cron|cron/cicd-web-auto-update 作为" -S README.md docs docker-compose.yml cicd-web entrypoint ops || true
+6. 允许保留的关键词：
+   - “禁止创建 cron/ 目录”
+   - “不要恢复 cron/”
+   - 外部系统入口 URL
+   - 容器内日志路径 `runtime/logs/cron/&lt;任务名&gt;.log`
+
+提交推送：
+1. git diff --stat
+2. git add README.md docs docker-compose.yml cicd-web/ui_helpers.py cron/cicd-web-auto-update cron/youdianse-cron
+3. git commit -m "Remove repo cron schedules"
+4. git push origin main
+
+正式服务器部署前 Telegram 通知：
+1. 登录正式服务器并进入运维目录。
+2. 在重启 CICD Web 之前，先发送一条 Telegram 普通文本消息到运维飞机群。
+3. 不要打印 token/chat_id；从 `cicd-web/runtime/secrets.env` 或 `cicd-web/config/settings.json` 读取。
+4. 消息模板：
+
+【游点涩线上】CICD Web 重启更新说明
+本次更新：清理仓库内历史 cron 定时任务清单，避免后续误从 Git 生成 root crontab 或 /etc/cron.d。
+优化点：
+1. 删除 cron/youdianse-cron 和 cron/cicd-web-auto-update。
+2. README 明确定时任务由外部可视化系统管理。
+3. 保留 php-cron 仅作为外部系统调用业务任务的执行环境。
+4. 重写旧自动更新/定时任务提示词，明确禁止恢复 cron/ 目录。
+入口：线上定时任务 https://cron.youdianse-main.xyz；测试定时任务 https://cron.youdianse-test.xyz
+稍后将拉取最新 main 并重启 CICD Web。
+
+正式服务器部署：
+1. SSH 登录正式服务器。
+2. 进入正式运维目录：
+   cd &lt;MAIN_SERVER_OPS_DIR&gt;
+3. 确认状态：
+   git status --short --branch
+   git rev-parse --short HEAD
+4. 拉取 main：
+   git pull --ff-only origin main
+5. 重启 CICD Web：
+   ./cicd-web.sh restart
+   ./cicd-web.sh status
+6. 确认 `cron/` 目录不存在：
+   test ! -d cron &amp;&amp; echo "cron directory absent: OK"
+7. 确认仓库干净：
+   git status --short --branch
+8. 如果正式服务器上有旧的 `/etc/cron.d/youdianse-cron` 或 `/etc/cron.d/cicd-web-auto-update`，不要直接删除，先汇报给用户确认；业务定时任务应迁移到 https://cron.youdianse-main.xyz 后再清理。
+
+完成后汇报：
+1. 本地 main 分支提交号。
+2. 删除了哪些 `cron/` 文件。
+3. README/docs 是否已明确外部可视化定时系统入口。
+4. Telegram 飞机群是否已发送重启更新说明。
+5. 正式服务器是否已拉到最新 main。
+6. CICD Web 是否已重启并运行中。
+7. 正式服务器 `cron/` 目录是否不存在。
+8. 是否发现旧 `/etc/cron.d` 文件，如有是否已暂停等待确认。
+</code></pre>
+      </article>
+      <aside class="aside">
+        
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-06-25</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">监控告警</span><span class="tag">自动化</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-06-25-0910-【运维记录…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202606250910-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E6%AD%A3%E5%BC%8F%E7%8E%AF%E5%A2%83%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E4%B8%8E%E9%A3%9E%E6%9C%BA%E9%80%9A%E7%9F%A5%E6%94%B9%E9%80%A0%E5%A4%8D%E5%88%BB%E6%8F%90%E7%A4%BA%E8%AF%8D.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>正式环境定时任务与飞机通知改造复刻提示词。本文属于业务系统运维 / 游点涩，文档日期：2026-06-25 环境：游点涩测试环境（dev 分支；正式环境复刻参考） 分类：运维记录 用途：把测试环境已经完成的“清理仓库定时任务清单、明确外部可视化系统管理、CICD Web 重启前发飞机群说明”改造，按同样思路同步到…</p>
+      <p>关键词：游点涩、Linux、Shell、Python、Docker、Nginx、监控告警、自动化、业务系统运维、业务系统运维 / 游点涩、正式环境定时任务与飞机通知改造复刻提示词、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d959653245ed.html"><small>上一篇</small>CICD Web 自动更新与定时任务边界说明</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5657ef17bd35.html"><small>下一篇</small>正式环境新增运维发布人员复刻提示词</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-64f5debd51c7.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
