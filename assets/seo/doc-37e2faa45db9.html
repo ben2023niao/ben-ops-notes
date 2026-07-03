@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>2026-07-04 PG 拆分静态域名池维护说明｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
+  <meta name="description" content="2026-07-04 PG 拆分静态域名池维护说明。本文属于历史运维与项目交付 / 巴西主站，测试反馈 PG 部分游戏进入后出现认证登录类报错。排查平台 API 日志时，服务端 p_login 链路本身能正常完成并生成 launcher，但日志里能看到特殊游戏只带了单个静态域名，例如 PG65 只返回： 这会让…">
+  <meta name="keywords" content="巴西主站，Shell，Docker，Nginx，自动化，CDN，故障排查，源码与配置，历史运维与项目交付，历史运维与项目交付 / 巴西主站，2026-07-04 PG 拆分静态域名池维护说明">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-37e2faa45db9.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-37e2faa45db9.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607040000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BDocker-2026-07-04%20PG%20%E6%8B%86%E5%88%86%E9%9D%99%E6%80%81%E5%9F%9F%E5%90%8D%E6%B1%A0%E7%BB%B4%E6%8A%A4%E8%AF%B4%E6%98%8E.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="2026-07-04 PG 拆分静态域名池维护说明">
+  <meta property="og:description" content="2026-07-04 PG 拆分静态域名池维护说明。本文属于历史运维与项目交付 / 巴西主站，测试反馈 PG 部分游戏进入后出现认证登录类报错。排查平台 API 日志时，服务端 p_login 链路本身能正常完成并生成 launcher，但日志里能看到特殊游戏只带了单个静态域名，例如 PG65 只返回： 这会让…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-37e2faa45db9.html">
+  <meta property="article:published_time" content="2026-07-04T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-07-04 00:00">
+  <meta property="article:section" content="历史运维与项目交付 / 巴西主站">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="2026-07-04 PG 拆分静态域名池维护说明">
+  <meta name="twitter:description" content="2026-07-04 PG 拆分静态域名池维护说明。本文属于历史运维与项目交付 / 巴西主站，测试反馈 PG 部分游戏进入后出现认证登录类报错。排查平台 API 日志时，服务端 p_login 链路本身能正常完成并生成 launcher，但日志里能看到特殊游戏只带了单个静态域名，例如 PG65 只返回： 这会让…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-37e2faa45db9.html#article","headline":"2026-07-04 PG 拆分静态域名池维护说明","description":"2026-07-04 PG 拆分静态域名池维护说明。本文属于历史运维与项目交付 / 巴西主站，测试反馈 PG 部分游戏进入后出现认证登录类报错。排查平台 API 日志时，服务端 p_login 链路本身能正常完成并生成 launcher，但日志里能看到特殊游戏只带了单个静态域名，例如 PG65 只返回： 这会让…","datePublished":"2026-07-04T00:00:00+08:00","dateModified":"2026-07-04 00:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","Docker","Nginx","自动化","CDN","故障排查","源码与配置","历史运维与项目交付","历史运维与项目交付 / 巴西主站","2026-07-04 PG 拆分静态域名池维护说明"],"wordCount":1253,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-37e2faa45db9.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-37e2faa45db9.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-07-04 PG 拆分静态域名池维护说明","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-37e2faa45db9.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 巴西主站</span> › <span>2026-07-04 PG 拆分静态域名池维护说明</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
+      <h1>2026-07-04 PG 拆分静态域名池维护说明</h1>
+      <p class="lede">2026-07-04 PG 拆分静态域名池维护说明。本文属于历史运维与项目交付 / 巴西主站，测试反馈 PG 部分游戏进入后出现认证登录类报错。排查平台 API 日志时，服务端 p_login 链路本身能正常完成并生成 launcher，但日志里能看到特殊游戏只带了单个静态域名，例如 PG65 只返回： 这会让…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-07-04T00:00:00+08:00">发布于 2026-07-04</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,253 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-07-04-【网络调整】PG拆分静态域名池维护说明.md</code></p>
+<p>整理日期：2026-07-04 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>本文记录 2026-07-04 PG 特殊资源包拆分静态域名的维护变更，供后续 AI / Codex / 运维助手接手时快速理解现场。</p>
+<h2 id="背景">背景</h2>
+<p>测试反馈 PG 部分游戏进入后出现认证登录类报错。排查平台 API 日志时，服务端 <code>p_login</code> 链路本身能正常完成并生成 launcher，但日志里能看到特殊游戏只带了单个静态域名，例如 PG65 只返回：</p>
+<pre><code class="language-text">['pg4-static.xqv9m8.icu']
+</code></pre>
+<p>这会让 PG3 / PG4 / PG5 三组特殊资源包没有完整的静态域名池，前端资源选择和容灾能力不足。</p>
+<p>本次目标：</p>
+<ul>
+<li>PG3 / PG4 / PG5 的 <code>static_hosts</code> 从单域名扩成完整 22 个域名。</li>
+<li>宝塔 Nginx 同步把 22 个域名映射到对应静态目录。</li>
+<li>发布 <code>platform-api</code>，让游戏登录生成的 launcher 使用完整域名池。</li>
+<li>每次类似大维护变更后，在 <code>docker/doc</code> 新增日期格式维护 prompt 文档。</li>
+</ul>
+<h2 id="涉及游戏分组">涉及游戏分组</h2>
+<p>PG 特殊资源包目前在 <code>platform-api/conf/domains/pg.json</code> 的 <code>special_games</code> 内维护：</p>
+<pre><code class="language-text">pg3: 1799745, 2100928, 1849515, 1940257, 1981965, 67
+pg4: 65, 74
+pg5: 91
+</code></pre>
+<p>目录映射：</p>
+<pre><code class="language-text">/www/wwwroot/pg3-static -&gt; pg3-static.*
+/www/wwwroot/pg4-static -&gt; pg4-static.*
+/www/wwwroot/pg5-static -&gt; pg5-static.*
+</code></pre>
+<h2 id="域名规则">域名规则</h2>
+<p>本次按当前 <code>pg.json</code> 的 default 静态域名池扩展。根域名共 22 个：</p>
+<pre><code class="language-text">xqv9m8.icu
+t6qv8m.icu
+p8m7xv.cyou
+m7v8k3.cyou
+q7m9v8.icu
+m6xv8q.cyou
+qv9m8.icu
+6qv8m.icu
+8m7xv.cyou
+7v8k3.cyou
+7m9v8.icu
+6xv8q.cyou
+tada-cf-2026.cyou
+tada-host-game.icu
+tada-cf-game.cyou
+tada-cdn-2026.icu
+tada-cdn-game.icu
+tada-host-2026.icu
+cdn-tokyo-dbqp.icu
+cdn-tokyo-dbqp.cyou
+cdn-manila-dbqp.icu
+cdn-manila-dbqp.cyou
+</code></pre>
+<p>生成规则：</p>
+<pre><code class="language-text">pg3-static.&lt;root&gt;
+pg4-static.&lt;root&gt;
+pg5-static.&lt;root&gt;
+</code></pre>
+<p>每组各 22 个静态域名，共 66 个新静态域名入口。</p>
+<h2 id="代码变更">代码变更</h2>
+<p>已修改：</p>
+<pre><code class="language-text">platform-api/conf/domains/pg.json
+</code></pre>
+<p>关键提交：</p>
+<pre><code class="language-text">132b99a ops: route pg split static domains
+1d61a87 ops: fill pg3 game hosts
+442378e ops: expand pg split static hosts
+</code></pre>
+<p>注意：</p>
+<ul>
+<li><code>132b99a</code> 创建 PG3 / PG4 / PG5 特殊静态域名分流，并在 <code>game_domains_manager.py</code> 增加空数组兜底能力。</li>
+<li><code>1d61a87</code> 显式补上 PG3 的 <code>game_hosts</code>，避免配置层看起来为空。</li>
+<li><code>442378e</code> 把 PG3 / PG4 / PG5 的 <code>static_hosts</code> 全部扩成 22 个。</li>
+</ul>
+<p>当前期望：</p>
+<pre><code class="language-text">PG 67  -&gt; static_hosts=22, game_hosts=22, static prefix=pg3-static
+PG 65  -&gt; static_hosts=22, game_hosts=22, static prefix=pg4-static
+PG 74  -&gt; static_hosts=22, game_hosts=22, static prefix=pg4-static
+PG 91  -&gt; static_hosts=22, game_hosts=22, static prefix=pg5-static
+PG 135 -&gt; static_hosts=22, game_hosts=22, static prefix=pg-static
+</code></pre>
+<h2 id="宝塔-Nginx-变更">宝塔 Nginx 变更</h2>
+<p>宝塔服务器：</p>
+<pre><code class="language-text">35.247.205.6
+</code></pre>
+<p>Nginx 配置文件：</p>
+<pre><code class="language-text">/www/server/panel/vhost/nginx/pg3-static.xqv9m8.icu.conf
+/www/server/panel/vhost/nginx/pg4-static.xqv9m8.icu.conf
+/www/server/panel/vhost/nginx/pg5-static.xqv9m8.icu.conf
+</code></pre>
+<p>每个配置文件只保留一个站点文件，但 <code>server_name</code> 扩成该组 22 个域名，分别指向：</p>
+<pre><code class="language-text">root /www/wwwroot/pg3-static;
+root /www/wwwroot/pg4-static;
+root /www/wwwroot/pg5-static;
+</code></pre>
+<p>已执行：</p>
+<pre><code class="language-bash">/www/server/nginx/sbin/nginx -t
+/www/server/nginx/sbin/nginx -s reload
+</code></pre>
+<p>结果：</p>
+<pre><code class="language-text">nginx: configuration file /www/server/nginx/conf/nginx.conf test is successful
+</code></pre>
+<h2 id="发布结果">发布结果</h2>
+<p>已发布：</p>
+<pre><code class="language-text">platform-api 442378e
+</code></pre>
+<p>发布结果：</p>
+<pre><code class="language-text">dbqp-saopaulo-sanic-prod-01 (203.0.113.1): 成功
+dbqp-saopaulo-sanic-prod-02 (203.0.113.1): 成功
+汇总: 成功=2, 失败=0
+</code></pre>
+<p>线上容器镜像：</p>
+<pre><code class="language-text">dbqp-platform-api-release-01 | pgserver:master-442378e
+dbqp-platform-api-release-02 | pgserver:master-442378e
+</code></pre>
+<h2 id="验证结果">验证结果</h2>
+<h3 id="1-运行时配置校验">1. 运行时配置校验</h3>
+<p>在 01 / 02 容器内执行 <code>GameDomainManager.get_hosts_by_provider("pg", gid)</code>：</p>
+<pre><code class="language-text">67  -&gt; static_hosts=22, game_hosts=22
+65  -&gt; static_hosts=22, game_hosts=22
+74  -&gt; static_hosts=22, game_hosts=22
+91  -&gt; static_hosts=22, game_hosts=22
+135 -&gt; static_hosts=22, game_hosts=22
+</code></pre>
+<h3 id="2-静态资源域名校验">2. 静态资源域名校验</h3>
+<p>批量检查 66 个真实 URL，全部 200：</p>
+<pre><code class="language-text">pg3-static.* /67/index.html                         ok=22
+pg4-static.* /65/922d4f1ffd.f244d.json              ok=22
+pg5-static.* /91/index.html                         ok=22
+SUMMARY ok=66 bad=0 total=66
+</code></pre>
+<p>单项示例：</p>
+<pre><code class="language-text">https://pg3-static.xqv9m8.icu/67/index.html                  200
+https://pg4-static.t6qv8m.icu/65/922d4f1ffd.f244d.json       200
+https://pg5-static.cdn-manila-dbqp.cyou/91/index.html        200
+</code></pre>
+<h3 id="3-登录日志观察">3. 登录日志观察</h3>
+<p>变更前查看平台 API 近期日志：</p>
+<ul>
+<li><code>p_register</code>、<code>p_login</code>、<code>on_user_login</code> 能正常完成。</li>
+<li>launcher 能正常生成。</li>
+<li>日志中 PG65 当时只输出 <code>['pg4-static.xqv9m8.icu']</code>，说明问题重点不是平台 API 登录主链路失败，而是特殊资源包静态域名池过窄。</li>
+</ul>
+<p>后续测试时，如仍看到“认证失败”，优先再查：</p>
+<pre><code class="language-text">/opt/pgserver/logs/dbqp-platform-api-release-01/platform-api.log
+/opt/pgserver/logs/dbqp-platform-api-release-02/platform-api.log
+</code></pre>
+<p>重点 grep：</p>
+<pre><code class="language-text">auth
+login
+token
+认证
+登录
+身份
+失败
+error
+exception
+traceback
+pg3-static
+pg4-static
+pg5-static
+</code></pre>
+<h2 id="后续维护约定">后续维护约定</h2>
+<p>每次做这种“影响线上域名、部署、发布策略、机器人、宝塔、容器、平台配置”的较大维护改动，都要在 <code>docker/doc</code> 里新增一份日期格式文档。</p>
+<p>建议命名：</p>
+<pre><code class="language-text">docker/doc/YYYY-MM-DD-中文主题说明.md
+</code></pre>
+<p>文档至少包含：</p>
+<ul>
+<li>背景和故障现象。</li>
+<li>涉及服务、目录、域名、容器、服务器。</li>
+<li>修改的文件和提交 ID。</li>
+<li>线上命令或操作摘要。</li>
+<li>验证命令和验证结果。</li>
+<li>后续 AI 接手时的注意事项。</li>
+</ul>
+<p>这份文档就是该规则的第一份执行记录。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#背景">背景</a></li><li style="margin-left:0.0rem"><a href="#涉及游戏分组">涉及游戏分组</a></li><li style="margin-left:0.0rem"><a href="#域名规则">域名规则</a></li><li style="margin-left:0.0rem"><a href="#代码变更">代码变更</a></li><li style="margin-left:0.0rem"><a href="#宝塔-Nginx-变更">宝塔 Nginx 变更</a></li><li style="margin-left:0.0rem"><a href="#发布结果">发布结果</a></li><li style="margin-left:0.0rem"><a href="#验证结果">验证结果</a></li><li style="margin-left:0.8rem"><a href="#1-运行时配置校验">1. 运行时配置校验</a></li><li style="margin-left:0.8rem"><a href="#2-静态资源域名校验">2. 静态资源域名校验</a></li><li style="margin-left:0.8rem"><a href="#3-登录日志观察">3. 登录日志观察</a></li><li style="margin-left:0.0rem"><a href="#后续维护约定">后续维护约定</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 巴西主站</li>
+          <li>日期：2026-07-04</li>
+          <li>标签：<span class="tag">巴西主站</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">自动化</span><span class="tag">CDN</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-07-04-【网络调整】PG拆分静态域名池维护说明.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607040000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BDocker-2026-07-04%20PG%20%E6%8B%86%E5%88%86%E9%9D%99%E6%80%81%E5%9F%9F%E5%90%8D%E6%B1%A0%E7%BB%B4%E6%8A%A4%E8%AF%B4%E6%98%8E.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>2026-07-04 PG 拆分静态域名池维护说明。本文属于历史运维与项目交付 / 巴西主站，测试反馈 PG 部分游戏进入后出现认证登录类报错。排查平台 API 日志时，服务端 p_login 链路本身能正常完成并生成 launcher，但日志里能看到特殊游戏只带了单个静态域名，例如 PG65 只返回： 这会让…</p>
+      <p>关键词：巴西主站、Shell、Docker、Nginx、自动化、CDN、故障排查、源码与配置、历史运维与项目交付、历史运维与项目交付 / 巴西主站、2026-07-04 PG 拆分静态域名池维护说明</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f6922b17d402.html"><small>上一篇</small>测试环境业务日志持久化与 2G 告警改造提示词</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2d8bc3dfe459.html"><small>下一篇</small>2026-07-04 PG 拆分静态资源接入 GCS 和 CDN 说明</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-37e2faa45db9.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

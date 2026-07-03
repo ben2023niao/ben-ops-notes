@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>2026-07-04 后端磁盘清理与 PG65 启动问题排查｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
+  <meta name="description" content="2026-07-04 后端磁盘清理与 PG65 启动问题排查。本文属于历史运维与项目交付 / 巴西主站，2026-07-04 测试反馈：PG 麻将胡了（PG65 / Mahjong Ways）仍然进不了游戏，浏览器 Network 里看到： 同一轮运维要求：后端 2 台服务器发布前先检查磁盘，不够时清理历史 Do…">
+  <meta name="keywords" content="巴西主站，Shell，Python，Docker，Nginx，MySQL，自动化，CDN，历史运维与项目交付，历史运维与项目交付 / 巴西主站，2026-07-04 后端磁盘清理与 PG65 启动问题排查">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6b6bbc33f78b.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6b6bbc33f78b.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607040000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-2026-07-04%20%E5%90%8E%E7%AB%AF%E7%A3%81%E7%9B%98%E6%B8%85%E7%90%86%E4%B8%8E%20PG65%20%E5%90%AF%E5%8A%A8%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="2026-07-04 后端磁盘清理与 PG65 启动问题排查">
+  <meta property="og:description" content="2026-07-04 后端磁盘清理与 PG65 启动问题排查。本文属于历史运维与项目交付 / 巴西主站，2026-07-04 测试反馈：PG 麻将胡了（PG65 / Mahjong Ways）仍然进不了游戏，浏览器 Network 里看到： 同一轮运维要求：后端 2 台服务器发布前先检查磁盘，不够时清理历史 Do…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6b6bbc33f78b.html">
+  <meta property="article:published_time" content="2026-07-04T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-07-04 00:00">
+  <meta property="article:section" content="历史运维与项目交付 / 巴西主站">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="2026-07-04 后端磁盘清理与 PG65 启动问题排查">
+  <meta name="twitter:description" content="2026-07-04 后端磁盘清理与 PG65 启动问题排查。本文属于历史运维与项目交付 / 巴西主站，2026-07-04 测试反馈：PG 麻将胡了（PG65 / Mahjong Ways）仍然进不了游戏，浏览器 Network 里看到： 同一轮运维要求：后端 2 台服务器发布前先检查磁盘，不够时清理历史 Do…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6b6bbc33f78b.html#article","headline":"2026-07-04 后端磁盘清理与 PG65 启动问题排查","description":"2026-07-04 后端磁盘清理与 PG65 启动问题排查。本文属于历史运维与项目交付 / 巴西主站，2026-07-04 测试反馈：PG 麻将胡了（PG65 / Mahjong Ways）仍然进不了游戏，浏览器 Network 里看到： 同一轮运维要求：后端 2 台服务器发布前先检查磁盘，不够时清理历史 Do…","datePublished":"2026-07-04T00:00:00+08:00","dateModified":"2026-07-04 00:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","Python","Docker","Nginx","MySQL","自动化","CDN","历史运维与项目交付","历史运维与项目交付 / 巴西主站","2026-07-04 后端磁盘清理与 PG65 启动问题排查"],"wordCount":2019,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6b6bbc33f78b.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6b6bbc33f78b.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-07-04 后端磁盘清理与 PG65 启动问题排查","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6b6bbc33f78b.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 巴西主站</span> › <span>2026-07-04 后端磁盘清理与 PG65 启动问题排查</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
+      <h1>2026-07-04 后端磁盘清理与 PG65 启动问题排查</h1>
+      <p class="lede">2026-07-04 后端磁盘清理与 PG65 启动问题排查。本文属于历史运维与项目交付 / 巴西主站，2026-07-04 测试反馈：PG 麻将胡了（PG65 / Mahjong Ways）仍然进不了游戏，浏览器 Network 里看到： 同一轮运维要求：后端 2 台服务器发布前先检查磁盘，不够时清理历史 Do…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-07-04T00:00:00+08:00">发布于 2026-07-04</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,019 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-07-04-【优化+修复Bug】后端磁盘清理与PG65启动问题排查.md</code></p>
+<p>整理日期：2026-07-04 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<h2 id="背景">背景</h2>
+<p>2026-07-04 测试反馈：PG 麻将胡了（PG65 / Mahjong Ways）仍然进不了游戏，浏览器 Network 里看到：</p>
+<pre><code class="language-text">POST https://pg-games.xqv9m8.icu/cdn-cgi/rum? -&gt; 404
+</code></pre>
+<p>同一轮运维要求：后端 2 台服务器发布前先检查磁盘，不够时清理历史 Docker 垃圾。</p>
+<p>注意：本次排查不要在文档或群里贴用户 JWT、ticket、cookie、商户 secret、用户账号明细。日志里如果出现这些内容，只做脱敏摘要。</p>
+<h2 id="后端磁盘清理执行结果">后端磁盘清理执行结果</h2>
+<p>目标机器：</p>
+<pre><code class="language-text">dbqp-saopaulo-sanic-prod-01 / 34.39.183.154 / 203.0.113.1
+dbqp-saopaulo-sanic-prod-02 / 34.95.230.202 / 203.0.113.1
+</code></pre>
+<p>清理前：</p>
+<pre><code class="language-text">01: / 484G, Used 352G, Avail 133G, Use 73%
+    Docker Images 224.4GB, reclaimable 105.4GB
+    Docker Build Cache 103GB, reclaimable 27.71GB
+
+02: / 484G, Used 359G, Avail 125G, Use 75%
+    Docker Images 231.3GB, reclaimable 126.6GB
+    Docker Build Cache 87.54GB, reclaimable 37.16GB
+</code></pre>
+<p>执行策略：</p>
+<pre><code class="language-bash">docker container prune -f
+docker image prune -f
+docker image prune -af --filter until=168h
+docker builder prune -f --filter until=168h
+</code></pre>
+<p>保留原则：</p>
+<ul>
+<li>运行中容器使用的镜像不动。</li>
+<li>保留当天和近期可回滚版本。</li>
+<li>不执行 <code>docker system prune --volumes</code>，避免误删业务数据卷。</li>
+</ul>
+<p>清理后：</p>
+<pre><code class="language-text">01: / 484G, Used 236G, Avail 249G, Use 49%
+    剩余 pgserver 标签:
+    master-132b99a, master-1d61a87, master-2193337,
+    master-288fa1e, master-442378e, master-6bfbc70, master-84202c0
+
+02: / 484G, Used 220G, Avail 265G, Use 46%
+    剩余 pgserver 标签:
+    master-132b99a, master-1d61a87, master-2193337,
+    master-288fa1e, master-442378e, master-6bfbc70, master-84202c0
+</code></pre>
+<p>清理后容器复核：</p>
+<pre><code class="language-text">dbqp-pg-release-01/02           pgserver:master-6bfbc70 Up
+dbqp-tada-release-01/02         pgserver:master-6bfbc70 Up
+dbqp-panda-release-01/02        pgserver:master-6bfbc70 Up
+dbqp-playson-release-01/02      pgserver:master-6bfbc70 Up
+dbqp-popok-release-01/02        pgserver:master-6bfbc70 Up
+dbqp-pp-release-01/02           pgserver:master-288fa1e Up
+dbqp-platform-api-release-01/02 pgserver:master-442378e Up
+</code></pre>
+<h2 id="已固化到-docker-deploy-的策略">已固化到 docker/deploy 的策略</h2>
+<p>本次把发布前清理策略固化到：</p>
+<pre><code class="language-text">docker/deploy/update_pgserver.py
+docker/deploy/deploy_all_servers.py
+docker/deploy/README.md
+</code></pre>
+<p>新增参数：</p>
+<pre><code class="language-text">PGSERVER_DEPLOY_HISTORY_CLEAN_THRESHOLD
+默认值: 75
+含义: 根分区使用率达到该值时，清理较老且未使用的 Docker 历史镜像和 build cache。
+
+PGSERVER_DEPLOY_HISTORY_CLEAN_UNTIL
+默认值: 168h
+含义: 只清理该时间以前的未使用 Docker 镜像和 build cache。
+
+PGSERVER_DEPLOY_DEEP_CLEAN_THRESHOLD
+默认值: 85
+含义: 达到该值时，才执行无时间限制的深度 Docker 清理。
+</code></pre>
+<p>发布前清理分层：</p>
+<ol>
+<li>总是打印 <code>df -h /</code> 和 <code>docker system df</code>。</li>
+<li>总是清理历史 <code>/tmp/pgserver-image-*.tar*</code>，保留本次 <code>--image-tar</code>。</li>
+<li>总是执行 <code>docker container prune -f</code> 和 <code>docker image prune -f</code>。</li>
+<li><code>&gt;= 75%</code> 时清理 <code>168h</code> 以前未使用镜像和 build cache。</li>
+<li><code>&gt;= 85%</code> 时才做深度 <code>docker image prune -af</code> 和 <code>docker builder prune -af</code>。</li>
+</ol>
+<h2 id="PG65-Mahjong-Ways-复测结论">PG65 / Mahjong Ways 复测结论</h2>
+<h3 id="接口状态">接口状态</h3>
+<p>本地 curl 复测：</p>
+<pre><code class="language-text">POST https://pg-games.xqv9m8.icu/cdn-cgi/rum? -&gt; 404 text/html, body 来自 Cloudflare
+GET  https://pg-games.xqv9m8.icu/65/index.html?... -&gt; 200 text/html
+GET  https://pg4-static.m7v8k3.cyou/65/922d4f1ffd.f244d.json -&gt; 200 application/json
+GET  https://verify.repair127.com/web-api/auth/session/v2/verifyOperatorPlayerSession -&gt; 405
+</code></pre>
+<p>解释：</p>
+<ul>
+<li><code>/cdn-cgi/rum</code> 是 Cloudflare Browser Insights / RUM 埋点路径。</li>
+<li>PG65 HTML 内置了 <code>https://static.cloudflareinsights.com/beacon.min.js/...</code>。</li>
+<li>该 beacon 会向当前域名的 <code>/cdn-cgi/rum?</code> 上报。</li>
+<li>404 响应体来自 Cloudflare，不是 PG 业务接口，也不是 platform-api。</li>
+<li>源站 Nginx 或 PG 服务通常接不到 <code>/cdn-cgi/*</code>，因此不能靠给 PG 服务加普通路由解决。</li>
+<li>如果测试只看到这条红色请求，建议先忽略它；要消除红色噪音，需要从 HTML 移除 Cloudflare beacon，或在 Cloudflare 侧正确启用/配置对应 RUM。</li>
+</ul>
+<h3 id="platform-api-日志">platform-api 日志</h3>
+<p>用户测试 PG65 时，platform-api 日志显示：</p>
+<pre><code class="language-text">p_register 成功
+p_login 成功
+on_user_login 成功
+PG65 使用 pg4-static 域名池，列表为 22 个静态域名
+生成 launcher 成功
+</code></pre>
+<p>说明 API 入口和 PG4 静态域名池已经生效。</p>
+<h3 id="PG-游戏容器日志">PG 游戏容器日志</h3>
+<p>PG 游戏容器近期主要错误：</p>
+<pre><code class="language-text">Column 'today_users' in field list is ambiguous
+sync_gametoday_to_mysql gametoday:1:42/48/135 error
+</code></pre>
+<p>这属于统计同步 SQL 歧义错误，日志没有直接指向 PG65 verify 认证失败。仍建议开发修复，但它不是 <code>/cdn-cgi/rum</code> 的来源。</p>
+<h3 id="更值得开发排查的-PG65-点">更值得开发排查的 PG65 点</h3>
+<p>PG65 的 verify 模板存在：</p>
+<pre><code class="language-text">pg/data/operator/65/verifyOperatorPlayerSession.json
+pg/data/verifySession/65/verifySession.json
+</code></pre>
+<p>但模板内：</p>
+<pre><code class="language-json">"gm": [
+  {
+    "gid": 1543462
+  }
+]
+</code></pre>
+<p>实际 PG65 应为：</p>
+<pre><code class="language-text">gid = 65
+</code></pre>
+<p>全量检查结果：</p>
+<pre><code class="language-text">pg/data/operator      有 123 个 game 目录的 gm[0].gid 固定为 1543462
+pg/data/verifySession 有 123 个 game 目录的 gm[0].gid 固定为 1543462
+</code></pre>
+<p><code>pg/server.py</code> 里 <code>verify_operator_player_session</code> 曾有动态修正逻辑，但当前是注释状态：</p>
+<pre><code class="language-python"># verify_data["dt"]["gm"][0]["gid"] = gameid
+</code></pre>
+<p><code>verify_session</code> 当前也没有给 <code>verify_data["dt"]["gm"][0]["gid"]</code> 动态赋值。</p>
+<p>建议给开发的话术：</p>
+<pre><code class="language-text">PG65 Mahjong Ways 入口页和 pg4-static 资源 200，platform-api 登录和 launcher 生成正常。
+浏览器里的 /cdn-cgi/rum 404 是 Cloudflare RUM 埋点，不是游戏认证接口。
+真正需要重点看 PG verify 响应：pg/data/operator/65 和 pg/data/verifySession/65 的 gm[0].gid 仍是 1543462，不是 65；server.py 里 operator verify 的动态覆盖 gid 代码被注释，verifySession 也没有覆盖。
+请开发确认新版 PG 客户端是否会校验 gm[0].gid。如果会，请在 verifyOperatorPlayerSession 和 verifySession 返回前统一执行：
+verify_data["dt"]["gm"][0]["gid"] = int(gameid)
+并检查 123 个模板固定 gid 是否会影响其他 PG 游戏。
+另外 PG 容器刷屏的 sync_gametoday_to_mysql today_users ambiguous SQL 也需要修复，但它不是 /cdn-cgi/rum 404 的来源。
+</code></pre>
+<h2 id="PG-API-跨域修复">PG API 跨域修复</h2>
+<p>用户后续截图显示真实 blocker：</p>
+<pre><code class="language-text">Access to XMLHttpRequest at
+https://api.xqv9m8.icu/web-api/auth/session/v2/verifyOperatorPlayerSession?traceId=...
+from origin https://pg-games.xqv9m8.icu
+has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present.
+
+https://api.xqv9m8.icu/api/report/timing -&gt; 520
+</code></pre>
+<p>线上复测修复前：</p>
+<pre><code class="language-text">OPTIONS https://api.xqv9m8.icu/web-api/auth/session/v2/verifyOperatorPlayerSession -&gt; 520
+POST    https://api.xqv9m8.icu/web-api/auth/session/v2/verifyOperatorPlayerSession -&gt; 520
+POST    https://api.xqv9m8.icu/api/report/timing -&gt; 520
+</code></pre>
+<p>根因：</p>
+<ul>
+<li>新版 PG 客户端在 <code>pg-games.&lt;root&gt;</code> 启动，但验证接口仍请求 <code>api.&lt;root&gt;</code>。</li>
+<li>宝塔活跃 Nginx 站点 <code>pg-games.xqv9m8.icu.conf</code> 只包含 <code>pg-games.*</code>，没有包含 <code>api.*</code>。</li>
+<li>历史 <code>api.xqv9m8.icu.conf.category-split-disabled-...</code> 文件已禁用，不会被 Nginx 加载。</li>
+<li>因此 Cloudflare 请求 <code>api.xqv9m8.icu</code> 时源站没有有效活跃站点，返回 520，浏览器表现为 CORS 缺失。</li>
+</ul>
+<p>已改动的运维文件：</p>
+<pre><code class="language-text">docker/线上服务器信息/baota/scheduled-tasks/sanitized/sync_all_game_domains_to_baota.py
+docker/线上服务器信息/baota/nginx/panel-vhost-nginx/common/all-games-proxy.conf
+</code></pre>
+<p>修复内容：</p>
+<ol>
+<li>
+<p><code>sync_all_game_domains_to_baota.py</code>
+   - 增加 <code>PG_API_PREFIX = "api"</code>。
+   - PG game 站点域名从 22 个 <code>pg-games.*</code> 扩展为 44 个：<code>pg-games.*</code> + <code>api.*</code>。
+   - <code>managed_prefixes</code> 加入 <code>api</code>，同步时会把 22 个 <code>api.*</code> 域名归到 PG 活跃站点 id <code>35</code>。
+   - platform-api 的 <code>pg.json</code> 仍只保留 <code>pg-games.*</code> 作为 game_hosts，不把 <code>api.*</code> 暴露给 launcher。</p>
+</li>
+<li>
+<p><code>all-games-proxy.conf</code>
+   - <code>api.*</code> host 路由到 <code>pg_game_backend</code>。
+   - <code>OPTIONS</code> 预检统一返回 204，并补充：</p>
+</li>
+</ol>
+<pre><code class="language-nginx">Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET, POST, OPTIONS
+Access-Control-Allow-Headers: *
+</code></pre>
+<ul>
+<li><code>@pg_game_backend</code> 统一补 CORS 响应头，并 hide 上游已有 CORS 头，避免重复/冲突。</li>
+<li><code>/api/report/timing</code> 直接返回 204，消除 PG HTML 注入 <code>shared/report.js</code> 带来的 520 噪音。</li>
+</ul>
+<p>远端执行记录：</p>
+<pre><code class="language-text">上传脚本:
+/www/server/panel/script/sync_all_game_domains_to_baota.py
+
+上传公共反代:
+/www/server/panel/vhost/nginx/common/all-games-proxy.conf
+
+手动备份:
+/root/api_cors_fix_20260704_121205
+
+脚本自动备份:
+/root/all_game_domain_sync_backup_20260704_121245
+
+执行:
+/www/server/panel/pyenv/bin/python3 /www/server/panel/script/sync_all_game_domains_to_baota.py --baota
+/www/server/nginx/sbin/nginx -t
+/etc/init.d/nginx reload
+</code></pre>
+<p>修复后确认：</p>
+<pre><code class="language-text">PG 活跃站点 server_name:
+22 个 pg-games.* + 22 个 api.*
+
+宝塔 site.db:
+22 个 api.* 全部 pid=35
+
+OPTIONS https://api.xqv9m8.icu/web-api/auth/session/v2/verifyOperatorPlayerSession -&gt; 204
+POST    https://api.xqv9m8.icu/web-api/auth/session/v2/verifyOperatorPlayerSession 空参数 -&gt; 400 JSON
+POST    https://api.xqv9m8.icu/api/report/timing -&gt; 204
+</code></pre>
+<p>空参数 POST 返回 400 是预期行为，说明请求已经到 PG 后端；真实游戏请求带 <code>gi/otk/os</code> 时应继续走 PG verify 逻辑。</p>
+<h2 id="后续建议">后续建议</h2>
+<ul>
+<li>测试重新复现时，Network 里请先排除 <code>/cdn-cgi/rum?</code>，重点抓第一条非 RUM 的红色请求。</li>
+<li>重点看：</li>
+<li><code>verify.repair127.com/web-api/auth/session/v2/verifyOperatorPlayerSession</code></li>
+<li><code>verify.repair127.com/web-api/auth/session/v2/verifySession</code></li>
+<li><code>pg-games.* /game-api/&lt;slug&gt;/v2/GameInfo/Get</code></li>
+<li><code>pg-games.* /game-api/&lt;slug&gt;/v2/Spin</code></li>
+<li>如果失败发生在 verify 响应之后，保存 verify 响应体，确认 <code>dt.gm[0].gid</code>、<code>dt.geu</code>、<code>dt.bau</code>、<code>dt.lau</code> 是否与当前 <code>gi=65</code> 和当前 host 一致。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#背景">背景</a></li><li style="margin-left:0.0rem"><a href="#后端磁盘清理执行结果">后端磁盘清理执行结果</a></li><li style="margin-left:0.0rem"><a href="#已固化到-docker-deploy-的策略">已固化到 docker/deploy 的策略</a></li><li style="margin-left:0.0rem"><a href="#PG65-Mahjong-Ways-复测结论">PG65 / Mahjong Ways 复测结论</a></li><li style="margin-left:0.8rem"><a href="#接口状态">接口状态</a></li><li style="margin-left:0.8rem"><a href="#platform-api-日志">platform-api 日志</a></li><li style="margin-left:0.8rem"><a href="#PG-游戏容器日志">PG 游戏容器日志</a></li><li style="margin-left:0.8rem"><a href="#更值得开发排查的-PG65-点">更值得开发排查的 PG65 点</a></li><li style="margin-left:0.0rem"><a href="#PG-API-跨域修复">PG API 跨域修复</a></li><li style="margin-left:0.0rem"><a href="#后续建议">后续建议</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 巴西主站</li>
+          <li>日期：2026-07-04</li>
+          <li>标签：<span class="tag">巴西主站</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">MySQL</span><span class="tag">自动化</span><span class="tag">CDN</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-07-04-【优化+修复Bug】后端磁盘清理与PG65启动问题排查.…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607040000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-2026-07-04%20%E5%90%8E%E7%AB%AF%E7%A3%81%E7%9B%98%E6%B8%85%E7%90%86%E4%B8%8E%20PG65%20%E5%90%AF%E5%8A%A8%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>2026-07-04 后端磁盘清理与 PG65 启动问题排查。本文属于历史运维与项目交付 / 巴西主站，2026-07-04 测试反馈：PG 麻将胡了（PG65 / Mahjong Ways）仍然进不了游戏，浏览器 Network 里看到： 同一轮运维要求：后端 2 台服务器发布前先检查磁盘，不够时清理历史 Do…</p>
+      <p>关键词：巴西主站、Shell、Python、Docker、Nginx、MySQL、自动化、CDN、历史运维与项目交付、历史运维与项目交付 / 巴西主站、2026-07-04 后端磁盘清理与 PG65 启动问题排查</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dc1a7bc760ce.html"><small>上一篇</small>2026-07-04 PG 接口跨域与 API 反代修复说明</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7ab2ceb0ddad.html"><small>下一篇</small>DBQP Docker 运维 AI 交接总览 · DBQP运维AI交接总览</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6b6bbc33f78b.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

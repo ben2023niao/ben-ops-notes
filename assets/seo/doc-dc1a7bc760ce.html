@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>2026-07-04 PG 接口跨域与 API 反代修复说明｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
+  <meta name="description" content="2026-07-04 PG 接口跨域与 API 反代修复说明。本文属于历史运维与项目交付 / 巴西主站，这份 prompt 给后续 AI / 运维同学快速接手 PG 麻将胡了（PG65 / Mahjong Ways）“未能成功启动 / N1000PHFIYR04 / CORS / 520”问题使用。 pg-gam…">
+  <meta name="keywords" content="巴西主站，Shell，Python，Docker，Nginx，CDN，故障排查，数据库恢复，历史运维与项目交付，历史运维与项目交付 / 巴西主站，2026-07-04 PG 接口跨域与 API 反代修复说明">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dc1a7bc760ce.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dc1a7bc760ce.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607040000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-2026-07-04%20PG%20%E6%8E%A5%E5%8F%A3%E8%B7%A8%E5%9F%9F%E4%B8%8E%20API%20%E5%8F%8D%E4%BB%A3%E4%BF%AE%E5%A4%8D%E8%AF%B4%E6%98%8E.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="2026-07-04 PG 接口跨域与 API 反代修复说明">
+  <meta property="og:description" content="2026-07-04 PG 接口跨域与 API 反代修复说明。本文属于历史运维与项目交付 / 巴西主站，这份 prompt 给后续 AI / 运维同学快速接手 PG 麻将胡了（PG65 / Mahjong Ways）“未能成功启动 / N1000PHFIYR04 / CORS / 520”问题使用。 pg-gam…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dc1a7bc760ce.html">
+  <meta property="article:published_time" content="2026-07-04T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-07-04 00:00">
+  <meta property="article:section" content="历史运维与项目交付 / 巴西主站">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="2026-07-04 PG 接口跨域与 API 反代修复说明">
+  <meta name="twitter:description" content="2026-07-04 PG 接口跨域与 API 反代修复说明。本文属于历史运维与项目交付 / 巴西主站，这份 prompt 给后续 AI / 运维同学快速接手 PG 麻将胡了（PG65 / Mahjong Ways）“未能成功启动 / N1000PHFIYR04 / CORS / 520”问题使用。 pg-gam…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dc1a7bc760ce.html#article","headline":"2026-07-04 PG 接口跨域与 API 反代修复说明","description":"2026-07-04 PG 接口跨域与 API 反代修复说明。本文属于历史运维与项目交付 / 巴西主站，这份 prompt 给后续 AI / 运维同学快速接手 PG 麻将胡了（PG65 / Mahjong Ways）“未能成功启动 / N1000PHFIYR04 / CORS / 520”问题使用。 pg-gam…","datePublished":"2026-07-04T00:00:00+08:00","dateModified":"2026-07-04 00:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","Python","Docker","Nginx","CDN","故障排查","数据库恢复","历史运维与项目交付","历史运维与项目交付 / 巴西主站","2026-07-04 PG 接口跨域与 API 反代修复说明"],"wordCount":1911,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dc1a7bc760ce.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dc1a7bc760ce.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-07-04 PG 接口跨域与 API 反代修复说明","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dc1a7bc760ce.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 巴西主站</span> › <span>2026-07-04 PG 接口跨域与 API 反代修复说明</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
+      <h1>2026-07-04 PG 接口跨域与 API 反代修复说明</h1>
+      <p class="lede">2026-07-04 PG 接口跨域与 API 反代修复说明。本文属于历史运维与项目交付 / 巴西主站，这份 prompt 给后续 AI / 运维同学快速接手 PG 麻将胡了（PG65 / Mahjong Ways）“未能成功启动 / N1000PHFIYR04 / CORS / 520”问题使用。 pg-gam…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-07-04T00:00:00+08:00">发布于 2026-07-04</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,911 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-07-04-【修复Bug+网络调整】PG接口跨域与API反代修复说明.md</code></p>
+<p>整理日期：2026-07-04 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<h2 id="这份文档解决什么问题">这份文档解决什么问题</h2>
+<p>这份 prompt 给后续 AI / 运维同学快速接手 PG 麻将胡了（PG65 / Mahjong Ways）“未能成功启动 / N1000PHFIYR04 / CORS / 520”问题使用。</p>
+<p>核心结论：</p>
+<ul>
+<li><code>pg-games.&lt;root&gt;</code> 的游戏页面和 <code>pg4-static.&lt;root&gt;</code> 静态资源已经正常。</li>
+<li>真正导致 PG65 启动失败的是新版 PG 客户端从 <code>pg-games.xqv9m8.icu</code> 跨域请求 <code>api.xqv9m8.icu</code> 的 verify 接口。</li>
+<li>修复前 <code>api.xqv9m8.icu</code> 没有被当前宝塔活跃 Nginx 站点接住，Cloudflare 返回 520，浏览器表现为 CORS 缺失。</li>
+<li>已通过 Docker 运维侧修复：PG 活跃反代站点同时接 <code>pg-games.*</code> 和 <code>api.*</code>，并统一补 CORS。</li>
+</ul>
+<p>注意：不要在群里、文档里、提交里粘贴 JWT、ticket、cookie、商户密钥、用户 login token。需要说明时只写脱敏摘要。</p>
+<h2 id="用户侧现象">用户侧现象</h2>
+<p>游戏弹窗：</p>
+<pre><code class="language-text">未能成功启动
+未能连接到服务器，请检查您的网络或重试。
+错误代码：N1000PHFIYR04
+</code></pre>
+<p>浏览器 Console 关键报错：</p>
+<pre><code class="language-text">Access to XMLHttpRequest at
+https://api.xqv9m8.icu/web-api/auth/session/v2/verifyOperatorPlayerSession?traceId=...
+from origin https://pg-games.xqv9m8.icu
+has been blocked by CORS policy:
+No 'Access-Control-Allow-Origin' header is present on the requested resource.
+
+Failed to load resource: net::ERR_FAILED
+https://api.xqv9m8.icu/web-api/auth/session/v2/verifyOperatorPlayerSession?traceId=...
+
+Failed to load resource: the server responded with a status of 520
+https://api.xqv9m8.icu/api/report/timing
+</code></pre>
+<p>容易误判的噪音：</p>
+<pre><code class="language-text">https://pg-games.xqv9m8.icu/cdn-cgi/rum? -&gt; 404
+</code></pre>
+<p><code>/cdn-cgi/rum</code> 是 Cloudflare Browser Insights / RUM 埋点，不是 PG 登录或 verify 业务接口。它会在 Console 里红，但不是这次“未能连接到服务器”的主因。</p>
+<h2 id="根因">根因</h2>
+<p>新版 PG 客户端有这个行为：</p>
+<ul>
+<li>页面入口：<code>https://pg-games.xqv9m8.icu/65/index.html?...</code></li>
+<li>静态资源：<code>https://pg4-static.&lt;root&gt;/65/...</code></li>
+<li>verify 接口：<code>https://api.xqv9m8.icu/web-api/auth/session/v2/verifyOperatorPlayerSession?...</code></li>
+<li>report 埋点：<code>https://api.xqv9m8.icu/api/report/timing</code></li>
+</ul>
+<p>宝塔当前活跃站点在修复前是：</p>
+<pre><code class="language-text">/www/server/panel/vhost/nginx/pg-games.xqv9m8.icu.conf
+</code></pre>
+<p>该站点只包含：</p>
+<pre><code class="language-text">pg-games.* 22 个域名
+</code></pre>
+<p>历史 <code>api.*</code> 站点文件存在，但文件名是禁用态：</p>
+<pre><code class="language-text">api.xqv9m8.icu.conf.category-split-disabled-20260612_174254
+api.q7m9v8.icu.conf.category-split-disabled-20260612_174254
+...
+</code></pre>
+<p>这些 <code>.category-split-disabled-*</code> 文件不会被 Nginx 加载。</p>
+<p>因此 <code>api.xqv9m8.icu</code> 请求经过 Cloudflare 到源站时，没有有效活跃 Nginx server block 接住，表现为 Cloudflare 520；浏览器自然拿不到 <code>Access-Control-Allow-Origin</code>，于是报 CORS。</p>
+<h2 id="已修复内容">已修复内容</h2>
+<p>提交：</p>
+<pre><code class="language-text">01507c4 ops: fix pg api cors routing
+</code></pre>
+<p>涉及文件：</p>
+<pre><code class="language-text">docker/线上服务器信息/baota/scheduled-tasks/sanitized/sync_all_game_domains_to_baota.py
+docker/线上服务器信息/baota/nginx/panel-vhost-nginx/common/all-games-proxy.conf
+docker/线上服务器信息/baota/nginx/panel-vhost-nginx/pg-games.xqv9m8.icu.conf
+docker/doc/2026-07-04-【优化+修复Bug】后端磁盘清理与PG65启动问题排查.md
+docker/doc/2026-07-04-【修复Bug+网络调整】PG接口跨域与API反代修复说明.md
+docker/doc/【运维记录】【运维记录】DBQP运维AI交接总览.md
+</code></pre>
+<h3 id="域名同步脚本">域名同步脚本</h3>
+<p>文件：</p>
+<pre><code class="language-text">docker/线上服务器信息/baota/scheduled-tasks/sanitized/sync_all_game_domains_to_baota.py
+</code></pre>
+<p>新增逻辑：</p>
+<pre><code class="language-text">PG_API_PREFIX = "api"
+</code></pre>
+<p>PG game 站点域名从：</p>
+<pre><code class="language-text">22 个 pg-games.*
+</code></pre>
+<p>扩展为：</p>
+<pre><code class="language-text">22 个 pg-games.* + 22 个 api.*
+</code></pre>
+<p>当前 PG 活跃站点 id：</p>
+<pre><code class="language-text">35
+</code></pre>
+<p>修复后宝塔 <code>site.db</code> 中：</p>
+<pre><code class="language-text">22 个 api.* 全部 pid=35
+</code></pre>
+<p>注意：<code>platform-api/conf/domains/pg.json</code> 的 <code>game_hosts</code> 仍然只应是 <code>pg-games.*</code>。<code>api.*</code> 是 PG 客户端内部 verify/API host 兼容，不应作为 launcher host 暴露给用户。</p>
+<h3 id="公共反代配置">公共反代配置</h3>
+<p>文件：</p>
+<pre><code class="language-text">docker/线上服务器信息/baota/nginx/panel-vhost-nginx/common/all-games-proxy.conf
+</code></pre>
+<p>新增/调整点：</p>
+<ol>
+<li><code>api.*</code> host 路由到 <code>pg_game_backend</code>。</li>
+</ol>
+<pre><code class="language-nginx">if ($host ~ "^api\.") { return 418; }
+</code></pre>
+<ol start="2">
+<li><code>OPTIONS</code> 预检直接返回 204。</li>
+</ol>
+<pre><code class="language-nginx">if ($request_method = OPTIONS) {
+    add_header Access-Control-Allow-Origin "*" always;
+    add_header Access-Control-Allow-Methods "GET, POST, OPTIONS" always;
+    add_header Access-Control-Allow-Headers "*" always;
+    return 204;
+}
+</code></pre>
+<ol start="3">
+<li><code>@pg_game_backend</code> 统一补 CORS 响应头，并隐藏上游已有 CORS 头，避免重复或 <code>Allow-Credentials</code> 与 <code>*</code> 冲突。</li>
+</ol>
+<pre><code class="language-nginx">proxy_hide_header Access-Control-Allow-Origin;
+proxy_hide_header Access-Control-Allow-Methods;
+proxy_hide_header Access-Control-Allow-Headers;
+proxy_hide_header Access-Control-Allow-Credentials;
+add_header Access-Control-Allow-Origin "*" always;
+add_header Access-Control-Allow-Methods "GET, POST, OPTIONS" always;
+add_header Access-Control-Allow-Headers "*" always;
+</code></pre>
+<ol start="4">
+<li><code>/api/report/timing</code> 直接返回 204，消除 Console 里的 520 噪音。</li>
+</ol>
+<pre><code class="language-nginx">location = /api/report/timing {
+    add_header Access-Control-Allow-Origin "*" always;
+    add_header Access-Control-Allow-Methods "GET, POST, OPTIONS" always;
+    add_header Access-Control-Allow-Headers "*" always;
+
+    if ($request_method = OPTIONS) {
+        add_header Access-Control-Allow-Origin "*" always;
+        add_header Access-Control-Allow-Methods "GET, POST, OPTIONS" always;
+        add_header Access-Control-Allow-Headers "*" always;
+        return 204;
+    }
+
+    return 204;
+}
+</code></pre>
+<h2 id="线上执行记录">线上执行记录</h2>
+<p>宝塔服务器：</p>
+<pre><code class="language-text">35.247.205.6
+</code></pre>
+<p>远端备份：</p>
+<pre><code class="language-text">/root/api_cors_fix_20260704_121205
+/root/all_game_domain_sync_backup_20260704_121245
+</code></pre>
+<p>上传并覆盖：</p>
+<pre><code class="language-text">/www/server/panel/script/sync_all_game_domains_to_baota.py
+/www/server/panel/vhost/nginx/common/all-games-proxy.conf
+</code></pre>
+<p>执行：</p>
+<pre><code class="language-bash">/www/server/panel/pyenv/bin/python3 /www/server/panel/script/sync_all_game_domains_to_baota.py --baota --dry-run
+/www/server/panel/pyenv/bin/python3 /www/server/panel/script/sync_all_game_domains_to_baota.py --baota
+/www/server/nginx/sbin/nginx -t
+/etc/init.d/nginx reload
+</code></pre>
+<p>结果：</p>
+<pre><code class="language-text">nginx: configuration file /www/server/nginx/conf/nginx.conf test is successful
+Reload service nginx... done
+</code></pre>
+<p>PG 活跃站点 server_name 已包含：</p>
+<pre><code class="language-text">pg-games.xqv9m8.icu ... pg-games.cdn-manila-dbqp.cyou
+api.xqv9m8.icu ... api.cdn-manila-dbqp.cyou
+</code></pre>
+<h2 id="修复后复测结果">修复后复测结果</h2>
+<h3 id="Verify-预检">Verify 预检</h3>
+<p>命令：</p>
+<pre><code class="language-bash">curl -sS -D - -o /dev/null \
+  -X OPTIONS 'https://api.xqv9m8.icu/web-api/auth/session/v2/verifyOperatorPlayerSession?traceId=TEST' \
+  -H 'Origin: https://pg-games.xqv9m8.icu' \
+  -H 'Access-Control-Request-Method: POST' \
+  -H 'Access-Control-Request-Headers: content-type'
+</code></pre>
+<p>结果：</p>
+<pre><code class="language-text">HTTP/2 204
+access-control-allow-origin: *
+access-control-allow-methods: GET, POST, OPTIONS
+access-control-allow-headers: *
+</code></pre>
+<h3 id="Verify-空参数-POST">Verify 空参数 POST</h3>
+<p>命令：</p>
+<pre><code class="language-bash">curl -sS -D - -o /dev/null \
+  -X POST 'https://api.xqv9m8.icu/web-api/auth/session/v2/verifyOperatorPlayerSession?traceId=TEST' \
+  -H 'Origin: https://pg-games.xqv9m8.icu' \
+  -H 'content-type: application/x-www-form-urlencoded' \
+  --data 'gi=65'
+</code></pre>
+<p>结果：</p>
+<pre><code class="language-text">HTTP/2 400
+content-type: application/json
+access-control-allow-origin: *
+access-control-allow-methods: GET, POST, OPTIONS
+access-control-allow-headers: *
+</code></pre>
+<p>空参数 POST 返回 400 是预期的，因为缺少 <code>otk/os</code> 等参数；关键是它已经到 PG 后端，并且带 CORS 头。</p>
+<h3 id="Report-timing">Report timing</h3>
+<p>命令：</p>
+<pre><code class="language-bash">curl -sS -D - -o /dev/null \
+  -X POST 'https://api.xqv9m8.icu/api/report/timing' \
+  -H 'Origin: https://pg-games.xqv9m8.icu' \
+  -H 'content-type: application/json' \
+  --data '{}'
+</code></pre>
+<p>结果：</p>
+<pre><code class="language-text">HTTP/2 204
+access-control-allow-origin: *
+</code></pre>
+<h3 id="多域名-spot-check">多域名 spot check</h3>
+<pre><code class="language-text">api.xqv9m8.icu    OPTIONS verify -&gt; 204
+api.m7v8k3.cyou   OPTIONS verify -&gt; 204
+api.q7m9v8.icu    OPTIONS verify -&gt; 204
+</code></pre>
+<h2 id="后续排查提示">后续排查提示</h2>
+<p>如果测试仍反馈 PG65 进不去：</p>
+<ol>
+<li>先让测试刷新浏览器缓存或无痕窗口重试。</li>
+<li>Network 里先排除 <code>/cdn-cgi/rum?</code>。</li>
+<li>重点看第一条非 RUM 红色请求：
+   - <code>api.&lt;root&gt;/web-api/auth/session/v2/verifyOperatorPlayerSession</code>
+   - <code>api.&lt;root&gt;/web-api/auth/session/v2/verifySession</code>
+   - <code>pg-games.&lt;root&gt;/game-api/&lt;slug&gt;/v2/GameInfo/Get</code>
+   - <code>pg-games.&lt;root&gt;/game-api/&lt;slug&gt;/v2/Spin</code></li>
+<li>如果 verify 已经 200，但游戏仍失败，把 verify 响应体脱敏后检查：
+   - <code>dt.gm[0].gid</code> 是否为当前 <code>gi=65</code>
+   - <code>dt.geu</code> 是否指向当前 API/game host
+   - <code>dt.bau</code> / <code>dt.lau</code> 是否是当前 host</li>
+</ol>
+<p>另一个开发侧疑点：</p>
+<pre><code class="language-text">pg/data/operator/65/verifyOperatorPlayerSession.json
+pg/data/verifySession/65/verifySession.json
+</code></pre>
+<p>模板内 <code>gm[0].gid</code> 当前固定为 <code>1543462</code>，不是 <code>65</code>。<code>pg/server.py</code> 里 operator verify 的动态覆盖代码仍是注释状态：</p>
+<pre><code class="language-python"># verify_data["dt"]["gm"][0]["gid"] = gameid
+</code></pre>
+<p>如果新版 PG 客户端校验 <code>gm[0].gid</code>，这会继续导致 PG65 或其他 PG 游戏异常。这个属于开发业务代码修复范围，运维侧不应直接改 <code>pg/server.py</code>，除非用户明确授权。</p>
+<h2 id="给测试群的话术">给测试群的话术</h2>
+<pre><code class="language-text">PG 麻将胡了启动失败已修一版，原因是新版 PG 客户端会从 pg-games 跨域请求 api.* 的 verify 接口，宝塔反代之前没有接住 api.*，导致 520/CORS。
+
+现在已把 22 个 api.* 全部接入 PG 活跃反代站点，verify 预检已返回 204 并带 CORS，api/report/timing 也从 520 改为 204。
+
+请重新打开 PG 麻将胡了复测；如果还有失败，请抓第一条非 /cdn-cgi/rum 的红色请求和 verify 响应截图。
+</code></pre>
+<h2 id="回滚方式">回滚方式</h2>
+<p>优先不要回滚。若 Nginx 配置异常，可用远端备份恢复：</p>
+<pre><code class="language-text">/root/api_cors_fix_20260704_121205
+/root/all_game_domain_sync_backup_20260704_121245
+</code></pre>
+<p>恢复后必须执行：</p>
+<pre><code class="language-bash">/www/server/nginx/sbin/nginx -t
+/etc/init.d/nginx reload
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#这份文档解决什么问题">这份文档解决什么问题</a></li><li style="margin-left:0.0rem"><a href="#用户侧现象">用户侧现象</a></li><li style="margin-left:0.0rem"><a href="#根因">根因</a></li><li style="margin-left:0.0rem"><a href="#已修复内容">已修复内容</a></li><li style="margin-left:0.8rem"><a href="#域名同步脚本">域名同步脚本</a></li><li style="margin-left:0.8rem"><a href="#公共反代配置">公共反代配置</a></li><li style="margin-left:0.0rem"><a href="#线上执行记录">线上执行记录</a></li><li style="margin-left:0.0rem"><a href="#修复后复测结果">修复后复测结果</a></li><li style="margin-left:0.8rem"><a href="#Verify-预检">Verify 预检</a></li><li style="margin-left:0.8rem"><a href="#Verify-空参数-POST">Verify 空参数 POST</a></li><li style="margin-left:0.8rem"><a href="#Report-timing">Report timing</a></li><li style="margin-left:0.8rem"><a href="#多域名-spot-check">多域名 spot check</a></li><li style="margin-left:0.0rem"><a href="#后续排查提示">后续排查提示</a></li><li style="margin-left:0.0rem"><a href="#给测试群的话术">给测试群的话术</a></li><li style="margin-left:0.0rem"><a href="#回滚方式">回滚方式</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 巴西主站</li>
+          <li>日期：2026-07-04</li>
+          <li>标签：<span class="tag">巴西主站</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">CDN</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-07-04-【修复Bug+网络调整】PG接口跨域与API反代修复说明…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607040000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-2026-07-04%20PG%20%E6%8E%A5%E5%8F%A3%E8%B7%A8%E5%9F%9F%E4%B8%8E%20API%20%E5%8F%8D%E4%BB%A3%E4%BF%AE%E5%A4%8D%E8%AF%B4%E6%98%8E.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>2026-07-04 PG 接口跨域与 API 反代修复说明。本文属于历史运维与项目交付 / 巴西主站，这份 prompt 给后续 AI / 运维同学快速接手 PG 麻将胡了（PG65 / Mahjong Ways）“未能成功启动 / N1000PHFIYR04 / CORS / 520”问题使用。 pg-gam…</p>
+      <p>关键词：巴西主站、Shell、Python、Docker、Nginx、CDN、故障排查、数据库恢复、历史运维与项目交付、历史运维与项目交付 / 巴西主站、2026-07-04 PG 接口跨域与 API 反代修复说明</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2d8bc3dfe459.html"><small>上一篇</small>2026-07-04 PG 拆分静态资源接入 GCS 和 CDN 说明</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6b6bbc33f78b.html"><small>下一篇</small>2026-07-04 后端磁盘清理与 PG65 启动问题排查</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dc1a7bc760ce.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
