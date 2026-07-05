@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>2026-07-06 PG 阿努比斯与玻尔修斯网络问题排查｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
+  <meta name="description" content="2026-07-06 PG 阿努比斯与玻尔修斯网络问题排查。本文属于历史运维与项目交付 / 巴西主站，注意：不要在群里、文档里、提交里粘贴完整 launcher URL、JWT、 ot 、cookie、会员 token。本文只记录脱敏后的链路、域名和状态码。 这次不是 PG 静态资源没同步，也不是两个游戏目录缺资…">
+  <meta name="keywords" content="巴西主站，Python，Docker，Nginx，自动化，CDN，DNS，故障排查，历史运维与项目交付，历史运维与项目交付 / 巴西主站，2026-07-06 PG 阿努比斯与玻尔修斯网络问题排查">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-905282da5e59.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-905282da5e59.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607060000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BPython%2BDocker-2026-07-06%20PG%20%E9%98%BF%E5%8A%AA%E6%AF%94%E6%96%AF%E4%B8%8E%E7%8E%BB%E5%B0%94%E4%BF%AE%E6%96%AF%E7%BD%91%E7%BB%9C%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="2026-07-06 PG 阿努比斯与玻尔修斯网络问题排查">
+  <meta property="og:description" content="2026-07-06 PG 阿努比斯与玻尔修斯网络问题排查。本文属于历史运维与项目交付 / 巴西主站，注意：不要在群里、文档里、提交里粘贴完整 launcher URL、JWT、 ot 、cookie、会员 token。本文只记录脱敏后的链路、域名和状态码。 这次不是 PG 静态资源没同步，也不是两个游戏目录缺资…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-905282da5e59.html">
+  <meta property="article:published_time" content="2026-07-06T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-07-06 00:00">
+  <meta property="article:section" content="历史运维与项目交付 / 巴西主站">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="2026-07-06 PG 阿努比斯与玻尔修斯网络问题排查">
+  <meta name="twitter:description" content="2026-07-06 PG 阿努比斯与玻尔修斯网络问题排查。本文属于历史运维与项目交付 / 巴西主站，注意：不要在群里、文档里、提交里粘贴完整 launcher URL、JWT、 ot 、cookie、会员 token。本文只记录脱敏后的链路、域名和状态码。 这次不是 PG 静态资源没同步，也不是两个游戏目录缺资…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-905282da5e59.html#article","headline":"2026-07-06 PG 阿努比斯与玻尔修斯网络问题排查","description":"2026-07-06 PG 阿努比斯与玻尔修斯网络问题排查。本文属于历史运维与项目交付 / 巴西主站，注意：不要在群里、文档里、提交里粘贴完整 launcher URL、JWT、 ot 、cookie、会员 token。本文只记录脱敏后的链路、域名和状态码。 这次不是 PG 静态资源没同步，也不是两个游戏目录缺资…","datePublished":"2026-07-06T00:00:00+08:00","dateModified":"2026-07-06 00:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Python","Docker","Nginx","自动化","CDN","DNS","故障排查","历史运维与项目交付","历史运维与项目交付 / 巴西主站","2026-07-06 PG 阿努比斯与玻尔修斯网络问题排查"],"wordCount":3241,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-905282da5e59.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-905282da5e59.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-07-06 PG 阿努比斯与玻尔修斯网络问题排查","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-905282da5e59.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 巴西主站</span> › <span>2026-07-06 PG 阿努比斯与玻尔修斯网络问题排查</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
+      <h1>2026-07-06 PG 阿努比斯与玻尔修斯网络问题排查</h1>
+      <p class="lede">2026-07-06 PG 阿努比斯与玻尔修斯网络问题排查。本文属于历史运维与项目交付 / 巴西主站，注意：不要在群里、文档里、提交里粘贴完整 launcher URL、JWT、 ot 、cookie、会员 token。本文只记录脱敏后的链路、域名和状态码。 这次不是 PG 静态资源没同步，也不是两个游戏目录缺资…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-07-06T00:00:00+08:00">发布于 2026-07-06</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">3,241 字</span>
+        <span class="badge">10 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-07-06-【问题排查+网络调整】PG阿努比斯与玻尔修斯网络问题排查.md</code></p>
+<p>整理日期：2026-07-06 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>本文记录巴西试玩 PG 两款游戏“加载卡住 / 网络未到服务器”的排查结论，给后端开发和后续运维 / AI 接手使用。</p>
+<p>注意：不要在群里、文档里、提交里粘贴完整 launcher URL、JWT、<code>ot</code>、cookie、会员 token。本文只记录脱敏后的链路、域名和状态码。</p>
+<h2 id="问题摘要">问题摘要</h2>
+<p>环境：</p>
+<pre><code class="language-text">环境/厂牌：巴西试玩 PG
+会员 ID：151
+问题等级：P2
+</code></pre>
+<p>涉及游戏：</p>
+<pre><code class="language-text">阿努比斯 / Anubis Wrath：1623475
+玻尔修斯传奇 / Legend of Perseus：128
+</code></pre>
+<p>测试侧现象：</p>
+<pre><code class="language-text">点击游戏后，加载页卡在 50% 左右，无法进入游戏。
+部分情况下页面提示登录失败并自动重试。
+后端日志看不到 verify 请求，表现为“网络没到服务器”。
+</code></pre>
+<h2 id="核心结论">核心结论</h2>
+<p>这次不是 PG 静态资源没同步，也不是两个游戏目录缺资源。</p>
+<p>两款游戏的 <code>pg-static</code> 静态资源目录存在，GCS / CDN 抽样访问 200。真正问题集中在部分 <code>pg-games</code> 入口域名生成 verify/API host 的逻辑：</p>
+<pre><code class="language-text">正常入口：
+https://pg-games.xqv9m8.icu/128/index.html
+
+正常 verify：
+https://pg-games.xqv9m8.icu/web-api/auth/session/v2/verifyOperatorPlayerSession
+
+异常入口：
+https://pg-games.t6qv8m.icu/128/index.html
+
+异常 verify：
+https://pg-games.t6qv8api.icu/web-api/auth/session/v2/verifyOperatorPlayerSession
+</code></pre>
+<p><code>pg-games.t6qv8api.icu</code> 不是当前合法域名，没有 DNS 记录，浏览器直接报：</p>
+<pre><code class="language-text">net::ERR_NAME_NOT_RESOLVED
+</code></pre>
+<p>因此请求根本到不了 Cloudflare / 宝塔 Nginx / 后端服务，后端日志自然没有 verify 记录。</p>
+<h2 id="全游戏扫描补充">全游戏扫描补充</h2>
+<p>2026-07-06 全游戏扫描期间继续观察 PG 线上日志，确认类似问题不是单个游戏资源包问题，而是 <code>pg-games.t6qv8m.icu</code> 入口域名的通病。</p>
+<p>今天日志里这些游戏在 <code>t6qv8m</code> 入口下都有页面活动，但没有成功 verify：</p>
+<pre><code class="language-text">67       少林足球(Shaolin Soccer)                  refs=1   verify=0 spin=0
+106      麒麟送宝(Ways of the Qilin)               refs=9   verify=0 spin=0
+115      超市大血拼(Supermarket Spree)             refs=1   verify=0 spin=0
+128      玻尔修斯传奇(Legend of Perseus)           refs=13  verify=0 spin=0
+135      赏金大对决(Wild Bounty Showdown)          refs=5   verify=0 spin=0
+1623475  阿努比斯(Anubis Wrath)                    refs=8   verify=0 spin=0
+</code></pre>
+<p>判定口径：</p>
+<ul>
+<li><code>refs</code> 是今天线上日志里该游戏从 <code>pg-games.t6qv8m.icu/&lt;gid&gt;/index.html</code> 产生的后续页面活动次数。</li>
+<li><code>verify=0</code> 表示同一入口没有任何成功 <code>verifyOperatorPlayerSession</code>。</li>
+<li><code>spin=0</code> 表示同一入口没有任何成功 <code>Spin</code>。</li>
+<li><code>106 / 128 / 135 / 1623475</code> 样本相对充分，可作为确认同类问题。</li>
+<li><code>67 / 115</code> 只有 1 条样本，不能证明该游戏独有问题，但因为入口同为 <code>pg-games.t6qv8m.icu</code>，仍属于同一域名派生规则的风险覆盖范围。</li>
+</ul>
+<p>对 <code>106</code> 和 <code>1623475</code> 进行浏览器复测，均复现同类错误：</p>
+<pre><code class="language-text">入口：https://pg-games.t6qv8m.icu/&lt;gid&gt;/index.html?...
+实际 verify：https://pg-games.t6qv8api.icu/web-api/auth/session/v2/verifyOperatorPlayerSession?traceId=...
+浏览器错误：net::ERR_NAME_NOT_RESOLVED
+页面表现：登录失败，系统正在重试
+</code></pre>
+<p>其他入口域名如：</p>
+<pre><code class="language-text">pg-games.xqv9m8.icu
+pg-games.m7v8k3.cyou
+pg-games.p8m7xv.cyou
+pg-games.q7m9v8.icu
+</code></pre>
+<p>在同一轮扫描中能看到 <code>verify 200</code> 或 <code>Spin 200</code>，说明后端服务和游戏 API 本身可用。问题集中在 <code>t6qv8m</code> 入口派生 API host 的规则。</p>
+<h2 id="当前运维侧处理方式">当前运维侧处理方式</h2>
+<p>运维目前做的是定位、排除和临时规避，没有把误拼域名正式化作为长期方案。</p>
+<p>2026-07-06 已完成最终线上处理：</p>
+<pre><code class="language-text">1. 提交并发布 e127daa ops: remove risky pg m icu game hosts。
+2. 两台 platform-api 均运行 pgserver:master-e127daa。
+3. default / pg3 / pg4 / pg5 的 game_hosts 均为 20 个，risky=[]。
+4. 之前扫出的 67 / 106 / 115 / 128 / 135 / 1623475 运行态分发池均无 pg-games.t6qv8m.icu / pg-games.6qv8m.icu。
+5. 已通过 ben-bot 发飞机群通知，message_id=2642。
+</code></pre>
+<p>最终上线复测记录见：</p>
+<pre><code class="language-text">docker/doc/2026-07-06-【修复Bug】PG卡50百分比问题修复上线复测记录.md
+</code></pre>
+<p>已经完成的排除项：</p>
+<pre><code class="language-text">1. 排除静态资源缺失：
+   /www/wwwroot/pg-static/&lt;gid&gt; 目录存在；
+   pg-static / GCS / CDN 抽样资源返回 200。
+
+2. 排除 PG API 反代/CORS 主链路问题：
+   宝塔 Nginx 当前已接入 pg-games.* 和 api.*；
+   正常入口下 verifyOperatorPlayerSession / GameInfo / Spin 能返回 200。
+
+3. 排除单游戏包问题：
+   同一个游戏换 xqv9m8 / m7v8k3 / p8m7xv 等入口可正常 verify 或 Spin；
+   问题集中在 pg-games.t6qv8m.icu 入口。
+</code></pre>
+<p>当前处置结果：</p>
+<pre><code class="language-text">1. 已从 platform-api/conf/domains/pg.json 的 PG game_hosts 下线 pg-games.t6qv8m.icu。
+2. pg-games.6qv8m.icu 虽然本轮样本少，但同属 m.icu 结尾，按现有误拼规则也已一并下线。
+3. 覆盖 default / pg3 / pg4 / pg5 game_hosts，static_hosts 不变。
+4. 优先使用已验证正常的入口：
+   pg-games.xqv9m8.icu
+   pg-games.m7v8k3.cyou
+   pg-games.p8m7xv.cyou
+   pg-games.q7m9v8.icu
+5. docker/deploy/update_pgserver.py 已增加 platform-api / all 发布预检，后续 PG game_hosts 再出现 m.icu 结尾动态入口会中断发布。
+</code></pre>
+<p>运维不建议作为长期方案的兜底：</p>
+<pre><code class="language-text">给 pg-games.t6qv8api.icu / pg-games.6qv8api.icu 补 DNS 和 Nginx。
+</code></pre>
+<p>原因：</p>
+<pre><code class="language-text">1. 这会掩盖 API host 派生 bug。
+2. 会把错误域名变成正式维护对象。
+3. 如果后续还有其他字符串替换变体，仍会继续漏。
+</code></pre>
+<p>如果业务必须马上恢复且后端来不及发版，运维可以短期兜底二选一：</p>
+<pre><code class="language-text">方案 A：从 PG game_hosts / 分发池移除 pg-games.t6qv8m.icu 和 pg-games.6qv8m.icu。
+方案 B：临时给误拼域名补 DNS + 宝塔 Nginx server_name，让它们也走 pg_game_backend。
+</code></pre>
+<p>推荐顺序：</p>
+<pre><code class="language-text">先用方案 A 避开风险入口；2026-07-06 已按方案 A 执行。
+后端修 API host 生成逻辑后，再恢复完整域名池。
+</code></pre>
+<h2 id="为什么会拼出-t6qv8api-icu">为什么会拼出 t6qv8api.icu</h2>
+<p>从现象看，客户端或后端返回给客户端的域名派生逻辑很可能做了类似：</p>
+<pre><code class="language-text">把 hostname 里的 "m." 替换成 "api."
+</code></pre>
+<p><code>pg-games.t6qv8m.icu</code> 末尾正好包含：</p>
+<pre><code class="language-text">m.icu
+</code></pre>
+<p>如果做字符串替换，就会变成：</p>
+<pre><code class="language-text">pg-games.t6qv8api.icu
+</code></pre>
+<p>这不是预期的 API 域名。预期应是以下二选一：</p>
+<pre><code class="language-text">https://pg-games.t6qv8m.icu/web-api/...
+</code></pre>
+<p>或者：</p>
+<pre><code class="language-text">https://api.t6qv8m.icu/web-api/...
+</code></pre>
+<p>当前宝塔运维侧已经支持 <code>pg-games.*</code> 和 <code>api.*</code> 两类 host 反代 PG API；但是不支持这种误拼出来的 <code>pg-games.t6qv8api.icu</code>。</p>
+<p>同类风险域名：</p>
+<pre><code class="language-text">pg-games.t6qv8m.icu -&gt; 可能被误拼成 pg-games.t6qv8api.icu
+pg-games.6qv8m.icu -&gt; 可能被误拼成 pg-games.6qv8api.icu
+</code></pre>
+<p>只要根域名最后是 <code>m.icu</code>，都要重点检查。</p>
+<h2 id="复测证据">复测证据</h2>
+<p>本地 Playwright 用同一批真实 launcher 参数改入口 host 做对比，结果如下。</p>
+<h3 id="玻尔修斯传奇-128">玻尔修斯传奇 128</h3>
+<p><code>pg-games.xqv9m8.icu</code>：</p>
+<pre><code class="language-text">入口页：200
+verifyOperatorPlayerSession：200
+GameName/Get：200
+GameInfo/Get：200
+Resources/GetByResourcesTypeIds：200
+页面结果：到达“开始”
+</code></pre>
+<p><code>pg-games.t6qv8m.icu</code>：</p>
+<pre><code class="language-text">入口页：200
+页面结果：登录失败，系统正在重试
+verify 目标域名：https://pg-games.t6qv8api.icu/...
+浏览器错误：net::ERR_NAME_NOT_RESOLVED
+后端结果：没有收到 verify 请求
+</code></pre>
+<p>线上日志也能看到早期失败时只有入口和 service worker 请求，没有后续 verify：</p>
+<pre><code class="language-text">2026-07-06 15:49:02 GET /128/index.html?... 200
+2026-07-06 15:49:04 GET /shared/service-worker/sw.js 200
+之后没有同一页面的 verifyOperatorPlayerSession
+</code></pre>
+<p>后端调试后，后续同一游戏已经有成功操作日志：</p>
+<pre><code class="language-text">2026-07-06 16:23:53 POST /game-api/pg/v2/Spin?... 200
+Referer: https://pg-games.m7v8k3.cyou/128/index.html?...
+</code></pre>
+<p>这说明游戏 128 本身、业务后端和游戏 API 已可用；失败点是特定入口域名派生 API host。</p>
+<h3 id="阿努比斯-1623475">阿努比斯 1623475</h3>
+<p><code>pg-games.xqv9m8.icu</code>：</p>
+<pre><code class="language-text">入口页：200
+verifyOperatorPlayerSession：200
+GameName/Get：200
+GameInfo/Get：200
+Resources/GetByResourcesTypeIds：200
+页面结果：到达“开始”
+</code></pre>
+<p><code>pg-games.t6qv8m.icu</code>：</p>
+<pre><code class="language-text">入口页：200
+页面结果：登录失败，系统正在重试
+verify 目标域名：https://pg-games.t6qv8api.icu/...
+浏览器错误：net::ERR_NAME_NOT_RESOLVED
+后端结果：没有收到 verify 请求
+</code></pre>
+<p>后端调试后，<code>p8m7xv</code> 入口也能打到业务 API：</p>
+<pre><code class="language-text">2026-07-06 16:23:29 POST /web-api/game-proxy/v2/GameName/Get?... 200
+2026-07-06 16:23:30 POST /game-api/pg/v2/GameInfo/Get?... 200
+Referer: https://pg-games.p8m7xv.cyou/1623475/index.html?...
+</code></pre>
+<p>这说明游戏 1623475 本身和后端 API 也已可用。</p>
+<h2 id="静态资源排除项">静态资源排除项</h2>
+<p>这两款不是 PG3 / PG4 / PG5 拆包特殊资源组，<code>platform-api/conf/domains/pg.json</code> 里它们走 default：</p>
+<pre><code class="language-text">128：default pg-static.*
+1623475：default pg-static.*
+</code></pre>
+<p>宝塔静态目录存在：</p>
+<pre><code class="language-text">/www/wwwroot/pg-static/128
+/www/wwwroot/pg-static/1623475
+</code></pre>
+<p>GCS / CDN 抽样资源访问 200：</p>
+<pre><code class="language-text">https://pg-static.xqv9m8.icu/128/713dc0937e.26c4c.js -&gt; 200
+https://pg-static.xqv9m8.icu/1623475/f33bdb7aaf.f3bd1.js -&gt; 200
+</code></pre>
+<p><code>pg-static/&lt;gid&gt;/index.html</code> 404 不是问题，因为 PG 的入口页来自：</p>
+<pre><code class="language-text">https://pg-games.&lt;root&gt;/&lt;gid&gt;/index.html
+</code></pre>
+<p>静态域名只负责加载 JS / JSON / 图片 / 音频等资源。</p>
+<h2 id="后端开发建议修复">后端开发建议修复</h2>
+<p>优先修业务侧 API host 派生逻辑，不建议长期靠新增奇怪域名兜底。</p>
+<p>建议规则：</p>
+<ol>
+<li>如果当前入口是 <code>pg-games.&lt;root&gt;</code>，verify / game-proxy / game-api 可以直接走同源：</li>
+</ol>
+<pre><code class="language-text">apiBase = window.location.origin
+</code></pre>
+<p>最终请求：</p>
+<pre><code class="language-text">https://pg-games.&lt;root&gt;/web-api/auth/session/v2/verifyOperatorPlayerSession
+https://pg-games.&lt;root&gt;/web-api/game-proxy/v2/GameName/Get
+https://pg-games.&lt;root&gt;/game-api/pg/v2/GameInfo/Get
+</code></pre>
+<ol start="2">
+<li>如果必须分离到 <code>api.&lt;root&gt;</code>，只能做明确前缀替换：</li>
+</ol>
+<pre><code class="language-text">pg-games.t6qv8m.icu -&gt; api.t6qv8m.icu
+</code></pre>
+<p>不要对 hostname 做泛化字符串替换，例如不要替换任意位置的 <code>m.</code>。</p>
+<p>伪代码：</p>
+<pre><code class="language-python">def pg_api_host(game_host: str) -&gt; str:
+    if game_host.startswith("pg-games."):
+        return "api." + game_host[len("pg-games."):]
+    return game_host
+</code></pre>
+<p>需要加单测的 host：</p>
+<pre><code class="language-text">pg-games.xqv9m8.icu      -&gt; api.xqv9m8.icu 或 pg-games.xqv9m8.icu
+pg-games.t6qv8m.icu      -&gt; api.t6qv8m.icu 或 pg-games.t6qv8m.icu
+pg-games.6qv8m.icu       -&gt; api.6qv8m.icu 或 pg-games.6qv8m.icu
+pg-games.p8m7xv.cyou     -&gt; api.p8m7xv.cyou 或 pg-games.p8m7xv.cyou
+pg-games.m7v8k3.cyou     -&gt; api.m7v8k3.cyou 或 pg-games.m7v8k3.cyou
+</code></pre>
+<p>验证标准：</p>
+<pre><code class="language-text">入口页 200
+verifyOperatorPlayerSession 200
+GameName/Get 200
+GameInfo/Get 200
+Resources/GetByResourcesTypeIds 200
+页面到达“开始”
+Spin 能返回 200
+</code></pre>
+<h2 id="运维临时兜底方案">运维临时兜底方案</h2>
+<p>如果后端来不及改，运维侧可以做两类临时兜底。</p>
+<h3 id="方案-A-先摘掉高风险入口">方案 A：先摘掉高风险入口</h3>
+<p>临时不要给 PG launcher 分配：</p>
+<pre><code class="language-text">pg-games.t6qv8m.icu
+pg-games.6qv8m.icu
+</code></pre>
+<p>优先使用已经验证可用的入口：</p>
+<pre><code class="language-text">pg-games.xqv9m8.icu
+pg-games.m7v8k3.cyou
+pg-games.p8m7xv.cyou
+</code></pre>
+<p>这个方案影响范围小，但需要确认域名池/随机分配逻辑在哪里控制。</p>
+<h3 id="方案-B-补误拼域名">方案 B：补误拼域名</h3>
+<p>给误拼域名补 DNS 和宝塔 Nginx 映射：</p>
+<pre><code class="language-text">pg-games.t6qv8api.icu
+pg-games.6qv8api.icu
+</code></pre>
+<p>映射到当前 PG 反代站点，和 <code>pg-games.*</code> / <code>api.*</code> 一样走 <code>pg_game_backend</code>。</p>
+<p>缺点：</p>
+<ul>
+<li>这是兜底，不是根因修复。</li>
+<li>会把错误域名正式化，后续维护成本更高。</li>
+<li>如果还有其他类似字符串替换变体，需要继续补洞。</li>
+</ul>
+<h2 id="额外发现-Service-Worker-scope-警告">额外发现：Service Worker scope 警告</h2>
+<p>两款游戏的 Console 都有同一个警告：</p>
+<pre><code class="language-text">The path of the provided scope ('/') is not under the max scope allowed ('/shared/service-worker/').
+Adjust the scope, move the Service Worker script, or use the Service-Worker-Allowed HTTP header to allow the scope.
+</code></pre>
+<p>这不是本次 verify 不到服务器的主因，因为 <code>xqv9m8</code> 入口在出现该警告的同时仍能成功进入游戏。</p>
+<p>但它会影响 service worker 缓存注册，可能造成缓存策略不生效或某些浏览器表现不一致。后续可在 Nginx 对：</p>
+<pre><code class="language-text">/shared/service-worker/sw.js
+</code></pre>
+<p>补：</p>
+<pre><code class="language-nginx">add_header Service-Worker-Allowed "/" always;
+</code></pre>
+<p>这个属于优化项，不应替代 API host 根因修复。</p>
+<h2 id="可发给后端的短版">可发给后端的短版</h2>
+<pre><code class="language-text">PG 这次不是单游戏静态资源缺失，pg-static / GCS / CDN 抽样资源 200。
+
+本轮全游戏扫描在 pg-games.t6qv8m.icu 入口下扫到以下游戏有同类问题：
+67 少林足球(Shaolin Soccer) refs=1 verify=0 spin=0
+106 麒麟送宝(Ways of the Qilin) refs=9 verify=0 spin=0
+115 超市大血拼(Supermarket Spree) refs=1 verify=0 spin=0
+128 玻尔修斯传奇(Legend of Perseus) refs=13 verify=0 spin=0
+135 赏金大对决(Wild Bounty Showdown) refs=5 verify=0 spin=0
+1623475 阿努比斯(Anubis Wrath) refs=8 verify=0 spin=0
+
+失败发生在部分 pg-games 入口域名派生 verify/API host 时：
+pg-games.t6qv8m.icu 会把 verify 拼成 pg-games.t6qv8api.icu。
+这个域名没有 DNS，浏览器报 net::ERR_NAME_NOT_RESOLVED，请求没有到 Cloudflare/宝塔/后端，所以后端看不到 verify 日志。
+
+同一游戏换 pg-games.xqv9m8.icu / pg-games.m7v8k3.cyou / pg-games.p8m7xv.cyou 等入口，verify、GameName、GameInfo、Resources 或 Spin 能 200。
+
+运维当前处理：
+1. 已排除静态资源缺失、GCS/CDN 同步、宝塔 Nginx CORS/API 反代主链路问题；
+2. 已从分发池 game_hosts 下线 pg-games.t6qv8m.icu，pg-games.6qv8m.icu 同属 m.icu 结尾也已一并下线；
+3. 不建议长期补 pg-games.t6qv8api.icu / pg-games.6qv8api.icu 这种误拼域名，容易掩盖代码 bug。
+
+建议后端修 API host 生成逻辑：
+1. 最好直接使用当前 pg-games 同源请求 /web-api 和 /game-api；
+2. 如果必须转 api 域名，只允许 pg-games.&lt;root&gt; -&gt; api.&lt;root&gt; 的前缀替换；
+3. 不要替换 hostname 任意位置的 "m."，否则 t6qv8m.icu / 6qv8m.icu 会被误拼成 t6qv8api.icu / 6qv8api.icu。
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#问题摘要">问题摘要</a></li><li style="margin-left:0.0rem"><a href="#核心结论">核心结论</a></li><li style="margin-left:0.0rem"><a href="#全游戏扫描补充">全游戏扫描补充</a></li><li style="margin-left:0.0rem"><a href="#当前运维侧处理方式">当前运维侧处理方式</a></li><li style="margin-left:0.0rem"><a href="#为什么会拼出-t6qv8api-icu">为什么会拼出 t6qv8api.icu</a></li><li style="margin-left:0.0rem"><a href="#复测证据">复测证据</a></li><li style="margin-left:0.8rem"><a href="#玻尔修斯传奇-128">玻尔修斯传奇 128</a></li><li style="margin-left:0.8rem"><a href="#阿努比斯-1623475">阿努比斯 1623475</a></li><li style="margin-left:0.0rem"><a href="#静态资源排除项">静态资源排除项</a></li><li style="margin-left:0.0rem"><a href="#后端开发建议修复">后端开发建议修复</a></li><li style="margin-left:0.0rem"><a href="#运维临时兜底方案">运维临时兜底方案</a></li><li style="margin-left:0.8rem"><a href="#方案-A-先摘掉高风险入口">方案 A：先摘掉高风险入口</a></li><li style="margin-left:0.8rem"><a href="#方案-B-补误拼域名">方案 B：补误拼域名</a></li><li style="margin-left:0.0rem"><a href="#额外发现-Service-Worker-scope-警告">额外发现：Service Worker scope 警告</a></li><li style="margin-left:0.0rem"><a href="#可发给后端的短版">可发给后端的短版</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 巴西主站</li>
+          <li>日期：2026-07-06</li>
+          <li>标签：<span class="tag">巴西主站</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">自动化</span><span class="tag">CDN</span><span class="tag">DNS</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-07-06-【问题排查+网络调整】PG阿努比斯与玻尔修斯网络问题排查…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607060000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BPython%2BDocker-2026-07-06%20PG%20%E9%98%BF%E5%8A%AA%E6%AF%94%E6%96%AF%E4%B8%8E%E7%8E%BB%E5%B0%94%E4%BF%AE%E6%96%AF%E7%BD%91%E7%BB%9C%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>2026-07-06 PG 阿努比斯与玻尔修斯网络问题排查。本文属于历史运维与项目交付 / 巴西主站，注意：不要在群里、文档里、提交里粘贴完整 launcher URL、JWT、 ot 、cookie、会员 token。本文只记录脱敏后的链路、域名和状态码。 这次不是 PG 静态资源没同步，也不是两个游戏目录缺资…</p>
+      <p>关键词：巴西主站、Python、Docker、Nginx、自动化、CDN、DNS、故障排查、历史运维与项目交付、历史运维与项目交付 / 巴西主站、2026-07-06 PG 阿努比斯与玻尔修斯网络问题排查</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5a8bfaf897a7.html"><small>上一篇</small>2026-07-06 PG 卡 50 百分比问题修复上线复测记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f05b705f78b2.html"><small>下一篇</small>线上环境业务日志持久化改造复盘与维护提示词</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-905282da5e59.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
