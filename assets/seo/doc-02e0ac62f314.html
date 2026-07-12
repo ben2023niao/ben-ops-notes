@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>ben-bot AI 接手开发 Prompt｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="ben-bot AI 接手开发 Prompt。本文属于历史运维与项目交付 / 18Game 测试环境，你正在接手 ben-bot 项目。请先完整阅读这份文档，再修改代码。这个项目是一个中文运维 Telegram 机器人，核心目标是把常用运维入口、发布入口、配置查看、值班表和脚本执行能力做成飞机群里的按钮工作台。…">
+  <meta name="keywords" content="18Game 测试环境，Linux，Shell，Python，Docker，监控告警，自动化，CDN，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，ben-bot AI 接手开发 Prompt，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-02e0ac62f314.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-02e0ac62f314.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607130000-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-ben-bot%20AI%20%E6%8E%A5%E6%89%8B%E5%BC%80%E5%8F%91%20Prompt.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="ben-bot AI 接手开发 Prompt">
+  <meta property="og:description" content="ben-bot AI 接手开发 Prompt。本文属于历史运维与项目交付 / 18Game 测试环境，你正在接手 ben-bot 项目。请先完整阅读这份文档，再修改代码。这个项目是一个中文运维 Telegram 机器人，核心目标是把常用运维入口、发布入口、配置查看、值班表和脚本执行能力做成飞机群里的按钮工作台。…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-02e0ac62f314.html">
+  <meta property="article:published_time" content="2026-07-13T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-07-13 00:00">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="ben-bot AI 接手开发 Prompt">
+  <meta name="twitter:description" content="ben-bot AI 接手开发 Prompt。本文属于历史运维与项目交付 / 18Game 测试环境，你正在接手 ben-bot 项目。请先完整阅读这份文档，再修改代码。这个项目是一个中文运维 Telegram 机器人，核心目标是把常用运维入口、发布入口、配置查看、值班表和脚本执行能力做成飞机群里的按钮工作台。…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-02e0ac62f314.html#article","headline":"ben-bot AI 接手开发 Prompt","description":"ben-bot AI 接手开发 Prompt。本文属于历史运维与项目交付 / 18Game 测试环境，你正在接手 ben-bot 项目。请先完整阅读这份文档，再修改代码。这个项目是一个中文运维 Telegram 机器人，核心目标是把常用运维入口、发布入口、配置查看、值班表和脚本执行能力做成飞机群里的按钮工作台。…","datePublished":"2026-07-13T00:00:00+08:00","dateModified":"2026-07-13 00:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Linux","Shell","Python","Docker","监控告警","自动化","CDN","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","ben-bot AI 接手开发 Prompt","devops"],"wordCount":4468,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-02e0ac62f314.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-02e0ac62f314.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"ben-bot AI 接手开发 Prompt","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-02e0ac62f314.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>ben-bot AI 接手开发 Prompt</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>ben-bot AI 接手开发 Prompt</h1>
+      <p class="lede">ben-bot AI 接手开发 Prompt。本文属于历史运维与项目交付 / 18Game 测试环境，你正在接手 ben-bot 项目。请先完整阅读这份文档，再修改代码。这个项目是一个中文运维 Telegram 机器人，核心目标是把常用运维入口、发布入口、配置查看、值班表和脚本执行能力做成飞机群里的按钮工作台。…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-07-13T00:00:00+08:00">发布于 2026-07-13</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">4,468 字</span>
+        <span class="badge">13 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/python/ben-bot/doc/prompt.md</code></p>
+<p>整理日期：2026-07-13 00:00｜日期依据：正文日期</p>
+</blockquote>
+<p>环境标签：通用</p>
+<p>你正在接手 <code>ben-bot</code> 项目。请先完整阅读这份文档，再修改代码。这个项目是一个中文运维 Telegram 机器人，核心目标是把常用运维入口、发布入口、配置查看、值班表和脚本执行能力做成飞机群里的按钮工作台。</p>
+<p>本文件是给各类 AI 助手使用的接手 prompt。它比普通 README 更偏操作视角：告诉你应该先看哪里、哪些行为不能做、菜单和权限如何生效、改完如何验证和部署。</p>
+<h2 id="0-关联文档">0. 关联文档</h2>
+<ul>
+<li>仓库总入口：<code>.github/copilot-prompt-instructions.md</code></li>
+<li>Python 项目总索引：<code>devops/python/doc/prompt.md</code></li>
+<li>服务器上下文：<code>devops/ai_context/doc/prompt.md</code></li>
+<li>运维导航站：<code>devops/work.youdianse.com/doc/prompt.md</code></li>
+<li>Telegram Relay：<code>devops/python/telegram/doc/prompt.md</code></li>
+<li>周报生成：<code>work-运维部工作进度-周报/doc/2026-07-13-周报生成通用提示词.md</code></li>
+</ul>
+<p>ben-bot 是飞机构按钮工作台，和 <code>work.youdianse.com</code> 的网页导航互补。涉及服务器、容器、部署路径、线上拉取和重启时，以 <code>ai_context</code> 为上游事实；涉及周报通知或本次优化摘要时，提交后应使用 <code>@game18_report_bot</code> 把 commit、变更点和验证结果安全广播到它当前可达的所有已知运维群。发送前必须 dry-run 确认可达群，通知内容必须适合多群公开查看，不能包含密钥、chat id、服务器口令或 <code>.env</code> 明文。</p>
+<h2 id="1-基本定位">1. 基本定位</h2>
+<ul>
+<li>项目名：<code>ben-bot</code></li>
+<li>位置：<code>devops/python/ben-bot</code></li>
+<li>运行形态：Docker 容器 <code>ben-bot</code></li>
+<li>主要语言：Python</li>
+<li>Telegram SDK：<code>python-telegram-bot</code> 13.x</li>
+<li>运行 Python：容器里是 Python 3.11</li>
+<li>主要入口：<code>app/bot.py</code></li>
+<li>主要包：<code>app/benbot</code></li>
+<li>菜单和脚本根目录：<code>data/scripts</code></li>
+<li>持久化运行数据：<code>data/upload</code></li>
+<li>构建日志：<code>data/package</code></li>
+</ul>
+<p>这个机器人当前不是纯聊天机器人，而是“按钮式运维控制台”。用户常用流程是：</p>
+<ol>
+<li>在飞机群发送 <code>/start</code></li>
+<li>点击首页按钮</li>
+<li>进入某个目录或目录插件</li>
+<li>选择具体动作</li>
+<li>机器人执行脚本、远程发布或发送附件</li>
+</ol>
+<h2 id="2-开发原则">2. 开发原则</h2>
+<p>你修改本项目时必须遵守：</p>
+<ul>
+<li>优先读现有代码，不要凭想象重写。</li>
+<li>菜单尽量通过 <code>data/scripts</code> 和 <code>.benbot.json</code> 扩展，不要把按钮硬编码回大文件。</li>
+<li>复杂交互使用目录插件 <code>benbot_plugin.py</code>。</li>
+<li>权限统一改 <code>app/benbot/permissions.py</code>，角色名单统一改 <code>app/benbot/constants.py</code>。</li>
+<li>Telegram 文本默认使用 MarkdownV2，输出动态内容要转义。</li>
+<li>不要泄露 token、私钥、密码、原始 <code>.env</code> 内容。</li>
+<li>不要把调试时读取到的敏感配置写进文档、日志摘要或提交说明。</li>
+<li>线上 H5 发布权限保持运维专属，除非用户明确要求放开。</li>
+<li><code>脱敏配置查看</code> 当前是公共功能，任何人都可以点击和执行。</li>
+<li>本地工作区可能有用户未提交文件，提交前必须确认暂存范围。</li>
+</ul>
+<h2 id="3-当前首页结构">3. 当前首页结构</h2>
+<p>首页结构由 <code>app/benbot/home.py</code> 和 <code>data/scripts</code> 注册结果共同决定。当前首页说明树是：</p>
+<pre><code class="language-text">.
+├── 测试环境-游点涩-h5-发版
+├── 线上环境-游点涩-h5-发版
+├── 后端与定时任务
+│   ├── 测试后端发布
+│   ├── 测试定时任务
+│   ├── 线上后端发布
+│   └── 线上定时任务
+├── 脱敏配置查看
+│   ├── 测试配置查看
+│   └── 线上配置查看
+├── 域名接入
+│   └── 线上增加前端域名
+├── 文档与联系人
+│   ├── 帮助文档
+│   ├── 数据打包机域名
+│   ├── 文档日常发布监控
+│   ├── 文档更新
+│   └── 疑难杂症业务模块
+└── 运维值班表
+</code></pre>
+<p>当前实际首页按钮分区规则：</p>
+<ul>
+<li><code>layout_section = "release"</code>：顶部发布区，当前包含两个 H5 发版根按钮。</li>
+<li><code>layout_section = "workbench"</code>：中间工作台，默认折叠；当前可能为空。</li>
+<li><code>layout_section = "duty"</code>：底部值班表按钮。</li>
+<li>没有上述 section 的顶层目录会作为普通目录按钮展示。</li>
+<li>顶层 <code>data/scripts/备份</code> 被 <code>plugin_registry.py</code> 隐藏，不进入首页。</li>
+</ul>
+<h2 id="4-权限模型">4. 权限模型</h2>
+<p>权限代码在 <code>app/benbot/permissions.py</code>。</p>
+<p>角色名单在 <code>app/benbot/constants.py</code>：</p>
+<ul>
+<li><code>OPS_USERNAMES</code></li>
+<li><code>FRONTEND_USERNAMES</code></li>
+<li><code>TEST_USERNAMES</code></li>
+<li><code>BACKEND_USERNAMES</code></li>
+</ul>
+<p>当前公共路径在 <code>PUBLIC_ALLOWED_PATHS</code>：</p>
+<pre><code class="language-python">PUBLIC_ALLOWED_PATHS = (
+    "测试环境-游点涩-h5-发版",
+    "脱敏配置查看",
+    "后端与定时任务",
+    "域名接入",
+    "文档与联系人",
+    "运维值班表",
+)
+</code></pre>
+<p>当前角色路径：</p>
+<ul>
+<li>前端：可操作 <code>测试环境-游点涩-h5-发版</code></li>
+<li>测试：可操作 <code>测试环境-游点涩-h5-发版</code></li>
+<li>后端：可操作 <code>测试环境-游点涩-h5-发版</code></li>
+<li>运维：全部权限</li>
+<li>访客：可操作公共路径</li>
+</ul>
+<p>特别注意：</p>
+<ul>
+<li><code>can_view_menu_path()</code> 当前直接返回 <code>True</code>，所以菜单可见性基本对所有人开放。</li>
+<li>真正的执行权限由 <code>can_access_script_path()</code> 和 <code>can_access_menu_node()</code> 控制。</li>
+<li>非运维用户不能使用 <code>/sh</code>、上传、下载。</li>
+<li><code>脱敏配置查看/线上配置查看/view_env.py</code> 和 <code>脱敏配置查看/测试配置查看/view_env.py</code> 当前任何人都能执行。</li>
+<li><code>线上环境-游点涩-h5-发版/youdianse_test_18game_h5_client.py</code> 当前只有运维可以执行。</li>
+</ul>
+<p>验证权限的常用脚本：</p>
+<pre><code class="language-bash">python3 - &lt;&lt;'PY'
+import sys
+from types import SimpleNamespace
+sys.path.insert(0, 'devops/python/ben-bot/app')
+from benbot.permissions import can_access_script_path, get_role_capability_text, get_user_role
+
+u = SimpleNamespace(username='random_guest')
+paths = [
+    '脱敏配置查看/线上配置查看/view_env.py',
+    '脱敏配置查看/测试配置查看/view_env.py',
+    '线上环境-游点涩-h5-发版/youdianse_test_18game_h5_client.py',
+]
+for path in paths:
+    print(path, can_access_script_path(u, path))
+print(get_user_role(u), get_role_capability_text(get_user_role(u)))
+PY
+</code></pre>
+<h2 id="5-核心模块地图">5. 核心模块地图</h2>
+<h3 id="app-bot-py"><code>app/bot.py</code></h3>
+<p>薄入口，只调用 <code>benbot.main.run()</code>。</p>
+<h3 id="app-benbot-main-py"><code>app/benbot/main.py</code></h3>
+<p>负责：</p>
+<ul>
+<li>创建 <code>Updater</code></li>
+<li>注册 <code>/start</code>、<code>/help</code>、<code>/sh</code>、<code>/download</code>、<code>/script</code></li>
+<li>注册文档上传 handler</li>
+<li>注册所有 callback query</li>
+<li>启动 polling</li>
+<li>输出启动日志</li>
+<li>发送启动通知</li>
+</ul>
+<p>启动通知逻辑：</p>
+<ul>
+<li><code>build_and_run_ben_bot.sh</code> 会写入 <code>data/upload/last_update_notice.txt</code></li>
+<li><code>main.py</code> 启动后读取并发送到 <code>STARTUP_NOTIFY_CHAT_IDS</code> 和 <code>known_chat_ids.json</code></li>
+<li>发送成功后会归档为 <code>last_update_notice.sent.&lt;timestamp&gt;.txt</code></li>
+</ul>
+<h3 id="app-benbot-config-py"><code>app/benbot/config.py</code></h3>
+<p>负责环境变量和路径：</p>
+<ul>
+<li><code>TELEGRAM_API_TOKEN</code></li>
+<li><code>STARTUP_NOTIFY_CHAT_IDS</code></li>
+<li><code>MAX_TASK_OUTPUT</code></li>
+<li><code>SCRIPTS_ROOT_PATH</code></li>
+<li><code>UPLOAD_PATH</code></li>
+<li><code>KNOWN_CHAT_IDS_PATH</code></li>
+</ul>
+<p>命令安全基础配置也在这里：</p>
+<ul>
+<li><code>CMD_BLACK_LIST = {"rm"}</code></li>
+<li><code>CMD_BLACK_CHARS = {";", "\n", "&amp;"}</code></li>
+</ul>
+<h3 id="app-benbot-constants-py"><code>app/benbot/constants.py</code></h3>
+<p>负责：</p>
+<ul>
+<li><code>BOT_VERSION</code></li>
+<li>容器名</li>
+<li>默认 Telegram token 选择</li>
+<li>角色用户名</li>
+<li>页面大小和提交数等常量</li>
+</ul>
+<p>注意：源码里可能存在历史 token 字符串。写文档和回复用户时不要复制真实 token。</p>
+<h3 id="app-benbot-plugin_registry-py"><code>app/benbot/plugin_registry.py</code></h3>
+<p>负责扫描 <code>data/scripts</code>：</p>
+<ul>
+<li>读取目录 <code>.benbot.json</code></li>
+<li>读取脚本旁边的 <code>&lt;script&gt;.benbot.json</code></li>
+<li>生成 <code>MenuNode</code></li>
+<li>顶层隐藏 <code>备份</code></li>
+<li><code>type = "script"</code> 的目录会作为一个脚本节点，而不是普通目录</li>
+<li><code>plugin_file = "benbot_plugin.py"</code> 会被加载为目录插件</li>
+</ul>
+<p>重要字段：</p>
+<ul>
+<li><code>label</code></li>
+<li><code>order</code></li>
+<li><code>columns</code></li>
+<li><code>layout_section</code></li>
+<li><code>layout_group</code></li>
+<li><code>entry_script</code></li>
+<li><code>usage</code></li>
+<li><code>example</code></li>
+<li><code>action</code></li>
+<li><code>placeholder_text</code></li>
+<li><code>plugin_file</code></li>
+<li><code>links</code></li>
+</ul>
+<h3 id="app-benbot-home-py"><code>app/benbot/home.py</code></h3>
+<p>负责 <code>/start</code> 首页文案和按钮布局。</p>
+<p>按钮布局规则：</p>
+<ul>
+<li>release 节点先展示</li>
+<li>workbench 节点通过“展开工作台功能”折叠</li>
+<li>普通 category 和 duty 节点随后展示</li>
+<li>最后一行是帮助菜单和联系 Ben_Bird</li>
+</ul>
+<h3 id="app-benbot-menu-py"><code>app/benbot/menu.py</code></h3>
+<p>负责：</p>
+<ul>
+<li>目录页面渲染</li>
+<li>脚本详情页渲染</li>
+<li>查看用法 / 立即执行示例按钮</li>
+<li>placeholder 页面</li>
+<li>link 页面</li>
+<li>MarkdownV2 输出</li>
+</ul>
+<p>如果 Telegram 报 <code>BadRequest: can't parse entities</code>，优先检查这里和调用处是否正确转义。</p>
+<h3 id="app-benbot-handlers-callbacks-py"><code>app/benbot/handlers/callbacks.py</code></h3>
+<p>所有按钮点击主要经过 <code>shortcut_cb()</code>：</p>
+<ul>
+<li><code>home:*</code>：回首页</li>
+<li><code>help:*</code>：打开帮助中心</li>
+<li><code>menu:&lt;node_id&gt;</code>：打开目录或功能</li>
+<li><code>usage:&lt;node_id&gt;</code>：显示用法</li>
+<li><code>run:&lt;node_id&gt;</code>：执行示例</li>
+<li><code>plugin:&lt;node_id&gt;:&lt;action&gt;:...</code>：交给目录插件处理</li>
+<li><code>busy:*</code>：忙碌态按钮</li>
+</ul>
+<p>目录插件约定：</p>
+<ul>
+<li><code>handle_open(update, context, node=None)</code>：点击功能入口时执行</li>
+<li><code>show_menu(message, user=None, edit=False, node=None)</code>：展示插件菜单</li>
+<li><code>handle_callback(action, payload, update, context, node=None)</code>：处理插件自定义按钮</li>
+<li><code>run_example(update, context, node=None)</code>：覆盖“立即执行示例”</li>
+</ul>
+<h3 id="app-benbot-executor-py"><code>app/benbot/executor.py</code></h3>
+<p>负责实际执行：</p>
+<ul>
+<li><code>/script</code></li>
+<li><code>/sh</code></li>
+<li>实时进度框</li>
+<li>输出切片</li>
+<li>日志附件</li>
+<li>发布进度识别</li>
+</ul>
+<p>H5 发布会通过环境变量启用 live output：</p>
+<ul>
+<li><code>BEN_BOT_LIVE_OUTPUT=1</code></li>
+<li><code>BEN_BOT_PROGRESS_KIND=youdianse_h5</code></li>
+<li><code>BEN_BOT_LIVE_TITLE</code></li>
+<li><code>BEN_BOT_SEND_LOG_DOCUMENT=1</code></li>
+<li><code>BEN_BOT_PRIMARY_URL</code></li>
+<li><code>BEN_BOT_VERSION_TXT_URL</code></li>
+<li><code>BEN_BOT_VERSION_JSON_URL</code></li>
+</ul>
+<p><code>do_exec()</code> 的命令如果是脚本，会按 <code>data/scripts</code> 相对路径查找，并且先过 <code>can_access_script_path()</code> 权限。</p>
+<h3 id="app-benbot-handlers-files-py"><code>app/benbot/handlers/files.py</code></h3>
+<p>负责上传和下载。只有运维能用。</p>
+<h3 id="app-benbot-handlers-shell-py"><code>app/benbot/handlers/shell.py</code></h3>
+<p>负责 <code>/sh</code>。只有运维能用。</p>
+<h2 id="6-data-scripts-菜单系统">6. data/scripts 菜单系统</h2>
+<p><code>data/scripts</code> 是机器人功能仓库。新增按钮优先在这里建目录。</p>
+<h3 id="普通目录">普通目录</h3>
+<pre><code class="language-text">data/scripts/某目录/
+├── .benbot.json
+└── 子功能/
+</code></pre>
+<p><code>.benbot.json</code> 示例：</p>
+<pre><code class="language-json">{
+  "label": "📚 文档与联系人",
+  "order": 50,
+  "columns": 2
+}
+</code></pre>
+<h3 id="目录脚本节点">目录脚本节点</h3>
+<pre><code class="language-text">data/scripts/某功能/
+├── .benbot.json
+└── main.py
+</code></pre>
+<p><code>.benbot.json</code> 示例：</p>
+<pre><code class="language-json">{
+  "type": "script",
+  "label": "功能按钮",
+  "order": 100,
+  "entry_script": "main.py",
+  "usage": "/script 某功能/main.py run",
+  "example": "/script 某功能/main.py run"
+}
+</code></pre>
+<h3 id="目录插件">目录插件</h3>
+<pre><code class="language-text">data/scripts/某功能/
+├── .benbot.json
+├── benbot_plugin.py
+└── main.py
+</code></pre>
+<p><code>.benbot.json</code> 必须设置：</p>
+<pre><code class="language-json">{
+  "type": "script",
+  "plugin_file": "benbot_plugin.py",
+  "entry_script": "main.py"
+}
+</code></pre>
+<p>适合：</p>
+<ul>
+<li>最近提交分页</li>
+<li>多按钮选择</li>
+<li>自定义 callback payload</li>
+<li>点击入口不直接执行脚本，而先展示菜单</li>
+</ul>
+<h2 id="7-当前重点功能">7. 当前重点功能</h2>
+<h3 id="测试环境-游点涩-h5-发版">测试环境-游点涩-h5-发版</h3>
+<p>目录：</p>
+<pre><code class="language-text">data/scripts/测试环境-游点涩-h5-发版
+</code></pre>
+<p>特点：</p>
+<ul>
+<li>首页顶部根按钮</li>
+<li><code>layout_section = "release"</code></li>
+<li><code>layout_group = "frontend_release"</code></li>
+<li>拉取 <code>youdianse-h5</code> 的 <code>test</code> 分支最近提交</li>
+<li>用户选择 git id 后远程部署</li>
+<li>任何人当前都可执行测试 H5 发布</li>
+<li>发布过程使用实时进度框和完整日志附件</li>
+<li>入口插件：<code>benbot_plugin.py</code></li>
+<li>主脚本：<code>youdianse_test_18game_h5_client.py</code></li>
+<li>远程脚本模块：<code>remote_youdianse_h5_*.py</code></li>
+<li>配置：<code>server_config.py</code></li>
+</ul>
+<p>常用命令：</p>
+<pre><code class="language-bash">/script 测试环境-游点涩-h5-发版/youdianse_test_18game_h5_client.py list
+/script 测试环境-游点涩-h5-发版/youdianse_test_18game_h5_client.py run &lt;git_id&gt;
+</code></pre>
+<h3 id="线上环境-游点涩-h5-发版">线上环境-游点涩-h5-发版</h3>
+<p>目录：</p>
+<pre><code class="language-text">data/scripts/线上环境-游点涩-h5-发版
+</code></pre>
+<p>特点：</p>
+<ul>
+<li>首页顶部根按钮</li>
+<li><code>layout_section = "release"</code></li>
+<li><code>layout_group = "frontend_release"</code></li>
+<li>拉取 <code>youdianse-h5</code> 的 <code>main</code> 分支最近提交</li>
+<li>用户选择 git id 后远程部署</li>
+<li>同步 Nuxt 静态资源到对象存储/CDN</li>
+<li>只有运维角色可执行</li>
+<li>发布过程使用实时进度框和完整日志附件</li>
+<li>入口插件：<code>benbot_plugin.py</code></li>
+<li>主脚本：<code>youdianse_test_18game_h5_client.py</code></li>
+<li>配置：<code>server_config.py</code></li>
+</ul>
+<p>常用命令：</p>
+<pre><code class="language-bash">/script 线上环境-游点涩-h5-发版/youdianse_test_18game_h5_client.py list
+/script 线上环境-游点涩-h5-发版/youdianse_test_18game_h5_client.py run &lt;git_id&gt;
+</code></pre>
+<p>注意：</p>
+<ul>
+<li>这两个 H5 发版目录曾经在 <code>data/scripts/前端发布/</code> 下，现在已经上移到 <code>data/scripts/</code> 根目录。</li>
+<li>任何引用旧路径 <code>前端发布/测试环境-游点涩-h5-发版</code> 或 <code>前端发布/线上环境-游点涩-h5-发版</code> 的代码都应修正。</li>
+</ul>
+<h3 id="脱敏配置查看">脱敏配置查看</h3>
+<p>目录：</p>
+<pre><code class="language-text">data/scripts/脱敏配置查看
+</code></pre>
+<p>子功能：</p>
+<ul>
+<li><code>线上配置查看/view_env.py</code></li>
+<li><code>测试配置查看/view_env.py</code></li>
+</ul>
+<p>共享逻辑：</p>
+<pre><code class="language-text">data/scripts/脱敏配置查看/.shared/sanitized_env_viewer.py
+</code></pre>
+<p>能力：</p>
+<ul>
+<li>SSH 到目标服务器</li>
+<li>优先进入后台容器查找 <code>.env</code></li>
+<li>读取配置后脱敏</li>
+<li>在当前飞机群发送 txt 附件</li>
+<li>输出摘要不包含原始密钥</li>
+</ul>
+<p>当前默认目标：</p>
+<ul>
+<li>测试：<code>38.92.8.34</code>，默认用户 <code>root</code></li>
+<li>线上：<code>16.209.16.108</code>，默认用户 <code>ubuntu</code>，默认使用 sudo docker</li>
+</ul>
+<p>凭证优先级：</p>
+<ol>
+<li><code>CONFIG_VIEW_*_SSH_PRIVATE_KEY</code></li>
+<li><code>CONFIG_VIEW_*_SSH_KEY_PATH</code></li>
+<li><code>CONFIG_VIEW_*_SSH_PASSWORD</code></li>
+<li>fallback 到对应 H5 发版目录的 <code>server_config.py</code></li>
+</ol>
+<p>可配置环境变量：</p>
+<pre><code class="language-text">CONFIG_VIEW_TEST_SSH_HOST
+CONFIG_VIEW_TEST_SSH_PORT
+CONFIG_VIEW_TEST_SSH_USER
+CONFIG_VIEW_TEST_SSH_PRIVATE_KEY
+CONFIG_VIEW_TEST_SSH_KEY_PATH
+CONFIG_VIEW_TEST_SSH_PASSWORD
+CONFIG_VIEW_TEST_SUDO_PASSWORD
+CONFIG_VIEW_TEST_USE_SUDO
+CONFIG_VIEW_TEST_CONTAINER
+CONFIG_VIEW_TEST_ENV_PATH
+
+CONFIG_VIEW_PROD_SSH_HOST
+CONFIG_VIEW_PROD_SSH_PORT
+CONFIG_VIEW_PROD_SSH_USER
+CONFIG_VIEW_PROD_SSH_PRIVATE_KEY
+CONFIG_VIEW_PROD_SSH_KEY_PATH
+CONFIG_VIEW_PROD_SSH_PASSWORD
+CONFIG_VIEW_PROD_SUDO_PASSWORD
+CONFIG_VIEW_PROD_USE_SUDO
+CONFIG_VIEW_PROD_CONTAINER
+CONFIG_VIEW_PROD_ENV_PATH
+</code></pre>
+<p>调试命令：</p>
+<pre><code class="language-bash">python3 data/scripts/脱敏配置查看/线上配置查看/view_env.py dry-run
+CONFIG_VIEW_SEND_DOCUMENT=0 python3 data/scripts/脱敏配置查看/线上配置查看/view_env.py run
+</code></pre>
+<p>在容器里调试：</p>
+<pre><code class="language-bash">sudo docker exec -e CONFIG_VIEW_SEND_DOCUMENT=0 ben-bot \
+  python3 /app/data/scripts/脱敏配置查看/线上配置查看/view_env.py run
+</code></pre>
+<p>注意：</p>
+<ul>
+<li>调试时建议设置 <code>CONFIG_VIEW_SEND_DOCUMENT=0</code>，避免重复往群里发附件。</li>
+<li>不要把读取到的原始 <code>.env</code> 内容复制到聊天、issue、文档或 commit message。</li>
+</ul>
+<h3 id="运维值班表">运维值班表</h3>
+<p>目录：</p>
+<pre><code class="language-text">data/scripts/运维值班表
+</code></pre>
+<p>特点：</p>
+<ul>
+<li><code>layout_section = "duty"</code></li>
+<li>首页底部按钮</li>
+<li>公共功能，任何人可点</li>
+<li>使用目录插件 <code>benbot_plugin.py</code></li>
+<li>主脚本 <code>duty_schedule.py</code> 支持 JSON 输出</li>
+</ul>
+<h2 id="8-部署与运行">8. 部署与运行</h2>
+<p>本地或服务器进入：</p>
+<pre><code class="language-bash">cd devops/python/ben-bot
+sh build_and_run_ben_bot.sh
+</code></pre>
+<p>脚本会：</p>
+<ol>
+<li>读取 <code>.env</code>，如果存在</li>
+<li>判断宿主机系统</li>
+<li>本地 macOS 默认使用本地测试机器人 token</li>
+<li>Linux/Ubuntu 默认使用线上机器人 token</li>
+<li>写入 <code>data/upload/last_update_notice.txt</code></li>
+<li><code>docker compose up -d --build</code></li>
+<li>输出构建日志到 <code>data/package</code></li>
+</ol>
+<p>发送启动说明：</p>
+<pre><code class="language-bash">BEN_BOT_UPDATE_NOTES="- 本次变更说明" sh build_and_run_ben_bot.sh
+</code></pre>
+<p>线上机器人部署常用流程：</p>
+<pre><code class="language-bash">ssh -i devops/python/ben-bot/data/scripts/备份/测试环境-后端-发版/id_rsa ubuntu@52.79.252.255
+cd /opt/telegram/18game_devops
+sudo git fetch origin main
+sudo git pull --ff-only origin main
+cd devops/python/ben-bot
+sudo env BEN_BOT_UPDATE_NOTES="- 更新说明" sh ./build_and_run_ben_bot.sh
+</code></pre>
+<p>部署后验证：</p>
+<pre><code class="language-bash">sudo docker ps --filter name=ben-bot --format '{{.Names}} | {{.Image}} | {{.Status}}'
+sudo docker logs --tail 120 ben-bot
+sudo docker exec -i ben-bot python3 - &lt;&lt;'PY'
+from types import SimpleNamespace
+from app.benbot.permissions import can_access_script_path
+u = SimpleNamespace(username='random_guest')
+print(can_access_script_path(u, '脱敏配置查看/线上配置查看/view_env.py'))
+print(can_access_script_path(u, '线上环境-游点涩-h5-发版/youdianse_test_18game_h5_client.py'))
+PY
+</code></pre>
+<h2 id="9-本地验证建议">9. 本地验证建议</h2>
+<p>语法检查：</p>
+<pre><code class="language-bash">python3 -m py_compile app/benbot/permissions.py app/benbot/home.py app/benbot/help_center.py
+python3 -m py_compile data/scripts/脱敏配置查看/.shared/sanitized_env_viewer.py
+</code></pre>
+<p>注册表检查：</p>
+<pre><code class="language-bash">python3 - &lt;&lt;'PY'
+import sys
+sys.path.insert(0, 'app')
+from benbot.plugin_registry import load_registry
+registry = load_registry()
+root = registry.get('root')
+for child_id in root.children:
+    node = registry.get(child_id)
+    print(node.label, node.rel_path, node.script_path, node.layout_section, node.layout_group)
+PY
+</code></pre>
+<p>注意：</p>
+<ul>
+<li>本地 macOS 的 <code>python3</code> 可能是 3.9，而项目代码部分模块使用 <code>str | None</code> 这类 Python 3.10+ 注解。</li>
+<li>容器运行时是 Python 3.11，最终以容器内结果为准。</li>
+<li>如果本地 import 报类型注解错误，不一定代表线上容器会失败；但可以优先用 Python 3.11 或容器复核。</li>
+</ul>
+<h2 id="10-新增功能的推荐步骤">10. 新增功能的推荐步骤</h2>
+<p>新增一个普通功能：</p>
+<ol>
+<li>在 <code>data/scripts</code> 下建目录。</li>
+<li>写 <code>.benbot.json</code>。</li>
+<li>写 Python 或 Shell 脚本。</li>
+<li>无参数时输出用法。</li>
+<li>在 <code>permissions.py</code> 决定是否公共、角色专属或仅运维。</li>
+<li>用 <code>/script</code> 和按钮都走一遍。</li>
+<li>同步 README、帮助中心或本 prompt。</li>
+</ol>
+<p>新增一个复杂按钮：</p>
+<ol>
+<li>建目录。</li>
+<li><code>.benbot.json</code> 设置 <code>type = "script"</code>、<code>entry_script</code>、<code>plugin_file</code>。</li>
+<li>写 <code>benbot_plugin.py</code>。</li>
+<li>在插件里实现 <code>handle_open</code> 和 <code>handle_callback</code>。</li>
+<li>callback_data 用 <code>plugin:&lt;node_id&gt;:&lt;action&gt;:&lt;payload...&gt;</code>。</li>
+<li>长任务用 <code>do_exec(..., live_output=True, extra_env=...)</code>。</li>
+<li>需要防重复点击时使用 <code>busy_state.set_message_busy()</code>。</li>
+</ol>
+<p>新增公共功能：</p>
+<ol>
+<li>把顶层路径加入 <code>PUBLIC_ALLOWED_PATHS</code>。</li>
+<li>更新角色能力说明。</li>
+<li>验证 guest 的 <code>can_access_script_path()</code>。</li>
+</ol>
+<p>新增运维专属功能：</p>
+<ol>
+<li>不加入 <code>PUBLIC_ALLOWED_PATHS</code>。</li>
+<li>不加入普通角色的 <code>ROLE_ALLOWED_PATHS</code>。</li>
+<li>运维自动拥有全部权限。</li>
+</ol>
+<h2 id="11-常见问题和坑">11. 常见问题和坑</h2>
+<h3 id="按钮看得到但点不了">按钮看得到但点不了</h3>
+<p>原因通常是：</p>
+<ul>
+<li><code>can_view_menu_path()</code> 放开了可见性</li>
+<li>但 <code>can_access_script_path()</code> 没放开执行权限</li>
+</ul>
+<p>检查：</p>
+<pre><code class="language-python">can_access_script_path(user, "目录/脚本.py")
+</code></pre>
+<h3 id="目录移动后功能报缺凭证或找不到脚本">目录移动后功能报缺凭证或找不到脚本</h3>
+<p>检查所有硬编码路径：</p>
+<pre><code class="language-bash">rg -n "旧目录名|旧路径" devops/python/ben-bot
+</code></pre>
+<p>H5 发版目录已经从 <code>前端发布/</code> 上移到根目录，旧路径应清理。</p>
+<h3 id="Telegram-Markdown-报错">Telegram Markdown 报错</h3>
+<p>优先检查：</p>
+<ul>
+<li>是否用 <code>escape_markdown_v2()</code></li>
+<li>是否用 <code>md_inline_code()</code> / <code>md_bash_block()</code></li>
+<li>动态文本里是否有 <code>_ * [ ] ( ) ~</code> &gt; # + - = | { } . !`</li>
+</ul>
+<h3 id="长输出刷屏">长输出刷屏</h3>
+<p>优先使用：</p>
+<ul>
+<li>实时进度框</li>
+<li>输出摘要</li>
+<li>完整日志 txt 附件</li>
+</ul>
+<p>不要把长日志直接分很多条刷群。</p>
+<h3 id="远程-SSH-失败">远程 SSH 失败</h3>
+<p>检查：</p>
+<ul>
+<li>容器内是否有 <code>ssh</code> 和 <code>sshpass</code></li>
+<li>docker compose 是否传入对应环境变量</li>
+<li>H5 发版目录下 fallback key 是否存在</li>
+<li>目标服务器用户、端口、sudo docker 权限</li>
+</ul>
+<h3 id="配置查看发送附件失败">配置查看发送附件失败</h3>
+<p>检查：</p>
+<ul>
+<li><code>TELEGRAM_API_TOKEN</code></li>
+<li><code>BEN_BOT_CHAT_ID</code></li>
+<li>当前脚本是否通过机器人上下文执行</li>
+<li>调试时是否设置了 <code>CONFIG_VIEW_SEND_DOCUMENT=0</code></li>
+</ul>
+<h2 id="12-安全边界">12. 安全边界</h2>
+<p>这个项目触达发布、SSH、服务器配置和 Telegram 群。任何 AI 二次开发时必须遵守：</p>
+<ul>
+<li>不在回复中输出真实 token、私钥、密码、原始 <code>.env</code>。</li>
+<li>不把运行中读取到的 <code>.env</code> 原文写入仓库。</li>
+<li>不把私钥内容复制到 prompt 或文档。</li>
+<li>不随意扩大线上发布权限。</li>
+<li>不执行破坏性命令，例如 <code>git reset --hard</code>、删除数据、清空容器卷，除非用户明确要求。</li>
+<li>不把 <code>data/upload</code> 里的运行期附件当作源代码随意提交。</li>
+<li>提交前用 <code>git status --short</code> 检查是否混入用户未跟踪文件。</li>
+</ul>
+<h2 id="13-当前已知工作区习惯">13. 当前已知工作区习惯</h2>
+<ul>
+<li>仓库根目录通常是 <code>18game_devops</code>。</li>
+<li>用户 IDE 可能打开的是 <code>devops/python/ben-bot/...</code>，但终端 cwd 不一定在仓库根。</li>
+<li>操作时显式指定 workdir。</li>
+<li>这个仓库里可能长期存在未跟踪的周报草稿，例如 <code>work-运维部工作进度-周报/2.txt</code> 和 <code>2-en.txt</code>。除非用户明确要求，不要提交它们。</li>
+</ul>
+<h2 id="14-面向-AI-的首要执行流程">14. 面向 AI 的首要执行流程</h2>
+<p>当用户要求你改 ben-bot 时，按这个顺序：</p>
+<ol>
+<li><code>git status --short --branch</code></li>
+<li>读取相关模块和 <code>.benbot.json</code></li>
+<li>判断是菜单问题、权限问题、脚本问题、插件问题、部署问题还是远程目标问题</li>
+<li>小范围修改</li>
+<li><code>py_compile</code></li>
+<li>权限或注册表小脚本验证</li>
+<li>如果用户要求上线或问题发生在线上，提交、推送、服务器拉取、重建容器</li>
+<li>看 <code>docker logs --tail 120 ben-bot</code></li>
+<li>容器内再验证一次核心行为</li>
+<li>最终回复只说结果、提交号、验证结果和未处理事项</li>
+</ol>
+<h2 id="15-当前最重要的事实快照">15. 当前最重要的事实快照</h2>
+<ul>
+<li>H5 测试发布和线上发布是根按钮，不在 <code>前端发布/</code> 目录下。</li>
+<li>H5 测试发布当前任何人可执行。</li>
+<li>H5 线上发布当前只有运维可执行。</li>
+<li>脱敏配置查看当前任何人可执行。</li>
+<li>运维值班表当前任何人可执行。</li>
+<li><code>/sh</code>、上传、下载只有运维可用。</li>
+<li>菜单由 <code>data/scripts</code> 扫描生成，<code>备份</code> 顶层隐藏。</li>
+<li>目录插件是当前复杂交互的标准做法。</li>
+<li>配置查看共享逻辑会从 H5 发版目录的 <code>server_config.py</code> fallback SSH 凭证。</li>
+<li>部署脚本会发送启动更新通知。</li>
+</ul>
+<p>如果你是后续接手的 AI，请把这份文件当作项目事实入口，但仍然以源码为准；发现文档和源码冲突时，先读源码，再更新文档。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#0-关联文档">0. 关联文档</a></li><li style="margin-left:0.0rem"><a href="#1-基本定位">1. 基本定位</a></li><li style="margin-left:0.0rem"><a href="#2-开发原则">2. 开发原则</a></li><li style="margin-left:0.0rem"><a href="#3-当前首页结构">3. 当前首页结构</a></li><li style="margin-left:0.0rem"><a href="#4-权限模型">4. 权限模型</a></li><li style="margin-left:0.0rem"><a href="#5-核心模块地图">5. 核心模块地图</a></li><li style="margin-left:0.8rem"><a href="#app-bot-py">app/bot.py</a></li><li style="margin-left:0.8rem"><a href="#app-benbot-main-py">app/benbot/main.py</a></li><li style="margin-left:0.8rem"><a href="#app-benbot-config-py">app/benbot/config.py</a></li><li style="margin-left:0.8rem"><a href="#app-benbot-constants-py">app/benbot/constants.py</a></li><li style="margin-left:0.8rem"><a href="#app-benbot-plugin_registry-py">app/benbot/plugin_registry.py</a></li><li style="margin-left:0.8rem"><a href="#app-benbot-home-py">app/benbot/home.py</a></li><li style="margin-left:0.8rem"><a href="#app-benbot-menu-py">app/benbot/menu.py</a></li><li style="margin-left:0.8rem"><a href="#app-benbot-handlers-callbacks-py">app/benbot/handlers/callbacks.py</a></li><li style="margin-left:0.8rem"><a href="#app-benbot-executor-py">app/benbot/executor.py</a></li><li style="margin-left:0.8rem"><a href="#app-benbot-handlers-files-py">app/benbot/handlers/files.py</a></li><li style="margin-left:0.8rem"><a href="#app-benbot-handlers-shell-py">app/benbot/handlers/shell.py</a></li><li style="margin-left:0.0rem"><a href="#6-data-scripts-菜单系统">6. data/scripts 菜单系统</a></li><li style="margin-left:0.8rem"><a href="#普通目录">普通目录</a></li><li style="margin-left:0.8rem"><a href="#目录脚本节点">目录脚本节点</a></li><li style="margin-left:0.8rem"><a href="#目录插件">目录插件</a></li><li style="margin-left:0.0rem"><a href="#7-当前重点功能">7. 当前重点功能</a></li><li style="margin-left:0.8rem"><a href="#测试环境-游点涩-h5-发版">测试环境-游点涩-h5-发版</a></li><li style="margin-left:0.8rem"><a href="#线上环境-游点涩-h5-发版">线上环境-游点涩-h5-发版</a></li><li style="margin-left:0.8rem"><a href="#脱敏配置查看">脱敏配置查看</a></li><li style="margin-left:0.8rem"><a href="#运维值班表">运维值班表</a></li><li style="margin-left:0.0rem"><a href="#8-部署与运行">8. 部署与运行</a></li><li style="margin-left:0.0rem"><a href="#9-本地验证建议">9. 本地验证建议</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-07-13</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">监控告警</span><span class="tag">自动化</span><span class="tag">CDN</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/python/ben-bot/doc/prompt.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607130000-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-ben-bot%20AI%20%E6%8E%A5%E6%89%8B%E5%BC%80%E5%8F%91%20Prompt.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>ben-bot AI 接手开发 Prompt。本文属于历史运维与项目交付 / 18Game 测试环境，你正在接手 ben-bot 项目。请先完整阅读这份文档，再修改代码。这个项目是一个中文运维 Telegram 机器人，核心目标是把常用运维入口、发布入口、配置查看、值班表和脚本执行能力做成飞机群里的按钮工作台。…</p>
+      <p>关键词：18Game 测试环境、Linux、Shell、Python、Docker、监控告警、自动化、CDN、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、ben-bot AI 接手开发 Prompt、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-76d76fdbe763.html"><small>上一篇</small>2026-07-13 周报生成通用提示词</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a3bb57b7af55.html"><small>下一篇</small>2026-07-14 TADA 葡萄牙语静态资源完整包部署与验证记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-02e0ac62f314.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
