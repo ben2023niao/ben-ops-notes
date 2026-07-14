@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>2026-07-15 巴西后端日志 7 天保留与轮转配置验证记录｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
+  <meta name="description" content="2026-07-15 巴西后端日志 7 天保留与轮转配置验证记录。本文属于历史运维与项目交付 / 巴西主站，本次仅调整巴西两台后端服务器的日志保留策略，不修改业务代码、数据库、Redis、Nginx 和域名配置。 操作采用逐台滚动方式：先完成后端 01 的配置、Docker 重启、日志轮转和健康验证，再处理后端…">
+  <meta name="keywords" content="巴西主站，Linux，Shell，Docker，Nginx，Redis，监控告警，自动化，历史运维与项目交付，历史运维与项目交付 / 巴西主站，2026-07-15 巴西后端日志 7 天保留与轮转配置验证记录">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9ff7cee1872a.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9ff7cee1872a.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607150000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-2026-07-15%20%E5%B7%B4%E8%A5%BF%E5%90%8E%E7%AB%AF%E6%97%A5%E5%BF%97%207%20%E5%A4%A9%E4%BF%9D%E7%95%99%E4%B8%8E%E8%BD%AE%E8%BD%AC%E9%85%8D%E7%BD%AE%E9%AA%8C%E8%AF%81%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="2026-07-15 巴西后端日志 7 天保留与轮转配置验证记录">
+  <meta property="og:description" content="2026-07-15 巴西后端日志 7 天保留与轮转配置验证记录。本文属于历史运维与项目交付 / 巴西主站，本次仅调整巴西两台后端服务器的日志保留策略，不修改业务代码、数据库、Redis、Nginx 和域名配置。 操作采用逐台滚动方式：先完成后端 01 的配置、Docker 重启、日志轮转和健康验证，再处理后端…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9ff7cee1872a.html">
+  <meta property="article:published_time" content="2026-07-15T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-07-15 00:00">
+  <meta property="article:section" content="历史运维与项目交付 / 巴西主站">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="2026-07-15 巴西后端日志 7 天保留与轮转配置验证记录">
+  <meta name="twitter:description" content="2026-07-15 巴西后端日志 7 天保留与轮转配置验证记录。本文属于历史运维与项目交付 / 巴西主站，本次仅调整巴西两台后端服务器的日志保留策略，不修改业务代码、数据库、Redis、Nginx 和域名配置。 操作采用逐台滚动方式：先完成后端 01 的配置、Docker 重启、日志轮转和健康验证，再处理后端…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9ff7cee1872a.html#article","headline":"2026-07-15 巴西后端日志 7 天保留与轮转配置验证记录","description":"2026-07-15 巴西后端日志 7 天保留与轮转配置验证记录。本文属于历史运维与项目交付 / 巴西主站，本次仅调整巴西两台后端服务器的日志保留策略，不修改业务代码、数据库、Redis、Nginx 和域名配置。 操作采用逐台滚动方式：先完成后端 01 的配置、Docker 重启、日志轮转和健康验证，再处理后端…","datePublished":"2026-07-15T00:00:00+08:00","dateModified":"2026-07-15 00:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Linux","Shell","Docker","Nginx","Redis","监控告警","自动化","历史运维与项目交付","历史运维与项目交付 / 巴西主站","2026-07-15 巴西后端日志 7 天保留与轮转配置验证记录"],"wordCount":1410,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9ff7cee1872a.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9ff7cee1872a.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-07-15 巴西后端日志 7 天保留与轮转配置验证记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9ff7cee1872a.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 巴西主站</span> › <span>2026-07-15 巴西后端日志 7 天保留与轮转配置验证记录</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
+      <h1>2026-07-15 巴西后端日志 7 天保留与轮转配置验证记录</h1>
+      <p class="lede">2026-07-15 巴西后端日志 7 天保留与轮转配置验证记录。本文属于历史运维与项目交付 / 巴西主站，本次仅调整巴西两台后端服务器的日志保留策略，不修改业务代码、数据库、Redis、Nginx 和域名配置。 操作采用逐台滚动方式：先完成后端 01 的配置、Docker 重启、日志轮转和健康验证，再处理后端…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-07-15T00:00:00+08:00">发布于 2026-07-15</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,410 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-07-15-【优化】巴西后端日志7天保留与轮转配置验证记录.md</code></p>
+<p>整理日期：2026-07-15 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<h2 id="操作范围">操作范围</h2>
+<p>本次仅调整巴西两台后端服务器的日志保留策略，不修改业务代码、数据库、Redis、Nginx 和域名配置。</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>hostname</th>
+<th>公网 IP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>巴西后端 01</td>
+<td><code>dbqp-saopaulo-sanic-prod-01</code></td>
+<td><code>34.39.183.154</code></td>
+</tr>
+<tr>
+<td>巴西后端 02</td>
+<td><code>dbqp-saopaulo-sanic-prod-02</code></td>
+<td><code>34.95.230.202</code></td>
+</tr>
+</tbody>
+</table>
+<p>操作采用逐台滚动方式：先完成后端 01 的配置、Docker 重启、日志轮转和健康验证，再处理后端 02，避免两台后端同时重启。</p>
+<h2 id="操作前检查">操作前检查</h2>
+<p>操作前两台服务器均未配置业务日志 7 天清理、Docker JSON 日志大小限制和 journald 容量上限。</p>
+<table>
+<thead>
+<tr>
+<th>检查项</th>
+<th>后端 01</th>
+<th>后端 02</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/opt/pgserver/logs</code></td>
+<td>约 20GB</td>
+<td>约 20GB</td>
+</tr>
+<tr>
+<td>超过 7 天的业务日志</td>
+<td>5 个，约 804.5MB</td>
+<td>5 个，约 914MB</td>
+</tr>
+<tr>
+<td>最早业务日志日期</td>
+<td>2026-06-16</td>
+<td>2026-06-16</td>
+</tr>
+<tr>
+<td>Docker JSON 日志</td>
+<td>约 999MB</td>
+<td>约 997MB</td>
+</tr>
+<tr>
+<td>journald</td>
+<td>约 3.5GB</td>
+<td>约 3.5GB</td>
+</tr>
+<tr>
+<td><code>/etc/docker/daemon.json</code></td>
+<td>不存在</td>
+<td>不存在</td>
+</tr>
+<tr>
+<td>journald 自定义限制</td>
+<td>无</td>
+<td>无</td>
+</tr>
+</tbody>
+</table>
+<p>仓库中原有的 <code>168h</code> 清理仅用于磁盘使用率达到阈值后的旧 Docker 镜像和构建缓存，不会清理 <code>/opt/pgserver/logs</code> 业务日志。</p>
+<h2 id="已落地配置">已落地配置</h2>
+<h3 id="业务日志">业务日志</h3>
+<p>配置文件：<code>/etc/dbqp-logrotate/pgserver</code></p>
+<p>策略如下：</p>
+<ul>
+<li>匹配 <code>/opt/pgserver/logs/*/*.log</code>。</li>
+<li>每天轮转；单文件超过 1GB 时由小时任务提前轮转。</li>
+<li>轮转文件最多保留 7 天，使用 gzip 压缩。</li>
+<li>使用 <code>copytruncate</code>，不要求业务进程重新打开日志文件。</li>
+<li>使用日期和时间后缀，避免同一天内大文件多次轮转时重名。</li>
+</ul>
+<pre><code class="language-text">/opt/pgserver/logs/*/*.log {
+    su root root
+    daily
+    rotate 200
+    maxage 7
+    maxsize 1G
+    missingok
+    notifempty
+    compress
+    copytruncate
+    dateext
+    dateformat -%Y%m%d-%H%M%S
+}
+</code></pre>
+<h3 id="Docker-日志">Docker 日志</h3>
+<p>Docker daemon 配置文件：<code>/etc/docker/daemon.json</code></p>
+<pre><code class="language-json">{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m",
+    "max-file": "7"
+  }
+}
+</code></pre>
+<p>该配置对后续新建或重新创建的容器生效。现有业务容器没有为修改日志参数而强制重建，改由 <code>/etc/dbqp-logrotate/docker-json-existing</code> 对现有 JSON 日志执行 <code>100MB × 7</code> 外部轮转；业务正常发布并重建容器后，会自动使用 Docker daemon 内建轮转参数。</p>
+<h3 id="journald">journald</h3>
+<p>配置文件：<code>/etc/systemd/journald.conf.d/99-dbqp-retention.conf</code></p>
+<pre><code class="language-text">[Journal]
+SystemMaxUse=1G
+SystemKeepFree=10G
+MaxRetentionSec=7day
+MaxFileSec=1day
+Compress=yes
+</code></pre>
+<p>journald 最长保留 7 天，总占用上限 1GB，同时为根磁盘至少保留 10GB 空闲空间。</p>
+<h3 id="定时任务">定时任务</h3>
+<p>新增 systemd 单次任务和定时器：</p>
+<pre><code class="language-text">/etc/systemd/system/dbqp-log-maintenance.service
+/etc/systemd/system/dbqp-log-maintenance.timer
+</code></pre>
+<p>定时器每小时执行一次，并增加 0 至 5 分钟随机延迟，依次处理业务日志、现有 Docker JSON 日志和 journald。定时器已设置为开机自动启用，并使用独立 logrotate 状态文件，避免与系统默认 logrotate 任务冲突。</p>
+<h2 id="首次清理结果">首次清理结果</h2>
+<p>首次执行完成了历史业务日志轮转压缩、现有 Docker JSON 日志轮转、journald 清理，以及未被当前容器挂载的旧 <code>dbqp-pgserver-release-*</code> 日志目录清理。</p>
+<table>
+<thead>
+<tr>
+<th>验证项</th>
+<th>后端 01</th>
+<th>后端 02</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>业务日志总量</td>
+<td>1.3GB</td>
+<td>1.3GB</td>
+</tr>
+<tr>
+<td>压缩轮转文件</td>
+<td>6 个，约 775MB</td>
+<td>6 个，约 767MB</td>
+</tr>
+<tr>
+<td>超过 7 天的活动日志</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Docker 日志总量</td>
+<td>99MB</td>
+<td>96MB</td>
+</tr>
+<tr>
+<td>Docker 已轮转文件</td>
+<td>6 个</td>
+<td>6 个</td>
+</tr>
+<tr>
+<td>journald 占用</td>
+<td>125.3MB</td>
+<td>136.6MB</td>
+</tr>
+<tr>
+<td>根磁盘使用</td>
+<td>239GB/484GB，50%</td>
+<td>231GB/484GB，48%</td>
+</tr>
+<tr>
+<td>旧 release 日志目录</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>首次建立 logrotate 状态文件时，两台各有一份约 24KB、超过 7 天且长期未写入的 <code>tada-ws2.log</code> 未被自动轮转。本次已安全截断旧内容并再次验证，超过 7 天的活动业务日志均为 0。</p>
+<h2 id="业务健康验证">业务健康验证</h2>
+<p>两台服务器均完成以下检查：</p>
+<ul>
+<li><code>dbqp-*</code> 业务容器运行数量为 7。</li>
+<li>TCP <code>8765</code>、<code>9090</code>、<code>9091</code>、<code>9096</code>、<code>9101</code>、<code>9102</code>、<code>9103</code>、<code>9104</code> 全部连通。</li>
+<li><code>dbqp-log-maintenance.timer</code> 状态为 <code>enabled</code> 和 <code>active</code>。</li>
+<li>首次执行和第二次幂等复跑均为 <code>Result=success</code>、<code>ExecMainStatus=0</code>。</li>
+<li>使用临时容器验证 Docker daemon 默认日志参数，两台均返回：</li>
+</ul>
+<pre><code class="language-json">{"Type":"json-file","Config":{"max-file":"7","max-size":"100m"}}
+</code></pre>
+<ul>
+<li>两台六份配置文件 SHA-256 完全一致。</li>
+<li>配置完成后再次检查，业务容器数量和全部八个端口仍正常。</li>
+</ul>
+<p>常用复核命令：</p>
+<pre><code class="language-bash">systemctl status dbqp-log-maintenance.timer --no-pager
+systemctl list-timers dbqp-log-maintenance.timer --no-pager
+systemctl start dbqp-log-maintenance.service
+systemctl show dbqp-log-maintenance.service -p Result -p ExecMainStatus
+du -sh /opt/pgserver/logs
+journalctl --disk-usage
+find /opt/pgserver/logs -type f -name '*.log' -mtime +7
+</code></pre>
+<h2 id="备份与回滚">备份与回滚</h2>
+<p>操作前配置和 Docker 容器 inspect 信息已分别备份：</p>
+<pre><code class="language-text">后端 01：/root/dbqp-log-retention-backup-20260715_151804
+后端 02：/root/dbqp-log-retention-backup-20260715-152400
+</code></pre>
+<p>如需停用本次策略，可先执行：</p>
+<pre><code class="language-bash">systemctl disable --now dbqp-log-maintenance.timer
+rm -f /etc/systemd/system/dbqp-log-maintenance.timer
+rm -f /etc/systemd/system/dbqp-log-maintenance.service
+rm -rf /etc/dbqp-logrotate
+rm -f /etc/systemd/journald.conf.d/99-dbqp-retention.conf
+rm -f /etc/docker/daemon.json
+systemctl daemon-reload
+systemctl restart systemd-journald
+systemctl restart docker
+</code></pre>
+<p>如果服务器操作前已有同名配置，应从对应备份目录恢复，而不是直接删除。回滚 Docker 时仍应逐台执行，并在每台完成七个容器和八个端口检查后再处理下一台。</p>
+<h2 id="飞机群通知">飞机群通知</h2>
+<p>验证汇总已发送至飞机群：</p>
+<pre><code class="language-text">群组：监控报警群
+chat_id：-5203304347
+message_id：2678
+发送结果：成功
+</code></pre>
+<p>群消息包含业务日志 7 天保留、Docker 日志轮转、journald 限制、两台业务健康检查和清理前后容量对比。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#操作范围">操作范围</a></li><li style="margin-left:0.0rem"><a href="#操作前检查">操作前检查</a></li><li style="margin-left:0.0rem"><a href="#已落地配置">已落地配置</a></li><li style="margin-left:0.8rem"><a href="#业务日志">业务日志</a></li><li style="margin-left:0.8rem"><a href="#Docker-日志">Docker 日志</a></li><li style="margin-left:0.8rem"><a href="#journald">journald</a></li><li style="margin-left:0.8rem"><a href="#定时任务">定时任务</a></li><li style="margin-left:0.0rem"><a href="#首次清理结果">首次清理结果</a></li><li style="margin-left:0.0rem"><a href="#业务健康验证">业务健康验证</a></li><li style="margin-left:0.0rem"><a href="#备份与回滚">备份与回滚</a></li><li style="margin-left:0.0rem"><a href="#飞机群通知">飞机群通知</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 巴西主站</li>
+          <li>日期：2026-07-15</li>
+          <li>标签：<span class="tag">巴西主站</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">Redis</span><span class="tag">监控告警</span><span class="tag">自动化</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-07-15-【优化】巴西后端日志7天保留与轮转配置验证记录.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607150000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-2026-07-15%20%E5%B7%B4%E8%A5%BF%E5%90%8E%E7%AB%AF%E6%97%A5%E5%BF%97%207%20%E5%A4%A9%E4%BF%9D%E7%95%99%E4%B8%8E%E8%BD%AE%E8%BD%AC%E9%85%8D%E7%BD%AE%E9%AA%8C%E8%AF%81%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>2026-07-15 巴西后端日志 7 天保留与轮转配置验证记录。本文属于历史运维与项目交付 / 巴西主站，本次仅调整巴西两台后端服务器的日志保留策略，不修改业务代码、数据库、Redis、Nginx 和域名配置。 操作采用逐台滚动方式：先完成后端 01 的配置、Docker 重启、日志轮转和健康验证，再处理后端…</p>
+      <p>关键词：巴西主站、Linux、Shell、Docker、Nginx、Redis、监控告警、自动化、历史运维与项目交付、历史运维与项目交付 / 巴西主站、2026-07-15 巴西后端日志 7 天保留与轮转配置验证记录</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-306f2cca4b1a.html"><small>上一篇</small>2026-07-15 巴西与香港服务器资源汇总及飞机通知记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1628bf904e57.html"><small>下一篇</small>2026-07-15 香港独立环境基础设施搭建记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9ff7cee1872a.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

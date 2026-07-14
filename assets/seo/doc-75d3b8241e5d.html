@@ -1,0 +1,902 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>8. 部署、监控与运维｜业务系统运维 / 小蓝直播｜BEN.OPS</title>
+  <meta name="description" content="8. 部署、监控与运维。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §7.5/7.6 、 docs/project/environments.md 目标：v1 生产标准的可观测、可灰度、可回滚、可应急。 构建：多阶段 Dockerfile， CGO_ENABLED=0 静态编…">
+  <meta name="keywords" content="小蓝直播，Linux，Shell，Python，Go，Docker，Kubernetes，Nginx，业务系统运维，业务系统运维 / 小蓝直播，8. 部署、监控与运维">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-75d3b8241e5d.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-75d3b8241e5d.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607150345-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BLinux%2BShell-8.%20%E9%83%A8%E7%BD%B2%E3%80%81%E7%9B%91%E6%8E%A7%E4%B8%8E%E8%BF%90%E7%BB%B4.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="8. 部署、监控与运维">
+  <meta property="og:description" content="8. 部署、监控与运维。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §7.5/7.6 、 docs/project/environments.md 目标：v1 生产标准的可观测、可灰度、可回滚、可应急。 构建：多阶段 Dockerfile， CGO_ENABLED=0 静态编…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-75d3b8241e5d.html">
+  <meta property="article:published_time" content="2026-07-15T03:45:00+08:00">
+  <meta property="article:modified_time" content="2026-07-15 03:45">
+  <meta property="article:section" content="业务系统运维 / 小蓝直播">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="8. 部署、监控与运维">
+  <meta name="twitter:description" content="8. 部署、监控与运维。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §7.5/7.6 、 docs/project/environments.md 目标：v1 生产标准的可观测、可灰度、可回滚、可应急。 构建：多阶段 Dockerfile， CGO_ENABLED=0 静态编…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-75d3b8241e5d.html#article","headline":"8. 部署、监控与运维","description":"8. 部署、监控与运维。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §7.5/7.6 、 docs/project/environments.md 目标：v1 生产标准的可观测、可灰度、可回滚、可应急。 构建：多阶段 Dockerfile， CGO_ENABLED=0 静态编…","datePublished":"2026-07-15T03:45:00+08:00","dateModified":"2026-07-15 03:45","inLanguage":"zh-CN","articleSection":["业务系统运维","小蓝直播"],"keywords":["小蓝直播","Linux","Shell","Python","Go","Docker","Kubernetes","Nginx","业务系统运维","业务系统运维 / 小蓝直播","8. 部署、监控与运维"],"wordCount":2461,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-75d3b8241e5d.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-75d3b8241e5d.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 小蓝直播","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"8. 部署、监控与运维","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-75d3b8241e5d.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 小蓝直播</span> › <span>8. 部署、监控与运维</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 小蓝直播</div>
+      <h1>8. 部署、监控与运维</h1>
+      <p class="lede">8. 部署、监控与运维。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §7.5/7.6 、 docs/project/environments.md 目标：v1 生产标准的可观测、可灰度、可回滚、可应急。 构建：多阶段 Dockerfile， CGO_ENABLED=0 静态编…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-07-15T03:45:00+08:00">发布于 2026-07-15</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,461 字</span>
+        <span class="badge">8 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/xiaolan-watches/dev/docs/architecture/deployment-and-monitoring.md</code></p>
+<p>整理日期：2026-07-15 03:45｜日期依据：正文日期</p>
+<p>对齐 PRD：<code>product-prd.md §7.5/7.6</code>、<a href="https://ben2023niao.github.io/ben-ops-notes/doc/project/environments.md" rel="noopener noreferrer"><code>docs/project/environments.md</code></a></p>
+<p>目标：v1 生产标准的可观测、可灰度、可回滚、可应急。</p>
+</blockquote>
+<h2 id="8-1-部署形态">8.1 部署形态</h2>
+<h3 id="8-1-1-环境">8.1.1 环境</h3>
+<table>
+<thead>
+<tr>
+<th>环境</th>
+<th>用途</th>
+<th>配置规模</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>local</code></td>
+<td>开发者本地（Docker Compose）</td>
+<td>单容器 mini</td>
+</tr>
+<tr>
+<td><code>dev</code></td>
+<td>开发集成测试（共享）</td>
+<td>K8s 1 node</td>
+</tr>
+<tr>
+<td><code>staging</code></td>
+<td>准生产，全链路联调，UAT</td>
+<td>K8s 3 node，资源 = 生产 50%</td>
+</tr>
+<tr>
+<td><code>production</code></td>
+<td>正式生产</td>
+<td>K8s ≥ 6 node</td>
+</tr>
+</tbody>
+</table>
+<h3 id="8-1-2-集群拓扑-production">8.1.2 集群拓扑（production）</h3>
+<pre><code>                [ Cloudflare 抗压能力测试 + WAF ]
+                            │
+              [ DNS GSLB（双 region 备） ]
+                            │
+                ┌───────────┴───────────┐
+                ▼                       ▼
+       [ Region A 主 集群 ]      [ Region B 备 集群（v2，赛季内仅主） ]
+                │
+        ┌───────┴────────┐
+        ▼                ▼
+[ Nginx Ingress × 2 ]  [ Cert Manager（Let's Encrypt） ]
+        │
+   ┌────┼────┬──────────┬───────────┬──────────────┐
+   ▼    ▼    ▼          ▼           ▼              ▼
+ go-api go-admin go-ws  go-srs-hook  worker × 4    SRS 集群
+  × 4   × 2     × 3     × 2          (settle/realtime/risk/cron)
+                          │
+                  ┌───────┼────────────────┐
+                  ▼       ▼                ▼
+         MySQL 主从    Redis Sentinel   Kafka（如启用）
+         (1+2)        (1+2+3 sentinel)  (3 broker KRaft)
+         独立 statefulset，PV NVMe
+
+         共享存储 NFS / Ceph（SRS DVR 与转码中转）
+
+                  ┌──────────┴──────────┐
+                  ▼                     ▼
+              [ 阿里云 OSS ]       [ 微信支付 / 支付宝 ]
+              （录制 / 截图 / 头像 / 静态）
+</code></pre>
+<h3 id="8-1-3-容器化">8.1.3 容器化</h3>
+<table>
+<thead>
+<tr>
+<th>镜像</th>
+<th>Base</th>
+<th>大小</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>go-* 服务</td>
+<td><code>gcr.io/distroless/static-debian12</code></td>
+<td>&lt; 30 MB</td>
+</tr>
+<tr>
+<td>nginx</td>
+<td><code>nginx:1.25-alpine</code></td>
+<td>&lt; 50 MB</td>
+</tr>
+<tr>
+<td>SRS</td>
+<td><code>ossrs/srs:5</code> 或自构</td>
+<td>&lt; 200 MB</td>
+</tr>
+<tr>
+<td>mysql-exporter / redis-exporter</td>
+<td>官方</td>
+<td>&lt; 50 MB</td>
+</tr>
+</tbody>
+</table>
+<p>构建：多阶段 Dockerfile，<code>CGO_ENABLED=0</code> 静态编译，<code>-trimpath -ldflags="-s -w"</code>。</p>
+<h3 id="8-1-4-K8s-资源声明">8.1.4 K8s 资源声明</h3>
+<p>每个 Deployment 必带：</p>
+<pre><code class="language-yaml">spec:
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0  # 资金类服务严禁可用度下降
+  template:
+    spec:
+      containers:
+      - name: go-api
+        image: registry.kickoff.tv/go-api:v1.2.3
+        resources:
+          requests: { cpu: 1, memory: 2Gi }
+          limits:   { cpu: 2, memory: 4Gi }
+        livenessProbe:
+          httpGet: { path: /healthz, port: 8080 }
+          periodSeconds: 10
+        readinessProbe:
+          httpGet: { path: /readyz, port: 8080 }
+          periodSeconds: 5
+        env:
+        - name: TRACE_ID_HEADER
+          value: X-Trace-Id
+        envFrom:
+        - configMapRef:  { name: app-config }
+        - [敏感内容已脱敏] name: app-secret }
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata: { name: go-api }
+spec:
+  scaleTargetRef: { kind: Deployment, name: go-api }
+  minReplicas: 4
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource: { name: cpu, target: { type: Utilization, averageUtilization: 70 } }
+  - type: Pods
+    pods:
+      metric: { name: http_request_qps }
+      target: { type: AverageValue, averageValue: "600" }
+</code></pre>
+<h3 id="8-1-5-灰度发布">8.1.5 灰度发布</h3>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>流量</th>
+<th>时长</th>
+<th>触发回滚</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Canary</td>
+<td>5%</td>
+<td>10 min</td>
+<td>错误率 &gt; 1% / P99 &gt; 1.5x baseline</td>
+</tr>
+<tr>
+<td>25%</td>
+<td>25%</td>
+<td>15 min</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>50%</td>
+<td>50%</td>
+<td>15 min</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>100%</td>
+<td>100%</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>实现：Nginx Ingress weight 灰度 或 K8s + Argo Rollouts。</p>
+<p>资金类服务严禁热更新 push key 等 Secret，必须重启 Pod。</p>
+<h3 id="8-1-6-回滚">8.1.6 回滚</h3>
+<ul>
+<li>保留前 3 版本镜像</li>
+<li>一键回滚：<code>kubectl rollout undo deployment/&lt;name&gt;</code></li>
+<li>DB migration 回滚：仅当 <code>down.sql</code> 已验证；生产 migration 不可逆需求必须申请评审</li>
+<li>配置回滚：ConfigMap 走 Git 版本化，<code>kubectl apply</code> 回退</li>
+</ul>
+<h2 id="8-2-配置与密钥管理">8.2 配置与密钥管理</h2>
+<h3 id="8-2-1-分类">8.2.1 分类</h3>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>存储</th>
+<th>注入</th>
+<th>变更</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通配置</td>
+<td>ConfigMap</td>
+<td>环境变量</td>
+<td><code>kubectl apply</code></td>
+</tr>
+<tr>
+<td>密钥（DB pwd / Redis pwd / JWT secret / 支付商户私钥）</td>
+<td>K8s Secret</td>
+<td>环境变量或文件挂载</td>
+<td>走 secret rotation 流程</td>
+</tr>
+<tr>
+<td>业务运营配置（抽水率 / 等级门槛 / 风控阈值）</td>
+<td>DB <code>system_config</code> <code>level_config</code> <code>risk_rules</code></td>
+<td>启动加载 + 5min 刷新</td>
+<td>后台修改即生效</td>
+</tr>
+</tbody>
+</table>
+<h3 id="8-2-2-密钥轮换">8.2.2 密钥轮换</h3>
+<ul>
+<li>JWT secret：每 6 个月轮换（保留旧 secret 7 天作过渡）</li>
+<li>数据库密码：每 90 天</li>
+<li>支付商户密钥：跟随通道商要求</li>
+<li>推流 / 播放 secret：每月轮换</li>
+</ul>
+<h3 id="8-2-3-v2-升级">8.2.3 v2 升级</h3>
+<p>引入 HashiCorp Vault，K8s ServiceAccount + Vault Agent Injector，所有密钥从 Vault 拉。</p>
+<h2 id="8-3-数据库部署">8.3 数据库部署</h2>
+<h3 id="8-3-1-MySQL">8.3.1 MySQL</h3>
+<ul>
+<li>1 主 + 2 从（异地从 1，本地从 1）</li>
+<li>StatefulSet + PVC NVMe SSD</li>
+<li>主从复制：row-based binlog，async（v2 可上 semi-sync）</li>
+<li>主从延迟告警：&gt; 5s</li>
+<li>备份：xtrabackup 每日全量 + binlog 持续，30 天保留</li>
+<li>异地灾备：备份每日同步到异地 OSS</li>
+<li>自动 failover：Orchestrator 或 MHA（v2，v1 可人工切）</li>
+</ul>
+<h3 id="8-3-2-Redis">8.3.2 Redis</h3>
+<ul>
+<li>1 主 + 2 从 + 3 sentinel</li>
+<li>StatefulSet + PVC</li>
+<li>AOF everysec + RDB 6h</li>
+<li>内存上限 8GB，maxmemory-policy allkeys-lru</li>
+<li>主从切换：sentinel 自动</li>
+<li>监控：QPS / 命中率 / 内存 / 大 key</li>
+</ul>
+<h3 id="8-3-3-Kafka-如启用">8.3.3 Kafka（如启用）</h3>
+<ul>
+<li>3 broker KRaft 模式（无 ZK）</li>
+<li>StatefulSet + PVC SSD 100GB / broker</li>
+<li>副本因子 RF=3，min.insync.replicas=2</li>
+<li>保留：默认 7 天，audit 类 365 天</li>
+<li>监控：堆积 / 延迟 / 副本同步</li>
+</ul>
+<h2 id="8-4-监控架构">8.4 监控架构</h2>
+<h3 id="8-4-1-拓扑">8.4.1 拓扑</h3>
+<pre><code>Prometheus (scrape, 15s 间隔)
+├── /metrics  ← go-api × 4
+├── /metrics  ← go-admin × 2
+├── /metrics  ← go-ws × 3
+├── /metrics  ← worker-* × 多
+├── mysqld_exporter × 3（主+从）
+├── redis_exporter × 3
+├── kafka_exporter（如启用）
+├── srs_exporter（自研，从 SRS HTTP API 拉 stats）
+├── node_exporter × 全部 K8s node
+├── blackbox_exporter（接口存活探针）
+└── nginx_exporter
+
+Grafana
+├── 业务大盘（GMV / 在线 / 主播 / 押注）
+├── 资金健康（账本平衡 / 对账差异 / 派彩成功率）
+├── 直播质量（首帧 / 卡顿 / 回源率 / 推流稳定性）
+├── 服务性能（API P99 / 错误率 / QPS）
+├── 基础设施（MySQL / Redis / Kafka / Node）
+└── 风控运营（告警数 / 处置时长 / 规则触发率）
+
+Loki + Promtail：日志聚合
+  - 资金类日志独立 retention 365 天
+  - 一般日志 retention 30 天
+  - 关键日志关键字告警（"PAID_BUT_FAIL_LEDGER" / "ledger_imbalance" / "panic"）
+
+Jaeger：链路追踪
+  - 关键资金链路 100% 采样
+  - 一般业务 1% 采样
+
+Sentry：客户端 + 服务端异常上报
+
+Alertmanager → Telegram bot + 邮件（按严重度路由）
+</code></pre>
+<h3 id="8-4-2-标签规范-Prometheus">8.4.2 标签规范（Prometheus）</h3>
+<table>
+<thead>
+<tr>
+<th>标签</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>env</code></td>
+<td>dev / staging / production</td>
+</tr>
+<tr>
+<td><code>service</code></td>
+<td>go-api / go-ws / worker-settle / ...</td>
+</tr>
+<tr>
+<td><code>region</code></td>
+<td>cn-east / cn-south</td>
+</tr>
+<tr>
+<td><code>instance</code></td>
+<td>Pod 名</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td>镜像 tag</td>
+</tr>
+</tbody>
+</table>
+<p>业务指标命名：<code>kickoff_&lt;domain&gt;_&lt;metric&gt;_&lt;unit&gt;</code>，如 <code>kickoff_predict_bets_total</code>、<code>kickoff_wallet_recharge_amount_rmb_sum</code>。</p>
+<h2 id="8-5-必须告警的-24-项">8.5 必须告警的 24 项</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>类别</th>
+<th>指标</th>
+<th>阈值</th>
+<th>严重度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>API</td>
+<td>P99 延迟</td>
+<td>&gt; 1s 持续 5min</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>2</td>
+<td>API</td>
+<td>5xx 错误率</td>
+<td>&gt; 1% 持续 1min</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>3</td>
+<td>API</td>
+<td>QPS 异常</td>
+<td>同比 ± 50%</td>
+<td>MED</td>
+</tr>
+<tr>
+<td>4</td>
+<td>DB</td>
+<td>慢查询数</td>
+<td>&gt; 100 / min</td>
+<td>MED</td>
+</tr>
+<tr>
+<td>5</td>
+<td>DB</td>
+<td>主从延迟</td>
+<td>&gt; 5s</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>6</td>
+<td>DB</td>
+<td>连接数使用率</td>
+<td>&gt; 80%</td>
+<td>MED</td>
+</tr>
+<tr>
+<td>7</td>
+<td>DB</td>
+<td>CPU</td>
+<td>&gt; 70% 持续 5min</td>
+<td>MED</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Redis</td>
+<td>命中率</td>
+<td>&lt; 90%</td>
+<td>MED</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Redis</td>
+<td>内存使用率</td>
+<td>&gt; 80%</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Redis</td>
+<td>大 key（&gt; 1MB）</td>
+<td>出现即告警</td>
+<td>LOW</td>
+</tr>
+<tr>
+<td>11</td>
+<td>队列</td>
+<td>Streams 堆积</td>
+<td>&gt; 10w 条</td>
+<td>MED</td>
+</tr>
+<tr>
+<td>12</td>
+<td>队列</td>
+<td>死信队列长度</td>
+<td>增长 &gt; 100/h</td>
+<td>MED</td>
+</tr>
+<tr>
+<td>13</td>
+<td>支付</td>
+<td>充值成功率</td>
+<td>&lt; 95%</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>14</td>
+<td>支付</td>
+<td>回调失败率</td>
+<td>&gt; 0.5%</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>15</td>
+<td>资金</td>
+<td>押注失败率</td>
+<td>&gt; 1%</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>16</td>
+<td>资金</td>
+<td>派彩失败</td>
+<td>出现即告警</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>17</td>
+<td>资金</td>
+<td>对账差异金额</td>
+<td>&gt; ¥1000 / 日</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>18</td>
+<td>直播</td>
+<td>推流断开次数</td>
+<td>同主播 1h ≥ 3</td>
+<td>MED</td>
+</tr>
+<tr>
+<td>19</td>
+<td>直播</td>
+<td>源站 CPU</td>
+<td>&gt; 70% 持续 5min</td>
+<td>MED</td>
+</tr>
+<tr>
+<td>20</td>
+<td>直播</td>
+<td>CDN 回源率</td>
+<td>&gt; 30%</td>
+<td>MED</td>
+</tr>
+<tr>
+<td>21</td>
+<td>直播</td>
+<td>首帧时间 P99</td>
+<td>&gt; 3s</td>
+<td>MED</td>
+</tr>
+<tr>
+<td>22</td>
+<td>直播</td>
+<td>卡顿率</td>
+<td>&gt; 5%</td>
+<td>MED</td>
+</tr>
+<tr>
+<td>23</td>
+<td>业务</td>
+<td>房间在线人数突降</td>
+<td>&gt; 30% / 30s</td>
+<td>LOW</td>
+</tr>
+<tr>
+<td>24</td>
+<td>风控</td>
+<td>高优告警未处理</td>
+<td>≥ 3</td>
+<td>HIGH</td>
+</tr>
+</tbody>
+</table>
+<h3 id="8-5-1-告警路由">8.5.1 告警路由</h3>
+<pre><code class="language-yaml"># alertmanager.yml
+route:
+  group_by: ['alertname', 'service']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: feishu-default
+  routes:
+  - match: { severity: critical }
+    receiver: feishu-oncall-urgent
+    continue: true
+  - match: { severity: high }
+    receiver: feishu-oncall
+  - match: { team: finance }
+    receiver: feishu-finance
+  - match: { team: ops }
+    receiver: feishu-ops
+</code></pre>
+<h3 id="8-5-2-On-Call-轮值">8.5.2 On-Call 轮值</h3>
+<ul>
+<li>主 oncall + 备 oncall，每周轮换</li>
+<li>Telegram bot + 邮件推送 + 电话 fallback（v2，海外语音网关如 Twilio）</li>
+<li>响应 SLA：HIGH ≤ 5min，MED ≤ 30min，LOW ≤ 2h</li>
+<li>每次告警必走"响应 → 排障 → 修复 → 复盘"四步骤</li>
+<li>重大故障写 post-mortem 入 <code>docs/agents/logs/incidents/</code></li>
+</ul>
+<h2 id="8-6-日志规范">8.6 日志规范</h2>
+<h3 id="8-6-1-格式">8.6.1 格式</h3>
+<p>zap structured logger，JSON 输出：</p>
+<pre><code class="language-json">{
+  "ts": "2026-07-15T03:45:23.123+08:00",
+  "level": "info",
+  "service": "go-api",
+  "trace_id": "abc123def456",
+  "user_id": 1234,
+  "action": "predict.bet",
+  "bet_id": 5678,
+  "amount": 1000,
+  "duration_ms": 45,
+  "msg": "bet placed successfully"
+}
+</code></pre>
+<h3 id="8-6-2-必带字段">8.6.2 必带字段</h3>
+<ul>
+<li><code>ts</code>、<code>level</code>、<code>service</code>、<code>trace_id</code>、<code>msg</code></li>
+<li>业务字段按上下文（user_id、order_id、room_id、action 等）</li>
+</ul>
+<h3 id="8-6-3-级别">8.6.3 级别</h3>
+<ul>
+<li><code>DEBUG</code>：开发用，生产关闭</li>
+<li><code>INFO</code>：业务正常流转、资金动作、登录登出</li>
+<li><code>WARN</code>：可恢复异常、降级触发</li>
+<li><code>ERROR</code>：未捕获异常、业务失败</li>
+<li><code>FATAL</code>：进程级故障（罕用）</li>
+</ul>
+<h3 id="8-6-4-资金类强制-INFO">8.6.4 资金类强制 INFO+</h3>
+<p>所有资金动作、风控决策、后台敏感操作必须 INFO 落日志，且字段含完整业务 ID。</p>
+<h3 id="8-6-5-敏感字段脱敏">8.6.5 敏感字段脱敏</h3>
+<p>日志输出前过滤：手机号、邮箱、支付宝账号、身份证、密码、token。中间件统一处理。</p>
+<h2 id="8-7-链路追踪">8.7 链路追踪</h2>
+<h3 id="8-7-1-OpenTelemetry">8.7.1 OpenTelemetry</h3>
+<ul>
+<li>入口（Gin / WS）注入 <code>trace_id</code></li>
+<li>透传到 Redis / MySQL / Kafka / HTTP 出站</li>
+<li>资金类接口 100% 采样</li>
+<li>其他 1% 采样</li>
+</ul>
+<h3 id="8-7-2-关键-span">8.7.2 关键 span</h3>
+<ul>
+<li>HTTP request</li>
+<li>DB transaction</li>
+<li>Redis pipeline</li>
+<li>Kafka send / consume</li>
+<li>三方调用（支付 / 短信 / OSS）</li>
+</ul>
+<h2 id="8-8-运维-Runbook-入口">8.8 运维 Runbook 入口</h2>
+<p>每个高严重故障必备 runbook：</p>
+<table>
+<thead>
+<tr>
+<th>故障类别</th>
+<th>runbook 文件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MySQL 主挂</td>
+<td><code>docs/operations/runbooks/mysql-master-down.md</code></td>
+</tr>
+<tr>
+<td>Redis 主挂</td>
+<td><code>docs/operations/runbooks/redis-master-down.md</code></td>
+</tr>
+<tr>
+<td>支付通道异常</td>
+<td><code>docs/operations/runbooks/payment-channel-down.md</code></td>
+</tr>
+<tr>
+<td>直播源站故障</td>
+<td><code>docs/operations/runbooks/srs-origin-down.md</code>（或 <code>live-cloud-down.md</code>）</td>
+</tr>
+<tr>
+<td>CDN 故障</td>
+<td><code>docs/operations/runbooks/cdn-failover.md</code></td>
+</tr>
+<tr>
+<td>资金对账差异</td>
+<td><code>docs/operations/runbooks/recon-diff-handle.md</code></td>
+</tr>
+<tr>
+<td>派彩失败</td>
+<td><code>docs/operations/runbooks/predict-settle-fail.md</code></td>
+</tr>
+<tr>
+<td>后台账号被攻破</td>
+<td><code>docs/operations/runbooks/admin-compromise.md</code></td>
+</tr>
+</tbody>
+</table>
+<p>Runbook 模板见 <code>docs/templates/ops-runbook-template.md</code>（框架提供）。</p>
+<h2 id="8-9-CI-CD">8.9 CI / CD</h2>
+<h3 id="8-9-1-GitLab-CI-Pipeline">8.9.1 GitLab CI Pipeline</h3>
+<pre><code class="language-yaml">stages: [lint, test, build, security-scan, deploy-dev, e2e, deploy-staging, deploy-prod]
+
+lint:
+  - golangci-lint run
+  - sqlc verify
+  - openapi-cli validate
+  - shellcheck deploy/scripts/*.sh
+
+test:
+  - go test ./... -race -coverprofile=cover.out
+  - 覆盖率 ≥ 80%（资金类 100%）
+
+build:
+  - 多阶段 Docker build
+  - 镜像签名 cosign
+  - 推送私有 Registry
+
+security-scan:
+  - trivy scan image
+  - gosec
+  - secrets scan（gitleaks）
+
+deploy-dev: kubectl apply（自动）
+e2e: Playwright + go-e2e（自动）
+deploy-staging: 手动批准
+deploy-prod: 手动批准 + 灰度
+</code></pre>
+<h3 id="8-9-2-PR-门禁">8.9.2 PR 门禁</h3>
+<p>每个 MR 必须：</p>
+<ul>
+<li>[ ] PRD 需求 ID 关联</li>
+<li>[ ] OpenAPI 契约同步更新</li>
+<li>[ ] 单测覆盖率 ≥ 80%（资金类 100%）</li>
+<li>[ ] 慢查询 review 通过</li>
+<li>[ ] 代码 review 通过（含 owner 跨域审核）</li>
+<li>[ ] Agent 日志 / Task brief 填写完整</li>
+<li>[ ] CI 全绿</li>
+</ul>
+<p>资金类、风控类 MR 强制 2 人 review。</p>
+<h2 id="8-10-应急工具箱">8.10 应急工具箱</h2>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kubectl rollout undo</code></td>
+<td>服务回滚</td>
+</tr>
+<tr>
+<td><code>kubectl exec ... -- /app/admin-cli</code></td>
+<td>运维 CLI（限超管 + 审计）</td>
+</tr>
+<tr>
+<td>手动对账补单脚本 <code>scripts/recon-fix.go</code></td>
+<td>处理通道差异</td>
+</tr>
+<tr>
+<td>派彩重跑脚本 <code>scripts/predict-resettle.go</code></td>
+<td>异常派彩重跑（幂等）</td>
+</tr>
+<tr>
+<td>强制下播 API</td>
+<td>后台 / CLI</td>
+</tr>
+<tr>
+<td>全局开关 <code>feature.*</code></td>
+<td>应急降级</td>
+</tr>
+<tr>
+<td>MySQL 单事务回滚</td>
+<td>DBA 介入</td>
+</tr>
+</tbody>
+</table>
+<p>所有应急工具调用必须 INSERT <code>admin_audit_log</code> 并实时推 Telegram + 邮件告警。</p>
+<h2 id="8-11-灾备演练">8.11 灾备演练</h2>
+<h3 id="8-11-1-演练表">8.11.1 演练表</h3>
+<table>
+<thead>
+<tr>
+<th>演练项</th>
+<th>频率</th>
+<th>通过标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MySQL 主切从</td>
+<td>月度</td>
+<td>自动 &lt; 60s 完成，无数据丢失</td>
+</tr>
+<tr>
+<td>Redis 主切换</td>
+<td>月度</td>
+<td>业务降级 &lt; 30s 恢复</td>
+</tr>
+<tr>
+<td>SRS Origin 切备</td>
+<td>月度</td>
+<td>推流自动切，断流 &lt; 30s</td>
+</tr>
+<tr>
+<td>CDN A → B 切换</td>
+<td>月度</td>
+<td>DNS GSLB 自动切，&lt; 60s</td>
+</tr>
+<tr>
+<td>通道 A → B 切换</td>
+<td>月度</td>
+<td>业务侧引导用户切换</td>
+</tr>
+<tr>
+<td>K8s node 宕</td>
+<td>月度</td>
+<td>Pod 自动重建，业务不感知</td>
+</tr>
+<tr>
+<td>数据备份还原</td>
+<td>季度</td>
+<td>从昨日备份还原到测试环境，数据完整</td>
+</tr>
+</tbody>
+</table>
+<h3 id="8-11-2-决赛日全员预案">8.11.2 决赛日全员预案</h3>
+<p>详见 <a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/capacity-and-performance.md#76-决赛日预案" rel="noopener noreferrer"><code>capacity-and-performance.md §7.6</code></a>。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#8-1-部署形态">8.1 部署形态</a></li><li style="margin-left:0.8rem"><a href="#8-1-1-环境">8.1.1 环境</a></li><li style="margin-left:0.8rem"><a href="#8-1-2-集群拓扑-production">8.1.2 集群拓扑（production）</a></li><li style="margin-left:0.8rem"><a href="#8-1-3-容器化">8.1.3 容器化</a></li><li style="margin-left:0.8rem"><a href="#8-1-4-K8s-资源声明">8.1.4 K8s 资源声明</a></li><li style="margin-left:0.8rem"><a href="#8-1-5-灰度发布">8.1.5 灰度发布</a></li><li style="margin-left:0.8rem"><a href="#8-1-6-回滚">8.1.6 回滚</a></li><li style="margin-left:0.0rem"><a href="#8-2-配置与密钥管理">8.2 配置与密钥管理</a></li><li style="margin-left:0.8rem"><a href="#8-2-1-分类">8.2.1 分类</a></li><li style="margin-left:0.8rem"><a href="#8-2-2-密钥轮换">8.2.2 密钥轮换</a></li><li style="margin-left:0.8rem"><a href="#8-2-3-v2-升级">8.2.3 v2 升级</a></li><li style="margin-left:0.0rem"><a href="#8-3-数据库部署">8.3 数据库部署</a></li><li style="margin-left:0.8rem"><a href="#8-3-1-MySQL">8.3.1 MySQL</a></li><li style="margin-left:0.8rem"><a href="#8-3-2-Redis">8.3.2 Redis</a></li><li style="margin-left:0.8rem"><a href="#8-3-3-Kafka-如启用">8.3.3 Kafka（如启用）</a></li><li style="margin-left:0.0rem"><a href="#8-4-监控架构">8.4 监控架构</a></li><li style="margin-left:0.8rem"><a href="#8-4-1-拓扑">8.4.1 拓扑</a></li><li style="margin-left:0.8rem"><a href="#8-4-2-标签规范-Prometheus">8.4.2 标签规范（Prometheus）</a></li><li style="margin-left:0.0rem"><a href="#8-5-必须告警的-24-项">8.5 必须告警的 24 项</a></li><li style="margin-left:0.8rem"><a href="#8-5-1-告警路由">8.5.1 告警路由</a></li><li style="margin-left:0.8rem"><a href="#8-5-2-On-Call-轮值">8.5.2 On-Call 轮值</a></li><li style="margin-left:0.0rem"><a href="#8-6-日志规范">8.6 日志规范</a></li><li style="margin-left:0.8rem"><a href="#8-6-1-格式">8.6.1 格式</a></li><li style="margin-left:0.8rem"><a href="#8-6-2-必带字段">8.6.2 必带字段</a></li><li style="margin-left:0.8rem"><a href="#8-6-3-级别">8.6.3 级别</a></li><li style="margin-left:0.8rem"><a href="#8-6-4-资金类强制-INFO">8.6.4 资金类强制 INFO+</a></li><li style="margin-left:0.8rem"><a href="#8-6-5-敏感字段脱敏">8.6.5 敏感字段脱敏</a></li><li style="margin-left:0.0rem"><a href="#8-7-链路追踪">8.7 链路追踪</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 小蓝直播</li>
+          <li>日期：2026-07-15</li>
+          <li>标签：<span class="tag">小蓝直播</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Go</span><span class="tag">Docker</span><span class="tag">Kubernetes</span><span class="tag">Nginx</span></li>
+          <li><span>来源：~/Projects/work/game/xiaolan-watches/dev/docs/architecture/deployment-and-monitoring.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607150345-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BLinux%2BShell-8.%20%E9%83%A8%E7%BD%B2%E3%80%81%E7%9B%91%E6%8E%A7%E4%B8%8E%E8%BF%90%E7%BB%B4.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>8. 部署、监控与运维。本文属于业务系统运维 / 小蓝直播，对齐 PRD： product-prd.md §7.5/7.6 、 docs/project/environments.md 目标：v1 生产标准的可观测、可灰度、可回滚、可应急。 构建：多阶段 Dockerfile， CGO_ENABLED=0 静态编…</p>
+      <p>关键词：小蓝直播、Linux、Shell、Python、Go、Docker、Kubernetes、Nginx、业务系统运维、业务系统运维 / 小蓝直播、8. 部署、监控与运维</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-88457d8a7593.html"><small>上一篇</small>2026-07-15 香港独立环境基础设施搭建记录 · 【架构改造】香港独立环境基础设施搭建记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a24216e7f2a4.html"><small>下一篇</small>2026-07-16 PG4 静态资源完整包增量补齐与 GCS 同步记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-75d3b8241e5d.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
