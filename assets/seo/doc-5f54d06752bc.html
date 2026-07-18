@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>线上环境 PHP 错误日志持久化、小时轮转与 20G 告警改造｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="线上环境 PHP 错误日志持久化、小时轮转与 20G 告警改造。本文属于业务系统运维 / 游点涩，文档日期：2026-07-18 14:57 环境：游点涩线上环境（main 分支） 分类：优化+架构改造 参考 dev 分支已验证的 PHP 日志改造，在线上保留 PHP CLI、OPcache、PHP-FPM ma…">
+  <meta name="keywords" content="游点涩，Shell，Python，Docker，Nginx，Redis，监控告警，自动化，业务系统运维，业务系统运维 / 游点涩，线上环境 PHP 错误日志持久化、小时轮转与 20G 告警改造，PHP">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5f54d06752bc.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5f54d06752bc.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607181457-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20PHP%20%E9%94%99%E8%AF%AF%E6%97%A5%E5%BF%97%E6%8C%81%E4%B9%85%E5%8C%96%E3%80%81%E5%B0%8F%E6%97%B6%E8%BD%AE%E8%BD%AC%E4%B8%8E%2020G%20%E5%91%8A%E8%AD%A6%E6%94%B9%E9%80%A0.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="线上环境 PHP 错误日志持久化、小时轮转与 20G 告警改造">
+  <meta property="og:description" content="线上环境 PHP 错误日志持久化、小时轮转与 20G 告警改造。本文属于业务系统运维 / 游点涩，文档日期：2026-07-18 14:57 环境：游点涩线上环境（main 分支） 分类：优化+架构改造 参考 dev 分支已验证的 PHP 日志改造，在线上保留 PHP CLI、OPcache、PHP-FPM ma…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5f54d06752bc.html">
+  <meta property="article:published_time" content="2026-07-18T14:57:00+08:00">
+  <meta property="article:modified_time" content="2026-07-18 14:57">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="线上环境 PHP 错误日志持久化、小时轮转与 20G 告警改造">
+  <meta name="twitter:description" content="线上环境 PHP 错误日志持久化、小时轮转与 20G 告警改造。本文属于业务系统运维 / 游点涩，文档日期：2026-07-18 14:57 环境：游点涩线上环境（main 分支） 分类：优化+架构改造 参考 dev 分支已验证的 PHP 日志改造，在线上保留 PHP CLI、OPcache、PHP-FPM ma…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5f54d06752bc.html#article","headline":"线上环境 PHP 错误日志持久化、小时轮转与 20G 告警改造","description":"线上环境 PHP 错误日志持久化、小时轮转与 20G 告警改造。本文属于业务系统运维 / 游点涩，文档日期：2026-07-18 14:57 环境：游点涩线上环境（main 分支） 分类：优化+架构改造 参考 dev 分支已验证的 PHP 日志改造，在线上保留 PHP CLI、OPcache、PHP-FPM ma…","datePublished":"2026-07-18T14:57:00+08:00","dateModified":"2026-07-18 14:57","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Shell","Python","Docker","Nginx","Redis","监控告警","自动化","业务系统运维","业务系统运维 / 游点涩","线上环境 PHP 错误日志持久化、小时轮转与 20G 告警改造","PHP"],"wordCount":2038,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5f54d06752bc.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5f54d06752bc.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"线上环境 PHP 错误日志持久化、小时轮转与 20G 告警改造","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5f54d06752bc.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>线上环境 PHP 错误日志持久化、小时轮转与 20G 告警改造</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>线上环境 PHP 错误日志持久化、小时轮转与 20G 告警改造</h1>
+      <p class="lede">线上环境 PHP 错误日志持久化、小时轮转与 20G 告警改造。本文属于业务系统运维 / 游点涩，文档日期：2026-07-18 14:57 环境：游点涩线上环境（main 分支） 分类：优化+架构改造 参考 dev 分支已验证的 PHP 日志改造，在线上保留 PHP CLI、OPcache、PHP-FPM ma…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-07-18T14:57:00+08:00">发布于 2026-07-18</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,038 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-07-18-1457-【优化+架构改造】线上环境PHP全量日志持久化与20G告警改造.md</code></p>
+<p>整理日期：2026-07-18 14:57｜日期依据：文件名日期</p>
+</blockquote>
+<p>文档日期：2026-07-18 14:57
+环境：游点涩线上环境（main 分支）
+分类：优化+架构改造</p>
+<p>通知群：18GAME_ 上线群（正式環境）</p>
+<h2 id="改造目标">改造目标</h2>
+<ol>
+<li>参考 <code>dev</code> 分支已验证的 PHP 日志改造，在线上保留 PHP CLI、OPcache、PHP-FPM master、worker 和 slowlog 错误类日志。</li>
+<li>日志统一落到宿主机 <code>runtime/app-logs</code>，容器重建后仍保留。</li>
+<li>关闭全量 PHP-FPM access 日志，将 FPM <code>log_level</code> 从 <code>debug</code> 降到 <code>warning</code>。</li>
+<li>将业务日志目录告警边界从 <code>2G</code> 调整为 <code>20G</code>，只告警，不自动删除日志。</li>
+<li>增加小时轮转：普通日志 gzip 本地归档，access 日志截断丢弃，大错误日志分片发 Telegram 成功后删除本地归档。</li>
+<li>每完成一步立即通知正式群，消息标识为“线上环境”，通知名单增加 <code>@Daviea2</code>。</li>
+</ol>
+<h2 id="配置和持久化路径">配置和持久化路径</h2>
+<table>
+<thead>
+<tr>
+<th>日志类型</th>
+<th>容器内路径</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PHP CLI/定时任务错误</td>
+<td><code>runtime/logs/php/php-error.log</code></td>
+<td><code>E_ALL</code>、启动和运行错误</td>
+</tr>
+<tr>
+<td>OPcache 错误</td>
+<td><code>runtime/logs/php/php-opcache-error.log</code></td>
+<td>与业务/CLI 错误分开</td>
+</tr>
+<tr>
+<td>FPM master</td>
+<td><code>runtime/logs/php-fpm/master-error.log</code></td>
+<td><code>warning</code> 级别</td>
+</tr>
+<tr>
+<td>FPM worker</td>
+<td><code>runtime/logs/php-fpm/worker-error.log</code></td>
+<td>捕获 worker 错误和 stdout/stderr</td>
+</tr>
+<tr>
+<td>FPM access</td>
+<td><code>runtime/logs/php-fpm/access.log</code></td>
+<td>不再保留全量 access；小时任务发现后直接截断</td>
+</tr>
+<tr>
+<td>FPM slowlog</td>
+<td><code>runtime/logs/php-fpm/slow.log</code></td>
+<td>超过 3 秒记录，堆栈深度 50，不终止请求</td>
+</tr>
+<tr>
+<td>队列守护</td>
+<td><code>runtime/logs/queue/</code></td>
+<td>保留现有 watchdog 和 worker 日志</td>
+</tr>
+<tr>
+<td>外部定时任务</td>
+<td><code>runtime/logs/cron/</code></td>
+<td>保留现有单任务日志</td>
+</tr>
+</tbody>
+</table>
+<p>容器内 <code>runtime/logs</code> 由 Compose bind mount 到线上后端宿主机：</p>
+<pre><code class="language-text">/opt/docker-youdianse-php/runtime/app-logs
+</code></pre>
+<h2 id="实现要点">实现要点</h2>
+<ul>
+<li><code>php/dev.ini</code>：关闭页面错误显示，开启 <code>log_errors</code>、<code>E_ALL</code>、内存泄漏报告，分别设置 PHP 和 OPcache 错误日志。</li>
+<li><code>php/fpm-logging.conf</code>：FPM <code>log_level=warning</code>、worker 输出捕获、3 秒 slowlog；不配置全量 access 日志。</li>
+<li><code>docker-compose.yml</code>：把 FPM 日志配置挂载到 <code>/usr/local/etc/php-fpm.d/zz-youdianse-logging.conf</code>。</li>
+<li><code>docker-compose.yml</code>：仅为 web 容器增加 <code>SYS_PTRACE</code>，使 FPM master 能对超时 worker 生成 slowlog 堆栈；不开启 privileged，不关闭整套 seccomp。</li>
+<li><code>entrypoint/web-entrypoint.sh</code> 和 <code>entrypoint/cron-entrypoint.sh</code>：启动前创建日志目录和文件，校正为 <code>www-data</code>。</li>
+<li><code>cicd-web/core.py</code>：把 FPM 配置加入发布元数据、运行配置差异检查和 no-build 配置同步。</li>
+<li><code>cicd-web/config/settings.json</code>：<code>defaults.app_log_alert_gb</code> 设为 <code>20</code>。</li>
+<li><code>ops/production/scripts/youdianse-app-log-hourly-rotate.py</code>：小时轮转 <code>runtime/app-logs</code>，错误日志超过阈值时分片发 Telegram，发送成功后删除本地归档。</li>
+</ul>
+<h2 id="PHP-主配置基线">PHP 主配置基线</h2>
+<p><code>php/dev.ini</code> 是当前线上 web 和 cron 容器共用的 PHP 主配置：</p>
+<pre><code class="language-ini">; 游点涩线上环境 PHP 配置。
+; PHP CLI 错误写入 php/php-error.log；PHP-FPM worker 会由
+; php/fpm-logging.conf 覆盖到 php-fpm/worker-error.log。
+memory_limit=512M
+upload_max_filesize=50M
+post_max_size=50M
+display_errors=Off
+display_startup_errors=Off
+error_reporting=E_ALL
+log_errors=On
+error_log=/var/www/html/youdianse-php/runtime/logs/php/php-error.log
+ignore_repeated_errors=Off
+ignore_repeated_source=Off
+report_memleaks=On
+html_errors=Off
+date.timezone=Asia/Shanghai
+
+; 单独保留 OPcache 错误，方便和业务/CLI 错误区分。
+opcache.error_log=/var/www/html/youdianse-php/runtime/logs/php/php-opcache-error.log
+</code></pre>
+<p>这份配置已整理并发送到“18GAME_ 上线群（正式環境）”。</p>
+<h2 id="2026-07-22-降噪与小时轮转补充">2026-07-22 降噪与小时轮转补充</h2>
+<p>2026-07-22 已完成线上降噪和轮转：</p>
+<pre><code class="language-text">FPM log_level：warning
+FPM access.log：不再配置，历史 access.log 首轮轮转已直接截断
+PHP display_errors/display_startup_errors：Off
+小时轮转脚本：ops/production/scripts/youdianse-app-log-hourly-rotate.py
+root crontab：每小时第 12 分钟执行，flock 防重入
+错误日志发送阈值：32M
+Telegram 分片上限：45M
+</code></pre>
+<p>首轮真实执行结果：</p>
+<pre><code class="language-text">runtime/app-logs：约 27G -&gt; 2.4G
+根盘：约 81% -&gt; 30%
+轮转文件：53
+发送并清理：1 个大错误日志归档（php-fpm/master-error.log.gz）
+直接丢弃：1 个 access 归档
+失败：0
+</code></pre>
+<h2 id="本地验证记录">本地验证记录</h2>
+<p>2026-07-18 已完成：</p>
+<ul>
+<li>Python 语法、Shell 语法、JSON 和 <code>git diff --check</code> 通过。</li>
+<li><code>docker compose config</code> 成功，已识别 FPM 日志配置挂载和 <code>runtime/app-logs</code> 持久化挂载。</li>
+<li>CICD 配置解析确认默认告警阈值为 <code>20G</code>，<code>main</code> 已选中 <code>php/fpm-logging.conf</code>。</li>
+<li>使用官方 <code>php:7.4-fpm</code> 镜像解析全部配置成功。</li>
+<li>真实启动 FPM master 和 2 个 <code>www-data</code> worker 成功，master debug 日志已落盘。</li>
+<li>主动触发 PHP CLI warning，标记成功写入 <code>php/php-error.log</code>。</li>
+</ul>
+<h2 id="线上发布后验证">线上发布后验证</h2>
+<pre><code class="language-bash">cd /opt/docker-youdianse-php
+
+sudo docker compose --env-file .ops-build.env --profile cron config &gt;/tmp/youdianse-compose-main-check.yml
+sudo docker exec youdianse-main-php-web php-fpm -tt
+sudo docker exec youdianse-main-php-web php -i | grep -E 'display_errors|display_startup_errors|error_reporting|log_errors|error_log|opcache.error_log'
+sudo docker exec youdianse-main-php-web sh -lc 'find /var/www/html/youdianse-php/runtime/logs/php /var/www/html/youdianse-php/runtime/logs/php-fpm -maxdepth 1 -type f -ls'
+sudo docker top youdianse-main-php-web -eo pid,ppid,user,comm,args
+sudo docker top youdianse-main-php-cron -eo pid,ppid,user,comm,args
+du -sh runtime/app-logs
+curl -I http://203.0.113.1:8088/admin1866/login
+</code></pre>
+<p>线上按以下项目主动验证：</p>
+<ol>
+<li>Web 请求后 <code>php-fpm/access.log</code> 不再增长。</li>
+<li>超过 3 秒的 PHP 请求会把堆栈写入 <code>slow.log</code>。</li>
+<li>worker 错误会写入 <code>worker-error.log</code>。</li>
+<li>强制重建 <code>web/nginx/cron</code> 后，重建前的验证标记仍存在。</li>
+<li>CICD 运行日志输出当前大小与 <code>20G</code> 阈值。</li>
+<li>root crontab 小时轮转任务存在，并能用 <code>flock</code> 防重入。</li>
+</ol>
+<h2 id="线上实测结果">线上实测结果</h2>
+<p>2026-07-18 已全部完成：</p>
+<pre><code class="language-text">运维版本：9325420
+业务版本：66d701bf852a
+镜像：youdianse-php:main-66d701bf852a
+容器：youdianse-main-php-web / nginx / cron
+日志大小：11G
+告警阈值：20G
+</code></pre>
+<ul>
+<li>线上发布和二次强制重建均成功，HTTP 200、Session writable、Redis/MongoDB/hosts 正常。</li>
+<li>PHP CLI warning 已写入 <code>php/php-error.log</code>。</li>
+<li>FPM worker error 已写入 <code>php-fpm/worker-error.log</code>，worker stderr 已被 master 捕获。</li>
+<li>2026-07-18 曾启用全量 <code>access.log</code>；2026-07-22 已关闭全量 access，仅保留慢请求与错误类日志。</li>
+<li>首次实测发现 Docker 默认安全策略拒绝 FPM master <code>ptrace</code> worker，因此只能识别慢请求，不能写堆栈。为 web 容器最小化增加 <code>SYS_PTRACE</code> 后，<code>slow.log</code> 从 0 增长到 159 字节并包含调用栈，已无 <code>Operation not permitted</code>。</li>
+<li>强制重建 web/nginx/cron 后三个容器 ID 全部变化，重建前的 CLI、worker error、worker stderr 和 slowlog 标记仍存在，持久化验证通过。</li>
+<li>web 实际运行 FPM master 和动态 worker；cron 实际运行 <code>crontab queue</code> 和 <code>job queue</code> 两条 PHP 队列进程。</li>
+<li>CICD 发布、配置同步和通知名单均已增加 <code>@Daviea2</code>。</li>
+<li>宝塔、后端、前端三台线上服务器的 <code>/etc/youdianse-health-alert.json</code> 与 <code>/usr/local/sbin/youdianse-server-health-alert.py</code> 已同步 <code>@Daviea2</code>；后端小时汇总脚本也已同步。三台均通过 Python 编译、JSON 解析和 <code>--json</code> 无通知实测，原配置备份保留。</li>
+</ul>
+<h2 id="风险与维护">风险与维护</h2>
+<ul>
+<li>普通业务日志仍会写入 <code>runtime/app-logs</code>，小时任务默认不再压缩或截断 <code>api_request</code>、<code>api_response</code>、当天业务日志、队列日志等普通业务日志；若目录总量接近 20G，原有 Telegram 告警仍会提醒。</li>
+<li>小时任务默认只处理 <code>runtime/app-logs/php</code> 与 <code>runtime/app-logs/php-fpm</code>：<code>php-fpm/access.log</code> 直接截断丢弃，达到阈值的 <code>error</code>/<code>slow</code> 日志切割发送 Telegram，发送成功后删除服务器本地归档。</li>
+<li>20G 告警不会自动清理；删除或清空日志前必须先确认排障价值。</li>
+<li>FPM 配置错误会阻止 web 容器启动，发布前和发布后都必须执行 <code>php-fpm -tt</code>。</li>
+<li><code>SYS_PTRACE</code> 仅用于 FPM slowlog 读取同容器 worker 堆栈；若移除该 capability，FPM 仍会识别慢请求，但会因 <code>Operation not permitted</code> 无法写入调用栈。</li>
+<li>回滚时使用 CICD 选择上一个已验证的运维版本和业务 git id 重新发布，不删除宿主机 <code>runtime/app-logs</code>。</li>
+</ul>
+<h2 id="通知规则">通知规则</h2>
+<p>根目录 <code>AGENTS.md</code> 已固定：后续每完成一步必须立即通知“18GAME_ 上线群（正式環境）”，标题使用 <code>【线上环境｜步骤 N 完成】</code>，失败不得静默跳过。统一通知：</p>
+<pre><code class="language-text">@Ben_Bird @jett_yunwei @Kermit0824 @melo_sre @Daviea2
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#改造目标">改造目标</a></li><li style="margin-left:0.0rem"><a href="#配置和持久化路径">配置和持久化路径</a></li><li style="margin-left:0.0rem"><a href="#实现要点">实现要点</a></li><li style="margin-left:0.0rem"><a href="#PHP-主配置基线">PHP 主配置基线</a></li><li style="margin-left:0.0rem"><a href="#2026-07-22-降噪与小时轮转补充">2026-07-22 降噪与小时轮转补充</a></li><li style="margin-left:0.0rem"><a href="#本地验证记录">本地验证记录</a></li><li style="margin-left:0.0rem"><a href="#线上发布后验证">线上发布后验证</a></li><li style="margin-left:0.0rem"><a href="#线上实测结果">线上实测结果</a></li><li style="margin-left:0.0rem"><a href="#风险与维护">风险与维护</a></li><li style="margin-left:0.0rem"><a href="#通知规则">通知规则</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-07-18</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">Redis</span><span class="tag">监控告警</span><span class="tag">自动化</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-07-18-1457-【优化+…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607181457-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20PHP%20%E9%94%99%E8%AF%AF%E6%97%A5%E5%BF%97%E6%8C%81%E4%B9%85%E5%8C%96%E3%80%81%E5%B0%8F%E6%97%B6%E8%BD%AE%E8%BD%AC%E4%B8%8E%2020G%20%E5%91%8A%E8%AD%A6%E6%94%B9%E9%80%A0.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>线上环境 PHP 错误日志持久化、小时轮转与 20G 告警改造。本文属于业务系统运维 / 游点涩，文档日期：2026-07-18 14:57 环境：游点涩线上环境（main 分支） 分类：优化+架构改造 参考 dev 分支已验证的 PHP 日志改造，在线上保留 PHP CLI、OPcache、PHP-FPM ma…</p>
+      <p>关键词：游点涩、Shell、Python、Docker、Nginx、Redis、监控告警、自动化、业务系统运维、业务系统运维 / 游点涩、线上环境 PHP 错误日志持久化、小时轮转与 20G 告警改造、PHP</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6a95e647ce05.html"><small>上一篇</small>JILI 复用 TADA 前端资源修复说明</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-810fc8a779c4.html"><small>下一篇</small>2026-07-18 香港 AWS S3 同步巴西 GCS 资源记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5f54d06752bc.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
