@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>游点涩 PC 测试环境发布改造记录｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="游点涩 PC 测试环境发布改造记录。本文属于历史运维与项目交付 / 18Game 测试环境，改造对象： ben-bot 测试环境前端发布能力 测试地址： https://pc.youdianse-test.xyz 代码改造提交： b4b30a9 新增游点涩PC测试环境发布 游点涩 PC 项目由 H5 项目演进而来…">
+  <meta name="keywords" content="18Game 测试环境，Linux，Shell，Python，Docker，Nginx，自动化，CDN，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，游点涩 PC 测试环境发布改造记录，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8c411ccc0453.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8c411ccc0453.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607221503-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E6%B8%B8%E7%82%B9%E6%B6%A9%20PC%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E5%8F%91%E5%B8%83%E6%94%B9%E9%80%A0%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="游点涩 PC 测试环境发布改造记录">
+  <meta property="og:description" content="游点涩 PC 测试环境发布改造记录。本文属于历史运维与项目交付 / 18Game 测试环境，改造对象： ben-bot 测试环境前端发布能力 测试地址： https://pc.youdianse-test.xyz 代码改造提交： b4b30a9 新增游点涩PC测试环境发布 游点涩 PC 项目由 H5 项目演进而来…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8c411ccc0453.html">
+  <meta property="article:published_time" content="2026-07-22T15:03:00+08:00">
+  <meta property="article:modified_time" content="2026-07-22 15:03">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="游点涩 PC 测试环境发布改造记录">
+  <meta name="twitter:description" content="游点涩 PC 测试环境发布改造记录。本文属于历史运维与项目交付 / 18Game 测试环境，改造对象： ben-bot 测试环境前端发布能力 测试地址： https://pc.youdianse-test.xyz 代码改造提交： b4b30a9 新增游点涩PC测试环境发布 游点涩 PC 项目由 H5 项目演进而来…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8c411ccc0453.html#article","headline":"游点涩 PC 测试环境发布改造记录","description":"游点涩 PC 测试环境发布改造记录。本文属于历史运维与项目交付 / 18Game 测试环境，改造对象： ben-bot 测试环境前端发布能力 测试地址： https://pc.youdianse-test.xyz 代码改造提交： b4b30a9 新增游点涩PC测试环境发布 游点涩 PC 项目由 H5 项目演进而来…","datePublished":"2026-07-22T15:03:00+08:00","dateModified":"2026-07-22 15:03","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Linux","Shell","Python","Docker","Nginx","自动化","CDN","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","游点涩 PC 测试环境发布改造记录","devops"],"wordCount":3280,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8c411ccc0453.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8c411ccc0453.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"游点涩 PC 测试环境发布改造记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8c411ccc0453.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>游点涩 PC 测试环境发布改造记录</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>游点涩 PC 测试环境发布改造记录</h1>
+      <p class="lede">游点涩 PC 测试环境发布改造记录。本文属于历史运维与项目交付 / 18Game 测试环境，改造对象： ben-bot 测试环境前端发布能力 测试地址： https://pc.youdianse-test.xyz 代码改造提交： b4b30a9 新增游点涩PC测试环境发布 游点涩 PC 项目由 H5 项目演进而来…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-07-22T15:03:00+08:00">发布于 2026-07-22</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">3,280 字</span>
+        <span class="badge">10 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-22_1503-【架构改造】游点涩PC测试环境发布改造.md</code></p>
+<p>整理日期：2026-07-22 15:03｜日期依据：文件名日期</p>
+</blockquote>
+<p>环境标签：测试环境</p>
+<h2 id="1-文档信息">1. 文档信息</h2>
+<ul>
+<li>实施日期：2026-07-22</li>
+<li>改造对象：<code>ben-bot</code> 测试环境前端发布能力</li>
+<li>新增入口：<code>🖥️ 测试环境-游点涩-pc-发版</code></li>
+<li>测试地址：<a href="https://pc.youdianse-test.xyz" rel="noopener noreferrer">https://pc.youdianse-test.xyz</a></li>
+<li>代码改造提交：<code>b4b30a9 新增游点涩PC测试环境发布</code></li>
+<li>首次验证的 PC 代码版本：<code>707f00cf54b00b54db7bac76e319d5a45f641ec0</code>（短版本 <code>707f00c</code>）</li>
+<li>当前状态：已上线并完成端到端验证</li>
+</ul>
+<blockquote>
+<p>本文仅记录可公开到运维仓库的配置和操作。服务器密码、Git 凭据、Telegram Token、群 ID 等敏感信息不得写入文档或群消息，应通过现有安全配置和安全渠道使用。</p>
+</blockquote>
+<h2 id="2-背景与需求判断">2. 背景与需求判断</h2>
+<p>游点涩 PC 项目由 H5 项目演进而来，构建方式、Nuxt/PM2/Docker 部署方式以及测试环境业务配置基本一致。因此，继续维护两套完整发布实现会产生重复代码，后续修复也容易出现 H5 与 PC 行为不一致。</p>
+<p>本次采用“共享发布引擎、隔离运行资源”的方案：</p>
+<ul>
+<li>共享 H5 已稳定运行的 Git 拉取、提交选择、远程脚本上传、镜像构建、容器切换、日志与进度回传能力。</li>
+<li>PC 通过独立适配入口传入仓库、分支、项目名、域名、端口和目录等参数。</li>
+<li>PC 与 H5 的代码目录、缓存、镜像、固定容器、端口、日志和远程临时脚本全部隔离，避免互相覆盖。</li>
+<li>PC 复用 H5 测试环境的业务配置，但不复制或记录其中的密钥内容。</li>
+</ul>
+<p>该方案满足“构建及部署模式基本一致”的需求，同时保留两个站点独立发布和独立回滚的能力。</p>
+<h2 id="3-目标架构">3. 目标架构</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>H5 测试环境</th>
+<th>PC 测试环境</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Git 项目</td>
+<td><code>youdianse-h5</code></td>
+<td><code>youdianse-pc</code></td>
+</tr>
+<tr>
+<td>分支</td>
+<td>H5 现有测试分支</td>
+<td><code>dev</code></td>
+</tr>
+<tr>
+<td>发布引擎</td>
+<td>H5 Nuxt/PM2/Docker 引擎</td>
+<td>复用 H5 引擎</td>
+</tr>
+<tr>
+<td>代码根目录</td>
+<td>H5 原有目录</td>
+<td><code>/www/wwwroot/18game_pc_client</code></td>
+</tr>
+<tr>
+<td>远程脚本目录</td>
+<td>H5 原有目录</td>
+<td><code>/tmp/ben-bot-youdianse-pc-test</code></td>
+</tr>
+<tr>
+<td>固定容器</td>
+<td>H5 原有容器</td>
+<td><code>youdianse_pc_dev_18game_pc_client_3004</code></td>
+</tr>
+<tr>
+<td>服务端口</td>
+<td><code>3003</code></td>
+<td><code>3004</code></td>
+</tr>
+<tr>
+<td>访问域名</td>
+<td><code>h5.youdianse-test.xyz</code></td>
+<td><code>pc.youdianse-test.xyz</code></td>
+</tr>
+<tr>
+<td>发布日志</td>
+<td>H5 原有日志</td>
+<td><code>data/package/youdianse_pc_test_ssh_release.log</code></td>
+</tr>
+</tbody>
+</table>
+<p>发布链路如下：</p>
+<pre><code class="language-text">ben-bot 菜单
+  -&gt; 拉取 youdianse-pc/dev 最近提交
+  -&gt; 运维选择目标提交
+  -&gt; 上传共享远程发布模块
+  -&gt; 使用 H5 测试环境配置构建 PC 镜像
+  -&gt; 切换 PC 固定容器（3004）
+  -&gt; Nginx/HTTPS 反向代理
+  -&gt; https://pc.youdianse-test.xyz
+</code></pre>
+<h2 id="4-代码改造内容">4. 代码改造内容</h2>
+<h3 id="4-1-新增-PC-发布插件">4.1 新增 PC 发布插件</h3>
+<p>新增目录：</p>
+<pre><code class="language-text">devops/python/ben-bot/data/scripts/测试环境-游点涩-pc-发版/
+├── .benbot.json
+├── benbot_plugin.py
+├── nginx/
+│   └── pc.youdianse-test.xyz.conf
+└── youdianse_test_18game_pc_client.py
+</code></pre>
+<p>主要职责：</p>
+<ul>
+<li><code>.benbot.json</code>：声明插件入口和菜单元数据。</li>
+<li><code>benbot_plugin.py</code>：接入提交列表、发布确认、执行状态和进度面板。</li>
+<li><code>youdianse_test_18game_pc_client.py</code>：将 PC 专属参数映射到共享的 H5 发布客户端。</li>
+<li><code>nginx/pc.youdianse-test.xyz.conf</code>：保存可追踪、可复用的站点配置模板。</li>
+</ul>
+<h3 id="4-2-参数化共享-H5-发布引擎">4.2 参数化共享 H5 发布引擎</h3>
+<p>原 H5 发布实现补充参数入口，使其可以在保持 H5 默认值不变的情况下服务 PC 项目。PC 适配层设置的核心参数如下：</p>
+<table>
+<thead>
+<tr>
+<th>参数用途</th>
+<th>PC 配置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Git 分支</td>
+<td><code>dev</code></td>
+</tr>
+<tr>
+<td>项目名</td>
+<td><code>youdianse-pc</code></td>
+</tr>
+<tr>
+<td>发布环境名</td>
+<td><code>测试环境-游点涩-pc-发版</code></td>
+</tr>
+<tr>
+<td>远程脚本</td>
+<td><code>/tmp/ben-bot-youdianse-pc-test/youdianse_test_18game_pc_client.py</code></td>
+</tr>
+<tr>
+<td>远程代码根目录</td>
+<td><code>/www/wwwroot/18game_pc_client</code></td>
+</tr>
+<tr>
+<td>对外地址</td>
+<td><code>https://pc.youdianse-test.xyz</code></td>
+</tr>
+<tr>
+<td>容器端口</td>
+<td><code>3004</code></td>
+</tr>
+<tr>
+<td>项目标识</td>
+<td><code>youdianse_pc</code></td>
+</tr>
+<tr>
+<td>代码目录名</td>
+<td><code>18game_pc_client</code></td>
+</tr>
+<tr>
+<td>仓库缓存名</td>
+<td><code>youdianse_18game_pc_client_dev</code></td>
+</tr>
+</tbody>
+</table>
+<p>共享引擎同时对项目显示名、项目标识、代码根目录、端口、远程入口和缓存名进行参数化，确保镜像名、容器名、版本文件和日志内容都能正确区分 H5 与 PC。</p>
+<h3 id="4-3-菜单-权限和帮助信息">4.3 菜单、权限和帮助信息</h3>
+<ul>
+<li>在机器人首页新增 PC 测试发布入口。</li>
+<li>将 PC 插件纳入功能注册和权限校验。</li>
+<li>接入统一的忙碌状态和发布进度类型 <code>youdianse_pc</code>。</li>
+<li>在帮助中心与 README 中补充 PC 发布能力说明。</li>
+<li>将服务器用途、关键路径、容器及常用检查命令登记到 <code>devops/ai_context/servers.yml</code>。</li>
+</ul>
+<h2 id="5-服务器部署配置">5. 服务器部署配置</h2>
+<h3 id="5-1-构建与容器">5.1 构建与容器</h3>
+<ul>
+<li>拉取 <code>youdianse-pc</code> 的 <code>dev</code> 分支，并允许从机器人最近 3 个提交中选择发布版本。</li>
+<li>复用 H5 测试环境配置和 Nuxt/PM2/Docker 构建链路。</li>
+<li>使用 PC 独立镜像名和固定容器名，监听 <code>3004</code>。</li>
+<li>首次部署镜像：<code>youdianse_pc_dev_707f00c_18game_pc_client_3004</code>。</li>
+<li>首次部署固定容器：<code>youdianse_pc_dev_18game_pc_client_3004</code>。</li>
+<li>版本信息通过容器内 <code>/version.json</code> 暴露，便于核对分支、提交和端口。</li>
+</ul>
+<h3 id="5-2-Nginx-与-HTTPS">5.2 Nginx 与 HTTPS</h3>
+<p>生产化配置文件：</p>
+<pre><code class="language-text">/www/server/panel/vhost/nginx/pc.youdianse-test.xyz.conf
+</code></pre>
+<p>仓库模板：</p>
+<pre><code class="language-text">devops/python/ben-bot/data/scripts/测试环境-游点涩-pc-发版/nginx/pc.youdianse-test.xyz.conf
+</code></pre>
+<p>路由规则：</p>
+<ul>
+<li>HTTP 请求统一 <code>301</code> 跳转 HTTPS。</li>
+<li><code>/api</code>、<code>/channel</code>、<code>/customer</code> 路由反向代理到 <code>203.0.113.1:8088</code>。</li>
+<li>其余请求反向代理到 PC 容器 <code>203.0.113.1:3004</code>。</li>
+<li>HTTPS 复用现有覆盖 <code>*.youdianse-test.xyz</code> 的通配证书。</li>
+<li>访问策略验证 <code>.env</code>、Git 目录、依赖锁文件、日志和数据库备份等敏感路径。</li>
+</ul>
+<h3 id="5-3-DNS">5.3 DNS</h3>
+<p>测试域名使用现有 <code>*.youdianse-test.xyz</code> 泛解析，目标为测试环境服务器，因此无需新增单独的 <code>pc</code> A 记录。部署时仍需通过 DNS 查询和 HTTPS 请求确认实际解析结果。</p>
+<h2 id="6-实施步骤与验证结果">6. 实施步骤与验证结果</h2>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>操作</th>
+<th>验证结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>需求审计</td>
+<td>对比 H5 与 PC 构建结构、配置和目标服务器</td>
+<td>确认可复用发布引擎，运行资源必须隔离</td>
+</tr>
+<tr>
+<td>插件实现</td>
+<td>新增 PC 菜单、插件、适配脚本和权限</td>
+<td>插件可注册，菜单可见，权限校验通过</td>
+</tr>
+<tr>
+<td>静态检查</td>
+<td>校验 JSON、YAML、Python 语法与注册表</td>
+<td>全部通过</td>
+</tr>
+<tr>
+<td>提交列表</td>
+<td>调用 PC <code>list_json</code></td>
+<td>成功返回 <code>dev</code> 最近 3 个提交</td>
+</tr>
+<tr>
+<td>镜像验证</td>
+<td>本地构建 <code>ben-bot:pc-test-validation</code></td>
+<td>构建成功</td>
+</tr>
+<tr>
+<td>PC 发布</td>
+<td>构建并启动 PC 固定容器</td>
+<td>容器健康，端口 <code>3004</code> 可访问</td>
+</tr>
+<tr>
+<td>版本验证</td>
+<td>读取本机及公网 <code>/version.json</code></td>
+<td>分支 <code>dev</code>、提交 <code>707f00c</code>、端口 <code>3004</code> 一致</td>
+</tr>
+<tr>
+<td>H5 回归</td>
+<td>检查 H5 容器和 <code>3003</code> 服务</td>
+<td>H5 保持健康，未被 PC 发布影响</td>
+</tr>
+<tr>
+<td>Nginx</td>
+<td>执行配置检查并加载站点</td>
+<td>配置检查通过，HTTP 正确跳转 HTTPS</td>
+</tr>
+<tr>
+<td>HTTPS</td>
+<td>校验证书和公网首页</td>
+<td>TLS 校验通过，首页返回 HTTP 200</td>
+</tr>
+<tr>
+<td>API 路由</td>
+<td>请求 PC 域名下的同域 API 路径</td>
+<td>已进入 <code>8088</code> 后端链路，不落到前端容器</td>
+</tr>
+<tr>
+<td>搜索引擎隔离</td>
+<td>检查公网响应头</td>
+<td>返回 <code>X-Robots-Tag: noindex, nofollow</code></td>
+</tr>
+<tr>
+<td>机器人部署</td>
+<td>更新服务器仓库并重建 <code>ben-bot</code></td>
+<td>容器健康，启动日志无 Python 导入或语法异常</td>
+</tr>
+<tr>
+<td>机器人回归</td>
+<td>容器内检查 PC 菜单、权限和提交列表</td>
+<td>全部通过</td>
+</tr>
+</tbody>
+</table>
+<p>实施过程中已按“每完成一步先验证、再通知”的要求，将模块完成、容器上线、域名 HTTPS 和机器人入口上线四个阶段的结果发送到运维飞机群。</p>
+<h2 id="7-日常发布方式">7. 日常发布方式</h2>
+<h3 id="7-1-机器人发布">7.1 机器人发布</h3>
+<ol>
+<li>打开 <code>ben-bot</code> 首页。</li>
+<li>点击 <code>🖥️ 测试环境-游点涩-pc-发版</code>。</li>
+<li>从 <code>dev</code> 最近 3 个提交中选择目标版本。</li>
+<li>核对提交信息后确认发布。</li>
+<li>观察进度消息，等待构建、容器切换及健康检查完成。</li>
+<li>访问 <a href="https://pc.youdianse-test.xyz/version.json" rel="noopener noreferrer">https://pc.youdianse-test.xyz/version.json</a> 核对最终版本。</li>
+</ol>
+<h3 id="7-2-常用检查">7.2 常用检查</h3>
+<p>在测试服务器上执行：</p>
+<pre><code class="language-bash">docker ps --filter name=youdianse_pc_dev_18game_pc_client_3004
+curl -fsS http://203.0.113.1:3004/version.json
+curl -fsS https://pc.youdianse-test.xyz/version.json
+nginx -t
+</code></pre>
+<p>外部检查：</p>
+<pre><code class="language-bash">curl -I http://pc.youdianse-test.xyz
+curl -I https://pc.youdianse-test.xyz
+curl -fsS https://pc.youdianse-test.xyz/version.json
+</code></pre>
+<p>预期结果：HTTP 跳转 HTTPS、HTTPS 返回成功、版本文件与发布提交一致。</p>
+<h2 id="8-回滚方案">8. 回滚方案</h2>
+<h3 id="8-1-应用版本回滚">8.1 应用版本回滚</h3>
+<ol>
+<li>在机器人 PC 发布入口选择上一条已验证提交。</li>
+<li>重新执行发布，等待固定容器切换完成。</li>
+<li>检查容器状态、<code>version.json</code>、首页和 API 路由。</li>
+<li>确认 H5 的 <code>3003</code> 服务仍正常。</li>
+</ol>
+<p>发布引擎按提交生成独立镜像，因此只要目标镜像仍保留，也可以在服务器上根据现有镜像记录辅助恢复；正常情况下优先通过机器人重新发布，保证日志和版本信息完整。</p>
+<h3 id="8-2-Nginx-回滚">8.2 Nginx 回滚</h3>
+<ol>
+<li>恢复修改前备份的 PC 站点配置，或临时停用 PC 虚拟主机。</li>
+<li>执行 <code>nginx -t</code>，只有检查通过后才允许重载。</li>
+<li>重载 Nginx 并验证 H5、后台和其他测试域名未受影响。</li>
+</ol>
+<h3 id="8-3-隔离要求">8.3 隔离要求</h3>
+<p>回滚或清理时只操作以下 PC 资源：</p>
+<ul>
+<li><code>youdianse_pc_dev_18game_pc_client_3004</code> 容器。</li>
+<li><code>youdianse_pc_dev_*_18game_pc_client_3004</code> 镜像。</li>
+<li><code>/www/wwwroot/18game_pc_client</code> 目录。</li>
+<li><code>/tmp/ben-bot-youdianse-pc-test</code> 临时目录。</li>
+<li><code>pc.youdianse-test.xyz</code> Nginx 配置。</li>
+</ul>
+<p>不得停止 H5 容器、删除 H5 镜像或修改 H5 的 <code>3003</code> 端口。</p>
+<h2 id="9-已知提示与后续建议">9. 已知提示与后续建议</h2>
+<ul>
+<li>2026-07-24 补充优化：PC 适配层已内置测试 PC 独立 CDN/S3/COS 默认值，避免 PC 静态变量漏配时继承 H5 桶；共享发布引擎的 S3/COS 同步默认关闭删除远端多余文件，仅在显式设置 <code>YOUDIANSE_H5_TEST_STATIC_SYNC_DELETE=1</code> 时才删除。</li>
+<li>2026-07-24 实机排查：历史 <code>ben-bot</code> 部署机是 <code>52.79.252.255</code>，宝塔 <code>38.92.8.34</code> 只作为 H5/PC 测试发布目标。宝塔临时启动 <code>ben-bot</code> 会和历史部署机抢 Telegram polling，触发 <code>getUpdates</code> conflict。</li>
+<li>2026-07-24 已在历史部署机重建 <code>ben-bot</code>，停止宝塔临时 <code>ben-bot</code> 后冲突消失；H5/PC 测试发版已带步骤级飞机群通知。</li>
+<li>2026-07-24 已实发 PC <code>e9398b9</code> 和 H5 <code>2af36b4</code>。PC 静态资源确认同步到 <code>18game-nuxt-static-test-pc</code> 与 <code>18game-nuxt-static-test-pc-1450169938</code>，未再继承 H5 桶。</li>
+<li>2026-07-24 图片验证：常见图片 <code>/images/placeholder.png</code>、<code>/images/mine/profile-logo.png</code> 在站点和对应 S3 桶返回 <code>200 image/png</code>；<code>/images/game-controller-icon.png</code>、<code>/images/email.png</code>、<code>/images/sms.png</code>、<code>/images/pwd.png</code> 为前端源码引用但资源缺失，需由前端仓库补图或调整引用。</li>
+<li>2026-07-24 F12 复查：H5/PC 多数不可见图片来自后端接口返回的上传图域名 <code>18game-storage-dev-uploads-1450169938.cos.ap-guangzhou.myqcloud.com</code>，不是 Nuxt 静态包。Chrome 对多张图片拿到腾讯 COS <code>451 application/xml</code>，错误码 <code>UnavailableForLegalReasons</code>，消息为 <code>The specified key is unavailable due to content illegal</code>，随后表现为 <code>net::ERR_BLOCKED_BY_ORB</code>。另有 <code>imgpublic.ycomesc.live</code> DNS 不解析。后续优化应处理上传图 AWS -&gt; 腾讯 COS 同步/合规/展示域名策略，不能只重发 PC/H5 前端。</li>
+<li>2026-07-24 上传图修复：测试后端 Mongo 配置 <code>cdn_image</code> 已将 <code>free/aws</code> 展示域名切到 AWS CloudFront <code>https://d1rct3ku9n07y3.cloudfront.net</code>，避免当前腾讯上传桶 451 影响前台；<code>tencent=&gt;https://18game-storage-dev-uploads-1450169938.cos.ap-guangzhou.myqcloud.com</code> 仍保留为可选配置。确认 PHP 上传代码只写 AWS S3，前端发布脚本只同步 Nuxt <code>.output/public</code> 静态资源，不能替代后端上传图同步。</li>
+<li>2026-07-24 <code>imgpublic.ycomesc.live</code> 修复：该域名是 Mongo <code>game</code> 记录中的历史完整 URL，后端 <code>getCdnUrl()</code> 会原样返回，不能靠 <code>cdn_image</code> 改写。已备份 476 条受影响记录到测试 PHP 容器 <code>/var/www/html/youdianse-php/runtime/logs/game_imgpublic_backup_20260724_223619.jsonl</code>，并最小替换 193 条可用 <code>cover/banner</code> 兜底的 <code>icon</code> 字段；正文 <code>content</code> 暂不批量改写。</li>
+<li>2026-07-24 修复后 Chrome 复查：H5/PC <code>imgpublic</code> 请求 0、腾讯上传桶请求 0、可见坏图 0。少量派生 <code>_large.webp/_square.webp</code> 404 会回退到原始 JPG，不影响页面显示。</li>
+<li>首次构建出现部分静态图片路径和大体积 chunk 提示，但未导致构建或运行失败；建议由前端后续清理无效资源引用并优化拆包。</li>
+<li>PC 测试站点当前明确返回 <code>noindex, nofollow</code>，适合测试环境，正式环境上线前需重新评估搜索引擎策略。</li>
+<li>共享 H5 发布引擎后，修改公共逻辑时必须同时执行 H5 和 PC 回归，至少检查提交列表、容器命名、端口、版本文件和日志隔离。</li>
+<li>若未来 PC 的构建方式或环境配置与 H5 明显分叉，应将差异继续参数化；只有公共引擎无法清晰表达时，再拆分独立实现。</li>
+</ul>
+<h2 id="10-结论">10. 结论</h2>
+<p>本次改造已完成 PC 测试环境从代码提交选择、镜像构建、容器部署、域名 HTTPS 到机器人操作入口的闭环。方案复用了已验证的 H5 发布能力，同时将 PC 的可变运行资源完全隔离；PC 与 H5 均已通过运行和公网回归检查，可以交付日常运维使用。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-文档信息">1. 文档信息</a></li><li style="margin-left:0.0rem"><a href="#2-背景与需求判断">2. 背景与需求判断</a></li><li style="margin-left:0.0rem"><a href="#3-目标架构">3. 目标架构</a></li><li style="margin-left:0.0rem"><a href="#4-代码改造内容">4. 代码改造内容</a></li><li style="margin-left:0.8rem"><a href="#4-1-新增-PC-发布插件">4.1 新增 PC 发布插件</a></li><li style="margin-left:0.8rem"><a href="#4-2-参数化共享-H5-发布引擎">4.2 参数化共享 H5 发布引擎</a></li><li style="margin-left:0.8rem"><a href="#4-3-菜单-权限和帮助信息">4.3 菜单、权限和帮助信息</a></li><li style="margin-left:0.0rem"><a href="#5-服务器部署配置">5. 服务器部署配置</a></li><li style="margin-left:0.8rem"><a href="#5-1-构建与容器">5.1 构建与容器</a></li><li style="margin-left:0.8rem"><a href="#5-2-Nginx-与-HTTPS">5.2 Nginx 与 HTTPS</a></li><li style="margin-left:0.8rem"><a href="#5-3-DNS">5.3 DNS</a></li><li style="margin-left:0.0rem"><a href="#6-实施步骤与验证结果">6. 实施步骤与验证结果</a></li><li style="margin-left:0.0rem"><a href="#7-日常发布方式">7. 日常发布方式</a></li><li style="margin-left:0.8rem"><a href="#7-1-机器人发布">7.1 机器人发布</a></li><li style="margin-left:0.8rem"><a href="#7-2-常用检查">7.2 常用检查</a></li><li style="margin-left:0.0rem"><a href="#8-回滚方案">8. 回滚方案</a></li><li style="margin-left:0.8rem"><a href="#8-1-应用版本回滚">8.1 应用版本回滚</a></li><li style="margin-left:0.8rem"><a href="#8-2-Nginx-回滚">8.2 Nginx 回滚</a></li><li style="margin-left:0.8rem"><a href="#8-3-隔离要求">8.3 隔离要求</a></li><li style="margin-left:0.0rem"><a href="#9-已知提示与后续建议">9. 已知提示与后续建议</a></li><li style="margin-left:0.0rem"><a href="#10-结论">10. 结论</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-07-22</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">自动化</span><span class="tag">CDN</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-22_1503-【架构改造】游点涩PC测试环境发布改造.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607221503-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E6%B8%B8%E7%82%B9%E6%B6%A9%20PC%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E5%8F%91%E5%B8%83%E6%94%B9%E9%80%A0%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>游点涩 PC 测试环境发布改造记录。本文属于历史运维与项目交付 / 18Game 测试环境，改造对象： ben-bot 测试环境前端发布能力 测试地址： https://pc.youdianse-test.xyz 代码改造提交： b4b30a9 新增游点涩PC测试环境发布 游点涩 PC 项目由 H5 项目演进而来…</p>
+      <p>关键词：18Game 测试环境、Linux、Shell、Python、Docker、Nginx、自动化、CDN、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、游点涩 PC 测试环境发布改造记录、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c4354ca77ca7.html"><small>上一篇</small>checkTokenV2 txt 权限修复记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-85401904f44f.html"><small>下一篇</small>线上环境业务本地保护文件发布保护</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8c411ccc0453.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
