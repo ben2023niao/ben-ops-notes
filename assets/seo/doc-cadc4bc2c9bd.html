@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>测试前端 H5/PC 备案域名与 S3 链路索引｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="测试前端 H5/PC 备案域名与 S3 链路索引。本文属于历史运维与项目交付 / 18Game 测试环境，这两个入口只负责前端构建产物 .output/public 的双推和页面静态资源访问。测试后端 uploads 图片、APK/App 包仍属于后端 AWS 老 S3 链路，不在本文两个前端发布按钮里改动。 远…">
+  <meta name="keywords" content="18Game 测试环境，Python，Nginx，自动化，CDN，DNS，故障排查，源码与配置，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，测试前端 H5/PC 备案域名与 S3 链路索引，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cadc4bc2c9bd.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cadc4bc2c9bd.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607291806-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BNginx-%E6%B5%8B%E8%AF%95%E5%89%8D%E7%AB%AF%20H5-PC%20%E5%A4%87%E6%A1%88%E5%9F%9F%E5%90%8D%E4%B8%8E%20S3%20%E9%93%BE%E8%B7%AF%E7%B4%A2%E5%BC%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="测试前端 H5/PC 备案域名与 S3 链路索引">
+  <meta property="og:description" content="测试前端 H5/PC 备案域名与 S3 链路索引。本文属于历史运维与项目交付 / 18Game 测试环境，这两个入口只负责前端构建产物 .output/public 的双推和页面静态资源访问。测试后端 uploads 图片、APK/App 包仍属于后端 AWS 老 S3 链路，不在本文两个前端发布按钮里改动。 远…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cadc4bc2c9bd.html">
+  <meta property="article:published_time" content="2026-07-29T18:06:00+08:00">
+  <meta property="article:modified_time" content="2026-07-29 18:06">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="测试前端 H5/PC 备案域名与 S3 链路索引">
+  <meta name="twitter:description" content="测试前端 H5/PC 备案域名与 S3 链路索引。本文属于历史运维与项目交付 / 18Game 测试环境，这两个入口只负责前端构建产物 .output/public 的双推和页面静态资源访问。测试后端 uploads 图片、APK/App 包仍属于后端 AWS 老 S3 链路，不在本文两个前端发布按钮里改动。 远…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cadc4bc2c9bd.html#article","headline":"测试前端 H5/PC 备案域名与 S3 链路索引","description":"测试前端 H5/PC 备案域名与 S3 链路索引。本文属于历史运维与项目交付 / 18Game 测试环境，这两个入口只负责前端构建产物 .output/public 的双推和页面静态资源访问。测试后端 uploads 图片、APK/App 包仍属于后端 AWS 老 S3 链路，不在本文两个前端发布按钮里改动。 远…","datePublished":"2026-07-29T18:06:00+08:00","dateModified":"2026-07-29 18:06","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Python","Nginx","自动化","CDN","DNS","故障排查","源码与配置","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","测试前端 H5/PC 备案域名与 S3 链路索引","devops"],"wordCount":2462,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cadc4bc2c9bd.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cadc4bc2c9bd.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"测试前端 H5/PC 备案域名与 S3 链路索引","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cadc4bc2c9bd.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>测试前端 H5/PC 备案域名与 S3 链路索引</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>测试前端 H5/PC 备案域名与 S3 链路索引</h1>
+      <p class="lede">测试前端 H5/PC 备案域名与 S3 链路索引。本文属于历史运维与项目交付 / 18Game 测试环境，这两个入口只负责前端构建产物 .output/public 的双推和页面静态资源访问。测试后端 uploads 图片、APK/App 包仍属于后端 AWS 老 S3 链路，不在本文两个前端发布按钮里改动。 远…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-07-29T18:06:00+08:00">发布于 2026-07-29</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,462 字</span>
+        <span class="badge">8 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-29_1806-【运维记录】测试前端H5-PC备案域名与S3链路索引.md</code></p>
+<p>整理日期：2026-07-29 18:06｜日期依据：文件名日期</p>
+</blockquote>
+<p>环境标签：测试环境</p>
+<h2 id="1-范围">1. 范围</h2>
+<p>本文只整理以下两个机器人发布入口：</p>
+<ul>
+<li><code>测试环境-游点涩-h5-发版</code></li>
+<li><code>测试环境-游点涩-pc-发版</code></li>
+</ul>
+<p>这两个入口只负责前端构建产物 <code>.output/public</code> 的双推和页面静态资源访问。测试后端 uploads 图片、APK/App 包仍属于后端 AWS 老 S3 链路，不在本文两个前端发布按钮里改动。</p>
+<h2 id="2-当前链路总览">2. 当前链路总览</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>H5</th>
+<th>PC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>机器人发布入口</td>
+<td><code>测试环境-游点涩-h5-发版</code></td>
+<td><code>测试环境-游点涩-pc-发版</code></td>
+</tr>
+<tr>
+<td>前端仓库分支</td>
+<td><code>web/youdianse-h5</code> / <code>test</code></td>
+<td><code>web/youdianse-pc</code> / <code>dev</code></td>
+</tr>
+<tr>
+<td>AWS 页面访问域名</td>
+<td><code>https://h5.youdianse-test.xyz</code></td>
+<td><code>https://pc.youdianse-test.xyz</code></td>
+</tr>
+<tr>
+<td>备案页面访问域名</td>
+<td><code>https://test-h5.hbabaxb.cn</code></td>
+<td><code>https://test-pc.hbabaxb.cn</code></td>
+</tr>
+<tr>
+<td>前端静态资源展示域名</td>
+<td><code>https://test-h5-s3.hbabaxb.cn</code></td>
+<td><code>https://test-pc-s3.hbabaxb.cn</code></td>
+</tr>
+<tr>
+<td>AWS 前端静态桶</td>
+<td><code>18game-nuxt-static-test-h5</code></td>
+<td><code>18game-nuxt-static-test-pc</code></td>
+</tr>
+<tr>
+<td>AWS 区域</td>
+<td><code>ap-southeast-1</code></td>
+<td><code>ap-southeast-1</code></td>
+</tr>
+<tr>
+<td>AWS 公开桶域名</td>
+<td><code>https://18game-nuxt-static-test-h5.s3.ap-southeast-1.amazonaws.com</code></td>
+<td><code>https://18game-nuxt-static-test-pc.s3.ap-southeast-1.amazonaws.com</code></td>
+</tr>
+<tr>
+<td>腾讯 COS 前端桶</td>
+<td><code>18game-nuxt-static-test-h5-sg-1450169938</code></td>
+<td><code>18game-nuxt-static-test-pc-sg-1450169938</code></td>
+</tr>
+<tr>
+<td>腾讯 COS 区域</td>
+<td><code>ap-singapore</code></td>
+<td><code>ap-singapore</code></td>
+</tr>
+<tr>
+<td>腾讯 COS 原始域名</td>
+<td><code>18game-nuxt-static-test-h5-sg-1450169938.cos.ap-singapore.myqcloud.com</code></td>
+<td><code>18game-nuxt-static-test-pc-sg-1450169938.cos.ap-singapore.myqcloud.com</code></td>
+</tr>
+<tr>
+<td>腾讯 COS 公网直连</td>
+<td>私有，不对公网直连</td>
+<td>私有，不对公网直连</td>
+</tr>
+<tr>
+<td>EdgeOne CNAME</td>
+<td><code>test-h5-s3.hbabaxb.cn.eo.dnse4.com</code></td>
+<td><code>test-pc-s3.hbabaxb.cn.eo.dnse4.com</code></td>
+</tr>
+<tr>
+<td>EdgeOne Zone</td>
+<td><code>zone-3t1w9ksp60nn</code></td>
+<td><code>zone-3t1w9ksp60nn</code></td>
+</tr>
+<tr>
+<td>发布后刷新</td>
+<td><code>https://test-h5-s3.hbabaxb.cn/_nuxt/</code>、<code>https://test-h5-s3.hbabaxb.cn/images/</code></td>
+<td><code>https://test-pc-s3.hbabaxb.cn/_nuxt/</code>、<code>https://test-pc-s3.hbabaxb.cn/images/</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-H5-发版配置">3. H5 发版配置</h2>
+<p>当前按钮发布注入的关键配置：</p>
+<pre><code class="language-text">BEN_BOT_PRIMARY_URL=https://h5.youdianse-test.xyz
+BEN_BOT_ICP_ACCESS_URL=https://test-h5.hbabaxb.cn
+BEN_BOT_TENCENT_CDN_URL=https://test-h5-s3.hbabaxb.cn
+YOUDIANSE_H5_TEST_STATIC_CDN_URL=https://test-h5-s3.hbabaxb.cn
+YOUDIANSE_H5_TEST_STATIC_COS_BUCKET=18game-nuxt-static-test-h5-sg-1450169938
+YOUDIANSE_H5_TEST_STATIC_COS_REGION=ap-singapore
+YOUDIANSE_H5_TEST_STATIC_SYNC_DELETE=0
+YOUDIANSE_H5_TEST_TENCENT_CDN_PURGE_ENABLED=1
+YOUDIANSE_H5_TEST_TENCENT_CDN_ZONE_ID=zone-3t1w9ksp60nn
+</code></pre>
+<p>远程构建时，<code>.output/public</code> 会同步到：</p>
+<pre><code class="language-text">s3://18game-nuxt-static-test-h5
+s3://18game-nuxt-static-test-h5-sg-1450169938 --endpoint-url https://cos.ap-singapore.myqcloud.com
+</code></pre>
+<h2 id="4-PC-发版配置">4. PC 发版配置</h2>
+<p>当前按钮发布注入的关键配置：</p>
+<pre><code class="language-text">BEN_BOT_PRIMARY_URL=https://pc.youdianse-test.xyz
+BEN_BOT_ICP_ACCESS_URL=https://test-pc.hbabaxb.cn
+BEN_BOT_TENCENT_CDN_URL=https://test-pc-s3.hbabaxb.cn
+YOUDIANSE_PC_TEST_STATIC_CDN_URL=https://test-pc-s3.hbabaxb.cn
+YOUDIANSE_PC_TEST_STATIC_S3_BUCKET=18game-nuxt-static-test-pc
+YOUDIANSE_PC_TEST_STATIC_COS_BUCKET=18game-nuxt-static-test-pc-sg-1450169938
+YOUDIANSE_PC_TEST_STATIC_COS_REGION=ap-singapore
+YOUDIANSE_H5_TEST_STATIC_SYNC_DELETE=0
+YOUDIANSE_PC_TEST_TENCENT_CDN_PURGE_ENABLED=1
+YOUDIANSE_PC_TEST_TENCENT_CDN_ZONE_ID=zone-3t1w9ksp60nn
+</code></pre>
+<p>PC 复用 H5 发布引擎后，<code>.output/public</code> 会同步到：</p>
+<pre><code class="language-text">s3://18game-nuxt-static-test-pc
+s3://18game-nuxt-static-test-pc-sg-1450169938 --endpoint-url https://cos.ap-singapore.myqcloud.com
+</code></pre>
+<h2 id="5-DNS-与访问验证">5. DNS 与访问验证</h2>
+<p>DNS CNAME：</p>
+<pre><code class="language-text">test-h5.hbabaxb.cn -&gt; test-h5.hbabaxb.cn.eo.dnse4.com.
+test-pc.hbabaxb.cn -&gt; test-pc.hbabaxb.cn.eo.dnse4.com.
+test-h5-s3.hbabaxb.cn -&gt; test-h5-s3.hbabaxb.cn.eo.dnse4.com.
+test-pc-s3.hbabaxb.cn -&gt; test-pc-s3.hbabaxb.cn.eo.dnse4.com.
+</code></pre>
+<p>2026-07-29 18:06 抽测：</p>
+<table>
+<thead>
+<tr>
+<th>地址</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>https://test-h5-s3.hbabaxb.cn/version.txt</code></td>
+<td>连续 3 次 <code>HTTP/2 200</code></td>
+</tr>
+<tr>
+<td><code>https://test-pc-s3.hbabaxb.cn/version.txt</code></td>
+<td><code>HTTP/2 200</code></td>
+</tr>
+<tr>
+<td><code>https://18game-nuxt-static-test-h5.s3.ap-southeast-1.amazonaws.com/version.txt</code></td>
+<td><code>HTTP/1.1 200</code></td>
+</tr>
+<tr>
+<td><code>https://18game-nuxt-static-test-pc.s3.ap-southeast-1.amazonaws.com/version.txt</code></td>
+<td><code>HTTP/1.1 200</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-改造前注意点">6. 改造前注意点</h2>
+<ul>
+<li>前端构建产物优先展示腾讯新加坡静态资源域名：H5 用 <code>test-h5-s3.hbabaxb.cn</code>，PC 用 <code>test-pc-s3.hbabaxb.cn</code>。</li>
+<li>AWS 前端静态桶继续保留同步，作为公开桶和兜底验证。</li>
+<li>腾讯 COS 前端桶保持私有，只允许通过 EdgeOne/CDN 域名访问。</li>
+<li>页面入口备案域名和前端静态资源备案域名是两条链路：<code>test-h5/test-pc</code> 走页面入口，<code>test-h5-s3/test-pc-s3</code> 走静态资源。</li>
+<li>后端 uploads、APK/App 包不要混进这两个前端发布入口；后端资源仍按后端 AWS 老 S3 链路处理。</li>
+</ul>
+<h2 id="7-2026-07-29-20-45-PC-优化后链路-历史记录-21-19-已回退">7. 2026-07-29 20:45 PC 优化后链路（历史记录，21:19 已回退）</h2>
+<p>本节补充 PC 在图片鉴权改造后的历史关系。H5 仍按第 3 节链路运行；PC 在第 4 节基础上曾增加页面域名媒体反代，解决 <code>/images/...</code> 相对路径落到页面域名后返回 Nuxt HTML 的问题。</p>
+<p>2026-07-29 21:19 更新：前端打包资源数量少、域名变化频繁，给前端静态资源加 token 后引入 524、跨域和相对路径兼容问题，已回退为“前端静态资源不加密”。后续防盗刷只针对后端 uploads 图片另建腾讯 CDN/EdgeOne 反代域名处理。</p>
+<h3 id="7-1-PC-改造后访问关系">7.1 PC 改造后访问关系</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>域名或资源</th>
+<th>当前规则</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PC 页面主入口</td>
+<td><code>https://pc.youdianse-test.xyz</code></td>
+<td>页面容器入口，继续可直接访问</td>
+</tr>
+<tr>
+<td>PC 备案页面入口</td>
+<td><code>https://test-pc.hbabaxb.cn</code></td>
+<td>EdgeOne 到测试服务器，测试服务器 Nginx 进入 PC 容器</td>
+</tr>
+<tr>
+<td>PC 前端静态展示域名</td>
+<td><code>https://test-pc-s3.hbabaxb.cn</code></td>
+<td>EdgeOne 到腾讯新加坡 COS 私有桶</td>
+</tr>
+<tr>
+<td>PC AWS 前端静态桶</td>
+<td><code>s3://18game-nuxt-static-test-pc</code></td>
+<td>构建后继续同步，公开桶，保留兜底</td>
+</tr>
+<tr>
+<td>PC 腾讯 COS 前端桶</td>
+<td><code>18game-nuxt-static-test-pc-sg-1450169938</code></td>
+<td><code>ap-singapore</code>，私有，不允许公网直连</td>
+</tr>
+<tr>
+<td>PC EdgeOne CNAME</td>
+<td><code>test-pc-s3.hbabaxb.cn.eo.dnse4.com</code></td>
+<td>Gname/DNS 解析到 EdgeOne</td>
+</tr>
+<tr>
+<td>PC 后端 uploads/APK</td>
+<td>后端 AWS 老 S3</td>
+<td>不属于 PC 前端发布按钮，本次不切换</td>
+</tr>
+</tbody>
+</table>
+<h3 id="7-2-PC-图片-媒体鉴权边界-已回退">7.2 PC 图片/媒体鉴权边界（已回退）</h3>
+<p>PC 曾只对图片、SVG、WebP、视频等媒体资源做腾讯 URL 鉴权；<code>_nuxt</code> 下的 JS/CSS 保持不加密访问。该方案已于 2026-07-29 21:19 回退，不再作为当前发布规则。</p>
+<p>当前鉴权前缀：</p>
+<pre><code class="language-text">/images/
+/image/
+/video/
+/videos/
+/media/
+/favicon.ico
+/192.png
+/512.png
+</code></pre>
+<p>当前排除路径：</p>
+<pre><code class="language-text">/version.txt
+/version.json
+</code></pre>
+<p>历史效果：</p>
+<ul>
+<li>带 <code>token</code> 和 <code>t</code> 参数的媒体 URL 可通过 <code>test-pc-s3.hbabaxb.cn</code> 访问。</li>
+<li>不带 token 的媒体 URL 返回 403，避免 COS 私有桶资源被直接刷。</li>
+<li>JS/CSS 不加密，继续由浏览器正常跨域加载。</li>
+</ul>
+<h3 id="7-3-PC-页面域名媒体反代-保留为兼容-不再追加-token">7.3 PC 页面域名媒体反代（保留为兼容，不再追加 token）</h3>
+<p>PC 备案页面和原测试页面均可能出现 <code>/images/...</code> 这种相对路径。改造后，测试服务器 Nginx 对下列路径做反代：</p>
+<pre><code class="language-text">pc.youdianse-test.xyz/images/*      -&gt; test-pc-s3.hbabaxb.cn/images/*
+test-pc.hbabaxb.cn/images/*        -&gt; test-pc-s3.hbabaxb.cn/images/*
+pc.youdianse-test.xyz/image/*       -&gt; test-pc-s3.hbabaxb.cn/image/*
+test-pc.hbabaxb.cn/image/*         -&gt; test-pc-s3.hbabaxb.cn/image/*
+pc.youdianse-test.xyz/video/*       -&gt; test-pc-s3.hbabaxb.cn/video/*
+test-pc.hbabaxb.cn/video/*         -&gt; test-pc-s3.hbabaxb.cn/video/*
+pc.youdianse-test.xyz/videos/*      -&gt; test-pc-s3.hbabaxb.cn/videos/*
+test-pc.hbabaxb.cn/videos/*        -&gt; test-pc-s3.hbabaxb.cn/videos/*
+pc.youdianse-test.xyz/media/*       -&gt; test-pc-s3.hbabaxb.cn/media/*
+test-pc.hbabaxb.cn/media/*         -&gt; test-pc-s3.hbabaxb.cn/media/*
+</code></pre>
+<p>当前仍可保留页面域名 <code>/images/*</code> 到 <code>test-pc-s3.hbabaxb.cn</code> 的兼容反代，但不再要求 token。历史反代曾保留原始 query，例如：</p>
+<pre><code class="language-text">https://test-pc.hbabaxb.cn/images/bullet.svg?敏感凭据：[已脱敏]
+-&gt; https://test-pc-s3.hbabaxb.cn/images/bullet.svg?敏感凭据：[已脱敏]
+</code></pre>
+<h3 id="7-4-PC-发布与缓存刷新规则-当前为无鉴权">7.4 PC 发布与缓存刷新规则（当前为无鉴权）</h3>
+<p>PC 发布入口仍为：</p>
+<pre><code class="language-text">测试环境-游点涩-pc-发版
+</code></pre>
+<p>发布时：</p>
+<ol>
+<li>构建 PC 前端代码仓库 <code>web/youdianse-pc</code> 的 <code>dev</code> 分支。</li>
+<li>将 <code>.output/public</code> 同步到 AWS 前端静态桶 <code>s3://18game-nuxt-static-test-pc</code>。</li>
+<li>将 <code>.output/public</code> 同步到腾讯新加坡 COS 桶 <code>18game-nuxt-static-test-pc-sg-1450169938</code>。</li>
+<li>不再对前端图片、SVG、WebP、视频、JS、CSS 写入腾讯 URL 鉴权参数。</li>
+<li>刷新腾讯 EdgeOne/CDN：</li>
+</ol>
+<pre><code class="language-text">https://test-pc-s3.hbabaxb.cn/_nuxt/
+https://test-pc-s3.hbabaxb.cn/images/
+</code></pre>
+<p>2026-07-29 21:19 为了让回退后最新提交重新打包，发布结构版本已升级为：</p>
+<pre><code class="language-text">tooling-v20-frontend-static-no-auth
+</code></pre>
+<h3 id="7-5-PC-改造验证记录-历史">7.5 PC 改造验证记录（历史）</h3>
+<p>2026-07-29 20:45 验证：</p>
+<table>
+<thead>
+<tr>
+<th>验证项</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>https://pc.youdianse-test.xyz/version.json</code></td>
+<td><code>b209f18</code></td>
+</tr>
+<tr>
+<td><code>https://test-pc.hbabaxb.cn/version.json</code></td>
+<td><code>b209f18</code></td>
+</tr>
+<tr>
+<td><code>https://test-pc-s3.hbabaxb.cn/version.json</code></td>
+<td><code>b209f18</code></td>
+</tr>
+<tr>
+<td>HTML 双重静态域名前缀</td>
+<td>未发现 <code>test-pc-s3.hbabaxb.cn/https://test-pc-s3.hbabaxb.cn</code></td>
+</tr>
+<tr>
+<td><code>test-pc.hbabaxb.cn/images/placeholder.webp?...</code></td>
+<td><code>206 image/webp</code></td>
+</tr>
+<tr>
+<td><code>pc.youdianse-test.xyz/images/placeholder.webp?...</code></td>
+<td><code>206 image/webp</code></td>
+</tr>
+<tr>
+<td><code>test-pc.hbabaxb.cn/images/bullet.svg?...</code></td>
+<td><code>200 image/svg+xml</code></td>
+</tr>
+<tr>
+<td><code>test-pc.hbabaxb.cn/images/menu.svg?...</code></td>
+<td>连续 3 次 <code>200 image/svg+xml</code></td>
+</tr>
+<tr>
+<td><code>test-pc.hbabaxb.cn/images/index-new/main-bg.webp?...</code></td>
+<td>连续 3 次 <code>200 image/webp</code></td>
+</tr>
+<tr>
+<td>未签名 <code>test-pc-s3.hbabaxb.cn/images/bullet.svg</code></td>
+<td>403，符合鉴权预期</td>
+</tr>
+</tbody>
+</table>
+<p>相关详细修复文档：</p>
+<pre><code class="language-text">devops/python/ben-bot/doc/2026-07-29_2045-【修复Bug+网络调整】测试PC图片相对路径反代与腾讯鉴权修复记录.md
+</code></pre>
+<p>相关提交：</p>
+<pre><code class="language-text">e64b654 fix: proxy pc media assets through tencent cdn
+</code></pre>
+<h2 id="8-2026-07-29-21-19-当前状态-前端静态资源鉴权回退">8. 2026-07-29 21:19 当前状态：前端静态资源鉴权回退</h2>
+<p>当前规则：</p>
+<ul>
+<li>H5/PC 前端打包资源不做 URL token 鉴权。</li>
+<li>H5/PC 构建后仍双推 AWS 前端公开桶和腾讯新加坡 COS 私有桶。</li>
+<li>页面静态资源仍优先使用腾讯 EdgeOne 域名：H5 <code>test-h5-s3.hbabaxb.cn</code>，PC <code>test-pc-s3.hbabaxb.cn</code>。</li>
+<li>腾讯 COS 桶继续保持私有，不开放 COS 原始域名公网直连。</li>
+<li>EdgeOne 只作为前端静态资源 CDN，不再承担前端资源鉴权。</li>
+<li>后端 uploads 图片、APK/App 包仍走后端 AWS 老 S3；防盗刷改为单独设计后端 uploads 图片反代 CDN 域名。</li>
+</ul>
+<p>PC 回退验证：</p>
+<table>
+<thead>
+<tr>
+<th>验证项</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>https://pc.youdianse-test.xyz/version.json</code></td>
+<td><code>3dfe674</code></td>
+</tr>
+<tr>
+<td><code>https://test-pc.hbabaxb.cn/version.json</code></td>
+<td><code>3dfe674</code></td>
+</tr>
+<tr>
+<td><code>https://test-pc-s3.hbabaxb.cn/version.json</code></td>
+<td><code>3dfe674</code></td>
+</tr>
+<tr>
+<td><code>https://pc.youdianse-test.xyz/</code> HTML</td>
+<td>`[敏感内容已脱敏]</td>
+</tr>
+<tr>
+<td><code>https://test-pc.hbabaxb.cn/</code> HTML</td>
+<td>`[敏感内容已脱敏]</td>
+</tr>
+<tr>
+<td><code>https://test-pc-s3.hbabaxb.cn/images/signup/play.svg</code></td>
+<td><code>200 image/svg+xml</code></td>
+</tr>
+<tr>
+<td><code>https://test-pc-s3.hbabaxb.cn/images/bullet.svg</code></td>
+<td><code>200 image/svg+xml</code></td>
+</tr>
+<tr>
+<td><code>https://test-pc-s3.hbabaxb.cn/images/menu.svg</code></td>
+<td><code>200 image/svg+xml</code></td>
+</tr>
+<tr>
+<td><code>https://test-pc-s3.hbabaxb.cn/images/index-new/main-bg.webp</code></td>
+<td><code>200 image/webp</code></td>
+</tr>
+<tr>
+<td><code>https://test-pc.hbabaxb.cn/images/signup/play.svg</code></td>
+<td><code>200 image/svg+xml</code></td>
+</tr>
+</tbody>
+</table>
+<p>详细文档：</p>
+<pre><code class="language-text">devops/python/ben-bot/doc/2026-07-29_2119-【架构调整+回退】测试PC前端静态资源鉴权回退与后端uploads防盗刷方案.md
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-范围">1. 范围</a></li><li style="margin-left:0.0rem"><a href="#2-当前链路总览">2. 当前链路总览</a></li><li style="margin-left:0.0rem"><a href="#3-H5-发版配置">3. H5 发版配置</a></li><li style="margin-left:0.0rem"><a href="#4-PC-发版配置">4. PC 发版配置</a></li><li style="margin-left:0.0rem"><a href="#5-DNS-与访问验证">5. DNS 与访问验证</a></li><li style="margin-left:0.0rem"><a href="#6-改造前注意点">6. 改造前注意点</a></li><li style="margin-left:0.0rem"><a href="#7-2026-07-29-20-45-PC-优化后链路-历史记录-21-19-已回退">7. 2026-07-29 20:45 PC 优化后链路（历史记录，21:19 已回退）</a></li><li style="margin-left:0.8rem"><a href="#7-1-PC-改造后访问关系">7.1 PC 改造后访问关系</a></li><li style="margin-left:0.8rem"><a href="#7-2-PC-图片-媒体鉴权边界-已回退">7.2 PC 图片/媒体鉴权边界（已回退）</a></li><li style="margin-left:0.8rem"><a href="#7-3-PC-页面域名媒体反代-保留为兼容-不再追加-token">7.3 PC 页面域名媒体反代（保留为兼容，不再追加 token）</a></li><li style="margin-left:0.8rem"><a href="#7-4-PC-发布与缓存刷新规则-当前为无鉴权">7.4 PC 发布与缓存刷新规则（当前为无鉴权）</a></li><li style="margin-left:0.8rem"><a href="#7-5-PC-改造验证记录-历史">7.5 PC 改造验证记录（历史）</a></li><li style="margin-left:0.0rem"><a href="#8-2026-07-29-21-19-当前状态-前端静态资源鉴权回退">8. 2026-07-29 21:19 当前状态：前端静态资源鉴权回退</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-07-29</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Python</span><span class="tag">Nginx</span><span class="tag">自动化</span><span class="tag">CDN</span><span class="tag">DNS</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-29_1806-【运维记录】测试前端H5-PC备案域名与S3链…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607291806-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BNginx-%E6%B5%8B%E8%AF%95%E5%89%8D%E7%AB%AF%20H5-PC%20%E5%A4%87%E6%A1%88%E5%9F%9F%E5%90%8D%E4%B8%8E%20S3%20%E9%93%BE%E8%B7%AF%E7%B4%A2%E5%BC%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>测试前端 H5/PC 备案域名与 S3 链路索引。本文属于历史运维与项目交付 / 18Game 测试环境，这两个入口只负责前端构建产物 .output/public 的双推和页面静态资源访问。测试后端 uploads 图片、APK/App 包仍属于后端 AWS 老 S3 链路，不在本文两个前端发布按钮里改动。 远…</p>
+      <p>关键词：18Game 测试环境、Python、Nginx、自动化、CDN、DNS、故障排查、源码与配置、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、测试前端 H5/PC 备案域名与 S3 链路索引、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-69c3d5c4d8d7.html"><small>上一篇</small>测试环境根盘健康告警与 Docker 垃圾清理记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-254b6fbf4ab0.html"><small>下一篇</small>测试 PC 前端腾讯静态媒体资源鉴权改造记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cadc4bc2c9bd.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

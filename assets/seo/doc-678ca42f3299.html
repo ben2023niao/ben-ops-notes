@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>测试 H5/PC 前端静态资源与后端图片域名最终链路｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="测试 H5/PC 前端静态资源与后端图片域名最终链路。本文属于历史运维与项目交付 / 18Game 测试环境，2026-07-29 当前测试环境 H5 和 PC 都已经使用备案域名访问后端 uploads 图片。 后端 uploads 图片现在同时存在两个可理解的域名： H5 前端静态资源仍走 test-h5-s…">
+  <meta name="keywords" content="18Game 测试环境，Shell，Python，Nginx，自动化，CDN，DNS，安全运维，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，测试 H5/PC 前端静态资源与后端图片域名最终链路，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-678ca42f3299.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-678ca42f3299.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607292212-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%B5%8B%E8%AF%95%20H5-PC%20%E5%89%8D%E7%AB%AF%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E4%B8%8E%E5%90%8E%E7%AB%AF%E5%9B%BE%E7%89%87%E5%9F%9F%E5%90%8D%E6%9C%80%E7%BB%88%E9%93%BE%E8%B7%AF.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="测试 H5/PC 前端静态资源与后端图片域名最终链路">
+  <meta property="og:description" content="测试 H5/PC 前端静态资源与后端图片域名最终链路。本文属于历史运维与项目交付 / 18Game 测试环境，2026-07-29 当前测试环境 H5 和 PC 都已经使用备案域名访问后端 uploads 图片。 后端 uploads 图片现在同时存在两个可理解的域名： H5 前端静态资源仍走 test-h5-s…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-678ca42f3299.html">
+  <meta property="article:published_time" content="2026-07-29T22:12:00+08:00">
+  <meta property="article:modified_time" content="2026-07-29 22:12">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="测试 H5/PC 前端静态资源与后端图片域名最终链路">
+  <meta name="twitter:description" content="测试 H5/PC 前端静态资源与后端图片域名最终链路。本文属于历史运维与项目交付 / 18Game 测试环境，2026-07-29 当前测试环境 H5 和 PC 都已经使用备案域名访问后端 uploads 图片。 后端 uploads 图片现在同时存在两个可理解的域名： H5 前端静态资源仍走 test-h5-s…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-678ca42f3299.html#article","headline":"测试 H5/PC 前端静态资源与后端图片域名最终链路","description":"测试 H5/PC 前端静态资源与后端图片域名最终链路。本文属于历史运维与项目交付 / 18Game 测试环境，2026-07-29 当前测试环境 H5 和 PC 都已经使用备案域名访问后端 uploads 图片。 后端 uploads 图片现在同时存在两个可理解的域名： H5 前端静态资源仍走 test-h5-s…","datePublished":"2026-07-29T22:12:00+08:00","dateModified":"2026-07-29 22:12","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Shell","Python","Nginx","自动化","CDN","DNS","安全运维","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","测试 H5/PC 前端静态资源与后端图片域名最终链路","devops"],"wordCount":1385,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-678ca42f3299.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-678ca42f3299.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"测试 H5/PC 前端静态资源与后端图片域名最终链路","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-678ca42f3299.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>测试 H5/PC 前端静态资源与后端图片域名最终链路</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>测试 H5/PC 前端静态资源与后端图片域名最终链路</h1>
+      <p class="lede">测试 H5/PC 前端静态资源与后端图片域名最终链路。本文属于历史运维与项目交付 / 18Game 测试环境，2026-07-29 当前测试环境 H5 和 PC 都已经使用备案域名访问后端 uploads 图片。 后端 uploads 图片现在同时存在两个可理解的域名： H5 前端静态资源仍走 test-h5-s…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-07-29T22:12:00+08:00">发布于 2026-07-29</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,385 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-29_2212-【运维记录】测试H5-PC前端静态资源与后端图片域名最终链路.md</code></p>
+<p>整理日期：2026-07-29 22:12｜日期依据：文件名日期</p>
+</blockquote>
+<p>环境标签：测试环境</p>
+<h2 id="1-当前结论">1. 当前结论</h2>
+<p>2026-07-29 当前测试环境 H5 和 PC 都已经使用备案域名访问后端 uploads 图片。</p>
+<p>现在图片/资源域名分成两类：</p>
+<pre><code class="language-text">1. 前端打包静态资源域名
+   用于 _nuxt、JS、CSS、前端自带图片、SVG、WebP 等。
+
+2. 后端 uploads 图片展示域名
+   用于后台上传后由接口返回的 /uploads 图片。
+</code></pre>
+<p>后端 uploads 图片现在同时存在两个可理解的域名：</p>
+<pre><code class="language-text">老 AWS CloudFront 域名:
+https://d1rct3ku9n07y3.cloudfront.net
+
+新腾讯 EdgeOne 备案域名:
+https://test-img.hbabaxb.cn
+</code></pre>
+<p>当前后端接口展示优先返回新域名：</p>
+<pre><code class="language-text">https://test-img.hbabaxb.cn/uploads/...
+</code></pre>
+<h2 id="2-H5-当前链路">2. H5 当前链路</h2>
+<p>页面入口：</p>
+<pre><code class="language-text">AWS/原测试入口:
+https://h5.youdianse-test.xyz
+
+备案入口:
+https://test-h5.hbabaxb.cn
+</code></pre>
+<p>H5 前端打包静态资源：</p>
+<pre><code class="language-text">展示域名:
+https://test-h5-s3.hbabaxb.cn
+
+AWS 前端公开桶:
+s3://18game-nuxt-static-test-h5
+区域: ap-southeast-1
+
+腾讯 COS 私有桶:
+18game-nuxt-static-test-h5-sg-1450169938
+区域: ap-singapore
+
+EdgeOne CNAME:
+test-h5-s3.hbabaxb.cn.eo.dnse4.com
+</code></pre>
+<p>H5 后端 uploads 图片：</p>
+<pre><code class="language-text">接口返回展示域名:
+https://test-img.hbabaxb.cn/uploads/...
+
+原始 AWS CloudFront 源:
+https://d1rct3ku9n07y3.cloudfront.net/uploads/...
+</code></pre>
+<p>说明：</p>
+<ul>
+<li>H5 前端静态资源仍走 <code>test-h5-s3.hbabaxb.cn</code>。</li>
+<li>H5 页面里接口返回的后端上传图片会走 <code>test-img.hbabaxb.cn</code>。</li>
+<li>本次没有修改 H5 前端发布脚本。</li>
+</ul>
+<h2 id="3-PC-当前链路">3. PC 当前链路</h2>
+<p>页面入口：</p>
+<pre><code class="language-text">AWS/原测试入口:
+https://pc.youdianse-test.xyz
+
+备案入口:
+https://test-pc.hbabaxb.cn
+</code></pre>
+<p>PC 前端打包静态资源：</p>
+<pre><code class="language-text">展示域名:
+https://test-pc-s3.hbabaxb.cn
+
+AWS 前端公开桶:
+s3://18game-nuxt-static-test-pc
+区域: ap-southeast-1
+
+腾讯 COS 私有桶:
+18game-nuxt-static-test-pc-sg-1450169938
+区域: ap-singapore
+
+EdgeOne CNAME:
+test-pc-s3.hbabaxb.cn.eo.dnse4.com
+</code></pre>
+<p>PC 后端 uploads 图片：</p>
+<pre><code class="language-text">接口返回展示域名:
+https://test-img.hbabaxb.cn/uploads/...
+
+原始 AWS CloudFront 源:
+https://d1rct3ku9n07y3.cloudfront.net/uploads/...
+</code></pre>
+<p>说明：</p>
+<ul>
+<li>PC 前端静态资源仍走 <code>test-pc-s3.hbabaxb.cn</code>。</li>
+<li>PC 页面里接口返回的后端上传图片会走 <code>test-img.hbabaxb.cn</code>。</li>
+<li>PC 前端静态资源加密方案已经回退，当前不再给前端图片、SVG、WebP、JS、CSS 追加 token。</li>
+</ul>
+<h2 id="4-后端-uploads-图片链路">4. 后端 uploads 图片链路</h2>
+<p>当前后端配置：</p>
+<pre><code class="language-text">配置项: Mongo config.code = cdn_image
+当前展示域名: https://test-img.hbabaxb.cn
+</code></pre>
+<p>实际访问链路：</p>
+<pre><code class="language-text">浏览器
+-&gt; https://test-img.hbabaxb.cn/uploads/...
+-&gt; 腾讯 EdgeOne
+-&gt; 测试源站 Nginx
+-&gt; AWS CloudFront d1rct3ku9n07y3.cloudfront.net
+-&gt; AWS S3 uploads 图片
+</code></pre>
+<p>样例图片：</p>
+<pre><code class="language-text">https://test-img.hbabaxb.cn/uploads/2026-01-28/86403be1f8740d6caacc472f28570703_large.webp
+</code></pre>
+<h2 id="5-目前两个图片域名怎么理解">5. 目前两个图片域名怎么理解</h2>
+<h3 id="5-1-老-AWS-域名">5.1 老 AWS 域名</h3>
+<pre><code class="language-text">https://d1rct3ku9n07y3.cloudfront.net
+</code></pre>
+<p>用途：</p>
+<ul>
+<li>仍是 AWS uploads 图片源链路。</li>
+<li>后台上传仍写 AWS S3。</li>
+<li><code>test-img.hbabaxb.cn</code> 回源时仍会访问它。</li>
+</ul>
+<p>当前状态：</p>
+<ul>
+<li>不作为后端接口首选展示域名。</li>
+<li>可以作为排查和回滚时的源站参考。</li>
+</ul>
+<h3 id="5-2-新腾讯备案-CDN-域名">5.2 新腾讯备案 CDN 域名</h3>
+<pre><code class="language-text">https://test-img.hbabaxb.cn
+</code></pre>
+<p>用途：</p>
+<ul>
+<li>H5/PC 页面展示后端 uploads 图片。</li>
+<li>使用备案域名和腾讯 EdgeOne 入口。</li>
+<li>后端接口当前返回该域名。</li>
+</ul>
+<p>当前状态：</p>
+<ul>
+<li>H5 和 PC 已经看到该域名。</li>
+<li>图片可正常 200。</li>
+<li>因页面使用 <code>no-referrer</code>，当前 Nginx 允许空 Referer，外部带异常 Referer 的热链仍返回 403。</li>
+</ul>
+<h2 id="6-发布规则">6. 发布规则</h2>
+<p>H5/PC 前端发布：</p>
+<pre><code class="language-text">构建 .output/public
+-&gt; 同步 AWS 前端静态桶
+-&gt; 同步腾讯新加坡 COS 私有桶
+-&gt; 页面前端静态资源优先走 test-h5-s3 / test-pc-s3
+-&gt; 发布后刷新对应 EdgeOne/CDN 的 _nuxt/ 和 images/
+</code></pre>
+<p>后端 uploads 图片：</p>
+<pre><code class="language-text">后台上传
+-&gt; 仍上传到 AWS S3
+-&gt; 仍可通过 AWS CloudFront 源域名访问
+-&gt; 后端展示配置返回 test-img.hbabaxb.cn
+-&gt; 浏览器通过腾讯 EdgeOne 访问图片
+</code></pre>
+<p>不要混淆：</p>
+<ul>
+<li><code>test-h5-s3.hbabaxb.cn</code> / <code>test-pc-s3.hbabaxb.cn</code> 是前端构建产物域名。</li>
+<li><code>test-img.hbabaxb.cn</code> 是后端 uploads 图片展示域名。</li>
+<li>后端 APK/App 客户端包不在本次链路调整范围内。</li>
+</ul>
+<h2 id="7-当前验证">7. 当前验证</h2>
+<p>H5：</p>
+<pre><code class="language-text">页面:
+https://h5.youdianse-test.xyz/
+
+后端 uploads 图片:
+https://test-img.hbabaxb.cn/uploads/...
+
+样例状态:
+200 image/webp
+</code></pre>
+<p>PC：</p>
+<pre><code class="language-text">页面:
+https://pc.youdianse-test.xyz/
+https://test-pc.hbabaxb.cn/
+
+后端 uploads 图片:
+https://test-img.hbabaxb.cn/uploads/...
+
+样例状态:
+200 image/webp
+</code></pre>
+<p>抽样：</p>
+<pre><code class="language-text">https://test-img.hbabaxb.cn/uploads/2026-01-28/86403be1f8740d6caacc472f28570703_large.webp
+返回: 200 image/webp
+</code></pre>
+<p>外部 Referer 防护：</p>
+<pre><code class="language-text">Referer: https://example.com/
+返回: 403
+</code></pre>
+<h2 id="8-影响说明">8. 影响说明</h2>
+<p>对 H5：</p>
+<ul>
+<li>不影响 H5 前端静态资源发布。</li>
+<li>H5 页面调用测试后端接口时，后端 uploads 图片会使用 <code>test-img.hbabaxb.cn</code>。</li>
+</ul>
+<p>对 PC：</p>
+<ul>
+<li>不影响 PC 前端静态资源发布。</li>
+<li>PC 页面调用测试后端接口时，后端 uploads 图片会使用 <code>test-img.hbabaxb.cn</code>。</li>
+</ul>
+<p>对后台上传：</p>
+<ul>
+<li>不影响上传功能。</li>
+<li>上传仍写 AWS S3。</li>
+<li>只是展示域名从 CloudFront 切到 <code>test-img.hbabaxb.cn</code>。</li>
+</ul>
+<p>对 APK/App 包：</p>
+<ul>
+<li>本次不改。</li>
+</ul>
+<h2 id="9-关联文档">9. 关联文档</h2>
+<pre><code class="language-text">devops/python/ben-bot/doc/2026-07-29_1806-【运维记录】测试前端H5-PC备案域名与S3链路索引.md
+devops/python/ben-bot/doc/2026-07-29_2155-【网络调整+安全优化】测试后端uploads图片EdgeOne反代与防盗刷落地记录.md
+devops/python/ben-bot/doc/2026-07-29_2203-【运维记录】测试PC前端与后端uploads图片反代影响说明.md
+</code></pre>
+<h2 id="10-关联提交">10. 关联提交</h2>
+<pre><code class="language-text">f631b59 fix: add test uploads image cdn proxy
+97061fd docs: explain test pc image proxy impact
+3f7b944 fix: allow no referrer for test image proxy
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-当前结论">1. 当前结论</a></li><li style="margin-left:0.0rem"><a href="#2-H5-当前链路">2. H5 当前链路</a></li><li style="margin-left:0.0rem"><a href="#3-PC-当前链路">3. PC 当前链路</a></li><li style="margin-left:0.0rem"><a href="#4-后端-uploads-图片链路">4. 后端 uploads 图片链路</a></li><li style="margin-left:0.0rem"><a href="#5-目前两个图片域名怎么理解">5. 目前两个图片域名怎么理解</a></li><li style="margin-left:0.8rem"><a href="#5-1-老-AWS-域名">5.1 老 AWS 域名</a></li><li style="margin-left:0.8rem"><a href="#5-2-新腾讯备案-CDN-域名">5.2 新腾讯备案 CDN 域名</a></li><li style="margin-left:0.0rem"><a href="#6-发布规则">6. 发布规则</a></li><li style="margin-left:0.0rem"><a href="#7-当前验证">7. 当前验证</a></li><li style="margin-left:0.0rem"><a href="#8-影响说明">8. 影响说明</a></li><li style="margin-left:0.0rem"><a href="#9-关联文档">9. 关联文档</a></li><li style="margin-left:0.0rem"><a href="#10-关联提交">10. 关联提交</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-07-29</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Nginx</span><span class="tag">自动化</span><span class="tag">CDN</span><span class="tag">DNS</span><span class="tag">安全运维</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-29_2212-【运维记录】测试H5-PC前端静态资源与后端图…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607292212-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%B5%8B%E8%AF%95%20H5-PC%20%E5%89%8D%E7%AB%AF%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E4%B8%8E%E5%90%8E%E7%AB%AF%E5%9B%BE%E7%89%87%E5%9F%9F%E5%90%8D%E6%9C%80%E7%BB%88%E9%93%BE%E8%B7%AF.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>测试 H5/PC 前端静态资源与后端图片域名最终链路。本文属于历史运维与项目交付 / 18Game 测试环境，2026-07-29 当前测试环境 H5 和 PC 都已经使用备案域名访问后端 uploads 图片。 后端 uploads 图片现在同时存在两个可理解的域名： H5 前端静态资源仍走 test-h5-s…</p>
+      <p>关键词：18Game 测试环境、Shell、Python、Nginx、自动化、CDN、DNS、安全运维、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、测试 H5/PC 前端静态资源与后端图片域名最终链路、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9d4984392fac.html"><small>上一篇</small>测试 PC 前端与后端 uploads 图片反代影响说明</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b4b3a34c6986.html"><small>下一篇</small>测试后端 uploads 图片签名 URL 准备态记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-678ca42f3299.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

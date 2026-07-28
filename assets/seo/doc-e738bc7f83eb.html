@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>测试后端 uploads 图片 EdgeOne 反代与防盗刷落地记录｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="测试后端 uploads 图片 EdgeOne 反代与防盗刷落地记录。本文属于历史运维与项目交付 / 18Game 测试环境，测试 PC 前端静态资源曾尝试加 token 鉴权，但前端页面域名和测试域名变化频繁，容易引入 CORS、524、相对路径和缓存兼容问题。 前端打包资源不再加密，H5/PC 的 _nuxt…">
+  <meta name="keywords" content="18Game 测试环境，Shell，Python，Nginx，自动化，CDN，DNS，安全运维，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，测试后端 uploads 图片 EdgeOne 反代与防盗刷落地记录，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e738bc7f83eb.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e738bc7f83eb.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607292155-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%B5%8B%E8%AF%95%E5%90%8E%E7%AB%AF%20uploads%20%E5%9B%BE%E7%89%87%20EdgeOne%20%E5%8F%8D%E4%BB%A3%E4%B8%8E%E9%98%B2%E7%9B%97%E5%88%B7%E8%90%BD%E5%9C%B0%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="测试后端 uploads 图片 EdgeOne 反代与防盗刷落地记录">
+  <meta property="og:description" content="测试后端 uploads 图片 EdgeOne 反代与防盗刷落地记录。本文属于历史运维与项目交付 / 18Game 测试环境，测试 PC 前端静态资源曾尝试加 token 鉴权，但前端页面域名和测试域名变化频繁，容易引入 CORS、524、相对路径和缓存兼容问题。 前端打包资源不再加密，H5/PC 的 _nuxt…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e738bc7f83eb.html">
+  <meta property="article:published_time" content="2026-07-29T21:55:00+08:00">
+  <meta property="article:modified_time" content="2026-07-29 21:55">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="测试后端 uploads 图片 EdgeOne 反代与防盗刷落地记录">
+  <meta name="twitter:description" content="测试后端 uploads 图片 EdgeOne 反代与防盗刷落地记录。本文属于历史运维与项目交付 / 18Game 测试环境，测试 PC 前端静态资源曾尝试加 token 鉴权，但前端页面域名和测试域名变化频繁，容易引入 CORS、524、相对路径和缓存兼容问题。 前端打包资源不再加密，H5/PC 的 _nuxt…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e738bc7f83eb.html#article","headline":"测试后端 uploads 图片 EdgeOne 反代与防盗刷落地记录","description":"测试后端 uploads 图片 EdgeOne 反代与防盗刷落地记录。本文属于历史运维与项目交付 / 18Game 测试环境，测试 PC 前端静态资源曾尝试加 token 鉴权，但前端页面域名和测试域名变化频繁，容易引入 CORS、524、相对路径和缓存兼容问题。 前端打包资源不再加密，H5/PC 的 _nuxt…","datePublished":"2026-07-29T21:55:00+08:00","dateModified":"2026-07-29 21:55","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Shell","Python","Nginx","自动化","CDN","DNS","安全运维","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","测试后端 uploads 图片 EdgeOne 反代与防盗刷落地记录","devops"],"wordCount":1416,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e738bc7f83eb.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e738bc7f83eb.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"测试后端 uploads 图片 EdgeOne 反代与防盗刷落地记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e738bc7f83eb.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>测试后端 uploads 图片 EdgeOne 反代与防盗刷落地记录</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>测试后端 uploads 图片 EdgeOne 反代与防盗刷落地记录</h1>
+      <p class="lede">测试后端 uploads 图片 EdgeOne 反代与防盗刷落地记录。本文属于历史运维与项目交付 / 18Game 测试环境，测试 PC 前端静态资源曾尝试加 token 鉴权，但前端页面域名和测试域名变化频繁，容易引入 CORS、524、相对路径和缓存兼容问题。 前端打包资源不再加密，H5/PC 的 _nuxt…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-07-29T21:55:00+08:00">发布于 2026-07-29</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,416 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-29_2155-【网络调整+安全优化】测试后端uploads图片EdgeOne反代与防盗刷落地记录.md</code></p>
+<p>整理日期：2026-07-29 21:55｜日期依据：文件名日期</p>
+</blockquote>
+<p>环境标签：测试环境</p>
+<h2 id="1-背景">1. 背景</h2>
+<p>测试 PC 前端静态资源曾尝试加 token 鉴权，但前端页面域名和测试域名变化频繁，容易引入 CORS、524、相对路径和缓存兼容问题。</p>
+<p>最终调整方向：</p>
+<ul>
+<li>前端打包资源不再加密，H5/PC 的 <code>_nuxt</code>、JS、CSS、前端图片继续按现有 S3/COS 静态资源链路发布。</li>
+<li>后端 uploads 图片才是主要盗刷风险点，单独新建腾讯 EdgeOne 反代域名做防盗刷。</li>
+<li>不改后台上传逻辑，上传仍继续写 AWS S3。</li>
+<li>只把后端展示域名从 AWS CloudFront 切到腾讯 EdgeOne 域名。</li>
+</ul>
+<h2 id="2-本次范围">2. 本次范围</h2>
+<p>测试环境：</p>
+<pre><code class="language-text">页面入口:
+- https://pc.youdianse-test.xyz
+- https://test-pc.hbabaxb.cn
+
+后端 uploads 原展示域名:
+- https://d1rct3ku9n07y3.cloudfront.net
+
+后端 uploads 新展示域名:
+- https://test-img.hbabaxb.cn
+</code></pre>
+<p>不改动：</p>
+<ul>
+<li>前端打包静态资源鉴权。</li>
+<li>测试 H5 当前页面资源链路。</li>
+<li>后台上传 AWS S3 逻辑。</li>
+<li>APK/App 客户端包链路。</li>
+<li>线上环境。</li>
+</ul>
+<h2 id="3-EdgeOne-与-DNS">3. EdgeOne 与 DNS</h2>
+<p>新增 EdgeOne 加速域名：</p>
+<pre><code class="language-text">test-img.hbabaxb.cn
+</code></pre>
+<p>DNSPod 解析：</p>
+<pre><code class="language-text">主机记录: test-img
+记录类型: CNAME
+记录值: test-img.hbabaxb.cn.eo.dnse4.com
+TTL: 600
+RecordId: 66127418
+</code></pre>
+<p>当前反代链路：</p>
+<pre><code class="language-text">浏览器
+-&gt; test-img.hbabaxb.cn
+-&gt; 腾讯 EdgeOne
+-&gt; 测试源站 Nginx 38.92.8.34:80
+-&gt; AWS CloudFront d1rct3ku9n07y3.cloudfront.net
+-&gt; AWS S3 uploads 对象
+</code></pre>
+<p>说明：</p>
+<ul>
+<li>最初 EdgeOne 直接回源 CloudFront 时，需要设置回源 Host 为 <code>d1rct3ku9n07y3.cloudfront.net</code>，否则 CloudFront 返回 403。</li>
+<li>为了实现 Referer 防盗刷并避免 EdgeOne 缓存绕过，最终改为 EdgeOne 回源测试 Nginx，由 Nginx 做 Referer 白名单判断和 no-store 响应头。</li>
+</ul>
+<h2 id="4-测试源站-Nginx">4. 测试源站 Nginx</h2>
+<p>本地配置文件：</p>
+<pre><code class="language-text">devops/python/ben-bot/data/scripts/测试环境-游点涩-pc-发版/nginx/test-img.hbabaxb.cn.conf
+</code></pre>
+<p>服务器配置文件：</p>
+<pre><code class="language-text">/www/server/panel/vhost/nginx/test-img.hbabaxb.cn.conf
+</code></pre>
+<p>关键策略：</p>
+<pre><code class="language-text">只允许 /uploads/*
+允许 Referer / 空 Referer:
+- none
+- *.hbabaxb.cn
+- *.youdianse-test.xyz
+
+非本站 Referer:
+- 返回 403
+
+缓存控制:
+- Cache-Control: private, no-store, max-age=0
+- Vary: Referer
+</code></pre>
+<p>这样处理的原因：</p>
+<ul>
+<li>如果 EdgeOne 缓存了允许 Referer 的 200 图片，再被无 Referer 请求命中同一缓存，会绕过源站 Referer 校验。</li>
+<li>源站统一返回 no-store 后，EdgeOne 不缓存该反代图片，Referer 判断每次回到 Nginx 执行。</li>
+</ul>
+<h2 id="5-后端配置变更">5. 后端配置变更</h2>
+<p>后端配置项：</p>
+<pre><code class="language-text">Mongo config.code = cdn_image
+</code></pre>
+<p>变更内容：</p>
+<pre><code class="language-text">将 cdn_image 中 CloudFront 展示项:
+https://d1rct3ku9n07y3.cloudfront.net
+
+替换为:
+https://test-img.hbabaxb.cn
+</code></pre>
+<p>替换结果：</p>
+<pre><code class="language-text">替换数量: 2
+system_config 缓存: 已删除
+</code></pre>
+<p>备份文件：</p>
+<pre><code class="language-text">测试后端容器:
+/var/www/html/youdianse-php/runtime/logs/cdn_image_backup_20260729_215058.txt
+</code></pre>
+<p>保持不变：</p>
+<ul>
+<li>后台上传仍写 AWS S3。</li>
+<li>后端客户端包/APK/App 链路不切。</li>
+<li>腾讯 COS uploads 备用配置不删除。</li>
+</ul>
+<h2 id="6-验证结果">6. 验证结果</h2>
+<p>DNS：</p>
+<pre><code class="language-text">test-img.hbabaxb.cn CNAME test-img.hbabaxb.cn.eo.dnse4.com
+</code></pre>
+<p>样例图片：</p>
+<pre><code class="language-text">https://test-img.hbabaxb.cn/uploads/2026-03-02/809f5e380d5eec76d232b5d5a2ca634d.png
+</code></pre>
+<p>CDN 防盗刷验证：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Referer: https://test-pc.hbabaxb.cn/</code></td>
+<td><code>200 image/webp</code></td>
+</tr>
+<tr>
+<td>无 Referer</td>
+<td><code>200 image/webp</code></td>
+</tr>
+<tr>
+<td><code>Referer: https://example.com/</code></td>
+<td><code>403 text/html</code></td>
+</tr>
+<tr>
+<td>再次允许 Referer</td>
+<td><code>200 image/webp</code></td>
+</tr>
+</tbody>
+</table>
+<p>2026-07-29 22:05 修正：</p>
+<ul>
+<li><code>pc.youdianse-test.xyz</code> 页面当前 <code>Referrer-Policy</code> 为 <code>no-referrer</code>，浏览器正常加载 <code>test-img</code> 图片时不会携带 Referer。</li>
+<li>原先“无 Referer 返回 403”的策略会误伤正常 PC 页面图片，导致页面图片全部 403。</li>
+<li>已将 Nginx <code>valid_referers</code> 调整为 <code>none *.hbabaxb.cn *.youdianse-test.xyz</code>，先保证页面恢复。</li>
+<li>调整后：无 Referer 样例图 <code>200 image/webp</code>，<code>Referer: https://example.com/</code> 仍为 <code>403 text/html</code>。</li>
+</ul>
+<p>页面返回验证：</p>
+<pre><code class="language-text">https://test-pc.hbabaxb.cn/
+命中 test-img.hbabaxb.cn: 86 处
+
+https://pc.youdianse-test.xyz/
+命中 test-img.hbabaxb.cn: 86 处
+</code></pre>
+<p>补充验证：</p>
+<pre><code class="language-text">2026-07-29 22:00 从当前本地网络抽测多个 EdgeOne A 记录：
+- 测试源站 Nginx 直连: 允许 Referer 200，外部 Referer 403
+- 多数 EdgeOne 节点: 允许 Referer 200
+- 个别 EdgeOne A 记录: 当前本地网络直连超时
+</code></pre>
+<p>判断：</p>
+<ul>
+<li>后端配置、测试源站 Nginx 和防盗刷策略均已生效。</li>
+<li>个别 EdgeOne IP 超时更偏向新域名边缘调度/网络可达性差异，需继续观察 DNS 调度和边缘节点状态。</li>
+</ul>
+<p>结论：</p>
+<ul>
+<li>后端展示域名已经生效。</li>
+<li>测试 PC 备案入口和原 AWS 页面入口均能使用新 uploads 展示域名。</li>
+<li>带外部 Referer 的热链会被拦截。</li>
+<li>因 PC 页面本身使用 <code>no-referrer</code>，当前必须允许空 Referer；这属于兼容性取舍，不能作为强防盗刷方案。</li>
+</ul>
+<h2 id="7-回滚方式">7. 回滚方式</h2>
+<p>如需回滚：</p>
+<ol>
+<li>从备份文件恢复 <code>cdn_image</code> 原值。</li>
+<li>删除后端缓存 <code>system_config</code>。</li>
+<li>可选择把 EdgeOne <code>test-img.hbabaxb.cn</code> 保留为空闲备用，或暂停该加速域名。</li>
+</ol>
+<p>回滚目标：</p>
+<pre><code class="language-text">后端 uploads 展示域名恢复到:
+https://d1rct3ku9n07y3.cloudfront.net
+</code></pre>
+<p>注意：</p>
+<ul>
+<li>回滚不需要改上传逻辑。</li>
+<li>回滚不需要动前端 H5/PC 发布脚本。</li>
+<li>如果只暂停 EdgeOne 但不回滚 <code>cdn_image</code>，前端页面会继续拿到 <code>test-img.hbabaxb.cn</code>，可能造成图片不可用。</li>
+</ul>
+<h2 id="8-飞机群通知">8. 飞机群通知</h2>
+<p>目标群：</p>
+<pre><code class="language-text">稳定备案域名+腾讯云原厂
+</code></pre>
+<p>已按步骤通知：</p>
+<ol>
+<li>开始改造测试后台 uploads 图片反代。</li>
+<li>确认 <code>test-img.hbabaxb.cn</code> 尚未存在。</li>
+<li>创建 EdgeOne 加速域名。</li>
+<li>创建 DNSPod CNAME。</li>
+<li>验证 DNS 和 CloudFront 原图。</li>
+<li>修正 EdgeOne 回源 Host。</li>
+<li>绑定 EdgeOne 免费证书。</li>
+<li>增加测试源站 Nginx Referer 防盗刷。</li>
+<li>修复 EdgeOne 缓存绕过问题，增加 no-store。</li>
+<li>切换后端 <code>cdn_image</code> 展示域名。</li>
+<li>验证页面返回和防盗刷结果。</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-背景">1. 背景</a></li><li style="margin-left:0.0rem"><a href="#2-本次范围">2. 本次范围</a></li><li style="margin-left:0.0rem"><a href="#3-EdgeOne-与-DNS">3. EdgeOne 与 DNS</a></li><li style="margin-left:0.0rem"><a href="#4-测试源站-Nginx">4. 测试源站 Nginx</a></li><li style="margin-left:0.0rem"><a href="#5-后端配置变更">5. 后端配置变更</a></li><li style="margin-left:0.0rem"><a href="#6-验证结果">6. 验证结果</a></li><li style="margin-left:0.0rem"><a href="#7-回滚方式">7. 回滚方式</a></li><li style="margin-left:0.0rem"><a href="#8-飞机群通知">8. 飞机群通知</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-07-29</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Nginx</span><span class="tag">自动化</span><span class="tag">CDN</span><span class="tag">DNS</span><span class="tag">安全运维</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-29_2155-【网络调整+安全优化】测试后端uploads图…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607292155-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%B5%8B%E8%AF%95%E5%90%8E%E7%AB%AF%20uploads%20%E5%9B%BE%E7%89%87%20EdgeOne%20%E5%8F%8D%E4%BB%A3%E4%B8%8E%E9%98%B2%E7%9B%97%E5%88%B7%E8%90%BD%E5%9C%B0%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>测试后端 uploads 图片 EdgeOne 反代与防盗刷落地记录。本文属于历史运维与项目交付 / 18Game 测试环境，测试 PC 前端静态资源曾尝试加 token 鉴权，但前端页面域名和测试域名变化频繁，容易引入 CORS、524、相对路径和缓存兼容问题。 前端打包资源不再加密，H5/PC 的 _nuxt…</p>
+      <p>关键词：18Game 测试环境、Shell、Python、Nginx、自动化、CDN、DNS、安全运维、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、测试后端 uploads 图片 EdgeOne 反代与防盗刷落地记录、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b33dde17b6e5.html"><small>上一篇</small>测试 PC 前端静态资源鉴权回退与后端 uploads 防盗刷方案</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9d4984392fac.html"><small>下一篇</small>测试 PC 前端与后端 uploads 图片反代影响说明</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e738bc7f83eb.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

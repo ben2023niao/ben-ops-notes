@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>测试环境到线上环境轻量工作台改造复刻详细说明｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="测试环境到线上环境轻量工作台改造复刻详细说明。本文属于业务系统运维 / 游点涩，文档日期：2026-07-29 环境：游点涩测试环境（dev 分支；线上环境复刻参考） 分类：运维记录 这份文档用于把测试环境已经完成的 workbench/ 轻量运维工作台，按同样思路复刻到线上环境 main 分支。 目标不是复制测…">
+  <meta name="keywords" content="游点涩，Linux，Shell，Python，Docker，Nginx，自动化，CDN，业务系统运维，业务系统运维 / 游点涩，测试环境到线上环境轻量工作台改造复刻详细说明，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0a1494b80a62.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0a1494b80a62.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607291944-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E5%88%B0%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E8%BD%BB%E9%87%8F%E5%B7%A5%E4%BD%9C%E5%8F%B0%E6%94%B9%E9%80%A0%E5%A4%8D%E5%88%BB%E8%AF%A6%E7%BB%86%E8%AF%B4%E6%98%8E.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="测试环境到线上环境轻量工作台改造复刻详细说明">
+  <meta property="og:description" content="测试环境到线上环境轻量工作台改造复刻详细说明。本文属于业务系统运维 / 游点涩，文档日期：2026-07-29 环境：游点涩测试环境（dev 分支；线上环境复刻参考） 分类：运维记录 这份文档用于把测试环境已经完成的 workbench/ 轻量运维工作台，按同样思路复刻到线上环境 main 分支。 目标不是复制测…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0a1494b80a62.html">
+  <meta property="article:published_time" content="2026-07-29T19:44:00+08:00">
+  <meta property="article:modified_time" content="2026-07-29 19:44">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="测试环境到线上环境轻量工作台改造复刻详细说明">
+  <meta name="twitter:description" content="测试环境到线上环境轻量工作台改造复刻详细说明。本文属于业务系统运维 / 游点涩，文档日期：2026-07-29 环境：游点涩测试环境（dev 分支；线上环境复刻参考） 分类：运维记录 这份文档用于把测试环境已经完成的 workbench/ 轻量运维工作台，按同样思路复刻到线上环境 main 分支。 目标不是复制测…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0a1494b80a62.html#article","headline":"测试环境到线上环境轻量工作台改造复刻详细说明","description":"测试环境到线上环境轻量工作台改造复刻详细说明。本文属于业务系统运维 / 游点涩，文档日期：2026-07-29 环境：游点涩测试环境（dev 分支；线上环境复刻参考） 分类：运维记录 这份文档用于把测试环境已经完成的 workbench/ 轻量运维工作台，按同样思路复刻到线上环境 main 分支。 目标不是复制测…","datePublished":"2026-07-29T19:44:00+08:00","dateModified":"2026-07-29 19:44","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Linux","Shell","Python","Docker","Nginx","自动化","CDN","业务系统运维","业务系统运维 / 游点涩","测试环境到线上环境轻量工作台改造复刻详细说明","php"],"wordCount":2962,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0a1494b80a62.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0a1494b80a62.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"测试环境到线上环境轻量工作台改造复刻详细说明","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0a1494b80a62.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>测试环境到线上环境轻量工作台改造复刻详细说明</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>测试环境到线上环境轻量工作台改造复刻详细说明</h1>
+      <p class="lede">测试环境到线上环境轻量工作台改造复刻详细说明。本文属于业务系统运维 / 游点涩，文档日期：2026-07-29 环境：游点涩测试环境（dev 分支；线上环境复刻参考） 分类：运维记录 这份文档用于把测试环境已经完成的 workbench/ 轻量运维工作台，按同样思路复刻到线上环境 main 分支。 目标不是复制测…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-07-29T19:44:00+08:00">发布于 2026-07-29</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,962 字</span>
+        <span class="badge">9 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-07-29-1944-【运维记录】测试环境到线上环境轻量工作台改造复刻详细说明.md</code></p>
+<p>整理日期：2026-07-29 19:44｜日期依据：文件名日期</p>
+</blockquote>
+<p>环境标签：混合</p>
+<p>文档日期：2026-07-29
+环境：游点涩测试环境（dev 分支；线上环境复刻参考）
+分类：运维记录</p>
+<h2 id="用途">用途</h2>
+<p>这份文档用于把测试环境已经完成的 <code>workbench/</code> 轻量运维工作台，按同样思路复刻到线上环境 <code>main</code> 分支。</p>
+<p>目标不是复制测试环境事实，而是复制工作台结构和工作方法，然后把内容替换为线上环境实时核验后的事实。</p>
+<h2 id="当前参考">当前参考</h2>
+<p>测试环境已完成：</p>
+<pre><code class="language-text">提交：96bf28b docs: add lightweight ops workbench
+入口：workbench/START_HERE.md
+仓库：/Users/ben/Documents/ben/docker/dev/docker-youdianse-php
+分支：dev
+</code></pre>
+<p>参考文件：</p>
+<pre><code class="language-text">workbench/START_HERE.md
+workbench/CURRENT_STATE.md
+workbench/CURRENT_TASK.md
+workbench/ACTIVE_TASKS.md
+workbench/DECISIONS.md
+workbench/MACHINE_ACCESS_MATRIX.md
+workbench/PROJECT_RUNTIME_CHAINS.md
+workbench/AUDIT_CONFLICTS.md
+workbench/handoff/
+</code></pre>
+<p>线上环境目标仓库：</p>
+<pre><code class="language-text">/Users/ben/Documents/ben/docker/main/docker-youdianse-php
+分支：main
+</code></pre>
+<h2 id="线上落地前必须确认">线上落地前必须确认</h2>
+<p>执行前先在本地线上仓库只读核对：</p>
+<pre><code class="language-bash">cd /Users/ben/Documents/ben/docker/main/docker-youdianse-php
+git status --short --branch
+git log -3 --oneline
+</code></pre>
+<p>注意：2026-07-29 在测试环境编写本文时，只读观察到本地线上仓库 <code>main</code> 已存在未提交变更和大量文档重命名痕迹。线上复刻前必须先确认这些变更是否属于当前用户的工作：</p>
+<pre><code class="language-text">如果是用户正在处理的变更：不要覆盖、不要回滚，基于现状继续。
+如果是已完成但未提交的文档重命名：先让用户确认是否提交。
+如果不确定来源：停止写操作，先问用户。
+</code></pre>
+<p>不要在未确认 dirty workspace 来源时执行：</p>
+<pre><code class="language-bash">git reset --hard
+git checkout -- .
+git clean -fd
+</code></pre>
+<h2 id="线上工作台目录">线上工作台目录</h2>
+<p>线上分支建议创建：</p>
+<pre><code class="language-text">workbench/
+├─ START_HERE.md
+├─ CURRENT_STATE.md
+├─ CURRENT_TASK.md
+├─ ACTIVE_TASKS.md
+├─ DECISIONS.md
+├─ MACHINE_ACCESS_MATRIX.md
+├─ PROJECT_RUNTIME_CHAINS.md
+├─ AUDIT_CONFLICTS.md
+└─ handoff/
+   ├─ README.md
+   ├─ to-cc/
+   │  └─ .gitkeep
+   ├─ from-cc/
+   │  └─ .gitkeep
+   └─ templates/
+      ├─ TASK-context.template.md
+      ├─ TASK-plan.template.md
+      ├─ TASK-manifest.template.json
+      └─ TASK-result.template.md
+</code></pre>
+<p>并更新线上 <code>README.md</code> 的 AI 快速入口：</p>
+<pre><code class="language-text">workbench/START_HERE.md
+workbench/CURRENT_TASK.md
+workbench/CURRENT_STATE.md
+workbench/MACHINE_ACCESS_MATRIX.md
+workbench/PROJECT_RUNTIME_CHAINS.md
+workbench/DECISIONS.md
+</code></pre>
+<h2 id="文件内容映射">文件内容映射</h2>
+<h3 id="START_HERE-md">START_HERE.md</h3>
+<p>用途：新会话统一入口，只写读取顺序、工作原则、风险等级、事实状态和常用入口。</p>
+<p>线上差异：</p>
+<pre><code class="language-text">标题：游点涩线上环境轻量运维工作台
+默认分支：main
+默认原则：本仓库对应线上环境，生产写操作必须先得到用户批准。
+通知规则：沿用线上仓库 AGENTS.md；如果线上 AGENTS.md 没有逐步通知规则，应先补齐或按线上既有通知规则执行。
+</code></pre>
+<p>必须包含：</p>
+<pre><code class="language-text">事实优先级：实时只读核验 &gt; 当前 Git/服务器状态 &gt; CURRENT_STATE.md &gt; CURRENT_TASK.md &gt; 历史文档 &gt; 聊天记录
+风险等级：R0 / C1 / P2 / D3 / E4
+秘密边界：不保存密码、token、Secret Key、私钥正文、完整 Signed URL
+</code></pre>
+<h3 id="CURRENT_STATE-md">CURRENT_STATE.md</h3>
+<p>用途：保存线上当前可快速恢复的事实，不写历史流水账。</p>
+<p>需要实时核验后写入：</p>
+<pre><code class="language-text">项目：游点涩线上环境
+运维仓库 remote / branch / commit
+业务仓库 remote / branch / commit
+线上服务器角色、公网 IP、内网 IP、hostname
+宝塔、后端、前端职责边界
+CICD、后台、H5、API、定时任务入口
+当前容器名称、端口、镜像和运行状态
+关键路径：运维仓库、业务仓库、env、secrets.env、logs、Nginx 配置
+最近一次验证时间、验证命令和结果
+最近完成的线上变更文档和提交
+</code></pre>
+<p>线上环境不要直接复制测试环境的：</p>
+<pre><code class="language-text">38.92.8.34
+youdianse-test
+youdianse-dev-php-*
+env/.env.dev
+cron.youdianse-test.xyz
+cicd.youdianse-test.xyz
+</code></pre>
+<p>应替换为线上事实，例如线上仓库已有文档中记录的宝塔、后端、前端机器和 <code>main</code> 容器，但写入前仍要实时只读核验。</p>
+<h3 id="CURRENT_TASK-md">CURRENT_TASK.md</h3>
+<p>用途：记录当前任务、最后安全点、下一步和本地特殊状态。</p>
+<p>线上建议初始内容：</p>
+<pre><code class="language-text">当前没有正在执行中的生产操作。
+最后安全点：只读核验完成，未执行生产写操作。
+当前待注意事项：本地 main 工作树是否存在未提交变更。
+下一步建议：按用户目标生成 context / plan / manifest。
+</code></pre>
+<p>如果线上分支已有未提交改动，必须写进：</p>
+<pre><code class="language-text">本地工作树存在未提交变更，来源待确认；后续提交不得误带无关文件。
+</code></pre>
+<h3 id="ACTIVE_TASKS-md">ACTIVE_TASKS.md</h3>
+<p>用途：保存仍需推进的任务和已完成任务索引。</p>
+<p>线上建议：</p>
+<pre><code class="language-text">当前活跃生产任务：无 / 待确认
+待办：线上 workbench 首次只读核验、未提交变更归属确认、服务器状态巡检
+已完成但需保留索引：线上服务器详细信息文档、文档命名规范、最近生产变更
+</code></pre>
+<h3 id="DECISIONS-md">DECISIONS.md</h3>
+<p>用途：记录用户已确认的业务/架构/运维决策。</p>
+<p>线上必须写清：</p>
+<pre><code class="language-text">线上环境生产写操作必须由用户批准。
+文档文件名使用 YYYY-MM-DD-HHMM-【分类】线上环境标题.md。
+工作台不保存秘密正文，只保存秘密位置。
+历史文档不是执行授权。
+生产变更必须有备份、验证和回滚设计。
+</code></pre>
+<h3 id="MACHINE_ACCESS_MATRIX-md">MACHINE_ACCESS_MATRIX.md</h3>
+<p>用途：机器和权限矩阵，只记录秘密位置，不记录秘密正文。</p>
+<p>线上应写：</p>
+<pre><code class="language-text">宝塔入口服务器
+后端服务器
+前端服务器
+SSH 用户
+公网 IP
+内网 IP
+hostname
+登录凭据索引：例如仓库根目录私钥文件名、服务器本地 secrets.env 路径或安全保管位置
+状态：VERIFIED / USER_CONFIRMED / UNKNOWN
+</code></pre>
+<p>禁止写入：</p>
+<pre><code class="language-text">SSH 密码
+私钥正文
+Telegram token
+chat_id
+发布口令
+带凭据 Git URL
+数据库密码
+</code></pre>
+<h3 id="PROJECT_RUNTIME_CHAINS-md">PROJECT_RUNTIME_CHAINS.md</h3>
+<p>用途：线上运行链路快速版。</p>
+<p>线上应写：</p>
+<pre><code class="language-text">公网用户 / CDN / DNS
+  -&gt; 宝塔入口
+  -&gt; H5 前端
+  -&gt; 后端 API
+  -&gt; CICD Web
+  -&gt; 外部定时任务系统
+</code></pre>
+<p>并列出：</p>
+<pre><code class="language-text">域名到目标机器/端口映射
+H5 页面链路
+H5 API 分流链路
+后端 Docker 链路
+php-cron / queue-watchdog 链路
+配置发布链路
+业务发布链路
+标准验证命令
+</code></pre>
+<h3 id="AUDIT_CONFLICTS-md">AUDIT_CONFLICTS.md</h3>
+<p>用途：记录冲突、风险和停止条件。</p>
+<p>线上应至少包含：</p>
+<pre><code class="language-text">本地 main 工作树存在未提交变更时，不得误清理或覆盖。
+线上/测试环境混淆风险。
+多机器环境下宝塔、后端、前端职责混淆风险。
+敏感信息误提交风险。
+生产写操作未批准时必须停止。
+</code></pre>
+<h3 id="handoff-模板">handoff 模板</h3>
+<p>模板可以从测试环境复制，但要把默认项目改成：</p>
+<pre><code class="language-text">项目：游点涩线上环境
+环境：线上环境 / main
+</code></pre>
+<p>并保留：</p>
+<pre><code class="language-text">context
+plan
+manifest.json
+result
+</code></pre>
+<h2 id="建议执行步骤">建议执行步骤</h2>
+<h3 id="步骤-1-只读核验线上仓库">步骤 1：只读核验线上仓库</h3>
+<pre><code class="language-bash">cd /Users/ben/Documents/ben/docker/main/docker-youdianse-php
+git status --short --branch
+git remote -v
+git branch --show-current
+git log -3 --oneline
+find . -maxdepth 2 -type f -name 'AGENTS.md' -o -name 'README.md'
+</code></pre>
+<p>完成条件：</p>
+<pre><code class="language-text">确认当前仓库是线上 main。
+确认 dirty workspace 来源。
+确认本次只新增/修改 workbench 和 README 快速入口。
+</code></pre>
+<h3 id="步骤-2-只读核验线上服务器">步骤 2：只读核验线上服务器</h3>
+<p>根据线上 <code>ops/production/</code> 文档和机器矩阵候选信息，逐台只读核验：</p>
+<pre><code class="language-bash">hostname
+whoami
+pwd
+df -hT /
+docker ps
+ss -lntp
+</code></pre>
+<p>后端运维仓库：</p>
+<pre><code class="language-bash">cd /opt/docker-youdianse-php
+git status --short --branch
+git rev-parse --short HEAD
+docker compose ps
+</code></pre>
+<p>完成条件：</p>
+<pre><code class="language-text">宝塔、后端、前端角色确认。
+线上域名和本机端口确认。
+当前容器和关键路径确认。
+</code></pre>
+<h3 id="步骤-3-创建线上-workbench">步骤 3：创建线上 workbench</h3>
+<p>复制测试环境结构，但重写事实内容：</p>
+<pre><code class="language-bash">mkdir -p workbench/handoff/to-cc workbench/handoff/from-cc workbench/handoff/templates
+touch workbench/handoff/to-cc/.gitkeep
+touch workbench/handoff/from-cc/.gitkeep
+</code></pre>
+<p>建议从测试环境复制模板：</p>
+<pre><code class="language-bash">cp /Users/ben/Documents/ben/docker/dev/docker-youdianse-php/workbench/handoff/templates/* workbench/handoff/templates/
+</code></pre>
+<p>然后逐个替换：</p>
+<pre><code class="language-text">测试环境 -&gt; 线上环境
+dev -&gt; main
+测试服务器 -&gt; 宝塔 / 后端 / 前端
+测试域名 -&gt; 线上域名
+测试容器 -&gt; 线上容器
+</code></pre>
+<h3 id="步骤-4-更新-README-入口">步骤 4：更新 README 入口</h3>
+<p>在线上 <code>README.md</code> 前部新增：</p>
+<pre><code class="language-text">## AI 快速入口
+
+新会话优先读取轻量工作台：
+
+workbench/START_HERE.md
+workbench/CURRENT_TASK.md
+workbench/CURRENT_STATE.md
+workbench/MACHINE_ACCESS_MATRIX.md
+workbench/PROJECT_RUNTIME_CHAINS.md
+workbench/DECISIONS.md
+</code></pre>
+<h3 id="步骤-5-验证">步骤 5：验证</h3>
+<pre><code class="language-bash">git diff --check -- README.md workbench
+python3 -m json.tool workbench/handoff/templates/TASK-manifest.template.json &gt;/tmp/youdianse-main-manifest-check.txt
+</code></pre>
+<p>相对链接检查：</p>
+<pre><code class="language-bash">perl -ne 'while (/\\[[^\\]]+\\]\\(([^)#][^)]+)\\)/g) { next if $1 =~ m{^(https?://|mailto:|/)}; print "$ARGV\\t$1\\n" }' README.md workbench/*.md workbench/handoff/*.md workbench/handoff/templates/*.md | while IFS=$'\\t' read -r file link; do base=$(dirname "$file"); target="$base/$link"; if [ ! -e "$target" ]; then echo "missing_link $file -&gt; $link"; fi; done
+</code></pre>
+<p>敏感信息扫描：</p>
+<pre><code class="language-bash">rg -n "BEGIN (RSA|OPENSSH) PRIVATE KEY|[A-Za-z0-9_-]{35,}:[A-Za-z0-9_-]{20,}|password\\s*=\\s*[^.&lt;\\s][^\\s]*|token\\s*=\\s*[^.&lt;\\s][^\\s]*|chat_id\\s*=\\s*[-0-9]+|Secret Key|Access Key" README.md workbench -g '*.md' -g '*.json'
+</code></pre>
+<p>说明：如果只命中“不得写入 Secret Key / token”的禁止说明，可人工判定通过；不得命中真实秘密值。</p>
+<h3 id="步骤-6-提交推送">步骤 6：提交推送</h3>
+<p>只暂存本次 workbench 相关文件，避免带入其他 dirty 变更：</p>
+<pre><code class="language-bash">git add README.md workbench
+git status --short
+git diff --cached --stat
+git commit -m "docs: add lightweight ops workbench"
+git push origin main
+</code></pre>
+<p>如果线上仓库已有无关未提交变更，必须用明确路径 <code>git add README.md workbench</code>，不要使用：</p>
+<pre><code class="language-bash">git add .
+</code></pre>
+<h3 id="步骤-7-通知与附件">步骤 7：通知与附件</h3>
+<p>按线上仓库通知规则发送总结，至少包含：</p>
+<pre><code class="language-text">【线上环境｜步骤 N 完成】轻量工作台提交总结
+完成内容：新增线上环境轻量运维工作台 v1，并更新 README AI 快速入口。
+验证结果：链接检查、敏感扫描、JSON 模板校验、git diff --check 通过。
+当前版本：&lt;commit&gt;
+文档路径：workbench/START_HERE.md
+下一步动作：后续新会话优先读取 workbench/START_HERE.md。
+</code></pre>
+<p>如果线上通知规则要求附件，同时发送：</p>
+<pre><code class="language-text">workbench/START_HERE.md
+</code></pre>
+<p>或另写线上事件文档：</p>
+<pre><code class="language-text">docs/YYYY-MM-DD-HHMM-【运维记录】线上环境轻量运维工作台改造记录.md
+</code></pre>
+<h2 id="可直接给-Codex-的复刻提示词">可直接给 Codex 的复刻提示词</h2>
+<pre><code class="language-text">请在 /Users/ben/Documents/ben/docker/main/docker-youdianse-php 的 main 分支，参考测试环境提交 96bf28b 和文档 docs/2026-07-29-1944-【运维记录】测试环境到线上环境轻量工作台改造复刻详细说明.md，给线上环境落地轻量 workbench。
+
+要求：
+1. 先读 AGENTS.md，确认线上通知规则。
+2. 先执行 git status --short --branch，发现 dirty workspace 必须说明来源并避免误提交。
+3. 不要复制测试环境事实，必须按线上服务器和线上文档实时只读核验后写入。
+4. 新增 workbench/START_HERE.md、CURRENT_STATE.md、CURRENT_TASK.md、ACTIVE_TASKS.md、DECISIONS.md、MACHINE_ACCESS_MATRIX.md、PROJECT_RUNTIME_CHAINS.md、AUDIT_CONFLICTS.md 和 handoff 模板。
+5. README.md 增加 AI 快速入口。
+6. 工作台不得写入密码、token、chat_id、私钥正文、发布口令、数据库密码和带凭据 Git URL。
+7. 验证 Markdown 相对链接、manifest JSON、git diff --check 和敏感信息扫描。
+8. 只 git add README.md workbench，不要 git add .。
+9. 提交信息使用 docs: add lightweight ops workbench。
+10. 按线上规则发送 Telegram 总结；如果需要附件，发送 workbench/START_HERE.md 或事件文档。
+</code></pre>
+<h2 id="验收标准">验收标准</h2>
+<p>线上复刻完成后，应满足：</p>
+<pre><code class="language-text">workbench/START_HERE.md 存在，并且 README.md 有 AI 快速入口。
+CURRENT_STATE.md 记录的是线上 main 的实时事实，不含测试环境 IP 或测试容器名。
+MACHINE_ACCESS_MATRIX.md 只记录秘密位置，不含秘密正文。
+PROJECT_RUNTIME_CHAINS.md 能快速说明线上宝塔、后端、前端和域名链路。
+CURRENT_TASK.md 能让新会话知道最后安全点和下一步。
+handoff/templates/TASK-manifest.template.json 是合法 JSON。
+敏感扫描未发现真实秘密。
+提交只包含 README.md 和 workbench/，除非用户明确批准附加事件文档。
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#用途">用途</a></li><li style="margin-left:0.0rem"><a href="#当前参考">当前参考</a></li><li style="margin-left:0.0rem"><a href="#线上落地前必须确认">线上落地前必须确认</a></li><li style="margin-left:0.0rem"><a href="#线上工作台目录">线上工作台目录</a></li><li style="margin-left:0.0rem"><a href="#文件内容映射">文件内容映射</a></li><li style="margin-left:0.8rem"><a href="#START_HERE-md">START_HERE.md</a></li><li style="margin-left:0.8rem"><a href="#CURRENT_STATE-md">CURRENT_STATE.md</a></li><li style="margin-left:0.8rem"><a href="#CURRENT_TASK-md">CURRENT_TASK.md</a></li><li style="margin-left:0.8rem"><a href="#ACTIVE_TASKS-md">ACTIVE_TASKS.md</a></li><li style="margin-left:0.8rem"><a href="#DECISIONS-md">DECISIONS.md</a></li><li style="margin-left:0.8rem"><a href="#MACHINE_ACCESS_MATRIX-md">MACHINE_ACCESS_MATRIX.md</a></li><li style="margin-left:0.8rem"><a href="#PROJECT_RUNTIME_CHAINS-md">PROJECT_RUNTIME_CHAINS.md</a></li><li style="margin-left:0.8rem"><a href="#AUDIT_CONFLICTS-md">AUDIT_CONFLICTS.md</a></li><li style="margin-left:0.8rem"><a href="#handoff-模板">handoff 模板</a></li><li style="margin-left:0.0rem"><a href="#建议执行步骤">建议执行步骤</a></li><li style="margin-left:0.8rem"><a href="#步骤-1-只读核验线上仓库">步骤 1：只读核验线上仓库</a></li><li style="margin-left:0.8rem"><a href="#步骤-2-只读核验线上服务器">步骤 2：只读核验线上服务器</a></li><li style="margin-left:0.8rem"><a href="#步骤-3-创建线上-workbench">步骤 3：创建线上 workbench</a></li><li style="margin-left:0.8rem"><a href="#步骤-4-更新-README-入口">步骤 4：更新 README 入口</a></li><li style="margin-left:0.8rem"><a href="#步骤-5-验证">步骤 5：验证</a></li><li style="margin-left:0.8rem"><a href="#步骤-6-提交推送">步骤 6：提交推送</a></li><li style="margin-left:0.8rem"><a href="#步骤-7-通知与附件">步骤 7：通知与附件</a></li><li style="margin-left:0.0rem"><a href="#可直接给-Codex-的复刻提示词">可直接给 Codex 的复刻提示词</a></li><li style="margin-left:0.0rem"><a href="#验收标准">验收标准</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-07-29</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">自动化</span><span class="tag">CDN</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-07-29-1944-【运维记录…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607291944-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E5%88%B0%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E8%BD%BB%E9%87%8F%E5%B7%A5%E4%BD%9C%E5%8F%B0%E6%94%B9%E9%80%A0%E5%A4%8D%E5%88%BB%E8%AF%A6%E7%BB%86%E8%AF%B4%E6%98%8E.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>测试环境到线上环境轻量工作台改造复刻详细说明。本文属于业务系统运维 / 游点涩，文档日期：2026-07-29 环境：游点涩测试环境（dev 分支；线上环境复刻参考） 分类：运维记录 这份文档用于把测试环境已经完成的 workbench/ 轻量运维工作台，按同样思路复刻到线上环境 main 分支。 目标不是复制测…</p>
+      <p>关键词：游点涩、Linux、Shell、Python、Docker、Nginx、自动化、CDN、业务系统运维、业务系统运维 / 游点涩、测试环境到线上环境轻量工作台改造复刻详细说明、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cacca42e5c7e.html"><small>上一篇</small>测试 PC 前端媒体资源 Token 鉴权落地验证记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cf94073e14e8.html"><small>下一篇</small>线上环境轻量运维工作台改造记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0a1494b80a62.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
