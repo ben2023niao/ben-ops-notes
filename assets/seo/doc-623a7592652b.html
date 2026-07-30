@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>测试环境 albwhite 本地维护与发布覆盖修复记录｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="测试环境 albwhite 本地维护与发布覆盖修复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-07-30 16:14 环境：游点涩测试环境（dev 分支） 分类：修复Bug 研发反馈曾在测试服务器手工执行 docker cp ，把 alb_white.txt 和 alb_white_secret.…">
+  <meta name="keywords" content="游点涩，Linux，Shell，Python，Docker，Redis，自动化，安全运维，业务系统运维，业务系统运维 / 游点涩，测试环境 albwhite 本地维护与发布覆盖修复记录，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-623a7592652b.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-623a7592652b.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607301614-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20albwhite%20%E6%9C%AC%E5%9C%B0%E7%BB%B4%E6%8A%A4%E4%B8%8E%E5%8F%91%E5%B8%83%E8%A6%86%E7%9B%96%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="测试环境 albwhite 本地维护与发布覆盖修复记录">
+  <meta property="og:description" content="测试环境 albwhite 本地维护与发布覆盖修复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-07-30 16:14 环境：游点涩测试环境（dev 分支） 分类：修复Bug 研发反馈曾在测试服务器手工执行 docker cp ，把 alb_white.txt 和 alb_white_secret.…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-623a7592652b.html">
+  <meta property="article:published_time" content="2026-07-30T16:14:00+08:00">
+  <meta property="article:modified_time" content="2026-07-30 16:14">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="测试环境 albwhite 本地维护与发布覆盖修复记录">
+  <meta name="twitter:description" content="测试环境 albwhite 本地维护与发布覆盖修复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-07-30 16:14 环境：游点涩测试环境（dev 分支） 分类：修复Bug 研发反馈曾在测试服务器手工执行 docker cp ，把 alb_white.txt 和 alb_white_secret.…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-623a7592652b.html#article","headline":"测试环境 albwhite 本地维护与发布覆盖修复记录","description":"测试环境 albwhite 本地维护与发布覆盖修复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-07-30 16:14 环境：游点涩测试环境（dev 分支） 分类：修复Bug 研发反馈曾在测试服务器手工执行 docker cp ，把 alb_white.txt 和 alb_white_secret.…","datePublished":"2026-07-30T16:14:00+08:00","dateModified":"2026-07-30 16:14","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Linux","Shell","Python","Docker","Redis","自动化","安全运维","业务系统运维","业务系统运维 / 游点涩","测试环境 albwhite 本地维护与发布覆盖修复记录","php"],"wordCount":1373,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-623a7592652b.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-623a7592652b.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"测试环境 albwhite 本地维护与发布覆盖修复记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-623a7592652b.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>测试环境 albwhite 本地维护与发布覆盖修复记录</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>测试环境 albwhite 本地维护与发布覆盖修复记录</h1>
+      <p class="lede">测试环境 albwhite 本地维护与发布覆盖修复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-07-30 16:14 环境：游点涩测试环境（dev 分支） 分类：修复Bug 研发反馈曾在测试服务器手工执行 docker cp ，把 alb_white.txt 和 alb_white_secret.…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-07-30T16:14:00+08:00">发布于 2026-07-30</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,373 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-07-30-1614-【修复Bug】测试环境alb_white本地维护与发布覆盖修复记录.md</code></p>
+<p>整理日期：2026-07-30 16:14｜日期依据：文件名日期</p>
+</blockquote>
+<p>环境标签：测试环境</p>
+<p>文档日期：2026-07-30 16:14
+环境：游点涩测试环境（dev 分支）
+分类：修复Bug</p>
+<h2 id="背景">背景</h2>
+<p>测试环境后端发布失败，CICD 页面提示：</p>
+<pre><code class="language-text">业务代码存在本地未提交修改，默认拒绝发布。
+M alb_white.txt
+</code></pre>
+<p>研发反馈曾在测试服务器手工执行 <code>docker cp</code>，把 <code>alb_white.txt</code> 和 <code>alb_white_secret.txt</code> 复制进容器，并修正容器内权限。重新发布后，容器里的 <code>alb_white.txt</code> 又被覆盖。</p>
+<p>本次需要新增的测试环境白名单内容：</p>
+<pre><code class="language-text"># ===== 桃色西遊 =====
+stgpf.xy-game.com
+</code></pre>
+<h2 id="根因">根因</h2>
+<p><code>docker cp</code> 只修改当前容器文件。测试环境重新发布时会重建 PHP 镜像和容器，镜像里的业务代码文件会重新进入容器，因此手工复制进去的内容会被覆盖。</p>
+<p>同时，<code>alb_white.txt</code> 在业务仓库里是已跟踪文件；如果直接在测试服务器业务目录修改它，业务仓库会变成 dirty，网页发布会按保护策略拒绝继续发布。</p>
+<h2 id="修复策略">修复策略</h2>
+<p>这两个 txt 明确改为测试服务器本地运行文件，不再提交业务代码仓库。业务仓库里即使存在同名文件，测试环境运行也不以仓库版本为准。</p>
+<pre><code class="language-text">cicd-web/runtime/app-local-files/alb_white.txt
+cicd-web/runtime/app-local-files/alb_white_secret.txt
+</code></pre>
+<p>发布流程改造：</p>
+<ol>
+<li>发布前检查服务器本地源目录。</li>
+<li>如果业务目录里只有这两个受保护 txt 出现 dirty，先迁移到服务器本地源目录，再恢复业务 Git 工作区。</li>
+<li>拉取或切换业务代码后，只确认服务器本地源文件存在，不再依赖业务仓库里的本地改动。</li>
+<li>容器重建后，把服务器本地源文件覆盖到 web/cron 容器内同名路径。</li>
+<li>容器内文件统一修正为 <code>root:www-data 0640</code>。</li>
+<li>健康检查成功后，再刷新 runtime 备份。</li>
+</ol>
+<h2 id="改动范围">改动范围</h2>
+<p>运维仓库：</p>
+<pre><code class="language-text">cicd-web/config/settings.json
+cicd-web/config.py
+cicd-web/core.py
+docs/2026-07-22-0910-【优化】测试环境业务本地密钥文件发布保护.md
+docs/2026-07-30-1614-【修复Bug】测试环境alb_white本地维护与发布覆盖修复记录.md
+README.md
+ops/test/README.md
+workbench/CURRENT_STATE.md
+workbench/CURRENT_TASK.md
+</code></pre>
+<p>业务仓库：</p>
+<pre><code class="language-text">不提交业务仓库。
+不把 alb_white.txt 和 alb_white_secret.txt 的测试环境本地新增内容作为业务代码变更发布。
+</code></pre>
+<h2 id="服务器维护方法">服务器维护方法</h2>
+<p>以后测试环境需要新增白名单时，只维护测试服务器本地源文件：</p>
+<pre><code class="language-bash">cd /opt/docker-youdianse-php
+install -d -m 700 cicd-web/runtime/app-local-files
+printf '\n# ===== 桃色西遊 =====\nstgpf.xy-game.com\n' &gt;&gt; cicd-web/runtime/app-local-files/alb_white.txt
+chmod 0600 cicd-web/runtime/app-local-files/alb_white.txt
+</code></pre>
+<p>注意：</p>
+<ul>
+<li>不要把 <code>alb_white_secret.txt</code> 内容写入文档、聊天、Git 或普通日志。</li>
+<li>不要在业务仓库里提交这两个 txt 的测试环境本地内容。</li>
+<li>不要只用 <code>docker cp</code> 改容器；容器重建后仍会丢失。</li>
+</ul>
+<h2 id="验证项">验证项</h2>
+<p>本地验证：</p>
+<pre><code class="language-bash">python3 -m py_compile cicd-web.py cicd-web/core.py cicd-web/config.py cicd-web/telegram.py cicd-web/command.py
+</code></pre>
+<p>结果：</p>
+<pre><code class="language-text">通过。
+</code></pre>
+<p>服务器验证：</p>
+<pre><code class="language-bash">test -f /opt/docker-youdianse-php/cicd-web/runtime/app-local-files/alb_white.txt
+test -f /opt/docker-youdianse-php/cicd-web/runtime/app-local-files/alb_white_secret.txt
+git -C /opt/docker-youdianse-php/src/youdianse-php status --short
+docker exec youdianse-dev-php-web grep -n 'stgpf.xy-game.com' /var/www/html/youdianse-php/alb_white.txt
+docker exec youdianse-dev-php-web stat -c '%U:%G %a %n' /var/www/html/youdianse-php/alb_white.txt /var/www/html/youdianse-php/alb_white_secret.txt
+</code></pre>
+<p>结果：</p>
+<pre><code class="language-text">运维仓库提交：cdfa030 修复测试环境本地保护文件发布覆盖
+测试服务器运维仓库：/opt/docker-youdianse-php -&gt; cdfa030
+业务仓库：/opt/docker-youdianse-php/src/youdianse-php -&gt; dev，clean
+业务 git id：6f0518ea1a1bb56e8f3e1a31fc2c46e8de77ab3f
+镜像 tag：dev-6f0518ea1a1b
+发布日志：cicd-web/logs/游点涩-后端-Webhook-自动发布-youdianse-test-38.92.8.34-dev-latest-20260730-162145.log.txt
+发布结果：SUCCESS
+HTTP：后台 200，CICD 200
+Session：writable
+Redis：open
+MongoDB：open
+Dirty：false
+</code></pre>
+<p>容器复查：</p>
+<pre><code class="language-text">web 容器 alb_white.txt：包含 # ===== 桃色西遊 ===== 和 stgpf.xy-game.com
+cron 容器 alb_white.txt：包含 # ===== 桃色西遊 ===== 和 stgpf.xy-game.com
+web 容器权限：alb_white.txt root:www-data 640；alb_white_secret.txt root:www-data 640
+cron 容器权限：alb_white.txt root:www-data 640；alb_white_secret.txt root:www-data 640
+</code></pre>
+<p>过程异常和处置：</p>
+<pre><code class="language-text">首次重启 CICD Web 时进程匹配过宽导致 SSH 会话断开；复查原进程仍在，HTTP 200，未造成服务中断。
+随后使用精确 PID 重启。
+自动发布首次触发返回 401；原因是重启 CICD Web 时未加载 runtime/secrets.env。
+随后带 secrets.env 重启 CICD Web，自动发布恢复正常。
+</code></pre>
+<h2 id="回滚">回滚</h2>
+<p>如发布器改造异常：</p>
+<ol>
+<li>回滚运维仓库本次提交。</li>
+<li>重新拉取运维仓库到测试服务器。</li>
+<li>重启 CICD Web。</li>
+<li>使用发布前的 <code>cicd-web/runtime/app-local-file-backups/</code> 备份文件恢复。</li>
+</ol>
+<h2 id="结论">结论</h2>
+<p>本次修复后，<code>alb_white.txt</code> 和 <code>alb_white_secret.txt</code> 在测试环境按服务器本地运行文件维护。发布流程会自动把本地源文件同步进容器，业务仓库保持 clean，避免再次出现“本地未提交修改导致发布失败”或“发布后 docker cp 内容被覆盖”的问题。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#背景">背景</a></li><li style="margin-left:0.0rem"><a href="#根因">根因</a></li><li style="margin-left:0.0rem"><a href="#修复策略">修复策略</a></li><li style="margin-left:0.0rem"><a href="#改动范围">改动范围</a></li><li style="margin-left:0.0rem"><a href="#服务器维护方法">服务器维护方法</a></li><li style="margin-left:0.0rem"><a href="#验证项">验证项</a></li><li style="margin-left:0.0rem"><a href="#回滚">回滚</a></li><li style="margin-left:0.0rem"><a href="#结论">结论</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-07-30</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Redis</span><span class="tag">自动化</span><span class="tag">安全运维</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-07-30-1614-【修复Bu…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607301614-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20albwhite%20%E6%9C%AC%E5%9C%B0%E7%BB%B4%E6%8A%A4%E4%B8%8E%E5%8F%91%E5%B8%83%E8%A6%86%E7%9B%96%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>测试环境 albwhite 本地维护与发布覆盖修复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-07-30 16:14 环境：游点涩测试环境（dev 分支） 分类：修复Bug 研发反馈曾在测试服务器手工执行 docker cp ，把 alb_white.txt 和 alb_white_secret.…</p>
+      <p>关键词：游点涩、Linux、Shell、Python、Docker、Redis、自动化、安全运维、业务系统运维、业务系统运维 / 游点涩、测试环境 albwhite 本地维护与发布覆盖修复记录、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-df1c20bb516c.html"><small>上一篇</small>2026-07-30 16：03 hbazuua 测试域名接入与图片多域名兜底方案</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b4cd4a8445b2.html"><small>下一篇</small>测试环境 env 新增 EEP 测试 APK CDN 配置记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-623a7592652b.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>测试环境域名与资源链路总览 · 【运维记录】测试环境域名与资源链路总览（2026-07-30 · 4af6）｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="测试环境域名与资源链路总览 · 【运维记录】测试环境域名与资源链路总览。本文属于业务系统运维 / 游点涩，后续排查测试环境图片、静态资源、页面入口、备案域名、S3/COS 同步和 CDN 鉴权时，优先查看本文，再结合 workbench/PROJECT_RUNTIME_CHAINS.md 、 workbench/…">
+  <meta name="keywords" content="游点涩，Shell，Docker，Nginx，自动化，CDN，DNS，安全运维，业务系统运维，业务系统运维 / 游点涩，测试环境域名与资源链路总览 · 【运维记录】测试环境域名与资源链路总览，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9d991f1b4af6.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9d991f1b4af6.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607301939-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E5%9F%9F%E5%90%8D%E4%B8%8E%E8%B5%84%E6%BA%90%E9%93%BE%E8%B7%AF%E6%80%BB%E8%A7%88%20%C2%B7%20%E3%80%90%E8%BF%90%E7%BB%B4%E8%AE%B0%E5%BD%95%E3%80%91%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E5%9F%9F%E5%90%8D%E4%B8%8E%E8%B5%84%E6%BA%90%E9%93%BE%E8%B7%AF%E6%80%BB%E8%A7%88.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="测试环境域名与资源链路总览 · 【运维记录】测试环境域名与资源链路总览（2026-07-30 · 4af6）">
+  <meta property="og:description" content="测试环境域名与资源链路总览 · 【运维记录】测试环境域名与资源链路总览。本文属于业务系统运维 / 游点涩，后续排查测试环境图片、静态资源、页面入口、备案域名、S3/COS 同步和 CDN 鉴权时，优先查看本文，再结合 workbench/PROJECT_RUNTIME_CHAINS.md 、 workbench/…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9d991f1b4af6.html">
+  <meta property="article:published_time" content="2026-07-30T19:39:00+08:00">
+  <meta property="article:modified_time" content="2026-07-30 19:39">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="测试环境域名与资源链路总览 · 【运维记录】测试环境域名与资源链路总览（2026-07-30 · 4af6）">
+  <meta name="twitter:description" content="测试环境域名与资源链路总览 · 【运维记录】测试环境域名与资源链路总览。本文属于业务系统运维 / 游点涩，后续排查测试环境图片、静态资源、页面入口、备案域名、S3/COS 同步和 CDN 鉴权时，优先查看本文，再结合 workbench/PROJECT_RUNTIME_CHAINS.md 、 workbench/…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9d991f1b4af6.html#article","headline":"测试环境域名与资源链路总览 · 【运维记录】测试环境域名与资源链路总览（2026-07-30 · 4af6）","description":"测试环境域名与资源链路总览 · 【运维记录】测试环境域名与资源链路总览。本文属于业务系统运维 / 游点涩，后续排查测试环境图片、静态资源、页面入口、备案域名、S3/COS 同步和 CDN 鉴权时，优先查看本文，再结合 workbench/PROJECT_RUNTIME_CHAINS.md 、 workbench/…","datePublished":"2026-07-30T19:39:00+08:00","dateModified":"2026-07-30 19:39","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Shell","Docker","Nginx","自动化","CDN","DNS","安全运维","业务系统运维","业务系统运维 / 游点涩","测试环境域名与资源链路总览 · 【运维记录】测试环境域名与资源链路总览","php"],"wordCount":3381,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9d991f1b4af6.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9d991f1b4af6.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"测试环境域名与资源链路总览 · 【运维记录】测试环境域名与资源链路总览","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9d991f1b4af6.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>测试环境域名与资源链路总览 · 【运维记录】测试环境域名与资源链路总览（2026-07-30 · 4af6）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>测试环境域名与资源链路总览 · 【运维记录】测试环境域名与资源链路总览（2026-07-30 · 4af6）</h1>
+      <p class="lede">测试环境域名与资源链路总览 · 【运维记录】测试环境域名与资源链路总览。本文属于业务系统运维 / 游点涩，后续排查测试环境图片、静态资源、页面入口、备案域名、S3/COS 同步和 CDN 鉴权时，优先查看本文，再结合 workbench/PROJECT_RUNTIME_CHAINS.md 、 workbench/…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-07-30T19:39:00+08:00">发布于 2026-07-30</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">3,381 字</span>
+        <span class="badge">10 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-07-30-1939-【运维记录】测试环境域名与资源链路总览.md</code></p>
+<p>整理日期：2026-07-30 19:39｜日期依据：文件名日期</p>
+</blockquote>
+<p>环境标签：测试环境</p>
+<p>时间：2026-07-30 19:39
+更新时间：2026-07-30 21:18</p>
+<h2 id="目的">目的</h2>
+<p>本文件用于统一记录游点涩测试环境当前域名、前端静态资源、后端 uploads 图片、防盗刷签名和发布链路。</p>
+<p>后续排查测试环境图片、静态资源、页面入口、备案域名、S3/COS 同步和 CDN 鉴权时，优先查看本文，再结合 <code>workbench/PROJECT_RUNTIME_CHAINS.md</code>、<code>workbench/CURRENT_STATE.md</code> 和当次 <code>workbench/CURRENT_TASK.md</code>。</p>
+<h2 id="总览结论">总览结论</h2>
+<pre><code class="language-text">H5 页面入口：h5.youdianse-test.xyz / test-h5.hbabaxb.cn / test-h5.hbazuua.cn
+PC 页面入口：pc.youdianse-test.xyz / test-pc.hbabaxb.cn / test-pc.hbazuua.cn
+前端静态资源：test-h5-s3.hbabaxb.cn / test-pc-s3.hbabaxb.cn
+后端 uploads 图片：test-img.hbabaxb.cn / test-img.hbazuua.cn
+后端 uploads 兜底老链路：d1rct3ku9n07y3.cloudfront.net
+当前 uploads 防盗刷规则：test-img.* 必须带 token/t；裸链或旧 sign/t 返回默认占位图。
+备案域名回源/反代：已迁移到新 Nginx 服务器 162.211.181.13 / youdianse-test-cdn-proxy。
+旧测试服务器 38.92.8.34：保留 H5/PC/API/后端容器和业务服务源站角色，不再作为备案域名统一入口。
+</code></pre>
+<h2 id="备案域名迁移后总链路">备案域名迁移后总链路</h2>
+<pre><code class="language-text">公网用户
+  -&gt; EdgeOne / 腾讯 CDN，HTTPS 终止
+  -&gt; HTTP 回源 162.211.181.13:80
+  -&gt; youdianse-test-cdn-proxy 本机 Nginx
+     -&gt; H5 页面：38.92.8.34:3003
+     -&gt; PC 页面：38.92.8.34:3004
+     -&gt; API 路径：38.92.8.34:8088
+     -&gt; H5 静态资源：AWS S3 H5 桶
+     -&gt; PC 静态资源：AWS S3 PC 桶
+     -&gt; uploads 图片：CloudFront uploads，token/t 放行，裸链固定图
+</code></pre>
+<p>新 Nginx 配置文件：</p>
+<pre><code class="language-text">/etc/nginx/conf.d/youdianse-test-record-domains.conf
+</code></pre>
+<p>新 Nginx 域名配置：</p>
+<table>
+<thead>
+<tr>
+<th>域名</th>
+<th>Nginx server 块</th>
+<th>location /</th>
+<th>API 分流</th>
+<th>源站/上游</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test-h5.hbabaxb.cn</code></td>
+<td>H5 页面 server</td>
+<td><code>proxy_pass http://youdianse_test_h5_app</code></td>
+<td><code>/(api|channel|customer)</code> 到 PHP API</td>
+<td><code>38.92.8.34:3003</code> / <code>38.92.8.34:8088</code></td>
+</tr>
+<tr>
+<td><code>test-h5.hbazuua.cn</code></td>
+<td>H5 页面 server</td>
+<td><code>proxy_pass http://youdianse_test_h5_app</code></td>
+<td><code>/(api|channel|customer)</code> 到 PHP API</td>
+<td><code>38.92.8.34:3003</code> / <code>38.92.8.34:8088</code></td>
+</tr>
+<tr>
+<td><code>test-pc.hbabaxb.cn</code></td>
+<td>PC 页面 server</td>
+<td><code>proxy_pass http://youdianse_test_pc_app</code></td>
+<td><code>/(api|channel|customer)</code> 到 PHP API</td>
+<td><code>38.92.8.34:3004</code> / <code>38.92.8.34:8088</code></td>
+</tr>
+<tr>
+<td><code>test-pc.hbazuua.cn</code></td>
+<td>PC 页面 server</td>
+<td><code>proxy_pass http://youdianse_test_pc_app</code></td>
+<td><code>/(api|channel|customer)</code> 到 PHP API</td>
+<td><code>38.92.8.34:3004</code> / <code>38.92.8.34:8088</code></td>
+</tr>
+<tr>
+<td><code>test-h5-s3.hbabaxb.cn</code></td>
+<td>H5 静态 server</td>
+<td>S3 桶代理</td>
+<td>无</td>
+<td><code>18game-nuxt-static-test-h5.s3.ap-southeast-1.amazonaws.com</code></td>
+</tr>
+<tr>
+<td><code>test-pc-s3.hbabaxb.cn</code></td>
+<td>PC 静态 server</td>
+<td>S3 桶代理</td>
+<td>无</td>
+<td><code>18game-nuxt-static-test-pc.s3.ap-southeast-1.amazonaws.com</code></td>
+</tr>
+<tr>
+<td><code>test-img.hbabaxb.cn</code></td>
+<td>uploads 图片 server</td>
+<td><code>/uploads/</code> 校验 token/t 后代理 CloudFront</td>
+<td>无</td>
+<td><code>d1rct3ku9n07y3.cloudfront.net</code>，无效请求到固定图</td>
+</tr>
+<tr>
+<td><code>test-img.hbazuua.cn</code></td>
+<td>uploads 图片 server</td>
+<td><code>/uploads/</code> 校验 token/t 后代理 CloudFront</td>
+<td>无</td>
+<td><code>d1rct3ku9n07y3.cloudfront.net</code>，无效请求到固定图</td>
+</tr>
+</tbody>
+</table>
+<p>注意：</p>
+<pre><code class="language-text">162.211.181.13 当前只监听 80 和 22。
+HTTPS 由 EdgeOne / 腾讯 CDN 终止后 HTTP 回源到新 Nginx。
+不要把 EdgeOne 回源协议设成 HTTPS，除非后续在新服务器补 443 证书。
+</code></pre>
+<h2 id="一-H5-页面链路">一、H5 页面链路</h2>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>地址/资源</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>原入口</td>
+<td><code>https://h5.youdianse-test.xyz</code></td>
+<td>测试 H5 原始入口</td>
+</tr>
+<tr>
+<td>备案入口</td>
+<td><code>https://test-h5.hbabaxb.cn</code></td>
+<td>测试 H5 备案入口</td>
+</tr>
+<tr>
+<td>第二备案入口</td>
+<td><code>https://test-h5.hbazuua.cn</code></td>
+<td>测试 H5 第二备案入口</td>
+</tr>
+<tr>
+<td>前端静态资源</td>
+<td><code>https://test-h5-s3.hbabaxb.cn</code></td>
+<td>H5 <code>_nuxt/js/css/images</code> 静态资源域名</td>
+</tr>
+<tr>
+<td>AWS 前端桶</td>
+<td><code>s3://18game-nuxt-static-test-h5</code></td>
+<td>区域：<code>ap-southeast-1</code></td>
+</tr>
+<tr>
+<td>腾讯 COS</td>
+<td><code>18game-nuxt-static-test-h5-sg-1450169938</code></td>
+<td>区域：<code>ap-singapore</code></td>
+</tr>
+</tbody>
+</table>
+<p>运行链路：</p>
+<pre><code class="language-text">用户浏览器
+  -&gt; H5 页面入口域名
+  -&gt; EdgeOne / 腾讯 CDN
+  -&gt; 162.211.181.13 youdianse-test-cdn-proxy:80
+  -&gt; 38.92.8.34:3003
+  -&gt; youdianse_test_18game_h5_client_3003
+  -&gt; Nuxt SSR/H5 页面
+</code></pre>
+<p>API 分流：</p>
+<pre><code class="language-text">H5 页面路径：
+  test-h5.* /
+  -&gt; 162.211.181.13:80
+  -&gt; 38.92.8.34:3003
+
+H5 API 路径：
+  test-h5.* /(api|channel|customer)
+  -&gt; 162.211.181.13:80
+  -&gt; 38.92.8.34:8088
+  -&gt; youdianse-dev-php-nginx
+  -&gt; youdianse-dev-php-web
+</code></pre>
+<h2 id="二-PC-页面链路">二、PC 页面链路</h2>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>地址/资源</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>原入口</td>
+<td><code>https://pc.youdianse-test.xyz</code></td>
+<td>测试 PC 原始入口</td>
+</tr>
+<tr>
+<td>备案入口</td>
+<td><code>https://test-pc.hbabaxb.cn</code></td>
+<td>测试 PC 备案入口</td>
+</tr>
+<tr>
+<td>第二备案入口</td>
+<td><code>https://test-pc.hbazuua.cn</code></td>
+<td>测试 PC 第二备案入口</td>
+</tr>
+<tr>
+<td>前端静态资源</td>
+<td><code>https://test-pc-s3.hbabaxb.cn</code></td>
+<td>PC <code>_nuxt/js/css/images</code> 静态资源域名</td>
+</tr>
+<tr>
+<td>AWS 前端桶</td>
+<td><code>s3://18game-nuxt-static-test-pc</code></td>
+<td>区域：<code>ap-southeast-1</code></td>
+</tr>
+<tr>
+<td>腾讯 COS</td>
+<td><code>18game-nuxt-static-test-pc-sg-1450169938</code></td>
+<td>区域：<code>ap-singapore</code></td>
+</tr>
+</tbody>
+</table>
+<p>运行链路：</p>
+<pre><code class="language-text">用户浏览器
+  -&gt; PC 页面入口域名
+  -&gt; EdgeOne / 腾讯 CDN
+  -&gt; 162.211.181.13 youdianse-test-cdn-proxy:80
+  -&gt; 38.92.8.34:3004
+  -&gt; PC 前端服务
+  -&gt; Nuxt SSR/PC 页面
+</code></pre>
+<h2 id="三-后端-uploads-图片链路">三、后端 uploads 图片链路</h2>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>地址/资源</th>
+<th>当前规则</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主用图片域名</td>
+<td><code>https://test-img.hbabaxb.cn/uploads/...</code></td>
+<td>带 <code>token/t</code> 返回原图；裸链返回默认占位图</td>
+</tr>
+<tr>
+<td>候选图片域名</td>
+<td><code>https://test-img.hbazuua.cn/uploads/...</code></td>
+<td>同主用规则，用于同规则多域名</td>
+</tr>
+<tr>
+<td>AWS 源/兜底老链路</td>
+<td><code>https://d1rct3ku9n07y3.cloudfront.net/uploads/...</code></td>
+<td>老链路不加密，保留兜底</td>
+</tr>
+</tbody>
+</table>
+<p>当前签名标准：</p>
+<pre><code class="language-text">有效参数：token + t
+旧参数：sign + t，按无效签名处理
+裸链：按无效签名处理
+无效图片响应：HTTP 200 + 默认占位图
+</code></pre>
+<p>后端 env 配置目标：</p>
+<pre><code class="language-ini">[cdn.tencent._default]
+path_prefix=/uploads/
+ttl=2592000
+[敏感内容已脱敏]
+time_param=t
+key=&lt;仅本地 VSCode 与测试服务器 env 保管，不写入文档和 Git&gt;
+key_file=
+
+[cdn.tencent.test-img]
+domains=test-img.hbabaxb.cn,test-img.hbazuua.cn
+</code></pre>
+<p>维护规则：</p>
+<pre><code class="language-text">后续新增同规则图片域名：只追加 domains
+不要再复制 [cdn.tencent.&lt;单域名&gt;] 整段配置
+CDN key 明文：只能在本地 VSCode env/.env.dev 和测试服务器 /opt/docker-youdianse-php/env/.env.dev 保管
+key_file：当前留空，不再依赖 /run/youdianse-tencent-cdn-auth.key 挂载
+</code></pre>
+<h2 id="四-其他域名">四、其他域名</h2>
+<table>
+<thead>
+<tr>
+<th>域名</th>
+<th>用途</th>
+<th>注意</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test-s3.hbabaxb.cn</code></td>
+<td>测试后端 S3/COS 备用或历史同步验证链路</td>
+<td>不是当前页面图片主域名</td>
+</tr>
+<tr>
+<td><code>package.hbazuua.cn</code></td>
+<td>客户端包/下载入口</td>
+<td>和页面 uploads 图片链路分开看</td>
+</tr>
+<tr>
+<td><code>admin.youdianse-test.xyz</code></td>
+<td>测试后台/API 域</td>
+<td>根路径 404 不代表业务接口不可用；后台入口看 <code>/admin1866/login</code></td>
+</tr>
+<tr>
+<td><code>cicd.youdianse-test.xyz</code></td>
+<td>测试环境 CICD Web</td>
+<td>操作发布前先确认只影响测试环境</td>
+</tr>
+<tr>
+<td><code>cron.youdianse-test.xyz</code></td>
+<td>测试环境外部可视化定时任务入口</td>
+<td>后端 cron 容器仍保留执行环境</td>
+</tr>
+</tbody>
+</table>
+<h2 id="五-发布规则">五、发布规则</h2>
+<h3 id="H5-PC-前端">H5/PC 前端</h3>
+<pre><code class="language-text">1. 前端构建后双推 AWS S3 + 腾讯新加坡 COS。
+2. H5 静态资源优先走 test-h5-s3.hbabaxb.cn。
+3. PC 静态资源优先走 test-pc-s3.hbabaxb.cn。
+4. 前端构建静态资源当前不加密。
+5. 页面 HTML/SSR 中的业务 uploads 图片必须使用后端接口返回的 token/t URL。
+</code></pre>
+<h3 id="后端-uploads-图片">后端 uploads 图片</h3>
+<pre><code class="language-text">1. 后端 uploads 图片防盗刷只走 test-img.* 链路。
+2. CommonService::getCdnUrl() 负责把 uploads 图片 URL 转成 token/t。
+3. 旧 sign/t、裸图、空 token 都返回默认占位图。
+4. AWS CloudFront 老链路作为兜底保留，不做当前 test-img 防盗刷规则。
+</code></pre>
+<h3 id="测试后端发布">测试后端发布</h3>
+<pre><code class="language-text">1. 更新 workbench/CURRENT_TASK.md，记录当前步骤和下一步。
+2. 完成一个明确步骤后，发送 Telegram 飞机群通知。
+3. 只提交非敏感文件，不提交 env/.env.dev 中的 key 明文。
+4. 推送 dev。
+5. 测试服务器 /opt/docker-youdianse-php 执行 fast-forward。
+6. 必要时重建 web/nginx/cron。
+7. 复测 CommonService 签名、页面 HTML 图片 token/t、裸链占位图。
+8. 更新 docs 和 workbench，发送最终总结通知。
+</code></pre>
+<h2 id="六-验证清单">六、验证清单</h2>
+<h3 id="DNS-CDN-入口验证">DNS / CDN / 入口验证</h3>
+<pre><code class="language-text">DNSPod NS：核验域名托管方向
+EdgeOne CNAME：核验备案入口和静态资源域名指向
+H5/PC version：核验页面构建版本
+前端静态 version：核验 test-h5-s3 / test-pc-s3 静态资源可访问
+AWS bucket version：核验 AWS S3 侧静态资源版本
+腾讯 COS version：核验 COS 侧静态资源版本
+test-img 裸链：应返回默认占位图
+test-img token/t：应返回原图
+新服务器 access log：切流后 no_cache 探测应能在 /var/log/nginx/*.record.access.log 查到请求
+</code></pre>
+<h3 id="当前抽样标准">当前抽样标准</h3>
+<pre><code class="language-text">H5 /game：
+  test-img 全部带 token/t
+  sign=0
+  裸链=0
+
+PC /game：
+  test-img 全部带 token/t
+  sign=0
+  裸链=0
+
+裸图抽样：
+  HTTP 200
+  Content-Type: image/webp
+  size=13716 或默认占位图大小
+
+签名图抽样：
+  HTTP 200
+  Content-Type: image/webp
+  size != 默认占位图大小
+</code></pre>
+<h3 id="2026-07-30-当前补档复测">2026-07-30 当前补档复测</h3>
+<p>测试服务器本机复测页面入口和静态资源：</p>
+<pre><code class="language-text">https://h5.youdianse-test.xyz/：HTTP 200
+https://test-h5.hbabaxb.cn/：HTTP 200
+https://test-h5.hbazuua.cn/：HTTP 200
+https://pc.youdianse-test.xyz/：HTTP 200
+https://test-pc.hbabaxb.cn/：HTTP 200
+https://test-pc.hbazuua.cn/：HTTP 200
+https://test-h5-s3.hbabaxb.cn/version.json：HTTP 200
+https://test-pc-s3.hbabaxb.cn/version.json：HTTP 200
+</code></pre>
+<p>H5 <code>/game</code> 外网抓取复测：</p>
+<pre><code class="language-text">test_img=123
+敏感凭据：[已脱敏]
+sign=0
+bare=0
+</code></pre>
+<p>裸图 HEAD 抽样：</p>
+<pre><code class="language-text">https://test-img.hbabaxb.cn/uploads/..._list.webp
+HTTP 200
+Content-Type: image/webp
+Content-Length: 13716
+
+https://test-img.hbazuua.cn/uploads/..._list.webp
+HTTP 200
+Content-Type: image/webp
+Content-Length: 13716
+</code></pre>
+<h3 id="2026-07-30-21-18-备案域名迁移后复核">2026-07-30 21:18 备案域名迁移后复核</h3>
+<pre><code class="language-text">新 Nginx 服务器：162.211.181.13 / youdianse-test-cdn-proxy
+Nginx 配置：/etc/nginx/conf.d/youdianse-test-record-domains.conf
+服务状态：nginx active，docker active
+监听端口：80、22
+</code></pre>
+<p>公网抽样：</p>
+<pre><code class="language-text">test-h5.hbabaxb.cn/game：HTTPS 200，test-img total=133，[敏感内容已脱敏]
+test-h5.hbazuua.cn/game：HTTPS 200，test-img total=133，[敏感内容已脱敏]
+test-pc.hbazuua.cn/game?page=4：HTTPS 200，test-img total=41，[敏感内容已脱敏]
+test-h5-s3.hbabaxb.cn/version.json：HTTPS 200，size=705
+test-img.hbazuua.cn 裸链：HTTPS 200，size=13716
+test-img.hbabaxb.cn 裸链：本地 EdgeOne 节点曾超时，需后续从多地复测
+</code></pre>
+<p>复核注意：</p>
+<pre><code class="language-text">本次 probe 标记未在新服务器 access log 中命中，可能是 EdgeOne 缓存/传播或源站切换未完全穿透。
+后续切流完成后，必须用带唯一 no_cache 参数的公网请求复测，并在 youdianse-test-cdn-proxy 的 /var/log/nginx/*.record.access.log 中确认命中。
+</code></pre>
+<p>说明：本地网络直接 GET 裸图时曾出现一次读超时；测试服务器本机 HEAD 复测能稳定返回默认占位图头信息，因此本文按服务器侧 HEAD 结果记录裸链规则。</p>
+<h2 id="七-前几次操作补记">七、前几次操作补记</h2>
+<h3 id="1-广告缓存旧-sign-t-修复">1. 广告缓存旧 sign/t 修复</h3>
+<p>问题：</p>
+<pre><code class="language-text">PC 顶部推荐/广告 banner 中残留旧 sign/t URL。
+Nginx test-img 当前只认 token/t，不认 sign/t。
+旧 sign/t 因签名无效返回默认占位图。
+</code></pre>
+<p>处理：</p>
+<pre><code class="language-text">1. 在测试后端 PHP 容器刷新 AdvService::refreshCache()。
+2. 重启 web/nginx/cron。
+3. 验证 H5/PC/test-pc 页面 token 全量恢复、sign=0、裸链=0。
+</code></pre>
+<p>文档：</p>
+<pre><code class="language-text">docs/2026-07-30-1850-【修复Bug】测试图片默认图与广告缓存旧签名修复记录.md
+</code></pre>
+<h3 id="2-CDN-配置改为默认段-domains">2. CDN 配置改为默认段 + domains</h3>
+<p>问题：</p>
+<pre><code class="language-text">早期每新增一个 test-img 域名，都要复制完整 [cdn.tencent.&lt;域名&gt;] 配置段。
+后续域名会越来越多，重复配置容易漏改 ttl/token_param/time_param/key。
+</code></pre>
+<p>处理：</p>
+<pre><code class="language-text">1. 后端 CommonService.php 支持 [cdn.tencent._default] 默认配置。
+2. [cdn.tencent.test-img] 只维护 domains 列表。
+3. 当前 domains=test-img.hbabaxb.cn,test-img.hbazuua.cn。
+</code></pre>
+<p>当前约定：</p>
+<pre><code class="language-text">新增同规则域名只追加 domains。
+不要重复写完整单域名段。
+</code></pre>
+<h3 id="3-key_file-方案回退为-key-字符串">3. key_file 方案回退为 key= 字符串</h3>
+<p>过程：</p>
+<pre><code class="language-text">1. 曾尝试将 CDN key 放到 cicd-web/runtime/tencent-cdn-auth.key。
+2. 容器内挂载到 /run/youdianse-tencent-cdn-auth.key。
+3. 核验 PHP is_readable 返回 yes，说明不是单纯权限不可读。
+4. 为减少挂载/权限/入口脚本风险，最终按用户要求改为 env 直接 key=。
+</code></pre>
+<p>当前状态：</p>
+<pre><code class="language-text">本地 VSCode env/.env.dev：key=&lt;已设置&gt;，key_file=
+测试服务器 /opt/docker-youdianse-php/env/.env.dev：key=&lt;已设置&gt;，key_file=
+docker-compose.yml：不再挂载 /run/youdianse-tencent-cdn-auth.key
+web/cron 容器：key_file 挂载数量为 0
+</code></pre>
+<p>注意：</p>
+<pre><code class="language-text">env/.env.dev 含 CDN key 明文。
+该文件可以在本地和测试服务器保留为运行态修改。
+不要 git add、不要提交、不要输出完整 diff。
+</code></pre>
+<h3 id="4-H5-game-裸链回归修复">4. H5 /game 裸链回归修复</h3>
+<p>现象：</p>
+<pre><code class="language-text">H5 /game 页面图片大量变成裸 test-img URL。
+浏览器 Network 显示 from service worker，但 HTML SSR 中已经存在裸链。
+</code></pre>
+<p>排查：</p>
+<pre><code class="language-text">1. Service Worker 不是裸链根因。
+2. H5 toSizedImage() 会保留 query。
+3. 容器内直接调用 GameRepository::getLists() 能返回 token/t。
+4. H5 SSR payload 一度为裸 URL，偏向后端/H5 进程态缓存或发布后进程未刷新。
+</code></pre>
+<p>处理与验证：</p>
+<pre><code class="language-text">1. 后端 env 切为 key= 后重启 web/nginx/cron。
+2. 重启 H5 测试容器 youdianse_test_18game_h5_client_3003。
+3. 外网抓取 /game：
+   test_img=123
+   敏感凭据：[已脱敏]
+   sign=0
+   bare=0
+</code></pre>
+<h3 id="5-完整发布流程文档补充">5. 完整发布流程文档补充</h3>
+<p>新增：</p>
+<pre><code class="language-text">workbench/TEST_ENV_CDN_RELEASE_FLOW.md
+</code></pre>
+<p>用途：</p>
+<pre><code class="language-text">记录本地 VSCode env 配置、仓库提交、测试服务器 /opt 同步、容器发布、运行验证和最终收口。
+强调 env/.env.dev 中 key 明文只能留本地/服务器，不能提交。
+</code></pre>
+<h2 id="八-workbench-同步位置">八、workbench 同步位置</h2>
+<p>本次域名关系总览应同步到：</p>
+<pre><code class="language-text">workbench/PROJECT_RUNTIME_CHAINS.md
+workbench/CURRENT_STATE.md
+workbench/CURRENT_TASK.md
+workbench/ACTIVE_TASKS.md
+workbench/TEST_ENV_DOMAIN_RELATIONS.md
+workbench/TEST_ENV_CDN_RELEASE_FLOW.md
+</code></pre>
+<h2 id="九-后续注意">九、后续注意</h2>
+<pre><code class="language-text">1. 页面图片显示默认图时，先区分前端静态资源域名和后端 uploads 图片域名。
+2. test-h5-s3/test-pc-s3 是前端静态资源，不按 uploads token/t 鉴权。
+3. test-img.* 是后端 uploads 图片防盗刷域名，必须带 token/t。
+4. 浏览器 from service worker 只说明请求由 SW 接管或缓存，不代表裸链由 SW 生成。
+5. 后端更新 env 或 CommonService 后，如页面仍有旧 URL，优先刷新业务缓存和 SSR/Nitro 进程。
+6. 广告位容易缓存旧 URL，重点看 AdvService::refreshCache()。
+7. 每次操作必须先写 workbench，再通知飞机群，再继续下一步。
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#目的">目的</a></li><li style="margin-left:0.0rem"><a href="#总览结论">总览结论</a></li><li style="margin-left:0.0rem"><a href="#备案域名迁移后总链路">备案域名迁移后总链路</a></li><li style="margin-left:0.0rem"><a href="#一-H5-页面链路">一、H5 页面链路</a></li><li style="margin-left:0.0rem"><a href="#二-PC-页面链路">二、PC 页面链路</a></li><li style="margin-left:0.0rem"><a href="#三-后端-uploads-图片链路">三、后端 uploads 图片链路</a></li><li style="margin-left:0.0rem"><a href="#四-其他域名">四、其他域名</a></li><li style="margin-left:0.0rem"><a href="#五-发布规则">五、发布规则</a></li><li style="margin-left:0.8rem"><a href="#H5-PC-前端">H5/PC 前端</a></li><li style="margin-left:0.8rem"><a href="#后端-uploads-图片">后端 uploads 图片</a></li><li style="margin-left:0.8rem"><a href="#测试后端发布">测试后端发布</a></li><li style="margin-left:0.0rem"><a href="#六-验证清单">六、验证清单</a></li><li style="margin-left:0.8rem"><a href="#DNS-CDN-入口验证">DNS / CDN / 入口验证</a></li><li style="margin-left:0.8rem"><a href="#当前抽样标准">当前抽样标准</a></li><li style="margin-left:0.8rem"><a href="#2026-07-30-当前补档复测">2026-07-30 当前补档复测</a></li><li style="margin-left:0.8rem"><a href="#2026-07-30-21-18-备案域名迁移后复核">2026-07-30 21:18 备案域名迁移后复核</a></li><li style="margin-left:0.0rem"><a href="#七-前几次操作补记">七、前几次操作补记</a></li><li style="margin-left:0.8rem"><a href="#1-广告缓存旧-sign-t-修复">1. 广告缓存旧 sign/t 修复</a></li><li style="margin-left:0.8rem"><a href="#2-CDN-配置改为默认段-domains">2. CDN 配置改为默认段 + domains</a></li><li style="margin-left:0.8rem"><a href="#3-key_file-方案回退为-key-字符串">3. key_file 方案回退为 key= 字符串</a></li><li style="margin-left:0.8rem"><a href="#4-H5-game-裸链回归修复">4. H5 /game 裸链回归修复</a></li><li style="margin-left:0.8rem"><a href="#5-完整发布流程文档补充">5. 完整发布流程文档补充</a></li><li style="margin-left:0.0rem"><a href="#八-workbench-同步位置">八、workbench 同步位置</a></li><li style="margin-left:0.0rem"><a href="#九-后续注意">九、后续注意</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-07-30</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">自动化</span><span class="tag">CDN</span><span class="tag">DNS</span><span class="tag">安全运维</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-07-30-1939-【运维记录…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607301939-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E5%9F%9F%E5%90%8D%E4%B8%8E%E8%B5%84%E6%BA%90%E9%93%BE%E8%B7%AF%E6%80%BB%E8%A7%88%20%C2%B7%20%E3%80%90%E8%BF%90%E7%BB%B4%E8%AE%B0%E5%BD%95%E3%80%91%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E5%9F%9F%E5%90%8D%E4%B8%8E%E8%B5%84%E6%BA%90%E9%93%BE%E8%B7%AF%E6%80%BB%E8%A7%88.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>测试环境域名与资源链路总览 · 【运维记录】测试环境域名与资源链路总览。本文属于业务系统运维 / 游点涩，后续排查测试环境图片、静态资源、页面入口、备案域名、S3/COS 同步和 CDN 鉴权时，优先查看本文，再结合 workbench/PROJECT_RUNTIME_CHAINS.md 、 workbench/…</p>
+      <p>关键词：游点涩、Shell、Docker、Nginx、自动化、CDN、DNS、安全运维、业务系统运维、业务系统运维 / 游点涩、测试环境域名与资源链路总览 · 【运维记录】测试环境域名与资源链路总览、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7a9f49a618f0.html"><small>上一篇</small>ben-bot 后台 S3 同步入口下线记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c87396134965.html"><small>下一篇</small>测试环境域名与资源链路总览 · 【运维记录】测试环境域名与资源链路总览</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9d991f1b4af6.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
