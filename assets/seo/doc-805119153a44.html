@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>四个备案域名与 H5/PC/S3/IMG 链路整理｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="四个备案域名与 H5/PC/S3/IMG 链路整理。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 线上前置 / 线上环境 / 备案域名 / 腾讯 COS / 静态资源 / 图片资源 本次整理 4 个备案域名的职责边界，核心原则如下： 页面入口、前端构建静态资源、后端 upload…">
+  <meta name="keywords" content="18Game 测试环境，Python，Nginx，CDN，DNS，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，四个备案域名与 H5/PC/S3/IMG 链路整理，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-805119153a44.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-805119153a44.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608042130-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BNginx-%E5%9B%9B%E4%B8%AA%E5%A4%87%E6%A1%88%E5%9F%9F%E5%90%8D%E4%B8%8E%20H5-PC-S3-IMG%20%E9%93%BE%E8%B7%AF%E6%95%B4%E7%90%86.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="四个备案域名与 H5/PC/S3/IMG 链路整理">
+  <meta property="og:description" content="四个备案域名与 H5/PC/S3/IMG 链路整理。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 线上前置 / 线上环境 / 备案域名 / 腾讯 COS / 静态资源 / 图片资源 本次整理 4 个备案域名的职责边界，核心原则如下： 页面入口、前端构建静态资源、后端 upload…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-805119153a44.html">
+  <meta property="article:published_time" content="2026-08-04T21:30:00+08:00">
+  <meta property="article:modified_time" content="2026-08-04 21:30">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="四个备案域名与 H5/PC/S3/IMG 链路整理">
+  <meta name="twitter:description" content="四个备案域名与 H5/PC/S3/IMG 链路整理。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 线上前置 / 线上环境 / 备案域名 / 腾讯 COS / 静态资源 / 图片资源 本次整理 4 个备案域名的职责边界，核心原则如下： 页面入口、前端构建静态资源、后端 upload…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-805119153a44.html#article","headline":"四个备案域名与 H5/PC/S3/IMG 链路整理","description":"四个备案域名与 H5/PC/S3/IMG 链路整理。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 线上前置 / 线上环境 / 备案域名 / 腾讯 COS / 静态资源 / 图片资源 本次整理 4 个备案域名的职责边界，核心原则如下： 页面入口、前端构建静态资源、后端 upload…","datePublished":"2026-08-04T21:30:00+08:00","dateModified":"2026-08-04 21:30","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Python","Nginx","CDN","DNS","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","四个备案域名与 H5/PC/S3/IMG 链路整理","devops"],"wordCount":2547,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-805119153a44.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-805119153a44.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"四个备案域名与 H5/PC/S3/IMG 链路整理","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-805119153a44.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>四个备案域名与 H5/PC/S3/IMG 链路整理</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>四个备案域名与 H5/PC/S3/IMG 链路整理</h1>
+      <p class="lede">四个备案域名与 H5/PC/S3/IMG 链路整理。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 线上前置 / 线上环境 / 备案域名 / 腾讯 COS / 静态资源 / 图片资源 本次整理 4 个备案域名的职责边界，核心原则如下： 页面入口、前端构建静态资源、后端 upload…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-08-04T21:30:00+08:00">发布于 2026-08-04</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,547 字</span>
+        <span class="badge">8 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-04_2130-【运维规划+域名关系】四个备案域名与H5-PC-S3-IMG链路整理.md</code></p>
+<p>整理日期：2026-08-04 21:30｜日期依据：文件名日期</p>
+</blockquote>
+<p>环境标签：测试环境 / 线上前置 / 线上环境 / 备案域名 / 腾讯 COS / 静态资源 / 图片资源</p>
+<p>记录时间：2026-08-04 21:30</p>
+<h2 id="本次结论">本次结论</h2>
+<p>本次整理 4 个备案域名的职责边界，核心原则如下：</p>
+<ul>
+<li>页面入口、前端构建静态资源、后端 uploads 图片分开。</li>
+<li>前端 H5/PC 打包产物使用各自独立腾讯 COS/S3 桶。</li>
+<li><code>test-h5-s3</code>、<code>test-pc-s3</code>、<code>main-h5-s3</code>、<code>main-pc-s3</code> 这类前端静态资源域名不走腾讯 CDN/EdgeOne，避免缓存和 CORS 反复问题。</li>
+<li>当前新静态资源域名通过日本服务器 <code>138.252.248.139</code> 的 Nginx HTTPS 反代到腾讯 COS，并统一补 CORS 与 no-cache/no-store 响应头。</li>
+<li>后端 uploads 图片继续走 <code>test-img/main-img</code> 这类独立图片链路，不和前端构建资源混用。</li>
+</ul>
+<h2 id="四个备案域名费用与定位">四个备案域名费用与定位</h2>
+<table>
+<thead>
+<tr>
+<th>域名</th>
+<th>费用周期</th>
+<th>月费用</th>
+<th>当前定位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hbabaxb.cn</code></td>
+<td>08.11 ~ 09.11</td>
+<td>200u</td>
+<td>测试环境主备案域：H5/PC 页面入口、测试图片主链路</td>
+</tr>
+<tr>
+<td><code>hbazuua.cn</code></td>
+<td>08.11 ~ 09.11</td>
+<td>200u</td>
+<td>测试环境备用备案域：H5/PC 页面备用、测试图片备用链路</td>
+</tr>
+<tr>
+<td><code>hbbfuub.cn</code></td>
+<td>08.04 ~ 09.04</td>
+<td>200u</td>
+<td>测试环境前端静态资源新域名：H5/PC 打包资源无 CDN 链路</td>
+</tr>
+<tr>
+<td><code>hbakjja.cn</code></td>
+<td>08.04 ~ 09.04</td>
+<td>200u</td>
+<td>线上前置/上线前模拟静态资源新域名：H5/PC 打包资源无 CDN 链路</td>
+</tr>
+</tbody>
+</table>
+<h2 id="树形链路版">树形链路版</h2>
+<pre><code class="language-text">用户浏览器
+├─ 测试环境 H5 页面
+│  ├─ https://h5.youdianse-test.xyz
+│  ├─ https://test-h5.hbabaxb.cn
+│  └─ https://test-h5.hbazuua.cn（备用，证书需单独确认）
+├─ 测试环境 PC 页面
+│  ├─ https://pc.youdianse-test.xyz
+│  ├─ https://test-pc.hbabaxb.cn
+│  └─ https://test-pc.hbazuua.cn（备用，证书需单独确认）
+├─ 测试环境前端静态资源（不走腾讯 CDN/EdgeOne）
+│  ├─ H5: https://test-h5-s3.hbbfuub.cn
+│  │  └─ 日本 Nginx 138.252.248.139 -&gt; 腾讯 COS: 18game-nuxt-static-test-h5-sg-1450169938
+│  └─ PC: https://test-pc-s3.hbbfuub.cn
+│     └─ 日本 Nginx 138.252.248.139 -&gt; 腾讯 COS: 18game-nuxt-static-test-pc-sg-1450169938
+├─ 线上前置/上线前模拟前端静态资源（不走腾讯 CDN/EdgeOne）
+│  ├─ H5: https://main-h5-s3.hbakjja.cn
+│  │  └─ 日本 Nginx 138.252.248.139 -&gt; 腾讯 COS: 18game-nuxt-static-preprod-h5-sg-1450169938
+│  └─ PC: https://main-pc-s3.hbakjja.cn
+│     └─ 日本 Nginx 138.252.248.139 -&gt; 腾讯 COS: 18game-nuxt-static-preprod-pc-sg-1450169938
+├─ 后端 uploads 图片
+│  ├─ 测试主用: https://test-img.hbabaxb.cn/uploads/...
+│  ├─ 测试候选: https://test-img.hbazuua.cn/uploads/...
+│  ├─ AWS 源/兜底: https://d1rct3ku9n07y3.cloudfront.net/uploads/...
+│  └─ 线上规划: https://main-img.备案域名/uploads/...
+└─ 后端接口
+   ├─ 页面同域 /api、/channel、/customer 反代到对应后端
+   └─ 测试前端 env 仍记录 https://admin.youdianse-test.xyz 作为测试 API 域名
+</code></pre>
+<p>旧静态域说明：</p>
+<ul>
+<li><code>https://test-h5-s3.hbabaxb.cn</code>：旧测试 H5 静态域，已停止作为页面构建静态域。</li>
+<li><code>https://test-pc-s3.hbabaxb.cn</code>：旧测试 PC 静态域，已停止作为页面构建静态域。</li>
+<li>停用原因：旧域名仍走 EdgeOne，曾出现部分边缘节点 <code>200</code> 但缺 CORS 响应头，导致浏览器拦截 CSS/JS。</li>
+</ul>
+<h2 id="当前推荐落地域名">当前推荐落地域名</h2>
+<h3 id="测试环境">测试环境</h3>
+<table>
+<thead>
+<tr>
+<th>用途</th>
+<th>推荐域名</th>
+<th>当前状态</th>
+<th>链路说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H5 页面入口</td>
+<td><code>test-h5.hbabaxb.cn</code></td>
+<td>已在用</td>
+<td>页面入口，走现有 EdgeOne/页面链路</td>
+</tr>
+<tr>
+<td>H5 页面备用</td>
+<td><code>test-h5.hbazuua.cn</code></td>
+<td>备用，证书需单独确认</td>
+<td>页面备用入口，不承载前端构建静态资源</td>
+</tr>
+<tr>
+<td>H5 前端静态资源</td>
+<td><code>test-h5-s3.hbbfuub.cn</code></td>
+<td>已启用</td>
+<td>A 到 <code>138.252.248.139</code> -&gt; 日本 Nginx -&gt; 腾讯 COS 桶</td>
+</tr>
+<tr>
+<td>PC 页面入口</td>
+<td><code>test-pc.hbabaxb.cn</code></td>
+<td>已在用</td>
+<td>页面入口，走现有 EdgeOne/页面链路</td>
+</tr>
+<tr>
+<td>PC 页面备用</td>
+<td><code>test-pc.hbazuua.cn</code></td>
+<td>备用，证书需单独确认</td>
+<td>页面备用入口，不承载前端构建静态资源</td>
+</tr>
+<tr>
+<td>PC 前端静态资源</td>
+<td><code>test-pc-s3.hbbfuub.cn</code></td>
+<td>已启用</td>
+<td>A 到 <code>138.252.248.139</code> -&gt; 日本 Nginx -&gt; 腾讯 COS 桶</td>
+</tr>
+<tr>
+<td>后端 uploads 图片主域</td>
+<td><code>test-img.hbabaxb.cn</code></td>
+<td>已在用</td>
+<td>后端上传图片展示链路，和前端静态资源分离</td>
+</tr>
+<tr>
+<td>后端 uploads 图片备用</td>
+<td><code>test-img.hbazuua.cn</code></td>
+<td>已在用</td>
+<td>后端上传图片备用展示链路</td>
+</tr>
+</tbody>
+</table>
+<h3 id="线上前置-上线前模拟">线上前置 / 上线前模拟</h3>
+<table>
+<thead>
+<tr>
+<th>用途</th>
+<th>推荐域名</th>
+<th>当前状态</th>
+<th>链路说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H5 页面入口</td>
+<td><code>main-h5.备案域名</code></td>
+<td>待页面域名正式指定</td>
+<td>线上前置 H5 页面入口，后续回源日本前置服务器</td>
+</tr>
+<tr>
+<td>PC 页面入口</td>
+<td><code>main-pc.备案域名</code></td>
+<td>待页面域名正式指定</td>
+<td>建议使用 <code>main-pc</code>，不要复用测试环境 <code>test-pc</code> 名称</td>
+</tr>
+<tr>
+<td>H5 前端静态资源</td>
+<td><code>main-h5-s3.hbakjja.cn</code></td>
+<td>已启用静态资源链路</td>
+<td>A 到 <code>138.252.248.139</code> -&gt; 日本 Nginx -&gt; 线上前置 H5 腾讯 COS 桶</td>
+</tr>
+<tr>
+<td>PC 前端静态资源</td>
+<td><code>main-pc-s3.hbakjja.cn</code></td>
+<td>已启用静态资源链路</td>
+<td>A 到 <code>138.252.248.139</code> -&gt; 日本 Nginx -&gt; 线上前置 PC 腾讯 COS 桶</td>
+</tr>
+<tr>
+<td>后端 uploads 图片</td>
+<td><code>main-img.备案域名</code></td>
+<td>待线上图片链路正式指定</td>
+<td>线上后端上传图片展示链路，不和前端构建静态资源混用</td>
+</tr>
+</tbody>
+</table>
+<p>说明：用户原口径里线上 PC 页面写过 <code>test-pc.备案域名</code>，但该名字已经用于测试环境 PC。为避免混淆，线上前置/线上环境建议统一使用 <code>main-pc.备案域名</code>。</p>
+<h2 id="四个-S3-静态资源域名">四个 S3 静态资源域名</h2>
+<table>
+<thead>
+<tr>
+<th>域名</th>
+<th>环境</th>
+<th>用途</th>
+<th>当前 DNS</th>
+<th>当前响应策略</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test-h5-s3.hbbfuub.cn</code></td>
+<td>测试</td>
+<td>H5 前端打包资源</td>
+<td>A -&gt; <code>138.252.248.139</code></td>
+<td><code>CORS:*</code>、<code>no-store</code></td>
+</tr>
+<tr>
+<td><code>test-pc-s3.hbbfuub.cn</code></td>
+<td>测试</td>
+<td>PC 前端打包资源</td>
+<td>A -&gt; <code>138.252.248.139</code></td>
+<td><code>CORS:*</code>、<code>no-store</code></td>
+</tr>
+<tr>
+<td><code>main-h5-s3.hbakjja.cn</code></td>
+<td>线上前置/上线前模拟</td>
+<td>H5 前端打包资源</td>
+<td>A -&gt; <code>138.252.248.139</code></td>
+<td><code>CORS:*</code>、<code>no-store</code></td>
+</tr>
+<tr>
+<td><code>main-pc-s3.hbakjja.cn</code></td>
+<td>线上前置/上线前模拟</td>
+<td>PC 前端打包资源</td>
+<td>A -&gt; <code>138.252.248.139</code></td>
+<td><code>CORS:*</code>、<code>no-store</code></td>
+</tr>
+</tbody>
+</table>
+<p>这 4 个域名全部不走腾讯 CDN/EdgeOne。原因是前端打包资源文件名、Service Worker、CSS/JS 加载和跨域响应头对缓存一致性要求高，旧 EdgeOne 静态域已经出现过 <code>200</code> 但缺 <code>Access-Control-Allow-Origin</code> 的边缘节点抖动。</p>
+<h2 id="腾讯-COS-桶关系">腾讯 COS 桶关系</h2>
+<table>
+<thead>
+<tr>
+<th>域名</th>
+<th>腾讯 COS 桶</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test-h5-s3.hbbfuub.cn</code></td>
+<td><code>18game-nuxt-static-test-h5-sg-1450169938</code></td>
+<td>测试 H5 前端构建资源</td>
+</tr>
+<tr>
+<td><code>test-pc-s3.hbbfuub.cn</code></td>
+<td><code>18game-nuxt-static-test-pc-sg-1450169938</code></td>
+<td>测试 PC 前端构建资源</td>
+</tr>
+<tr>
+<td><code>main-h5-s3.hbakjja.cn</code></td>
+<td><code>18game-nuxt-static-preprod-h5-sg-1450169938</code></td>
+<td>线上前置 H5 前端构建资源</td>
+</tr>
+<tr>
+<td><code>main-pc-s3.hbakjja.cn</code></td>
+<td><code>18game-nuxt-static-preprod-pc-sg-1450169938</code></td>
+<td>线上前置 PC 前端构建资源</td>
+</tr>
+</tbody>
+</table>
+<h2 id="当前-DNS-抽查">当前 DNS 抽查</h2>
+<table>
+<thead>
+<tr>
+<th>域名</th>
+<th>DNS 结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test-h5-s3.hbbfuub.cn</code></td>
+<td><code>138.252.248.139</code></td>
+</tr>
+<tr>
+<td><code>test-pc-s3.hbbfuub.cn</code></td>
+<td><code>138.252.248.139</code></td>
+</tr>
+<tr>
+<td><code>main-h5-s3.hbakjja.cn</code></td>
+<td><code>138.252.248.139</code></td>
+</tr>
+<tr>
+<td><code>main-pc-s3.hbakjja.cn</code></td>
+<td><code>138.252.248.139</code></td>
+</tr>
+<tr>
+<td><code>test-h5.hbabaxb.cn</code></td>
+<td>EdgeOne CNAME</td>
+</tr>
+<tr>
+<td><code>test-pc.hbabaxb.cn</code></td>
+<td>EdgeOne CNAME</td>
+</tr>
+<tr>
+<td><code>test-img.hbabaxb.cn</code></td>
+<td>EdgeOne CNAME</td>
+</tr>
+<tr>
+<td><code>test-img.hbazuua.cn</code></td>
+<td>EdgeOne CNAME</td>
+</tr>
+</tbody>
+</table>
+<h2 id="给群里的简版关系">给群里的简版关系</h2>
+<p>4 个备案域名当前这样分：</p>
+<ul>
+<li><code>hbabaxb.cn</code>：测试环境主备案域，承接 <code>test-h5</code>、<code>test-pc</code>、<code>test-img</code>。</li>
+<li><code>hbazuua.cn</code>：测试环境备用备案域，承接备用页面和备用 <code>test-img</code>，页面证书需单独确认。</li>
+<li><code>hbbfuub.cn</code>：测试环境前端静态资源专用，承接 <code>test-h5-s3</code>、<code>test-pc-s3</code>，不走腾讯 CDN。</li>
+<li><code>hbakjja.cn</code>：线上前置/上线前模拟静态资源专用，承接 <code>main-h5-s3</code>、<code>main-pc-s3</code>，不走腾讯 CDN。</li>
+</ul>
+<p>核心链路：</p>
+<pre><code class="language-text">测试 H5 页面 -&gt; test-h5.hbabaxb.cn
+测试 H5 静态资源 -&gt; test-h5-s3.hbbfuub.cn -&gt; 日本 Nginx -&gt; 腾讯 COS
+
+测试 PC 页面 -&gt; test-pc.hbabaxb.cn
+测试 PC 静态资源 -&gt; test-pc-s3.hbbfuub.cn -&gt; 日本 Nginx -&gt; 腾讯 COS
+
+线上前置 H5 静态资源 -&gt; main-h5-s3.hbakjja.cn -&gt; 日本 Nginx -&gt; 腾讯 COS
+线上前置 PC 静态资源 -&gt; main-pc-s3.hbakjja.cn -&gt; 日本 Nginx -&gt; 腾讯 COS
+
+测试图片 -&gt; test-img.hbabaxb.cn / test-img.hbazuua.cn
+线上图片 -&gt; main-img.备案域名，后续单独落正式链路
+</code></pre>
+<h2 id="后续注意">后续注意</h2>
+<ol>
+<li>前端构建资源不要再回到旧 <code>test-h5-s3.hbabaxb.cn</code>、<code>test-pc-s3.hbabaxb.cn</code>，旧域名保留为历史/回滚观察对象。</li>
+<li><code>hbazuua.cn</code> 当前更适合作为备用页面/图片域，若要启用页面入口，需要单独确认证书覆盖。</li>
+<li>线上前置页面域名建议明确成 <code>main-h5.备案域名</code>、<code>main-pc.备案域名</code>，避免把线上 PC 写成 <code>test-pc</code>。</li>
+<li><code>main-img.备案域名</code> 是后端 uploads 图片链路，和前端 <code>main-*-s3</code> COS 打包资源链路分开维护。</li>
+</ol>
+<h2 id="群发优化版">群发优化版</h2>
+<pre><code class="language-text">【四个备案域名关系整理】
+
+一、域名费用与定位
+hbabaxb.cn   08.11-09.11  200u
+用途：测试页面主域 + 测试图片主域
+
+hbazuua.cn   08.11-09.11  200u
+用途：测试页面备用 + 测试图片备用
+
+hbbfuub.cn   08.04-09.04  200u
+用途：测试 H5/PC 前端静态资源
+
+hbakjja.cn   08.04-09.04  200u
+用途：线上前置 H5/PC 前端静态资源
+
+二、测试环境页面
+H5 页面：
+- h5.youdianse-test.xyz
+- test-h5.hbabaxb.cn
+- test-h5.hbazuua.cn（备用，证书需确认）
+
+PC 页面：
+- pc.youdianse-test.xyz
+- test-pc.hbabaxb.cn
+- test-pc.hbazuua.cn（备用，证书需确认）
+
+三、测试环境前端静态资源
+不走腾讯 CDN / EdgeOne
+
+H5 静态资源：
+- test-h5-s3.hbbfuub.cn
+- 腾讯 COS: 18game-nuxt-static-test-h5-sg-1450169938
+
+PC 静态资源：
+- test-pc-s3.hbbfuub.cn
+- 腾讯 COS: 18game-nuxt-static-test-pc-sg-1450169938
+
+四、线上前置静态资源
+不走腾讯 CDN / EdgeOne
+
+H5 静态资源：
+- main-h5-s3.hbakjja.cn
+- 腾讯 COS: 18game-nuxt-static-preprod-h5-sg-1450169938
+
+PC 静态资源：
+- main-pc-s3.hbakjja.cn
+- 腾讯 COS: 18game-nuxt-static-preprod-pc-sg-1450169938
+
+五、后端 uploads 图片
+测试主用：
+- test-img.hbabaxb.cn/uploads/...
+
+测试备用：
+- test-img.hbazuua.cn/uploads/...
+
+AWS 源 / 兜底：
+- d1rct3ku9n07y3.cloudfront.net/uploads/...
+
+线上规划：
+- main-img.备案域名/uploads/...
+
+六、链路重点
+前端静态资源：
+用户浏览器 -&gt; S3 域名 -&gt; 日本 Nginx -&gt; 腾讯 COS
+
+后端图片资源：
+用户浏览器 -&gt; test-img/main-img -&gt; 后端 uploads 链路
+
+后端接口：
+页面同域 /api、/channel、/customer 反代到对应后端
+
+结论：
+hbabaxb.cn、hbazuua.cn 负责测试页面和图片。
+hbbfuub.cn 负责测试前端静态资源。
+hbakjja.cn 负责线上前置静态资源。
+前端静态资源不走腾讯 CDN，避免缓存和 CORS 反复问题。
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#本次结论">本次结论</a></li><li style="margin-left:0.0rem"><a href="#四个备案域名费用与定位">四个备案域名费用与定位</a></li><li style="margin-left:0.0rem"><a href="#树形链路版">树形链路版</a></li><li style="margin-left:0.0rem"><a href="#当前推荐落地域名">当前推荐落地域名</a></li><li style="margin-left:0.8rem"><a href="#测试环境">测试环境</a></li><li style="margin-left:0.8rem"><a href="#线上前置-上线前模拟">线上前置 / 上线前模拟</a></li><li style="margin-left:0.0rem"><a href="#四个-S3-静态资源域名">四个 S3 静态资源域名</a></li><li style="margin-left:0.0rem"><a href="#腾讯-COS-桶关系">腾讯 COS 桶关系</a></li><li style="margin-left:0.0rem"><a href="#当前-DNS-抽查">当前 DNS 抽查</a></li><li style="margin-left:0.0rem"><a href="#给群里的简版关系">给群里的简版关系</a></li><li style="margin-left:0.0rem"><a href="#后续注意">后续注意</a></li><li style="margin-left:0.0rem"><a href="#群发优化版">群发优化版</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-08-04</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Python</span><span class="tag">Nginx</span><span class="tag">CDN</span><span class="tag">DNS</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-04_2130-【运维规划+域名关系】四个备案域名与H5-PC…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608042130-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BNginx-%E5%9B%9B%E4%B8%AA%E5%A4%87%E6%A1%88%E5%9F%9F%E5%90%8D%E4%B8%8E%20H5-PC-S3-IMG%20%E9%93%BE%E8%B7%AF%E6%95%B4%E7%90%86.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>四个备案域名与 H5/PC/S3/IMG 链路整理。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 线上前置 / 线上环境 / 备案域名 / 腾讯 COS / 静态资源 / 图片资源 本次整理 4 个备案域名的职责边界，核心原则如下： 页面入口、前端构建静态资源、后端 upload…</p>
+      <p>关键词：18Game 测试环境、Python、Nginx、CDN、DNS、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、四个备案域名与 H5/PC/S3/IMG 链路整理、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-eed6b7d37cdd.html"><small>上一篇</small>新增备案域名静态资源无 CDN 反代与测试 H5/PC 重发验证</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-49991df39f4e.html"><small>下一篇</small>hbabaxb / hbazuua 前端 S3 静态资源域名补全</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-805119153a44.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

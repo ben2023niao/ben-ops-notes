@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>新增备案域名静态资源无 CDN 反代与测试 H5/PC 重发验证｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="新增备案域名静态资源无 CDN 反代与测试 H5/PC 重发验证。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 线上前置 / 腾讯云备案域名 / COS / Nginx / H5 / PC 已把新增备案域名用于前端静态资源新链路，测试 H5/PC 不再引用旧 test-h5-s3…">
+  <meta name="keywords" content="18Game 测试环境，Shell，Python，Nginx，自动化，CDN，DNS，故障排查，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，新增备案域名静态资源无 CDN 反代与测试 H5/PC 重发验证，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-eed6b7d37cdd.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-eed6b7d37cdd.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608042119-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%96%B0%E5%A2%9E%E5%A4%87%E6%A1%88%E5%9F%9F%E5%90%8D%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E6%97%A0%20CDN%20%E5%8F%8D%E4%BB%A3%E4%B8%8E%E6%B5%8B%E8%AF%95%20H5-PC%20%E9%87%8D%E5%8F%91%E9%AA%8C%E8%AF%81.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="新增备案域名静态资源无 CDN 反代与测试 H5/PC 重发验证">
+  <meta property="og:description" content="新增备案域名静态资源无 CDN 反代与测试 H5/PC 重发验证。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 线上前置 / 腾讯云备案域名 / COS / Nginx / H5 / PC 已把新增备案域名用于前端静态资源新链路，测试 H5/PC 不再引用旧 test-h5-s3…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-eed6b7d37cdd.html">
+  <meta property="article:published_time" content="2026-08-04T21:19:00+08:00">
+  <meta property="article:modified_time" content="2026-08-04 21:19">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="新增备案域名静态资源无 CDN 反代与测试 H5/PC 重发验证">
+  <meta name="twitter:description" content="新增备案域名静态资源无 CDN 反代与测试 H5/PC 重发验证。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 线上前置 / 腾讯云备案域名 / COS / Nginx / H5 / PC 已把新增备案域名用于前端静态资源新链路，测试 H5/PC 不再引用旧 test-h5-s3…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-eed6b7d37cdd.html#article","headline":"新增备案域名静态资源无 CDN 反代与测试 H5/PC 重发验证","description":"新增备案域名静态资源无 CDN 反代与测试 H5/PC 重发验证。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 线上前置 / 腾讯云备案域名 / COS / Nginx / H5 / PC 已把新增备案域名用于前端静态资源新链路，测试 H5/PC 不再引用旧 test-h5-s3…","datePublished":"2026-08-04T21:19:00+08:00","dateModified":"2026-08-04 21:19","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Shell","Python","Nginx","自动化","CDN","DNS","故障排查","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","新增备案域名静态资源无 CDN 反代与测试 H5/PC 重发验证","devops"],"wordCount":2140,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-eed6b7d37cdd.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-eed6b7d37cdd.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"新增备案域名静态资源无 CDN 反代与测试 H5/PC 重发验证","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-eed6b7d37cdd.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>新增备案域名静态资源无 CDN 反代与测试 H5/PC 重发验证</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>新增备案域名静态资源无 CDN 反代与测试 H5/PC 重发验证</h1>
+      <p class="lede">新增备案域名静态资源无 CDN 反代与测试 H5/PC 重发验证。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 线上前置 / 腾讯云备案域名 / COS / Nginx / H5 / PC 已把新增备案域名用于前端静态资源新链路，测试 H5/PC 不再引用旧 test-h5-s3…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-08-04T21:19:00+08:00">发布于 2026-08-04</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,140 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-04_2119-【修复Bug+链路改造】新增备案域名静态资源无CDN反代与测试H5-PC重发验证.md</code></p>
+<p>整理日期：2026-08-04 21:19｜日期依据：文件名日期</p>
+</blockquote>
+<p>环境标签：测试环境 / 线上前置 / 腾讯云备案域名 / COS / Nginx / H5 / PC</p>
+<p>记录时间：2026-08-04 21:19</p>
+<h2 id="本次结论">本次结论</h2>
+<ul>
+<li>已把新增备案域名用于前端静态资源新链路，测试 H5/PC 不再引用旧 <code>test-h5-s3.hbabaxb.cn</code>、<code>test-pc-s3.hbabaxb.cn</code> 静态域。</li>
+<li>本次核心修复不是继续刷新旧 EdgeOne 缓存，而是把前端静态资源切到新备案域名，并通过日本服务器 Nginx 反代独立腾讯 COS 桶，强制 <code>CORS:*</code> 和 <code>no-store</code>。</li>
+<li>测试 H5 已重发 <code>9d3d113</code>，测试 PC 已重发 <code>c842f12</code>。</li>
+<li>页面验证通过：PC/H5 页面入口 200，页面 HTML 中旧静态域引用数为 0，新静态域引用已生效。</li>
+<li>静态资源验证通过：PC/H5 entry CSS 均返回 <code>200 + text/css + Access-Control-Allow-Origin:* + Cache-Control:no-store</code>。</li>
+<li>四个新静态资源域验证通过：DNS 均指向 <code>138.252.248.139</code>，HTTPS 证书覆盖，<code>version.txt</code> 均返回 <code>200 + CORS:* + no-store</code>。</li>
+</ul>
+<h2 id="本次通知范围">本次通知范围</h2>
+<p>用户已明确要求后续不要再通知 <code>稳定备案域名+腾讯云原厂</code>。</p>
+<p>本次后续通知只发送到：</p>
+<ul>
+<li><code>18game运维</code></li>
+<li><code>18GAME_ 上线群（正式環境）</code></li>
+</ul>
+<h2 id="问题核心原因">问题核心原因</h2>
+<p>截图中的失败表现是 CSS/JS 请求返回 <code>200</code>，但浏览器仍报 CORS 错误。原因是旧静态资源域名虽然命名为 <code>*-s3</code>，但实际仍走 EdgeOne：</p>
+<ul>
+<li><code>test-h5-s3.hbabaxb.cn</code></li>
+<li><code>test-pc-s3.hbabaxb.cn</code></li>
+</ul>
+<p>旧 EdgeOne 边缘节点存在响应头不一致问题，部分节点返回对象时缺少 <code>Access-Control-Allow-Origin</code>。浏览器会直接拦截跨域 stylesheet/script，因此页面样式、弹窗组件、图片资源表现为反复异常。</p>
+<p>继续刷新旧 CDN 只能临时止血，不能彻底避免边缘缓存抖动。彻底方案是：新备案域名、新静态资源入口、独立 COS 桶、禁用腾讯 CDN/EdgeOne 缓存。</p>
+<h2 id="最终链路">最终链路</h2>
+<h3 id="测试环境">测试环境</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>域名</th>
+<th>当前链路</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H5 页面</td>
+<td><code>https://h5.youdianse-test.xyz/</code></td>
+<td>测试 H5 容器，版本 <code>9d3d113</code></td>
+</tr>
+<tr>
+<td>PC 页面</td>
+<td><code>https://pc.youdianse-test.xyz/</code></td>
+<td>测试 PC 容器，版本 <code>c842f12</code></td>
+</tr>
+<tr>
+<td>H5 备案入口</td>
+<td><code>https://test-h5.hbabaxb.cn/</code></td>
+<td>现有备案页面入口，保持不变</td>
+</tr>
+<tr>
+<td>PC 备案入口</td>
+<td><code>https://test-pc.hbabaxb.cn/</code></td>
+<td>现有备案页面入口，保持不变</td>
+</tr>
+<tr>
+<td>H5 前端静态资源</td>
+<td><code>https://test-h5-s3.hbbfuub.cn/</code></td>
+<td>DNS A -&gt; <code>138.252.248.139</code> -&gt; 日本 Nginx -&gt; 腾讯 COS</td>
+</tr>
+<tr>
+<td>PC 前端静态资源</td>
+<td><code>https://test-pc-s3.hbbfuub.cn/</code></td>
+<td>DNS A -&gt; <code>138.252.248.139</code> -&gt; 日本 Nginx -&gt; 腾讯 COS</td>
+</tr>
+<tr>
+<td>后端 uploads 图片</td>
+<td><code>https://test-img.hbabaxb.cn/uploads/...</code></td>
+<td>后端上传资源链路，和前端构建资源分离</td>
+</tr>
+</tbody>
+</table>
+<h3 id="线上前置-上线前模拟">线上前置/上线前模拟</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>域名</th>
+<th>当前链路</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H5 前端静态资源</td>
+<td><code>https://main-h5-s3.hbakjja.cn/</code></td>
+<td>DNS A -&gt; <code>138.252.248.139</code> -&gt; 日本 Nginx -&gt; 线上前置 H5 COS</td>
+</tr>
+<tr>
+<td>PC 前端静态资源</td>
+<td><code>https://main-pc-s3.hbakjja.cn/</code></td>
+<td>DNS A -&gt; <code>138.252.248.139</code> -&gt; 日本 Nginx -&gt; 线上前置 PC COS</td>
+</tr>
+</tbody>
+</table>
+<p>说明：线上前置页面容器后续部署到日本服务器后，再按 <code>main-h5/main-pc</code> 页面入口继续接入。前端静态资源域本次已先配置出来，方便后续发版直接使用。</p>
+<h2 id="DNS-与-Nginx-配置">DNS 与 Nginx 配置</h2>
+<h3 id="DNSPod-记录">DNSPod 记录</h3>
+<table>
+<thead>
+<tr>
+<th>域名</th>
+<th>类型</th>
+<th>值</th>
+<th>TTL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test-h5-s3.hbbfuub.cn</code></td>
+<td>A</td>
+<td><code>138.252.248.139</code></td>
+<td>600</td>
+</tr>
+<tr>
+<td><code>test-pc-s3.hbbfuub.cn</code></td>
+<td>A</td>
+<td><code>138.252.248.139</code></td>
+<td>600</td>
+</tr>
+<tr>
+<td><code>main-h5-s3.hbakjja.cn</code></td>
+<td>A</td>
+<td><code>138.252.248.139</code></td>
+<td>600</td>
+</tr>
+<tr>
+<td><code>main-pc-s3.hbakjja.cn</code></td>
+<td>A</td>
+<td><code>138.252.248.139</code></td>
+<td>600</td>
+</tr>
+</tbody>
+</table>
+<h3 id="日本服务器">日本服务器</h3>
+<ul>
+<li>服务器：<code>138.252.248.139:38927</code></li>
+<li>角色：线上前置/静态资源反代入口</li>
+<li>Nginx 配置：<code>/etc/nginx/conf.d/30-youdianse-static-cos-proxy.conf</code></li>
+<li>公共片段：<code>/etc/nginx/snippets/youdianse-static-cos-proxy-common.conf</code></li>
+<li>证书：Let's Encrypt</li>
+<li>证书到期：2026-11-02</li>
+<li>证书 SAN：</li>
+<li><code>test-h5-s3.hbbfuub.cn</code></li>
+<li><code>test-pc-s3.hbbfuub.cn</code></li>
+<li><code>main-h5-s3.hbakjja.cn</code></li>
+<li><code>main-pc-s3.hbakjja.cn</code></li>
+</ul>
+<p>Nginx 反代策略：</p>
+<ul>
+<li>按 Host 转发到各自独立 COS bucket endpoint。</li>
+<li>对外统一补充 <code>Access-Control-Allow-Origin:*</code>。</li>
+<li>对外统一补充 <code>Cache-Control:no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0</code>。</li>
+<li>隐藏上游可能冲突的 CORS 头和强制下载头。</li>
+<li>支持 <code>OPTIONS</code> 预检返回 204。</li>
+</ul>
+<h2 id="COS-桶关系">COS 桶关系</h2>
+<table>
+<thead>
+<tr>
+<th>用途</th>
+<th>COS 桶</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>测试 H5 静态资源</td>
+<td><code>18game-nuxt-static-test-h5-sg-1450169938</code></td>
+</tr>
+<tr>
+<td>测试 PC 静态资源</td>
+<td><code>18game-nuxt-static-test-pc-sg-1450169938</code></td>
+</tr>
+<tr>
+<td>线上前置 H5 静态资源</td>
+<td><code>18game-nuxt-static-preprod-h5-sg-1450169938</code></td>
+</tr>
+<tr>
+<td>线上前置 PC 静态资源</td>
+<td><code>18game-nuxt-static-preprod-pc-sg-1450169938</code></td>
+</tr>
+</tbody>
+</table>
+<p>四个桶已统一配置 CORS：</p>
+<ul>
+<li>Method：<code>GET, HEAD</code></li>
+<li>Origin：<code>*</code></li>
+<li>Header：<code>*</code></li>
+<li>Expose：<code>ETag, Content-Length, Content-Type</code></li>
+<li>MaxAge：86400</li>
+</ul>
+<h2 id="为什么没有继续用-COS-直连-HTTPS">为什么没有继续用 COS 直连 HTTPS</h2>
+<p>最初尝试为 COS 绑定自定义源站域名，HTTP/COS 配置一度可查询，但公网 HTTPS 访问会遇到 COS 默认证书与自定义域名不匹配问题。由于页面是 HTTPS，不能切到 HTTP 静态资源，也不能让浏览器接受证书不匹配。</p>
+<p>因此本次采用腾讯文档支持的 HTTPS 反代方案：自定义域名解析到自管 Nginx，Nginx 持有正确证书，再反代到 COS endpoint。这样既不走腾讯 CDN/EdgeOne，也能保证 HTTPS、CORS 和缓存策略可控。</p>
+<p>参考：</p>
+<ul>
+<li>Tencent Cloud COS 自定义源站域名与 HTTPS 证书说明：<code>https://www.tencentcloud.com/document/product/436/31507</code></li>
+<li>Tencent Cloud COS HTTPS 访问反向代理方式：<code>https://www.tencentcloud.com/document/product/436/11142</code></li>
+<li>Tencent Cloud COS 自定义源站域名证书/访问异常说明：<code>https://www.tencentcloud.com/document/product/436/40174</code></li>
+</ul>
+<h2 id="发布脚本改造">发布脚本改造</h2>
+<p>已同步到 ben-bot 宿主机和容器：</p>
+<ul>
+<li><code>测试环境-游点涩-h5-发版</code></li>
+<li>默认静态域：<code>https://test-h5-s3.hbbfuub.cn</code></li>
+<li>腾讯 CDN 刷新：关闭</li>
+<li><code>测试环境-游点涩-pc-发版</code></li>
+<li>默认静态域：<code>https://test-pc-s3.hbbfuub.cn</code></li>
+<li>腾讯 CDN 刷新：关闭</li>
+<li><code>线上前置-游点涩-h5-发版</code></li>
+<li>默认静态域：<code>https://main-h5-s3.hbakjja.cn</code></li>
+<li>腾讯 CDN 刷新：关闭</li>
+<li><code>线上前置-游点涩-pc-发版</code></li>
+<li>默认静态域：<code>https://main-pc-s3.hbakjja.cn</code></li>
+<li>腾讯 CDN 刷新：关闭</li>
+</ul>
+<p>脚本校验：</p>
+<ul>
+<li>本地 <code>py_compile</code>：通过。</li>
+<li>容器内 <code>py_compile</code>：通过。</li>
+<li>容器内 H5/PC <code>list_json</code>：通过。</li>
+<li>容器内配置 grep：四个新静态资源域已生效。</li>
+</ul>
+<h2 id="发布结果">发布结果</h2>
+<h3 id="测试-H5">测试 H5</h3>
+<ul>
+<li>Commit：<code>9d3d113</code></li>
+<li>分支：<code>test</code></li>
+<li>页面：<code>https://h5.youdianse-test.xyz/</code></li>
+<li>版本：<code>https://h5.youdianse-test.xyz/version.txt</code></li>
+<li>构建静态域：<code>https://test-h5-s3.hbbfuub.cn</code></li>
+<li>结果：发布成功，容器已启动。</li>
+</ul>
+<h3 id="测试-PC">测试 PC</h3>
+<ul>
+<li>Commit：<code>c842f12</code></li>
+<li>分支：<code>dev</code></li>
+<li>页面：<code>https://pc.youdianse-test.xyz/</code></li>
+<li>版本：<code>https://pc.youdianse-test.xyz/version.txt</code></li>
+<li>构建静态域：<code>https://test-pc-s3.hbbfuub.cn</code></li>
+<li>结果：发布成功，容器已启动。</li>
+</ul>
+<h2 id="验证结果">验证结果</h2>
+<h3 id="页面版本">页面版本</h3>
+<table>
+<thead>
+<tr>
+<th>页面</th>
+<th>HTTP</th>
+<th>版本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>https://pc.youdianse-test.xyz/version.txt</code></td>
+<td>200</td>
+<td><code>c842f12</code></td>
+</tr>
+<tr>
+<td><code>https://h5.youdianse-test.xyz/version.txt</code></td>
+<td>200</td>
+<td><code>9d3d113</code></td>
+</tr>
+</tbody>
+</table>
+<p>页面入口抽查：</p>
+<table>
+<thead>
+<tr>
+<th>页面</th>
+<th>HTTP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>https://pc.youdianse-test.xyz/</code></td>
+<td>200</td>
+</tr>
+<tr>
+<td><code>https://h5.youdianse-test.xyz/</code></td>
+<td>200</td>
+</tr>
+<tr>
+<td><code>https://test-pc.hbabaxb.cn/</code></td>
+<td>200</td>
+</tr>
+<tr>
+<td><code>https://test-h5.hbabaxb.cn/</code></td>
+<td>200</td>
+</tr>
+</tbody>
+</table>
+<h3 id="页面静态域引用">页面静态域引用</h3>
+<table>
+<thead>
+<tr>
+<th>页面</th>
+<th>旧静态域引用</th>
+<th>新静态域引用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PC</td>
+<td><code>test-pc-s3.hbabaxb.cn</code> = 0</td>
+<td><code>test-pc-s3.hbbfuub.cn</code> = 115</td>
+</tr>
+<tr>
+<td>H5</td>
+<td><code>test-h5-s3.hbabaxb.cn</code> = 0</td>
+<td><code>test-h5-s3.hbbfuub.cn</code> = 111</td>
+</tr>
+</tbody>
+</table>
+<p>说明：PC/H5 页面仍会出现 <code>test-img.hbabaxb.cn</code>，这是后端 uploads 图片链路，不是前端构建静态资源链路，本次不改。</p>
+<h3 id="CSS-抽样">CSS 抽样</h3>
+<table>
+<thead>
+<tr>
+<th>资源</th>
+<th>HTTP</th>
+<th>Content-Type</th>
+<th>CORS</th>
+<th>Cache-Control</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>https://test-pc-s3.hbbfuub.cn/_nuxt/entry.K3NpkUUj.css</code></td>
+<td>200</td>
+<td><code>text/css</code></td>
+<td><code>*</code></td>
+<td><code>no-store</code></td>
+</tr>
+<tr>
+<td><code>https://test-h5-s3.hbbfuub.cn/_nuxt/entry.9fJ8Knpu.css</code></td>
+<td>200</td>
+<td><code>text/css</code></td>
+<td><code>*</code></td>
+<td><code>no-store</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="四个新域名抽查">四个新域名抽查</h3>
+<table>
+<thead>
+<tr>
+<th>域名</th>
+<th>DNS</th>
+<th>HTTPS</th>
+<th>CORS</th>
+<th>Cache</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test-h5-s3.hbbfuub.cn</code></td>
+<td><code>138.252.248.139</code></td>
+<td>200</td>
+<td><code>*</code></td>
+<td><code>no-store</code></td>
+</tr>
+<tr>
+<td><code>test-pc-s3.hbbfuub.cn</code></td>
+<td><code>138.252.248.139</code></td>
+<td>200</td>
+<td><code>*</code></td>
+<td><code>no-store</code></td>
+</tr>
+<tr>
+<td><code>main-h5-s3.hbakjja.cn</code></td>
+<td><code>138.252.248.139</code></td>
+<td>200</td>
+<td><code>*</code></td>
+<td><code>no-store</code></td>
+</tr>
+<tr>
+<td><code>main-pc-s3.hbakjja.cn</code></td>
+<td><code>138.252.248.139</code></td>
+<td>200</td>
+<td><code>*</code></td>
+<td><code>no-store</code></td>
+</tr>
+</tbody>
+</table>
+<p>服务器侧验证：</p>
+<ul>
+<li>ben-bot 服务器解析四个域名均为 <code>138.252.248.139</code>。</li>
+<li>日本服务器本机解析四个域名均为 <code>138.252.248.139</code>。</li>
+<li>日本服务器 <code>nginx -t</code> 通过。</li>
+</ul>
+<h2 id="已发群通知">已发群通知</h2>
+<p>已按步骤发送：</p>
+<ul>
+<li>H5 重发完成通知。</li>
+<li>PC 重发完成通知。</li>
+<li>后续最终汇总和本文档只发送到 <code>18game运维</code> 与 <code>18GAME_ 上线群（正式環境）</code>。</li>
+</ul>
+<h2 id="后续建议">后续建议</h2>
+<ol>
+<li>测试同事刷新浏览器缓存或用无痕窗口复测 PC/H5，重点看 Network 是否仍有 <code>test-*-s3.hbabaxb.cn</code> 静态资源请求。</li>
+<li>如浏览器已安装旧 PWA/Service Worker，建议在 DevTools Application 中 unregister 旧 SW 后再复测。</li>
+<li>线上前置 H5/PC 发版时直接使用 <code>main-h5-s3.hbakjja.cn</code>、<code>main-pc-s3.hbakjja.cn</code>，不要再回到旧 EdgeOne 静态域。</li>
+<li>证书到期前需要确认证书自动续期；当前到期时间为 2026-11-02。</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#本次结论">本次结论</a></li><li style="margin-left:0.0rem"><a href="#本次通知范围">本次通知范围</a></li><li style="margin-left:0.0rem"><a href="#问题核心原因">问题核心原因</a></li><li style="margin-left:0.0rem"><a href="#最终链路">最终链路</a></li><li style="margin-left:0.8rem"><a href="#测试环境">测试环境</a></li><li style="margin-left:0.8rem"><a href="#线上前置-上线前模拟">线上前置/上线前模拟</a></li><li style="margin-left:0.0rem"><a href="#DNS-与-Nginx-配置">DNS 与 Nginx 配置</a></li><li style="margin-left:0.8rem"><a href="#DNSPod-记录">DNSPod 记录</a></li><li style="margin-left:0.8rem"><a href="#日本服务器">日本服务器</a></li><li style="margin-left:0.0rem"><a href="#COS-桶关系">COS 桶关系</a></li><li style="margin-left:0.0rem"><a href="#为什么没有继续用-COS-直连-HTTPS">为什么没有继续用 COS 直连 HTTPS</a></li><li style="margin-left:0.0rem"><a href="#发布脚本改造">发布脚本改造</a></li><li style="margin-left:0.0rem"><a href="#发布结果">发布结果</a></li><li style="margin-left:0.8rem"><a href="#测试-H5">测试 H5</a></li><li style="margin-left:0.8rem"><a href="#测试-PC">测试 PC</a></li><li style="margin-left:0.0rem"><a href="#验证结果">验证结果</a></li><li style="margin-left:0.8rem"><a href="#页面版本">页面版本</a></li><li style="margin-left:0.8rem"><a href="#页面静态域引用">页面静态域引用</a></li><li style="margin-left:0.8rem"><a href="#CSS-抽样">CSS 抽样</a></li><li style="margin-left:0.8rem"><a href="#四个新域名抽查">四个新域名抽查</a></li><li style="margin-left:0.0rem"><a href="#已发群通知">已发群通知</a></li><li style="margin-left:0.0rem"><a href="#后续建议">后续建议</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-08-04</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Nginx</span><span class="tag">自动化</span><span class="tag">CDN</span><span class="tag">DNS</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-04_2119-【修复Bug+链路改造】新增备案域名静态资源无…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608042119-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%96%B0%E5%A2%9E%E5%A4%87%E6%A1%88%E5%9F%9F%E5%90%8D%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E6%97%A0%20CDN%20%E5%8F%8D%E4%BB%A3%E4%B8%8E%E6%B5%8B%E8%AF%95%20H5-PC%20%E9%87%8D%E5%8F%91%E9%AA%8C%E8%AF%81.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>新增备案域名静态资源无 CDN 反代与测试 H5/PC 重发验证。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 线上前置 / 腾讯云备案域名 / COS / Nginx / H5 / PC 已把新增备案域名用于前端静态资源新链路，测试 H5/PC 不再引用旧 test-h5-s3…</p>
+      <p>关键词：18Game 测试环境、Shell、Python、Nginx、自动化、CDN、DNS、故障排查、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、新增备案域名静态资源无 CDN 反代与测试 H5/PC 重发验证、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-34975f53c553.html"><small>上一篇</small>测试 H5/PC 静态资源 CORS 反复异常止血与 COS 直连域名规划</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-805119153a44.html"><small>下一篇</small>四个备案域名与 H5/PC/S3/IMG 链路整理</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-eed6b7d37cdd.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
