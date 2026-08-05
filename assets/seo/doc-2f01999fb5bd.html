@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>测试 H5/PC 静态资源日本 Nginx 启动失败修复｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="测试 H5/PC 静态资源日本 Nginx 启动失败修复。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境、H5、PC、前端静态资源、腾讯 COS、日本 Nginx、Nginx 启动修复 用户反馈测试环境 H5/PC 又出现静态资源异常，浏览器 F12 大量报错： https://tes…">
+  <meta name="keywords" content="18Game 测试环境，Linux，Shell，Python，Nginx，自动化，DNS，故障排查，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，测试 H5/PC 静态资源日本 Nginx 启动失败修复，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2f01999fb5bd.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2f01999fb5bd.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608051615-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E6%B5%8B%E8%AF%95%20H5-PC%20%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E6%97%A5%E6%9C%AC%20Nginx%20%E5%90%AF%E5%8A%A8%E5%A4%B1%E8%B4%A5%E4%BF%AE%E5%A4%8D.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="测试 H5/PC 静态资源日本 Nginx 启动失败修复">
+  <meta property="og:description" content="测试 H5/PC 静态资源日本 Nginx 启动失败修复。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境、H5、PC、前端静态资源、腾讯 COS、日本 Nginx、Nginx 启动修复 用户反馈测试环境 H5/PC 又出现静态资源异常，浏览器 F12 大量报错： https://tes…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2f01999fb5bd.html">
+  <meta property="article:published_time" content="2026-08-05T16:15:00+08:00">
+  <meta property="article:modified_time" content="2026-08-05 16:15">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="测试 H5/PC 静态资源日本 Nginx 启动失败修复">
+  <meta name="twitter:description" content="测试 H5/PC 静态资源日本 Nginx 启动失败修复。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境、H5、PC、前端静态资源、腾讯 COS、日本 Nginx、Nginx 启动修复 用户反馈测试环境 H5/PC 又出现静态资源异常，浏览器 F12 大量报错： https://tes…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2f01999fb5bd.html#article","headline":"测试 H5/PC 静态资源日本 Nginx 启动失败修复","description":"测试 H5/PC 静态资源日本 Nginx 启动失败修复。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境、H5、PC、前端静态资源、腾讯 COS、日本 Nginx、Nginx 启动修复 用户反馈测试环境 H5/PC 又出现静态资源异常，浏览器 F12 大量报错： https://tes…","datePublished":"2026-08-05T16:15:00+08:00","dateModified":"2026-08-05 16:15","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Linux","Shell","Python","Nginx","自动化","DNS","故障排查","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","测试 H5/PC 静态资源日本 Nginx 启动失败修复","devops"],"wordCount":1202,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2f01999fb5bd.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2f01999fb5bd.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"测试 H5/PC 静态资源日本 Nginx 启动失败修复","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2f01999fb5bd.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>测试 H5/PC 静态资源日本 Nginx 启动失败修复</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>测试 H5/PC 静态资源日本 Nginx 启动失败修复</h1>
+      <p class="lede">测试 H5/PC 静态资源日本 Nginx 启动失败修复。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境、H5、PC、前端静态资源、腾讯 COS、日本 Nginx、Nginx 启动修复 用户反馈测试环境 H5/PC 又出现静态资源异常，浏览器 F12 大量报错： https://tes…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-08-05T16:15:00+08:00">发布于 2026-08-05</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,202 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-05_1615-【修复Bug+根因汇总】测试H5-PC静态资源日本Nginx启动失败修复.md</code></p>
+<p>整理日期：2026-08-05 16:15｜日期依据：文件名日期</p>
+</blockquote>
+<p>环境标签：测试环境、H5、PC、前端静态资源、腾讯 COS、日本 Nginx、Nginx 启动修复</p>
+<p>时间：2026-08-05 16:15</p>
+<h2 id="一-问题现象">一、问题现象</h2>
+<p>用户反馈测试环境 H5/PC 又出现静态资源异常，浏览器 F12 大量报错：</p>
+<ul>
+<li><code>ERR_CONNECTION_REFUSED</code></li>
+<li><code>ERR_CONNECTION_CLOSED</code></li>
+</ul>
+<p>主要失败域名：</p>
+<ul>
+<li><code>https://test-h5-s3.hbbfuub.cn/...</code></li>
+<li><code>https://test-pc-s3.hbbfuub.cn/...</code></li>
+</ul>
+<p>页面入口本身可以返回 HTML，但 CSS、JS、图片等 <code>_nuxt/images</code> 静态资源加载失败，页面表现为样式和图片缺失。</p>
+<h2 id="二-排查结果">二、排查结果</h2>
+<h3 id="1-页面入口正常">1. 页面入口正常</h3>
+<p>以下页面入口验证 200：</p>
+<pre><code class="language-text">test-h5.hbbfuub.cn
+test-h5.hbakjja.cn
+pc.youdianse-test.xyz
+test-pc.hbbfuub.cn
+test-pc.hbakjja.cn
+</code></pre>
+<p>说明测试前端页面服务器 <code>38.92.8.34</code> 没有整体故障。</p>
+<h3 id="2-静态资源域名解析正常">2. 静态资源域名解析正常</h3>
+<pre><code class="language-text">test-h5-s3.hbbfuub.cn -&gt; 138.252.248.139
+test-pc-s3.hbbfuub.cn -&gt; 138.252.248.139
+</code></pre>
+<p>DNS 关系正确，仍然指向日本 Nginx 静态资源反代机。</p>
+<h3 id="3-日本-Nginx-80-443-未监听">3. 日本 Nginx 80/443 未监听</h3>
+<p>外部探测：</p>
+<pre><code class="language-text">138.252.248.139:80   Connection refused
+138.252.248.139:443  Connection refused
+138.252.248.139:38927 SSH 正常
+</code></pre>
+<p>登录服务器后确认：</p>
+<pre><code class="language-text">nginx.service = failed
+80/443 未监听
+</code></pre>
+<h3 id="4-根因">4. 根因</h3>
+<p>Nginx 上一次启动失败日志：</p>
+<pre><code class="language-text">host not found in upstream "admin.youdianse.com"
+in /etc/nginx/conf.d/10-youdianse-preprod-frontends.conf
+</code></pre>
+<p>配置中原来存在：</p>
+<pre><code class="language-nginx">proxy_pass https://admin.youdianse.com;
+</code></pre>
+<p>Nginx 会在启动阶段解析这种写法里的域名；当时 <code>admin.youdianse.com</code> 解析失败，导致整份 Nginx 配置启动失败。由于静态资源反代和线上前置页面配置在同一个 Nginx 服务里，结果是 80/443 整体没有监听，测试 H5/PC 静态资源也被一起拖停。</p>
+<h2 id="三-修复操作">三、修复操作</h2>
+<h3 id="1-恢复服务">1. 恢复服务</h3>
+<p>已执行：</p>
+<pre><code class="language-text">systemctl start nginx
+</code></pre>
+<p>恢复后：</p>
+<pre><code class="language-text">nginx.service = active
+80/443 已监听
+</code></pre>
+<h3 id="2-加固远端-Nginx-配置">2. 加固远端 Nginx 配置</h3>
+<p>已备份：</p>
+<pre><code class="language-text">/etc/nginx/conf.d/10-youdianse-preprod-frontends.conf.bak.avoid_dns_boot_fail_20260805_081116
+</code></pre>
+<p>已将 H5/PC 两处 API 反代从启动期解析改为运行时解析：</p>
+<pre><code class="language-nginx">set $admin_origin admin.youdianse.com;
+proxy_pass https://$admin_origin;
+proxy_ssl_server_name on;
+proxy_ssl_name $admin_origin;
+proxy_set_header Host admin.youdianse.com;
+</code></pre>
+<p>效果：</p>
+<ul>
+<li>Nginx 启动阶段不再因为 <code>admin.youdianse.com</code> 一次解析失败而整服务失败。</li>
+<li>请求真正打到 <code>/api</code>、<code>/channel</code>、<code>/customer</code> 时才按 resolver 解析上游。</li>
+<li>静态资源反代不会再被该 API 上游 DNS 抖动连带拖停。</li>
+</ul>
+<h3 id="3-同步-ben-bot-模板">3. 同步 ben-bot 模板</h3>
+<p>已同步修改：</p>
+<pre><code class="language-text">devops/python/ben-bot/data/scripts/线上前置-游点涩-前端配置/nginx/youdianse-preprod-frontends.conf
+</code></pre>
+<p>同步范围：</p>
+<ul>
+<li>本地仓库模板</li>
+<li>ben-bot 宿主机模板</li>
+<li>ben-bot 容器内模板</li>
+</ul>
+<p>避免以后重新部署模板时把旧风险写法覆盖回去。</p>
+<h2 id="四-验证结果">四、验证结果</h2>
+<h3 id="1-Nginx-重启验证">1. Nginx 重启验证</h3>
+<pre><code class="language-text">nginx -t                  通过
+systemctl restart nginx   通过
+nginx.service             enabled + active
+80/443                    正常监听
+</code></pre>
+<h3 id="2-静态资源域名验证">2. 静态资源域名验证</h3>
+<p>以下域名 <code>version.txt</code> 均返回 <code>200 + CORS:* + no-store</code>：</p>
+<pre><code class="language-text">test-h5-s3.hbbfuub.cn
+test-pc-s3.hbbfuub.cn
+main-h5-s3.hbakjja.cn
+main-pc-s3.hbakjja.cn
+test-h5-s3.hbabaxb.cn
+test-pc-s3.hbabaxb.cn
+test-h5-s3.hbazuua.cn
+test-pc-s3.hbazuua.cn
+</code></pre>
+<h3 id="3-页面真实引用抽样">3. 页面真实引用抽样</h3>
+<p>已从以下页面 HTML 提取真实静态资源引用，每个页面抽 12 个资源：</p>
+<pre><code class="language-text">h5.youdianse-test.xyz       refs=87  sample_ok=12  sample_fail=0
+test-h5.hbbfuub.cn          refs=87  sample_ok=12  sample_fail=0
+test-h5.hbakjja.cn          refs=87  sample_ok=12  sample_fail=0
+pc.youdianse-test.xyz       refs=92  sample_ok=12  sample_fail=0
+test-pc.hbbfuub.cn          refs=92  sample_ok=12  sample_fail=0
+test-pc.hbakjja.cn          refs=92  sample_ok=12  sample_fail=0
+</code></pre>
+<h3 id="4-CSS-图片抽样">4. CSS / 图片抽样</h3>
+<pre><code class="language-text">https://test-h5-s3.hbbfuub.cn/images/index-new/main-game.svg  HTTP/2 200  image/svg+xml  CORS:*
+https://test-h5-s3.hbbfuub.cn/_nuxt/entry.9fJ8Knpu.css       HTTP/2 200  text/css       CORS:*
+https://test-pc-s3.hbbfuub.cn/images/index-new/main-game.svg  HTTP/2 200  image/svg+xml  CORS:*
+https://test-pc-s3.hbbfuub.cn/_nuxt/entry.Btel_iqu.css        HTTP/2 200  text/css       CORS:*
+</code></pre>
+<h2 id="五-核心原因总结">五、核心原因总结</h2>
+<p>这次不是 COS 文件丢失，也不是 CORS 配置再次坏掉。</p>
+<p>核心原因是：日本 Nginx 静态资源反代服务因为线上前置 API 上游域名 <code>admin.youdianse.com</code> 在启动时解析失败，导致整个 Nginx 服务 failed，80/443 没有监听。测试 H5/PC 静态资源域名都指向这台日本 Nginx，所以浏览器看到大量 <code>ERR_CONNECTION_REFUSED</code> 和 <code>ERR_CONNECTION_CLOSED</code>。</p>
+<p>已修复为运行时解析，降低后续同类 DNS 短抖把整台静态资源反代拖停的风险。</p>
+<h2 id="六-当前结论">六、当前结论</h2>
+<ul>
+<li>测试 H5/PC 页面入口正常。</li>
+<li>测试 H5/PC 静态资源域名已恢复。</li>
+<li>日本 Nginx 已通过完整 restart 验证。</li>
+<li>本地、ben-bot 宿主机、ben-bot 容器内模板已同步修复。</li>
+<li>本次未改 DNS，未改 COS 桶策略，未触发 H5/PC 重新发布。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-问题现象">一、问题现象</a></li><li style="margin-left:0.0rem"><a href="#二-排查结果">二、排查结果</a></li><li style="margin-left:0.8rem"><a href="#1-页面入口正常">1. 页面入口正常</a></li><li style="margin-left:0.8rem"><a href="#2-静态资源域名解析正常">2. 静态资源域名解析正常</a></li><li style="margin-left:0.8rem"><a href="#3-日本-Nginx-80-443-未监听">3. 日本 Nginx 80/443 未监听</a></li><li style="margin-left:0.8rem"><a href="#4-根因">4. 根因</a></li><li style="margin-left:0.0rem"><a href="#三-修复操作">三、修复操作</a></li><li style="margin-left:0.8rem"><a href="#1-恢复服务">1. 恢复服务</a></li><li style="margin-left:0.8rem"><a href="#2-加固远端-Nginx-配置">2. 加固远端 Nginx 配置</a></li><li style="margin-left:0.8rem"><a href="#3-同步-ben-bot-模板">3. 同步 ben-bot 模板</a></li><li style="margin-left:0.0rem"><a href="#四-验证结果">四、验证结果</a></li><li style="margin-left:0.8rem"><a href="#1-Nginx-重启验证">1. Nginx 重启验证</a></li><li style="margin-left:0.8rem"><a href="#2-静态资源域名验证">2. 静态资源域名验证</a></li><li style="margin-left:0.8rem"><a href="#3-页面真实引用抽样">3. 页面真实引用抽样</a></li><li style="margin-left:0.8rem"><a href="#4-CSS-图片抽样">4. CSS / 图片抽样</a></li><li style="margin-left:0.0rem"><a href="#五-核心原因总结">五、核心原因总结</a></li><li style="margin-left:0.0rem"><a href="#六-当前结论">六、当前结论</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-08-05</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Nginx</span><span class="tag">自动化</span><span class="tag">DNS</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-05_1615-【修复Bug+根因汇总】测试H5-PC静态资源…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608051615-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E6%B5%8B%E8%AF%95%20H5-PC%20%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E6%97%A5%E6%9C%AC%20Nginx%20%E5%90%AF%E5%8A%A8%E5%A4%B1%E8%B4%A5%E4%BF%AE%E5%A4%8D.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>测试 H5/PC 静态资源日本 Nginx 启动失败修复。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境、H5、PC、前端静态资源、腾讯 COS、日本 Nginx、Nginx 启动修复 用户反馈测试环境 H5/PC 又出现静态资源异常，浏览器 F12 大量报错： https://tes…</p>
+      <p>关键词：18Game 测试环境、Linux、Shell、Python、Nginx、自动化、DNS、故障排查、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、测试 H5/PC 静态资源日本 Nginx 启动失败修复、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dccb1be24f59.html"><small>上一篇</small>四个备案域名测试页面入口补全</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-08d1d949f965.html"><small>下一篇</small>测试环境 env 新增 APK CDN 配置并发布容器记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2f01999fb5bd.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

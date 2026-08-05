@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>测试环境 env 新增 APK CDN 配置并发布容器记录｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="测试环境 env 新增 APK CDN 配置并发布容器记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-05 16:18 环境：游点涩测试环境（dev 分支） 分类：运维记录 根据本次需求，测试环境需要在 env/.env.dev 新增 3 个 APK CDN 配置段，并发布到测试服务器后端容器运…">
+  <meta name="keywords" content="游点涩，Shell，Docker，Nginx，自动化，CDN，故障排查，数据库恢复，业务系统运维，业务系统运维 / 游点涩，测试环境 env 新增 APK CDN 配置并发布容器记录，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-08d1d949f965.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-08d1d949f965.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608051618-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20env%20%E6%96%B0%E5%A2%9E%20APK%20CDN%20%E9%85%8D%E7%BD%AE%E5%B9%B6%E5%8F%91%E5%B8%83%E5%AE%B9%E5%99%A8%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="测试环境 env 新增 APK CDN 配置并发布容器记录">
+  <meta property="og:description" content="测试环境 env 新增 APK CDN 配置并发布容器记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-05 16:18 环境：游点涩测试环境（dev 分支） 分类：运维记录 根据本次需求，测试环境需要在 env/.env.dev 新增 3 个 APK CDN 配置段，并发布到测试服务器后端容器运…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-08d1d949f965.html">
+  <meta property="article:published_time" content="2026-08-05T16:18:00+08:00">
+  <meta property="article:modified_time" content="2026-08-05 16:18">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="测试环境 env 新增 APK CDN 配置并发布容器记录">
+  <meta name="twitter:description" content="测试环境 env 新增 APK CDN 配置并发布容器记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-05 16:18 环境：游点涩测试环境（dev 分支） 分类：运维记录 根据本次需求，测试环境需要在 env/.env.dev 新增 3 个 APK CDN 配置段，并发布到测试服务器后端容器运…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-08d1d949f965.html#article","headline":"测试环境 env 新增 APK CDN 配置并发布容器记录","description":"测试环境 env 新增 APK CDN 配置并发布容器记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-05 16:18 环境：游点涩测试环境（dev 分支） 分类：运维记录 根据本次需求，测试环境需要在 env/.env.dev 新增 3 个 APK CDN 配置段，并发布到测试服务器后端容器运…","datePublished":"2026-08-05T16:18:00+08:00","dateModified":"2026-08-05 16:18","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Shell","Docker","Nginx","自动化","CDN","故障排查","数据库恢复","业务系统运维","业务系统运维 / 游点涩","测试环境 env 新增 APK CDN 配置并发布容器记录","php"],"wordCount":1340,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-08d1d949f965.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-08d1d949f965.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"测试环境 env 新增 APK CDN 配置并发布容器记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-08d1d949f965.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>测试环境 env 新增 APK CDN 配置并发布容器记录</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>测试环境 env 新增 APK CDN 配置并发布容器记录</h1>
+      <p class="lede">测试环境 env 新增 APK CDN 配置并发布容器记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-05 16:18 环境：游点涩测试环境（dev 分支） 分类：运维记录 根据本次需求，测试环境需要在 env/.env.dev 新增 3 个 APK CDN 配置段，并发布到测试服务器后端容器运…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-08-05T16:18:00+08:00">发布于 2026-08-05</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,340 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-08-05-1618-【运维记录】测试环境env新增APK-CDN配置并发布容器记录.md</code></p>
+<p>整理日期：2026-08-05 16:18｜日期依据：文件名日期</p>
+</blockquote>
+<p>环境标签：测试环境</p>
+<p>文档日期：2026-08-05 16:18
+环境：游点涩测试环境（dev 分支）
+分类：运维记录</p>
+<h2 id="背景">背景</h2>
+<p>根据本次需求，测试环境需要在 <code>env/.env.dev</code> 新增 3 个 APK CDN 配置段，并发布到测试服务器后端容器运行态。</p>
+<p>本次只处理测试环境，不处理正式环境。用户明确要求 <code>env/.env.dev</code> 必须提交；本文档、workbench、Telegram 通知和最终回复均不展开 key 明文。</p>
+<h2 id="配置文件">配置文件</h2>
+<p>本地文件：</p>
+<pre><code class="language-text">env/.env.dev
+</code></pre>
+<p>测试服务器文件：</p>
+<pre><code class="language-text">/opt/docker-youdianse-php/env/.env.dev
+</code></pre>
+<h2 id="新增配置段">新增配置段</h2>
+<p>新增段名和域名：</p>
+<pre><code class="language-text">[cdn.tencent.eep1.prod-apk.zkifae.cn]
+domain=eep1.prod-apk.zkifae.cn
+key=已配置
+
+[cdn.jixing.res2.eepgames.com]
+domain=res2.eepgames.com
+key=已配置
+
+[cdn.aliyun.a-apk.rkqzgk.cn]
+domain=a-apk.rkqzgk.cn
+key=已配置
+</code></pre>
+<h2 id="操作记录">操作记录</h2>
+<ol>
+<li>确认操作边界</li>
+</ol>
+<pre><code class="language-text">仓库：/Users/ben/Documents/ben/docker/dev/docker-youdianse-php
+环境：测试环境
+初始状态：本地 git 工作区干净
+正式环境：未触碰
+</code></pre>
+<ol start="2">
+<li>workbench 记录</li>
+</ol>
+<pre><code class="language-text">文件：workbench/CURRENT_TASK.md
+内容：记录任务范围、目标配置段、敏感信息边界、步骤通知结果和容器发布验证结果。
+</code></pre>
+<ol start="3">
+<li>本地 env 修改</li>
+</ol>
+<pre><code class="language-text">备份目录：.private/env-backups/
+修改文件：env/.env.dev
+结果：3 个新增配置段已写入；domain 与 key 字段均通过脱敏核验。
+</code></pre>
+<ol start="4">
+<li>测试服务器 env 修改</li>
+</ol>
+<pre><code class="language-text">备份文件：/opt/docker-youdianse-php/cicd-web/runtime/env-backups/.env.dev.before_apk_cdn_20260805_20260805_161603.bak
+修改文件：/opt/docker-youdianse-php/env/.env.dev
+结果：3 个新增配置段已写入；domain 与 key 字段均通过脱敏核验。
+</code></pre>
+<ol start="5">
+<li>CICD Web 读取检查</li>
+</ol>
+<pre><code class="language-text">命令：cicd-web.py sync-config
+结果：运行配置一致，同步开关关闭。
+说明：CICD Web 可读取当前运行配置，并确认容器内 .env 已可看到宿主机新配置内容。
+</code></pre>
+<ol start="6">
+<li>容器运行态发布</li>
+</ol>
+<pre><code class="language-bash">cd /opt/docker-youdianse-php
+docker compose --env-file .ops-build.env --profile cron config
+docker compose --env-file .ops-build.env --profile cron up -d --force-recreate --no-build web nginx cron
+</code></pre>
+<p>发布结果：</p>
+<pre><code class="language-text">youdianse-dev-php-web：已重新创建并启动
+youdianse-dev-php-nginx：已重新创建并启动
+youdianse-dev-php-cron：已重新创建并启动
+</code></pre>
+<h2 id="验证结果">验证结果</h2>
+<p>配置校验：</p>
+<pre><code class="language-text">docker compose config：OK
+宿主机 env/.env.dev：3 个新增段存在，domain 正确，key 已配置
+web 容器 .env：sha256 与宿主机一致，3 个新增段解析 OK
+cron 容器 .env：sha256 与宿主机一致，3 个新增段解析 OK
+</code></pre>
+<p>运行检查：</p>
+<pre><code class="language-text">后台入口：https://admin.youdianse-test.xyz/admin1866/login
+HTTP 状态：200
+容器状态：web/nginx/cron 均 Up
+</code></pre>
+<h2 id="提交策略">提交策略</h2>
+<p>本次按用户明确要求提交：</p>
+<pre><code class="language-text">env/.env.dev
+docs/2026-08-05-1618-【运维记录】测试环境env新增APK-CDN配置并发布容器记录.md
+workbench/CURRENT_TASK.md
+</code></pre>
+<p>注意：</p>
+<pre><code class="language-text">文档、workbench、Telegram 通知和最终回复不展开 key 明文。
+</code></pre>
+<p>提交结果：</p>
+<pre><code class="language-text">提交：9ebed94 config: add test apk cdn env sections
+分支：dev
+推送：origin/dev 成功
+</code></pre>
+<h2 id="测试服务器仓库同步">测试服务器仓库同步</h2>
+<p>同步目标：</p>
+<pre><code class="language-text">/opt/docker-youdianse-php -&gt; 9ebed94
+</code></pre>
+<p>同步过程：</p>
+<pre><code class="language-text">首次使用 git pull --ff-only --autostash 处理服务器 env 本地改动。
+autostash 回放时 env/.env.dev 出现 UU 冲突。
+因为提交 9ebed94 已包含本次目标配置，最终选择提交版本解决冲突。
+</code></pre>
+<p>同步后复核：</p>
+<pre><code class="language-text">服务器 HEAD：9ebed94
+服务器 git status：clean
+web/nginx/cron：已再次 force-recreate
+web 容器 .env：sha256 与宿主机一致，3 个新增段解析 OK
+cron 容器 .env：sha256 与宿主机一致，3 个新增段解析 OK
+后台入口 HTTP：200
+</code></pre>
+<h2 id="飞机群通知">飞机群通知</h2>
+<p>本次按 <code>AGENTS.md</code> 执行逐步 Telegram 通知。</p>
+<p>通知结果：</p>
+<pre><code class="language-text">步骤 1 环境边界确认：2 个运维群成功，1 个旧/异常目标 HTTP 400
+步骤 2 workbench 任务记录：2 个运维群成功，1 个旧/异常目标 HTTP 400
+步骤 3 本地 env 配置：2 个运维群成功，1 个旧/异常目标 HTTP 400
+步骤 4 测试服务器 env 同步：2 个运维群成功，1 个旧/异常目标 HTTP 400
+步骤 5 CICD Web 读取检查：2 个运维群成功，1 个旧/异常目标 HTTP 400
+步骤 6 容器运行态发布：2 个运维群成功，1 个旧/异常目标 HTTP 400
+步骤 7 运维文档落地：2 个运维群成功，1 个旧/异常目标 HTTP 400
+步骤 8 提交前验证：2 个运维群成功，1 个旧/异常目标 HTTP 400
+步骤 9 提交推送：2 个运维群成功，1 个旧/异常目标 HTTP 400
+步骤 10 测试服务器同步收口：2 个运维群成功，1 个旧/异常目标 HTTP 400
+</code></pre>
+<p>说明：当前测试服务器通知配置中存在一个旧/异常目标返回 HTTP 400；两个运维群发送成功。</p>
+<h2 id="回滚">回滚</h2>
+<p>如需回滚服务器配置：</p>
+<pre><code class="language-bash">cd /opt/docker-youdianse-php
+cp -p cicd-web/runtime/env-backups/.env.dev.before_apk_cdn_20260805_20260805_161603.bak env/.env.dev
+docker compose --env-file .ops-build.env --profile cron up -d --force-recreate --no-build web nginx cron
+</code></pre>
+<p>回滚后复测：</p>
+<pre><code class="language-text">web 容器 .env sha256 与宿主机一致
+cron 容器 .env sha256 与宿主机一致
+后台入口 HTTP 200
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#背景">背景</a></li><li style="margin-left:0.0rem"><a href="#配置文件">配置文件</a></li><li style="margin-left:0.0rem"><a href="#新增配置段">新增配置段</a></li><li style="margin-left:0.0rem"><a href="#操作记录">操作记录</a></li><li style="margin-left:0.0rem"><a href="#验证结果">验证结果</a></li><li style="margin-left:0.0rem"><a href="#提交策略">提交策略</a></li><li style="margin-left:0.0rem"><a href="#测试服务器仓库同步">测试服务器仓库同步</a></li><li style="margin-left:0.0rem"><a href="#飞机群通知">飞机群通知</a></li><li style="margin-left:0.0rem"><a href="#回滚">回滚</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-08-05</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">自动化</span><span class="tag">CDN</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-08-05-1618-【运维记录…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608051618-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20env%20%E6%96%B0%E5%A2%9E%20APK%20CDN%20%E9%85%8D%E7%BD%AE%E5%B9%B6%E5%8F%91%E5%B8%83%E5%AE%B9%E5%99%A8%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>测试环境 env 新增 APK CDN 配置并发布容器记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-05 16:18 环境：游点涩测试环境（dev 分支） 分类：运维记录 根据本次需求，测试环境需要在 env/.env.dev 新增 3 个 APK CDN 配置段，并发布到测试服务器后端容器运…</p>
+      <p>关键词：游点涩、Shell、Docker、Nginx、自动化、CDN、故障排查、数据库恢复、业务系统运维、业务系统运维 / 游点涩、测试环境 env 新增 APK CDN 配置并发布容器记录、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2f01999fb5bd.html"><small>上一篇</small>测试 H5/PC 静态资源日本 Nginx 启动失败修复</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-30324a7e06c6.html"><small>下一篇</small>【发布】线上环境后端 06d238b0 发布记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-08d1d949f965.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
