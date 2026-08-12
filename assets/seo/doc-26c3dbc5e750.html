@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>nginx 按类型合并 conf 与新增域名指引｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="nginx 按类型合并 conf 与新增域名指引。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：线上环境 / 游点涩 / nginx / 域名接入 / H5 / PC 优化线上服务器 nginx：原来“一个域名一个 conf”，改为按类型合并。 www / @ 主域名判断 PC/H5 的跳转…">
+  <meta name="keywords" content="18Game 测试环境，Shell，Python，Nginx，DNS，安全运维，源码与配置，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，nginx 按类型合并 conf 与新增域名指引，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-26c3dbc5e750.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-26c3dbc5e750.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608121549-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-nginx%20%E6%8C%89%E7%B1%BB%E5%9E%8B%E5%90%88%E5%B9%B6%20conf%20%E4%B8%8E%E6%96%B0%E5%A2%9E%E5%9F%9F%E5%90%8D%E6%8C%87%E5%BC%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="nginx 按类型合并 conf 与新增域名指引">
+  <meta property="og:description" content="nginx 按类型合并 conf 与新增域名指引。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：线上环境 / 游点涩 / nginx / 域名接入 / H5 / PC 优化线上服务器 nginx：原来“一个域名一个 conf”，改为按类型合并。 www / @ 主域名判断 PC/H5 的跳转…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-26c3dbc5e750.html">
+  <meta property="article:published_time" content="2026-08-12T15:49:00+08:00">
+  <meta property="article:modified_time" content="2026-08-12 15:49">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="nginx 按类型合并 conf 与新增域名指引">
+  <meta name="twitter:description" content="nginx 按类型合并 conf 与新增域名指引。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：线上环境 / 游点涩 / nginx / 域名接入 / H5 / PC 优化线上服务器 nginx：原来“一个域名一个 conf”，改为按类型合并。 www / @ 主域名判断 PC/H5 的跳转…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-26c3dbc5e750.html#article","headline":"nginx 按类型合并 conf 与新增域名指引","description":"nginx 按类型合并 conf 与新增域名指引。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：线上环境 / 游点涩 / nginx / 域名接入 / H5 / PC 优化线上服务器 nginx：原来“一个域名一个 conf”，改为按类型合并。 www / @ 主域名判断 PC/H5 的跳转…","datePublished":"2026-08-12T15:49:00+08:00","dateModified":"2026-08-12 15:49","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Shell","Python","Nginx","DNS","安全运维","源码与配置","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","nginx 按类型合并 conf 与新增域名指引","devops"],"wordCount":1320,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-26c3dbc5e750.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-26c3dbc5e750.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"nginx 按类型合并 conf 与新增域名指引","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-26c3dbc5e750.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>nginx 按类型合并 conf 与新增域名指引</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>nginx 按类型合并 conf 与新增域名指引</h1>
+      <p class="lede">nginx 按类型合并 conf 与新增域名指引。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：线上环境 / 游点涩 / nginx / 域名接入 / H5 / PC 优化线上服务器 nginx：原来“一个域名一个 conf”，改为按类型合并。 www / @ 主域名判断 PC/H5 的跳转…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-08-12T15:49:00+08:00">发布于 2026-08-12</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,320 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-12_1549-【优化+运维记录】nginx按类型合并conf与新增域名指引.md</code></p>
+<p>整理日期：2026-08-12 15:49｜日期依据：文件名日期</p>
+</blockquote>
+<p>环境标签：线上环境 / 游点涩 / nginx / 域名接入 / H5 / PC</p>
+<p>时间：2026-08-12 15:49（Asia/Manila）</p>
+<h2 id="任务来源">任务来源</h2>
+<p>用户要求：</p>
+<ul>
+<li>优化线上服务器 nginx：原来“一个域名一个 conf”，改为按类型合并。</li>
+<li><code>www</code> / <code>@</code> 主域名判断 PC/H5 的跳转，合并成一个 conf，新增域名只需加域名。</li>
+<li>独立一个 H5 conf，新增只需加 H5 域名（方便把老服务器的 H5 域名都加进来）。</li>
+<li>独立一个 PC conf，方便增加单独的 PC 域名。</li>
+<li>操作完成后自检查，并写详细说明：<code>www @</code> 跳转类新域名如何解析/如何加 conf；单纯 H5 如何解析/加 conf；单纯 PC 如何解析/加 conf。</li>
+<li>每步操作都发群通知（上线群 + 运维群），最后汇总文档、发群并合并提交本地代码。</li>
+</ul>
+<h2 id="本轮读取依据">本轮读取依据</h2>
+<ul>
+<li><code>AGENTS.md</code>、<code>workbench/</code>、<code>devops/ai_context/servers.yml</code></li>
+<li>历史接入文档：<code>2026-08-12_1536-【配置部署+运维记录】线上H5+PC新域名接入.md</code></li>
+</ul>
+<h2 id="优化后-conf-结构-线上环境-游点涩-新前端配置-nginx">优化后 conf 结构（<code>线上环境-游点涩-新前端配置/nginx/</code>）</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>10-youdianse-prod-maps.conf</code></td>
+<td>共享 map：设备判断（UA→h5/pc）、去 www 前缀、域名模式（h5/pc/redirect/ua）、后端选择、upstream H5/PC、resolver</td>
+</tr>
+<tr>
+<td><code>20-youdianse-prod-unified.conf</code></td>
+<td>统一入口 conf（一个 server 块）：pc+h5 跳转 / 纯 H5 / 纯 PC / 老域名 UA 分流全部合并</td>
+</tr>
+<tr>
+<td><code>youdianse-prod-h5pc-ssl-renew.sh</code></td>
+<td>SSL 自动续期/到期检查脚本（cron 03:10）</td>
+</tr>
+</tbody>
+</table>
+<p>2026-08-12 进一步将 20-redirect/30-h5/40-pc/50-ua 合并为 <code>20-youdianse-prod-unified.conf</code>；旧按域名 conf 与分类 conf 均已下线。</p>
+<p>证书目录自动选择规则（<code>10-...maps.conf</code>）：</p>
+<pre><code class="language-nginx">map $ssl_server_name $h5pc_cert_dir {
+    default $ssl_server_name;
+    ~^(?:h5|pc|www)\.(?&lt;base&gt;.+)$ $base;
+}
+</code></pre>
+<ul>
+<li><code>h5.X</code> / <code>pc.X</code> / <code>www.X</code> → 使用 <code>live/X</code> 目录证书（子域回退主域名证书）。</li>
+<li>其他主机名 → 使用 <code>live/&lt;完整主机名&gt;</code> 目录证书。</li>
+</ul>
+<h2 id="自检结果-已通过">自检结果（已通过）</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nginx -t</code> / reload</td>
+<td>通过</td>
+</tr>
+<tr>
+<td>PC UA 访问根域/www</td>
+<td>301 → <code>https://pc.&lt;域名&gt;/</code></td>
+</tr>
+<tr>
+<td>手机 UA 访问根域/www</td>
+<td>301 → <code>https://h5.&lt;域名&gt;/</code></td>
+</tr>
+<tr>
+<td>http → https</td>
+<td>301 → 对应 pc./h5.</td>
+</tr>
+<tr>
+<td>02/03 域名跳转</td>
+<td>正常</td>
+</tr>
+<tr>
+<td><code>https://h5.yds-pc-h5-01.cc/</code></td>
+<td>200，版本 915a0d3</td>
+</tr>
+<tr>
+<td><code>https://pc.yds-pc-h5-01.cc/</code></td>
+<td>200，版本 5c1d4ba</td>
+</tr>
+<tr>
+<td><code>pc./h5. /healthz</code></td>
+<td>200</td>
+</tr>
+<tr>
+<td>TLS SNI 证书</td>
+<td>根域/www/h5/pc 均返回正确域名证书（01/02/03）</td>
+</tr>
+</tbody>
+</table>
+<p>注意：变量方式加载证书在 worker 进程握手时读取，需要给 nginx 用户读 <code>/etc/letsencrypt</code> 权限，已执行：</p>
+<pre><code class="language-bash">sudo chmod 755 /etc/letsencrypt/live /etc/letsencrypt/archive
+sudo chmod 755 /etc/letsencrypt/archive/*/
+sudo chmod 644 /etc/letsencrypt/archive/*/*.pem
+</code></pre>
+<h2 id="新域名接入指引">新域名接入指引</h2>
+<h3 id="一-www-跳转-PC-H5-类新域名-设备自动判断跳转">一、<code>www @</code> 跳转 PC/H5 类新域名（设备自动判断跳转）</h3>
+<p>适用：一个主域名同时服务 PC 和 H5，访问 <code>域名</code>/<code>www.域名</code> 按设备跳 <code>pc.域名</code> / <code>h5.域名</code>。</p>
+<ol>
+<li>DNS 解析（都指向线上新服务器）：</li>
+</ol>
+<pre><code class="language-text">@    A   16.208.38.88
+www  A   16.208.38.88
+pc   A   16.208.38.88
+h5   A   16.208.38.88
+</code></pre>
+<ol start="2">
+<li>证书：签发 SAN 覆盖 <code>域名 www.域名 pc.域名 h5.域名</code>，落到 <code>/etc/letsencrypt/live/&lt;域名&gt;/</code>：</li>
+</ol>
+<pre><code class="language-bash">sudo certbot certonly --webroot -w /var/www/html -d &lt;域名&gt; -d www.&lt;域名&gt; -d pc.&lt;域名&gt; -d h5.&lt;域名&gt;
+</code></pre>
+<ol start="3">
+<li>修改 <code>20-youdianse-prod-redirect.conf</code>，在 <code>server_name</code> 追加：</li>
+</ol>
+<pre><code class="language-nginx">server_name ... &lt;域名&gt; www.&lt;域名&gt;;
+</code></pre>
+<ol start="4">
+<li>检查并生效：</li>
+</ol>
+<pre><code class="language-bash">sudo nginx -t &amp;&amp; sudo systemctl reload nginx
+</code></pre>
+<ol start="5">
+<li>可选：把新域名加入 <code>/usr/local/bin/youdianse-prod-h5pc-ssl-renew.sh</code> 的 <code>DOMAINS</code> 列表，纳入自动续期检查。</li>
+</ol>
+<h3 id="二-单纯-H5-域名-直接进-H5-站点-不做设备跳转">二、单纯 H5 域名（直接进 H5 站点，不做设备跳转）</h3>
+<p>适用：老服务器上的 H5 域名直接接入本机 H5 容器。</p>
+<ol>
+<li>DNS：</li>
+</ol>
+<pre><code class="language-text">h5.域名  A  16.208.38.88
+</code></pre>
+<ol start="2">
+<li>证书：</li>
+</ol>
+<pre><code class="language-bash">sudo certbot certonly --webroot -w /var/www/html -d h5.域名
+</code></pre>
+<p>证书目录规则：<code>h5.&lt;主域名&gt;</code> 可复用主域名证书（<code>live/&lt;主域名&gt;</code>，需 SAN 含 h5.子域）；独立域名则按 <code>live/h5.域名</code>（完整主机名）。</p>
+<ol start="3">
+<li>修改 <code>30-youdianse-prod-h5.conf</code>，在 <code>server_name</code> 追加：</li>
+</ol>
+<pre><code class="language-nginx">server_name ... h5.域名;
+</code></pre>
+<ol start="4">
+<li><code>sudo nginx -t &amp;&amp; sudo systemctl reload nginx</code>。</li>
+</ol>
+<h3 id="三-单纯-PC-域名-直接进-PC-站点">三、单纯 PC 域名（直接进 PC 站点）</h3>
+<ol>
+<li>DNS：</li>
+</ol>
+<pre><code class="language-text">pc.域名  A  16.208.38.88
+</code></pre>
+<ol start="2">
+<li>证书：</li>
+</ol>
+<pre><code class="language-bash">sudo certbot certonly --webroot -w /var/www/html -d pc.域名
+</code></pre>
+<ol start="3">
+<li>修改 <code>40-youdianse-prod-pc.conf</code>，在 <code>server_name</code> 追加：</li>
+</ol>
+<pre><code class="language-nginx">server_name ... pc.域名;
+</code></pre>
+<ol start="4">
+<li><code>sudo nginx -t &amp;&amp; sudo systemctl reload nginx</code>。</li>
+</ol>
+<h2 id="验证命令">验证命令</h2>
+<pre><code class="language-bash">sudo nginx -t
+curl -s -o /dev/null -w "%{http_code} -&gt; %{redirect_url}\n" -A "Mozilla/5.0 (Windows NT 10.0) Chrome" https://&lt;域名&gt;/
+curl -s -o /dev/null -w "%{http_code} -&gt; %{redirect_url}\n" -A "Mozilla/5.0 (iPhone) Safari" https://www.&lt;域名&gt;/
+curl -s -o /dev/null -w "%{http_code}\n" https://h5.&lt;域名&gt;/
+curl -s -o /dev/null -w "%{http_code}\n" https://pc.&lt;域名&gt;/
+echo | openssl s_client -servername h5.&lt;域名&gt; -connect 16.208.38.88:443 2&gt;/dev/null | openssl x509 -noout -subject
+</code></pre>
+<h2 id="结论">结论</h2>
+<ul>
+<li>nginx 已从“一个域名一个 conf”优化为按类型 3 类 conf（跳转 / H5 / PC），新增域名只需在对应 conf 的 <code>server_name</code> 追加域名并保证证书即可。</li>
+<li>证书目录按 SNI 自动选择；已放通 nginx 用户读取 <code>/etc/letsencrypt</code> 权限。</li>
+<li>自检全部通过（跳转、页面、版本、healthz、TLS 证书）。</li>
+</ul>
+<h2 id="后续注意">后续注意</h2>
+<ul>
+<li>新增域名后记得把域名加入 SSL 续期脚本的 <code>DOMAINS</code>（如证书由该脚本管理）。</li>
+<li>证书到期前由 cron（每天 03:10）自动续期并 reload nginx。</li>
+<li>老服务器 H5 域名接入时，先确认其证书 SAN；可复用主域名证书或单独签发。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#任务来源">任务来源</a></li><li style="margin-left:0.0rem"><a href="#本轮读取依据">本轮读取依据</a></li><li style="margin-left:0.0rem"><a href="#优化后-conf-结构-线上环境-游点涩-新前端配置-nginx">优化后 conf 结构（ 线上环境-游点涩-新前端配置/nginx/ ）</a></li><li style="margin-left:0.0rem"><a href="#自检结果-已通过">自检结果（已通过）</a></li><li style="margin-left:0.0rem"><a href="#新域名接入指引">新域名接入指引</a></li><li style="margin-left:0.8rem"><a href="#一-www-跳转-PC-H5-类新域名-设备自动判断跳转">一、 www @ 跳转 PC/H5 类新域名（设备自动判断跳转）</a></li><li style="margin-left:0.8rem"><a href="#二-单纯-H5-域名-直接进-H5-站点-不做设备跳转">二、单纯 H5 域名（直接进 H5 站点，不做设备跳转）</a></li><li style="margin-left:0.8rem"><a href="#三-单纯-PC-域名-直接进-PC-站点">三、单纯 PC 域名（直接进 PC 站点）</a></li><li style="margin-left:0.0rem"><a href="#验证命令">验证命令</a></li><li style="margin-left:0.0rem"><a href="#结论">结论</a></li><li style="margin-left:0.0rem"><a href="#后续注意">后续注意</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-08-12</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Nginx</span><span class="tag">DNS</span><span class="tag">安全运维</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-12_1549-【优化+运维记录】nginx按类型合并conf…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608121549-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-nginx%20%E6%8C%89%E7%B1%BB%E5%9E%8B%E5%90%88%E5%B9%B6%20conf%20%E4%B8%8E%E6%96%B0%E5%A2%9E%E5%9F%9F%E5%90%8D%E6%8C%87%E5%BC%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>nginx 按类型合并 conf 与新增域名指引。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：线上环境 / 游点涩 / nginx / 域名接入 / H5 / PC 优化线上服务器 nginx：原来“一个域名一个 conf”，改为按类型合并。 www / @ 主域名判断 PC/H5 的跳转…</p>
+      <p>关键词：18Game 测试环境、Shell、Python、Nginx、DNS、安全运维、源码与配置、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、nginx 按类型合并 conf 与新增域名指引、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-60ec7db8f0d6.html"><small>上一篇</small>2026-08-12 香港 G759 厂商接入记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-505dcc5a5d75.html"><small>下一篇</small>老 H5 域名迁移到新服务器与 AWS CDN 回源对照清单</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-26c3dbc5e750.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

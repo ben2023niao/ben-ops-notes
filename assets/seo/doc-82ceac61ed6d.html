@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>加域名全部分流与失败回滚优化｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="加域名全部分流与失败回滚优化。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：通用 / ben-bot / 前端域名维护 / 16.208.38.88 用户确认：所有域名（主域名、二级域名、 h5.* / pc.* 前缀）加进来都按设备分流：电脑打开→PC(3004)、手机打开→H5(3003)。">
+  <meta name="keywords" content="18Game 测试环境，Linux，Shell，Python，Nginx，CDN，DNS，安全运维，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，加域名全部分流与失败回滚优化，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-82ceac61ed6d.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-82ceac61ed6d.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608121410-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E5%8A%A0%E5%9F%9F%E5%90%8D%E5%85%A8%E9%83%A8%E5%88%86%E6%B5%81%E4%B8%8E%E5%A4%B1%E8%B4%A5%E5%9B%9E%E6%BB%9A%E4%BC%98%E5%8C%96.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="加域名全部分流与失败回滚优化">
+  <meta property="og:description" content="加域名全部分流与失败回滚优化。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：通用 / ben-bot / 前端域名维护 / 16.208.38.88 用户确认：所有域名（主域名、二级域名、 h5.* / pc.* 前缀）加进来都按设备分流：电脑打开→PC(3004)、手机打开→H5(3003)。">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-82ceac61ed6d.html">
+  <meta property="article:published_time" content="2026-08-12T14:10:00+08:00">
+  <meta property="article:modified_time" content="2026-08-12 14:10">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="加域名全部分流与失败回滚优化">
+  <meta name="twitter:description" content="加域名全部分流与失败回滚优化。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：通用 / ben-bot / 前端域名维护 / 16.208.38.88 用户确认：所有域名（主域名、二级域名、 h5.* / pc.* 前缀）加进来都按设备分流：电脑打开→PC(3004)、手机打开→H5(3003)。">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-82ceac61ed6d.html#article","headline":"加域名全部分流与失败回滚优化","description":"加域名全部分流与失败回滚优化。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：通用 / ben-bot / 前端域名维护 / 16.208.38.88 用户确认：所有域名（主域名、二级域名、 h5.* / pc.* 前缀）加进来都按设备分流：电脑打开→PC(3004)、手机打开→H5(3003)。","datePublished":"2026-08-12T14:10:00+08:00","dateModified":"2026-08-12 14:10","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Linux","Shell","Python","Nginx","CDN","DNS","安全运维","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","加域名全部分流与失败回滚优化","devops"],"wordCount":2317,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-82ceac61ed6d.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-82ceac61ed6d.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"加域名全部分流与失败回滚优化","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-82ceac61ed6d.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>加域名全部分流与失败回滚优化</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>加域名全部分流与失败回滚优化</h1>
+      <p class="lede">加域名全部分流与失败回滚优化。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：通用 / ben-bot / 前端域名维护 / 16.208.38.88 用户确认：所有域名（主域名、二级域名、 h5.* / pc.* 前缀）加进来都按设备分流：电脑打开→PC(3004)、手机打开→H5(3003)。</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-08-12T14:10:00+08:00">发布于 2026-08-12</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,317 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-12_1410-【配置同步+验证记录】加域名全部分流与失败回滚优化.md</code></p>
+<p>整理日期：2026-08-12 14:10｜日期依据：文件名日期</p>
+</blockquote>
+<p>环境标签：通用 / ben-bot / 前端域名维护 / 16.208.38.88</p>
+<p>时间：2026-08-12 14:10（Asia/Manila）</p>
+<h2 id="背景">背景</h2>
+<p>用户确认：所有域名（主域名、二级域名、<code>h5.*</code> / <code>pc.*</code> 前缀）加进来都按设备分流：电脑打开→PC(3004)、手机打开→H5(3003)。</p>
+<p>此前加 <code>youdianse.com</code> 时默认按 h5 处理（新增 <code>h5.youdianse.com</code> 但该主机已存在、并尝试重签证书导致 certbot 失败），需要优化加域名流程。</p>
+<h2 id="变更">变更</h2>
+<h3 id="服务器-nginx">服务器 nginx</h3>
+<p><code>10-youdianse-prod-maps.conf</code>：移除 <code>~^pc\..+$ pc;</code> 规则，全部域名默认 <code>ua</code> 分流（<code>h5.*</code> / <code>pc.*</code> 同样分流）；仅跳转类（yds-pc-h5-* 根域/www）保持 redirect，显式条目可覆盖。</p>
+<p>备份：<code>/root/.codex-backup/10-youdianse-prod-maps.conf.pre-all-ua.bak</code>、<code>20-youdianse-prod-unified.conf.pre-all-ua.bak</code></p>
+<h3 id="服务器维护脚本-youdianse-domain-maint-py">服务器维护脚本 <code>youdianse-domain-maint.py</code></h3>
+<ol>
+<li><code>mode_of</code>：默认一律 <code>ua</code>（不再对 <code>pc.*</code> 特判）。</li>
+<li><code>add</code> 默认类型 <code>h5</code> → <code>ua</code>：直接回复根域名（如 <code>youdianse.com</code>）即按 UA 分流接入。</li>
+<li>移除 <code>h5.</code> / <code>pc.</code> 前缀自动识别为纯 H5/纯 PC 的逻辑（按用户要求全部走分流）。</li>
+<li><code>issue_cert</code>：目标主机已有有效证书时跳过签发（避免 <code>h5.youdianse.com</code> 这类软链证书重复签发失败）。</li>
+<li><code>add</code> 证书签发失败自动回滚 server_name/maps 并 reload，不留下半成品。</li>
+</ol>
+<p>备份：<code>/root/.codex-backup/youdianse-domain-maint.py.pre-add-opt.bak</code></p>
+<h2 id="验证">验证</h2>
+<h3 id="模式-check---quick---json">模式（check --quick --json）</h3>
+<table>
+<thead>
+<tr>
+<th>域名</th>
+<th>模式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>taokju.com</td>
+<td>ua ✅</td>
+</tr>
+<tr>
+<td>pc.yds-pc-h5-01.cc</td>
+<td>ua ✅</td>
+</tr>
+<tr>
+<td>h5.yds-pc-h5-01.cc</td>
+<td>ua ✅</td>
+</tr>
+<tr>
+<td>yds-pc-h5-01.cc</td>
+<td>redirect ✅</td>
+</tr>
+</tbody>
+</table>
+<h3 id="add---dry-run-默认全部-ua">add --dry-run（默认全部 ua）</h3>
+<ul>
+<li><code>youdianse.com</code> → 新增 <code>youdianse.com ua</code></li>
+<li><code>pc.demo-x.com</code> → 新增 <code>pc.demo-x.com ua</code></li>
+<li><code>h5.demo-x.com</code> → 新增 <code>h5.demo-x.com ua</code></li>
+</ul>
+<h3 id="分流-直连源站-443">分流（直连源站 443）</h3>
+<table>
+<thead>
+<tr>
+<th>域名</th>
+<th>手机</th>
+<th>电脑</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pc.yds-pc-h5-01.cc</td>
+<td>H5 ✅</td>
+<td>PC ✅</td>
+</tr>
+<tr>
+<td>h5.yds-pc-h5-01.cc</td>
+<td>H5 ✅</td>
+<td>PC ✅</td>
+</tr>
+<tr>
+<td>yds-pc-h5-01.cc</td>
+<td>301 → h5.* ✅</td>
+<td>301 → pc.* ✅</td>
+</tr>
+</tbody>
+</table>
+<h3 id="证书跳过与回滚">证书跳过与回滚</h3>
+<ul>
+<li><code>cert -d h5.youdianse.com</code> → “已有有效证书，跳过签发” ✅</li>
+<li><code>add rollbacktest-abc123.com --cert</code>（DNS 不存在）→ certbot 失败后自动回滚，server_name/maps 无残留，nginx -t 通过 ✅</li>
+</ul>
+<h3 id="公网抽验">公网抽验</h3>
+<ul>
+<li>taokju.com / shouyek.com：手机 H5、电脑 PC ✅</li>
+</ul>
+<h2 id="机器人侧">机器人侧</h2>
+<ul>
+<li>插件加域名提示：默认 <code>ua</code>（电脑→PC、手机→H5），示例 <code>youdianse.com</code>。</li>
+<li>客户端 add 用法说明同步默认 ua；新增域名状态标记为 <code>new</code>。</li>
+<li>ben-bot 容器已重建，启动通知 10/10。</li>
+</ul>
+<h2 id="结论">结论</h2>
+<ul>
+<li>加域名默认全部分流（主域名/二级/h5/pc 前缀均手机 H5、电脑 PC）。</li>
+<li>已有证书跳过签发；签发失败自动回滚，避免半成品。</li>
+<li>注意：<code>youdianse.com</code> 根域名 DNS 当前仍指向老宝塔 <code>16.208.5.147</code>，需先切到 <code>16.208.38.88</code> 后机器人加域名+证书才能成功。</li>
+</ul>
+<h2 id="追加-加域名幂等检查-2026-08-12">追加：加域名幂等检查（2026-08-12）</h2>
+<ul>
+<li>需求：重复添加已存在的域名时，先检查该域名当前配置（server_name / 模式 / 证书）是否正确。</li>
+<li>实现（<code>youdianse_domain_maint.py</code> <code>add_domain</code>）：</li>
+<li>全部正确 → 输出“域名已存在，配置正常：&lt;主机&gt;”，不再重复操作。</li>
+<li>主机缺失 / 模式不对 / 证书缺失 → 自动补齐修复（写 server_name/mode、reload、补签证书）。</li>
+<li>证书签发失败仍自动回滚本次变更。</li>
+<li>客户端 <code>add</code>：按输出主机名同步状态（已增加/已修正/配置正常均登记为新域名），不再按类型猜测。</li>
+<li>验证：</li>
+<li><code>add 118acs2.com</code> / <code>add shouyek.com</code> → “域名已存在，配置正常” ✅</li>
+<li><code>add h5.youdianse.com</code>（此前模式残留 h5，现默认 ua）→ 自动对齐为 ua，配置正常 ✅</li>
+<li><code>add shouyek.com --type pc --dry-run</code> → 显示“将新增/修正 mode: {'pc.shouyek.com': 'pc'}”（模式不对会修正）✅</li>
+<li><code>add taokju.com --type h5 --dry-run</code> → 显示新增 <code>h5.taokju.com h5</code>（主机缺失会新增）✅</li>
+<li>ben-bot 重建启动通知 10/10 ✅</li>
+</ul>
+<h2 id="追加-删除域名功能-2026-08-12">追加：删除域名功能（2026-08-12）</h2>
+<ul>
+<li>需求：新增 🗑 删除域名；搜索到域名后点按钮删除。</li>
+<li>实现：</li>
+<li>菜单新增 <code>🗑 删除域名</code>（回复域名即可删除）；续签列表 / 搜索结果每个域名行带 🗑 按钮。</li>
+<li>点击 🗑 → 弹确认（✅ 确认删除 / ↩ 取消），确认后异步执行删除并回发结果。</li>
+<li>服务器 <code>del</code> 子命令：从 nginx server_name + <code>$h5pc_mode</code> 移除并 reload；证书文件保留（避免误伤共享证书）。</li>
+<li>客户端 <code>del</code>：同步从机器人状态文件移除该域名。</li>
+<li>验证：</li>
+<li><code>del youdianse.com --dry-run</code> → 显示将删除 server_name + 模式条目（不写入）✅</li>
+<li>临时主机 del-test-x.com 实删 → server_name/maps 均移除、nginx -t/reload 通过 ✅</li>
+<li>不存在域名删除 → 提示“域名不存在于 nginx” ✅</li>
+<li>ben-bot 重建启动通知 10/10 ✅</li>
+<li>测试事故记录：验证删除时一次内联脚本把 <code>10-youdianse-prod-maps.conf</code> 截断为空（<code>open(...,"w")</code> 在参数求值异常前已截断文件），已立即用仓库版本恢复并 nginx -t/reload，恢复后 md5 与仓库一致（ec384652…），无业务影响。</li>
+</ul>
+<h2 id="追加-DNS未生效域名照常加入-操作前自动备份-2026-08-12">追加：DNS未生效域名照常加入 + 操作前自动备份（2026-08-12）</h2>
+<ul>
+<li>需求：
+  1. 新增域名时若 DNS 尚未完全生效、暂时做不了 SSL，也要把域名加入 nginx（证书失败不再回滚删除，稍后可到 SSL 续签里补签）。
+  2. 增加/删除/修改SSL/续签等操作前，备份服务器全部 nginx 配置 + SSL 证书，用人类可读时间命名压缩发群；备份默认保留 100 份。
+  3. 增加/删除/更新SSL 的提示词改用案例域名（example.com），不写业务域名。</li>
+<li>实现：</li>
+<li><code>backup_all()</code>：操作前把 <code>/etc/nginx</code>（nginx.conf/conf.d/sites-enabled）与 <code>/etc/letsencrypt</code>（live/archive/renewal）备份到 <code>/root/.codex-backup/nginx-ssl-&lt;YYYY-MM-DD_HH-MM-SS&gt;/</code>；生成群发送压缩包 <code>*-group.tar.gz</code>（剔除 privkey 私钥，安全考虑），服务器保留完整备份（含私钥）；默认保留最新 100 份。</li>
+<li><code>add</code>/<code>del</code>/<code>cert</code>/<code>renew</code> 执行前自动调用备份（dry-run 不备份）。</li>
+<li><code>add_domain</code> 证书签发失败不再回滚：域名照常加入 nginx，输出“域名已加入 nginx；DNS 生效后可在机器人 SSL 续签里补签证书”。</li>
+<li>客户端拉取群备份包到本地并输出 <code>BACKUP_FILE</code>；插件/文本钩子在增加/删除/签发/续签结果里自动把备份包发到群（发送后清理临时文件）。</li>
+<li>提示词：增加示例 <code>example.com</code>、删除示例 <code>example.com / h5.example.com</code>、搜索示例 <code>example.com / example</code>，不再出现业务域名。</li>
+<li>验证：</li>
+<li><code>add test-pending-dns-xyz.com --cert</code>（DNS 不存在）→ 域名加入 nginx（server_name/maps 各 1 条），证书失败但保留，提示稍后补签 ✅</li>
+<li>备份目录 <code>/root/.codex-backup/nginx-ssl-2026-08-12_14-29-24</code> 等生成；群包含 nginx+letsencrypt、privkey 计数 0 ✅</li>
+<li>轮转保留：当前 4 份（操作前 3 份 + del 1 份）✅</li>
+<li><code>del test-pending-dns-xyz.com</code> 清理成功，两处残留 0，del 也生成备份 ✅</li>
+<li>ben-bot 重建启动通知 10/10 ✅</li>
+</ul>
+<h2 id="追加-修复备份发群与续签缓存刷新-2026-08-12">追加：修复备份发群与续签缓存刷新（2026-08-12）</h2>
+<ul>
+<li>用户反馈：①刚加的域名在 SSL 续签/搜索里搜不到；②操作后没看到备份包发群。</li>
+<li>根因：
+  1. SSL 续签列表/搜索读取 <code>data/upload/domain_maint_renew.json</code> 缓存快照，加/删/签后缓存未失效（实测缓存停留在 11:24，早于新增域名）。
+  2. 客户端用 <code>scp</code> 以 ubuntu 身份读取 <code>/root/.codex-backup/</code>（root 目录权限不足），报 <code>No such file or directory</code>，备份包从未拉取成功。</li>
+<li>修复（客户端 <code>youdianse_domain_maint_client.py</code>）：</li>
+<li><code>_fetch_backup</code> 改用 <code>ssh + sudo cat</code> 二进制拉取备份包到容器 <code>/tmp</code>，输出 <code>BACKUP_FILE</code> 供机器人发群。</li>
+<li>新增 <code>_invalidate_caches()</code>：add/del/cert/renew 成功后删除 <code>domain_maint_renew.json</code> + <code>domain_maint_page.json</code>，下次 SSL 续签/搜索自动重新拉取最新域名。</li>
+<li>验证（容器内实测）：</li>
+<li><code>cert -d shouyek.com</code> → <code>BACKUP_FILE=/tmp/nginx-ssl-…-group.tar.gz</code>（56KB）生成，缓存清理 ✅</li>
+<li><code>add test-cache-chk.com</code> → 域名加入、备份生成、<code>load_renew_rows</code> 重新拉取后 <code>test-cache-chk.com</code> 可搜到 ✅</li>
+<li><code>del test-cache-chk.com</code> 清理成功，临时备份文件清理 ✅</li>
+<li>ben-bot 重建启动通知 10/10 ✅</li>
+</ul>
+<h2 id="追加-全部域名-API-403-修复-参照宝塔-nginx-2026-08-12">追加：全部域名 API 403 修复（参照宝塔 nginx，2026-08-12）</h2>
+<ul>
+<li>现象：所有域名页面能开但接口 403（CloudFront 提示无法连接源站 / nginx 日志大量 <code>SSL_do_handshake failed</code> 到 <code>www.youdianse.com</code> 上游）。</li>
+<li>根因：<code>youdianse.com / www.youdianse.com / h5.youdianse.com</code> 的 DNS 被切到新 CloudFront <code>d38owkgqvg83bq</code>，而新服务器 unified conf 的 <code>/api|channel|customer</code> 反代到 <code>www.youdianse.com</code> → API 上游走新 CF 自指/回源循环 → 403。</li>
+<li>参照宝塔配置（16.208.5.147）：</li>
+<li>宝塔 <code>new.youdianse.com.conf</code>（server_name 含 www.youdianse.com 等）把 <code>/</code> 反代到内网 <code>203.0.113.1:3003</code>（H5 容器，内部代理 /api 到后端）。</li>
+<li><code>youdianse.com.conf</code> 为 PHP 后端（enable-php-82）。</li>
+<li>修复：新服务器 <code>20-youdianse-prod-unified.conf</code> 的 API 上游改为<strong>宝塔内网 IP <code>203.0.113.1</code> + SNI/Host <code>www.youdianse.com</code></strong>（<code>proxy_ssl_name www.youdianse.com</code>），完整复刻宝塔链路，不再依赖 www.youdianse.com 的 DNS/CF。</li>
+<li>验证：</li>
+<li>公网 API 连续 3 轮：taokju / shouyek / www.bochuang99 / ydsplay.net 全部 200 ✅</li>
+<li>www.youdianse.com、h5.youdianse.com 页面 200 + 接口 200 ✅</li>
+<li>118acs2、taokju 页面 200 + 接口 200 ✅</li>
+<li>nginx error log 15:20 后无新增 <code>SSL_do_handshake failed</code> ✅</li>
+<li>遗留（CloudFront 账号侧，服务器无法解决）：<code>youdianse.com</code> 裸根域名公网 HTTPS 仍握手失败（新 CF 证书未覆盖裸根），需在 CF 该 distribution 添加 <code>youdianse.com</code> 的 Alternate Domain Name + 对应证书（可导入宝塔老证书或 ACM 新签）。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#背景">背景</a></li><li style="margin-left:0.0rem"><a href="#变更">变更</a></li><li style="margin-left:0.8rem"><a href="#服务器-nginx">服务器 nginx</a></li><li style="margin-left:0.8rem"><a href="#服务器维护脚本-youdianse-domain-maint-py">服务器维护脚本 youdianse-domain-maint.py</a></li><li style="margin-left:0.0rem"><a href="#验证">验证</a></li><li style="margin-left:0.8rem"><a href="#模式-check---quick---json">模式（check --quick --json）</a></li><li style="margin-left:0.8rem"><a href="#add---dry-run-默认全部-ua">add --dry-run（默认全部 ua）</a></li><li style="margin-left:0.8rem"><a href="#分流-直连源站-443">分流（直连源站 443）</a></li><li style="margin-left:0.8rem"><a href="#证书跳过与回滚">证书跳过与回滚</a></li><li style="margin-left:0.8rem"><a href="#公网抽验">公网抽验</a></li><li style="margin-left:0.0rem"><a href="#机器人侧">机器人侧</a></li><li style="margin-left:0.0rem"><a href="#结论">结论</a></li><li style="margin-left:0.0rem"><a href="#追加-加域名幂等检查-2026-08-12">追加：加域名幂等检查（2026-08-12）</a></li><li style="margin-left:0.0rem"><a href="#追加-删除域名功能-2026-08-12">追加：删除域名功能（2026-08-12）</a></li><li style="margin-left:0.0rem"><a href="#追加-DNS未生效域名照常加入-操作前自动备份-2026-08-12">追加：DNS未生效域名照常加入 + 操作前自动备份（2026-08-12）</a></li><li style="margin-left:0.0rem"><a href="#追加-修复备份发群与续签缓存刷新-2026-08-12">追加：修复备份发群与续签缓存刷新（2026-08-12）</a></li><li style="margin-left:0.0rem"><a href="#追加-全部域名-API-403-修复-参照宝塔-nginx-2026-08-12">追加：全部域名 API 403 修复（参照宝塔 nginx，2026-08-12）</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-08-12</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Nginx</span><span class="tag">CDN</span><span class="tag">DNS</span><span class="tag">安全运维</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-12_1410-【配置同步+验证记录】加域名全部分流与失败回滚…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608121410-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E5%8A%A0%E5%9F%9F%E5%90%8D%E5%85%A8%E9%83%A8%E5%88%86%E6%B5%81%E4%B8%8E%E5%A4%B1%E8%B4%A5%E5%9B%9E%E6%BB%9A%E4%BC%98%E5%8C%96.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>加域名全部分流与失败回滚优化。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：通用 / ben-bot / 前端域名维护 / 16.208.38.88 用户确认：所有域名（主域名、二级域名、 h5.* / pc.* 前缀）加进来都按设备分流：电脑打开→PC(3004)、手机打开→H5(3003)。</p>
+      <p>关键词：18Game 测试环境、Linux、Shell、Python、Nginx、CDN、DNS、安全运维、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、加域名全部分流与失败回滚优化、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b04db115520f.html"><small>上一篇</small>2026-08-12 容器健康自动检测报警上线记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e2b492b49ddb.html"><small>下一篇</small>线上 H5+PC 新域名接入（yds-pc-h5-01/02/03.cc）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-82ceac61ed6d.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

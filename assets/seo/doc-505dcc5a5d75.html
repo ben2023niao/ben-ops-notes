@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>老 H5 域名迁移到新服务器与 AWS CDN 回源对照清单｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="老 H5 域名迁移到新服务器与 AWS CDN 回源对照清单。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：线上环境 / 游点涩 / H5 / 域名迁移 / AWS CDN / nginx 把 线上环境-游点涩-h5-发版 （宝塔 16.208.5.147）里老的 H5 域名和 SSL 证书…">
+  <meta name="keywords" content="18Game 测试环境，Shell，Python，Nginx，CDN，DNS，源码与配置，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，老 H5 域名迁移到新服务器与 AWS CDN 回源对照清单，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-505dcc5a5d75.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-505dcc5a5d75.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608121611-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E8%80%81%20H5%20%E5%9F%9F%E5%90%8D%E8%BF%81%E7%A7%BB%E5%88%B0%E6%96%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8E%20AWS%20CDN%20%E5%9B%9E%E6%BA%90%E5%AF%B9%E7%85%A7%E6%B8%85%E5%8D%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="老 H5 域名迁移到新服务器与 AWS CDN 回源对照清单">
+  <meta property="og:description" content="老 H5 域名迁移到新服务器与 AWS CDN 回源对照清单。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：线上环境 / 游点涩 / H5 / 域名迁移 / AWS CDN / nginx 把 线上环境-游点涩-h5-发版 （宝塔 16.208.5.147）里老的 H5 域名和 SSL 证书…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-505dcc5a5d75.html">
+  <meta property="article:published_time" content="2026-08-12T16:11:00+08:00">
+  <meta property="article:modified_time" content="2026-08-12 16:11">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="老 H5 域名迁移到新服务器与 AWS CDN 回源对照清单">
+  <meta name="twitter:description" content="老 H5 域名迁移到新服务器与 AWS CDN 回源对照清单。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：线上环境 / 游点涩 / H5 / 域名迁移 / AWS CDN / nginx 把 线上环境-游点涩-h5-发版 （宝塔 16.208.5.147）里老的 H5 域名和 SSL 证书…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-505dcc5a5d75.html#article","headline":"老 H5 域名迁移到新服务器与 AWS CDN 回源对照清单","description":"老 H5 域名迁移到新服务器与 AWS CDN 回源对照清单。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：线上环境 / 游点涩 / H5 / 域名迁移 / AWS CDN / nginx 把 线上环境-游点涩-h5-发版 （宝塔 16.208.5.147）里老的 H5 域名和 SSL 证书…","datePublished":"2026-08-12T16:11:00+08:00","dateModified":"2026-08-12 16:11","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Shell","Python","Nginx","CDN","DNS","源码与配置","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","老 H5 域名迁移到新服务器与 AWS CDN 回源对照清单","devops"],"wordCount":901,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-505dcc5a5d75.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-505dcc5a5d75.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"老 H5 域名迁移到新服务器与 AWS CDN 回源对照清单","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-505dcc5a5d75.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>老 H5 域名迁移到新服务器与 AWS CDN 回源对照清单</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>老 H5 域名迁移到新服务器与 AWS CDN 回源对照清单</h1>
+      <p class="lede">老 H5 域名迁移到新服务器与 AWS CDN 回源对照清单。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：线上环境 / 游点涩 / H5 / 域名迁移 / AWS CDN / nginx 把 线上环境-游点涩-h5-发版 （宝塔 16.208.5.147）里老的 H5 域名和 SSL 证书…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-08-12T16:11:00+08:00">发布于 2026-08-12</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">901 字</span>
+        <span class="badge">3 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-12_1611-【迁移+验证记录】老H5域名迁移到新服务器与AWS-CDN回源对照清单.md</code></p>
+<p>整理日期：2026-08-12 16:11｜日期依据：文件名日期</p>
+</blockquote>
+<p>环境标签：线上环境 / 游点涩 / H5 / 域名迁移 / AWS CDN / nginx</p>
+<p>时间：2026-08-12 16:11（Asia/Manila）</p>
+<h2 id="任务来源">任务来源</h2>
+<p>用户要求：</p>
+<ul>
+<li>把 <code>线上环境-游点涩-h5-发版</code>（宝塔 16.208.5.147）里老的 H5 域名和 SSL 证书，逐个迁移到 <code>线上环境-游点涩-新h5-发版</code>（16.208.38.88）的纯 H5 conf。</li>
+<li>迁移一个测试一个：用 hosts 加 IP（本任务用 <code>--resolve</code> 等价模拟）验证访问情况、接口、静态资源，结果发群。</li>
+<li>全部完成后汇总列表，供运维参考在 AWS CDN 里逐个对照修改域名回源。</li>
+<li>每步操作都发群通知（上线群 + 运维群），最后合并提交本地代码。</li>
+</ul>
+<h2 id="迁移说明">迁移说明</h2>
+<h3 id="数据源-宝塔-16-208-5-147">数据源（宝塔 16.208.5.147）</h3>
+<ul>
+<li>H5 站点 = 反代 <code>203.0.113.1:3003</code>（线上 H5 容器）的站点：</li>
+<li><code>new.youdianse.com.conf</code>：约 73 个域名（大 H5 站点）</li>
+<li><code>h5.youdianse.com.conf</code>、<code>h5.youdianse-main.xyz.conf</code>（含 h5-001）、<code>h5.yodianse.com.conf</code></li>
+<li>证书：<code>*.youdianse.com</code> 通配（覆盖 youdianse.com 系）、<code>*.youdianse-main.xyz</code> 通配、<code>h5.yodianse.com</code> 证书副本；其余大量域名在宝塔无独立证书（TLS 由 AWS CDN 承担）。</li>
+</ul>
+<h3 id="目标-新服务器-16-208-38-88">目标（新服务器 16.208.38.88）</h3>
+<ul>
+<li>纯 H5 conf：<code>30-youdianse-prod-h5.conf</code>，<code>server_name</code> 已扩展为 84 个主机名（3 个 yds-pc-h5 + 81 个老 H5 域名）。</li>
+<li>证书：复制 <code>*.youdianse.com</code> 通配到 <code>live/youdianse.com/</code>、<code>*.youdianse-main.xyz</code> 到 <code>live/h5.youdianse-main.xyz/</code>、<code>h5.yodianse.com</code> 到 <code>live/h5.yodianse.com/</code>；其余域名 <code>live/&lt;主机名&gt;</code> 软链到 <code>live/youdianse.com</code>（占位证书，用于直连功能测试；对外 TLS 由 AWS CDN 提供）。</li>
+<li><code>nginx -t</code> 通过并 reload。</li>
+</ul>
+<h2 id="迁移与验证结果-84-个主机全部通过">迁移与验证结果（84 个主机全部通过）</h2>
+<p>模拟访问方式（等价 hosts 加 IP）：</p>
+<pre><code class="language-bash">curl -sk --resolve &lt;域名&gt;:443:16.208.38.88 https://&lt;域名&gt;/
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>域名</th>
+<th>页面</th>
+<th>版本 JSON</th>
+<th>静态资源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>（见下方完整清单，全部 <code>200</code> / <code>915a0d3</code> / <code>200</code>）</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>完整清单：</p>
+<table>
+<thead>
+<tr>
+<th>域名</th>
+<th>页面</th>
+<th>版本 JSON</th>
+<th>静态资源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><em>TABLE</em></strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="AWS-CDN-回源对照修改建议">AWS CDN 回源对照修改建议</h2>
+<ul>
+<li>上述 84 个主机名全部可回源到 <code>16.208.38.88</code>（H5 应用在容器 3003，由 nginx 按 Host 反代）。</li>
+<li>迁移后老域名对外 TLS 仍由 AWS CDN 终止；CDN 回源如走 HTTPS，需确认回源验证方式（新服务器上非 youdianse 域名当前为占位证书，建议 CDN 回源用 HTTP 或跳过证书校验，或后续按域名补正式证书）。</li>
+<li><code>pc.youdianse.com</code> 未迁入 H5 conf（属 PC 域名，宝塔当前也反代到 H5 容器，如需保持一致可另行加入 PC conf 或按业务确认）。</li>
+<li><code>d38owkgqvg83bq.cloudfront.net</code> 未迁移（静态资源域，非页面入口）。</li>
+</ul>
+<h2 id="注意事项">注意事项</h2>
+<ul>
+<li>证书续期：<code>*.youdianse.com</code> / <code>*.youdianse-main.xyz</code> 目前是从宝塔复制的副本，建议后续在 AWS CDN 回源切换后，对新服务器上用 certbot 重新签发或建立续期任务，并把新域名加入 <code>youdianse-prod-h5pc-ssl-renew.sh</code> 的 <code>DOMAINS</code>。</li>
+<li>宝塔老 H5 站点在 AWS CDN 回源全部切换完成前保留，避免切换期间访问中断。</li>
+<li>后续新增 H5 域名：DNS <code>h5.域名 A 16.208.38.88</code> → 在 <code>30-youdianse-prod-h5.conf</code> 的 <code>server_name</code> 追加 → 保证 <code>live/&lt;主机名&gt;/</code> 证书 → <code>nginx -t &amp;&amp; reload</code>。</li>
+</ul>
+<h2 id="群通知">群通知</h2>
+<p>每步已同步发送 <code>18GAME_ 上线群（正式環境）</code> 与 <code>18game运维</code>：步骤 1 方案、步骤 2 盘点清单、步骤 3 测试结果（3 批）、最终汇总与文档。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#任务来源">任务来源</a></li><li style="margin-left:0.0rem"><a href="#迁移说明">迁移说明</a></li><li style="margin-left:0.8rem"><a href="#数据源-宝塔-16-208-5-147">数据源（宝塔 16.208.5.147）</a></li><li style="margin-left:0.8rem"><a href="#目标-新服务器-16-208-38-88">目标（新服务器 16.208.38.88）</a></li><li style="margin-left:0.0rem"><a href="#迁移与验证结果-84-个主机全部通过">迁移与验证结果（84 个主机全部通过）</a></li><li style="margin-left:0.0rem"><a href="#AWS-CDN-回源对照修改建议">AWS CDN 回源对照修改建议</a></li><li style="margin-left:0.0rem"><a href="#注意事项">注意事项</a></li><li style="margin-left:0.0rem"><a href="#群通知">群通知</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-08-12</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Nginx</span><span class="tag">CDN</span><span class="tag">DNS</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-12_1611-【迁移+验证记录】老H5域名迁移到新服务器与A…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608121611-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E8%80%81%20H5%20%E5%9F%9F%E5%90%8D%E8%BF%81%E7%A7%BB%E5%88%B0%E6%96%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8E%20AWS%20CDN%20%E5%9B%9E%E6%BA%90%E5%AF%B9%E7%85%A7%E6%B8%85%E5%8D%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>老 H5 域名迁移到新服务器与 AWS CDN 回源对照清单。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：线上环境 / 游点涩 / H5 / 域名迁移 / AWS CDN / nginx 把 线上环境-游点涩-h5-发版 （宝塔 16.208.5.147）里老的 H5 域名和 SSL 证书…</p>
+      <p>关键词：18Game 测试环境、Shell、Python、Nginx、CDN、DNS、源码与配置、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、老 H5 域名迁移到新服务器与 AWS CDN 回源对照清单、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-26c3dbc5e750.html"><small>上一篇</small>nginx 按类型合并 conf 与新增域名指引</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7a38b594b7f2.html"><small>下一篇</small>H5 域名回源分工与快照监控巡检通知</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-505dcc5a5d75.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
