@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【问题排查+发布】线上环境后端发布会话丢失异常定位与恢复记录｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="【问题排查+发布】线上环境后端发布会话丢失异常定位与恢复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-13 18:08 环境：游点涩线上环境（main 分支） 分类：问题排查+发布 标签：线上环境、后端、CICD、发布异常、SessionNotFoundException、CLI 发布 本记录…">
+  <meta name="keywords" content="游点涩，Shell，Python，Docker，Nginx，Redis，自动化，安全运维，业务系统运维，业务系统运维 / 游点涩，【问题排查+发布】线上环境后端发布会话丢失异常定位与恢复记录，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-69d919a42820.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-69d919a42820.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608131808-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%2B%E5%8F%91%E5%B8%83%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E5%90%8E%E7%AB%AF%E5%8F%91%E5%B8%83%E4%BC%9A%E8%AF%9D%E4%B8%A2%E5%A4%B1%E5%BC%82%E5%B8%B8%E5%AE%9A%E4%BD%8D%E4%B8%8E%E6%81%A2%E5%A4%8D%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【问题排查+发布】线上环境后端发布会话丢失异常定位与恢复记录">
+  <meta property="og:description" content="【问题排查+发布】线上环境后端发布会话丢失异常定位与恢复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-13 18:08 环境：游点涩线上环境（main 分支） 分类：问题排查+发布 标签：线上环境、后端、CICD、发布异常、SessionNotFoundException、CLI 发布 本记录…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-69d919a42820.html">
+  <meta property="article:published_time" content="2026-08-13T18:08:00+08:00">
+  <meta property="article:modified_time" content="2026-08-13 18:08">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【问题排查+发布】线上环境后端发布会话丢失异常定位与恢复记录">
+  <meta name="twitter:description" content="【问题排查+发布】线上环境后端发布会话丢失异常定位与恢复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-13 18:08 环境：游点涩线上环境（main 分支） 分类：问题排查+发布 标签：线上环境、后端、CICD、发布异常、SessionNotFoundException、CLI 发布 本记录…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-69d919a42820.html#article","headline":"【问题排查+发布】线上环境后端发布会话丢失异常定位与恢复记录","description":"【问题排查+发布】线上环境后端发布会话丢失异常定位与恢复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-13 18:08 环境：游点涩线上环境（main 分支） 分类：问题排查+发布 标签：线上环境、后端、CICD、发布异常、SessionNotFoundException、CLI 发布 本记录…","datePublished":"2026-08-13T18:08:00+08:00","dateModified":"2026-08-13 18:08","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Shell","Python","Docker","Nginx","Redis","自动化","安全运维","业务系统运维","业务系统运维 / 游点涩","【问题排查+发布】线上环境后端发布会话丢失异常定位与恢复记录","php"],"wordCount":1069,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-69d919a42820.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-69d919a42820.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【问题排查+发布】线上环境后端发布会话丢失异常定位与恢复记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-69d919a42820.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>【问题排查+发布】线上环境后端发布会话丢失异常定位与恢复记录</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>【问题排查+发布】线上环境后端发布会话丢失异常定位与恢复记录</h1>
+      <p class="lede">【问题排查+发布】线上环境后端发布会话丢失异常定位与恢复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-13 18:08 环境：游点涩线上环境（main 分支） 分类：问题排查+发布 标签：线上环境、后端、CICD、发布异常、SessionNotFoundException、CLI 发布 本记录…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-08-13T18:08:00+08:00">发布于 2026-08-13</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,069 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-13-1808-【问题排查+发布】线上环境后端发布会话丢失异常定位与恢复记录.md</code></p>
+<p>整理日期：2026-08-13 18:08｜日期依据：文件名日期</p>
+</blockquote>
+<p>文档日期：2026-08-13 18:08
+环境：游点涩线上环境（main 分支）
+分类：问题排查+发布
+标签：线上环境、后端、CICD、发布异常、SessionNotFoundException、CLI 发布</p>
+<h2 id="工单信息">工单信息</h2>
+<pre><code class="language-text">平台：youdianse
+前端/后端：后端
+环境：正式环境（main）
+目标 git id：45af8d1487af83238f2464abe94df43e12202841（大数据上报生产验证）
+开发/测试：@ck80605 / @xiaoheitu777
+运维：@Ben_Bird @jett_yunwei @Kermit0824 @melo_sre @Daviea2
+发起人：运维-@Daviea2（CICD Web 页面）
+</code></pre>
+<h2 id="失败现象">失败现象</h2>
+<pre><code class="language-text">2026-08-13 17:57:13 发布开始（运维-@Daviea2，CICD Web 页面）
+流程：查看确认 -&gt; 选择 git id 45af8d1487af -&gt; 部署模式 php-cron（web+nginx+cron）-&gt; 开始执行
+构建阶段：docker compose build web，Phalcon 4.1.2 源码编译耗时较长（约 4 分钟）
+2026-08-13 18:01:55 发布异常：
+  pywebio.exceptions.SessionNotFoundException:
+  Can't find current session. Maybe session closed or forget to use `register_thread()`.
+发布锁随后释放，发布流程异常结束。
+</code></pre>
+<h2 id="根因分析">根因分析</h2>
+<pre><code class="language-text">CICD Web 基于 PyWebIO 会话模型。发布流程把 Docker 构建的长日志实时渲染到浏览器会话 scope：
+run_stream -&gt; logger.log -&gt; pywebio output.set_scope -&gt; get_current_session
+
+构建期间运维页面会话丢失（浏览器关闭/刷新/切后台超时/网络中断等），
+logger 在向已失效的会话输出日志时抛出 SessionNotFoundException，
+异常沿 run_stream -&gt; build_image -&gt; run_deploy 一路向上，导致整个发布流程中断。
+
+结论：这是 CICD Web 应用自身的会话依赖问题，不是业务代码或镜像构建失败。
+证据：发布中断后 Docker 构建仍在后台继续，18:03:36 镜像 youdianse-php:main-45af8d1487af
+构建成功（1.16GB）；业务 git 45af8d1487af 为正常 merge commit。
+</code></pre>
+<h2 id="影响评估">影响评估</h2>
+<pre><code class="language-text">发布中断发生在 up 之前，生产容器未受影响：
+web/nginx/cron 继续运行旧镜像 youdianse-php:main-b5fcca57a119（Up 27h）
+发布锁已自动释放，无脏状态残留
+线上业务仓库已 checkout 到 45af8d14（构建源），无冲突
+</code></pre>
+<h2 id="恢复处理">恢复处理</h2>
+<p>改用 CLI 发布（不依赖浏览器会话）：</p>
+<pre><code class="language-bash">cd /opt/docker-youdianse-php
+sudo cicd-web/runtime/venv/bin/python cicd-web.py deploy \
+  --git-id 45af8d1487af83238f2464abe94df43e12202841 --with-cron --json
+</code></pre>
+<pre><code class="language-text">构建：缓存命中，镜像 youdianse-php:main-45af8d1487af Built
+容器：web/nginx/cron 全部 force-recreate 成功
+健康检查：HTTP 200 / Session writable / Redis open / MongoDB open / Hosts ok -&gt; SUCCESS
+业务日志目录：18.78G / 阈值 20G
+</code></pre>
+<h2 id="验证结果">验证结果</h2>
+<pre><code class="language-text">容器：web/nginx/cron Up，镜像 youdianse-php:main-45af8d1487af，dirty=false
+发布锁：已释放（空闲）
+本地：后台 200、CICD 200
+公网：admin 200、cicd 200、H5 200
+容器内：ta-php-sdk 自动加载 true，SDK_VERSION=3.1.1
+日志：web/nginx 日志正常，业务接口（tracking/record 等）持续 200
+</code></pre>
+<h2 id="下次避免措施">下次避免措施</h2>
+<pre><code class="language-text">1. 优先用 CLI 发布（本记录命令），特别是需要长时间构建（Phalcon 编译等）时，不要依赖 Web 页面会话。
+2. 必须用 Web 页面时：发布开始后不要关闭/刷新页面、不要切走标签页；确认浏览器不休眠、
+   无网络切换；避免超过会话超时（本次约 4.5 分钟构建即触发）。
+3. 治本方向（CICD 改造）：长任务发布改为独立后台线程/进程执行，页面只订阅展示状态，
+   日志输出不再依赖活动会话（register_thread / 任务队列），会话丢失不中断发布。
+4. 失败恢复标准化：先确认发布锁已释放 -&gt; 检查镜像是否已在后台构建完成 -&gt;
+   直接 CLI 重发即可，无需改动业务代码。
+5. 发布前确认线上业务仓库已 fetch 目标 git id（本次 45af8d14 已在仓库内）。
+</code></pre>
+<h2 id="通知记录">通知记录</h2>
+<pre><code class="language-text">步骤 1 文档与 workbench 就绪        message_id 9274
+步骤 2 发布异常定位                 message_id 9275
+步骤 3 发布前核验                   message_id 9276
+步骤 4 重新执行发布成功             message_id 9278
+步骤 5 运行验证通过                 message_id 9279
+最终总结（失败原因+避免措施）       见群内后续消息
+</code></pre>
+<h2 id="安全与敏感内容">安全与敏感内容</h2>
+<p>本记录不输出 Telegram token/chat_id、私钥、Git 凭据；发布日志中的 chat_id 为 CICD 既有配置，不在文档中记录。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#工单信息">工单信息</a></li><li style="margin-left:0.0rem"><a href="#失败现象">失败现象</a></li><li style="margin-left:0.0rem"><a href="#根因分析">根因分析</a></li><li style="margin-left:0.0rem"><a href="#影响评估">影响评估</a></li><li style="margin-left:0.0rem"><a href="#恢复处理">恢复处理</a></li><li style="margin-left:0.0rem"><a href="#验证结果">验证结果</a></li><li style="margin-left:0.0rem"><a href="#下次避免措施">下次避免措施</a></li><li style="margin-left:0.0rem"><a href="#通知记录">通知记录</a></li><li style="margin-left:0.0rem"><a href="#安全与敏感内容">安全与敏感内容</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-08-13</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">Redis</span><span class="tag">自动化</span><span class="tag">安全运维</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-13-1808-【问题排…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608131808-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%2B%E5%8F%91%E5%B8%83%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E5%90%8E%E7%AB%AF%E5%8F%91%E5%B8%83%E4%BC%9A%E8%AF%9D%E4%B8%A2%E5%A4%B1%E5%BC%82%E5%B8%B8%E5%AE%9A%E4%BD%8D%E4%B8%8E%E6%81%A2%E5%A4%8D%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【问题排查+发布】线上环境后端发布会话丢失异常定位与恢复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-13 18:08 环境：游点涩线上环境（main 分支） 分类：问题排查+发布 标签：线上环境、后端、CICD、发布异常、SessionNotFoundException、CLI 发布 本记录…</p>
+      <p>关键词：游点涩、Shell、Python、Docker、Nginx、Redis、自动化、安全运维、业务系统运维、业务系统运维 / 游点涩、【问题排查+发布】线上环境后端发布会话丢失异常定位与恢复记录、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-35772860bb27.html"><small>上一篇</small>2026-08-13 H5 入口源站故障排查记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-713c63474d24.html"><small>下一篇</small>【优化】线上环境 CICD 发布会话丢失根治改造记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-69d919a42820.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
