@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>线上前端携带用户真实 IP：后端 realip 信任修复与 SSR 遗留｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="线上前端携带用户真实 IP：后端 realip 信任修复与 SSR 遗留。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：线上环境 / 前端 / 用户IP / nginx realip / SSR 后端反馈：前端服务器发起的内网请求接口没有携带用户真实 IP，接口拿到的都是内网地址。要求宝塔老前…">
+  <meta name="keywords" content="18Game 测试环境，Python，Docker，Nginx，CDN，故障排查，数据库恢复，源码与配置，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，线上前端携带用户真实 IP：后端 realip 信任修复与 SSR 遗留，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cb4d9d656026.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cb4d9d656026.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608181648-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BDocker-%E7%BA%BF%E4%B8%8A%E5%89%8D%E7%AB%AF%E6%90%BA%E5%B8%A6%E7%94%A8%E6%88%B7%E7%9C%9F%E5%AE%9E%20IP%EF%BC%9A%E5%90%8E%E7%AB%AF%20realip%20%E4%BF%A1%E4%BB%BB%E4%BF%AE%E5%A4%8D%E4%B8%8E%20SSR%20%E9%81%97%E7%95%99.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="线上前端携带用户真实 IP：后端 realip 信任修复与 SSR 遗留">
+  <meta property="og:description" content="线上前端携带用户真实 IP：后端 realip 信任修复与 SSR 遗留。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：线上环境 / 前端 / 用户IP / nginx realip / SSR 后端反馈：前端服务器发起的内网请求接口没有携带用户真实 IP，接口拿到的都是内网地址。要求宝塔老前…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cb4d9d656026.html">
+  <meta property="article:published_time" content="2026-08-18T16:48:00+08:00">
+  <meta property="article:modified_time" content="2026-08-18 16:48">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="线上前端携带用户真实 IP：后端 realip 信任修复与 SSR 遗留">
+  <meta name="twitter:description" content="线上前端携带用户真实 IP：后端 realip 信任修复与 SSR 遗留。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：线上环境 / 前端 / 用户IP / nginx realip / SSR 后端反馈：前端服务器发起的内网请求接口没有携带用户真实 IP，接口拿到的都是内网地址。要求宝塔老前…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cb4d9d656026.html#article","headline":"线上前端携带用户真实 IP：后端 realip 信任修复与 SSR 遗留","description":"线上前端携带用户真实 IP：后端 realip 信任修复与 SSR 遗留。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：线上环境 / 前端 / 用户IP / nginx realip / SSR 后端反馈：前端服务器发起的内网请求接口没有携带用户真实 IP，接口拿到的都是内网地址。要求宝塔老前…","datePublished":"2026-08-18T16:48:00+08:00","dateModified":"2026-08-18 16:48","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Python","Docker","Nginx","CDN","故障排查","数据库恢复","源码与配置","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","线上前端携带用户真实 IP：后端 realip 信任修复与 SSR 遗留","devops"],"wordCount":902,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cb4d9d656026.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cb4d9d656026.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"线上前端携带用户真实 IP：后端 realip 信任修复与 SSR 遗留","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cb4d9d656026.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>线上前端携带用户真实 IP：后端 realip 信任修复与 SSR 遗留</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>线上前端携带用户真实 IP：后端 realip 信任修复与 SSR 遗留</h1>
+      <p class="lede">线上前端携带用户真实 IP：后端 realip 信任修复与 SSR 遗留。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：线上环境 / 前端 / 用户IP / nginx realip / SSR 后端反馈：前端服务器发起的内网请求接口没有携带用户真实 IP，接口拿到的都是内网地址。要求宝塔老前…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-08-18T16:48:00+08:00">发布于 2026-08-18</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">902 字</span>
+        <span class="badge">3 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-18_1648-【修复记录】线上前端携带用户真实IP-后端realip信任与SSR遗留.md</code></p>
+<p>整理日期：2026-08-18 16:48｜日期依据：文件名日期</p>
+</blockquote>
+<p>环境标签：线上环境 / 前端 / 用户IP / nginx realip / SSR</p>
+<p>时间：2026-08-18 16:48（Asia/Manila）</p>
+<h2 id="背景">背景</h2>
+<p>后端反馈：前端服务器发起的内网请求接口没有携带用户真实 IP，接口拿到的都是内网地址。要求宝塔老前端和新的 nginx 服务器（16.208.38.88）都要处理。</p>
+<h2 id="链路与根因">链路与根因</h2>
+<ul>
+<li>新服务器：用户 → 16.208.38.88（unified conf <code>/api</code> 反代，已带 X-Real-IP / X-Forwarded-For）→ 宝塔内网 203.0.113.1 → 后端 203.0.113.1:8088。</li>
+<li>宝塔老前端：用户 → CloudFront → 宝塔（extension <code>00-youdianse-fixed-reverse-proxy.conf</code> 的 <code>/api</code> 反代，已带 X-Forwarded-For）→ 后端。</li>
+<li>两端前端 nginx 其实都已透传 XFF；根因是<strong>后端 nginx（203.0.113.1:8088，容器 youdianse-main-php-nginx）全站无 <code>set_real_ip_from</code> / <code>real_ip_header</code></strong>，PHP 的 REMOTE_ADDR 一直是内网对端 IP（203.0.113.1 / 203.0.113.1）。</li>
+</ul>
+<h2 id="处理-后端-16-209-16-108">处理（后端 16.209.16.108）</h2>
+<ol>
+<li>备份 <code>/opt/docker-youdianse-php/nginx/default.conf</code> → <code>default.conf.bak.realip-20260818_0000</code>。</li>
+<li>nginx <code>server</code> 块增加：
+   - <code>set_real_ip_from</code>：203.0.113.1/16、203.0.113.1/8、100.64.0.0/10、138.252.248.139、CloudFront 官方 211 段（从 ip-ranges.json 生成）；
+   - <code>real_ip_header X-Forwarded-For;</code>
+   - <code>real_ip_recursive on;</code></li>
+<li><code>nginx -t</code> 通过并 reload；验证后用临时 access_log 抓包确认（已移除 debug 日志，realip 保留）。</li>
+</ol>
+<h2 id="验证">验证</h2>
+<ul>
+<li>公网直连 <code>h5.yds-pc-h5-01.cc</code>（新服务器链路）：后端 nginx 解析 REMOTE_ADDR = 请求者真实公网 IP（实测 112.207.100.18）。</li>
+<li>宝塔老前端 CloudFront 链路：用户请求解析为真实 IP（如 223.88.200.119、IPv6 等）。</li>
+<li>应用 api_request 日志现在记录真实用户 IP。</li>
+</ul>
+<h2 id="遗留-需前端配合">遗留（需前端配合）</h2>
+<ul>
+<li>Nuxt SSR 页面渲染时，容器直接请求 <code>https://www.youdianse.com/api</code>（经 CloudFront），未把浏览器请求的用户 IP 透传；构建产物中 <code>useRequestHeaders</code> 只转发了 <code>user-agent</code>，导致 SSR 类请求后端仍显示服务器出口 IP（16.208.38.88）。</li>
+<li>精确改法（H5 与 PC 前端仓库同一个文件 <code>utils/fetch.ts</code>）：在 <code>$fetch.create({ headers: {...} })</code> 中加一行：</li>
+</ul>
+<p><code>ts
+  headers: {
+    'Content-Type': 'text/plain',
+    'deviceType': 'web',
+    ...(import.meta.server ? useRequestHeaders(['x-forwarded-for', 'x-real-ip']) : {}),
+  },</code></p>
+<ul>
+<li><code>useRequestHeaders</code> 为 Nuxt 内置组合式函数，服务端自动取当前请求 header，无需额外依赖/写 node 逻辑。改完提交前端 main 分支，宝塔老 H5/PC 与 16.208.38.88 新 H5/PC 重新发版后彻底解决。</li>
+<li>已同步通知 <code>18GAME_ 上线群（正式環境）</code>。</li>
+</ul>
+<h2 id="全链路验证结果-2026-08-18-17-10-更新">全链路验证结果（2026-08-18 17:10 更新）</h2>
+<p>用本机真实公网 IP（112.207.100.18）实测：</p>
+<table>
+<thead>
+<tr>
+<th>链路</th>
+<th>后端记录 IP</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>浏览器直连 h5.yds-pc-h5-01.cc/api</td>
+<td>112.207.100.18（真实公网 IP）</td>
+<td>✅ 已修复</td>
+</tr>
+<tr>
+<td>请求 H5 页面触发 Nuxt SSR（新服务器）</td>
+<td>16.208.38.88（服务器出口）</td>
+<td>❌ 未修复</td>
+</tr>
+<tr>
+<td>宝塔老前端 www.youdianse.com 页面 SSR</td>
+<td>服务器出口 IP（如 3.1.244.240）</td>
+<td>❌ 未修复</td>
+</tr>
+</tbody>
+</table>
+<p>原因：线上 H5/PC 容器仍是旧构建（<code>b1fc14f</code> / <code>cbaacc2</code>），前端仓库尚未提交/发版 SSR 透传改动（构建产物中 <code>x-forwarded-for</code> 仅出现在 Nuxt 框架 h3 内部，非前端 fetch 透传）。</p>
+<p>结论：浏览器直连链路已彻底解决；SSR 链路需前端按上述 <code>utils/fetch.ts</code> 改法提交 main 并发版（宝塔老 H5/PC + 新服务器 H5/PC）后复核。</p>
+<h2 id="通知与提交">通知与提交</h2>
+<ul>
+<li>每步已发 <code>18GAME_ 上线群（正式環境）</code>（步骤 1-3）。</li>
+<li>本地 Git 已提交（不 Push），commit 信息见提交结果通知。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#背景">背景</a></li><li style="margin-left:0.0rem"><a href="#链路与根因">链路与根因</a></li><li style="margin-left:0.0rem"><a href="#处理-后端-16-209-16-108">处理（后端 16.209.16.108）</a></li><li style="margin-left:0.0rem"><a href="#验证">验证</a></li><li style="margin-left:0.0rem"><a href="#遗留-需前端配合">遗留（需前端配合）</a></li><li style="margin-left:0.0rem"><a href="#全链路验证结果-2026-08-18-17-10-更新">全链路验证结果（2026-08-18 17:10 更新）</a></li><li style="margin-left:0.0rem"><a href="#通知与提交">通知与提交</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-08-18</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">CDN</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-18_1648-【修复记录】线上前端携带用户真实IP-后端re…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608181648-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BDocker-%E7%BA%BF%E4%B8%8A%E5%89%8D%E7%AB%AF%E6%90%BA%E5%B8%A6%E7%94%A8%E6%88%B7%E7%9C%9F%E5%AE%9E%20IP%EF%BC%9A%E5%90%8E%E7%AB%AF%20realip%20%E4%BF%A1%E4%BB%BB%E4%BF%AE%E5%A4%8D%E4%B8%8E%20SSR%20%E9%81%97%E7%95%99.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>线上前端携带用户真实 IP：后端 realip 信任修复与 SSR 遗留。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：线上环境 / 前端 / 用户IP / nginx realip / SSR 后端反馈：前端服务器发起的内网请求接口没有携带用户真实 IP，接口拿到的都是内网地址。要求宝塔老前…</p>
+      <p>关键词：18Game 测试环境、Python、Docker、Nginx、CDN、故障排查、数据库恢复、源码与配置、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、线上前端携带用户真实 IP：后端 realip 信任修复与 SSR 遗留、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-deff9d7e31e7.html"><small>上一篇</small>测试环境磁盘清理与安全清理定时任务</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7d48b378331e.html"><small>下一篇</small>【优化】线上环境发布成功通知增加步骤 5 API 测试提醒</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cb4d9d656026.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
