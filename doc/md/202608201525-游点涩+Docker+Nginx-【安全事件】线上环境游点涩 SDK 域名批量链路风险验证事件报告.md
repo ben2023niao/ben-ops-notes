@@ -1,0 +1,195 @@
+---
+id: "doc-549fddc3d2b9"
+title: "【安全事件】线上环境游点涩 SDK 域名批量链路风险验证事件报告"
+date: "2026-08-20T15:25:00+08:00"
+dateSource: "文件名日期"
+categories: ["业务系统运维", "游点涩"]
+tags: ["游点涩", "Docker", "Nginx", "监控告警", "自动化", "CDN", "DNS", "安全运维"]
+source: "project-file:///Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-20-1525-%E3%80%90%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E6%B8%B8%E7%82%B9%E6%B6%A9SDK%E5%9F%9F%E5%90%8D%E6%89%B9%E9%87%8F%E5%8A%AB%E6%8C%81%E4%BA%8B%E4%BB%B6%E6%8A%A5%E5%91%8A.md"
+sourcePath: "~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-20-1525-【安全事件】线上环境游点涩SDK域名批量劫持事件报告.md"
+sourceSha256: "63cf52d8251daeab4dc2cc739adbfd88199952b297f77313d99c81424b029531"
+sourceSystem: "project-doc"
+---
+
+# 【安全事件】线上环境游点涩 SDK 域名批量链路风险验证事件报告
+
+> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-20-1525-【安全事件】线上环境游点涩SDK域名批量劫持事件报告.md`
+
+> 整理日期：2026-08-20 15:25｜日期依据：文件名日期
+
+文档日期：2026-08-20 15:25
+环境：游点涩线上环境（main 分支）
+分类：安全事件
+风险等级：E4（紧急，已处置）
+标签：线上环境、DNS 链路风险验证、SDK 域名、注册商、Cloudflare、加固方案
+
+## 一、事件概述
+
+2026-08-20 凌晨，游点涩安卓/iOS 的 10 个 SDK 域名被批量 DNS 链路风险验证，
+导致部分游戏用户无法登录/注册/进入游戏，支付回调域名同时受影响。
+经过排查与处置，域名已恢复解析到平台自有 AWS CloudFront/网关，SSL 重新签发中。
+
+## 二、事件时间线（北京时间）
+
+```text
+08-19 17:19 网关 nginx worker_connections 首次打满（330 条错误）
+08-20 00:14 10 个 SDK 域名在注册商 Gname 被批量修改 DNS（whois Updated Date 16:14Z）
+08-20 01:00 玩家集中反馈登录失败（6 秒内 139 条 worker_connections 错误）
+08-20 02:57 网关 nginx 加固完成（worker_connections 4096 + keepalive）
+08-20 03:56 sdk.youdianse.com /api 接通
+08-20 04:00 前后 蜜桃/欲女/性界等游戏登录复测仍失败
+08-20 04:5x 确认 sdkDomains 下发 h5.game-app543.com（被访问策略验证）
+08-20 05:0x 确认 10 个 SDK 域名被 DNS 链路风险验证（NS->Cloudflare，指向第三方短剧站）
+08-20 白天 Gname 沟通恢复 NS/A；部分域名 A 改 CNAME 到平台 AWS CloudFront
+08-20 14:49 [pay.callback] 回调域名更新并同步（重建容器）
+```
+
+## 三、如何发现问题
+
+```text
+1. 用户反馈：多款游戏（蜜桃、欲女梦工厂、性界大战等）退出后无法再次登录、
+   新用户无法注册、老用户无法进入游戏；
+2. 平台侧排查：后端登录接口全部 status:"y"（平台登录正常）、网关无新增错误、
+   注册接口生产侧正常 -> 判断问题不在平台后端；
+3. 逐款解包 APK / 检查 H5 配置：发现包内/页面 baseUrl 存在测试域名
+   （sdk.youdianse-test.xyz / h5.youdianse-test.xyz）与 h5.game-app543.com；
+4. 直接访问这些域名：打开为“银河剧场/旺柴短剧”等与平台无关的第三方短剧站，
+   确认非访问策略验证、而是被链路风险验证；
+5. whois 核验：注册商 Gname.com，Updated Date 全部为 08-19 16:14 UTC，
+   NS 被改成 Cloudflare -> 确认为批量 DNS 链路风险验证。
+```
+
+## 四、影响范围
+
+```text
+受影响 SDK 域名（10 个）：
+  安卓：bjyinhegame.com、wangcaitt.com、shouyek.com、huochechushou.com、tywhtg.com
+  iOS：clfhjg.com、caijiesh.com、jszz809.com、xflqzgj.com、baiyingnet.com
+影响：
+  1. 使用这些 SDK 域名的游戏登录/注册/进游戏失败或跳转到链路风险验证页（钓鱼风险）；
+  2. 支付回调域名被链路风险验证，支付回调收不到/被篡改；
+  3. 平台品牌与用户信任受损。
+```
+
+## 五、排查与定位过程（关键证据）
+
+```text
+1. 后端日志：所有到达生产后端的登录/注册均成功（status:"y"），
+   失败请求未到达生产 -> 问题在网络/DNS 层；
+2. 域名解析：10 个域名 A 记录指向 Cloudflare（104.21.x / 172.67.x），
+   打开为第三方短剧站；xflqzgj.com 曾指向 share-dns/CloudFront；
+3. NS：9 个域名为 everton/serena.ns.cloudflare.com（同一套），
+   xflqzgj.com 为 share-dns -> 批量接管特征；
+4. whois：Registrar=Gname.com，Updated Date=2026-08-19T16:14:23Z/16:14:28Z，
+   创建于 2025-09 -> 注册时间短、凌晨批量修改；
+5. sdkDomains 接口：下发 ["https://h5.game-app543.com"]，
+   该域名 /api 302 -> blocked.sbmd.cicc.gov.ph（菲律宾政府访问策略验证页）；
+6. 宝塔 new.youdianse.com.conf 与游戏 APK 中均配置这些域名（应指向 16.208.5.147）。
+```
+
+## 六、处理过程
+
+```text
+1. 平台侧兜底：接通 sdk.youdianse.com /api，并验证 h5.18h.game/api 链路；
+2. 支付回调：按工单把 [pay.callback] urls 改为 h5.game-app543.com,www.youdianse.com，
+   重建 web/nginx/cron 同步（bind mount 需重建容器生效）；
+3. 域名恢复：与 Gname 客服沟通，恢复 10 个域名 NS/A；
+   部分域名 A 记录改为 CNAME 到平台自有 AWS CloudFront（Kermit 执行），
+   shouyek.com 指回网关 16.208.38.88；
+4. SSL：新制作证书批量替换生效中（无证书的域名会显示证书错误页）；
+5. 复核：恢复后 bjyinhegame.com / tywhtg.com / wangcaitt.com /api 与 root 均 200，
+   /version.json 在 www.youdianse.com、h5.18h.game 均 200。
+```
+
+## 七、根因分析
+
+```text
+1. 注册商（Gname）账号疑似被授权安全测试/域名被批量接管：
+   10 个域名的 NS 在 08-19 16:14 UTC 被一次性改为 Cloudflare；
+2. 域名注册时间短（2025-09），缺乏注册商级保护（2FA/锁定），
+   且未做 DNS 记录变更监控；
+3. SDK 域名缺乏可用性/链路风险验证巡检，问题直到用户反馈才发现；
+4. 平台对 SDK 域名依赖较重（包内/SDK 配置写死域名），缺乏快速切换机制；
+5. 支付回调域名同样被链路风险验证，缺乏回调域名白名单与可达性校验。
+```
+
+## 八、后期加固防护
+
+### 8.1 立即措施（已完成/进行中）
+
+```text
+1. 注册商：Gname 账号改密 + 2FA + 域名锁定（转移锁/修改锁）；
+2. 域名解析：10 个域名 A/CNAME 恢复指向平台自有 AWS CloudFront 或网关；
+3. SSL：批量重新签发，保证每个 SDK 域名证书有效；
+4. 平台兜底：sdkDomains 集中下发，紧急时可切 h5.18h.game / sdk.youdianse.com。
+```
+
+### 8.2 持续巡检（自动化，先于用户反馈发现）
+
+```text
+1. DNS 基线监控：对全部平台域名记录 NS/A/CNAME 基线，
+   变化即告警（发现被改 NS/A 第一时间处理）；
+2. SDK 域名可用性巡检：定时访问“域名 + /version.json”，
+   校验返回正确数据才是 SDK 域名最终可用状态（Ben 提案）：
+   - https://www.youdianse.com/version.json （200）
+   - https://h5.18h.game/version.json （200）
+   - sdk.youdianse.com/version.json 需补充（当前 404）；
+3. 域名到期/证书到期巡检：域名续费提醒、SSL 到期前自动续签告警；
+4. 支付回调域名白名单巡检：回调域名可达性 + 是否为平台自有域名校验。
+```
+
+### 8.3 SDK 域名防探测/防链路风险验证（Ben 提案落地）
+
+```text
+1. SDK 域名需要“特定符号 + UA”才能访问：
+   直接打开 SDK 域名显示白色页面，降低同行判断与授权安全测试面；
+2. 安卓/苹果客户端通过特定方式访问 SDK 域名才返回真实服务；
+3. 客户端 SDK 校验域名时以“域名 + /version.json 正确返回”为最终可用标准，
+   不满足则自动切换备用 SDK 域名（h5.18h.game / sdk.youdianse.com）。
+```
+
+## 九、后续优化
+
+```text
+1. 域名管理自动化（ben-bot 前端域名维护 16.208.38.88）：
+   一键增加域名、SSL 续签、证书状态分类，失败自动发完整日志；
+2. 域名资产清单化：平台全部域名（SDK/落地页/回调）建立台账，
+   含注册商、NS、到期时间、证书到期时间；
+3. 快速切换机制：sdkDomains 下发前校验域名+version.json 可达，
+   异常自动剔除并切换备用域名；
+4. 演练：定期演练“SDK 域名被链路风险验证”应急切换流程；
+5. 值班/告警：DNS 变更告警接入现有监控（如网关错误监控同通道）。
+```
+
+## 十、附录
+
+### 10.1 受影响域名当前状态（2026-08-20 复核）
+
+```text
+已恢复（CNAME -> 平台 AWS CloudFront 或网关）：
+  bjyinhegame.com / wangcaitt.com / huochechushou.com / tywhtg.com /
+  clfhjg.com / caijiesh.com / jszz809.com / xflqzgj.com / baiyingnet.com -> CloudFront
+  shouyek.com -> 16.208.38.88（网关）
+```
+
+### 10.2 关联事件记录
+
+```text
+docs/2026-08-20-0509-【问题排查+安全】线上环境游点涩SDK域名批量DNS链路风险验证事件.md
+docs/2026-08-20-0450/0453/0448：性界/星界登录域名核验记录
+docs/2026-08-20-0348：蜜桃与欲女梦工厂登录失败根因
+docs/2026-08-20-0337：nginx 加固记录
+```
+
+## 通知记录
+
+```text
+紧急 E4 通知（10 个域名被链路风险验证）        message_id 9997
+DNS 恢复核查                           message_id 10083
+[pay.callback] 更新并同步              message_id 10098
+事件报告（本篇）                       见群内后续消息
+```
+
+## 安全与敏感内容
+
+本报告不输出 Telegram token/chat_id、私钥、Git 凭据、注册商密码。
