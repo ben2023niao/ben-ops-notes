@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【运维记录】线上环境 nginx 与 PHP 容器错误日志汇总｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="【运维记录】线上环境 nginx 与 PHP 容器错误日志汇总。本文属于业务系统运维 / 游点涩，文档日期：2026-08-20 04:26 环境：游点涩线上环境（main 分支） 分类：运维记录 标签：线上环境、nginx 错误日志、PHP-FPM、php-error、错误汇总 本记录不输出 Telegram…">
+  <meta name="keywords" content="游点涩，Shell，Docker，Nginx，监控告警，安全运维，故障排查，源码与配置，业务系统运维，业务系统运维 / 游点涩，【运维记录】线上环境 nginx 与 PHP 容器错误日志汇总，PHP">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8f5f8d7bb3ac.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8f5f8d7bb3ac.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608200426-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E8%BF%90%E7%BB%B4%E8%AE%B0%E5%BD%95%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20nginx%20%E4%B8%8E%20PHP%20%E5%AE%B9%E5%99%A8%E9%94%99%E8%AF%AF%E6%97%A5%E5%BF%97%E6%B1%87%E6%80%BB.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【运维记录】线上环境 nginx 与 PHP 容器错误日志汇总">
+  <meta property="og:description" content="【运维记录】线上环境 nginx 与 PHP 容器错误日志汇总。本文属于业务系统运维 / 游点涩，文档日期：2026-08-20 04:26 环境：游点涩线上环境（main 分支） 分类：运维记录 标签：线上环境、nginx 错误日志、PHP-FPM、php-error、错误汇总 本记录不输出 Telegram…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8f5f8d7bb3ac.html">
+  <meta property="article:published_time" content="2026-08-20T04:26:00+08:00">
+  <meta property="article:modified_time" content="2026-08-20 04:26">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【运维记录】线上环境 nginx 与 PHP 容器错误日志汇总">
+  <meta name="twitter:description" content="【运维记录】线上环境 nginx 与 PHP 容器错误日志汇总。本文属于业务系统运维 / 游点涩，文档日期：2026-08-20 04:26 环境：游点涩线上环境（main 分支） 分类：运维记录 标签：线上环境、nginx 错误日志、PHP-FPM、php-error、错误汇总 本记录不输出 Telegram…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8f5f8d7bb3ac.html#article","headline":"【运维记录】线上环境 nginx 与 PHP 容器错误日志汇总","description":"【运维记录】线上环境 nginx 与 PHP 容器错误日志汇总。本文属于业务系统运维 / 游点涩，文档日期：2026-08-20 04:26 环境：游点涩线上环境（main 分支） 分类：运维记录 标签：线上环境、nginx 错误日志、PHP-FPM、php-error、错误汇总 本记录不输出 Telegram…","datePublished":"2026-08-20T04:26:00+08:00","dateModified":"2026-08-20 04:26","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Shell","Docker","Nginx","监控告警","安全运维","故障排查","源码与配置","业务系统运维","业务系统运维 / 游点涩","【运维记录】线上环境 nginx 与 PHP 容器错误日志汇总","PHP"],"wordCount":670,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8f5f8d7bb3ac.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8f5f8d7bb3ac.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【运维记录】线上环境 nginx 与 PHP 容器错误日志汇总","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8f5f8d7bb3ac.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>【运维记录】线上环境 nginx 与 PHP 容器错误日志汇总</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>【运维记录】线上环境 nginx 与 PHP 容器错误日志汇总</h1>
+      <p class="lede">【运维记录】线上环境 nginx 与 PHP 容器错误日志汇总。本文属于业务系统运维 / 游点涩，文档日期：2026-08-20 04:26 环境：游点涩线上环境（main 分支） 分类：运维记录 标签：线上环境、nginx 错误日志、PHP-FPM、php-error、错误汇总 本记录不输出 Telegram…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-08-20T04:26:00+08:00">发布于 2026-08-20</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">670 字</span>
+        <span class="badge">2 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-20-0426-【运维记录】线上环境nginx与PHP容器错误日志汇总.md</code></p>
+<p>整理日期：2026-08-20 04:26｜日期依据：文件名日期</p>
+</blockquote>
+<p>文档日期：2026-08-20 04:26
+环境：游点涩线上环境（main 分支）
+分类：运维记录
+标签：线上环境、nginx 错误日志、PHP-FPM、php-error、错误汇总</p>
+<h2 id="nginx-错误日志">nginx 错误日志</h2>
+<h3 id="新网关-16-208-38-88-var-log-nginx-error-log-1382-行">新网关 16.208.38.88（/var/log/nginx/error.log，1382 行）</h3>
+<pre><code class="language-text">[alert] 469：worker_connections 打满（全部修复前，最后 08-20 01:00:06）
+[error] 约 906：
+  修复前：上游连接失败 connect/recv 111/104（连宝塔/本地超时）
+  修复后：/nginx_status 外部探测被拒（访问控制，正常）、acme 校验 404
+[crit] 5：SSL bad key share（客户端 TLS 参数问题，非服务端）
+最近真实错误：无；仅扫描探测被拒（最近 04:20）
+</code></pre>
+<h3 id="宝塔-16-208-5-147-www-server-nginx-logs-error-log-235-724-行">宝塔 16.208.5.147（/www/server/nginx/logs/error.log，235,724 行）</h3>
+<pre><code class="language-text">[warn] 235,410：h5.youdianse.com 重复 server_name（历史已知，每分钟噪音）
+[emerg] 2（06-16 历史重复 location，已修复）、[error] 1（06-16 nginx.pid 历史）
+近期无真实错误
+</code></pre>
+<h3 id="后端-nginx-容器">后端 nginx 容器</h3>
+<pre><code class="language-text">无 error 级日志；仅请求体/响应缓冲临时文件警告 + 少量 499
+</code></pre>
+<h2 id="PHP-容器-框架错误日志-runtime-app-logs">PHP 容器/框架错误日志（runtime/app-logs）</h2>
+<h3 id="php-error-log-401KB-近24h-12-条">php-error.log（401KB，近24h 12 条）</h3>
+<pre><code class="language-text">全部为每小时 1 条：TrackingService::syncPageVisitToDatabase error（消息为空）
+另有 08-13 大数据 getTdAnalytics env 配置 fatal（已修复）
+</code></pre>
+<h3 id="php-fpm-master-error-log-1-5MB-近24h-1267-条-WARNING">php-fpm/master-error.log（1.5MB，近24h 1267 条 WARNING）</h3>
+<pre><code class="language-text">FPM 子进程脚本执行超时/异常，多为 /admin1866/user/excel 等管理端导出请求
+（约 53 条/小时，占用 worker 资源）
+</code></pre>
+<h3 id="php-fpm-worker-error-log-10-8KB-35-条-PHP-Fatal">php-fpm/worker-error.log（10.8KB，35 条 PHP Fatal）</h3>
+<pre><code class="language-text">Allowed memory size 128M exhausted，集中在 MongoDbConnection
+（08-19 18:09 / 20:22 两个时间点）
+注意：php/dev.ini 配置 memory_limit=512M，部分请求仍按 128M 执行，需核对生效范围
+</code></pre>
+<h3 id="php-fpm-slow-log-5-5MB-5342-条慢请求-3s">php-fpm/slow.log（5.5MB，5342 条慢请求 &gt;3s）</h3>
+<pre><code class="language-text">以管理端导出/复杂查询为主
+</code></pre>
+<h3 id="业务大数据日志-big_data_">业务大数据日志（big_data_*）</h3>
+<pre><code class="language-text">近24h error 标记：0
+</code></pre>
+<h2 id="结论与建议">结论与建议</h2>
+<pre><code class="language-text">1. nginx：当前无真实错误，历史告警已在 02:57 修复后归零。
+2. PHP 侧为性能/稳定性隐患（与登录故障无关）：
+   a) 管理端导出（/admin1866/user/excel）引发 FPM 超时 WARNING 与慢日志；
+   b) MongoDbConnection 128M OOM（核对 memory_limit 生效范围）；
+   c) TrackingService::syncPageVisitToDatabase 小时级任务报错（消息为空，需排查）。
+建议排期处理以上三项。
+</code></pre>
+<h2 id="通知记录">通知记录</h2>
+<pre><code class="language-text">nginx 错误日志汇总   message_id 9991
+PHP 错误日志汇总     message_id 9992
+</code></pre>
+<h2 id="安全与敏感内容">安全与敏感内容</h2>
+<p>本记录不输出 Telegram token/chat_id、私钥、Git 凭据、.env 敏感值；日志样例已脱敏。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#nginx-错误日志">nginx 错误日志</a></li><li style="margin-left:0.8rem"><a href="#新网关-16-208-38-88-var-log-nginx-error-log-1382-行">新网关 16.208.38.88（/var/log/nginx/error.log，1382 行）</a></li><li style="margin-left:0.8rem"><a href="#宝塔-16-208-5-147-www-server-nginx-logs-error-log-235-724-行">宝塔 16.208.5.147（/www/server/nginx/logs/error.log，235,724 行）</a></li><li style="margin-left:0.8rem"><a href="#后端-nginx-容器">后端 nginx 容器</a></li><li style="margin-left:0.0rem"><a href="#PHP-容器-框架错误日志-runtime-app-logs">PHP 容器/框架错误日志（runtime/app-logs）</a></li><li style="margin-left:0.8rem"><a href="#php-error-log-401KB-近24h-12-条">php-error.log（401KB，近24h 12 条）</a></li><li style="margin-left:0.8rem"><a href="#php-fpm-master-error-log-1-5MB-近24h-1267-条-WARNING">php-fpm/master-error.log（1.5MB，近24h 1267 条 WARNING）</a></li><li style="margin-left:0.8rem"><a href="#php-fpm-worker-error-log-10-8KB-35-条-PHP-Fatal">php-fpm/worker-error.log（10.8KB，35 条 PHP Fatal）</a></li><li style="margin-left:0.8rem"><a href="#php-fpm-slow-log-5-5MB-5342-条慢请求-3s">php-fpm/slow.log（5.5MB，5342 条慢请求 &gt;3s）</a></li><li style="margin-left:0.8rem"><a href="#业务大数据日志-big_data_">业务大数据日志（big_data_*）</a></li><li style="margin-left:0.0rem"><a href="#结论与建议">结论与建议</a></li><li style="margin-left:0.0rem"><a href="#通知记录">通知记录</a></li><li style="margin-left:0.0rem"><a href="#安全与敏感内容">安全与敏感内容</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-08-20</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">监控告警</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-20-0426-【运维记…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608200426-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E8%BF%90%E7%BB%B4%E8%AE%B0%E5%BD%95%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20nginx%20%E4%B8%8E%20PHP%20%E5%AE%B9%E5%99%A8%E9%94%99%E8%AF%AF%E6%97%A5%E5%BF%97%E6%B1%87%E6%80%BB.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【运维记录】线上环境 nginx 与 PHP 容器错误日志汇总。本文属于业务系统运维 / 游点涩，文档日期：2026-08-20 04:26 环境：游点涩线上环境（main 分支） 分类：运维记录 标签：线上环境、nginx 错误日志、PHP-FPM、php-error、错误汇总 本记录不输出 Telegram…</p>
+      <p>关键词：游点涩、Shell、Docker、Nginx、监控告警、安全运维、故障排查、源码与配置、业务系统运维、业务系统运维 / 游点涩、【运维记录】线上环境 nginx 与 PHP 容器错误日志汇总、PHP</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-545367615bac.html"><small>上一篇</small>【运维记录】线上环境 AWS 账号与 CDN 限流排查记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-13361d59be86.html"><small>下一篇</small>【运维记录】线上环境 nginx 与 PHP 错误日志打包发送记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8f5f8d7bb3ac.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
