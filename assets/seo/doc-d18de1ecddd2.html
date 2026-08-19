@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【问题排查】线上环境 logbus2 大数据上报缺数据与重复数据排查记录｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="【问题排查】线上环境 logbus2 大数据上报缺数据与重复数据排查记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-19 16:58 环境：游点涩线上环境（main 分支） 分类：问题排查 标签：线上环境、后端、logbus2、大数据上报、te.log、缺数据、重复数据、去重 大数据团队反馈：每…">
+  <meta name="keywords" content="游点涩，Shell，Docker，Redis，自动化，安全运维，故障排查，源码与配置，业务系统运维，业务系统运维 / 游点涩，【问题排查】线上环境 logbus2 大数据上报缺数据与重复数据排查记录，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d18de1ecddd2.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d18de1ecddd2.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608191658-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20logbus2%20%E5%A4%A7%E6%95%B0%E6%8D%AE%E4%B8%8A%E6%8A%A5%E7%BC%BA%E6%95%B0%E6%8D%AE%E4%B8%8E%E9%87%8D%E5%A4%8D%E6%95%B0%E6%8D%AE%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【问题排查】线上环境 logbus2 大数据上报缺数据与重复数据排查记录">
+  <meta property="og:description" content="【问题排查】线上环境 logbus2 大数据上报缺数据与重复数据排查记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-19 16:58 环境：游点涩线上环境（main 分支） 分类：问题排查 标签：线上环境、后端、logbus2、大数据上报、te.log、缺数据、重复数据、去重 大数据团队反馈：每…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d18de1ecddd2.html">
+  <meta property="article:published_time" content="2026-08-19T16:58:00+08:00">
+  <meta property="article:modified_time" content="2026-08-19 16:58">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【问题排查】线上环境 logbus2 大数据上报缺数据与重复数据排查记录">
+  <meta name="twitter:description" content="【问题排查】线上环境 logbus2 大数据上报缺数据与重复数据排查记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-19 16:58 环境：游点涩线上环境（main 分支） 分类：问题排查 标签：线上环境、后端、logbus2、大数据上报、te.log、缺数据、重复数据、去重 大数据团队反馈：每…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d18de1ecddd2.html#article","headline":"【问题排查】线上环境 logbus2 大数据上报缺数据与重复数据排查记录","description":"【问题排查】线上环境 logbus2 大数据上报缺数据与重复数据排查记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-19 16:58 环境：游点涩线上环境（main 分支） 分类：问题排查 标签：线上环境、后端、logbus2、大数据上报、te.log、缺数据、重复数据、去重 大数据团队反馈：每…","datePublished":"2026-08-19T16:58:00+08:00","dateModified":"2026-08-19 16:58","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Shell","Docker","Redis","自动化","安全运维","故障排查","源码与配置","业务系统运维","业务系统运维 / 游点涩","【问题排查】线上环境 logbus2 大数据上报缺数据与重复数据排查记录","php"],"wordCount":1484,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d18de1ecddd2.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d18de1ecddd2.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【问题排查】线上环境 logbus2 大数据上报缺数据与重复数据排查记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d18de1ecddd2.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>【问题排查】线上环境 logbus2 大数据上报缺数据与重复数据排查记录</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>【问题排查】线上环境 logbus2 大数据上报缺数据与重复数据排查记录</h1>
+      <p class="lede">【问题排查】线上环境 logbus2 大数据上报缺数据与重复数据排查记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-19 16:58 环境：游点涩线上环境（main 分支） 分类：问题排查 标签：线上环境、后端、logbus2、大数据上报、te.log、缺数据、重复数据、去重 大数据团队反馈：每…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-08-19T16:58:00+08:00">发布于 2026-08-19</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,484 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-19-1658-【问题排查】线上环境logbus2大数据上报缺数据与重复数据排查记录.md</code></p>
+<p>整理日期：2026-08-19 16:58｜日期依据：文件名日期</p>
+</blockquote>
+<p>文档日期：2026-08-19 16:58
+环境：游点涩线上环境（main 分支）
+分类：问题排查
+标签：线上环境、后端、logbus2、大数据上报、te.log、缺数据、重复数据、去重</p>
+<h2 id="背景与目标">背景与目标</h2>
+<p>大数据团队反馈：每次线上发布版本后都会出现大量重复提交数据和缺数据。用户要求：</p>
+<ol>
+<li>排查 logbus2（ta-logbus-v2）线上日志上报问题；</li>
+<li>验证 08-18 te.log 是否存在订单号 <code>GAC202608181426341787034394178</code>；</li>
+<li>给出“防止发布后重跑产生重复数据”和“去重”的方案。</li>
+</ol>
+<p>通知群：18game 数据系统优化（本次任务指定聊天ID）。</p>
+<h2 id="排查过程与证据">排查过程与证据</h2>
+<h3 id="1-logbus2-容器与配置">1. logbus2 容器与配置</h3>
+<pre><code class="language-text">容器：logbus-v2，thinkingdata/ta-logbus-v2:latest，Up 5 天，restart=always
+挂载：/opt/docker-youdianse-php/runtime -&gt; /prod-data
+      /data/logbus/conf -&gt; /ta/logbus/conf
+      /data/logbus/log  -&gt; /ta/logbus/log
+      /data/logbus/runtime -&gt; /ta/logbus/runtime
+配置 daemon.json：
+  datasource: file，app_id=3fd59ce3c7744642a22d77d45260c619
+  file_patterns: /prod-data/app-logs/te.log.*
+  push_url: https://te-receiver.shushuda.com
+状态：transporter.log 持续“messages sent”（1000 条/批次，network time 约 76-462ms），无 ERROR；
+      offset.json 覆盖到 08-18 22:08 及更早文件。
+结论：logbus2 本身运行正常、消费正常、上报正常。
+</code></pre>
+<h3 id="2-订单号验证-用户指定订单">2. 订单号验证（用户指定订单）</h3>
+<pre><code class="language-text">订单：GAC202608181426341787034394178（08-18 14:26:34，cash_order_created，order_status=0，wechat）
+te.log：全量扫描 08-13~08-19 所有 te.log* 文件，命中 0 次（不存在）
+big_data_recharge-2026-08-18.log：存在，Job 完整成功（track + success 两条记录，无异常）
+结论：订单数据已进入业务 Job 日志，但未进入 te.log，未上报到 TE —— 漏数据确认。
+</code></pre>
+<h3 id="3-08-18-充值类事件整体缺失">3. 08-18 充值类事件整体缺失</h3>
+<pre><code class="language-text">big_data_recharge-2026-08-18.log：146 万行（约 73 万单充值 Job，均有 track+success，0 异常）
+te.log.2026-08-18：cash_order 事件命中 0（抽样 14_1 / 14_2 / 23_16 均为 0）
+同期注册类事件正常写入 te.log（14_1 含 platform_register_success 24.7 万条 + game_first_enter）
+结论：08-18 充值类上报事件整体未进入 te.log。
+</code></pre>
+<h3 id="4-SDK-与-logbus-链路实测-当前版本">4. SDK 与 logbus 链路实测（当前版本）</h3>
+<pre><code class="language-text">用该订单同款 payload 在生产容器实测 TDFileConsumer + track + close：
+  ops_verify_001 / ops_check：成功写入 te.log.2026-08-19-16_7，logbus 已消费
+  ops_verify_002 / cash_order_created（原订单 payload）：成功写入 te.log.2026-08-19-16_8
+结论：当前版本（f3f11681，08-19 14:23 部署）SDK 写入与 logbus 上报链路正常。
+</code></pre>
+<h3 id="5-历史代码差异-漏数据线索">5. 历史代码差异（漏数据线索）</h3>
+<pre><code class="language-text">08-13 部署的 45af8d1487af 版本 BigDataJobService.php：
+  $config = env()-&gt;path('te_sdk')-&gt;toArray();   // te_sdk 配置缺失/为空时会抛 fatal
+  php-error.log 记录：08-13 18:47-18:48 多次 “Call to a member function toArray() on null”
+今日部署的 f3f11681 已移除该行（hotfix_0818）。
+</code></pre>
+<h2 id="结论">结论</h2>
+<pre><code class="language-text">1. 订单 GAC202608181426341787034394178 未上报到 TE（缺数据），且 08-18 充值类事件整体缺失；
+   根因方向：08-18 运行版本为 45af8d14，其 getTdAnalytics 存在 env() 配置读取隐患；
+   另外 TDFileConsumer 内存缓冲 + strict=false 静默丢弃是系统性风险（详见方案）。
+2. 当前版本 SDK 写入与 logbus2 上报链路正常（已实测），后续发布应持续验证。
+3. 重复数据机制：
+   - 上报无业务幂等键，支付/游戏回调重放、发布后重跑会重复触发同一订单事件；
+   - TDAnalytics 未开启 #uuid，TE 侧无法按 UUID 去重；
+   - 批量任务无断点游标，重跑整段重复。
+</code></pre>
+<h2 id="防重与去重方案-建议落地">防重与去重方案（建议落地）</h2>
+<h3 id="A-源头幂等-推荐-治本">A. 源头幂等（推荐，治本）</h3>
+<pre><code class="language-text">1. 事件唯一键：充值/消费用 order_id + order_status 组合；注册用 user_id + register_at；
+2. 上报前 Redis/DB setNX 记录“order_id+status 已上报”，重复调用直接跳过；
+3. 批量任务（AppLog / AccountDetail / Download 等）记录 last_id / 日期游标，断点续跑，
+   不整段重扫；重跑时从游标继续。
+</code></pre>
+<h3 id="B-SDK-去重键">B. SDK 去重键</h3>
+<pre><code class="language-text">1. new TDAnalytics($consumer, true) 开启 #uuid（SDK 自动为每条事件生成 UUID v4）；
+   TE 平台侧开启按 UUID 去重（需与大数据/TA 确认其去重配置）。
+2. 或业务侧在 properties 显式传 '#uuid'，值建议 md5(order_id + order_status)，
+   同订单同状态重复上报时 UUID 相同，可被 TE 去重。
+</code></pre>
+<h3 id="C-事件语义优化">C. 事件语义优化</h3>
+<pre><code class="language-text">1. 状态变更类事件（cash_order_created -&gt; cash_order_paid）用 track_update，
+   #event_id=order_id，天然覆盖式更新，避免同一订单多状态重复计数；
+2. 首事件（如首充）用 track_first，#first_check_id=order_id，天然幂等；
+3. #time 必须保证非空合法：pay_time/created_at 为 0 时兜底用当前时间，避免 strict=false 静默丢弃。
+</code></pre>
+<h3 id="D-漏数据加固">D. 漏数据加固</h3>
+<pre><code class="language-text">1. 降低 TDFileConsumer bufferSize（默认 100 -&gt; 1~10），减少容器重建时未落盘丢失；
+   或每次 track 后统一 flush()/close()（当前各 Job 已 close，批量场景需确认）；
+2. 发布前/后校验：发布完成后抽样 grep 最近 te.log 是否含新事件，确保链路贯通；
+3. 建议在 TE 平台核对 08-18/19 数据，确认充值事件缺失范围，必要时补传（补传需配合去重键）。
+</code></pre>
+<h2 id="后续验证建议">后续验证建议</h2>
+<pre><code class="language-text">1. 大数据/TA 侧确认 08-18 是否收到任何 cash_order 事件（验证“整体缺失”判断）；
+2. 上线防重代码后，观察 TE 侧重复率；
+3. 下一次发布时执行端到端验证：发布 -&gt; 触发一笔测试充值 -&gt; 确认 te.log + TE 平台收到且不重复。
+</code></pre>
+<h2 id="通知记录">通知记录</h2>
+<pre><code class="language-text">步骤 1 仓库状态与文档/workbench 就绪   message_id 2802
+步骤 2 logbus2 容器与配置核验          message_id 2803
+步骤 3 订单号验证结果（te.log 不存在）  message_id 2808
+步骤 4 SDK 与 logbus 链路验证           message_id 2809
+步骤 5 重复/漏数据机制分析与防重方案    message_id 2810
+最终总结                              见群内后续消息
+</code></pre>
+<h2 id="安全与敏感内容">安全与敏感内容</h2>
+<p>本记录不输出 Telegram token/chat_id（除用户指定通知群）、私钥、Git 凭据；不输出 .env 敏感值。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#背景与目标">背景与目标</a></li><li style="margin-left:0.0rem"><a href="#排查过程与证据">排查过程与证据</a></li><li style="margin-left:0.8rem"><a href="#1-logbus2-容器与配置">1. logbus2 容器与配置</a></li><li style="margin-left:0.8rem"><a href="#2-订单号验证-用户指定订单">2. 订单号验证（用户指定订单）</a></li><li style="margin-left:0.8rem"><a href="#3-08-18-充值类事件整体缺失">3. 08-18 充值类事件整体缺失</a></li><li style="margin-left:0.8rem"><a href="#4-SDK-与-logbus-链路实测-当前版本">4. SDK 与 logbus 链路实测（当前版本）</a></li><li style="margin-left:0.8rem"><a href="#5-历史代码差异-漏数据线索">5. 历史代码差异（漏数据线索）</a></li><li style="margin-left:0.0rem"><a href="#结论">结论</a></li><li style="margin-left:0.0rem"><a href="#防重与去重方案-建议落地">防重与去重方案（建议落地）</a></li><li style="margin-left:0.8rem"><a href="#A-源头幂等-推荐-治本">A. 源头幂等（推荐，治本）</a></li><li style="margin-left:0.8rem"><a href="#B-SDK-去重键">B. SDK 去重键</a></li><li style="margin-left:0.8rem"><a href="#C-事件语义优化">C. 事件语义优化</a></li><li style="margin-left:0.8rem"><a href="#D-漏数据加固">D. 漏数据加固</a></li><li style="margin-left:0.0rem"><a href="#后续验证建议">后续验证建议</a></li><li style="margin-left:0.0rem"><a href="#通知记录">通知记录</a></li><li style="margin-left:0.0rem"><a href="#安全与敏感内容">安全与敏感内容</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-08-19</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Redis</span><span class="tag">自动化</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-19-1658-【问题排…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608191658-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20logbus2%20%E5%A4%A7%E6%95%B0%E6%8D%AE%E4%B8%8A%E6%8A%A5%E7%BC%BA%E6%95%B0%E6%8D%AE%E4%B8%8E%E9%87%8D%E5%A4%8D%E6%95%B0%E6%8D%AE%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【问题排查】线上环境 logbus2 大数据上报缺数据与重复数据排查记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-19 16:58 环境：游点涩线上环境（main 分支） 分类：问题排查 标签：线上环境、后端、logbus2、大数据上报、te.log、缺数据、重复数据、去重 大数据团队反馈：每…</p>
+      <p>关键词：游点涩、Shell、Docker、Redis、自动化、安全运维、故障排查、源码与配置、业务系统运维、业务系统运维 / 游点涩、【问题排查】线上环境 logbus2 大数据上报缺数据与重复数据排查记录、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9ecaaf64ac7d.html"><small>上一篇</small>测试环境 PC 前端 SSR 用户 IP 未生效：nitro SWR 缓存根因</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3598031f91e1.html"><small>下一篇</small>【优化】线上环境大数据上报 SDK 去重与防丢失代码改造</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d18de1ecddd2.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
