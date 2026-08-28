@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【架构改造】静态域名黄云 GCS 回源 + Argo Smart Routing 评估记录｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
+  <meta name="description" content="【架构改造】静态域名黄云 GCS 回源 + Argo Smart Routing 评估记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-08-29 19:30（Asia/Manila） 项目：DBQP / PGServer master 执行人：Codex（本地工作区 + 宝塔/备用机 + Clou…">
+  <meta name="keywords" content="巴西主站，Shell，Docker，Nginx，CDN，DNS，安全运维，故障排查，历史运维与项目交付，历史运维与项目交付 / 巴西主站，【架构改造】静态域名黄云 GCS 回源 + Argo Smart Routing 评估记录">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4ff863f951e9.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4ff863f951e9.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608291930-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BDocker-%E3%80%90%E6%9E%B6%E6%9E%84%E6%94%B9%E9%80%A0%E3%80%91%E9%9D%99%E6%80%81%E5%9F%9F%E5%90%8D%E9%BB%84%E4%BA%91%20GCS%20%E5%9B%9E%E6%BA%90%20%2B%20Argo%20Smart%20Routing%20%E8%AF%84%E4%BC%B0%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【架构改造】静态域名黄云 GCS 回源 + Argo Smart Routing 评估记录">
+  <meta property="og:description" content="【架构改造】静态域名黄云 GCS 回源 + Argo Smart Routing 评估记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-08-29 19:30（Asia/Manila） 项目：DBQP / PGServer master 执行人：Codex（本地工作区 + 宝塔/备用机 + Clou…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4ff863f951e9.html">
+  <meta property="article:published_time" content="2026-08-29T19:30:00+08:00">
+  <meta property="article:modified_time" content="2026-08-29 19:30">
+  <meta property="article:section" content="历史运维与项目交付 / 巴西主站">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【架构改造】静态域名黄云 GCS 回源 + Argo Smart Routing 评估记录">
+  <meta name="twitter:description" content="【架构改造】静态域名黄云 GCS 回源 + Argo Smart Routing 评估记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-08-29 19:30（Asia/Manila） 项目：DBQP / PGServer master 执行人：Codex（本地工作区 + 宝塔/备用机 + Clou…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4ff863f951e9.html#article","headline":"【架构改造】静态域名黄云 GCS 回源 + Argo Smart Routing 评估记录","description":"【架构改造】静态域名黄云 GCS 回源 + Argo Smart Routing 评估记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-08-29 19:30（Asia/Manila） 项目：DBQP / PGServer master 执行人：Codex（本地工作区 + 宝塔/备用机 + Clou…","datePublished":"2026-08-29T19:30:00+08:00","dateModified":"2026-08-29 19:30","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","Docker","Nginx","CDN","DNS","安全运维","故障排查","历史运维与项目交付","历史运维与项目交付 / 巴西主站","【架构改造】静态域名黄云 GCS 回源 + Argo Smart Routing 评估记录"],"wordCount":2671,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4ff863f951e9.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4ff863f951e9.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【架构改造】静态域名黄云 GCS 回源 + Argo Smart Routing 评估记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4ff863f951e9.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 巴西主站</span> › <span>【架构改造】静态域名黄云 GCS 回源 + Argo Smart Routing 评估记录</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
+      <h1>【架构改造】静态域名黄云 GCS 回源 + Argo Smart Routing 评估记录</h1>
+      <p class="lede">【架构改造】静态域名黄云 GCS 回源 + Argo Smart Routing 评估记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-08-29 19:30（Asia/Manila） 项目：DBQP / PGServer master 执行人：Codex（本地工作区 + 宝塔/备用机 + Clou…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-08-29T19:30:00+08:00">发布于 2026-08-29</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,671 字</span>
+        <span class="badge">8 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-08-29-1930-【架构改造】静态域名黄云GCS回源与Argo开通评估记录.md</code></p>
+<p>整理日期：2026-08-29 19:30｜日期依据：文件名日期</p>
+</blockquote>
+<p>时间：2026-08-29 19:30（Asia/Manila）
+项目：DBQP / PGServer master
+执行人：Codex（本地工作区 + 宝塔/备用机 + Cloudflare API）</p>
+<h2 id="一-需求">一、需求</h2>
+<ol>
+<li>静态域名 CNAME 到对应 GCS 桶域名，巴西/香港都回源，开启黄云用 CF CDN；</li>
+<li>接口（api/game）域名开通 Argo Smart Routing；</li>
+<li>出明细发群（含费用与续费提醒）。</li>
+</ol>
+<h2 id="二-验证结论-重要">二、验证结论（重要）</h2>
+<ol>
+<li><strong>黄云 CNAME 直指 GCS 桶不可行（实测）</strong>：<code>pg-static.xqv9m8.icu</code> 改
+   CNAME → <code>dbqp-gcs-pg-static-sa.storage.googleapis.com</code> + 黄云后返回 404，
+   GCS 校验 Host 头必须等于桶域名；</li>
+<li><strong>CF Free 无法改写 Host</strong>：Origin Rules 的 Host 改写仅 Enterprise
+   （官方文档 Availability 表确认），Transform Rules/Snippets Free 不可用；</li>
+<li>测试记录已还原（A 8.233.83.48 灰云 → 恢复 200），无副作用。</li>
+</ol>
+<h2 id="三-落地-nginx-改-Host-方案-巴西">三、落地：nginx 改 Host 方案（巴西）</h2>
+<p>架构：<code>CF(黄云) -&gt; 宝塔/备用 nginx -&gt; GCS 桶（nginx 改写 Host + SNI）</code></p>
+<h3 id="1-nginx-vhost-宝塔-备用机-34-151-249-53-各-12-个静态-vhost">1. nginx vhost（宝塔 + 备用机 34.151.249.53，各 12 个静态 vhost）</h3>
+<p><code>location /</code> 由本地目录直出改为 GCS proxy：</p>
+<pre><code class="language-nginx">location / {
+    resolver 8.8.8.8 1.1.1.1 ipv6=off valid=300s;   # 强制 IPv4（GCS AAAA 在 GCP 无 IPv6 导致 502）
+    set $gcs_upstream dbqp-gcs-&lt;prefix&gt;-sa.storage.googleapis.com;
+    proxy_pass https://$gcs_upstream;
+    proxy_set_header Host dbqp-gcs-&lt;prefix&gt;-sa.storage.googleapis.com;
+    proxy_ssl_server_name on;
+    proxy_ssl_name dbqp-gcs-&lt;prefix&gt;-sa.storage.googleapis.com;
+    ...
+}
+</code></pre>
+<p>12 前缀 → 圣保罗 -sa 桶（g759-static 本就在圣保罗，无 -sa）：
+<code>pg-static/pg3/pg4/pg5</code>、<code>tada-statics/1/2</code>、<code>pp-static</code>、<code>ppk-static</code>、
+<code>playson-static</code>、<code>panda-static</code>、<code>g759-static</code>。</p>
+<h3 id="2-生成脚本模板">2. 生成脚本模板</h3>
+<p><code>sync_all_game_domains_to_baota.py</code>（宝塔 <code>/www/server/panel/script/</code> 与仓库一致）：
+静态 spec 增加 <code>static_prefix</code>，<code>static_server_conf</code> 按 <code>STATIC_BUCKET_HOSTS[prefix][0]</code>
+（-sa 桶）输出 proxy 模板；已重新生成并 reload，后续 cron 不会回退。
+备份：<code>/root/all_game_domain_sync_backup_20260829_191818</code>。</p>
+<h3 id="3-btwaf-cookie-跳过-关键">3. btwaf cookie 跳过（关键）</h3>
+<p>宝塔 WAF 注入 <code>server_name_session</code> cookie 导致 CF 不缓存（DYNAMIC）。
+<code>/www/server/btwaf/header.lua</code> 第 194 行追加：</p>
+<pre><code class="language-lua">and not string.match(ngx.var.host or "", "%-statics?%.")
+</code></pre>
+<p>即 <code>-static.</code> / <code>-statics.</code> 域名跳过 cookie 注入（备份 <code>.bak-20260829</code>）。
+备用机无 WAF，天然无 cookie。</p>
+<h3 id="4-Cloudflare-DNS-巴西">4. Cloudflare DNS（巴西）</h3>
+<p>241 条静态记录（A 8.233.83.48 灰云）全部改为：<code>A 35.247.205.6 + 黄云(proxied)</code>，
+API 批量 PATCH，0 失败；验证无残留 <code>A 8.233.83.48</code> 记录。</p>
+<h3 id="5-验证结果">5. 验证结果</h3>
+<ul>
+<li>公网：pg-static/126/ 200、pg4-static/126/ 200、g759-static 游戏页 200、
+  panda-static 游戏页 200（各厂商桶路径不同，缺失路径 404 属正常）；</li>
+<li><code>.js</code> 静态资源 <code>cf-cache-status: HIT</code>（CF CDN 缓存生效，age 递增）；</li>
+<li>HTML 页面默认 DYNAMIC（CF 默认只缓存静态扩展名；如需全缓存可加 Cache Rule，
+  需 Zone Config 权限，待办）。</li>
+</ul>
+<h2 id="四-香港-待协调">四、香港（待协调）</h2>
+<p>香港域名（hkcloudplay01-05 / hkplaycore）当前走 <strong>AWS CloudFront</strong>（DNS-only CNAME），
+由 cn 分支管理。切到 CF 黄云 + 东京桶需与 cn 分支协调后实施，
+本记录预留：香港 nginx 34.92.13.108 相同 proxy 模板 → 东京桶
+（<code>STATIC_BUCKET_HOSTS[prefix][1]</code>，g759 用 <code>dbqp-gcs-g759-static-asia</code>）。</p>
+<h2 id="五-Argo-Smart-Routing-评估">五、Argo Smart Routing 评估</h2>
+<h3 id="现状与结论">现状与结论</h3>
+<ul>
+<li>42 个 zone 全部 Free 套餐；Argo 需付费套餐（Pro 及以上）+ 按 zone 计费；</li>
+<li>现有 DNS token 调 <code>PUT /zones/{id}/argo/smart_routing</code> → Authentication error
+  （无 Zone Settings 权限），需新 token 或 CF 面板 Agent Lee 执行；</li>
+<li>动态域名盘点：199 条黄云 A → 35.247.205.6
+  （api.&lt;22根域&gt; 22、&lt;6厂商&gt;-games.&lt;22根域&gt; 132、通配/www/socket 等 45）。</li>
+</ul>
+<h3 id="费用估算-Argo-按-zone-非按-hostname">费用估算（Argo 按 zone，非按 hostname）</h3>
+<pre><code class="language-text">Pro 套餐：$20/zone/月（Argo 前置条件）
+Argo Smart Routing：$5/zone/月
+若开 22 个巴西根域：($20+$5)×22 = $550/月
+若开 20 个：$500/月 ≈ 500U（1 个月试跑）
+</code></pre>
+<h3 id="待办">待办</h3>
+<ol>
+<li>确认开通 zone 清单（建议：22 巴西根域或缩到实际在用的 ~20 个）；</li>
+<li>充值/扣费确认（500U，亨利侧信用卡）；</li>
+<li>升级套餐 + 开 Argo：用 Agent Lee 指令或提供 Zone Settings 权限 token；</li>
+<li><strong>续费提醒</strong>：Argo/Pro 按月计费，每月需预充值，否则下月停服。</li>
+</ol>
+<h2 id="五之二-Argo-开通-zone-清单与-Agent-Lee-提示词-2026-08-29-补充">五之二、Argo 开通 zone 清单与 Agent Lee 提示词（2026-08-29 补充）</h2>
+<h3 id="清单">清单</h3>
+<pre><code class="language-text">A. 巴西游戏根域 22 个（api.&lt;root&gt; + 6 厂商 games.&lt;root&gt;，推荐）：
+   xqv9m8.icu t6qv8m.icu p8m7xv.cyou m7v8k3.cyou q7m9v8.icu m6xv8q.cyou
+   qv9m8.icu 6qv8m.icu 8m7xv.cyou 7v8k3.cyou 7m9v8.icu 6xv8q.cyou
+   tada-cf-2026.cyou tada-host-game.icu tada-cf-game.cyou tada-cdn-2026.icu
+   tada-cdn-game.icu tada-host-2026.icu cdn-tokyo-dbqp.icu cdn-tokyo-dbqp.cyou
+   cdn-manila-dbqp.icu cdn-manila-dbqp.cyou
+B. 接口/商户 5 个：shanghu01.cc shanghu02.cc shanghu03.cc pgofficialbx.com
+   playgame-api.vip
+C. 香港 6 个（cn 分支协调后）：hkcloudplay01-05.com hkplaycore.com
+</code></pre>
+<h3 id="Agent-Lee-提示词-粘贴到-CF-面板-AI-执行">Agent Lee 提示词（粘贴到 CF 面板 AI 执行）</h3>
+<pre><code class="language-text">请对我的 Cloudflare 账户（[邮箱已脱敏]）执行以下操作，只操作下面列出的
+zone，不要动 DNS 和其他设置：
+1. 先检查账户余额/绑定的支付方式可用；
+2. 对每个 zone：把套餐升级为 Pro（如当前是 Free），再通过 API 开启
+   Argo Smart Routing（PUT /zones/{zone_id}/argo/smart_routing {"value":"on"}）；
+3. 逐个 GET 验证 smart_routing 状态为 on，失败的列出原因。
+zone 清单：
+xqv9m8.icu t6qv8m.icu p8m7xv.cyou m7v8k3.cyou q7m9v8.icu m6xv8q.cyou
+qv9m8.icu 6qv8m.icu 8m7xv.cyou 7v8k3.cyou 7m9v8.icu 6xv8q.cyou
+tada-cf-2026.cyou tada-host-game.icu tada-cf-game.cyou tada-cdn-2026.icu
+tada-cdn-game.icu tada-host-2026.icu cdn-tokyo-dbqp.icu cdn-tokyo-dbqp.cyou
+cdn-manila-dbqp.icu cdn-manila-dbqp.cyou
+执行完输出：zone 名 | 套餐 | Argo 状态 | 失败原因
+</code></pre>
+<p>费用：A 22 个 = ($20 Pro + $5 Argo) × 22 = $550/月 ≈ 500U 试跑 1 个月；
+A+B 27 个 = $675/月；加 C 香港 6 个 = $825/月（需 cn 分支确认）。</p>
+<h2 id="五之三-缩到-1-套测试-3-5-套正式-2026-08-29-用户调整">五之三、缩到「1 套测试 → 3-5 套正式」（2026-08-29 用户调整）</h2>
+<p>用户确认：域名是一套一套的（一个根域 = 一套，含 api/games/statics 全套），
+实际配置 3-5 套就够，先配 1 套测试。</p>
+<h3 id="推荐选择">推荐选择</h3>
+<pre><code class="language-text">测试 1 套：xqv9m8.icu（所有厂商 platform-api 配置第一顺位、线上测试 URL 主用）
+正式 3-5 套建议：xqv9m8.icu、t6qv8m.icu、q7m9v8.icu、tada-cdn-2026.icu、
+cdn-tokyo-dbqp.icu（覆盖主用 + tada 系列 + cdn 系列代表根域；可按需替换）
+</code></pre>
+<h3 id="费用-按套">费用（按套）</h3>
+<pre><code class="language-text">1 套 = $25/月（Pro $20 + Argo $5）
+3 套 = $75/月；5 套 = $125/月
+</code></pre>
+<h3 id="Agent-Lee-提示词-单套测试版-粘贴到-CF-面板-AI">Agent Lee 提示词（单套测试版，粘贴到 CF 面板 AI）</h3>
+<pre><code class="language-text">请对我的 Cloudflare 账户（[邮箱已脱敏]）执行以下操作，只操作下面列出的
+zone，不要动 DNS 和其他设置：
+1. 先检查账户余额/绑定的支付方式可用；
+2. 对该 zone：把套餐升级为 Pro（如当前是 Free），再通过 API 开启
+   Argo Smart Routing（PUT /zones/{zone_id}/argo/smart_routing {"value":"on"}）；
+3. GET 验证 smart_routing 状态为 on。
+zone 清单：xqv9m8.icu
+执行完输出：zone 名 | 套餐 | Argo 状态 | 失败原因
+</code></pre>
+<p>正式 3-5 套时把 zone 清单换成上面建议列表即可。</p>
+<h2 id="五之四-测试套核验-2026-08-29-xqv9m8-icu">五之四、测试套核验（2026-08-29，xqv9m8.icu）</h2>
+<p>用户通过 Agent Lee 完成两步：Pro 升级 + Argo 启用（$25/月）。</p>
+<h3 id="我方-API-独立核验">我方 API 独立核验</h3>
+<pre><code class="language-text">套餐：Pro Website ✅（GET /zones 确认）
+DNS：24 条记录；11 静态 A + 7 动态 A 全部黄云 -&gt; 35.247.205.6；
+     无 8.233.83.48 残留 ✅
+动态 TTFB 基线（马尼拉视角）：api ~1.0-1.5s；pg-games ~1.0-1.2s
+Argo/SSL 状态：现有 DNS token 无 Zone Settings 权限，交 Agent Lee 复核
+</code></pre>
+<h3 id="Agent-Lee-复核提示词">Agent Lee 复核提示词</h3>
+<pre><code class="language-text">请核查 zone xqv9m8.icu：
+1. GET /zones/{zone_id}/argo/smart_routing 输出 smart_routing 状态；
+2. GET /zones/{zone_id}/settings/ssl 输出 SSL/TLS 模式；
+3. 确认套餐 Pro 与 Argo 计费生效。
+输出：zone 名 | 套餐 | Argo | SSL模式
+</code></pre>
+<h3 id="后续">后续</h3>
+<ul>
+<li>跑通后扩到 3-5 套：t6qv8m.icu、q7m9v8.icu、tada-cdn-2026.icu、
+  cdn-tokyo-dbqp.icu 重复同样两步（Agent Lee 提示词换清单即可）。</li>
+</ul>
+<h3 id="Agent-Lee-复核结果-2026-08-29-第二轮回">Agent Lee 复核结果（2026-08-29 第二轮回）</h3>
+<pre><code class="language-text">SSL/TLS 优化：最低 TLS 1.0 -&gt; 1.2 ✅；Always Use HTTPS on ✅；
+自动 HTTPS 重写 on ✅
+套餐：Pro Website ✅
+SSL 模式：Full ✅（与 nginx 源站证书匹配策略一致，勿切 Full strict）
+Argo Smart Routing：API 读到 off ⚠️（面板疑似显示已启用，可能 Smart Shield
+总开关或 API 同步延迟）
+</code></pre>
+<h3 id="Argo-重新启用-验证提示词">Argo 重新启用 + 验证提示词</h3>
+<pre><code class="language-text">请在 zone xqv9m8.icu 重新启用 Argo Smart Routing 并验证：
+1. 打开面板「流量 → Argo Smart Routing」，确认 Argo Smart Routing 独立开关为开
+   （不是 Smart Shield 总开关）；
+2. 用 API 显式开启：PUT /zones/{zone_id}/argo/smart_routing，body {"value":"on"}；
+3. 等待 60 秒后 GET /zones/{zone_id}/argo/smart_routing 确认返回 on；
+4. 若仍 off 或报错，输出完整错误信息。
+输出：zone 名 | 面板开关 | API smart_routing | 失败原因
+</code></pre>
+<p>说明：Argo off 期间不产生 Argo 计费；确认 on 后才开始 $5/月计费。</p>
+<h3 id="Agent-Lee-最终确认-2026-08-29-第三轮回">Agent Lee 最终确认（2026-08-29 第三轮回）</h3>
+<pre><code class="language-text">xqv9m8.icu：Pro Website ✅｜API smart_routing = on ✅｜SSL Full ✅｜无失败
+执行：PATCH /zones/{id}/argo/smart_routing {"value":"on"} -&gt; on；GET -&gt; on
+（此前面板 Smart Shield 总开关误显示，以 API 为准）
+月费：Pro $20 + Argo $5 = $25/月
+</code></pre>
+<h3 id="扩-4-套-Agent-Lee-提示词-待用户确认后执行">扩 4 套（Agent Lee 提示词，待用户确认后执行）</h3>
+<pre><code class="language-text">请对我的 Cloudflare 账户（[邮箱已脱敏]）对以下 4 个 zone 执行与
+xqv9m8.icu 相同的操作并验证：
+t6qv8m.icu q7m9v8.icu tada-cdn-2026.icu cdn-tokyo-dbqp.icu
+1. 每个 zone：升级 Pro（如 Free）→ API 开启 Argo
+   （PUT /zones/{zone_id}/argo/smart_routing {"value":"on"}）→ GET 验证 on；
+2. 每个 zone：SSL 模式 Full；最低 TLS 1.2；Always Use HTTPS on；
+   自动 HTTPS 重写 on；
+3. 不动 DNS 记录和其他设置。
+输出：zone 名 | 套餐 | Argo | SSL模式 | 失败原因
+</code></pre>
+<p>扩后月费：Pro 5×$20 + Argo 5×$5 = $125/月。</p>
+<h3 id="扩-4-套-2026-08-29-用户确认执行">扩 4 套（2026-08-29 用户确认执行）</h3>
+<p>已核验 4 个 zone（每套 api + 6 games + 11 静态黄云，结构同 xqv9m8，均 Free）：</p>
+<pre><code class="language-text">t6qv8m.icu  q7m9v8.icu  tada-cdn-2026.icu  cdn-tokyo-dbqp.icu
+</code></pre>
+<p>Agent Lee 提示词（与 xqv9m8 相同操作）：</p>
+<pre><code class="language-text">请对我的 Cloudflare 账户（[邮箱已脱敏]）对以下 4 个 zone 执行与
+xqv9m8.icu 相同的操作并验证：
+t6qv8m.icu q7m9v8.icu tada-cdn-2026.icu cdn-tokyo-dbqp.icu
+1. 每个 zone：升级 Pro（如当前是 Free）→ 用 API 开启 Argo Smart Routing
+   （PUT /zones/{zone_id}/argo/smart_routing {"value":"on"}）→ GET 验证返回 on；
+2. 每个 zone：SSL/TLS 模式 Full；最低 TLS 1.2；Always Use HTTPS on；
+   自动 HTTPS 重写 on；
+3. 不要动 DNS 记录和其他设置。
+输出：zone 名 | 套餐 | API smart_routing | SSL模式 | 失败原因
+</code></pre>
+<p>扩后月费：5 套（含 xqv9m8）= $125/月。</p>
+<h2 id="五之五-对比口径统一-2026-08-29">五之五、对比口径统一（2026-08-29）</h2>
+<p>后续与竞品对比统一使用分阶段口径：</p>
+<pre><code class="language-text">分阶段耗时：登录 -｜点游戏 -｜画布 X.Xs｜点继续→加载出 Y.Ys
+★ 点继续→加载出游戏 Y.Ys（同基准主指标）
+★ 点击图标→完整加载 Z.Zs
+</code></pre>
+<p>对应脚本字段：<code>canvas_after_click_ms</code> / <code>continue_to_loaded_ms</code> /
+<code>click_to_loaded_ms</code>，水印已按此标注。</p>
+<h2 id="六-变更文件">六、变更文件</h2>
+<ul>
+<li><code>docker/线上服务器信息/baota/scheduled-tasks/sanitized/sync_all_game_domains_to_baota.py</code>：
+  静态 vhost 模板 → GCS proxy（resolver ipv6=off + Host 改写）；</li>
+<li>宝塔/备用机 nginx 12+12 静态 vhost、btwaf header.lua（服务器侧，备份 .bak-20260829）；</li>
+<li>本记录文档。</li>
+</ul>
+<h2 id="七-回滚">七、回滚</h2>
+<ul>
+<li>DNS：API 批量 PATCH 回 <code>A 8.233.83.48 proxied=false</code>；</li>
+<li>nginx：vhost <code>.bak-20260829</code> 还原 + reload；</li>
+<li>生成脚本：仓库/宝塔均有旧版可回退。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-需求">一、需求</a></li><li style="margin-left:0.0rem"><a href="#二-验证结论-重要">二、验证结论（重要）</a></li><li style="margin-left:0.0rem"><a href="#三-落地-nginx-改-Host-方案-巴西">三、落地：nginx 改 Host 方案（巴西）</a></li><li style="margin-left:0.8rem"><a href="#1-nginx-vhost-宝塔-备用机-34-151-249-53-各-12-个静态-vhost">1. nginx vhost（宝塔 + 备用机 34.151.249.53，各 12 个静态 vhost）</a></li><li style="margin-left:0.8rem"><a href="#2-生成脚本模板">2. 生成脚本模板</a></li><li style="margin-left:0.8rem"><a href="#3-btwaf-cookie-跳过-关键">3. btwaf cookie 跳过（关键）</a></li><li style="margin-left:0.8rem"><a href="#4-Cloudflare-DNS-巴西">4. Cloudflare DNS（巴西）</a></li><li style="margin-left:0.8rem"><a href="#5-验证结果">5. 验证结果</a></li><li style="margin-left:0.0rem"><a href="#四-香港-待协调">四、香港（待协调）</a></li><li style="margin-left:0.0rem"><a href="#五-Argo-Smart-Routing-评估">五、Argo Smart Routing 评估</a></li><li style="margin-left:0.8rem"><a href="#现状与结论">现状与结论</a></li><li style="margin-left:0.8rem"><a href="#费用估算-Argo-按-zone-非按-hostname">费用估算（Argo 按 zone，非按 hostname）</a></li><li style="margin-left:0.8rem"><a href="#待办">待办</a></li><li style="margin-left:0.0rem"><a href="#五之二-Argo-开通-zone-清单与-Agent-Lee-提示词-2026-08-29-补充">五之二、Argo 开通 zone 清单与 Agent Lee 提示词（2026-08-29 补充）</a></li><li style="margin-left:0.8rem"><a href="#清单">清单</a></li><li style="margin-left:0.8rem"><a href="#Agent-Lee-提示词-粘贴到-CF-面板-AI-执行">Agent Lee 提示词（粘贴到 CF 面板 AI 执行）</a></li><li style="margin-left:0.0rem"><a href="#五之三-缩到-1-套测试-3-5-套正式-2026-08-29-用户调整">五之三、缩到「1 套测试 → 3-5 套正式」（2026-08-29 用户调整）</a></li><li style="margin-left:0.8rem"><a href="#推荐选择">推荐选择</a></li><li style="margin-left:0.8rem"><a href="#费用-按套">费用（按套）</a></li><li style="margin-left:0.8rem"><a href="#Agent-Lee-提示词-单套测试版-粘贴到-CF-面板-AI">Agent Lee 提示词（单套测试版，粘贴到 CF 面板 AI）</a></li><li style="margin-left:0.0rem"><a href="#五之四-测试套核验-2026-08-29-xqv9m8-icu">五之四、测试套核验（2026-08-29，xqv9m8.icu）</a></li><li style="margin-left:0.8rem"><a href="#我方-API-独立核验">我方 API 独立核验</a></li><li style="margin-left:0.8rem"><a href="#Agent-Lee-复核提示词">Agent Lee 复核提示词</a></li><li style="margin-left:0.8rem"><a href="#后续">后续</a></li><li style="margin-left:0.8rem"><a href="#Agent-Lee-复核结果-2026-08-29-第二轮回">Agent Lee 复核结果（2026-08-29 第二轮回）</a></li><li style="margin-left:0.8rem"><a href="#Argo-重新启用-验证提示词">Argo 重新启用 + 验证提示词</a></li><li style="margin-left:0.8rem"><a href="#Agent-Lee-最终确认-2026-08-29-第三轮回">Agent Lee 最终确认（2026-08-29 第三轮回）</a></li><li style="margin-left:0.8rem"><a href="#扩-4-套-Agent-Lee-提示词-待用户确认后执行">扩 4 套（Agent Lee 提示词，待用户确认后执行）</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 巴西主站</li>
+          <li>日期：2026-08-29</li>
+          <li>标签：<span class="tag">巴西主站</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">CDN</span><span class="tag">DNS</span><span class="tag">安全运维</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-08-29-1930-【架构改造】静态域名黄云GCS回源与Argo开…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608291930-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BDocker-%E3%80%90%E6%9E%B6%E6%9E%84%E6%94%B9%E9%80%A0%E3%80%91%E9%9D%99%E6%80%81%E5%9F%9F%E5%90%8D%E9%BB%84%E4%BA%91%20GCS%20%E5%9B%9E%E6%BA%90%20%2B%20Argo%20Smart%20Routing%20%E8%AF%84%E4%BC%B0%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【架构改造】静态域名黄云 GCS 回源 + Argo Smart Routing 评估记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-08-29 19:30（Asia/Manila） 项目：DBQP / PGServer master 执行人：Codex（本地工作区 + 宝塔/备用机 + Clou…</p>
+      <p>关键词：巴西主站、Shell、Docker、Nginx、CDN、DNS、安全运维、故障排查、历史运维与项目交付、历史运维与项目交付 / 巴西主站、【架构改造】静态域名黄云 GCS 回源 + Argo Smart Routing 评估记录</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f8e5cddc00b5.html"><small>上一篇</small>DBQP 2026年11月入侵事件处置与数据库恢复报告</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-15a5ce057149.html"><small>下一篇</small>【优化】platform-api 接入 CF CDN 静态域 + Argo 根域后对比记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4ff863f951e9.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
