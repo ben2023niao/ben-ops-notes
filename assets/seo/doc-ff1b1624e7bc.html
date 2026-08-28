@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【测试方案】docker 浏览器方案验证 + Cloudflare Browser Rendering 评估｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
+  <meta name="description" content="【测试方案】docker 浏览器方案验证 + Cloudflare Browser Rendering 评估。本文属于历史运维与项目交付 / 巴西主站，时间：2026-08-28 18:56（Asia/Manila） 项目：DBQP / PGServer master 执行人：Codex（本地工作区 + 备用机…">
+  <meta name="keywords" content="巴西主站，Shell，Python，Docker，Nginx，CDN，DNS，安全运维，历史运维与项目交付，历史运维与项目交付 / 巴西主站">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ff1b1624e7bc.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ff1b1624e7bc.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608281856-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-%E3%80%90%E6%B5%8B%E8%AF%95%E6%96%B9%E6%A1%88%E3%80%91docker%20%E6%B5%8F%E8%A7%88%E5%99%A8%E6%96%B9%E6%A1%88%E9%AA%8C%E8%AF%81%20%2B%20Cloudflare%20Browser%20Rendering%20%E8%AF%84%E4%BC%B0.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【测试方案】docker 浏览器方案验证 + Cloudflare Browser Rendering 评估">
+  <meta property="og:description" content="【测试方案】docker 浏览器方案验证 + Cloudflare Browser Rendering 评估。本文属于历史运维与项目交付 / 巴西主站，时间：2026-08-28 18:56（Asia/Manila） 项目：DBQP / PGServer master 执行人：Codex（本地工作区 + 备用机…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ff1b1624e7bc.html">
+  <meta property="article:published_time" content="2026-08-28T18:56:00+08:00">
+  <meta property="article:modified_time" content="2026-08-28 18:56">
+  <meta property="article:section" content="历史运维与项目交付 / 巴西主站">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【测试方案】docker 浏览器方案验证 + Cloudflare Browser Rendering 评估">
+  <meta name="twitter:description" content="【测试方案】docker 浏览器方案验证 + Cloudflare Browser Rendering 评估。本文属于历史运维与项目交付 / 巴西主站，时间：2026-08-28 18:56（Asia/Manila） 项目：DBQP / PGServer master 执行人：Codex（本地工作区 + 备用机…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ff1b1624e7bc.html#article","headline":"【测试方案】docker 浏览器方案验证 + Cloudflare Browser Rendering 评估","description":"【测试方案】docker 浏览器方案验证 + Cloudflare Browser Rendering 评估。本文属于历史运维与项目交付 / 巴西主站，时间：2026-08-28 18:56（Asia/Manila） 项目：DBQP / PGServer master 执行人：Codex（本地工作区 + 备用机…","datePublished":"2026-08-28T18:56:00+08:00","dateModified":"2026-08-28 18:56","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","Python","Docker","Nginx","CDN","DNS","安全运维","历史运维与项目交付","历史运维与项目交付 / 巴西主站"],"wordCount":803,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ff1b1624e7bc.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ff1b1624e7bc.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【测试方案】docker 浏览器方案验证 + Cloudflare Browser Rendering 评估","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ff1b1624e7bc.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 巴西主站</span> › <span>【测试方案】docker 浏览器方案验证 + Cloudflare Browser Rendering 评估</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
+      <h1>【测试方案】docker 浏览器方案验证 + Cloudflare Browser Rendering 评估</h1>
+      <p class="lede">【测试方案】docker 浏览器方案验证 + Cloudflare Browser Rendering 评估。本文属于历史运维与项目交付 / 巴西主站，时间：2026-08-28 18:56（Asia/Manila） 项目：DBQP / PGServer master 执行人：Codex（本地工作区 + 备用机…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-08-28T18:56:00+08:00">发布于 2026-08-28</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">803 字</span>
+        <span class="badge">3 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-08-28-1856-【测试方案】docker浏览器方案验证与CFBrowserRendering评估记录.md</code></p>
+<p>整理日期：2026-08-28 18:56｜日期依据：文件名日期</p>
+</blockquote>
+<p>时间：2026-08-28 18:56（Asia/Manila）
+项目：DBQP / PGServer master
+执行人：Codex（本地工作区 + 备用机 34.151.249.53）</p>
+<h2 id="一-背景">一、背景</h2>
+<p>为在巴西本地完成「登录 → 同游戏 → 点击继续 → 完整加载」的录屏对比，
+之前评估过多个方案：</p>
+<ul>
+<li>Docker-Android（redroid）：不可用（GCP 内核缺 binder/ashmem，无 KVM）；</li>
+<li>Cloudflare Browser Rendering：边缘 Chromium 方案，但需要「Browser Rendering - Edit」
+  自定义 token，当前账户仅有 DNS 权限 token（Zone DNS Edit / Zone Read），API 调用
+  <code>GET /accounts/{id}/entitlements</code> 返回 403 Authentication error，方案被 token 阻塞；</li>
+<li>docker 起浏览器（Playwright Chromium 容器/本机）：备用机（巴西圣保罗）本机已装
+  Playwright + Chromium + ffmpeg，即「docker 浏览器方案」的实际载体。</li>
+</ul>
+<p>本次任务：验证 docker 浏览器方案能否完整渲染游戏（进度条 → 点击继续 → 出游戏画面），
+并出带水印视频发群。</p>
+<h2 id="二-执行与验证">二、执行与验证</h2>
+<h3 id="1-ff789p3-开放状态">1. ff789p3 开放状态</h3>
+<p><code>probe_ff789_open.py</code>（备用机运行）：返回 <code>CLOSED</code>——ff789p3 游戏今天确实未开放
+（维护中）。cron <code>*/30 * * * *</code> 已挂：开放即自动跑完整对比，未开放每 30 分钟群通知。</p>
+<h3 id="2-docker-浏览器渲染验证-我方-PG-入口">2. docker 浏览器渲染验证（我方 PG 入口）</h3>
+<p>备用机运行 <code>game_load_video_compare.py --side our --games 126,65</code>：</p>
+<pre><code class="language-text">游戏            画布出现  点击继续→可玩  渲染判定
+Fortune Tiger   12.6s    8.6s          ok=true
+麻将胡了        18.1s    8.3s          ok=true
+</code></pre>
+<ul>
+<li>静态资源走圣保罗桶（or=pg4-static-sa），无跨洲瓶颈；</li>
+<li>两个游戏均成功通过设备检测「继续游戏」并渲染到可玩；</li>
+<li>输出 webm → MP4（H.264 + faststart），Playwright Chromium 桌面视口 1280x800。</li>
+</ul>
+<h3 id="3-水印标注">3. 水印标注</h3>
+<p><code>label_game_videos.py</code> 增加 <code>--domain</code> 参数（默认 ff789p3.com，可指定实际入口域名），
+水印内容：域名 | 账号/密码 | 测试服务器 | 分阶段耗时 + 画面变化点（帧差分）。
+本地仓库与备用机 <code>/opt/pgserver/docker/scripts/</code> 已同步。</p>
+<p>本次视频标注：</p>
+<pre><code class="language-text">域名：ind-h5.dbqpplus999.com/pgbronline/
+账号/密码：11955336688 / 11955336688
+服务器：dbqp-saopaulo-nginx-standby-01 / 34.151.249.53
+</code></pre>
+<p>两个 MP4 已通过 Telegram bot 发群（send: True）。</p>
+<h2 id="三-结论">三、结论</h2>
+<ol>
+<li>docker 浏览器方案可行：备用机（巴西）Playwright Chromium 已能完整渲染我方游戏
+   （继续→可玩），无需 Cloudflare token、无需新开服务器；</li>
+<li>Docker-Android（redroid）不可行：GCP 内核缺少 binder/ashmem 且无 KVM；</li>
+<li>Cloudflare Browser Rendering 需账户创建「Browser Rendering - Edit」token 后即可
+   接入（免费额度 10 分钟/天，按量 $0.09/小时），作为备用/边缘方案保留；</li>
+<li>ff789p3 未开放：等待 cron 探测到 OPEN 后自动执行完整对比（登录→同游戏→点击继续→
+   完整加载 + 手机 UA + 录屏发群）。</li>
+</ol>
+<h2 id="四-变更">四、变更</h2>
+<ul>
+<li><code>docker/scripts/label_game_videos.py</code>：新增 <code>--domain</code> 参数，水印/描述支持自定义
+  我方入口域名。</li>
+</ul>
+<h2 id="五-待办">五、待办</h2>
+<ul>
+<li>[ ] 用户提供 CF Browser Rendering token 后接入边缘浏览器录制（可选增强）；</li>
+<li>[ ] ff789p3 开放后复核完整对比视频（cron 自动）；</li>
+<li>[ ] 如需多机复现：把 Playwright 测试打成 Docker 镜像（python + chromium + ffmpeg），
+      可部署到任意巴西新服务器。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-背景">一、背景</a></li><li style="margin-left:0.0rem"><a href="#二-执行与验证">二、执行与验证</a></li><li style="margin-left:0.8rem"><a href="#1-ff789p3-开放状态">1. ff789p3 开放状态</a></li><li style="margin-left:0.8rem"><a href="#2-docker-浏览器渲染验证-我方-PG-入口">2. docker 浏览器渲染验证（我方 PG 入口）</a></li><li style="margin-left:0.8rem"><a href="#3-水印标注">3. 水印标注</a></li><li style="margin-left:0.0rem"><a href="#三-结论">三、结论</a></li><li style="margin-left:0.0rem"><a href="#四-变更">四、变更</a></li><li style="margin-left:0.0rem"><a href="#五-待办">五、待办</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 巴西主站</li>
+          <li>日期：2026-08-28</li>
+          <li>标签：<span class="tag">巴西主站</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">CDN</span><span class="tag">DNS</span><span class="tag">安全运维</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-08-28-1856-【测试方案】docker浏览器方案验证与CFB…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608281856-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-%E3%80%90%E6%B5%8B%E8%AF%95%E6%96%B9%E6%A1%88%E3%80%91docker%20%E6%B5%8F%E8%A7%88%E5%99%A8%E6%96%B9%E6%A1%88%E9%AA%8C%E8%AF%81%20%2B%20Cloudflare%20Browser%20Rendering%20%E8%AF%84%E4%BC%B0.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【测试方案】docker 浏览器方案验证 + Cloudflare Browser Rendering 评估。本文属于历史运维与项目交付 / 巴西主站，时间：2026-08-28 18:56（Asia/Manila） 项目：DBQP / PGServer master 执行人：Codex（本地工作区 + 备用机…</p>
+      <p>关键词：巴西主站、Shell、Python、Docker、Nginx、CDN、DNS、安全运维、历史运维与项目交付、历史运维与项目交付 / 巴西主站</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-120ec65df439.html"><small>上一篇</small>2026-08-28 香港静态资源 S3 公开地址直出改造记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d88410088fc0.html"><small>下一篇</small>【竞品分析】docker 浏览器方案全量测试记录（ff789p3 未开放，H5 兜底）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ff1b1624e7bc.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
