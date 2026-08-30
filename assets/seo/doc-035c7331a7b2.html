@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【优化】线上环境全部服务器磁盘垃圾清理与 S3 归档链路修复记录｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="【优化】线上环境全部服务器磁盘垃圾清理与 S3 归档链路修复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-31 01:40 环境：游点涩线上环境（main 分支） 分类：优化 标签：线上环境、磁盘清理、S3、AWS CLI、rclone、Docker、全部服务器 数据汇报 bot 连续报告后端…">
+  <meta name="keywords" content="游点涩，Shell，Docker，Nginx，自动化，安全运维，故障排查，数据库恢复，业务系统运维，业务系统运维 / 游点涩，【优化】线上环境全部服务器磁盘垃圾清理与 S3 归档链路修复记录，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-035c7331a7b2.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-035c7331a7b2.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608310140-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E5%85%A8%E9%83%A8%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A3%81%E7%9B%98%E5%9E%83%E5%9C%BE%E6%B8%85%E7%90%86%E4%B8%8E%20S3%20%E5%BD%92%E6%A1%A3%E9%93%BE%E8%B7%AF%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【优化】线上环境全部服务器磁盘垃圾清理与 S3 归档链路修复记录">
+  <meta property="og:description" content="【优化】线上环境全部服务器磁盘垃圾清理与 S3 归档链路修复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-31 01:40 环境：游点涩线上环境（main 分支） 分类：优化 标签：线上环境、磁盘清理、S3、AWS CLI、rclone、Docker、全部服务器 数据汇报 bot 连续报告后端…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-035c7331a7b2.html">
+  <meta property="article:published_time" content="2026-08-31T01:40:00+08:00">
+  <meta property="article:modified_time" content="2026-08-31 01:40">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【优化】线上环境全部服务器磁盘垃圾清理与 S3 归档链路修复记录">
+  <meta name="twitter:description" content="【优化】线上环境全部服务器磁盘垃圾清理与 S3 归档链路修复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-31 01:40 环境：游点涩线上环境（main 分支） 分类：优化 标签：线上环境、磁盘清理、S3、AWS CLI、rclone、Docker、全部服务器 数据汇报 bot 连续报告后端…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-035c7331a7b2.html#article","headline":"【优化】线上环境全部服务器磁盘垃圾清理与 S3 归档链路修复记录","description":"【优化】线上环境全部服务器磁盘垃圾清理与 S3 归档链路修复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-31 01:40 环境：游点涩线上环境（main 分支） 分类：优化 标签：线上环境、磁盘清理、S3、AWS CLI、rclone、Docker、全部服务器 数据汇报 bot 连续报告后端…","datePublished":"2026-08-31T01:40:00+08:00","dateModified":"2026-08-31 01:40","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Shell","Docker","Nginx","自动化","安全运维","故障排查","数据库恢复","业务系统运维","业务系统运维 / 游点涩","【优化】线上环境全部服务器磁盘垃圾清理与 S3 归档链路修复记录","php"],"wordCount":1451,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-035c7331a7b2.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-035c7331a7b2.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【优化】线上环境全部服务器磁盘垃圾清理与 S3 归档链路修复记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-035c7331a7b2.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>【优化】线上环境全部服务器磁盘垃圾清理与 S3 归档链路修复记录</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>【优化】线上环境全部服务器磁盘垃圾清理与 S3 归档链路修复记录</h1>
+      <p class="lede">【优化】线上环境全部服务器磁盘垃圾清理与 S3 归档链路修复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-31 01:40 环境：游点涩线上环境（main 分支） 分类：优化 标签：线上环境、磁盘清理、S3、AWS CLI、rclone、Docker、全部服务器 数据汇报 bot 连续报告后端…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-08-31T01:40:00+08:00">发布于 2026-08-31</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,451 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-31-0140-【优化】线上环境全部服务器磁盘垃圾清理与S3归档修复记录.md</code></p>
+<p>整理日期：2026-08-31 01:40｜日期依据：文件名日期</p>
+</blockquote>
+<p>文档日期：2026-08-31 01:40
+环境：游点涩线上环境（main 分支）
+分类：优化
+标签：线上环境、磁盘清理、S3、AWS CLI、rclone、Docker、全部服务器</p>
+<h2 id="背景">背景</h2>
+<p>数据汇报 bot 连续报告后端 <code>ip-172-31-31-108</code> 根盘 75%+（75.5% -&gt; 76.2%），磁盘自动清理每次
+都返回“清理完成但失败步骤=1”：S3 归档 exit=2（403）、本地兜底删除 0、业务日志 195G 不变。
+用户要求：清理全部服务器磁盘垃圾；操作一步、分析一步、飞机群通知一步；默认只本地 Commit 不 Push。</p>
+<h2 id="巡检基线-2026-08-31-实时核验">巡检基线（2026-08-31 实时核验）</h2>
+<pre><code class="language-text">后端 ip-172-31-31-108：根盘 77%（49G，可用 12G）；数据盘 42%（196G，业务日志 195.8G）
+  主要占用：/var/lib/docker 24.5G（13 个旧 php 发布镜像约 15G）、journald 2.5G
+前端 ip-172-31-16-205：根盘 60%（49G，可用 20G）；Docker Build Cache 19.36G；journald 2.2G
+宝塔 ip-172-31-26-125：根盘 31%（49G，可用 34G）；数据盘 3%；journald 1.6G；wwwlogs 4.6G
+</code></pre>
+<h2 id="清理执行">清理执行</h2>
+<h3 id="后端">后端</h3>
+<pre><code class="language-text">- 删除 11 个旧 php 发布镜像（保留当前 1aff98 + 最近 2 个回滚位 95f3b7/261124；均可从 Git 重建）
+- journald 压缩至 500M（2.5G -&gt; 528M，释放约 1.9G）
+- apt 缓存清理
+- 根盘 77%（可用 11.4G）-&gt; 69%（可用 15.3G）
+</code></pre>
+<h3 id="前端">前端</h3>
+<pre><code class="language-text">- docker builder prune -af（Build Cache 19.36G -&gt; 0）
+- journald 压缩至 500M（2.2G -&gt; 432M，释放约 1.7G）
+- apt 缓存清理；保留新旧 h5 镜像作为回滚位
+- 根盘 60%（可用 19.5G）-&gt; 19%（可用 39.3G）
+</code></pre>
+<h3 id="宝塔">宝塔</h3>
+<pre><code class="language-text">- journald 压缩至 500M（1.6G -&gt; 536M，释放约 1.1G）
+- apt 缓存清理
+- 8/16 未压缩旧轮转日志 gzip（237MB -&gt; 12.6MB）；wwwlogs 业务访问日志未删除，保留审计
+- 根盘 31%（可用 33.7G）-&gt; 28%（可用 35.0G）
+</code></pre>
+<h2 id="S3-归档失败根因与修复">S3 归档失败根因与修复</h2>
+<pre><code class="language-text">现象：youdianse-log-s3-retention.py preflight 403（exit=2），自 2026-07-31 起每日失败
+实测：
+  aws sts get-caller-identity                    OK（arn:aws:iam::176528004422:user/s3-game-prod）
+  aws s3api put-object / delete-object           成功（同桶同前缀）
+  aws s3api head-bucket                          403（无 ListBucket）
+  rclone copyto / deletefile（v1.53.3-DEV、v1.75.0） 403：操作前必做 HeadObject（无 GetObject）
+根因：IAM s3-game-prod 只有 PutObject/DeleteObject，rclone 无法跳过对象 HEAD -&gt; 403
+修复：脚本上传/删除改用 aws s3api put-object / delete-object（&gt;4G 走 aws s3 cp 兜底），
+      移除 rclone 依赖；rclone v1.75.0 已装 /usr/local/bin 备用（旧版备份 .v1.53.3-DEV.bak）
+小批量实测：--max-files 3 -&gt; deleted=3 failed=0
+</code></pre>
+<h2 id="全量归档结果">全量归档结果</h2>
+<pre><code class="language-text">manifest：runtime/log-s3-retention/manifests/20260831-002719.jsonl
+结果：724 条 uploaded-deleted，0 failed，0 kept
+业务日志：195.8G -&gt; 19G（释放约 176G）
+数据盘：42% -&gt; 5%（可用 447G）
+保留：3 天（08-29 起）共 103 个文件；2 个 0 字节空占位文件按设计跳过
+对象前缀：ops/server-logs/ip-172-31-31-108/app-logs/YYYY/MM/DD/
+</code></pre>
+<h2 id="自动清理脚本加固">自动清理脚本加固</h2>
+<pre><code class="language-text">youdianse-disk-auto-clean.py 新增 prune_old_release_images：
+  触发清理时保留最新 3 个发布镜像 + 运行中镜像，删除其余旧发布镜像（可从 Git 重建）；
+  通知文本新增“旧发布镜像”字段。
+线上同步：/opt/docker-youdianse-php 工作区 dirty，cicd-web-auto-update.py 因 dirty 跳过 pull，
+  符合“只本地提交、不推送”规则；待后续推送后自动更新恢复。
+dry-run 验证：skip: root=69.6%, app_logs=19.0G, threshold=75.0%/200.0G；
+  --force dry-run：builder=0、image=0、旧发布镜像=0、S3 exit=0、失败步骤=0
+</code></pre>
+<h2 id="全量验证-步骤-11">全量验证（步骤 11）</h2>
+<pre><code class="language-text">后端：根盘 70%（可用 15G，低于 75% 触发线）；数据盘 5%（447G 可用）；
+      5 容器全部 Up；CICD 200、后台 200；自动清理 dry-run=skip；S3 保留 dry-run candidates=0
+前端：根盘 19%（40G 可用）；Build Cache 0B 可回收；H5 200
+宝塔：根盘 28%（35G 可用）；nginx -t 通过；h5/主站 200
+代码：两个脚本本地 py_compile 通过，线上已同步同版本
+</code></pre>
+<h2 id="后续事项">后续事项</h2>
+<pre><code class="language-text">1. S3 归档每日 04:22 任务恢复正常，观察 3-5 天确认无 403；
+2. 自动清理触发时会自动删除超过保留位的旧发布镜像（保留 3 个），回滚需重建镜像；
+3. 宝塔 wwwlogs 旧访问日志未删除（业务审计日志），如需归档清理需单独确认；
+4. 本地提交未推送；线上工作区手工同步后保持 dirty，待推送后自动更新恢复。
+</code></pre>
+<h2 id="回滚">回滚</h2>
+<pre><code class="language-text">1. 脚本回滚：git revert 本次提交并同步线上；
+2. rclone 旧版备份 /usr/local/bin/rclone.v1.53.3-DEV.bak（当前未使用）；
+3. 已删除的旧发布镜像可经 CICD 按 Git 提交重建。
+</code></pre>
+<h2 id="通知记录">通知记录</h2>
+<pre><code class="language-text">步骤 1 仓库状态确认  11047
+步骤 2 文档分析      11048
+步骤 3 巡检          11049
+步骤 4 后端清理      11050
+步骤 5 前端清理      11051
+步骤 6 宝塔清理      11052
+步骤 7 S3 诊断       11053
+步骤 8 修复与实测    11054
+步骤 9 全量归档      11058
+步骤 10 脚本加固     11059
+步骤 11 验证         11060
+步骤 12 文档更新     11061
+步骤 13 汇总与文档   11062/11063
+步骤 14 本地提交     11064
+步骤 15 提交结果     11065
+说明：11055-11057 为全量归档期间群内其它消息，未占用步骤编号。
+</code></pre>
+<p>关联文档：<code>docs/2026-08-31-0150-【优化】线上环境后端根盘容器日志清理与落盘根治记录.md</code>、
+<code>docs/2026-08-31-0210-【运维记录】线上环境大数据链路巡检记录.md</code>、
+<code>docs/2026-08-31-0215-【汇总】线上环境2026-08-31运维操作汇总.md</code></p>
+<h2 id="安全与敏感内容">安全与敏感内容</h2>
+<p>本记录不输出 Telegram token/chat_id、AWS 密钥、私钥、Git 凭据。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#背景">背景</a></li><li style="margin-left:0.0rem"><a href="#巡检基线-2026-08-31-实时核验">巡检基线（2026-08-31 实时核验）</a></li><li style="margin-left:0.0rem"><a href="#清理执行">清理执行</a></li><li style="margin-left:0.8rem"><a href="#后端">后端</a></li><li style="margin-left:0.8rem"><a href="#前端">前端</a></li><li style="margin-left:0.8rem"><a href="#宝塔">宝塔</a></li><li style="margin-left:0.0rem"><a href="#S3-归档失败根因与修复">S3 归档失败根因与修复</a></li><li style="margin-left:0.0rem"><a href="#全量归档结果">全量归档结果</a></li><li style="margin-left:0.0rem"><a href="#自动清理脚本加固">自动清理脚本加固</a></li><li style="margin-left:0.0rem"><a href="#全量验证-步骤-11">全量验证（步骤 11）</a></li><li style="margin-left:0.0rem"><a href="#后续事项">后续事项</a></li><li style="margin-left:0.0rem"><a href="#回滚">回滚</a></li><li style="margin-left:0.0rem"><a href="#通知记录">通知记录</a></li><li style="margin-left:0.0rem"><a href="#安全与敏感内容">安全与敏感内容</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-08-31</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">自动化</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-31-0140-【优化】…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202608310140-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E5%85%A8%E9%83%A8%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A3%81%E7%9B%98%E5%9E%83%E5%9C%BE%E6%B8%85%E7%90%86%E4%B8%8E%20S3%20%E5%BD%92%E6%A1%A3%E9%93%BE%E8%B7%AF%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【优化】线上环境全部服务器磁盘垃圾清理与 S3 归档链路修复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-08-31 01:40 环境：游点涩线上环境（main 分支） 分类：优化 标签：线上环境、磁盘清理、S3、AWS CLI、rclone、Docker、全部服务器 数据汇报 bot 连续报告后端…</p>
+      <p>关键词：游点涩、Shell、Docker、Nginx、自动化、安全运维、故障排查、数据库恢复、业务系统运维、业务系统运维 / 游点涩、【优化】线上环境全部服务器磁盘垃圾清理与 S3 归档链路修复记录、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f3546b8343ff.html"><small>上一篇</small>2026-08-31 周计划生成记录（第 35 周 0824-0831）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-03dca81cd050.html"><small>下一篇</small>【优化】线上环境后端根盘容器日志清理与落盘根治记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-035c7331a7b2.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
