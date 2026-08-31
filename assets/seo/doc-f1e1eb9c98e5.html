@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>2026-09-01 测试环境迁移与重建 · 详细执行方案（发群版）｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="2026-09-01 测试环境迁移与重建 · 详细执行方案（发群版）。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 迁移 / Redis / MongoDB / 域名解析 / Spug / CICD 通知群： 18game运维 ；每完成一个明确步骤立即通知，不能猜群。 迁移 Re…">
+  <meta name="keywords" content="18Game 测试环境，Linux，Shell，Docker，Nginx，Redis，监控告警，自动化，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，2026-09-01 测试环境迁移与重建 · 详细执行方案（发群版）">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f1e1eb9c98e5.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f1e1eb9c98e5.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609010000-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-2026-09-01%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E8%BF%81%E7%A7%BB%E4%B8%8E%E9%87%8D%E5%BB%BA%20%C2%B7%20%E8%AF%A6%E7%BB%86%E6%89%A7%E8%A1%8C%E6%96%B9%E6%A1%88%EF%BC%88%E5%8F%91%E7%BE%A4%E7%89%88%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="2026-09-01 测试环境迁移与重建 · 详细执行方案（发群版）">
+  <meta property="og:description" content="2026-09-01 测试环境迁移与重建 · 详细执行方案（发群版）。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 迁移 / Redis / MongoDB / 域名解析 / Spug / CICD 通知群： 18game运维 ；每完成一个明确步骤立即通知，不能猜群。 迁移 Re…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f1e1eb9c98e5.html">
+  <meta property="article:published_time" content="2026-09-01T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-09-01 00:00">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="2026-09-01 测试环境迁移与重建 · 详细执行方案（发群版）">
+  <meta name="twitter:description" content="2026-09-01 测试环境迁移与重建 · 详细执行方案（发群版）。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 迁移 / Redis / MongoDB / 域名解析 / Spug / CICD 通知群： 18game运维 ；每完成一个明确步骤立即通知，不能猜群。 迁移 Re…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f1e1eb9c98e5.html#article","headline":"2026-09-01 测试环境迁移与重建 · 详细执行方案（发群版）","description":"2026-09-01 测试环境迁移与重建 · 详细执行方案（发群版）。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 迁移 / Redis / MongoDB / 域名解析 / Spug / CICD 通知群： 18game运维 ；每完成一个明确步骤立即通知，不能猜群。 迁移 Re…","datePublished":"2026-09-01T00:00:00+08:00","dateModified":"2026-09-01 00:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Linux","Shell","Docker","Nginx","Redis","监控告警","自动化","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","2026-09-01 测试环境迁移与重建 · 详细执行方案（发群版）"],"wordCount":3288,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f1e1eb9c98e5.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f1e1eb9c98e5.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-09-01 测试环境迁移与重建 · 详细执行方案（发群版）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f1e1eb9c98e5.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>2026-09-01 测试环境迁移与重建 · 详细执行方案（发群版）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>2026-09-01 测试环境迁移与重建 · 详细执行方案（发群版）</h1>
+      <p class="lede">2026-09-01 测试环境迁移与重建 · 详细执行方案（发群版）。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 迁移 / Redis / MongoDB / 域名解析 / Spug / CICD 通知群： 18game运维 ；每完成一个明确步骤立即通知，不能猜群。 迁移 Re…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-01T00:00:00+08:00">发布于 2026-09-01</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">3,288 字</span>
+        <span class="badge">10 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/work-运维部工作进度-周报/doc/2026-09-01-测试环境迁移与重建-执行方案.md</code></p>
+<p>整理日期：2026-09-01 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>环境标签：测试环境 / 迁移 / Redis / MongoDB / 域名解析 / Spug / CICD</p>
+<p>维护时间：2026-09-01（周二）22:00 开始</p>
+<p>通知群：<code>18game运维</code>；每完成一个明确步骤立即通知，不能猜群。</p>
+<h2 id="1-变更目标">1. 变更目标</h2>
+<ul>
+<li>启用新测试环境：</li>
+<li>测试环境-前后端-ec2：<code>15.152.247.196</code></li>
+<li>测试环境-数据库-ec2：<code>15.152.6.51</code></li>
+<li>迁移 Redis 及 MongoDB 数据到新数据库 EC2</li>
+<li>迁移后端、前端容器代码到新前后端 EC2</li>
+<li>更新域名解析：<code>*.youdianse-test.xyz</code> 泛解析切到新前后端</li>
+<li>修改 Spug 几十条定时任务执行主机/脚本/env 到新环境</li>
+<li>验证测试自动化 CICD（前端 H5/PC 发布 + 后端 dev 发布）</li>
+<li>老测试环境暂作保留（38.92.8.34 宝塔），作为回滚点，全程不停机</li>
+</ul>
+<h2 id="2-当前真实测试环境基线-迁移前确认">2. 当前真实测试环境基线（迁移前确认）</h2>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>现状</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>页面入口</td>
+<td><code>h5.youdianse-test.xyz</code>、<code>pc.youdianse-test.xyz</code>、<code>test-h5</code>、<code>test-pc</code>（泛解析 <code>*.youdianse-test.xyz -&gt; 38.92.8.34</code>）</td>
+</tr>
+<tr>
+<td>测试 API</td>
+<td><code>admin.youdianse-test.xyz</code>（根路径 404 不代表接口不可用，验证按业务 API 路径）</td>
+</tr>
+<tr>
+<td>前端 H5/PC</td>
+<td>老宝塔 <code>38.92.8.34</code>，H5 容器 <code>youdianse_test_18game_h5_client_3003</code>（3003）、PC 容器 <code>youdianse_pc_dev_18game_pc_client_3004</code>（3004）</td>
+</tr>
+<tr>
+<td>前端代码目录</td>
+<td>H5：<code>/www/wwwroot/18game_h5_client</code>；PC：<code>/www/wwwroot/18game_pc_client</code></td>
+</tr>
+<tr>
+<td>后端</td>
+<td>老宝塔 <code>38.92.8.34 /opt/docker-youdianse-php</code>，容器 <code>youdianse-dev-php-web/nginx/cron</code>，env <code>.env.dev</code></td>
+</tr>
+<tr>
+<td>数据库</td>
+<td>Mongo + Redis 独立数据库服务器；Redis 含 <code>18game_system_config</code>（db3 配置缓存）、token/session 等；Mongo 含 config/game 等库</td>
+</tr>
+<tr>
+<td>前端静态资源</td>
+<td>AWS S3 <code>18game-nuxt-static-test-h5</code> / <code>18game-nuxt-static-test-pc</code>（默认域），测试入口默认关闭 COS 同步/CDN 刷新/签名鉴权</td>
+</tr>
+<tr>
+<td>后端 uploads</td>
+<td>展示域 <code>https://d1rct3ku9n07y3.cloudfront.net/uploads/...</code>（AWS CloudFront）</td>
+</tr>
+<tr>
+<td>Spug 定时任务</td>
+<td>几十条（执行主机、脚本路径、env 指向老环境）</td>
+</tr>
+<tr>
+<td>CICD</td>
+<td>GitLab webhook 自动发布（前端 H5/PC + 后端 dev），发布目标当前为老宝塔</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-迁移前准备-22-00-前完成">3. 迁移前准备（22:00 前完成）</h2>
+<h3 id="3-1-只读核验清单">3.1 只读核验清单</h3>
+<ul>
+<li>新前后端 <code>15.152.247.196</code> SSH 可达，确认登录用户（待确认，不走猜测）</li>
+<li>新数据库 <code>15.152.6.51</code> SSH 可达，确认登录用户（待确认，不走猜测）</li>
+<li>两台新 EC2 的 Docker/Compose/Nginx 版本记录</li>
+<li>老库 Mongo/Redis 运行状态与备份能力确认</li>
+<li>DNS 服务商（DNSPod）泛解析修改入口与 TTL 确认</li>
+<li>新环境证书方案确认（<code>*.youdianse-test.xyz</code> 泛域名证书或逐域名证书，SAN 必须覆盖 h5/pc/test-h5/test-pc/sdk/admin）</li>
+<li>Spug 任务清单导出（几十条）</li>
+<li>安全组/防火墙规划（迁移窗口老→新 27017/6379 放行，完成后收紧）</li>
+</ul>
+<h3 id="3-2-敏感信息处理">3.2 敏感信息处理</h3>
+<ul>
+<li>本方案只写环境变量名/端口/路径，不写密码、Token、私钥、完整连接串</li>
+<li>连接串、密码在服务器现场 env 中管理，群消息与文档不出现原文</li>
+</ul>
+<h2 id="4-分步执行计划-含耗时-操作-验证-回滚">4. 分步执行计划（含耗时、操作、验证、回滚）</h2>
+<h3 id="步骤-1-备份测试环境-Mongo-和-Redis-约-20-分钟">步骤 1：备份测试环境 Mongo 和 Redis（约 20 分钟）</h3>
+<p>目标：老库全量备份，形成可回滚基线。</p>
+<p>操作：</p>
+<ol>
+<li>记录老库连接信息与库列表（Mongo 库名、Redis db 数）</li>
+<li>Mongo 备份：
+   - 使用 <code>mongodump</code> 全量导出到备份目录（例如 <code>/backup/testenv_mongo_20260901</code>）
+   - 导出后打包并计算校验值，记录文件大小</li>
+<li>Redis 备份：
+   - 执行 <code>BGSAVE</code>，等待完成
+   - 复制 <code>dump.rdb</code> 到备份目录（例如 <code>/backup/testenv_redis_20260901/</code>）
+   - 记录各 db 的 key 数（<code>DBSIZE</code>）、关键 key 大小（<code>STRLEN 18game_system_config</code>）</li>
+<li>把备份文件同步一份到新数据库 EC2 或独立备份盘（异机冗余）</li>
+</ol>
+<p>验证：</p>
+<ul>
+<li><code>mongodump</code> 输出无 error；备份目录非空且大小合理</li>
+<li><code>redis-check-rdb</code> 校验通过；dump.rdb 时间戳为备份时刻</li>
+<li>记录 collection 文档数与 db key 数作为导入后比对基线</li>
+</ul>
+<p>回滚点：老库保持原样，备份文件保留 7 天以上。</p>
+<h3 id="步骤-2-准备和检查网络权限-约-30-分钟">步骤 2：准备和检查网络权限（约 30 分钟）</h3>
+<p>目标：新环境基础服务可用、网络链路打通。</p>
+<p>操作：</p>
+<ol>
+<li>测试环境-前后端-ec2（15.152.247.196）：
+   - 检查 SSH、Docker Engine、Compose、Nginx
+   - 准备 Node（前端构建/运行）、PHP（后端运行）所需组件，版本与老环境一致
+   - 准备代码目录与运行目录（H5/PC/后端）</li>
+<li>测试环境-数据库-ec2（15.152.6.51）：
+   - 安装/确认 MongoDB（27017）与 Redis（6379）
+   - 设置访问控制与密码（按老环境同策略），本地只读校验可连</li>
+<li>网络放行：
+   - 新前后端 → 新库：27017、6379
+   - 老库/老宝塔 → 新库：仅迁移窗口需要（步骤 3 导入用），完成后收紧
+   - 公网 80/443（页面与 API）</li>
+<li>域名解析准备：
+   - 确认 <code>*.youdianse-test.xyz</code> 泛解析改法（DNSPod）
+   - 确认证书签发/同步方案</li>
+</ol>
+<p>验证：</p>
+<ul>
+<li>新前后端可连新库：<code>nc -zv &lt;db_ip&gt; 27017</code>、<code>nc -zv &lt;db_ip&gt; 6379</code></li>
+<li>两台新 EC2 Docker/Nginx 健康页可访问</li>
+<li>记录新库连接串变量名（如 <code>MONGO_URI_NEW</code>、<code>REDIS_HOST_NEW</code>），不落明文</li>
+</ul>
+<p>回滚点：未切流，新环境独立，不影响老环境。</p>
+<h3 id="步骤-3-导入数据-Mongo-Redis-约-20-分钟">步骤 3：导入数据 Mongo + Redis（约 20 分钟）</h3>
+<p>目标：备份数据导入新库，数据层先行就绪。</p>
+<p>操作：</p>
+<ol>
+<li>Mongo：
+   - <code>mongorestore</code> 恢复到测试环境-数据库-ec2 <code>15.152.6.51</code>
+   - 保持库名/collection 名与老库一致</li>
+<li>Redis：
+   - 用备份的 <code>dump.rdb</code> 恢复（或按需导入配置缓存、token、session 等关键 key）
+   - 启动后确认 db 结构与 key 数</li>
+</ol>
+<p>验证：</p>
+<ul>
+<li>Mongo collection 文档数与备份基线一致；config/game 等关键库抽样查询正常</li>
+<li>Redis db 数量、<code>DBSIZE</code>、<code>18game_system_config</code> 大小、token/session 计数与老库一致</li>
+</ul>
+<p>回滚点：新库可清空重导；老库未动。</p>
+<h3 id="步骤-4-正式迁移后端-前端容器代码-约-30-分钟">步骤 4：正式迁移后端、前端容器代码（约 30 分钟）</h3>
+<p>目标：代码与运行环境切到新前后端 EC2。</p>
+<p>操作：</p>
+<ol>
+<li>后端：
+   - 把老宝塔 <code>/opt/docker-youdianse-php</code> 的代码、Dockerfile、compose、env 同步到新前后端（env 脱敏后传输，库连接改指向 <code>15.152.6.51</code>）
+   - 构建镜像并启动 web/nginx/cron 容器
+   - 容器名沿用 <code>youdianse-dev-php-web/nginx/cron</code></li>
+<li>前端：
+   - H5/PC 代码同步到新前后端（代码目录沿用 <code>18game_h5_client</code> / <code>18game_pc_client</code>）
+   - 构建并启动 H5（3003）、PC（3004）容器
+   - nginx 反代 <code>/api</code>、<code>/channel</code>、<code>/customer</code> 同域路由对齐</li>
+<li>老宝塔容器保持运行，暂不停机</li>
+</ol>
+<p>验证：</p>
+<ul>
+<li>后端容器全部 Up；健康检查 HTTP 200、Session writable、Redis/Mongo open</li>
+<li>前端容器 Up；<code>/version.json</code>、<code>/version.txt</code> 可访问</li>
+<li>新环境本机通过 Host 头访问 h5/pc 页面 200</li>
+</ul>
+<p>回滚点：老宝塔容器仍在运行，DNS 未切前不影响老环境。</p>
+<h3 id="步骤-5-代码迁移结束后调试配置-约-20-分钟">步骤 5：代码迁移结束后调试配置（约 20 分钟）</h3>
+<p>目标：新环境配置与老环境对齐，业务可用。</p>
+<p>操作：</p>
+<ol>
+<li>env 核对：
+   - 数据库连接串、Redis
+   - CDN/S3 静态域（<code>18game-nuxt-static-test-h5</code> / <code>test-pc</code> 默认域）
+   - API 域 <code>admin.youdianse-test.xyz</code>
+   - 上传/图片域（CloudFront <code>d1rct3ku9n07y3.cloudfront.net</code>）</li>
+<li>PHP-FPM 池配置（沿用老环境参数，评估 max_children=5 是否保留或按新机器资源调整）</li>
+<li>nginx 反代、robots/UA 分流、静态资源缓存策略对齐</li>
+<li>后台登录、H5/PC 首页 SSR、核心 API 冒烟：
+   - system/info
+   - AppVersion/latestVersion
+   - modules/home</li>
+</ol>
+<p>验证：</p>
+<ul>
+<li>后台可登录；H5/PC 首页与核心接口 200，延迟正常</li>
+<li>无新增 slow_api/错误日志</li>
+</ul>
+<p>回滚点：配置未切流，可继续调整；有问题回老环境。</p>
+<h3 id="步骤-6-修改域名解析-约-30-分钟生效">步骤 6：修改域名解析（约 30 分钟生效）</h3>
+<p>目标：页面/API 域名切到新环境。</p>
+<p>操作：</p>
+<ol>
+<li>修改 <code>*.youdianse-test.xyz</code> 泛解析 A 记录：
+   - <code>38.92.8.34</code> → <code>15.152.247.196</code>
+   - 覆盖 h5/pc/test-h5/test-pc/sdk/admin 等全部子域</li>
+<li>等待 TTL 生效（按记录 TTL，一般 5-30 分钟）</li>
+<li>如新环境证书未覆盖全部子域，先补证书再切解析</li>
+</ol>
+<p>验证：</p>
+<ul>
+<li>多节点/多次解析确认指向 <code>15.152.247.196</code></li>
+<li><code>h5.youdianse-test.xyz</code>、<code>pc.youdianse-test.xyz</code>、<code>admin.youdianse-test.xyz</code> 严格 HTTPS 200，证书匹配</li>
+<li>页面与 API 冒烟通过</li>
+</ul>
+<p>回滚点：DNS 改回 <code>38.92.8.34</code> 即回老环境（保留旧解析记录截图/备份）。</p>
+<h3 id="步骤-7-修改-Spug-几十条定时任务到新服务器-约-30-分钟">步骤 7：修改 Spug 几十条定时任务到新服务器（约 30 分钟）</h3>
+<p>目标：定时任务执行主机/脚本/env 全部指向新环境。</p>
+<p>操作：</p>
+<ol>
+<li>导出/列出 Spug 当前任务清单（几十条），逐条核对：
+   - 执行主机
+   - 脚本路径
+   - 参数与 env</li>
+<li>把测试环境相关任务的目标主机改为测试环境-前后端-ec2 <code>15.152.247.196</code></li>
+<li>同步脚本与依赖到新机，路径保持一致或同步调整</li>
+<li>更新任务引用的 env（库连接、域名、S3 等）</li>
+</ol>
+<p>验证：</p>
+<ul>
+<li>随机抽 3-5 条任务手动执行一次，确认成功且写库落在新库</li>
+<li>任务清单全部核对，无遗漏项</li>
+<li>输出修改前后任务清单差异供复核</li>
+</ul>
+<p>回滚点：Spug 任务执行主机批量改回老环境；保留修改前清单备份。</p>
+<h3 id="步骤-8-测试自动化-CICD-测试发布前端-后端-约-20-分钟">步骤 8：测试自动化 CICD / 测试发布前端、后端（约 20 分钟）</h3>
+<p>目标：自动发布链路切到新环境并验证。</p>
+<p>操作：</p>
+<ol>
+<li>前端：
+   - 把 ben-bot 测试 H5/PC 发布入口 SSH 目标从老宝塔改为测试环境-前后端-ec2 <code>15.152.247.196</code>
+   - 触发一次测试发布（H5 + PC），确认镜像打包、容器启动成功</li>
+<li>后端：
+   - 触发 dev 分支 webhook 自动发布
+   - 确认构建、容器切换、健康检查 SUCCESS</li>
+</ol>
+<p>验证：</p>
+<ul>
+<li>H5/PC 新发布版本 <code>version.json</code>/页面 200，静态资源 S3 域名正常</li>
+<li>后端发布后 web/nginx/cron running，健康检查与核心 API 通过</li>
+<li>GitLab webhook 记录无 error</li>
+</ul>
+<p>回滚点：CICD/发布入口切回老环境即可重新触发；老环境保留。</p>
+<h3 id="步骤-9-待机监控-预留-1-小时">步骤 9：待机监控（预留 1 小时）</h3>
+<p>目标：迁移后观察稳定性，异常快速回滚。</p>
+<p>操作：</p>
+<ol>
+<li>监控新环境：
+   - API 延迟（核心接口抽样）
+   - slow_api/错误日志
+   - 磁盘/CPU/内存</li>
+<li>观察：
+   - H5/PC 页面、后台登录
+   - 定时任务执行
+   - CICD 发布是否持续正常</li>
+<li>保持回滚点就绪：
+   - DNS 改回老环境命令已备份
+   - 老宝塔容器运行状态持续确认</li>
+</ol>
+<p>验证：</p>
+<ul>
+<li>持续 30 分钟无新增异常</li>
+<li>关键指标与老环境基线对比无劣化</li>
+</ul>
+<h2 id="5-时间线汇总">5. 时间线汇总</h2>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>步骤</th>
+<th>耗时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>22:00-22:20</td>
+<td>备份 Mongo/Redis</td>
+<td>20 分钟</td>
+</tr>
+<tr>
+<td>22:20-22:50</td>
+<td>网络权限准备</td>
+<td>30 分钟</td>
+</tr>
+<tr>
+<td>22:50-23:10</td>
+<td>导入数据</td>
+<td>20 分钟</td>
+</tr>
+<tr>
+<td>23:10-23:40</td>
+<td>迁移容器代码</td>
+<td>30 分钟</td>
+</tr>
+<tr>
+<td>23:40-00:00</td>
+<td>调试配置</td>
+<td>20 分钟</td>
+</tr>
+<tr>
+<td>00:00-00:30</td>
+<td>域名解析生效</td>
+<td>30 分钟</td>
+</tr>
+<tr>
+<td>00:30-01:00</td>
+<td>Spug 定时任务</td>
+<td>30 分钟</td>
+</tr>
+<tr>
+<td>01:00-01:20</td>
+<td>CICD 自动发布验证</td>
+<td>20 分钟</td>
+</tr>
+<tr>
+<td>01:20-02:20</td>
+<td>待机监控（预留）</td>
+<td>1 小时</td>
+</tr>
+</tbody>
+</table>
+<p><strong>总计约 4 小时 20 分钟（260 分钟），大于 4 小时，与加班申请 4 小时一致</strong>：</p>
+<ul>
+<li>正式迁移（步骤 1-8）约 3 小时 20 分钟（200 分钟）</li>
+<li>待机监控（步骤 9）预留 1 小时（60 分钟）</li>
+<li>总计 4 小时 20 分钟 &gt; 4 小时加班申请时长，实际执行按此窗口排班</li>
+</ul>
+<p>与公告窗口（22:00-02:00，4 小时）对齐；监控可在 02:00 前后收尾，若正式迁移耗时超过计划，实际总时长相应超过 4 小时，以实际执行记录为准。</p>
+<h2 id="6-回滚方案">6. 回滚方案</h2>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>回滚动作</th>
+<th>耗时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DNS</td>
+<td><code>*.youdianse-test.xyz</code> 改回 <code>38.92.8.34</code></td>
+<td>5-30 分钟生效</td>
+</tr>
+<tr>
+<td>数据</td>
+<td>老库未停写，备份文件保留 7 天；新库异常可重导</td>
+<td>20 分钟</td>
+</tr>
+<tr>
+<td>发布</td>
+<td>ben-bot/CICD 入口切回老宝塔重新触发</td>
+<td>20 分钟</td>
+</tr>
+<tr>
+<td>Spug</td>
+<td>任务执行主机批量改回老环境</td>
+<td>30 分钟</td>
+</tr>
+<tr>
+<td>完整回滚</td>
+<td>老宝塔容器全程保留运行，无需重建</td>
+<td>即时可用</td>
+</tr>
+</tbody>
+</table>
+<h2 id="7-风险与注意事项">7. 风险与注意事项</h2>
+<ul>
+<li>白天测试环境正常使用，22:00 后开始切换，期间测试服务可能出现短暂中断</li>
+<li>老测试环境暂作保留，不做删除/停机操作</li>
+<li>所有变更先备份、验证、再切流；操作按 C1 级执行</li>
+<li>每完成一个明确步骤立即通知 <code>18game运维</code> 群</li>
+<li>不写密码/Token/私钥/完整连接串到文档与群消息</li>
+<li>新环境上线后同步更新：</li>
+<li>workbench（servers.yml、运行链路、机器矩阵）</li>
+<li>ben-bot 测试 H5/PC/后端发布入口目标</li>
+<li>Spug 任务与值班/巡检脚本引用</li>
+<li>迁移过程中如发现事实冲突（IP、路径、版本不一致），先停止写操作，核验后再继续</li>
+</ul>
+<h2 id="8-通知模板">8. 通知模板</h2>
+<p>每步完成后按以下格式通知 <code>18game运维</code> 群：</p>
+<pre><code class="language-text">【测试环境迁移｜步骤 N 完成】&lt;步骤名&gt;
+- 操作：&lt;摘要&gt;
+- 验证：&lt;结果&gt;
+- 下一步：&lt;下一步骤名&gt;
+</code></pre>
+<p>示例：</p>
+<pre><code class="language-text">【测试环境迁移｜步骤 1 完成】备份 Mongo/Redis
+- 操作：mongodump 全量备份 + Redis BGSAVE/dump.rdb 备份完成，异机冗余已同步
+- 验证：备份文件大小/校验通过，collection 文档数与 db key 数基线已记录
+- 下一步：准备和检查网络权限（新前后端 15.152.247.196 / 新数据库 15.152.6.51）
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-变更目标">1. 变更目标</a></li><li style="margin-left:0.0rem"><a href="#2-当前真实测试环境基线-迁移前确认">2. 当前真实测试环境基线（迁移前确认）</a></li><li style="margin-left:0.0rem"><a href="#3-迁移前准备-22-00-前完成">3. 迁移前准备（22:00 前完成）</a></li><li style="margin-left:0.8rem"><a href="#3-1-只读核验清单">3.1 只读核验清单</a></li><li style="margin-left:0.8rem"><a href="#3-2-敏感信息处理">3.2 敏感信息处理</a></li><li style="margin-left:0.0rem"><a href="#4-分步执行计划-含耗时-操作-验证-回滚">4. 分步执行计划（含耗时、操作、验证、回滚）</a></li><li style="margin-left:0.8rem"><a href="#步骤-1-备份测试环境-Mongo-和-Redis-约-20-分钟">步骤 1：备份测试环境 Mongo 和 Redis（约 20 分钟）</a></li><li style="margin-left:0.8rem"><a href="#步骤-2-准备和检查网络权限-约-30-分钟">步骤 2：准备和检查网络权限（约 30 分钟）</a></li><li style="margin-left:0.8rem"><a href="#步骤-3-导入数据-Mongo-Redis-约-20-分钟">步骤 3：导入数据 Mongo + Redis（约 20 分钟）</a></li><li style="margin-left:0.8rem"><a href="#步骤-4-正式迁移后端-前端容器代码-约-30-分钟">步骤 4：正式迁移后端、前端容器代码（约 30 分钟）</a></li><li style="margin-left:0.8rem"><a href="#步骤-5-代码迁移结束后调试配置-约-20-分钟">步骤 5：代码迁移结束后调试配置（约 20 分钟）</a></li><li style="margin-left:0.8rem"><a href="#步骤-6-修改域名解析-约-30-分钟生效">步骤 6：修改域名解析（约 30 分钟生效）</a></li><li style="margin-left:0.8rem"><a href="#步骤-7-修改-Spug-几十条定时任务到新服务器-约-30-分钟">步骤 7：修改 Spug 几十条定时任务到新服务器（约 30 分钟）</a></li><li style="margin-left:0.8rem"><a href="#步骤-8-测试自动化-CICD-测试发布前端-后端-约-20-分钟">步骤 8：测试自动化 CICD / 测试发布前端、后端（约 20 分钟）</a></li><li style="margin-left:0.8rem"><a href="#步骤-9-待机监控-预留-1-小时">步骤 9：待机监控（预留 1 小时）</a></li><li style="margin-left:0.0rem"><a href="#5-时间线汇总">5. 时间线汇总</a></li><li style="margin-left:0.0rem"><a href="#6-回滚方案">6. 回滚方案</a></li><li style="margin-left:0.0rem"><a href="#7-风险与注意事项">7. 风险与注意事项</a></li><li style="margin-left:0.0rem"><a href="#8-通知模板">8. 通知模板</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-09-01</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">Redis</span><span class="tag">监控告警</span><span class="tag">自动化</span></li>
+          <li><span>来源：~/Desktop/18game_devops/work-运维部工作进度-周报/doc/2026-09-01-测试环境迁移与重建-执行方案.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609010000-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-2026-09-01%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E8%BF%81%E7%A7%BB%E4%B8%8E%E9%87%8D%E5%BB%BA%20%C2%B7%20%E8%AF%A6%E7%BB%86%E6%89%A7%E8%A1%8C%E6%96%B9%E6%A1%88%EF%BC%88%E5%8F%91%E7%BE%A4%E7%89%88%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>2026-09-01 测试环境迁移与重建 · 详细执行方案（发群版）。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 迁移 / Redis / MongoDB / 域名解析 / Spug / CICD 通知群： 18game运维 ；每完成一个明确步骤立即通知，不能猜群。 迁移 Re…</p>
+      <p>关键词：18Game 测试环境、Linux、Shell、Docker、Nginx、Redis、监控告警、自动化、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、2026-09-01 测试环境迁移与重建 · 详细执行方案（发群版）</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-99c89b00c094.html"><small>上一篇</small>2026-09-01 加班申请（测试环境迁移与重建）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cb5d2592403d.html"><small>下一篇</small>测试环境迁移与重建-发群精简版</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f1e1eb9c98e5.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【降耗】Worker 用量分析与降耗改造记录｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
+  <meta name="description" content="【降耗】Worker 用量分析与降耗改造记录。本文属于历史运维与项目交付 / 巴西主站，日期：2026-09-01（Asia/Manila） 状态：✅ 已完成并验证 关联： 静态域名 1027 故障根因与恢复记录 2026-09-01 静态域名 1027 事故后已升级 Workers Paid（$5/月，含 10…">
+  <meta name="keywords" content="巴西主站，Shell，监控告警，CDN，安全运维，故障排查，数据库恢复，历史运维与项目交付，历史运维与项目交付 / 巴西主站，【降耗】Worker 用量分析与降耗改造记录">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e493cd107346.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e493cd107346.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609011930-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2B%E7%9B%91%E6%8E%A7%E5%91%8A%E8%AD%A6-%E3%80%90%E9%99%8D%E8%80%97%E3%80%91Worker%20%E7%94%A8%E9%87%8F%E5%88%86%E6%9E%90%E4%B8%8E%E9%99%8D%E8%80%97%E6%94%B9%E9%80%A0%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【降耗】Worker 用量分析与降耗改造记录">
+  <meta property="og:description" content="【降耗】Worker 用量分析与降耗改造记录。本文属于历史运维与项目交付 / 巴西主站，日期：2026-09-01（Asia/Manila） 状态：✅ 已完成并验证 关联： 静态域名 1027 故障根因与恢复记录 2026-09-01 静态域名 1027 事故后已升级 Workers Paid（$5/月，含 10…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e493cd107346.html">
+  <meta property="article:published_time" content="2026-09-01T19:30:00+08:00">
+  <meta property="article:modified_time" content="2026-09-01 19:30">
+  <meta property="article:section" content="历史运维与项目交付 / 巴西主站">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【降耗】Worker 用量分析与降耗改造记录">
+  <meta name="twitter:description" content="【降耗】Worker 用量分析与降耗改造记录。本文属于历史运维与项目交付 / 巴西主站，日期：2026-09-01（Asia/Manila） 状态：✅ 已完成并验证 关联： 静态域名 1027 故障根因与恢复记录 2026-09-01 静态域名 1027 事故后已升级 Workers Paid（$5/月，含 10…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e493cd107346.html#article","headline":"【降耗】Worker 用量分析与降耗改造记录","description":"【降耗】Worker 用量分析与降耗改造记录。本文属于历史运维与项目交付 / 巴西主站，日期：2026-09-01（Asia/Manila） 状态：✅ 已完成并验证 关联： 静态域名 1027 故障根因与恢复记录 2026-09-01 静态域名 1027 事故后已升级 Workers Paid（$5/月，含 10…","datePublished":"2026-09-01T19:30:00+08:00","dateModified":"2026-09-01 19:30","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","监控告警","CDN","安全运维","故障排查","数据库恢复","历史运维与项目交付","历史运维与项目交付 / 巴西主站","【降耗】Worker 用量分析与降耗改造记录"],"wordCount":1189,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e493cd107346.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e493cd107346.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【降耗】Worker 用量分析与降耗改造记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e493cd107346.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 巴西主站</span> › <span>【降耗】Worker 用量分析与降耗改造记录</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
+      <h1>【降耗】Worker 用量分析与降耗改造记录</h1>
+      <p class="lede">【降耗】Worker 用量分析与降耗改造记录。本文属于历史运维与项目交付 / 巴西主站，日期：2026-09-01（Asia/Manila） 状态：✅ 已完成并验证 关联： 静态域名 1027 故障根因与恢复记录 2026-09-01 静态域名 1027 事故后已升级 Workers Paid（$5/月，含 10…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-01T19:30:00+08:00">发布于 2026-09-01</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,189 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-09-01-1930-【降耗】Worker用量分析与降耗改造记录.md</code></p>
+<p>整理日期：2026-09-01 19:30｜日期依据：文件名日期</p>
+</blockquote>
+<p>日期：2026-09-01（Asia/Manila）
+状态：✅ 已完成并验证
+关联：<a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/2026-09-01-1900-【故障处置】静态域名1027故障根因与恢复记录.md" rel="noopener noreferrer">静态域名 1027 故障根因与恢复记录</a></p>
+<h2 id="1-背景">1. 背景</h2>
+<p>2026-09-01 静态域名 1027 事故后已升级 Workers Paid（$5/月，含 1000 万请求/月）。
+但实测用量仍偏高（约 3.8-4.7 万请求/小时），月化超 2700 万，会超出含额产生按量费。
+目标：业务稳定前提下把 Worker 请求量压到含额内（≤ 1000 万/月，理想 300 万以内）。</p>
+<h2 id="2-为什么不能去掉-Worker-直接转发存储桶-结论">2. 为什么不能去掉 Worker（“直接转发存储桶”结论）</h2>
+<p>用户提议研究 Cloudflare 直接转发存储桶（免 Worker）。官方文档实测结论：</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>可用性</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Origin Rules 改写 Host</td>
+<td><strong>仅 Enterprise</strong>（官方 availability 表：Free/Pro/Business 全部 No；只有“自定义回源端口”开放）</td>
+<td>❌ 现套餐不可用</td>
+</tr>
+<tr>
+<td>Page Rules Host Header Override</td>
+<td>全套餐有，但 Free 仅 3 条/zone（需每 zone 11-12 条前缀规则），Pro 20 条勉强够</td>
+<td>⚠️ 仅 3 套 Pro zone 可行，且 API 被账户 token 拒绝需面板手动，工作量大、风险高</td>
+</tr>
+<tr>
+<td>Snippets 改写 Host</td>
+<td>Free 不可用；Pro 可用但属轻量 header 规则，改写 Host 行为不确定</td>
+<td>❌ 不可靠</td>
+</tr>
+<tr>
+<td>保留 Worker（Paid）</td>
+<td>全 zone 统一、已稳定运行、缓存 7 天</td>
+<td>✅ 唯一可靠方案</td>
+</tr>
+</tbody>
+</table>
+<p>结论：<strong>继续使用 Worker（Paid），把请求量降下来</strong>是当前最优解。</p>
+<h2 id="3-用量实测-Cloudflare-GraphQL-workersInvocationsAdaptive">3. 用量实测（Cloudflare GraphQL workersInvocationsAdaptive）</h2>
+<p>2026-09-01 00:00-11:00 UTC，<code>summer-wave-c94f</code> 每小时请求数：</p>
+<table>
+<thead>
+<tr>
+<th>小时(UTC)</th>
+<th style="text-align: right;">请求数</th>
+<th>小时(UTC)</th>
+<th style="text-align: right;">请求数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>00</td>
+<td style="text-align: right;">38,831</td>
+<td>06</td>
+<td style="text-align: right;">38,372</td>
+</tr>
+<tr>
+<td>01</td>
+<td style="text-align: right;">38,216</td>
+<td>07</td>
+<td style="text-align: right;">38,489</td>
+</tr>
+<tr>
+<td>02</td>
+<td style="text-align: right;">40,837</td>
+<td>08</td>
+<td style="text-align: right;">39,112</td>
+</tr>
+<tr>
+<td>03</td>
+<td style="text-align: right;">39,118</td>
+<td>09</td>
+<td style="text-align: right;">47,015</td>
+</tr>
+<tr>
+<td>04</td>
+<td style="text-align: right;">37,529</td>
+<td>10</td>
+<td style="text-align: right;">22,181（1027 事故影响）</td>
+</tr>
+<tr>
+<td>05</td>
+<td style="text-align: right;">37,631</td>
+<td></td>
+<td style="text-align: right;"></td>
+</tr>
+</tbody>
+</table>
+<p>≈ 38-47 千/小时 ≈ <strong>92 万/天 ≈ 2800 万/月</strong>（超 Paid 含额 1000 万/月）。</p>
+<h3 id="消耗构成">消耗构成</h3>
+<ol>
+<li><strong>游戏可用性巡检（主因）</strong>：备用机 7 厂家 × 每 2 分钟真实浏览器全量加载游戏
+   （大厅→点卡→shell→试玩），每次几十~上百个静态请求走 Worker；</li>
+<li><strong>入口健康监控</strong>：每 2 分钟加载 7 个 H5 入口（大厅页会拉取静态资源）；</li>
+<li><strong>静态 CNAME 监控</strong>：每 10 分钟 × 242 域名（10 分钟改为 30 分钟后 ~35 千/天）；</li>
+<li>真实用户流量（7 天边缘缓存，重复访问命中 Worker Cache API，仍计请求数）。</li>
+</ol>
+<h2 id="4-降耗改造-已完成">4. 降耗改造（已完成）</h2>
+<h3 id="4-1-游戏可用性巡检-2-分钟-每小时-1-次-随机抽样">4.1 游戏可用性巡检：2 分钟 → 每小时 1 次 + 随机抽样</h3>
+<ul>
+<li>备用机 cron 7 厂家错峰每小时 1 次：pg :0 / tada :8 / pp :16 / popok :24 /
+  playson :32 / panda :40 / g759 :48；</li>
+<li><code>game_availability_monitor.py</code> 增加 <code>--random-cards</code>，每次随机抽 1 个游戏
+  （113 张卡片中抽 1，实测 report.json <code>random_cards: true</code>），避免固定游戏漏检、
+  避免同一游戏反复命中缓存掩盖其他游戏问题；</li>
+<li>报警时效：连续失败 3 次 ≈ 3 小时（原 6 分钟）；入口监控仍 2 分钟兜底，
+  可快速发现入口级故障。</li>
+</ul>
+<h3 id="4-2-静态-CNAME-监控-10-分钟-30-分钟-轻量探测直连桶">4.2 静态 CNAME 监控：10 分钟 → 30 分钟 + 轻量探测直连桶</h3>
+<ul>
+<li>宝塔 cron <code>*/10</code> → <code>*/30</code>；</li>
+<li>轻量探测从“CF 路径（走 Worker）”改为 <strong>GCS 桶直连</strong>（不产生 Worker 请求），
+  每 30 分钟验证桶可用性与对象存在；</li>
+<li>全量字节校验（CF 路径 vs 桶直连，带 <code>?cb=</code> 强制回源）仍每小时 1 次，
+  用于确认 Worker/CF 链路字节一致。</li>
+</ul>
+<h3 id="4-3-保留项">4.3 保留项</h3>
+<ul>
+<li>入口健康监控（每 2 分钟）暂不动：入口级故障需快速发现；其大厅页静态请求
+  为主要残留消耗，后续按需降为 5 分钟。</li>
+<li>Workers Paid $5/月保留：10M 请求/月含额 + 超出 $0.30/百万。</li>
+</ul>
+<h2 id="5-预估效果">5. 预估效果</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th style="text-align: right;">改造前（/天）</th>
+<th style="text-align: right;">改造后（/天）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>游戏可用性巡检</td>
+<td style="text-align: right;">~50 万（7 厂家×每2分钟×~100 请求）</td>
+<td style="text-align: right;">~1.7 万（7 次/小时×~100 请求）</td>
+</tr>
+<tr>
+<td>静态 CNAME 监控</td>
+<td style="text-align: right;">~3.5 万</td>
+<td style="text-align: right;">~0.6 万（直连桶 + 每小时全量校验）</td>
+</tr>
+<tr>
+<td>入口监控/真实流量</td>
+<td style="text-align: right;">不变</td>
+<td style="text-align: right;">不变</td>
+</tr>
+<tr>
+<td><strong>合计（不含真实流量）</strong></td>
+<td style="text-align: right;"><strong>~54 万</strong></td>
+<td style="text-align: right;"><strong>~2.3 万</strong></td>
+</tr>
+</tbody>
+</table>
+<p>月化（不含真实流量）≈ 70 万/月，远低于 1000 万含额。</p>
+<h2 id="6-验证结果">6. 验证结果</h2>
+<ul>
+<li>pg 随机抽样巡检实测通过（24 秒，fails=0）；</li>
+<li>宝塔 CNAME 监控新逻辑跑通：408 条全部 OK（含 165 动态），<code>last_full_verify</code> 正常；</li>
+<li>静态域名抽检 200、health.json 内容校验通过；</li>
+<li>两台机器 cron 已更新并持久化（备份：<code>/root/crontab.bak-20260901*</code>）。</li>
+</ul>
+<h2 id="7-后续跟踪">7. 后续跟踪</h2>
+<ul>
+<li>24 小时后用 GraphQL 复测小时请求数，确认降到 ~1-2 万/小时；</li>
+<li>若入口监控仍是消耗大头，再评估降为 5 分钟/次；</li>
+<li>建议在 CF 面板关注 Workers 用量趋势，接近 800 万/月时预警。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-背景">1. 背景</a></li><li style="margin-left:0.0rem"><a href="#2-为什么不能去掉-Worker-直接转发存储桶-结论">2. 为什么不能去掉 Worker（“直接转发存储桶”结论）</a></li><li style="margin-left:0.0rem"><a href="#3-用量实测-Cloudflare-GraphQL-workersInvocationsAdaptive">3. 用量实测（Cloudflare GraphQL workersInvocationsAdaptive）</a></li><li style="margin-left:0.8rem"><a href="#消耗构成">消耗构成</a></li><li style="margin-left:0.0rem"><a href="#4-降耗改造-已完成">4. 降耗改造（已完成）</a></li><li style="margin-left:0.8rem"><a href="#4-1-游戏可用性巡检-2-分钟-每小时-1-次-随机抽样">4.1 游戏可用性巡检：2 分钟 → 每小时 1 次 + 随机抽样</a></li><li style="margin-left:0.8rem"><a href="#4-2-静态-CNAME-监控-10-分钟-30-分钟-轻量探测直连桶">4.2 静态 CNAME 监控：10 分钟 → 30 分钟 + 轻量探测直连桶</a></li><li style="margin-left:0.8rem"><a href="#4-3-保留项">4.3 保留项</a></li><li style="margin-left:0.0rem"><a href="#5-预估效果">5. 预估效果</a></li><li style="margin-left:0.0rem"><a href="#6-验证结果">6. 验证结果</a></li><li style="margin-left:0.0rem"><a href="#7-后续跟踪">7. 后续跟踪</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 巴西主站</li>
+          <li>日期：2026-09-01</li>
+          <li>标签：<span class="tag">巴西主站</span><span class="tag">Shell</span><span class="tag">监控告警</span><span class="tag">CDN</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-09-01-1930-【降耗】Worker用量分析与降耗改造记录.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609011930-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2B%E7%9B%91%E6%8E%A7%E5%91%8A%E8%AD%A6-%E3%80%90%E9%99%8D%E8%80%97%E3%80%91Worker%20%E7%94%A8%E9%87%8F%E5%88%86%E6%9E%90%E4%B8%8E%E9%99%8D%E8%80%97%E6%94%B9%E9%80%A0%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【降耗】Worker 用量分析与降耗改造记录。本文属于历史运维与项目交付 / 巴西主站，日期：2026-09-01（Asia/Manila） 状态：✅ 已完成并验证 关联： 静态域名 1027 故障根因与恢复记录 2026-09-01 静态域名 1027 事故后已升级 Workers Paid（$5/月，含 10…</p>
+      <p>关键词：巴西主站、Shell、监控告警、CDN、安全运维、故障排查、数据库恢复、历史运维与项目交付、历史运维与项目交付 / 巴西主站、【降耗】Worker 用量分析与降耗改造记录</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cd7fff829224.html"><small>上一篇</small>【故障处置】静态域名 error 1027 故障根因与恢复记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8ea3144488b7.html"><small>下一篇</small>2026-09-01 测试环境迁移 · 步骤 4-5 执行记录（容器代码迁移 + 调试配置）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e493cd107346.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

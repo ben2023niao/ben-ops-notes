@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【性能排查】MongoModel 代码层数据库性能隐患检查清单｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="【性能排查】MongoModel 代码层数据库性能隐患检查清单。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 后端 / MongoDB / MongoModel / 性能隐患 后端数据层为自研 App\Core\Mongodb\MongoModel （基于 PHP 官方 Mong…">
+  <meta name="keywords" content="18Game 测试环境，Shell，Python，Redis，监控告警，安全运维，故障排查，数据库恢复，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，【性能排查】MongoModel 代码层数据库性能隐患检查清单，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-596495a30b93.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-596495a30b93.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609011700-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E3%80%90%E6%80%A7%E8%83%BD%E6%8E%92%E6%9F%A5%E3%80%91MongoModel%20%E4%BB%A3%E7%A0%81%E5%B1%82%E6%95%B0%E6%8D%AE%E5%BA%93%E6%80%A7%E8%83%BD%E9%9A%90%E6%82%A3%E6%A3%80%E6%9F%A5%E6%B8%85%E5%8D%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【性能排查】MongoModel 代码层数据库性能隐患检查清单">
+  <meta property="og:description" content="【性能排查】MongoModel 代码层数据库性能隐患检查清单。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 后端 / MongoDB / MongoModel / 性能隐患 后端数据层为自研 App\Core\Mongodb\MongoModel （基于 PHP 官方 Mong…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-596495a30b93.html">
+  <meta property="article:published_time" content="2026-09-01T17:00:00+08:00">
+  <meta property="article:modified_time" content="2026-09-01 17:00">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【性能排查】MongoModel 代码层数据库性能隐患检查清单">
+  <meta name="twitter:description" content="【性能排查】MongoModel 代码层数据库性能隐患检查清单。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 后端 / MongoDB / MongoModel / 性能隐患 后端数据层为自研 App\Core\Mongodb\MongoModel （基于 PHP 官方 Mong…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-596495a30b93.html#article","headline":"【性能排查】MongoModel 代码层数据库性能隐患检查清单","description":"【性能排查】MongoModel 代码层数据库性能隐患检查清单。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 后端 / MongoDB / MongoModel / 性能隐患 后端数据层为自研 App\\Core\\Mongodb\\MongoModel （基于 PHP 官方 Mong…","datePublished":"2026-09-01T17:00:00+08:00","dateModified":"2026-09-01 17:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Shell","Python","Redis","监控告警","安全运维","故障排查","数据库恢复","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","【性能排查】MongoModel 代码层数据库性能隐患检查清单","devops"],"wordCount":1900,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-596495a30b93.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-596495a30b93.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【性能排查】MongoModel 代码层数据库性能隐患检查清单","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-596495a30b93.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>【性能排查】MongoModel 代码层数据库性能隐患检查清单</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>【性能排查】MongoModel 代码层数据库性能隐患检查清单</h1>
+      <p class="lede">【性能排查】MongoModel 代码层数据库性能隐患检查清单。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 后端 / MongoDB / MongoModel / 性能隐患 后端数据层为自研 App\Core\Mongodb\MongoModel （基于 PHP 官方 Mong…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-01T17:00:00+08:00">发布于 2026-09-01</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,900 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-09-01_1700-【性能排查】MongoModel代码层数据库性能隐患检查清单.md</code></p>
+<p>整理日期：2026-09-01 17:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>环境标签：测试环境 / 后端 / MongoDB / MongoModel / 性能隐患</p>
+<p>时间：2026-09-01</p>
+<h2 id="1-结论速览">1. 结论速览</h2>
+<p>后端数据层为自研 <code>App\Core\Mongodb\MongoModel</code>（基于 PHP 官方 <code>MongoDB\Driver</code>），本次按代码仓库 <code>root/18game_php.git</code>（dev 分支，814 个 PHP 文件）做静态扫描，发现以下高危隐患点：</p>
+<table>
+<thead>
+<tr>
+<th>隐患</th>
+<th>命中规模</th>
+<th>风险等级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>全表扫描型查询（limit=9999999/99999999）</td>
+<td>45+ 处</td>
+<td>高</td>
+</tr>
+<tr>
+<td>无条件 <code>find()</code> / <code>find([])</code></td>
+<td>6 处</td>
+<td>高</td>
+</tr>
+<tr>
+<td>报表聚合（aggregate）未逐条核验 limit</td>
+<td>29 处调用（报表 Job 为主）</td>
+<td>中高</td>
+</tr>
+<tr>
+<td>大内存单次拉取（用户/游戏全量集合）</td>
+<td>多服务多处</td>
+<td>中高</td>
+</tr>
+<tr>
+<td><code>findByID</code> 透传字符串/整型 <code>_id</code></td>
+<td>大量调用（依赖模型约定，需核验）</td>
+<td>中</td>
+</tr>
+<tr>
+<td>大字段进 Redis 缓存（历史 3.6MB 事故同型）</td>
+<td>配置类服务仍整包缓存</td>
+<td>中</td>
+</tr>
+<tr>
+<td>报表 Job 每任务多次 aggregate（从库）</td>
+<td>TotalOldDay/TotalMinute 等</td>
+<td>中（走从库缓解）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-检查方法-可直接复跑">2. 检查方法（可直接复跑）</h2>
+<pre><code class="language-bash"># 克隆后端代码（dev）
+git clone --depth 1 --branch dev &lt;后端仓库&gt; repo
+cd repo
+
+# 1) 全表/超大 limit 拉取
+rg -n "9999999|99999999" app --glob '*.php'
+
+# 2) 无条件查询
+rg -n "::find\(\[\]\)|::find\(\)" app --glob '*.php'
+
+# 3) 聚合调用（报表类）
+rg -n -- "-&gt;aggregate\(" app --glob '*.php'
+
+# 4) 按主键查询
+rg -n "findByID\(" app --glob '*.php'
+
+# 5) 循环内查库（N+1 粗筛，需人工确认）
+rg -n "foreach" app/Repositories --glob '*.php' | wc -l
+
+# 6) 读从库路由
+rg -n "::on\(" app --glob '*.php'
+</code></pre>
+<h2 id="3-高危项明细-真实命中样例">3. 高危项明细（真实命中样例）</h2>
+<h3 id="3-1-超大-limit-全表拉取-45-处-风险高">3.1 超大 limit 全表拉取（45+ 处，风险高）</h3>
+<p><code>find($query, $fields, $sort, $skip, $limit)</code> 的 limit 被写成 9999999 / 99999999，等于全量拉取。无索引或大集合时会造成长时间 COLLSCAN + 内存暴涨。</p>
+<p>典型命中：</p>
+<pre><code class="language-text">app/Services/Common/ChannelSyncService.php:83      ReportChannelDeductedDayLogModel::find([], [], ['date'=&gt;1], 0, 9999999)
+app/Services/Common/ChannelDeductionService.php:307 ReportChannelDayLogModel::find([], ['date'], [], 0, 9999999)
+app/Services/Common/MessageService.php:489           ::find([...], [], ['publish_at'=&gt;-1], 0, 99999999)
+app/Channel/Repositories/MaterialRepository.php:25   ChannelMaterialModel::find($query, [], ['created_at'=&gt;-1], 0, 9999999)
+app/Channel/Repositories/DomainRepository.php:12/38  ChannelDomainModel::find($query, [], ['created_at'=&gt;-1], 0, 9999999)
+app/Services/Sdk/UserProductService.php:47/288       UserProductModel::find([], [], ["sort"=&gt;1], 0, 1000)
+app/Services/Sdk/UserService.php:1456-1478           UserCharge/UserSpend/AccountDetail find(..., 0, 10000)
+app/Jobs/Report/CoinOverviewDayJob.php:204/329       GameModel::find([], ['_id','title'], [], 0, 99999999)
+app/Jobs/Common/GameReserveNotifyJob.php:21/44/56    GameReserveModel::find(..., 0, 99999999)
+app/Repositories/Backend/RankLeaderboardRepository.php:245/314  UserModel::find(['_id'=&gt;['$in'=&gt;...]], ..., 0, 99999999)
+app/Repositories/Api(V1)/MessageRepository.php       ::find(..., 0, 99999999)
+</code></pre>
+<p>处理建议：</p>
+<ul>
+<li>后端报表/导出等确实需要全量的场景：改为游标/分批（<code>find</code> 加时间范围或 <code>_id</code> 游标 + 每批 1000），不要一次 99999999。</li>
+<li>业务查询：加分页 limit + skip；无分页需求的加业务条件（状态、日期、渠道）后再取。</li>
+<li>全部 <code>9999999/99999999</code> 处由开发逐条确认用途后改分批或加条件。</li>
+</ul>
+<h3 id="3-2-无条件-find-6-处-风险高">3.2 无条件 find（6 处，风险高）</h3>
+<pre><code class="language-text">app/Repositories/Backend/UserFeedbackListRepository.php:88  UserFeedbackCategoryModel::find([])
+app/Channel/Services/ChannelReportService.php:356           ChannelDomainModel::find()
+app/Channel/Services/ChannelReportService.php:375           ChannelMaterialModel::find()
+app/Channel/Services/DataSyncService.php:102                 ChannelDomainModel::find()
+app/Channel/Services/DataSyncService.php:158                 ChannelMaterialModel::find()
+app/Repositories/Backend/PaymentChannelRepository.php:190   PaymentChannelsModel::find()
+</code></pre>
+<p>处理建议：</p>
+<ul>
+<li>确认集合量级；数据量大时无条件 find 即使默认 limit=10 也可能无索引扫描。</li>
+<li>建议 <code>MongoModel</code> 层对 <code>find([], ...)</code> 且未显式传 limit 的调用加日志或限制。</li>
+</ul>
+<h3 id="3-3-报表聚合-29-处调用-风险中高">3.3 报表聚合（29 处调用，风险中高）</h3>
+<p>命中文件：</p>
+<pre><code class="language-text">app/Jobs/Report/ReportHourJob.php
+app/Jobs/Report/ReportServerJob.php
+app/Jobs/Report/TotalMinuteJob.php
+app/Jobs/Report/TotalOldDayJob.php
+app/Jobs/Report/VipOrCoinTotalMinuteJob.php
+app/Jobs/Report/VipOrCoinTotalOldDayJob.php
+app/Repositories/Backend/UserSpendRepository.php
+</code></pre>
+<p>特点：<code>::on(MONGODB_SLAVE_2)-&gt;aggregate($pipeline)</code> 走从库（读压力分流正确）；但 pipeline 是否带 <code>$match</code> 时间窗、<code>$limit</code>、<code>allowDiskUse</code> 需逐条核验。本次扫描未发现报表 Job 中显式 <code>$limit</code> 阶段（0 命中），大范围聚合（如全量留存、全量日报）可能长时间占用从库。</p>
+<p>处理建议：</p>
+<ul>
+<li>每个 pipeline 必须带时间范围 <code>$match</code>（如 <code>create_time &gt;= 昨日零点</code>）。</li>
+<li>聚合超过 100MB 内存需显式 <code>allowDiskUse: true</code>。</li>
+<li>报表 Job 错峰执行，避免多个大聚合同时跑。</li>
+<li>建议开发在 aggregate 调用处统一封装：强制 <code>$match</code> 时间窗 + 可选 <code>$limit</code>。</li>
+</ul>
+<h3 id="3-4-findByID-透传类型-需核验-风险中">3.4 findByID 透传类型（需核验，风险中）</h3>
+<p><code>MongoModel::findByID($id, $idName='_id')</code> 直接把入参当过滤值透传，不自动转 <code>MongoDB\BSON\ObjectId</code>。若业务 <code>_id</code> 是整型自增（<code>getInsertId</code> 生成）则传 <code>intval()</code> 正确；若部分是 ObjectId 则传字符串会查不到或全表扫描。</p>
+<p>命中样例：</p>
+<pre><code class="language-text">UserModel::findByID($user)                     // 字符串/整型混合，需核验
+UserGroupModel::findByID(intval($order['product_id']))
+ReportAdvLogModel::findByID($idValue)
+MessageCenterModel::findByID($messageId)
+</code></pre>
+<p>处理建议：</p>
+<ul>
+<li>明确各集合 <code>_id</code> 类型（自增 int / ObjectId），在 <code>findByID</code> 内部按模型声明做类型归一，避免透传。</li>
+<li>建议 <code>MongoModel</code> 增加 <code>$idType = 'int'|'objectid'|'string'</code> 静态属性，<code>findByID</code> 自动转换。</li>
+</ul>
+<h3 id="3-5-大字段-全量配置进-Redis-缓存-风险中">3.5 大字段/全量配置进 Redis 缓存（风险中）</h3>
+<ul>
+<li>历史事故：<code>config.vip_growth_rule</code> 3.6MB 富文本被整包合并进 <code>18game_system_config</code> 单 key，Redis GET 单次 93s，全站 504（2026-08-17 已修复，缓存降至 8.6KB）。</li>
+<li>现状仍存在配置类服务 <code>getAll()</code> 整包缓存 + <code>cache()-&gt;set(..., 99999999)</code> 长 TTL 模式：</li>
+</ul>
+<pre><code class="language-text">app/Services/Common/ConfigService.php（getAll 整包合并缓存）
+app/Services/Common/ConfigDictService.php:30   cache()-&gt;set($cacheKey, $dict, 99999999)
+app/Services/User/UserTaskService.php:92/160    cache()-&gt;set($cacheKey, $config/tasks, 99999999)
+app/Repositories/Api(V1)/TrackingPositionConfigRepository.php:52  cache()-&gt;set(..., 99999999)
+app/Repositories/Api(V1)/AnnouncementRepository.php:44            cache()-&gt;set(..., 99999999)
+app/Repositories/Api(V1)/MarqueeRepository.php:32                 cache()-&gt;set(..., 99999999)
+</code></pre>
+<p>处理建议：</p>
+<ul>
+<li>配置类缓存设置单 key 大小上限（如 &gt;200KB 告警），富文本/大 JSON 不合并进统一配置 key。</li>
+<li><code>99999999</code> 长 TTL 改为合理 TTL（如配置类 5-30 分钟 + 主动失效），避免脏数据永久滞留。</li>
+<li>定期用 <code>redis-cli --bigkeys</code> + <code>MEMORY USAGE</code> 巡检。</li>
+</ul>
+<h3 id="3-6-循环内查库-N-1-需人工确认">3.6 循环内查库（N+1，需人工确认）</h3>
+<p>Repositories 层 <code>foreach</code> 出现 350 处，不能直接判定全部是 N+1，但以下模式需重点核验：</p>
+<pre><code class="language-text">foreach (...) { Model::findByID(...) }      // 逐条主键查询
+foreach (...) { Model::findFirst([...]) }   // 逐条条件查询
+foreach (...) { cache()-&gt;get(...) }         // 逐条缓存读（可接受但可批量化）
+</code></pre>
+<p>处理建议：</p>
+<ul>
+<li>批量化：<code>find(['_id' =&gt; ['$in' =&gt; $ids]])</code>、<code>find(['user_id' =&gt; ['$in' =&gt; $ids]])</code> 代替循环查库。</li>
+<li>循环内缓存读可接受，但热点接口建议 pipeline 批量。</li>
+</ul>
+<h2 id="4-MongoModel-兜底防线-建议-C1-改动-需测试环境验证">4. MongoModel 兜底防线（建议 C1 改动，需测试环境验证）</h2>
+<pre><code class="language-php">// app/Core/Mongodb/MongoModel.php 增加统一拦截
+public static function find($query = [], $fields = [], $sort = [], $skip = 0, $limit = 10)
+{
+    // 防线 1：无条件且未显式 limit 时告警（默认 limit 已是 10，但避免隐式全表）
+    if (empty($query) &amp;&amp; func_num_args() &lt; 5) {
+        LogUtil::warning('mongo_find_without_filter', [
+            'model' =&gt; static::class,
+            'trace' =&gt; debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5),
+        ]);
+    }
+    // 防线 2：limit 超大时拒绝（除显式白名单的批量任务）
+    if ($limit &gt; 20000) {
+        LogUtil::warning('mongo_find_huge_limit', [
+            'model' =&gt; static::class, 'limit' =&gt; $limit,
+        ]);
+        // 可配置成 throw 或仅告警
+    }
+    // 防线 3：findByID 按 $idType 归一化
+    ...
+}
+</code></pre>
+<p>说明：该改动属于 C1 级（测试环境验证、备份、可回滚），上线前先在测试环境跑全量回归，确认无业务依赖超大 limit 后放开。</p>
+<h2 id="5-建议落地动作">5. 建议落地动作</h2>
+<ol>
+<li>在测试库开启 profiling（<code>slowms=150</code>）跑一周，导出 <code>system.profile</code> 按 collection 归因 Top 慢查询。</li>
+<li><code>redis-cli --bigkeys</code> + <code>INFO memory/stats</code> 扫大 key 与无 TTL key。</li>
+<li>代码层按本文档 3.1-3.6 逐条核验，输出《高危查询修复清单》给开发。</li>
+<li>修复顺序建议：3.1 超大 limit → 3.2 无条件查询 → 3.5 配置缓存 → 3.3 聚合 → 3.4/3.6。</li>
+<li>在测试环境对每个修复项做 explain + 压测对比，确认后随后端发版。</li>
+</ol>
+<h2 id="6-说明">6. 说明</h2>
+<ul>
+<li>本清单基于 <code>root/18game_php.git</code> dev 分支静态扫描，行号为扫描时点，后续代码变动请以最新仓库为准。</li>
+<li>未接入真实库执行 explain；具体集合数据量、索引情况需在测试库二次确认。</li>
+<li>不涉及线上写操作，全部为只读检查与建议。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-结论速览">1. 结论速览</a></li><li style="margin-left:0.0rem"><a href="#2-检查方法-可直接复跑">2. 检查方法（可直接复跑）</a></li><li style="margin-left:0.0rem"><a href="#3-高危项明细-真实命中样例">3. 高危项明细（真实命中样例）</a></li><li style="margin-left:0.8rem"><a href="#3-1-超大-limit-全表拉取-45-处-风险高">3.1 超大 limit 全表拉取（45+ 处，风险高）</a></li><li style="margin-left:0.8rem"><a href="#3-2-无条件-find-6-处-风险高">3.2 无条件 find（6 处，风险高）</a></li><li style="margin-left:0.8rem"><a href="#3-3-报表聚合-29-处调用-风险中高">3.3 报表聚合（29 处调用，风险中高）</a></li><li style="margin-left:0.8rem"><a href="#3-4-findByID-透传类型-需核验-风险中">3.4 findByID 透传类型（需核验，风险中）</a></li><li style="margin-left:0.8rem"><a href="#3-5-大字段-全量配置进-Redis-缓存-风险中">3.5 大字段/全量配置进 Redis 缓存（风险中）</a></li><li style="margin-left:0.8rem"><a href="#3-6-循环内查库-N-1-需人工确认">3.6 循环内查库（N+1，需人工确认）</a></li><li style="margin-left:0.0rem"><a href="#4-MongoModel-兜底防线-建议-C1-改动-需测试环境验证">4. MongoModel 兜底防线（建议 C1 改动，需测试环境验证）</a></li><li style="margin-left:0.0rem"><a href="#5-建议落地动作">5. 建议落地动作</a></li><li style="margin-left:0.0rem"><a href="#6-说明">6. 说明</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-09-01</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Redis</span><span class="tag">监控告警</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-09-01_1700-【性能排查】MongoModel代码层数据库性…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609011700-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E3%80%90%E6%80%A7%E8%83%BD%E6%8E%92%E6%9F%A5%E3%80%91MongoModel%20%E4%BB%A3%E7%A0%81%E5%B1%82%E6%95%B0%E6%8D%AE%E5%BA%93%E6%80%A7%E8%83%BD%E9%9A%90%E6%82%A3%E6%A3%80%E6%9F%A5%E6%B8%85%E5%8D%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【性能排查】MongoModel 代码层数据库性能隐患检查清单。本文属于历史运维与项目交付 / 18Game 测试环境，环境标签：测试环境 / 后端 / MongoDB / MongoModel / 性能隐患 后端数据层为自研 App\Core\Mongodb\MongoModel （基于 PHP 官方 Mong…</p>
+      <p>关键词：18Game 测试环境、Shell、Python、Redis、监控告警、安全运维、故障排查、数据库恢复、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、【性能排查】MongoModel 代码层数据库性能隐患检查清单、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a3610005e2e1.html"><small>上一篇</small>【发布记录】游点涩线上新H5 0b44d11 发布与证书 map 回归修复</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ecd778fefb3a.html"><small>下一篇</small>【性能排查】测试环境 MongoModel 巡检 · 风险逐条清单</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-596495a30b93.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
