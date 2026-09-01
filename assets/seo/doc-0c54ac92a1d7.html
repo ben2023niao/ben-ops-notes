@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>2026-09-02 香港静态域名 CORS 按 Origin 精确回显修复记录（02-05 串源）｜历史运维与项目交付 / 香港 CN｜BEN.OPS</title>
+  <meta name="description" content="2026-09-02 香港静态域名 CORS 按 Origin 精确回显修复记录（02-05 串源）。本文属于历史运维与项目交付 / 香港 CN，时间：2026-09-02 17:55（Asia/Manila） 项目：DBQP / PGServer cn（香港入口） 范围：修复 .hkcloudplay01-05…">
+  <meta name="keywords" content="香港 CN，Docker，Nginx，CDN，安全运维，故障排查，数据库恢复，源码与配置，历史运维与项目交付，历史运维与项目交付 / 香港 CN">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0c54ac92a1d7.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0c54ac92a1d7.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609021755-%E9%A6%99%E6%B8%AF%20CN%2BDocker%2BNginx-2026-09-02%20%E9%A6%99%E6%B8%AF%E9%9D%99%E6%80%81%E5%9F%9F%E5%90%8D%20CORS%20%E6%8C%89%20Origin%20%E7%B2%BE%E7%A1%AE%E5%9B%9E%E6%98%BE%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95%EF%BC%8802-05%20%E4%B8%B2%E6%BA%90%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="2026-09-02 香港静态域名 CORS 按 Origin 精确回显修复记录（02-05 串源）">
+  <meta property="og:description" content="2026-09-02 香港静态域名 CORS 按 Origin 精确回显修复记录（02-05 串源）。本文属于历史运维与项目交付 / 香港 CN，时间：2026-09-02 17:55（Asia/Manila） 项目：DBQP / PGServer cn（香港入口） 范围：修复 .hkcloudplay01-05…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0c54ac92a1d7.html">
+  <meta property="article:published_time" content="2026-09-02T17:55:00+08:00">
+  <meta property="article:modified_time" content="2026-09-02 17:55">
+  <meta property="article:section" content="历史运维与项目交付 / 香港 CN">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="2026-09-02 香港静态域名 CORS 按 Origin 精确回显修复记录（02-05 串源）">
+  <meta name="twitter:description" content="2026-09-02 香港静态域名 CORS 按 Origin 精确回显修复记录（02-05 串源）。本文属于历史运维与项目交付 / 香港 CN，时间：2026-09-02 17:55（Asia/Manila） 项目：DBQP / PGServer cn（香港入口） 范围：修复 .hkcloudplay01-05…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0c54ac92a1d7.html#article","headline":"2026-09-02 香港静态域名 CORS 按 Origin 精确回显修复记录（02-05 串源）","description":"2026-09-02 香港静态域名 CORS 按 Origin 精确回显修复记录（02-05 串源）。本文属于历史运维与项目交付 / 香港 CN，时间：2026-09-02 17:55（Asia/Manila） 项目：DBQP / PGServer cn（香港入口） 范围：修复 .hkcloudplay01-05…","datePublished":"2026-09-02T17:55:00+08:00","dateModified":"2026-09-02 17:55","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","香港 CN"],"keywords":["香港 CN","Docker","Nginx","CDN","安全运维","故障排查","数据库恢复","源码与配置","历史运维与项目交付","历史运维与项目交付 / 香港 CN"],"wordCount":1678,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0c54ac92a1d7.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0c54ac92a1d7.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 香港 CN","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-09-02 香港静态域名 CORS 按 Origin 精确回显修复记录（02-05 串源）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0c54ac92a1d7.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 香港 CN</span> › <span>2026-09-02 香港静态域名 CORS 按 Origin 精确回显修复记录（02-05 串源）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 香港 CN</div>
+      <h1>2026-09-02 香港静态域名 CORS 按 Origin 精确回显修复记录（02-05 串源）</h1>
+      <p class="lede">2026-09-02 香港静态域名 CORS 按 Origin 精确回显修复记录（02-05 串源）。本文属于历史运维与项目交付 / 香港 CN，时间：2026-09-02 17:55（Asia/Manila） 项目：DBQP / PGServer cn（香港入口） 范围：修复 .hkcloudplay01-05…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-02T17:55:00+08:00">发布于 2026-09-02</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,678 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/cn/docker/doc/2026-09-02-1755-【网络调整】香港静态域名CORS按Origin回显修复记录.md</code></p>
+<p>整理日期：2026-09-02 17:55｜日期依据：文件名日期</p>
+</blockquote>
+<p>时间：2026-09-02 17:55（Asia/Manila）
+项目：DBQP / PGServer cn（香港入口）
+范围：修复 .hkcloudplay01-05.com 静态域名 CORS 仅 01 可用、02-05 不可用的问题
+执行：Codex（本地工作区 + 香港入口机 34.92.13.108）</p>
+<h2 id="一-现象与根因">一、现象与根因</h2>
+<pre><code class="language-text">现象：用户实测 pg-games.hkcloudplay01.com 游戏页加载同 zone 静态正常，
+      02-05 全部失败。
+初步定位：CloudFront 缓存键不含 Origin 头。zone01 首次请求的响应
+  （ACAO=https://pg-games.hkcloudplay01.com）被缓存，02-05 命中同一缓存对象，
+  返回的 ACAO 不是请求方 Origin，游戏客户端严格解析 ACAO 失败。
+实测证据：zone02-05 GET/OPTIONS 均 x-cache=Hit 且 ACAO 为 zone01 的 Origin。
+</code></pre>
+<h2 id="二-约束与尝试">二、约束与尝试</h2>
+<pre><code class="language-text">香港 AWS IAM（dbqp-hk-nginx-ai）权限受限：
+  - cloudfront:CreateResponseHeadersPolicy 拒绝；
+  - cloudfront:CreateFunction 拒绝；
+  - cloudfront:CreateCachePolicy 拒绝。
+尝试过的路径：
+  1) CloudFront Function viewer-response 按请求 Origin 覆盖 ACAO -&gt; 无建函数权限；
+  2) 现成自定义缓存策略 UseOriginCacheControlHeaders(-QueryStrings)
+     （缓存键含 Origin）-&gt; 该策略会把 Host 头转发给 S3 源，破坏虚拟主机路由，
+     17 分配全部 404，已回退；
+  3) 最终采用 Managed-CachingDisabled：静态分配不缓存，每次请求回源 S3，
+     S3 显式 CORS（43 Origin）按请求方精确回显，无跨 Origin 缓存串源。
+</code></pre>
+<h2 id="三-最终配置-17-个静态分配">三、最终配置（17 个静态分配）</h2>
+<pre><code class="language-text">- OriginRequestPolicyId：88a5eaf4-2fd4-4709-b370-b4c650ea3fcf（CORS-CustomOrigin）；
+- ResponseHeadersPolicyId：""（移除 Managed-CORS-With-Preflight 通配策略）；
+- CachePolicyId：4135ea2d-6df8-44a3-9df3-4b5a84be39ad（Managed-CachingDisabled）；
+- S3 桶 CORS：AllowedOrigins=43 项显式（2026-09-02-1735 文档已记录）；
+- nginx 静态兜底：显式 map 回显（2026-09-02-1735 文档已记录）。
+工具：docker/deploy/hongkong/configure_cloudfront_static_cors.py
+  （幂等：检查 ORP/RHP/CachePolicy 三项，不符即更新）。
+</code></pre>
+<h2 id="四-验证结果">四、验证结果</h2>
+<pre><code class="language-text">1. zone 01-05：pg-games.hkcloudplay0X Origin -&gt; pg7-static.hkcloudplay0X
+   GET 全 200 且 ACAO 精确等于请求 Origin（Miss from cloudfront）；
+2. 同一 URL 交叉 5 种允许 Origin：每次返回各自 Origin，无串源；
+3. OPTIONS 预检 01-05：200 + 精确 ACAO；
+4. 非法 Origin：GET 200 无 ACAO；OPTIONS 403 拦截；
+5. 70 静态域名（14 前缀×5）GET 带 ind-h5 Origin：70/70 精确回显；
+6. 真实文件 200 无回归；动态接口保持后端 CORS（未动）。
+</code></pre>
+<h2 id="飞机群通知-message_id">飞机群通知 message_id</h2>
+<pre><code class="language-text">4790：根因定位与方案（1/4）
+4791：缓存策略切换落地（2/4）
+4795：Host 转发 404 发现与无缓存方案（3/4）
+4800：验证通过（4/4）
+4801：文档附件
+4802：汇总
+4803：提交结果（本地 commit 56dac52c，未 Push）
+</code></pre>
+<h2 id="回滚-遗留">回滚 / 遗留</h2>
+<pre><code class="language-text">回滚：将 17 个静态分配 CachePolicyId 改回 658327ea（Managed-CachingOptimized）
+  即恢复缓存（但会重现串源问题，需配合其它方案）。
+遗留/后续建议：
+  - 静态域名当前不启用 CF 边缘缓存（逐请求回源）。正确性优先；
+    恢复缓存两条路径：
+    a) IAM 增加 cloudfront:CreateCachePolicy/UpdateCachePolicy，创建
+       “缓存键仅含 Origin、TTL 正常、不转发 Host”的自定义缓存策略；
+    b) 给 S3 对象补 Cache-Control 元数据并配合含 Origin 缓存键策略
+       （注意该策略不能转发 Host）；
+  - 新增门户域名时同步更新 S3 桶规则、nginx map、本工具缓存/回显清单。
+</code></pre>
+<h2 id="相关文档-互链">相关文档（互链）</h2>
+<pre><code class="language-text">同日总览：2026-09-02-1711-【运维总览】20260902全量操作与架构改造汇总记录.md
+显式来源改造：2026-09-02-1735-【网络调整】香港静态域名CORS显式来源改造与动态还原记录.md
+预检修复前序：2026-09-02-1658-【网络调整】香港静态域名CORS预检修复与git直连同步协同记录.md
+</code></pre>
+<h2 id="附-老游戏静态-CORS-扩展-2026-09-02-18-54">附：老游戏静态 CORS 扩展（2026-09-02 18:54）</h2>
+<pre><code class="language-text">触发：pg4-static/shared/3c4695a542/index.json 被老游戏页面请求时报跨域。
+处理：S3 桶 CORS AllowedOrigins 与 nginx map 由 43 项精确改为“按域名根模式”：
+  https://*.hkcloudplay01.com ~ ...05.com、https://*.hkplaycore.com、
+  https://*.dbqpplus999.com（另加 https://dbqpplus999.com 根域条目）。
+S3 对命中模式返回 Access-Control-Allow-Origin=请求方精确值 + credentials:true
+（无 ACAO:*）。覆盖老游戏/未来任意一级子域页面 Origin。
+验证：报告 URL 对 ind-h5.dbqpplus999.com、pg-games.hkcloudplay0X 等均 200+精确 ACAO；
+  任意一级子域（legacy-game.hkcloudplay01.com 等）CF/S3 精确回显；非法 Origin 拦截。
+已知边界（S3 模式行为，暂无实际页面使用）：多级子域（a.b.dbqpplus999.com）与
+  裸根域（dbqpplus999.com）S3 直连不匹配；如需支持需逐条精确加入。
+复测入口：https://ind-h5.dbqpplus999.com/pgonline/
+工具：configure_s3_bucket_cors.py（allowed_origins 返回 8 条根模式）。
+群通知：4825 方案 / 4826 验证 / 4827 文档 v2 / 4828 汇总 / 4829 提交结果（commit 161d439d，未 Push）
+</code></pre>
+<h2 id="附二-自有随机子域放开-ACAO-2026-09-02-19-00">附二：自有随机子域放开 ACAO *（2026-09-02 19:00）</h2>
+<pre><code class="language-text">用户测试域：games-cf.nuvastone.com（Cloudflare）、games-aws.cxkerui.com（自有 CF）；
+页面子域随机，用户明确要求这些根域放开为 ACAO *。
+处理：S3 桶 CORS 改为两条规则——
+  规则1（在前）：hkcloudplay01-05.com / hkplaycore.com / dbqpplus999.com
+    根模式 + 根域，命中后精确回显请求 Origin（credentials:true）；
+  规则2（兜底）：AllowedOrigins ["*"]，命中任意其它 Origin（含 nuvastone.com /
+    cxkerui.com 随机子域）返回 ACAO:*（GET；OPTIONS 由 S3 回显请求 Origin）。
+nginx map：nuvastone/cxkerui 任意子域映射 "*"，平台根域继续精确回显。
+验证：games-cf.nuvastone.com / games-aws.cxkerui.com / 任意随机子域
+  CF 与 S3 直连均 200 + ACAO:*；ind-h5/pg-games.*/games.hkplaycore.com 精确回显；
+  OPTIONS 200。
+注意：兜底 * 也作用于其它未列 Origin（静态资源本就公开，风险可控）；
+  若阿里云 CDN（pg4-static-ali.shangdefu.com）侧仍回 *，属其边缘配置，
+  与我方 S3/CF 无关。
+工具：configure_s3_bucket_cors.py（cors_rules 2 条）、nginx map。
+</code></pre>
+<h2 id="附三-其它域名统一放开-ACAO-2026-09-02-19-01">附三：其它域名统一放开 ACAO *（2026-09-02 19:01）</h2>
+<pre><code class="language-text">用户要求其它域名也按同样方式放开（其页面/接口子域随机）。
+处理：nginx 静态兜底 map default 由 "" 改为 "*"（平台根域精确回显规则保持在前），
+  与 S3 桶 CORS 规则2（兜底 AllowedOrigins ["*"]）一致。
+验证：任意 Origin（nuvastone.com / cxkerui.com / 其它测试域）在我方静态
+  CloudFront 与 S3 直连均 200 + ACAO:*（切换初期一次残留缓存复测后正常）；
+  平台根域（ind-h5 / pg-games.* / games.hkplaycore.com）仍精确回显；
+  阿里云 CDN（pg4-static-ali.shangdefu.com）边缘由该 CDN 配置返回 ACAO:*。
+注意：ACAO:* 下浏览器不再校验具体来源（资源本身公开）；若仍打不开，排查
+  静态资源实际是否存在（阿里云回源/路径）或控制台其它报错。
+群通知：4830 分析 / 4831 域名定位 / 4832 验证（附二）/ 4833 文档 v3 /
+  4834 其它域名验证 / 4835 汇总 / 4836 提交结果（commit 18f8bc03，未 Push）
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-现象与根因">一、现象与根因</a></li><li style="margin-left:0.0rem"><a href="#二-约束与尝试">二、约束与尝试</a></li><li style="margin-left:0.0rem"><a href="#三-最终配置-17-个静态分配">三、最终配置（17 个静态分配）</a></li><li style="margin-left:0.0rem"><a href="#四-验证结果">四、验证结果</a></li><li style="margin-left:0.0rem"><a href="#飞机群通知-message_id">飞机群通知 message_id</a></li><li style="margin-left:0.0rem"><a href="#回滚-遗留">回滚 / 遗留</a></li><li style="margin-left:0.0rem"><a href="#相关文档-互链">相关文档（互链）</a></li><li style="margin-left:0.0rem"><a href="#附-老游戏静态-CORS-扩展-2026-09-02-18-54">附：老游戏静态 CORS 扩展（2026-09-02 18:54）</a></li><li style="margin-left:0.0rem"><a href="#附二-自有随机子域放开-ACAO-2026-09-02-19-00">附二：自有随机子域放开 ACAO *（2026-09-02 19:00）</a></li><li style="margin-left:0.0rem"><a href="#附三-其它域名统一放开-ACAO-2026-09-02-19-01">附三：其它域名统一放开 ACAO *（2026-09-02 19:01）</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 香港 CN</li>
+          <li>日期：2026-09-02</li>
+          <li>标签：<span class="tag">香港 CN</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">CDN</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/cn/docker/doc/2026-09-02-1755-【网络调整】香港静态域名CORS按Origin回显修复记录…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609021755-%E9%A6%99%E6%B8%AF%20CN%2BDocker%2BNginx-2026-09-02%20%E9%A6%99%E6%B8%AF%E9%9D%99%E6%80%81%E5%9F%9F%E5%90%8D%20CORS%20%E6%8C%89%20Origin%20%E7%B2%BE%E7%A1%AE%E5%9B%9E%E6%98%BE%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95%EF%BC%8802-05%20%E4%B8%B2%E6%BA%90%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>2026-09-02 香港静态域名 CORS 按 Origin 精确回显修复记录（02-05 串源）。本文属于历史运维与项目交付 / 香港 CN，时间：2026-09-02 17:55（Asia/Manila） 项目：DBQP / PGServer cn（香港入口） 范围：修复 .hkcloudplay01-05…</p>
+      <p>关键词：香港 CN、Docker、Nginx、CDN、安全运维、故障排查、数据库恢复、源码与配置、历史运维与项目交付、历史运维与项目交付 / 香港 CN</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6e140dd5268a.html"><small>上一篇</small>2026-09-02 香港静态域名 CORS 显式来源改造与动态还原记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4e6c8afae06f.html"><small>下一篇</small>2026-09-02 全量操作详细记录（总览）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0c54ac92a1d7.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
