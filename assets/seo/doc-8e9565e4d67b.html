@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【补静态资源】PP static 巴西/香港 GCS 双区 + 香港 S3 同步记录｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
+  <meta name="description" content="【补静态资源】PP static 巴西/香港 GCS 双区 + 香港 S3 同步记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-08 18:35（Asia/Manila） 项目：DBQP / PGServer master（巴西 GCS + 香港/东京 asia + 香港 S3/CloudF…">
+  <meta name="keywords" content="巴西主站，Shell，CDN，安全运维，数据库恢复，源码与配置，历史运维与项目交付，历史运维与项目交付 / 巴西主站，【补静态资源】PP static 巴西/香港 GCS 双区 + 香港 S3 同步记录">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8e9565e4d67b.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8e9565e4d67b.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609081835-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BCDN-%E3%80%90%E8%A1%A5%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E3%80%91PP%20static%20%E5%B7%B4%E8%A5%BF-%E9%A6%99%E6%B8%AF%20GCS%20%E5%8F%8C%E5%8C%BA%20%2B%20%E9%A6%99%E6%B8%AF%20S3%20%E5%90%8C%E6%AD%A5%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【补静态资源】PP static 巴西/香港 GCS 双区 + 香港 S3 同步记录">
+  <meta property="og:description" content="【补静态资源】PP static 巴西/香港 GCS 双区 + 香港 S3 同步记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-08 18:35（Asia/Manila） 项目：DBQP / PGServer master（巴西 GCS + 香港/东京 asia + 香港 S3/CloudF…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8e9565e4d67b.html">
+  <meta property="article:published_time" content="2026-09-08T18:35:00+08:00">
+  <meta property="article:modified_time" content="2026-09-08 18:35">
+  <meta property="article:section" content="历史运维与项目交付 / 巴西主站">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【补静态资源】PP static 巴西/香港 GCS 双区 + 香港 S3 同步记录">
+  <meta name="twitter:description" content="【补静态资源】PP static 巴西/香港 GCS 双区 + 香港 S3 同步记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-08 18:35（Asia/Manila） 项目：DBQP / PGServer master（巴西 GCS + 香港/东京 asia + 香港 S3/CloudF…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8e9565e4d67b.html#article","headline":"【补静态资源】PP static 巴西/香港 GCS 双区 + 香港 S3 同步记录","description":"【补静态资源】PP static 巴西/香港 GCS 双区 + 香港 S3 同步记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-08 18:35（Asia/Manila） 项目：DBQP / PGServer master（巴西 GCS + 香港/东京 asia + 香港 S3/CloudF…","datePublished":"2026-09-08T18:35:00+08:00","dateModified":"2026-09-08 18:35","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","CDN","安全运维","数据库恢复","源码与配置","历史运维与项目交付","历史运维与项目交付 / 巴西主站","【补静态资源】PP static 巴西/香港 GCS 双区 + 香港 S3 同步记录"],"wordCount":964,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8e9565e4d67b.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8e9565e4d67b.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【补静态资源】PP static 巴西/香港 GCS 双区 + 香港 S3 同步记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8e9565e4d67b.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 巴西主站</span> › <span>【补静态资源】PP static 巴西/香港 GCS 双区 + 香港 S3 同步记录</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
+      <h1>【补静态资源】PP static 巴西/香港 GCS 双区 + 香港 S3 同步记录</h1>
+      <p class="lede">【补静态资源】PP static 巴西/香港 GCS 双区 + 香港 S3 同步记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-08 18:35（Asia/Manila） 项目：DBQP / PGServer master（巴西 GCS + 香港/东京 asia + 香港 S3/CloudF…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-08T18:35:00+08:00">发布于 2026-09-08</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">964 字</span>
+        <span class="badge">3 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-09-08-1835-【补静态资源】PP巴西香港GCS双区与S3同步记录.md</code></p>
+<p>整理日期：2026-09-08 18:35｜日期依据：文件名日期</p>
+</blockquote>
+<p>时间：2026-09-08 18:35（Asia/Manila）
+项目：DBQP / PGServer master（巴西 GCS + 香港/东京 asia + 香港 S3/CloudFront）
+结果：✅ ppstatic 3012 文件 / 2.47GB 双区三路 + 香港 S3 同步完成并公网验证</p>
+<h2 id="一-任务与来源">一、任务与来源</h2>
+<pre><code class="language-text">用户要求：巴西和香港都更新静态资源文件。
+Ben(C++)：静态资源已推到 client.git master：
+  e8556a76（17:26 ppstatic，3012 文件）
+  c0c5887c2（17:20 tadastatic3，1 文件）
+提示涉及目录：ppstatic + tadastatic(0-5)。
+</code></pre>
+<h2 id="二-范围核验">二、范围核验</h2>
+<pre><code class="language-text">client.git 基线 last-synced b7d5a20d → 新 HEAD e8556a76。
+实际差异：
+  ppstatic +3012 文件（vs10crownfire / vs10santasl 等新 PP 游戏包，约 2.47GB）；
+  tadastatic3 +1 文件（cai/assets/game/index.73b5e.js）；
+  tadastatic/1/2 无差异。
+
+tadastatic3/4/5（git 中约 49,158 文件）当前没有线上桶、域名、游戏分组配置：
+  GCS 仅 dbqp-gcs-tada-statics/1/2(+sa)，无 tada-statics3-5；
+  平台配置 tada.json 仅 v1/v2 两组；香港 S3 同步映射同样只到 2。
+  因此本次不创建新桶/新域名，未把 3-5 纳入同步（待确认是否上线新 TADA 包）。
+</code></pre>
+<h2 id="三-执行">三、执行</h2>
+<h3 id="1-GCS-三路上传-pp-static">1. GCS 三路上传（pp-static）</h3>
+<pre><code class="language-text">官方 git_static_gcs_sync.py 触发增量同步时，git archive 走 blobless 大包
+拉取在约 16MB 处持续卡死（多次复现）；且 30 分钟 cron 自动全量巡检会并发。
+已暂停 cron 并清场，改为逐 blob 物化后 gcloud rsync：
+  3012 文件 / 2,466,810,048 bytes，18s 零失败。
+目标：
+  巴西 LIVE    dbqp-gcs-pp-static-sa      （71.4 MiB/s）
+  香港/东京 asia dbqp-gcs-pp-static        （23.2 MiB/s）
+  backup       dbqp-game-statics-gcs/pp-static（23.5 MiB/s）
+  合计 3012×3 = 9036 个对象全部完成。
+</code></pre>
+<h3 id="2-CDN-预热">2. CDN 预热</h3>
+<pre><code class="language-text">按 20-zone 全池预热 HTML/JS/CSS/JSON（单 zone 上限 120 URL）：
+  20/20 zone，每 zone 120/120 verified cf-cache-status=HIT。
+</code></pre>
+<h3 id="3-香港-S3-CloudFront-hkcloudplay">3. 香港 S3 + CloudFront（hkcloudplay）</h3>
+<pre><code class="language-text">香港机执行 sync-gcs-to-s3 pp-static（GCS asia → S3 dbqp-h5-hk-517506432530）：
+  source_count=28897 / destination_count=28897
+  bytes=20,940,357,623 两边一致，sync_complete。
+</code></pre>
+<h2 id="四-验证">四、验证</h2>
+<pre><code class="language-text">PP 新游戏样例 vs10crownfire/desktop/bootstrap.js：
+  -sa 直连 200 / asia 直连 200 / backup 200
+  pp-static.cdn-tokyo-dbqp.icu 200（当前配置活跃域）
+  pp-static.hkcloudplay01-05.com 5/5 200
+
+遗留说明：预探测时在 pp-static.xqv9m8.icu 留下 1 条旧 404 缓存
+（cf-cache-status=HIT，当前无 cache-purge 权限 token）；该 zone 不在当前
+platform-api 活跃 static_hosts（pp.json 为 cdn-tokyo-dbqp），不影响主链路，
+后续取得 purge 权限后可定点清除。
+</code></pre>
+<h2 id="五-收尾">五、收尾</h2>
+<pre><code class="language-text">- last-synced-master.sha 已更新为 e8556a76，30 分钟 cron 已恢复；
+  下次 cron 会直接判定无变化，不再触发全量巡检。
+- 临时目录 /tmp/pp-changed 与测试脚本已清理。
+- 本任务无业务代码改动；事件文档与工作台状态本地提交。
+</code></pre>
+<h2 id="六-已知问题与建议-跟办">六、已知问题与建议（跟办）</h2>
+<pre><code class="language-text">1. git_static_gcs_sync.py 的 git archive 对大批量 blobless 拉取会卡死，
+   本次用逐 blob 物化绕过；建议后续给工具增加分块/逐 blob 物化与并发锁。
+2. 30 分钟 cron 在“有变更”时会顺带对全部未变更厂家做全量 bucket 审计，
+   耗时很长且与手动任务并发无锁；建议改为仅处理变更前缀并加锁。
+3. tadastatic3-5 是否正式上线需用户确认（建桶/域名/游戏分组/同步映射）。
+4. 本机 /root/dbqp-cf-workers.env 的 token 验证已失效（Authentication error），
+   建议轮换或补回具备 Cache Purge 的 token。
+</code></pre>
+<h2 id="七-群通知回执">七、群通知回执</h2>
+<pre><code class="language-text">5249 前置与范围确认
+5250 开始执行（ppstatic 三路）
+5251 并发收敛与修正
+5252 GCS 文件就绪、上传开始
+5255 上传路径修正
+5260 GCS 三路完成、开始预热
+5263 香港 S3 同步开始
+5266 汇总与文档
+5267 本地提交结果
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-任务与来源">一、任务与来源</a></li><li style="margin-left:0.0rem"><a href="#二-范围核验">二、范围核验</a></li><li style="margin-left:0.0rem"><a href="#三-执行">三、执行</a></li><li style="margin-left:0.8rem"><a href="#1-GCS-三路上传-pp-static">1. GCS 三路上传（pp-static）</a></li><li style="margin-left:0.8rem"><a href="#2-CDN-预热">2. CDN 预热</a></li><li style="margin-left:0.8rem"><a href="#3-香港-S3-CloudFront-hkcloudplay">3. 香港 S3 + CloudFront（hkcloudplay）</a></li><li style="margin-left:0.0rem"><a href="#四-验证">四、验证</a></li><li style="margin-left:0.0rem"><a href="#五-收尾">五、收尾</a></li><li style="margin-left:0.0rem"><a href="#六-已知问题与建议-跟办">六、已知问题与建议（跟办）</a></li><li style="margin-left:0.0rem"><a href="#七-群通知回执">七、群通知回执</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 巴西主站</li>
+          <li>日期：2026-09-08</li>
+          <li>标签：<span class="tag">巴西主站</span><span class="tag">Shell</span><span class="tag">CDN</span><span class="tag">安全运维</span><span class="tag">数据库恢复</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-09-08-1835-【补静态资源】PP巴西香港GCS双区与S3同步…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609081835-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BCDN-%E3%80%90%E8%A1%A5%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E3%80%91PP%20static%20%E5%B7%B4%E8%A5%BF-%E9%A6%99%E6%B8%AF%20GCS%20%E5%8F%8C%E5%8C%BA%20%2B%20%E9%A6%99%E6%B8%AF%20S3%20%E5%90%8C%E6%AD%A5%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【补静态资源】PP static 巴西/香港 GCS 双区 + 香港 S3 同步记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-08 18:35（Asia/Manila） 项目：DBQP / PGServer master（巴西 GCS + 香港/东京 asia + 香港 S3/CloudF…</p>
+      <p>关键词：巴西主站、Shell、CDN、安全运维、数据库恢复、源码与配置、历史运维与项目交付、历史运维与项目交付 / 巴西主站、【补静态资源】PP static 巴西/香港 GCS 双区 + 香港 S3 同步记录</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-601cd7d8d172.html"><small>上一篇</small>【配置维护】线上环境腾讯CDN ql-boss域名env新增与误删段恢复记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6c40307b690e.html"><small>下一篇</small>【数据维护】巴西 PP/TADA 结果集三台后端更新记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8e9565e4d67b.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
