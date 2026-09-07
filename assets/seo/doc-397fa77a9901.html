@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【问题排查+修复】Sanic 畸形 URL 探测 connectiontask 异常分析与兜底修复记录｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
+  <meta name="description" content="【问题排查+修复】Sanic 畸形 URL 探测 connectiontask 异常分析与兜底修复记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-07 17:45（Asia/Manila） 项目：DBQP / PGServer master 范围：巴西后端 01 panda（dbqp-pan…">
+  <meta name="keywords" content="巴西主站，Shell，Python，Nginx，自动化，安全运维，故障排查，源码与配置，历史运维与项目交付，历史运维与项目交付 / 巴西主站">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-397fa77a9901.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-397fa77a9901.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609071745-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%2B%E4%BF%AE%E5%A4%8D%E3%80%91Sanic%20%E7%95%B8%E5%BD%A2%20URL%20%E6%8E%A2%E6%B5%8B%20connectiontask%20%E5%BC%82%E5%B8%B8%E5%88%86%E6%9E%90%E4%B8%8E%E5%85%9C%E5%BA%95%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【问题排查+修复】Sanic 畸形 URL 探测 connectiontask 异常分析与兜底修复记录">
+  <meta property="og:description" content="【问题排查+修复】Sanic 畸形 URL 探测 connectiontask 异常分析与兜底修复记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-07 17:45（Asia/Manila） 项目：DBQP / PGServer master 范围：巴西后端 01 panda（dbqp-pan…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-397fa77a9901.html">
+  <meta property="article:published_time" content="2026-09-07T17:45:00+08:00">
+  <meta property="article:modified_time" content="2026-09-07 17:45">
+  <meta property="article:section" content="历史运维与项目交付 / 巴西主站">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【问题排查+修复】Sanic 畸形 URL 探测 connectiontask 异常分析与兜底修复记录">
+  <meta name="twitter:description" content="【问题排查+修复】Sanic 畸形 URL 探测 connectiontask 异常分析与兜底修复记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-07 17:45（Asia/Manila） 项目：DBQP / PGServer master 范围：巴西后端 01 panda（dbqp-pan…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-397fa77a9901.html#article","headline":"【问题排查+修复】Sanic 畸形 URL 探测 connectiontask 异常分析与兜底修复记录","description":"【问题排查+修复】Sanic 畸形 URL 探测 connectiontask 异常分析与兜底修复记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-07 17:45（Asia/Manila） 项目：DBQP / PGServer master 范围：巴西后端 01 panda（dbqp-pan…","datePublished":"2026-09-07T17:45:00+08:00","dateModified":"2026-09-07 17:45","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","Python","Nginx","自动化","安全运维","故障排查","源码与配置","历史运维与项目交付","历史运维与项目交付 / 巴西主站"],"wordCount":1219,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-397fa77a9901.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-397fa77a9901.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【问题排查+修复】Sanic 畸形 URL 探测 connectiontask 异常分析与兜底修复记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-397fa77a9901.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 巴西主站</span> › <span>【问题排查+修复】Sanic 畸形 URL 探测 connectiontask 异常分析与兜底修复记录</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
+      <h1>【问题排查+修复】Sanic 畸形 URL 探测 connectiontask 异常分析与兜底修复记录</h1>
+      <p class="lede">【问题排查+修复】Sanic 畸形 URL 探测 connectiontask 异常分析与兜底修复记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-07 17:45（Asia/Manila） 项目：DBQP / PGServer master 范围：巴西后端 01 panda（dbqp-pan…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-07T17:45:00+08:00">发布于 2026-09-07</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,219 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-09-07-1745-【问题排查+修复】Sanic畸形URL探测connection_task异常分析与兜底修复记录.md</code></p>
+<p>整理日期：2026-09-07 17:45｜日期依据：文件名日期</p>
+</blockquote>
+<p>时间：2026-09-07 17:45（Asia/Manila）
+项目：DBQP / PGServer master
+范围：巴西后端 01 panda（dbqp-panda-release-01）→ 全部 Sanic 厂家服务（代码层兜底）
+结果：✅ 根因定位 + 仓库代码修复 + 隔离验证 PASS + 本地提交</p>
+<h2 id="一-问题">一、问题</h2>
+<p>群内贴出的线上报错：</p>
+<pre><code class="language-text">Srv 0 2026-09-06 23:29:16 +0000 ERROR: protocol.connection_task uncaught
+httptools.parser.errors.HttpParserInvalidURLError: invalid url b'icanhazip.com:443'
+...
+sanic.exceptions.BadRequest: Bad Request / Bad URL: icanhazip.com:443
+</code></pre>
+<p>疑问：icanhazip.com:443 这个 URL 从哪来？Nginx 转发是否漏配
+<code>proxy_set_header X-Real-IP $remote_addr</code>？</p>
+<h2 id="二-定位证据">二、定位证据</h2>
+<pre><code class="language-text">来源文件：后端 01 /opt/pgserver/logs/dbqp-panda-release-01/panda.log-20260907-000241.gz
+行号：7928（Srv 0 2026-09-06 23:29:16 +0000）
+Traceback 与群内截图逐行一致：Request.__init__ parse_url 失败 → BadRequest
+→ error_response → create_empty_request 再次用同一畸形 URL 构造请求 → 二次异常
+→ connection_task uncaught。
+</code></pre>
+<p>该异常没有出现在宝塔/备用机 Nginx access log，因为：</p>
+<pre><code class="language-text">后端 01 公网 IP 34.39.183.154 的 9090（platform-api）与 9102（panda 容器
+9018 映射）可被公网直接访问（GCP 防火墙 game9000-10000 0.0.0.0/0 全开）。
+探测请求绕过 Nginx 直达 Sanic，因此 Nginx 无日志、X-Real-IP 无从参与。
+</code></pre>
+<h2 id="三-根因">三、根因</h2>
+<pre><code class="language-text">1. 外部扫描器把游戏/API 端口当开放 HTTP 代理探测，发送：
+   CONNECT icanhazip.com:443 HTTP/1.1
+   （同源还有 google.com / proxiesfood.com / ipify 等，仓库与线上历史日志均有）。
+2. Sanic 的 httptools 只能解析 origin-form / absolute-form URL，解析不了
+   authority-form 的 icanhazip.com:443，抛 BadRequest。
+3. Sanic 25.3.0 error_response 内 create_empty_request 会用同一原始 URL 再建
+   一次 Request，解析再次失败 → 二次异常未捕获 → 连接任务 uncaught、无响应。
+   这是 Sanic 上游长期已知问题（sanic-org/sanic #2528 / #2735），25.3.0 与
+   后续版本该路径仍相同，单靠升级 Sanic 不能消除。
+4. 不影响其他 worker/服务；只有被探测的那条连接异常结束，服务未中断、非被攻破。
+</code></pre>
+<p>回答群内两个问题：</p>
+<pre><code class="language-text">Q1 icanhazip.com:443 怎么来的？
+A1 公网扫描器探测“服务器能否当开放代理”的标准请求。仓库内 icanhazip 只用于
+   巡检脚本查询公网出口 IP，不在任何业务/反代请求路径上。
+
+Q2 nginx 有没有配 X-Real-IP？
+A2 已配置。socket/api/pg/all-games/tada 等公共反代 location 均有
+   proxy_set_header X-Real-IP $remote_addr。X-Real-IP 只影响后端取真实客户端
+   IP，与 URL 解析异常无关；本次请求根本没有经过 nginx。
+</code></pre>
+<h2 id="四-代码修复">四、代码修复</h2>
+<p>新增仓库根 <code>sitecustomize.py</code>：</p>
+<pre><code class="language-text">容器 PYTHONPATH=/app 且所有服务从 /app 启动，Python 解释器会自动加载该文件。
+它把 sanic.http.http1.Http.create_empty_request 替换为安全版本：原始 URL 解析
+失败时回退为 / 构造空请求，使 Sanic 正常返回 400 Bad Request，不再产生
+connection_task uncaught。对全部 Sanic 厂家服务统一生效，幂等，无 Sanic
+依赖版本变更、无需修改 share.so 或业务代码。
+</code></pre>
+<h2 id="五-验证">五、验证</h2>
+<pre><code class="language-text">1. 语法检查：python3 -m py_compile sitecustomize.py PASS。
+2. 运行中 panda 容器内单元验证：原 create_empty_request 对畸形 URL 抛
+   BadRequest；补丁回退后成功构造 Request（raw_url=/）。
+3. 隔离测试容器（pgserver:master-035305f3，--network none）：
+   - /app/sitecustomize.py 自动导入 PASS，Http.create_empty_request
+     已被替换为 _safe_create_empty_request；
+   - CONNECT icanhazip.com:443 实测返回 HTTP/1.1 400 Bad Request，
+     无 uncaught 异常。
+4. 全程未触碰运行中的生产进程，测试容器与临时文件已清理。
+</code></pre>
+<h2 id="六-安全建议-待执行">六、安全建议（待执行）</h2>
+<pre><code class="language-text">1. 后端 01 公网 9090/9102 直开，是这类探测能直达 Sanic 的根因；建议收敛 GCP
+   防火墙规则（game9000-10000 从 0.0.0.0/0 收窄为 VPC 内网 + 需要的厂家/运维
+   源 IP），需先确认厂家回调等公网访问依赖。
+2. 线上容器生效方式：把 sitecustomize.py 同步进各容器 /app 后重启对应服务
+   （或随下次镜像发布自动带入）；建议按发布窗口执行并逐容器验证。
+</code></pre>
+<h2 id="七-群通知回执">七、群通知回执</h2>
+<pre><code class="language-text">5237 连通性测试
+5238 任务开始 + 本地/远端提交确认（补发）
+5239 日志定位（补发）
+5240 来源分析 / X-Real-IP 回答（补发）
+5241 根因判定（补发）
+5242 代码修复与隔离验证
+5243 doc 完成
+5244 本地提交结果
+</code></pre>
+<h2 id="八-结论">八、结论</h2>
+<pre><code class="language-text">非授权安全测试成功、非业务故障、与 X-Real-IP 无关；是公网扫描器对直连端口的开放
+代理探测触发了 Sanic 错误响应路径的二次异常。代码层兜底修复已完成并本地提交，
+生产容器同步与防火墙收敛作为待执行项跟进。
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-问题">一、问题</a></li><li style="margin-left:0.0rem"><a href="#二-定位证据">二、定位证据</a></li><li style="margin-left:0.0rem"><a href="#三-根因">三、根因</a></li><li style="margin-left:0.0rem"><a href="#四-代码修复">四、代码修复</a></li><li style="margin-left:0.0rem"><a href="#五-验证">五、验证</a></li><li style="margin-left:0.0rem"><a href="#六-安全建议-待执行">六、安全建议（待执行）</a></li><li style="margin-left:0.0rem"><a href="#七-群通知回执">七、群通知回执</a></li><li style="margin-left:0.0rem"><a href="#八-结论">八、结论</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 巴西主站</li>
+          <li>日期：2026-09-07</li>
+          <li>标签：<span class="tag">巴西主站</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Nginx</span><span class="tag">自动化</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-09-07-1745-【问题排查+修复】Sanic畸形URL探测co…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609071745-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%2B%E4%BF%AE%E5%A4%8D%E3%80%91Sanic%20%E7%95%B8%E5%BD%A2%20URL%20%E6%8E%A2%E6%B5%8B%20connectiontask%20%E5%BC%82%E5%B8%B8%E5%88%86%E6%9E%90%E4%B8%8E%E5%85%9C%E5%BA%95%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【问题排查+修复】Sanic 畸形 URL 探测 connectiontask 异常分析与兜底修复记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-07 17:45（Asia/Manila） 项目：DBQP / PGServer master 范围：巴西后端 01 panda（dbqp-pan…</p>
+      <p>关键词：巴西主站、Shell、Python、Nginx、自动化、安全运维、故障排查、源码与配置、历史运维与项目交付、历史运维与项目交付 / 巴西主站</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b252dbf8989b.html"><small>上一篇</small>2026-09-07 测试环境 env/.env.dev [aws] 新增 AWSDOMAINENCRYPTKEY 手把手操作文档</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b196c472708c.html"><small>下一篇</small>2026-09-08 周报生成记录（第 36 周 0831-0908）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-397fa77a9901.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
