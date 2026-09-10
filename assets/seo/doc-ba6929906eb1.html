@@ -1,0 +1,1532 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【问题排查+优化】线上环境全量域名证书清点与续签修复记录｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="【问题排查+优化】线上环境全量域名证书清点与续签修复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-09-11 17:40 环境：游点涩线上环境（main 分支） 分类：问题排查 + 优化 风险等级：P2（生产证书与 nginx 重载；无业务容器变更） 标签：线上环境、TLS 证书、Let&#x27;s Enc…">
+  <meta name="keywords" content="游点涩，Linux，Shell，Python，Docker，Nginx，监控告警，自动化，业务系统运维，业务系统运维 / 游点涩，【问题排查+优化】线上环境全量域名证书清点与续签修复记录，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ba6929906eb1.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ba6929906eb1.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609111740-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%2B%E4%BC%98%E5%8C%96%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E5%85%A8%E9%87%8F%E5%9F%9F%E5%90%8D%E8%AF%81%E4%B9%A6%E6%B8%85%E7%82%B9%E4%B8%8E%E7%BB%AD%E7%AD%BE%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【问题排查+优化】线上环境全量域名证书清点与续签修复记录">
+  <meta property="og:description" content="【问题排查+优化】线上环境全量域名证书清点与续签修复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-09-11 17:40 环境：游点涩线上环境（main 分支） 分类：问题排查 + 优化 风险等级：P2（生产证书与 nginx 重载；无业务容器变更） 标签：线上环境、TLS 证书、Let&#x27;s Enc…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ba6929906eb1.html">
+  <meta property="article:published_time" content="2026-09-11T17:40:00+08:00">
+  <meta property="article:modified_time" content="2026-09-11 17:40">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【问题排查+优化】线上环境全量域名证书清点与续签修复记录">
+  <meta name="twitter:description" content="【问题排查+优化】线上环境全量域名证书清点与续签修复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-09-11 17:40 环境：游点涩线上环境（main 分支） 分类：问题排查 + 优化 风险等级：P2（生产证书与 nginx 重载；无业务容器变更） 标签：线上环境、TLS 证书、Let&#x27;s Enc…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ba6929906eb1.html#article","headline":"【问题排查+优化】线上环境全量域名证书清点与续签修复记录","description":"【问题排查+优化】线上环境全量域名证书清点与续签修复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-09-11 17:40 环境：游点涩线上环境（main 分支） 分类：问题排查 + 优化 风险等级：P2（生产证书与 nginx 重载；无业务容器变更） 标签：线上环境、TLS 证书、Let's Enc…","datePublished":"2026-09-11T17:40:00+08:00","dateModified":"2026-09-11 17:40","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Linux","Shell","Python","Docker","Nginx","监控告警","自动化","业务系统运维","业务系统运维 / 游点涩","【问题排查+优化】线上环境全量域名证书清点与续签修复记录","php"],"wordCount":4849,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ba6929906eb1.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ba6929906eb1.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【问题排查+优化】线上环境全量域名证书清点与续签修复记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ba6929906eb1.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>【问题排查+优化】线上环境全量域名证书清点与续签修复记录</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>【问题排查+优化】线上环境全量域名证书清点与续签修复记录</h1>
+      <p class="lede">【问题排查+优化】线上环境全量域名证书清点与续签修复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-09-11 17:40 环境：游点涩线上环境（main 分支） 分类：问题排查 + 优化 风险等级：P2（生产证书与 nginx 重载；无业务容器变更） 标签：线上环境、TLS 证书、Let&#x27;s Enc…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-11T17:40:00+08:00">发布于 2026-09-11</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">4,849 字</span>
+        <span class="badge">14 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-11-1740-【问题排查+优化】线上环境全量域名证书清点与续签修复记录.md</code></p>
+<p>整理日期：2026-09-11 17:40｜日期依据：文件名日期</p>
+</blockquote>
+<p>文档日期：2026-09-11 17:40
+环境：游点涩线上环境（main 分支）
+分类：问题排查 + 优化
+风险等级：P2（生产证书与 nginx 重载；无业务容器变更）
+标签：线上环境、TLS 证书、Let's Encrypt、网关 nginx、宝塔、证书续签、SEO异常验证、监控告警</p>
+<h2 id="一-工单与背景">一、工单与背景</h2>
+<pre><code class="language-text">来源：SEO异常验证 报警 + 游戏发行运维群反馈
+内容：裸域 youdianse.com 证书于 2026-09-09 到期（已续费），
+      但源站 nginx 没有 reload / 没指向新证书文件，仍在吐旧证书；
+      群内跟进：“ng 需要重启”。
+追加要求：全部域名都检查证书情况，快到期的都续签；
+          续好一个域名就群里通知一个域名（18GAME_ 上线群 + 18game运维）；
+          此前已处理的域名要补通知；通知格式美化。
+</code></pre>
+<h2 id="二-影响与链路">二、影响与链路</h2>
+<pre><code class="language-text">公网 youdianse.com -&gt; 16.208.38.88（ip-172-31-27-233，18game H5/PC 统一网关）
+  -&gt; 网关 nginx 按 SNI 动态加载证书：ssl_certificate $youdianse_cert_dir/fullchain.pem
+  -&gt; $youdianse_cert_dir = /etc/letsencrypt/live/&lt;SNI 主机名&gt;
+
+实测（修复前）：
+  openssl s_client -connect youdianse.com:443 -servername youdianse.com
+    -&gt; CN=youdianse.com, notAfter=Sep 9 12:35:55 2026 GMT（已过期）
+  curl -sS https://youdianse.com/ -&gt; 握手失败 / 证书告警
+</code></pre>
+<h2 id="三-根因">三、根因</h2>
+<pre><code class="language-text">1. 网关 /etc/letsencrypt/live/youdianse.com/ 内的 fullchain.pem、privkey.pem
+   是 2026-08-12 手工放置的证书文件，未随续期更新；
+2. 该目录不是 certbot lineage（无 renewal 配置），certbot.timer 只续 webroot 域名，
+   因此网关侧这张证书不会被自动续期；
+3. 宝塔侧同名证书已于 2026-09-09 21:43 续期成功（SAN: youdianse.com、*.youdianse.com,
+   notAfter 2026-12-08 12:45:08），但从未同步到网关；
+4. 网关多个 live 目录（iymbs.com、kf.game-app543.com、new.youdianse.com、
+   www.youdianse.com、h5.youdianse.com 等）指向/引用了同一份证书，
+   因此一次证书替换同时修复了这批域名；
+5. 同类隐患：h5.youdianse-main.xyz（DNS 同样指向网关）证书已于 2026-09-06 过期 5 天无人发现；
+6. 宝塔自动续签任务（acme_v2 --renew_v2=1，每日执行）对
+   cron.youdianse-test.xyz、ssl.ksrlfs.com、ssl.bjxwlz.com 这类“通配符且未绑定 DNS-API”
+   的证书会直接跳过（日志：未绑定dns-api，跳过域名），导致其静默过期。
+</code></pre>
+<h2 id="四-执行步骤与结果">四、执行步骤与结果</h2>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>内容</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>开工前核对本地/远程提交与工作区改动</td>
+<td>本地 main 领先 origin/main 8 个提交、工作区干净；线上后端仓库存在历史未提交改动</td>
+</tr>
+<tr>
+<td>2</td>
+<td>核验 youdianse.com 公网链路、源站证书与续期机制</td>
+<td>定位到网关证书文件陈旧；宝塔侧已续期但未同步</td>
+</tr>
+<tr>
+<td>3</td>
+<td>备份网关旧证书 → 从宝塔同步新证书 → nginx 重载</td>
+<td>youdianse.com、h5.youdianse-main.xyz 恢复（md5 一致、证书私钥 MATCH）</td>
+</tr>
+<tr>
+<td>4</td>
+<td>三层复验证书链与业务可达性</td>
+<td>网关本地、SG 后端、PH 本地均 verify=0；301→www 链路 200</td>
+</tr>
+<tr>
+<td>5</td>
+<td>全量域名证书清点（166 个）并续签到期证书</td>
+<td>2 个已过期域名 + 1 个无续签通道域名完成续签</td>
+</tr>
+<tr>
+<td>6</td>
+<td>上线网关证书到期巡检（脚本 + cron）</td>
+<td>每日 10:40 CST 巡检，≤14 天或已过期告警上线群</td>
+</tr>
+</tbody>
+</table>
+<p>步骤 3 过程说明（如实记录）：替换后曾因私钥权限设为 600 root 且 fullchain 未同步属组，
+导致网关 worker（www-data）约 2 分钟无法读取证书（09:31:50-09:32:30）；
+已改为 fullchain 644 root:root、privkey 640 root:www-data 并重载，之后 error.log 无新增证书加载错误。</p>
+<p>步骤 6 过程说明（如实记录）：首次安装 cron 时误用 <code>crontab -</code> 覆盖后端 root crontab；
+发现后用覆盖前生成的备份 <code>/tmp/crontab.before-cert-alert.20260911</code> 完整恢复（25 行、8 个既有任务齐全），
+随后改用追加方式重新安装（26 行）。约 1 分钟内每分钟执行的自动更新任务可能少跑 1 次，恢复后已确认 cron 正常。</p>
+<h2 id="五-修复验证">五、修复验证</h2>
+<pre><code class="language-text">网关本地 SNI：
+  youdianse.com          -&gt; CN=youdianse.com,          notAfter 2026-12-08 12:45:08
+  h5.youdianse-main.xyz  -&gt; CN=*.youdianse-main.xyz,   notAfter 2026-12-05 11:13:32
+reload 后 error.log 证书加载错误：0 条
+
+公网（新加坡后端 / 菲律宾本地）：
+  https://youdianse.com/          301 verify=0  -&gt; https://www.youdianse.com/ 200 verify=0
+  https://h5.youdianse-main.xyz/  200 verify=0
+  https://www.youdianse.com/      200 verify=0
+  https://cron.youdianse-test.xyz/ 200 verify=0
+  https://ssl.ksrlfs.com/         200 verify=0
+  https://ssl.bjxwlz.com/         200 verify=0
+</code></pre>
+<h2 id="六-全量域名清点-166-个域名">六、全量域名清点（166 个域名）</h2>
+<p>清点方法：合并宝塔 vhost <code>server_name</code>（106 条）与网关证书目录（150 条），去重 166 条，
+在后端服务器并发（12）对每条域名做 DNS + TLS 握手 + 证书有效期探测。</p>
+<pre><code class="language-text">已过期 2 个；≤30 天 1 个（IP 证书，按短周期设计）；
+31-60 天 13 个；&gt;60 天 137 个；无解析 10 条；不可达 1 个。
+</code></pre>
+<h3 id="6-1-本轮续签清单-5-个域名">6.1 本轮续签清单（5 个域名）</h3>
+<table>
+<thead>
+<tr>
+<th>域名</th>
+<th>结束节点</th>
+<th>旧到期</th>
+<th>新到期</th>
+<th>方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>youdianse.com</td>
+<td>网关 16.208.38.88</td>
+<td>2026-09-09（已过期）</td>
+<td>2026-12-08</td>
+<td>宝塔已续期证书同步网关 + reload</td>
+</tr>
+<tr>
+<td>h5.youdianse-main.xyz</td>
+<td>网关 16.208.38.88</td>
+<td>2026-09-06（已过期 5 天）</td>
+<td>2026-12-05</td>
+<td>宝塔已续期证书同步网关 + reload</td>
+</tr>
+<tr>
+<td>cron.youdianse-test.xyz</td>
+<td>宝塔 16.208.5.147</td>
+<td>2026-09-09（已过期）</td>
+<td>2026-12-10</td>
+<td>宝塔 ACME HTTP-01 重新签发（单域名）</td>
+</tr>
+<tr>
+<td>ssl.ksrlfs.com</td>
+<td>宝塔 16.208.5.147</td>
+<td>2026-09-08（已过期）</td>
+<td>2026-12-10</td>
+<td>宝塔 ACME HTTP-01 重新签发（单域名）</td>
+</tr>
+<tr>
+<td>ssl.bjxwlz.com</td>
+<td>宝塔 16.208.5.147</td>
+<td>2026-11-06（55 天，且无自动续签通道）</td>
+<td>2026-12-10</td>
+<td>宝塔 ACME HTTP-01 重新签发（单域名）</td>
+</tr>
+</tbody>
+</table>
+<p>备份位置：</p>
+<pre><code class="language-text">网关：/root/cert-backup-20260911-0930/{youdianse.com,h5.youdianse-main.xyz}/
+宝塔：/root/cert-backup-20260911/{cron.youdianse-test.xyz,ssl.ksrlfs.com,ssl.bjxwlz.com}/
+</code></pre>
+<h3 id="6-2-观察名单-31-60-天-13-个">6.2 观察名单（31-60 天，13 个）</h3>
+<pre><code class="language-text">ssl.bjxwlz.com（已提前续签，见上表）
+yds-pc-h5-01/02/03.cc、www.yds-pc-h5-01/02/03.cc、h5.yds-pc-h5-01/02/03.cc、
+pc.yds-pc-h5-01/02/03.cc —— 共 12 条，网关 certbot（webroot）托管，
+notAfter 2026-11-10，进入 30 天窗口后自动续签，无需人工介入。
+</code></pre>
+<h3 id="6-3-需关注项">6.3 需关注项</h3>
+<pre><code class="language-text">1. 16.208.5.147：6 天有效期，属 Let's Encrypt IP 证书的短周期设计，
+   宝塔每日续签任务已于 2026-09-11 16:18 自动续签（日志：续签成功）；
+2. 无解析（10 条）：18game.line.ccc、cywdjp.com、h5.yodianse.com、kf.game-app543.com、
+   main-h5.hbabaxb.cn、main-h5.hbeqfef.cn、ymnev.com 及 certbot 内部 lineage 名
+   shouyek.com-0001、shyssjt.com-0001、syyhslzp.com-0001（后三条非独立域名）；
+3. fastsmcat.com：443 端口连接超时（3.35.9.127），非证书问题，建议确认域名是否仍在使用；
+4. 宝塔侧通配符证书若无 DNS-API 绑定将无法自动续签，需纳入巡检或改单域名证书。
+</code></pre>
+<h2 id="七-新增监控">七、新增监控</h2>
+<pre><code class="language-text">脚本：ops/production/scripts/youdianse-gateway-cert-alert.py
+部署：后端服务器 /opt/docker-youdianse-php/ops/production/scripts/（0755 root:root）
+cron：40 10 * * * /usr/bin/flock -n /var/lock/youdianse-gateway-cert-alert.lock \
+      /usr/bin/python3 /opt/docker-youdianse-php/ops/production/scripts/youdianse-gateway-cert-alert.py \
+      &gt;&gt; /var/log/youdianse-gateway-cert-alert.log 2&gt;&amp;1
+
+行为：SSH 只读巡检网关 /etc/letsencrypt/live/；
+      仅对“DNS 确实解析到网关”的域名做判定（避免 150 个目录里未暴露域名产生噪声）；
+      ≤14 天或已过期 -&gt; 告警上线群，同一域名每天最多一次；
+      支持 --dry-run 与 YOUDIANSE_GATEWAY_CERT_HOSTS 强制巡检列表。
+
+验证：dry-run 正常；强制域名 + 100 天阈值测试可正确识别；实跑输出
+      ok: no gateway-exposed cert within 14 days。
+回滚：sudo crontab -l | grep -v youdianse-gateway-cert-alert | sudo crontab -
+</code></pre>
+<h2 id="八-后续建议">八、后续建议</h2>
+<pre><code class="language-text">1. 网关手工放置证书（非 certbot lineage）需要固定同步机制：
+   建议把“宝塔续期 -&gt; 网关同步 -&gt; reload”纳入自动化，避免再次漏同步；
+2. 宝塔通配符证书补绑 DNS-API，或统一改为单域名 + HTTP-01（本轮已按此处理 3 个域名）；
+3. 建议增加宝塔侧证书到期巡检（当前巡检脚本只覆盖网关动态证书）；
+4. 建立域名证书台账（本文件第六节为 2026-09-11 快照），随域名增减更新。
+</code></pre>
+<h2 id="九-通知记录">九、通知记录</h2>
+<pre><code class="language-text">步骤 1 开工前状态核对                 上线群 11639 / 运维群 84517
+步骤 2 证书与源站现状核验             上线群 11640 / 运维群 84518
+步骤 3 网关证书同步与重载             上线群 11641 / 运维群 84519
+步骤 4 修复后验证                     上线群 11642 / 运维群 84520
+证书续签 cron.youdianse-test.xyz      上线群 11643 / 运维群 84521
+证书续签 ssl.ksrlfs.com               上线群 11644 / 运维群 84522
+证书续签（补）youdianse.com           上线群 11645 / 运维群 84523
+证书续签（补）h5.youdianse-main.xyz   上线群 11646 / 运维群 84524
+证书续签 ssl.bjxwlz.com               上线群 11648 / 运维群 84525
+步骤 5 全量证书清点                   上线群 11649 / 运维群 84526
+步骤 6 网关证书巡检上线               上线群 11650 / 运维群 84527
+</code></pre>
+<h2 id="十-安全与敏感内容">十、安全与敏感内容</h2>
+<pre><code class="language-text">本记录不输出 Telegram token/chat_id、私钥正文、SSH 凭据、Git 凭据、证书私钥；
+证书备份路径与公钥信息可记录。
+</code></pre>
+<h2 id="附录-A-166-个域名证书探测明细-2026-09-11-17-3x">附录 A：166 个域名证书探测明细（2026-09-11 17:3x）</h2>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>域名</th>
+<th>剩余天数</th>
+<th>解析 IP</th>
+<th>证书到期时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>cron.youdianse-test.xyz</td>
+<td>-2</td>
+<td>16.208.5.147</td>
+<td>Sep  9 08:28:54 2026 GMT</td>
+</tr>
+<tr>
+<td>2</td>
+<td>ssl.ksrlfs.com</td>
+<td>-2</td>
+<td>16.208.5.147</td>
+<td>Sep  8 13:41:18 2026 GMT</td>
+</tr>
+<tr>
+<td>3</td>
+<td>16.208.5.147</td>
+<td>6</td>
+<td>16.208.5.147</td>
+<td>Sep 17 23:19:40 2026 GMT</td>
+</tr>
+<tr>
+<td>4</td>
+<td>ssl.bjxwlz.com</td>
+<td>55</td>
+<td>16.208.5.147</td>
+<td>Nov  6 08:38:54 2026 GMT</td>
+</tr>
+<tr>
+<td>5</td>
+<td>h5.yds-pc-h5-01.cc</td>
+<td>59</td>
+<td>16.208.38.88</td>
+<td>Nov 10 06:20:48 2026 GMT</td>
+</tr>
+<tr>
+<td>6</td>
+<td>h5.yds-pc-h5-02.cc</td>
+<td>59</td>
+<td>16.208.38.88</td>
+<td>Nov 10 06:20:59 2026 GMT</td>
+</tr>
+<tr>
+<td>7</td>
+<td>h5.yds-pc-h5-03.cc</td>
+<td>59</td>
+<td>16.208.38.88</td>
+<td>Nov 10 06:21:09 2026 GMT</td>
+</tr>
+<tr>
+<td>8</td>
+<td>pc.yds-pc-h5-01.cc</td>
+<td>59</td>
+<td>16.208.38.88</td>
+<td>Nov 10 06:20:48 2026 GMT</td>
+</tr>
+<tr>
+<td>9</td>
+<td>pc.yds-pc-h5-02.cc</td>
+<td>59</td>
+<td>16.208.38.88</td>
+<td>Nov 10 06:20:59 2026 GMT</td>
+</tr>
+<tr>
+<td>10</td>
+<td>pc.yds-pc-h5-03.cc</td>
+<td>59</td>
+<td>16.208.38.88</td>
+<td>Nov 10 06:21:09 2026 GMT</td>
+</tr>
+<tr>
+<td>11</td>
+<td>www.yds-pc-h5-01.cc</td>
+<td>59</td>
+<td>16.208.38.88</td>
+<td>Nov 10 06:20:48 2026 GMT</td>
+</tr>
+<tr>
+<td>12</td>
+<td>www.yds-pc-h5-02.cc</td>
+<td>59</td>
+<td>16.208.38.88</td>
+<td>Nov 10 06:20:59 2026 GMT</td>
+</tr>
+<tr>
+<td>13</td>
+<td>www.yds-pc-h5-03.cc</td>
+<td>59</td>
+<td>16.208.38.88</td>
+<td>Nov 10 06:21:09 2026 GMT</td>
+</tr>
+<tr>
+<td>14</td>
+<td>yds-pc-h5-01.cc</td>
+<td>59</td>
+<td>16.208.38.88</td>
+<td>Nov 10 06:20:48 2026 GMT</td>
+</tr>
+<tr>
+<td>15</td>
+<td>yds-pc-h5-02.cc</td>
+<td>59</td>
+<td>16.208.38.88</td>
+<td>Nov 10 06:20:59 2026 GMT</td>
+</tr>
+<tr>
+<td>16</td>
+<td>yds-pc-h5-03.cc</td>
+<td>59</td>
+<td>16.208.38.88</td>
+<td>Nov 10 06:21:09 2026 GMT</td>
+</tr>
+<tr>
+<td>17</td>
+<td>18h.game</td>
+<td>62</td>
+<td>16.208.5.147</td>
+<td>Nov 13 07:19:40 2026 GMT</td>
+</tr>
+<tr>
+<td>18</td>
+<td>kaipao.fsjczj.com</td>
+<td>74</td>
+<td>143.204.126.83</td>
+<td>Nov 24 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>19</td>
+<td>admin.youdianse-main.xyz</td>
+<td>85</td>
+<td>16.208.5.147</td>
+<td>Dec  5 11:13:32 2026 GMT</td>
+</tr>
+<tr>
+<td>20</td>
+<td>cicd.youdianse-main.xyz</td>
+<td>85</td>
+<td>16.208.5.147</td>
+<td>Dec  5 11:13:32 2026 GMT</td>
+</tr>
+<tr>
+<td>21</td>
+<td>cron.youdianse-main.xyz</td>
+<td>85</td>
+<td>16.208.5.147</td>
+<td>Dec  5 11:13:32 2026 GMT</td>
+</tr>
+<tr>
+<td>22</td>
+<td>h5-001.youdianse-main.xyz</td>
+<td>85</td>
+<td>16.208.5.147</td>
+<td>Dec  5 11:13:32 2026 GMT</td>
+</tr>
+<tr>
+<td>23</td>
+<td>h5.youdianse-main.xyz</td>
+<td>85</td>
+<td>16.208.38.88</td>
+<td>Dec  5 11:13:32 2026 GMT</td>
+</tr>
+<tr>
+<td>24</td>
+<td>kf.youdianse-main.xyz</td>
+<td>85</td>
+<td>16.208.5.147</td>
+<td>Dec  5 11:13:32 2026 GMT</td>
+</tr>
+<tr>
+<td>25</td>
+<td>new.youdianse.com</td>
+<td>88</td>
+<td>16.208.5.147</td>
+<td>Dec  8 12:45:08 2026 GMT</td>
+</tr>
+<tr>
+<td>26</td>
+<td>pc.youdianse.com</td>
+<td>88</td>
+<td>16.208.5.147</td>
+<td>Dec  8 12:45:08 2026 GMT</td>
+</tr>
+<tr>
+<td>27</td>
+<td>sdk.youdianse.com</td>
+<td>88</td>
+<td>16.208.5.147</td>
+<td>Dec  8 12:45:08 2026 GMT</td>
+</tr>
+<tr>
+<td>28</td>
+<td>ssl.youdianse.com</td>
+<td>88</td>
+<td>16.208.5.147</td>
+<td>Dec  8 12:45:08 2026 GMT</td>
+</tr>
+<tr>
+<td>29</td>
+<td>youdianse.com</td>
+<td>88</td>
+<td>16.208.38.88</td>
+<td>Dec  8 12:45:08 2026 GMT</td>
+</tr>
+<tr>
+<td>30</td>
+<td>aooad.com</td>
+<td>89</td>
+<td>143.204.126.57</td>
+<td>Dec  9 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>31</td>
+<td>sdchjy.com</td>
+<td>89</td>
+<td>13.227.50.101</td>
+<td>Dec  9 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>32</td>
+<td>taokju.com</td>
+<td>89</td>
+<td>99.84.48.44</td>
+<td>Dec  9 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>33</td>
+<td>syyhslzp.com</td>
+<td>96</td>
+<td>3.163.224.40</td>
+<td>Dec 16 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>34</td>
+<td>baiyingnet.com</td>
+<td>105</td>
+<td>13.249.165.15</td>
+<td>Dec 25 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>35</td>
+<td>bjyinhegame.com</td>
+<td>105</td>
+<td>13.224.138.121</td>
+<td>Dec 25 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>36</td>
+<td>caijiesh.com</td>
+<td>105</td>
+<td>18.65.125.67</td>
+<td>Dec 25 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>37</td>
+<td>clfhjg.com</td>
+<td>105</td>
+<td>13.227.50.51</td>
+<td>Dec 25 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>38</td>
+<td>huochechushou.com</td>
+<td>105</td>
+<td>13.249.165.17</td>
+<td>Dec 25 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>39</td>
+<td>jszz809.com</td>
+<td>105</td>
+<td>13.224.138.81</td>
+<td>Dec 25 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>40</td>
+<td>tywhtg.com</td>
+<td>105</td>
+<td>143.204.126.104</td>
+<td>Dec 25 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>41</td>
+<td>wangcaitt.com</td>
+<td>105</td>
+<td>3.163.224.50</td>
+<td>Dec 25 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>42</td>
+<td>xflqzgj.com</td>
+<td>105</td>
+<td>13.227.50.125</td>
+<td>Dec 25 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>43</td>
+<td>feng-gou.com</td>
+<td>106</td>
+<td>18.65.100.103</td>
+<td>Dec 26 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>44</td>
+<td>shyssjt.com</td>
+<td>106</td>
+<td>13.249.146.33</td>
+<td>Dec 26 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>45</td>
+<td>xinjiangzhilianyun.com</td>
+<td>106</td>
+<td>3.163.198.93</td>
+<td>Dec 26 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>46</td>
+<td>h5.youdianse.com</td>
+<td>109</td>
+<td>13.249.146.124</td>
+<td>Dec 29 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>47</td>
+<td>www.youdianse.com</td>
+<td>109</td>
+<td>13.249.146.59</td>
+<td>Dec 29 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>48</td>
+<td>118acs2.com</td>
+<td>110</td>
+<td>18.65.100.65</td>
+<td>Dec 30 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>49</td>
+<td>h5.bochuang99.com</td>
+<td>110</td>
+<td>13.227.50.72</td>
+<td>Dec 30 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>50</td>
+<td>h5.feipinquan.com</td>
+<td>110</td>
+<td>3.163.218.117</td>
+<td>Dec 30 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>51</td>
+<td>n320dvv.com</td>
+<td>110</td>
+<td>143.204.80.118</td>
+<td>Dec 30 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>52</td>
+<td>www.bochuang99.com</td>
+<td>110</td>
+<td>13.227.50.72</td>
+<td>Dec 30 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>53</td>
+<td>www.feipinquan.com</td>
+<td>110</td>
+<td>3.163.218.47</td>
+<td>Dec 30 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>54</td>
+<td>www.game-app543.com</td>
+<td>110</td>
+<td>18.65.112.47</td>
+<td>Dec 30 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>55</td>
+<td>yodianse.com</td>
+<td>110</td>
+<td>18.65.125.57</td>
+<td>Dec 30 23:59:59 2026 GMT</td>
+</tr>
+<tr>
+<td>56</td>
+<td>18game.app</td>
+<td>113</td>
+<td>3.163.198.114</td>
+<td>Jan  2 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>57</td>
+<td>18game.shop</td>
+<td>113</td>
+<td>13.224.138.70</td>
+<td>Jan  2 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>58</td>
+<td>18yaoba.com</td>
+<td>113</td>
+<td>13.249.146.40</td>
+<td>Jan  2 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>59</td>
+<td>d5fr6gt7hy8ju9ki0lo.com</td>
+<td>113</td>
+<td>143.204.126.47</td>
+<td>Jan  2 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>60</td>
+<td>g654321.com</td>
+<td>113</td>
+<td>143.204.80.108</td>
+<td>Jan  2 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>61</td>
+<td>g9876543.com</td>
+<td>113</td>
+<td>99.84.48.106</td>
+<td>Jan  2 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>62</td>
+<td>h5.18h.game</td>
+<td>113</td>
+<td>3.163.218.90</td>
+<td>Jan  2 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>63</td>
+<td>h5.game-app543.com</td>
+<td>113</td>
+<td>143.204.80.126</td>
+<td>Jan  2 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>64</td>
+<td>jtr4u6j3243w.com</td>
+<td>113</td>
+<td>18.65.159.84</td>
+<td>Jan  2 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>65</td>
+<td>jytfhdgrsfdzd.com</td>
+<td>113</td>
+<td>13.249.165.74</td>
+<td>Jan  2 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>66</td>
+<td>kfvdcsxx目标示例</td>
+<td>113</td>
+<td>13.227.50.12</td>
+<td>Jan  2 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>67</td>
+<td>kjghgcfxd.com</td>
+<td>113</td>
+<td>13.227.50.84</td>
+<td>Jan  2 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>68</td>
+<td>kmjyr543.com</td>
+<td>113</td>
+<td>18.65.100.61</td>
+<td>Jan  2 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>69</td>
+<td>lokhjgbfvdcx.com</td>
+<td>113</td>
+<td>13.224.138.92</td>
+<td>Jan  2 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>70</td>
+<td>ydsgames.com</td>
+<td>116</td>
+<td>99.84.48.119</td>
+<td>Jan  5 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>71</td>
+<td>ydsplay.com</td>
+<td>116</td>
+<td>13.227.50.116</td>
+<td>Jan  5 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>72</td>
+<td>ydsplay.net</td>
+<td>116</td>
+<td>13.224.138.116</td>
+<td>Jan  5 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>73</td>
+<td>youdianse.me</td>
+<td>116</td>
+<td>18.65.100.51</td>
+<td>Jan  5 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>74</td>
+<td>youdianse.one</td>
+<td>116</td>
+<td>13.224.138.56</td>
+<td>Jan  5 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>75</td>
+<td>youdianse.vip</td>
+<td>116</td>
+<td>13.249.165.80</td>
+<td>Jan  5 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>76</td>
+<td>youdianse-abc.com</td>
+<td>125</td>
+<td>99.84.48.50</td>
+<td>Jan 14 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>77</td>
+<td>cdzsfsm.com</td>
+<td>138</td>
+<td>99.84.48.62</td>
+<td>Jan 27 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>78</td>
+<td>cpxjy.com</td>
+<td>138</td>
+<td>18.65.159.74</td>
+<td>Jan 27 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>79</td>
+<td>iymbs.com</td>
+<td>138</td>
+<td>3.163.198.20</td>
+<td>Jan 27 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>80</td>
+<td>jwrtysuv.com</td>
+<td>138</td>
+<td>143.204.126.101</td>
+<td>Jan 27 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>81</td>
+<td>kabuecho.com</td>
+<td>138</td>
+<td>143.204.126.115</td>
+<td>Jan 27 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>82</td>
+<td>kabumint.com</td>
+<td>138</td>
+<td>13.227.50.33</td>
+<td>Jan 27 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>83</td>
+<td>pqznxmlk.com</td>
+<td>138</td>
+<td>143.204.80.31</td>
+<td>Jan 27 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>84</td>
+<td>xklprmnq.com</td>
+<td>138</td>
+<td>13.249.146.9</td>
+<td>Jan 27 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>85</td>
+<td>yenatlas.com</td>
+<td>138</td>
+<td>3.163.198.99</td>
+<td>Jan 27 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>86</td>
+<td>yenframe.com</td>
+<td>138</td>
+<td>143.204.80.30</td>
+<td>Jan 27 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>87</td>
+<td>golden-vp.com</td>
+<td>155</td>
+<td>13.227.50.93</td>
+<td>Feb 13 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>88</td>
+<td>gudebaojiuye.com</td>
+<td>155</td>
+<td>143.204.126.67</td>
+<td>Feb 13 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>89</td>
+<td>jingdun119.com</td>
+<td>155</td>
+<td>3.163.198.114</td>
+<td>Feb 13 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>90</td>
+<td>lmzsrly.com</td>
+<td>155</td>
+<td>18.65.125.43</td>
+<td>Feb 13 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>91</td>
+<td>longzhouems.com</td>
+<td>155</td>
+<td>18.65.159.24</td>
+<td>Feb 13 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>92</td>
+<td>n-schooling.com</td>
+<td>155</td>
+<td>13.249.165.30</td>
+<td>Feb 13 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>93</td>
+<td>runfeng1688.com</td>
+<td>155</td>
+<td>143.204.126.11</td>
+<td>Feb 13 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>94</td>
+<td>hszczcpg.com</td>
+<td>156</td>
+<td>13.227.50.113</td>
+<td>Feb 14 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>95</td>
+<td>kotesco.com</td>
+<td>156</td>
+<td>13.249.146.5</td>
+<td>Feb 14 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>96</td>
+<td>senligames.com</td>
+<td>156</td>
+<td>143.204.126.34</td>
+<td>Feb 14 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>97</td>
+<td>tianxidlj.com</td>
+<td>156</td>
+<td>18.65.100.110</td>
+<td>Feb 14 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>98</td>
+<td>trusoundsedu.com</td>
+<td>156</td>
+<td>13.224.138.80</td>
+<td>Feb 14 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>99</td>
+<td>xafwzc.com</td>
+<td>156</td>
+<td>143.204.80.25</td>
+<td>Feb 14 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>100</td>
+<td>xqsdzm.com</td>
+<td>156</td>
+<td>18.65.125.67</td>
+<td>Feb 14 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>101</td>
+<td>lcmy666.com</td>
+<td>167</td>
+<td>99.84.48.22</td>
+<td>Feb 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>102</td>
+<td>lianxianfashion.com</td>
+<td>167</td>
+<td>18.65.159.105</td>
+<td>Feb 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>103</td>
+<td>njyhgs.com</td>
+<td>167</td>
+<td>143.204.126.77</td>
+<td>Feb 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>104</td>
+<td>ruichiqiche.com</td>
+<td>167</td>
+<td>13.224.138.19</td>
+<td>Feb 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>105</td>
+<td>shihu-plantbase.com</td>
+<td>167</td>
+<td>143.204.80.37</td>
+<td>Feb 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>106</td>
+<td>sp-jkmodel.com</td>
+<td>167</td>
+<td>143.204.80.95</td>
+<td>Feb 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>107</td>
+<td>yepaofuhuiyuan.com</td>
+<td>167</td>
+<td>18.65.112.127</td>
+<td>Feb 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>108</td>
+<td>hyd77.com</td>
+<td>176</td>
+<td>99.84.48.113</td>
+<td>Mar  6 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>109</td>
+<td>jfhjzjt.com</td>
+<td>176</td>
+<td>13.249.146.16</td>
+<td>Mar  6 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>110</td>
+<td>lbfsvnr.com</td>
+<td>176</td>
+<td>13.227.50.91</td>
+<td>Mar  6 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>111</td>
+<td>ldszzx.com</td>
+<td>176</td>
+<td>143.204.80.26</td>
+<td>Mar  6 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>112</td>
+<td>shouyek.com</td>
+<td>176</td>
+<td>143.204.126.128</td>
+<td>Mar  6 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>113</td>
+<td>xmdjxdz.com</td>
+<td>176</td>
+<td>13.227.50.3</td>
+<td>Mar  6 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>114</td>
+<td>zhezc.com</td>
+<td>176</td>
+<td>143.204.126.101</td>
+<td>Mar  6 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>115</td>
+<td>ksrlfs.com</td>
+<td>179</td>
+<td>143.204.126.13</td>
+<td>Mar  9 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>116</td>
+<td>xtmpz.com</td>
+<td>179</td>
+<td>13.249.146.56</td>
+<td>Mar  9 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>117</td>
+<td>zsh999.com</td>
+<td>179</td>
+<td>143.204.126.85</td>
+<td>Mar  9 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>118</td>
+<td>d38owkgqvg83bq.cloudfront.net</td>
+<td>180</td>
+<td>13.249.146.59</td>
+<td>Mar 10 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>119</td>
+<td>bbainilz.com</td>
+<td>181</td>
+<td>143.204.126.41</td>
+<td>Mar 11 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>120</td>
+<td>dlxgfy.com</td>
+<td>181</td>
+<td>13.249.165.84</td>
+<td>Mar 11 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>121</td>
+<td>kpzbl.com</td>
+<td>181</td>
+<td>18.65.159.123</td>
+<td>Mar 11 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>122</td>
+<td>tonghuajiejie.com</td>
+<td>181</td>
+<td>13.227.50.37</td>
+<td>Mar 11 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>123</td>
+<td>yunfangcaishui.com</td>
+<td>181</td>
+<td>13.249.146.120</td>
+<td>Mar 11 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>124</td>
+<td>cnfrmp.com</td>
+<td>182</td>
+<td>143.204.80.72</td>
+<td>Mar 12 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>125</td>
+<td>jiujinzu.com</td>
+<td>182</td>
+<td>13.249.165.43</td>
+<td>Mar 12 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>126</td>
+<td>jtydfsn.com</td>
+<td>182</td>
+<td>3.163.198.45</td>
+<td>Mar 12 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>127</td>
+<td>ticktockdog.com</td>
+<td>182</td>
+<td>3.163.198.52</td>
+<td>Mar 12 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>128</td>
+<td>zhengshuimaoyi.com</td>
+<td>182</td>
+<td>143.204.80.56</td>
+<td>Mar 12 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>129</td>
+<td>bjzqyt.com</td>
+<td>190</td>
+<td>143.204.80.82</td>
+<td>Mar 20 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>130</td>
+<td>chilondz.com</td>
+<td>190</td>
+<td>18.65.100.9</td>
+<td>Mar 20 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>131</td>
+<td>jsjgbj.com</td>
+<td>190</td>
+<td>143.204.126.23</td>
+<td>Mar 20 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>132</td>
+<td>sqpyzs.com</td>
+<td>190</td>
+<td>143.204.126.108</td>
+<td>Mar 20 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>133</td>
+<td>whxjxy.com</td>
+<td>190</td>
+<td>13.227.50.43</td>
+<td>Mar 20 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>134</td>
+<td>csxxy.com</td>
+<td>195</td>
+<td>13.227.50.78</td>
+<td>Mar 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>135</td>
+<td>eawis.com</td>
+<td>195</td>
+<td>13.224.138.124</td>
+<td>Mar 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>136</td>
+<td>fzgfwj.com</td>
+<td>195</td>
+<td>13.249.165.81</td>
+<td>Mar 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>137</td>
+<td>gsjhhj.com</td>
+<td>195</td>
+<td>3.163.218.17</td>
+<td>Mar 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>138</td>
+<td>guyoutx.com</td>
+<td>195</td>
+<td>99.84.48.29</td>
+<td>Mar 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>139</td>
+<td>iwangzi.com</td>
+<td>195</td>
+<td>13.224.138.43</td>
+<td>Mar 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>140</td>
+<td>jlhdm.com</td>
+<td>195</td>
+<td>18.65.125.16</td>
+<td>Mar 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>141</td>
+<td>jsgaxf.com</td>
+<td>195</td>
+<td>143.204.126.40</td>
+<td>Mar 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>142</td>
+<td>lnxlqj.com</td>
+<td>195</td>
+<td>13.224.138.41</td>
+<td>Mar 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>143</td>
+<td>qddcjy.com</td>
+<td>195</td>
+<td>143.204.126.26</td>
+<td>Mar 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>144</td>
+<td>rhggxs.com</td>
+<td>195</td>
+<td>99.84.48.28</td>
+<td>Mar 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>145</td>
+<td>sh-sufan.com</td>
+<td>195</td>
+<td>143.204.126.112</td>
+<td>Mar 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>146</td>
+<td>sqbdg.com</td>
+<td>195</td>
+<td>18.65.159.88</td>
+<td>Mar 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>147</td>
+<td>tjychdzx.com</td>
+<td>195</td>
+<td>99.84.48.103</td>
+<td>Mar 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>148</td>
+<td>whlycb.com</td>
+<td>195</td>
+<td>13.249.146.81</td>
+<td>Mar 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>149</td>
+<td>wjhxdec.com</td>
+<td>195</td>
+<td>13.249.146.125</td>
+<td>Mar 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>150</td>
+<td>wxcxjg.com</td>
+<td>195</td>
+<td>3.163.218.28</td>
+<td>Mar 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>151</td>
+<td>xidalp.com</td>
+<td>195</td>
+<td>13.227.50.47</td>
+<td>Mar 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>152</td>
+<td>ymkcn.com</td>
+<td>195</td>
+<td>18.65.148.75</td>
+<td>Mar 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>153</td>
+<td>yunmanxi.com</td>
+<td>195</td>
+<td>99.84.48.44</td>
+<td>Mar 25 23:59:59 2027 GMT</td>
+</tr>
+<tr>
+<td>154</td>
+<td>203.0.113.1</td>
+<td>握手失败</td>
+<td>203.0.113.1</td>
+<td>-</td>
+</tr>
+<tr>
+<td>155</td>
+<td>fastsmcat.com</td>
+<td>握手失败</td>
+<td>3.35.9.127</td>
+<td>-</td>
+</tr>
+<tr>
+<td>156</td>
+<td>riseyun.com</td>
+<td>握手失败</td>
+<td>3.35.9.127</td>
+<td>-</td>
+</tr>
+<tr>
+<td>157</td>
+<td>18game.line.ccc</td>
+<td>无解析</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>158</td>
+<td>cywdjp.com</td>
+<td>无解析</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>159</td>
+<td>h5.yodianse.com</td>
+<td>无解析</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>160</td>
+<td>kf.game-app543.com</td>
+<td>无解析</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>161</td>
+<td>main-h5.hbabaxb.cn</td>
+<td>无解析</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>162</td>
+<td>main-h5.hbeqfef.cn</td>
+<td>无解析</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>163</td>
+<td>shouyek.com-0001</td>
+<td>无解析</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>164</td>
+<td>shyssjt.com-0001</td>
+<td>无解析</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>165</td>
+<td>syyhslzp.com-0001</td>
+<td>无解析</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>166</td>
+<td>ymnev.com</td>
+<td>无解析</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-工单与背景">一、工单与背景</a></li><li style="margin-left:0.0rem"><a href="#二-影响与链路">二、影响与链路</a></li><li style="margin-left:0.0rem"><a href="#三-根因">三、根因</a></li><li style="margin-left:0.0rem"><a href="#四-执行步骤与结果">四、执行步骤与结果</a></li><li style="margin-left:0.0rem"><a href="#五-修复验证">五、修复验证</a></li><li style="margin-left:0.0rem"><a href="#六-全量域名清点-166-个域名">六、全量域名清点（166 个域名）</a></li><li style="margin-left:0.8rem"><a href="#6-1-本轮续签清单-5-个域名">6.1 本轮续签清单（5 个域名）</a></li><li style="margin-left:0.8rem"><a href="#6-2-观察名单-31-60-天-13-个">6.2 观察名单（31-60 天，13 个）</a></li><li style="margin-left:0.8rem"><a href="#6-3-需关注项">6.3 需关注项</a></li><li style="margin-left:0.0rem"><a href="#七-新增监控">七、新增监控</a></li><li style="margin-left:0.0rem"><a href="#八-后续建议">八、后续建议</a></li><li style="margin-left:0.0rem"><a href="#九-通知记录">九、通知记录</a></li><li style="margin-left:0.0rem"><a href="#十-安全与敏感内容">十、安全与敏感内容</a></li><li style="margin-left:0.0rem"><a href="#附录-A-166-个域名证书探测明细-2026-09-11-17-3x">附录 A：166 个域名证书探测明细（2026-09-11 17:3x）</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-09-11</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">监控告警</span><span class="tag">自动化</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-11-1740-【问题排…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609111740-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%2B%E4%BC%98%E5%8C%96%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E5%85%A8%E9%87%8F%E5%9F%9F%E5%90%8D%E8%AF%81%E4%B9%A6%E6%B8%85%E7%82%B9%E4%B8%8E%E7%BB%AD%E7%AD%BE%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【问题排查+优化】线上环境全量域名证书清点与续签修复记录。本文属于业务系统运维 / 游点涩，文档日期：2026-09-11 17:40 环境：游点涩线上环境（main 分支） 分类：问题排查 + 优化 风险等级：P2（生产证书与 nginx 重载；无业务容器变更） 标签：线上环境、TLS 证书、Let&#x27;s Enc…</p>
+      <p>关键词：游点涩、Linux、Shell、Python、Docker、Nginx、监控告警、自动化、业务系统运维、业务系统运维 / 游点涩、【问题排查+优化】线上环境全量域名证书清点与续签修复记录、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b7e0becda5ac.html"><small>上一篇</small>【方案】前端代码迁移 AWS S3：桶与厂家目录对照</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-24793fd60584.html"><small>下一篇</small>【运维】单机 01 模式固化与流量入口核查记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ba6929906eb1.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
