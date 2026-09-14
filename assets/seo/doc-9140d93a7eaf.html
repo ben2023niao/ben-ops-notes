@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【迁移】前端静态资源 GCS 日本(大阪) → 巴西(圣保罗) · 17 家并行迁移与全部踩坑记录｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
+  <meta name="description" content="【迁移】前端静态资源 GCS 日本(大阪) → 巴西(圣保罗) · 17 家并行迁移与全部踩坑记录。本文属于历史运维与项目交付 / 巴西主站，服务器：后端 03 dbqp-saopaulo-sanic-prod-03 （203.0.113.1）， 全部压力在 03，宝塔不参与 目标：17 个厂家前端静态资源 GC…">
+  <meta name="keywords" content="巴西主站，Linux，Shell，Docker，CDN，安全运维，故障排查，源码与配置，历史运维与项目交付，历史运维与项目交付 / 巴西主站">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9140d93a7eaf.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9140d93a7eaf.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609141930-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E8%BF%81%E7%A7%BB%E3%80%91%E5%89%8D%E7%AB%AF%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20GCS%20%E6%97%A5%E6%9C%AC%28%E5%A4%A7%E9%98%AA%29%20%E2%86%92%20%E5%B7%B4%E8%A5%BF%28%E5%9C%A3%E4%BF%9D%E7%BD%97%29%20%C2%B7%2017%20%E5%AE%B6%E5%B9%B6%E8%A1%8C%E8%BF%81%E7%A7%BB%E4%B8%8E%E5%85%A8%E9%83%A8%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【迁移】前端静态资源 GCS 日本(大阪) → 巴西(圣保罗) · 17 家并行迁移与全部踩坑记录">
+  <meta property="og:description" content="【迁移】前端静态资源 GCS 日本(大阪) → 巴西(圣保罗) · 17 家并行迁移与全部踩坑记录。本文属于历史运维与项目交付 / 巴西主站，服务器：后端 03 dbqp-saopaulo-sanic-prod-03 （203.0.113.1）， 全部压力在 03，宝塔不参与 目标：17 个厂家前端静态资源 GC…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9140d93a7eaf.html">
+  <meta property="article:published_time" content="2026-09-14T19:30:00+08:00">
+  <meta property="article:modified_time" content="2026-09-14 19:30">
+  <meta property="article:section" content="历史运维与项目交付 / 巴西主站">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【迁移】前端静态资源 GCS 日本(大阪) → 巴西(圣保罗) · 17 家并行迁移与全部踩坑记录">
+  <meta name="twitter:description" content="【迁移】前端静态资源 GCS 日本(大阪) → 巴西(圣保罗) · 17 家并行迁移与全部踩坑记录。本文属于历史运维与项目交付 / 巴西主站，服务器：后端 03 dbqp-saopaulo-sanic-prod-03 （203.0.113.1）， 全部压力在 03，宝塔不参与 目标：17 个厂家前端静态资源 GC…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9140d93a7eaf.html#article","headline":"【迁移】前端静态资源 GCS 日本(大阪) → 巴西(圣保罗) · 17 家并行迁移与全部踩坑记录","description":"【迁移】前端静态资源 GCS 日本(大阪) → 巴西(圣保罗) · 17 家并行迁移与全部踩坑记录。本文属于历史运维与项目交付 / 巴西主站，服务器：后端 03 dbqp-saopaulo-sanic-prod-03 （203.0.113.1）， 全部压力在 03，宝塔不参与 目标：17 个厂家前端静态资源 GC…","datePublished":"2026-09-14T19:30:00+08:00","dateModified":"2026-09-14 19:30","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Linux","Shell","Docker","CDN","安全运维","故障排查","源码与配置","历史运维与项目交付","历史运维与项目交付 / 巴西主站"],"wordCount":3162,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9140d93a7eaf.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9140d93a7eaf.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【迁移】前端静态资源 GCS 日本(大阪) → 巴西(圣保罗) · 17 家并行迁移与全部踩坑记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9140d93a7eaf.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 巴西主站</span> › <span>【迁移】前端静态资源 GCS 日本(大阪) → 巴西(圣保罗) · 17 家并行迁移与全部踩坑记录</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
+      <h1>【迁移】前端静态资源 GCS 日本(大阪) → 巴西(圣保罗) · 17 家并行迁移与全部踩坑记录</h1>
+      <p class="lede">【迁移】前端静态资源 GCS 日本(大阪) → 巴西(圣保罗) · 17 家并行迁移与全部踩坑记录。本文属于历史运维与项目交付 / 巴西主站，服务器：后端 03 dbqp-saopaulo-sanic-prod-03 （203.0.113.1）， 全部压力在 03，宝塔不参与 目标：17 个厂家前端静态资源 GC…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-14T19:30:00+08:00">发布于 2026-09-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">3,162 字</span>
+        <span class="badge">10 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-09-14-1930-【迁移】前端静态资源GCS日本迁巴西-17家并行迁移与全部踩坑记录.md</code></p>
+<p>整理日期：2026-09-14 19:30｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>时间：2026-09-14 18:50 ~ 20:00（北京） / 2026-09-14 07:50 ~ 09:00（巴西圣保罗）</li>
+<li>服务器：后端 03 <code>dbqp-saopaulo-sanic-prod-03</code>（203.0.113.1），<strong>全部压力在 03，宝塔不参与</strong></li>
+<li>项目：<code>newgg2-0520</code></li>
+<li>目标：17 个厂家前端静态资源 GCS 桶从日本 <code>ASIA-NORTHEAST1</code> 迁到巴西 <code>SOUTHAMERICA-EAST1</code>，
+  且<strong>桶名保持不变</strong>（<code>newgg2-dbqp-gcs-&lt;前缀&gt;</code>），让巴西玩家不再跨洋拉资源。</li>
+<li>代码：<code>docker/scripts/gcs-br-migrate/</code>（本地仓库）+ <code>/opt/dbqp-scripts/gcs-br/</code>（03 上运行副本）</li>
+</ul>
+<h2 id="一-为什么必须-迁桶-而不是-改-Worker">一、为什么必须"迁桶"而不是"改 Worker"</h2>
+<p>巴西玩家访问静态资源慢，根因是桶在日本。Cloudflare Worker 的 <code>BUCKET_MAP</code> 只能指定桶名，
+不能指定区域；GCS <strong>不支持修改桶的区域，也不支持桶改名</strong>。所以只能：</p>
+<pre><code class="language-text">1) 新建 &lt;桶名&gt;-sa（巴西南美东1）
+2) 删除 &lt;桶名&gt;（日本大阪）
+3) 把 -sa 复制成 &lt;桶名&gt;（巴西；GCS 不支持改名，只能同区复制）
+4) 删除 &lt;桶名&gt;-sa
+→ 最终只保留巴西的同名桶，Worker / CDN 域名 / 桶名全部不用改
+</code></pre>
+<p>已经在巴西的厂家（历史迁移过一部分的）：<strong>只做「校验 + 补全」，绝不删桶</strong>，避免把线上桶删成空桶。</p>
+<h2 id="二-最终结果">二、最终结果</h2>
+<p>17 家全部在巴西 <code>SOUTHAMERICA-EAST1</code>，且每家只剩一个同名桶（<code>-sa</code> 暂存桶全部删除）。</p>
+<table>
+<thead>
+<tr>
+<th>厂家</th>
+<th>桶名</th>
+<th>区域</th>
+<th>对象数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pg-static</td>
+<td>newgg2-dbqp-gcs-pg-static</td>
+<td>SOUTHAMERICA-EAST1</td>
+<td>39325</td>
+</tr>
+<tr>
+<td>pg3-static</td>
+<td>newgg2-dbqp-gcs-pg3-static</td>
+<td>SOUTHAMERICA-EAST1</td>
+<td>8373</td>
+</tr>
+<tr>
+<td>pg4-static</td>
+<td>newgg2-dbqp-gcs-pg4-static</td>
+<td>SOUTHAMERICA-EAST1</td>
+<td>22168</td>
+</tr>
+<tr>
+<td>pg5-static</td>
+<td>newgg2-dbqp-gcs-pg5-static</td>
+<td>SOUTHAMERICA-EAST1</td>
+<td>6462</td>
+</tr>
+<tr>
+<td>pg6-static</td>
+<td>newgg2-dbqp-gcs-pg6-static</td>
+<td>SOUTHAMERICA-EAST1</td>
+<td>687</td>
+</tr>
+<tr>
+<td>pg7-static</td>
+<td>newgg2-dbqp-gcs-pg7-static</td>
+<td>SOUTHAMERICA-EAST1</td>
+<td>1057</td>
+</tr>
+<tr>
+<td>tada-statics</td>
+<td>newgg2-dbqp-gcs-tada-statics</td>
+<td>SOUTHAMERICA-EAST1</td>
+<td>22873</td>
+</tr>
+<tr>
+<td>tada-statics1</td>
+<td>newgg2-dbqp-gcs-tada-statics1</td>
+<td>SOUTHAMERICA-EAST1</td>
+<td>3945</td>
+</tr>
+<tr>
+<td>tada-statics2</td>
+<td>newgg2-dbqp-gcs-tada-statics2</td>
+<td>SOUTHAMERICA-EAST1</td>
+<td>1519</td>
+</tr>
+<tr>
+<td>tada-statics3</td>
+<td>newgg2-dbqp-gcs-tada-statics3</td>
+<td>SOUTHAMERICA-EAST1</td>
+<td>21066</td>
+</tr>
+<tr>
+<td>tada-statics4</td>
+<td>newgg2-dbqp-gcs-tada-statics4</td>
+<td>SOUTHAMERICA-EAST1</td>
+<td>11038</td>
+</tr>
+<tr>
+<td>tada-statics5</td>
+<td>newgg2-dbqp-gcs-tada-statics5</td>
+<td>SOUTHAMERICA-EAST1</td>
+<td>23098</td>
+</tr>
+<tr>
+<td>pp-static</td>
+<td>newgg2-dbqp-gcs-pp-static</td>
+<td>SOUTHAMERICA-EAST1</td>
+<td>28901</td>
+</tr>
+<tr>
+<td>ppk-static</td>
+<td>newgg2-dbqp-gcs-ppk-static</td>
+<td>SOUTHAMERICA-EAST1</td>
+<td>8448</td>
+</tr>
+<tr>
+<td>playson-static</td>
+<td>newgg2-dbqp-gcs-playson-static</td>
+<td>SOUTHAMERICA-EAST1</td>
+<td>25972</td>
+</tr>
+<tr>
+<td>panda-static</td>
+<td>newgg2-dbqp-gcs-panda-static</td>
+<td>SOUTHAMERICA-EAST1</td>
+<td>91092</td>
+</tr>
+<tr>
+<td>g759-static</td>
+<td>newgg2-dbqp-gcs-g759-static</td>
+<td>SOUTHAMERICA-EAST1</td>
+<td>13009</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>panda-static 的 91092 比源桶（79933）多 11159：这批是历史遗留的重复/带前缀垃圾对象
+（例如 <code>dbqp-gcs-panda-static-sa/...</code> 这种把桶名写进对象名的 53 个，
+  以及 <code>__MACOSX/</code> 里的 macOS 资源叉），迁移前后数量一致，<strong>不是本次迁移产生的</strong>。
+除 <code>__MACOSX/</code> 外如需清理，可另开一次专项。</p>
+</blockquote>
+<h2 id="二-补-迁移后的全量校验-S3-ETag-GCS-md5-零数据搬运">二·补、迁移后的全量校验（S3 ETag ↔ GCS md5，零数据搬运）</h2>
+<p>用 <code>s3_gcs_sdk_sync.py --verify-only</code> 对 17 家做了元数据全量比对，结论：</p>
+<pre><code class="language-text">· 全部 17 家：迁移本身零丢失 —— 迁移前后同名桶对象数一致，-sa 删除前都做过集合包含校验
+· 与 AWS S3 源比对后做了一次「查缺补漏」：只补"S3 有、GCS 完全没有"的对象
+    tada-statics 补 420 个、playson-static 补 1 个，其余 15 家 0 缺失；补完再跑一遍
+    17 家全部「无差异，已是最新」，缺失对象清零（新增 s3_gcs_sdk_sync.py --only-missing）
+· 仍然存在、但**故意没有动**的差异（属于内容新旧版本不一致）：
+    tada-statics 5801、pp-static 5125、tada-statics1 444、tada-statics2 136、
+    tada-statics3 13、ppk-static 25、pg6-static / playson-static / panda-static 各 1
+  为什么不自动覆盖：迁移是服务端 rewrite，会把对象的 GCS 更新时间刷成"今天"，
+  已经没有可靠的时间戳判据来判断 S3/GCS 谁更新；而业务上既存在「开发传 S3、我们同步 GCS」，
+  也存在「开发直接传 GCS」两种情况，盲目以 S3 覆盖可能把新版本回退。
+  要覆盖的话执行（会把 S3 版本推到 GCS，并补 health.json）：
+      bash /opt/dbqp-scripts/gcs-br/gapfill_all.sh      # 只补缺失（安全，默认用这个）
+      docker run ... s3_gcs_sdk_sync.py --prefix &lt;厂家&gt; --apply   # 全量覆盖
+</code></pre>
+<h2 id="三-工具-docker-scripts-gcs-br-migrate">三、工具（docker/scripts/gcs-br-migrate/）</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>br_common.py</code></td>
+<td>公共库：双时区时间戳、发群、带重试的元数据列举、连接池加大的 client</td>
+</tr>
+<tr>
+<td><code>br_vendor_move.py</code></td>
+<td><strong>单厂家迁移器</strong>（一个厂家一个进程/一个日志/一个状态文件），含断点续跑</td>
+</tr>
+<tr>
+<td><code>br_progress_report.py</code></td>
+<td><strong>每分钟</strong>把 17 家的详细进度汇总发群（带北京 + 巴西圣保罗时间）</td>
+</tr>
+<tr>
+<td><code>br_inventory.py</code></td>
+<td>全厂家盘点：区域 + 对象数（纯元数据，零搬运），可 <code>--notify</code> 直接发群</td>
+</tr>
+<tr>
+<td><code>run_all_parallel.sh</code></td>
+<td>多厂家<strong>并行</strong>下发（每厂家独立进程 + 独立日志）</td>
+</tr>
+<tr>
+<td><code>cleanup_staging.sh</code></td>
+<td>收尾：低并发删除多余 <code>-sa</code> 暂存桶</td>
+</tr>
+<tr>
+<td><code>br_py.sh</code></td>
+<td>在 <code>dbqp-resource-sync</code> <strong>容器</strong>里执行（宿主机零依赖、零污染，方便整体迁移）</td>
+</tr>
+<tr>
+<td><code>notify.sh</code> / <code>status_all.sh</code></td>
+<td>发一条群消息 / 看全部状态</td>
+</tr>
+</tbody>
+</table>
+<p>全部在 03 上跑，且都在容器里，<strong>不污染 03 的系统环境</strong>。</p>
+<p>日志与状态：</p>
+<pre><code class="language-text">/var/log/dbqp-br/&lt;厂家&gt;.log          每厂家详细日志（含每次进度、每个失败对象及原因）
+/var/log/dbqp-br/state/&lt;厂家&gt;.json   机器可读状态（进度播报器读它）
+/var/log/dbqp-br/run/&lt;厂家&gt;.out      进程 stdout/stderr（异常堆栈在这里）
+/var/log/dbqp-br/run/cleanup.log     收尾日志
+/var/log/dbqp-br/gap_check.log       历史体检日志
+</code></pre>
+<p>重跑单个厂家（幂等，已在巴西的只补全、断点续跑）：</p>
+<pre><code class="language-bash">cd /opt/dbqp-scripts/gcs-br
+bash br_py.sh br_vendor_move.py --prefix panda-static --threads 96
+</code></pre>
+<h2 id="四-踩坑记录-重点-别再犯">四、踩坑记录（重点，别再犯）</h2>
+<ol>
+<li>
+<p><strong><code>Blob.rewrite</code> 的调用方向会搞反，且失败得非常隐蔽</strong>
+   - 语义：<code>A.rewrite(B)</code> 是 <strong>把 B 搬到 A</strong>（参数才是源对象），不是 A→B。
+   - 后果：写成 <code>src.rewrite(dst)</code> 时，实际是"读 dst、写 src"。如果 dst 是刚建好的空桶，
+     就会 100% 404 失败；如果 dst 里恰好有同名对象，就会<strong>看起来有进度、实则什么都没搬</strong>。
+   - 本次实测证据：<code>src.rewrite(dst)</code> 报
+     <code>404 .../b/&lt;dst&gt;/o/&lt;obj&gt;/rewriteTo/b/&lt;src&gt;/o/&lt;obj&gt;: No such object: &lt;dst&gt;/&lt;obj&gt;</code>。
+   - 对策：<code>br_vendor_move.py</code> 增加 <strong>搬运方向自检（金丝雀）</strong>——正式搬运前先搬 1 个对象，
+     确认目标桶真的出现了该对象才开跑；两种方向都试，哪个能写进目标就用哪个，都不行直接报错退出。</p>
+</li>
+<li>
+<p><strong>SDK 默认 HTTP 连接池太小，直接把吞吐压死</strong>
+   - <code>google-cloud-storage</code> 用 requests 的 <code>HTTPAdapter(pool_maxsize=10)</code>；
+     几十个线程并发时只有 10 条连接被复用，其余每条请求都要重做 TLS 握手。
+   - 对策：把 <code>client._http</code> 的 adapter 换成 <code>pool_connections=64+, pool_maxsize=256</code>。
+   - 修复后：<strong>20 对象/s → 320~340 对象/s（约 16 倍）</strong>。</p>
+</li>
+<li>
+<p><strong><code>gsutil -m rm</code> 会 fork 大量子进程，多厂家并发能把 8 核打满</strong>
+   - 15 家同时 <code>gsutil -m rm</code> → load 41、CPU 饱和，把关键路径的复制拖到 20 对象/s。
+   - 对策：改用<strong>编译版</strong> <code>gcloud storage rm -r --quiet</code>（单进程、轻量），并把收尾并发降到 3。</p>
+</li>
+<li>
+<p><strong><code>client.batch()</code> 在 google-cloud-storage 3.x 已经坏了</strong>
+   - 调用直接抛 <code>KeyError: "Cannot get('items', default=()) on a future"</code>。
+   - 对策：不要用 batch 删除；逐对象删只作为兜底。</p>
+</li>
+<li>
+<p><strong>删桶前必须先清空对象</strong>
+   - 桶非空时 <code>buckets.delete</code> 会失败（或被静默吞掉），留下"空壳桶"，
+     后续"重建同名桶"直接跳过 → 假完成、线上 404。
+   - 对策：清空（清空后<strong>再数一遍</strong>确认 0）→ 删桶 → <strong>再确认桶不存在</strong> → 才继续下一步。</p>
+</li>
+<li>
+<p><strong><code>pkill -f &lt;关键字&gt;</code> 会把自己那条 SSH 命令一起杀掉</strong>
+   - 因为模式字符串出现在自己的命令行里（踩了 4 次以上，表现是"命令莫名消失、任务没起"）。
+   - 对策：优先用 <code>docker kill &lt;cid&gt;</code>；必须用 pkill 时，用变量拼接把关键字拆开
+     （<code>X="gs""util"; pkill -f "$X"</code>）。</p>
+</li>
+<li>
+<p><strong>后台任务必须 <code>setsid</code>，且不要用 <code>$!</code> 判断存活</strong>
+   - 只 <code>nohup</code> 会被 SSH 会话带走；<code>setsid cmd &amp;</code> 时 <code>$!</code> 可能立刻失效。
+   - 对策：用 <code>docker ps</code>/状态文件判断存活，不要用 pid 文件。</p>
+</li>
+<li>
+<p><strong>限流会让"列举对象"返回空 → 误判"全部缺失"</strong>
+   - 所有列举都要带重试，否则会把"限流"当成"桶里没东西"。</p>
+</li>
+<li>
+<p><strong>迁移与"补全脚本"不能同时跑</strong>
+   - 一边删桶重建、一边从暂存桶回填，两边互相打架，曾出现 CDN 桶被清成 0（玩家 404）。
+   - 对策：同一时刻只跑一条链路；补全要在迁移结束后统一做。</p>
+</li>
+<li>
+<p><strong>发群通知里 <code>%d</code> 拿到 None 会直接崩掉整个迁移进程</strong></p>
+<ul>
+<li>本次真实事故：步骤2 删完日本桶后，把 <code>region()</code>（返回 None）覆盖到了 <code>left</code> 变量，
+  通知格式化 <code>%d</code> 抛 TypeError → 进程退出，任务停在"日本桶已删、巴西桶未建"的中间态。</li>
+<li>对策：中间态必须可续跑（本工具已支持"日本桶不在、暂存桶在 → 直接进步骤3"）。</li>
+</ul>
+</li>
+<li>
+<p><strong>小文件多不是 CPU 高的根因，"每文件起进程"才是</strong></p>
+<ul>
+<li>老实现每个文件起 3 个进程（aws cli + 2×gsutil），4000 个对象 ≈ 1.2 万次进程启动；
+  新实现全程 SDK 直连 + 服务端 rewrite，本地只发 API 调用。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>Blob.exists()</code> 会误判 False（自检假失败的真凶）</strong></p>
+<ul>
+<li><code>Blob</code> 对象一旦被 <code>delete()</code> 过、或带上了 <code>generation</code>，<code>exists()</code> 会带着这个
+  generation 去查（<code>?generation=N</code>），查到的是已不存在的旧版本 → 永远返回 False。</li>
+<li>本次真实事故：自检先删了目标对象再复制，复制其实成功了，但 <code>dst.exists()</code> 报 False，
+  于是判定"方向不对"直接中止；panda 因此停在"日本桶已删、巴西桶刚建"的中间态。</li>
+<li>对策：判存在统一用 <code>client.bucket(b).get_blob(name) is not None</code>（每次都是新查询）。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>gsutil -m cp</code> 回填很慢且不透明</strong></p>
+<ul>
+<li>实测只有约 85 对象/s，且不显示目标路径，排查困难。</li>
+<li>结论：GCS→GCS 同区复制用服务端 rewrite（320+ 对象/s）比 CLI 回填快 4 倍。</li>
+</ul>
+</li>
+<li>
+<p><strong>新建 / 重建的 GCS 桶默认私有 → Worker 匿名回源 403 → 被边缘缓存成 7 天</strong></p>
+<ul>
+<li>这是本轮最严重的事故（用户进不去游戏），详见上一节「线上事故」。</li>
+<li>迁移、扩容、重建桶的脚本都必须<strong>建桶后立刻</strong> <code>add-iam-policy-binding allUsers:objectViewer</code>。</li>
+</ul>
+</li>
+</ol>
+<h2 id="四-补-线上事故-新桶默认私有-导致-用户进不去游戏-2026-09-14-20-30-21-00">四·补、⚠️ 线上事故：新桶默认私有，导致"用户进不去游戏"（2026-09-14 20:30~21:00）</h2>
+<p><strong>现象</strong>：迁移完成后有用户反馈进不去游戏；部分老资源能进、新资源进不去。</p>
+<p><strong>根因</strong>（不是 Worker 代码、不是国家白名单）：</p>
+<pre><code class="language-text">1) 本轮迁移把「删大阪桶 → 在巴西重建同名桶」做了一遍，
+   而 GCS 新建桶默认是**私有**的 —— 17 个桶全部缺 allUsers:objectViewer
+2) Cloudflare Worker 回源 GCS 用的是**匿名请求**：
+   https://&lt;bucket&gt;.storage.googleapis.com/&lt;path&gt;
+   → 拿到 GCS 的 403：Anonymous caller does not have storage.objects.get access ...
+3) Worker 的 fetch 开了 cacheEverything + cacheTtl 604800，
+   **这个 403 被 Cloudflare 边缘缓存了 7 天**
+   → 已缓存过的老资源还能命中缓存（能进），没缓存过的新资源直接 403（进不去）
+</code></pre>
+<p><strong>修复动作</strong>：</p>
+<pre><code class="language-bash"># 1) 17 个桶全部补公开读
+gcloud storage buckets add-iam-policy-binding gs://newgg2-dbqp-gcs-&lt;前缀&gt; \
+  --member=allUsers --role=roles/storage.objectViewer
+# 2) 匿名直读逐个验证：17/17 返回 200
+curl -s -o /dev/null -w '%{http_code}' https://newgg2-dbqp-gcs-&lt;前缀&gt;.storage.googleapis.com/health.json
+# 3) 对 23 个静态 zone 做 purge everything（补权限前一次、补完后再一次，清掉期间产生的 403）
+#    宝塔上：bash /tmp/cf_purge_all.sh   （token 有 IP 白名单，必须从宝塔刷）
+# 4) 复验：origin 随机抽样 136/136 全 200；走 CDN 抽样 102/102 全 200
+</code></pre>
+<p><strong>永久防复现</strong>：<code>br_vendor_move.py</code> 新增 <code>make_public()</code>，<strong>建桶/复用桶之后立刻加
+<code>allUsers:objectViewer</code></strong>，失败会打日志并提示手工命令。
+以后任何"新建桶/重建桶"的脚本都必须带这一步。</p>
+<p><strong>用户侧提示</strong>：Worker 给 200 响应打了 <code>Cache-Control: public, max-age=604800</code>，
+浏览器也会缓存 7 天；用户手机若缓存过错误响应，清缓存/隐私窗口打开一次即可。</p>
+<p><strong>另一个潜在坑</strong>：线上 Worker 有 <code>ALLOWED_COUNTRIES = ["BR","SG","HK","AE"]</code>，
+非白名单国家的 IP 会拿到 403 页面 —— 排查"同一台手机换网络有的能进有的不能进"时，
+先让用户打开 <code>https://&lt;static-domain&gt;/cdn-cgi/trace</code> 看 <code>loc=</code> 是不是 BR。</p>
+<h2 id="五-同步链路-现状">五、同步链路（现状）</h2>
+<pre><code class="language-text">AWS S3（大阪）  dbqp-s3-&lt;前缀&gt;-static / dbqp-s3-tada-staticsN
+      ↓（03 上容器内 s3_gcs_sdk_sync.py，boto3 ↔ google-cloud-storage SDK 直连）
+GCS（巴西）     gs://newgg2-dbqp-gcs-&lt;前缀&gt;      ← 现在**只有这一套桶**
+      ↓
+Cloudflare Worker（static-gcs-proxy，BUCKET_MAP 前缀→桶名）
+      ↓
+玩家
+</code></pre>
+<p><code>BUCKET_MAP</code> 里 17 个前缀现在全部指向<strong>同名巴西桶</strong>（桶名没有后缀变化），
+所以本次迁移不需要改 Worker，也不需要改域名，只需按需刷 CDN 缓存。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-为什么必须-迁桶-而不是-改-Worker">一、为什么必须&quot;迁桶&quot;而不是&quot;改 Worker&quot;</a></li><li style="margin-left:0.0rem"><a href="#二-最终结果">二、最终结果</a></li><li style="margin-left:0.0rem"><a href="#二-补-迁移后的全量校验-S3-ETag-GCS-md5-零数据搬运">二·补、迁移后的全量校验（S3 ETag ↔ GCS md5，零数据搬运）</a></li><li style="margin-left:0.0rem"><a href="#三-工具-docker-scripts-gcs-br-migrate">三、工具（docker/scripts/gcs-br-migrate/）</a></li><li style="margin-left:0.0rem"><a href="#四-踩坑记录-重点-别再犯">四、踩坑记录（重点，别再犯）</a></li><li style="margin-left:0.0rem"><a href="#四-补-线上事故-新桶默认私有-导致-用户进不去游戏-2026-09-14-20-30-21-00">四·补、⚠️ 线上事故：新桶默认私有，导致&quot;用户进不去游戏&quot;（2026-09-14 20:30~21:00）</a></li><li style="margin-left:0.0rem"><a href="#五-同步链路-现状">五、同步链路（现状）</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 巴西主站</li>
+          <li>日期：2026-09-14</li>
+          <li>标签：<span class="tag">巴西主站</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">CDN</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-09-14-1930-【迁移】前端静态资源GCS日本迁巴西-17家并…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609141930-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E8%BF%81%E7%A7%BB%E3%80%91%E5%89%8D%E7%AB%AF%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20GCS%20%E6%97%A5%E6%9C%AC%28%E5%A4%A7%E9%98%AA%29%20%E2%86%92%20%E5%B7%B4%E8%A5%BF%28%E5%9C%A3%E4%BF%9D%E7%BD%97%29%20%C2%B7%2017%20%E5%AE%B6%E5%B9%B6%E8%A1%8C%E8%BF%81%E7%A7%BB%E4%B8%8E%E5%85%A8%E9%83%A8%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【迁移】前端静态资源 GCS 日本(大阪) → 巴西(圣保罗) · 17 家并行迁移与全部踩坑记录。本文属于历史运维与项目交付 / 巴西主站，服务器：后端 03 dbqp-saopaulo-sanic-prod-03 （203.0.113.1）， 全部压力在 03，宝塔不参与 目标：17 个厂家前端静态资源 GC…</p>
+      <p>关键词：巴西主站、Linux、Shell、Docker、CDN、安全运维、故障排查、源码与配置、历史运维与项目交付、历史运维与项目交付 / 巴西主站</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-62572f661b0f.html"><small>上一篇</small>【排查】TADA fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-79a7c5915b16.html"><small>下一篇</small>2026-09-15 周报生成记录（第 37 周 0908-0915）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9140d93a7eaf.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
