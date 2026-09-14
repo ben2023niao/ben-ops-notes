@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【问题排查+优化】测试与线上配置发版“容器内不生效”根因与三方一致性校验改造记录｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="【问题排查+优化】测试与线上配置发版“容器内不生效”根因与三方一致性校验改造记录。本文属于业务系统运维 / 游点涩，文档日期：2026-09-15 17:49 环境：测试环境（dev）+ 线上环境（main） 分类：问题排查 + 优化 风险等级：P2（配置发版链路 + 生产容器 no-build 重建） 标签：配…">
+  <meta name="keywords" content="游点涩，Shell，Python，Docker，Nginx，监控告警，自动化，安全运维，业务系统运维，业务系统运维 / 游点涩，【问题排查+优化】测试与线上配置发版“容器内不生效”根因与三方一致性校验改造记录，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b47c83de2612.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b47c83de2612.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609151749-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%2B%E4%BC%98%E5%8C%96%E3%80%91%E6%B5%8B%E8%AF%95%E4%B8%8E%E7%BA%BF%E4%B8%8A%E9%85%8D%E7%BD%AE%E5%8F%91%E7%89%88%E2%80%9C%E5%AE%B9%E5%99%A8%E5%86%85%E4%B8%8D%E7%94%9F%E6%95%88%E2%80%9D%E6%A0%B9%E5%9B%A0%E4%B8%8E%E4%B8%89%E6%96%B9%E4%B8%80%E8%87%B4%E6%80%A7%E6%A0%A1%E9%AA%8C%E6%94%B9%E9%80%A0%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【问题排查+优化】测试与线上配置发版“容器内不生效”根因与三方一致性校验改造记录">
+  <meta property="og:description" content="【问题排查+优化】测试与线上配置发版“容器内不生效”根因与三方一致性校验改造记录。本文属于业务系统运维 / 游点涩，文档日期：2026-09-15 17:49 环境：测试环境（dev）+ 线上环境（main） 分类：问题排查 + 优化 风险等级：P2（配置发版链路 + 生产容器 no-build 重建） 标签：配…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b47c83de2612.html">
+  <meta property="article:published_time" content="2026-09-15T17:49:00+08:00">
+  <meta property="article:modified_time" content="2026-09-15 17:49">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【问题排查+优化】测试与线上配置发版“容器内不生效”根因与三方一致性校验改造记录">
+  <meta name="twitter:description" content="【问题排查+优化】测试与线上配置发版“容器内不生效”根因与三方一致性校验改造记录。本文属于业务系统运维 / 游点涩，文档日期：2026-09-15 17:49 环境：测试环境（dev）+ 线上环境（main） 分类：问题排查 + 优化 风险等级：P2（配置发版链路 + 生产容器 no-build 重建） 标签：配…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b47c83de2612.html#article","headline":"【问题排查+优化】测试与线上配置发版“容器内不生效”根因与三方一致性校验改造记录","description":"【问题排查+优化】测试与线上配置发版“容器内不生效”根因与三方一致性校验改造记录。本文属于业务系统运维 / 游点涩，文档日期：2026-09-15 17:49 环境：测试环境（dev）+ 线上环境（main） 分类：问题排查 + 优化 风险等级：P2（配置发版链路 + 生产容器 no-build 重建） 标签：配…","datePublished":"2026-09-15T17:49:00+08:00","dateModified":"2026-09-15 17:49","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Shell","Python","Docker","Nginx","监控告警","自动化","安全运维","业务系统运维","业务系统运维 / 游点涩","【问题排查+优化】测试与线上配置发版“容器内不生效”根因与三方一致性校验改造记录","php"],"wordCount":2444,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b47c83de2612.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b47c83de2612.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【问题排查+优化】测试与线上配置发版“容器内不生效”根因与三方一致性校验改造记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b47c83de2612.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>【问题排查+优化】测试与线上配置发版“容器内不生效”根因与三方一致性校验改造记录</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>【问题排查+优化】测试与线上配置发版“容器内不生效”根因与三方一致性校验改造记录</h1>
+      <p class="lede">【问题排查+优化】测试与线上配置发版“容器内不生效”根因与三方一致性校验改造记录。本文属于业务系统运维 / 游点涩，文档日期：2026-09-15 17:49 环境：测试环境（dev）+ 线上环境（main） 分类：问题排查 + 优化 风险等级：P2（配置发版链路 + 生产容器 no-build 重建） 标签：配…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-15T17:49:00+08:00">发布于 2026-09-15</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,444 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-15-1749-【问题排查+优化】测试与线上配置发版容器内不生效根因与三方一致性校验改造记录.md</code></p>
+<p>整理日期：2026-09-15 17:49｜日期依据：文件名日期</p>
+</blockquote>
+<p>文档日期：2026-09-15 17:49
+环境：测试环境（dev）+ 线上环境（main）
+分类：问题排查 + 优化
+风险等级：P2（配置发版链路 + 生产容器 no-build 重建）
+标签：配置仓库、CICD、docker cp、bind mount、三方一致性、sha256、测试环境、线上环境、ben-bot</p>
+<h2 id="一-工单与背景">一、工单与背景</h2>
+<pre><code class="language-text">来源：游戏平台-运维-melo / 番子-远程后端 / Ben 运维（群内）
+现象：测试环境发布新配置后，宿主机配置已更新，但容器内仍是老配置
+      例：alb_white.txt 宿主机已含“星姬调教工坊 / ntrapi.1uhg.com”，web/cron 容器内仍是 8/27 旧文件
+追加要求（用户）：
+  1) 其他 txt 配置也要按同样机制同步（不能只写死 alb_white*.txt）
+  2) 配置发布必须校验三方 md5 完全一致才允许判定“发布成功”：
+     代码配置仓库文件 md5 = 宿主机配置文件 md5 = 各容器内配置文件 md5
+  3) 线上环境-游点涩-配置-发版 参考 测试环境-游点涩-配置-发版 同步优化
+  4) 全部操作留下详细文档；每步通知 18game运维 + 18GAME_ 上线群（正式環境）
+</code></pre>
+<h2 id="二-现象与证据-修复前">二、现象与证据（修复前）</h2>
+<pre><code class="language-text">测试环境 15.152.247.196（/opt/docker-youdianse-php，分支 dev）
+  alb_white.txt：宿主机 md5=7c83cfed…（新） vs 容器 md5=2f12c2e4…（旧，mtime 08-27 15:57）
+  alb_white_secret.txt：宿主机 c77ac424…（新） vs 容器 68c67118…（旧）
+  env/.env.dev：宿主机与容器一致（e630b41b…）→ env 已随容器重建生效
+</code></pre>
+<p>结论：<strong>env 正常、白名单类文件不生效</strong>，即“宿主机更新、容器内仍旧”只在非 bind mount 的本地配置文件上出现。</p>
+<h2 id="三-根因">三、根因</h2>
+<pre><code class="language-text">1. 白名单等 app-local-files 文件不是 bind mount，而是发布时通过 docker cp 写进容器；
+2. 配置发版/自动同步走的是 sync_runtime_config_no_build()（仅 docker compose up -d
+   --force-recreate --no-build web nginx cron），未调用
+   sync_protected_app_local_files_to_containers()；
+   只有完整发布 deploy() 才会执行 docker cp → 因此“配置发版”后宿主机生效、容器内不生效；
+3. 校验函数 collect_runtime_config_sync_status() 只比对 env/nginx/php/fpm 四类挂载文件，
+   不比对白名单，所以同步报告显示“复查已一致”，形成假阴性；
+4. 写死 PROTECTED_APP_LOCAL_FILES（alb_white.txt、alb_white_secret.txt），
+   配置仓库新增其它 txt 配置不会自动同步；
+5. （线上）即便手工 docker cp 过白名单，下一次“配置发版”仍不会重新下发，
+   历史版本会长期滞留在容器内。
+</code></pre>
+<h2 id="四-修复内容-代码级">四、修复内容（代码级）</h2>
+<h3 id="4-1-CICD-docker-youdianse-php">4.1 CICD（docker-youdianse-php）</h3>
+<p>测试环境 dev 分支（已推送 origin/dev）：</p>
+<pre><code class="language-text">e374b3c fix(cicd): 配置同步(no-build)补齐本地配置文件进容器 + 运行配置校验覆盖本地文件
+  · sync_runtime_config_no_build() 重建容器后调用
+    sync_protected_app_local_files_to_containers()（branch=当前运维分支），重新 docker cp 进 web/cron
+  · 新增 app_local_file_sync_targets()：同步目标 = 受保护清单 + 源目录内全部实际文件
+5f47e81 feat(cicd): 发布校验升级为三方一致性（配置仓库=宿主机=各容器）
+  · 新增 build_runtime_config_check()：统一三方 sha256 比对，任一侧缺失/不一致都判未通过
+  · collect_runtime_config_sync_status()：env 增加配置仓库 config-repo/env/&lt;env&gt; 比对源；
+    新增 app_local_file_runtime_checks() 覆盖本地配置文件（web/cron）
+  · 只有三方完全一致（needs_sync=False）才算发布成功
+1abc4b8 fix(cicd): core.py 补充 CONFIG_REPO_DIR 导入（首次执行即暴露并修复）
+</code></pre>
+<p>线上环境 main 分支（本地提交，已直接部署到线上服务器）：</p>
+<pre><code class="language-text">7e57614 feat(cicd): 线上环境配置发版同步优化为三方一致性校验（对齐测试环境）
+  · 与 dev 同构：app_local_file_sync_targets() / build_runtime_config_check() /
+    app_local_file_runtime_checks() / docker_container_runtime 辅助函数
+  · sync_protected_app_local_files_to_containers() 改用通用目标清单
+</code></pre>
+<h3 id="4-2-ben-bot-配置发版脚本-18game_devops">4.2 ben-bot 配置发版脚本（18game_devops）</h3>
+<pre><code class="language-text">测试环境：devops/python/ben-bot/data/scripts/测试环境-游点涩-配置-发版/youdianse_test_config_release.py
+线上环境：devops/python/ben-bot/data/scripts/线上环境-游点涩-配置-发版/youdianse_prod_config_release.py
+
+改动（两个脚本一致）：
+  · 新增 build_verify_cmd()/VERIFY_TEMPLATE：发布后对
+    env + app-local-files 下全部文件 逐项执行 check3，
+    比对 配置仓库文件 = 宿主机文件 = web 容器 = cron 容器 sha256
+  · 成功判定升级：commit 命中 + 全部 file_match=true + admin/cicd 200
+    （任一 file_match=false 一律“需人工复核”，不再只看 env 三方）
+  · 通知正文列出每个文件的 ✅/❌ 与四方 sha 前 12 位
+  · 修复枚举缺陷：app-local-files 目录为 0700，普通用户 glob 展开失败，
+    改为 sudo ls -1 枚举后再比对
+
+部署：已同步到 ben-bot 运行机 52.79.252.255
+  /opt/telegram/18game_devops/devops/python/ben-bot/data/scripts/…
+  备份：/root/bot-script-backup-20260915-174300/
+  校验：两端 py_compile 通过
+</code></pre>
+<h2 id="五-执行与验证">五、执行与验证</h2>
+<h3 id="5-1-测试环境">5.1 测试环境</h3>
+<pre><code class="language-text">① 拉取修复代码：/opt/docker-youdianse-php  sudo git pull --ff-only origin dev → 1abc4b8
+② 执行：python3 cicd-web.py sync-config --force --json
+   结果：needs_sync=false，全部 ok
+     env → web/cron：配置仓库=99cbb83a8846 宿主机=99cbb83a8846 容器=99cbb83a8846
+     alb_white.txt → web/cron：1b0b87735bbc ×3
+     alb_white_secret.txt → web/cron：e9d6835716c0 ×3
+③ ben-bot 校验命令实测（三方校验版）：
+     file_match=true env / alb_white.txt / alb_white_secret.txt，admin_login=200、cicd=200
+④ 效果：新增 ntrapi.1uhg.com（星姬调教工坊，测试环境）已落到 web/cron 容器内
+</code></pre>
+<h3 id="5-2-线上环境">5.2 线上环境</h3>
+<pre><code class="language-text">① 部署 CICD 修复：备份 /root/cicd-core-backup-20260915-174627.py →
+   install 新 core.py（644 root:root）→ venv python -m py_compile 通过 →
+   systemctl restart cicd-web → active，http://203.0.113.1:18090 = 200
+   （线上服务器 core.py 与本地 main 修复前版本逐字节一致，故为干净升级）
+② 配置仓库新增（root/docker-youdianse-php-config-main）：
+   app-local-files/alb_white_secret.txt 末尾新增
+     # ===== 星姬调教工坊 线上生产服 =====  格式 平台 + 私钥
+     xjgf=&lt;平台私钥行，值不在群内/文档展开&gt;
+   commit e93d818 已推送 origin/main
+③ 配置发版：python3 cicd-web.py sync-config --force --json
+   → no-build 重建 web/nginx/cron；docker cp alb_white.txt、alb_white_secret.txt（1246 字节）
+   → needs_sync=false，全部 ok：
+     env：19fb51b824f0 = 19fb51b824f0 = 19fb51b824f0
+     alb_white.txt：684ff4d80eca ×4（配置仓库/宿主机/web/cron）
+     alb_white_secret.txt：ca03838617aa ×4
+④ 业务复核：容器 Up；admin=200、cicd=200、公网 https://www.youdianse.com/ 200；
+   容器内已包含新增的 xjgf 行（grep 命中 1）
+⑤ ben-bot 校验命令实测（线上三方校验版）：
+   file_match=true env / alb_white.txt / alb_white_secret.txt；admin=200、cicd=200
+</code></pre>
+<h2 id="六-风险-回滚与遗留">六、风险、回滚与遗留</h2>
+<pre><code class="language-text">回滚点：
+  · 测试环境：origin/dev 可在 e374b3c 之前回退（f981d16）
+  · 线上环境：CICD core.py 备份 /root/cicd-core-backup-20260915-174627.py，
+    systemctl restart cicd-web 即回到修复前
+  · ben-bot：/root/bot-script-backup-20260915-174300/ 覆盖回去即可
+  · 配置仓库：e93d818 的上一版 d875175（按钮选旧 git id 可回滚）
+
+遗留与建议：
+  1) 线上运维仓库 /opt/docker-youdianse-php 处于“落后 origin/main 61 个提交 + 工作区多处本地改动”
+     状态，本次采用“精确替换 core.py”方式上线；建议后续单独安排一次现场仓库整理（备份+对齐），
+     否则自动更新会一直跳过拉取；
+  2) 线上 main 的 CICD 修复目前为本地提交 + 现场部署，未推送 origin/main（按规则未 Push，待确认）；
+  3) 配置仓库新增 txt 配置已可自动同步，但如需纳入“受保护清单”（参与备份/恢复/Git 保护），
+     仍需把文件名加入 YOUDIANSE_PROTECTED_APP_LOCAL_FILES（settings.json defaults.protected_app_local_files）；
+  4) 建议将“三方一致性”结果纳入 CICD 页面展示与失败告警（当前已在通知与 CLI 退出码体现）。
+</code></pre>
+<h2 id="七-通知记录">七、通知记录</h2>
+<pre><code class="language-text">步骤 1 开工前状态核对                 上线群 11742 / 运维群 87360
+步骤 2 根因定位（白名单未进容器）     上线群 11743 / 运维群 87361
+步骤 3 代码修复（CICD 同步链路）      上线群 11744 / 运维群 87370
+步骤 4 测试环境修复验证               上线群 11745 / 运维群 87371
+步骤 5 线上同步优化（main 代码）     见本次后续通知
+步骤 6 线上部署 + 配置发版 + 三方校验 见本次后续通知
+步骤 7 ben-bot 发版脚本升级           见本次后续通知
+步骤 8 汇总与文档 / 9 本地提交 / 10 提交结果 见本次后续通知
+</code></pre>
+<h2 id="八-安全与敏感内容">八、安全与敏感内容</h2>
+<pre><code class="language-text">本记录不输出 Telegram token/chat_id、服务器密钥、平台私钥值（xjgf 行）与任何明文口令；
+配置仓库内实际内容按既有规范维护，不在文档与群通知展开。
+</code></pre>
+<h2 id="九-线上新增配置回退-用户-2026-09-15-追加要求">九、线上新增配置回退（用户 2026-09-15 追加要求）</h2>
+<pre><code class="language-text">用户要求：刚刚新加的这条配置只发布测试环境，线上的还原。
+（补充说明：线上新配置的数值需等开发侧提供后才能发布线上新配置。）
+
+执行：
+1. 配置仓库 root/docker-youdianse-php-config-main：
+   git revert e93d818 → 7836b0f（Revert "config(alb_white_secret): 新增 星姬调教工坊 线上生产服 平台私钥"）
+   已推送 origin/main；回退后 xjgf 行数 0。
+2. 线上配置发版：python3 cicd-web.py sync-config --force --json
+   → no-build 重建 web/nginx/cron；alb_white_secret.txt 由 1246 字节回到 1150 字节；
+   → needs_sync=false，全部 ok
+      env 19fb51b824f0 ×3；alb_white.txt 684ff4d80eca ×4；
+      alb_white_secret.txt 3688d137ddac ×4（配置仓库/宿主机/web/cron）
+
+验证：
+  · 容器内 xjgf 行数：web=0、cron=0（已还原）
+  · 容器 Up；admin=200、cicd=200；公网 https://www.youdianse.com/ 200、
+    https://admin.youdianse-main.xyz/admin1866/login 200
+
+当前状态：
+  · 测试环境：保留新增的 ntrapi.1uhg.com（星姬调教工坊，测试环境）→ 已落容器；
+  · 线上环境：alb_white_secret.txt 已还原为回退前内容；待开发侧提供线上数值后再走
+    “配置仓库提交 → 配置发版按钮 → 三方一致性校验”流程发布。
+  · 本次保留的成果（不回退）：三方一致性校验代码（dev/main）、ben-bot 校验升级、通用同步机制。
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-工单与背景">一、工单与背景</a></li><li style="margin-left:0.0rem"><a href="#二-现象与证据-修复前">二、现象与证据（修复前）</a></li><li style="margin-left:0.0rem"><a href="#三-根因">三、根因</a></li><li style="margin-left:0.0rem"><a href="#四-修复内容-代码级">四、修复内容（代码级）</a></li><li style="margin-left:0.8rem"><a href="#4-1-CICD-docker-youdianse-php">4.1 CICD（docker-youdianse-php）</a></li><li style="margin-left:0.8rem"><a href="#4-2-ben-bot-配置发版脚本-18game_devops">4.2 ben-bot 配置发版脚本（18game_devops）</a></li><li style="margin-left:0.0rem"><a href="#五-执行与验证">五、执行与验证</a></li><li style="margin-left:0.8rem"><a href="#5-1-测试环境">5.1 测试环境</a></li><li style="margin-left:0.8rem"><a href="#5-2-线上环境">5.2 线上环境</a></li><li style="margin-left:0.0rem"><a href="#六-风险-回滚与遗留">六、风险、回滚与遗留</a></li><li style="margin-left:0.0rem"><a href="#七-通知记录">七、通知记录</a></li><li style="margin-left:0.0rem"><a href="#八-安全与敏感内容">八、安全与敏感内容</a></li><li style="margin-left:0.0rem"><a href="#九-线上新增配置回退-用户-2026-09-15-追加要求">九、线上新增配置回退（用户 2026-09-15 追加要求）</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-09-15</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">监控告警</span><span class="tag">自动化</span><span class="tag">安全运维</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-15-1749-【问题排…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609151749-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%2B%E4%BC%98%E5%8C%96%E3%80%91%E6%B5%8B%E8%AF%95%E4%B8%8E%E7%BA%BF%E4%B8%8A%E9%85%8D%E7%BD%AE%E5%8F%91%E7%89%88%E2%80%9C%E5%AE%B9%E5%99%A8%E5%86%85%E4%B8%8D%E7%94%9F%E6%95%88%E2%80%9D%E6%A0%B9%E5%9B%A0%E4%B8%8E%E4%B8%89%E6%96%B9%E4%B8%80%E8%87%B4%E6%80%A7%E6%A0%A1%E9%AA%8C%E6%94%B9%E9%80%A0%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【问题排查+优化】测试与线上配置发版“容器内不生效”根因与三方一致性校验改造记录。本文属于业务系统运维 / 游点涩，文档日期：2026-09-15 17:49 环境：测试环境（dev）+ 线上环境（main） 分类：问题排查 + 优化 风险等级：P2（配置发版链路 + 生产容器 no-build 重建） 标签：配…</p>
+      <p>关键词：游点涩、Shell、Python、Docker、Nginx、监控告警、自动化、安全运维、业务系统运维、业务系统运维 / 游点涩、【问题排查+优化】测试与线上配置发版“容器内不生效”根因与三方一致性校验改造记录、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e2f0cec28824.html"><small>上一篇</small>【修复+优化】配置发版三方一致性校验（测试环境 + 线上环境）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8c823041e319.html"><small>下一篇</small>TADA 部分游戏加载不出来：排查记录与可人工打开的链接清单</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b47c83de2612.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

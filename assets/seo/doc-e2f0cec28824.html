@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【修复+优化】配置发版三方一致性校验（测试环境 + 线上环境）｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="【修复+优化】配置发版三方一致性校验（测试环境 + 线上环境）。本文属于历史运维与项目交付 / 18Game 测试环境，时间：2026-09-15 17:49（Asia/Manila） 环境标签：测试环境 / 线上环境 / CICD / ben-bot 通知群： 18game运维 （-4929911895） +…">
+  <meta name="keywords" content="18Game 测试环境，Shell，Python，Docker，Nginx，监控告警，自动化，故障排查，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，【修复+优化】配置发版三方一致性校验（测试环境 + 线上环境），devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e2f0cec28824.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e2f0cec28824.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609151749-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E3%80%90%E4%BF%AE%E5%A4%8D%2B%E4%BC%98%E5%8C%96%E3%80%91%E9%85%8D%E7%BD%AE%E5%8F%91%E7%89%88%E4%B8%89%E6%96%B9%E4%B8%80%E8%87%B4%E6%80%A7%E6%A0%A1%E9%AA%8C%EF%BC%88%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20%2B%20%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【修复+优化】配置发版三方一致性校验（测试环境 + 线上环境）">
+  <meta property="og:description" content="【修复+优化】配置发版三方一致性校验（测试环境 + 线上环境）。本文属于历史运维与项目交付 / 18Game 测试环境，时间：2026-09-15 17:49（Asia/Manila） 环境标签：测试环境 / 线上环境 / CICD / ben-bot 通知群： 18game运维 （-4929911895） +…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e2f0cec28824.html">
+  <meta property="article:published_time" content="2026-09-15T17:49:00+08:00">
+  <meta property="article:modified_time" content="2026-09-15 17:49">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【修复+优化】配置发版三方一致性校验（测试环境 + 线上环境）">
+  <meta name="twitter:description" content="【修复+优化】配置发版三方一致性校验（测试环境 + 线上环境）。本文属于历史运维与项目交付 / 18Game 测试环境，时间：2026-09-15 17:49（Asia/Manila） 环境标签：测试环境 / 线上环境 / CICD / ben-bot 通知群： 18game运维 （-4929911895） +…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e2f0cec28824.html#article","headline":"【修复+优化】配置发版三方一致性校验（测试环境 + 线上环境）","description":"【修复+优化】配置发版三方一致性校验（测试环境 + 线上环境）。本文属于历史运维与项目交付 / 18Game 测试环境，时间：2026-09-15 17:49（Asia/Manila） 环境标签：测试环境 / 线上环境 / CICD / ben-bot 通知群： 18game运维 （-4929911895） +…","datePublished":"2026-09-15T17:49:00+08:00","dateModified":"2026-09-15 17:49","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Shell","Python","Docker","Nginx","监控告警","自动化","故障排查","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","【修复+优化】配置发版三方一致性校验（测试环境 + 线上环境）","devops"],"wordCount":1309,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e2f0cec28824.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e2f0cec28824.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【修复+优化】配置发版三方一致性校验（测试环境 + 线上环境）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e2f0cec28824.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>【修复+优化】配置发版三方一致性校验（测试环境 + 线上环境）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>【修复+优化】配置发版三方一致性校验（测试环境 + 线上环境）</h1>
+      <p class="lede">【修复+优化】配置发版三方一致性校验（测试环境 + 线上环境）。本文属于历史运维与项目交付 / 18Game 测试环境，时间：2026-09-15 17:49（Asia/Manila） 环境标签：测试环境 / 线上环境 / CICD / ben-bot 通知群： 18game运维 （-4929911895） +…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-15T17:49:00+08:00">发布于 2026-09-15</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,309 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-09-15_1749-【修复+优化】配置发版三方一致性校验（测试+线上）.md</code></p>
+<p>整理日期：2026-09-15 17:49｜日期依据：文件名日期</p>
+</blockquote>
+<p>时间：2026-09-15 17:49（Asia/Manila）
+环境标签：测试环境 / 线上环境 / CICD / ben-bot
+通知群：<code>18game运维</code>（-4929911895） + <code>18GAME_ 上线群（正式環境）</code>（-1003762262155）</p>
+<h2 id="一-背景与问题">一、背景与问题</h2>
+<p>用户反馈：<strong>测试环境发布新配置后，宿主机配置已更新，容器内仍是老配置</strong>。</p>
+<p>复核证据：</p>
+<pre><code class="language-text">测试环境 15.152.247.196（/opt/docker-youdianse-php，分支 dev）
+  alb_white.txt：宿主机 md5=7c83cfed…（新） vs web/cron 容器 md5=2f12c2e4…（旧，08-27 15:57）
+  alb_white_secret.txt：宿主机 c77ac424… vs 容器 68c67118…
+  env/.env.dev：宿主机与容器一致 → env 正常，问题只在白名单类文件
+</code></pre>
+<p>用户追加要求：</p>
+<ol>
+<li>其它 txt 配置也要按同样机制同步（不能只写死 <code>alb_white*.txt</code>）；</li>
+<li>发布成功必须满足三方 md5 完全一致：<strong>配置仓库文件 = 宿主机 = 各容器</strong>；</li>
+<li><code>线上环境-游点涩-配置-发版</code> 参考 <code>测试环境-游点涩-配置-发版</code> 同步优化；</li>
+<li>全部操作留详细文档，每步通知两个群。</li>
+</ol>
+<h2 id="二-根因-CICD-侧">二、根因（CICD 侧）</h2>
+<pre><code class="language-text">1. app-local-files（白名单等）不是 bind mount，而是发布时用 docker cp 写进容器；
+2. 配置发版/自动同步走 sync_runtime_config_no_build()（只 up -d --force-recreate --no-build
+   web nginx cron），未调用 sync_protected_app_local_files_to_containers()；
+   只有完整发布 deploy() 才会 docker cp → 所以“配置发版”后宿主机生效、容器内不生效；
+3. collect_runtime_config_sync_status() 只比对 env/nginx/php/fpm 挂载文件，
+   不比对白名单 → 报告“复查已一致”，形成假阴性；
+4. 同步目标写死 PROTECTED_APP_LOCAL_FILES，新增 txt 配置不会自动同步。
+</code></pre>
+<h2 id="三-代码修复-docker-youdianse-php">三、代码修复（docker-youdianse-php）</h2>
+<p>测试环境（dev，已推送 origin/dev）：</p>
+<pre><code class="language-text">e374b3c 修复：no-build 配置同步补齐 docker cp 本地配置文件进容器；
+        同步目标改为 app_local_file_sync_targets()（受保护清单 + 源目录内全部文件）
+5f47e81 升级：三方一致性校验 build_runtime_config_check()；
+        collect_runtime_config_sync_status() 增加配置仓库比对源与 app_local_file_runtime_checks()
+1abc4b8 修复：core.py 补充 CONFIG_REPO_DIR 导入（首次执行即暴露）
+</code></pre>
+<p>线上环境（main，本地提交 7e57614 + 现场部署）：</p>
+<pre><code class="language-text">7e57614 与 dev 同构：通用同步目标 + 三方校验 + 本地配置文件校验（web/cron）
+部署：备份 /root/cicd-core-backup-20260915-174627.py → 替换 core.py →
+     venv py_compile 通过 → systemctl restart cicd-web（active，18090 = 200）
+</code></pre>
+<h2 id="四-ben-bot-发版脚本升级-本仓库">四、ben-bot 发版脚本升级（本仓库）</h2>
+<pre><code class="language-text">devops/python/ben-bot/data/scripts/测试环境-游点涩-配置-发版/youdianse_test_config_release.py
+devops/python/ben-bot/data/scripts/线上环境-游点涩-配置-发版/youdianse_prod_config_release.py
+
+改动：
+  · 新增 VERIFY_TEMPLATE + build_verify_cmd()：发布后对 env 与 app-local-files 下全部文件
+    执行 check3：配置仓库 = 宿主机 = web 容器 = cron 容器（sha256 前 12 位展示）
+  · 成功判定：commit 命中 + 全部 file_match=true + admin/cicd 200；
+    任一 file_match=false → “需人工复核”，不再只看 env 三方
+  · 通知正文逐文件列出 ✅/❌ 与四方 sha 前 12 位
+  · 修复枚举缺陷：app-local-files 目录 0700，普通用户 glob 展开失败 → 改为 sudo ls -1 枚举
+
+部署：ben-bot 运行机 52.79.252.255
+  /opt/telegram/18game_devops/devops/python/ben-bot/data/scripts/…
+  备份 /root/bot-script-backup-20260915-174300/；两端 py_compile 通过
+</code></pre>
+<h2 id="五-执行与验证结果">五、执行与验证结果</h2>
+<pre><code class="language-text">测试环境：
+  sync-config --force → needs_sync=false
+  env 99cbb83a8846 ×3；alb_white.txt 1b0b87735bbc ×3；alb_white_secret.txt e9d6835716c0 ×3
+  新增 ntrapi.1uhg.com（星姬调教工坊，测试环境）已落容器
+  ben-bot 校验命令实测：全部 file_match=true，admin_login=200、cicd=200
+
+线上环境：
+  配置仓库 e93d818 新增“星姬调教工坊 线上生产服”alb_white_secret 行（值不在群/文档展开）
+  sync-config --force → no-build 重建；needs_sync=false
+  env 19fb51b824f0 ×3；alb_white.txt 684ff4d80eca ×4；alb_white_secret.txt ca03838617aa ×4
+  容器 Up；admin=200、cicd=200、公网 https://www.youdianse.com/ 200；
+  容器内 grep xjgf = 1（新行已生效）
+  ben-bot 校验命令实测：三个文件 file_match=true
+</code></pre>
+<h2 id="六-回滚与遗留">六、回滚与遗留</h2>
+<pre><code class="language-text">回滚：
+  · ben-bot 脚本：/root/bot-script-backup-20260915-174300/ 覆盖回去
+  · 线上 CICD：/root/cicd-core-backup-20260915-174627.py 覆盖 + restart cicd-web
+  · 配置仓库：按钮选上一版 git id d875175 回滚
+
+遗留：
+  1) 线上运维仓库落后 origin/main 61 个提交且工作区有本地改动，本次为精确替换上线，
+     建议安排一次现场仓库整理；
+  2) 新增 txt 配置已自动同步进容器，但如需进入“备份/恢复/Git 保护”清单，
+    仍需加入 settings.json defaults.protected_app_local_files；
+  3) 建议把三方一致性结果纳入 CICD 页面展示与失败告警。
+</code></pre>
+<h2 id="七-线上新增配置回退-用户-2026-09-15-追加要求">七、线上新增配置回退（用户 2026-09-15 追加要求）</h2>
+<pre><code class="language-text">要求：新加配置只发布测试环境，线上还原（线上数值待开发侧提供后再发布）。
+执行：
+  · 配置仓库 config-main：revert e93d818 → 7836b0f（已推送 origin/main，xjgf 行数 0）
+  · 线上发版：sync-config --force → alb_white_secret.txt 1246 → 1150 字节；
+    needs_sync=false；三方 sha 3688d137ddac（配置仓库/宿主机/web/cron 一致）
+  · 验证：web/cron 容器内 xjgf 行数 0；容器 Up；admin=200、cicd=200、公网 www 200
+当前状态：测试环境保留新行；线上已还原，等开发侧给出线上数值后再发布。
+本次保留：三方一致性校验（CICD dev/main + ben-bot 两脚本）与通用同步机制。
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-背景与问题">一、背景与问题</a></li><li style="margin-left:0.0rem"><a href="#二-根因-CICD-侧">二、根因（CICD 侧）</a></li><li style="margin-left:0.0rem"><a href="#三-代码修复-docker-youdianse-php">三、代码修复（docker-youdianse-php）</a></li><li style="margin-left:0.0rem"><a href="#四-ben-bot-发版脚本升级-本仓库">四、ben-bot 发版脚本升级（本仓库）</a></li><li style="margin-left:0.0rem"><a href="#五-执行与验证结果">五、执行与验证结果</a></li><li style="margin-left:0.0rem"><a href="#六-回滚与遗留">六、回滚与遗留</a></li><li style="margin-left:0.0rem"><a href="#七-线上新增配置回退-用户-2026-09-15-追加要求">七、线上新增配置回退（用户 2026-09-15 追加要求）</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-09-15</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">监控告警</span><span class="tag">自动化</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-09-15_1749-【修复+优化】配置发版三方一致性校验（测试+线…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609151749-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E3%80%90%E4%BF%AE%E5%A4%8D%2B%E4%BC%98%E5%8C%96%E3%80%91%E9%85%8D%E7%BD%AE%E5%8F%91%E7%89%88%E4%B8%89%E6%96%B9%E4%B8%80%E8%87%B4%E6%80%A7%E6%A0%A1%E9%AA%8C%EF%BC%88%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20%2B%20%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【修复+优化】配置发版三方一致性校验（测试环境 + 线上环境）。本文属于历史运维与项目交付 / 18Game 测试环境，时间：2026-09-15 17:49（Asia/Manila） 环境标签：测试环境 / 线上环境 / CICD / ben-bot 通知群： 18game运维 （-4929911895） +…</p>
+      <p>关键词：18Game 测试环境、Shell、Python、Docker、Nginx、监控告警、自动化、故障排查、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、【修复+优化】配置发版三方一致性校验（测试环境 + 线上环境）、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f2a81f479c76.html"><small>上一篇</small>游戏维护与更新通知模板</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b47c83de2612.html"><small>下一篇</small>【问题排查+优化】测试与线上配置发版“容器内不生效”根因与三方一致性校验改造记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e2f0cec28824.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
