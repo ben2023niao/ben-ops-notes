@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【运维】nginx 双后端（01+02）容灾优化 + 故障切换实测｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
+  <meta name="description" content="【运维】nginx 双后端（01+02）容灾优化 + 故障切换实测。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-18 目标： 01、02 同时接流量（双活）；任意关掉其中一台，客户端不受影响 。 改动位置：入口机 34.151.249.53（线上真正生效）+ 宝塔 35.247.205.6（保…">
+  <meta name="keywords" content="巴西主站，Docker，Nginx，DNS，故障排查，数据库恢复，源码与配置，历史运维与项目交付，历史运维与项目交付 / 巴西主站，【运维】nginx 双后端（01+02）容灾优化 + 故障切换实测">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e67956c2fce.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e67956c2fce.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609180000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BDocker%2BNginx-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91nginx%20%E5%8F%8C%E5%90%8E%E7%AB%AF%EF%BC%8801%2B02%EF%BC%89%E5%AE%B9%E7%81%BE%E4%BC%98%E5%8C%96%20%2B%20%E6%95%85%E9%9A%9C%E5%88%87%E6%8D%A2%E5%AE%9E%E6%B5%8B.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【运维】nginx 双后端（01+02）容灾优化 + 故障切换实测">
+  <meta property="og:description" content="【运维】nginx 双后端（01+02）容灾优化 + 故障切换实测。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-18 目标： 01、02 同时接流量（双活）；任意关掉其中一台，客户端不受影响 。 改动位置：入口机 34.151.249.53（线上真正生效）+ 宝塔 35.247.205.6（保…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e67956c2fce.html">
+  <meta property="article:published_time" content="2026-09-18T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-09-18 00:00">
+  <meta property="article:section" content="历史运维与项目交付 / 巴西主站">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【运维】nginx 双后端（01+02）容灾优化 + 故障切换实测">
+  <meta name="twitter:description" content="【运维】nginx 双后端（01+02）容灾优化 + 故障切换实测。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-18 目标： 01、02 同时接流量（双活）；任意关掉其中一台，客户端不受影响 。 改动位置：入口机 34.151.249.53（线上真正生效）+ 宝塔 35.247.205.6（保…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e67956c2fce.html#article","headline":"【运维】nginx 双后端（01+02）容灾优化 + 故障切换实测","description":"【运维】nginx 双后端（01+02）容灾优化 + 故障切换实测。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-18 目标： 01、02 同时接流量（双活）；任意关掉其中一台，客户端不受影响 。 改动位置：入口机 34.151.249.53（线上真正生效）+ 宝塔 35.247.205.6（保…","datePublished":"2026-09-18T00:00:00+08:00","dateModified":"2026-09-18 00:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Docker","Nginx","DNS","故障排查","数据库恢复","源码与配置","历史运维与项目交付","历史运维与项目交付 / 巴西主站","【运维】nginx 双后端（01+02）容灾优化 + 故障切换实测"],"wordCount":1637,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e67956c2fce.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e67956c2fce.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【运维】nginx 双后端（01+02）容灾优化 + 故障切换实测","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e67956c2fce.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 巴西主站</span> › <span>【运维】nginx 双后端（01+02）容灾优化 + 故障切换实测</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
+      <h1>【运维】nginx 双后端（01+02）容灾优化 + 故障切换实测</h1>
+      <p class="lede">【运维】nginx 双后端（01+02）容灾优化 + 故障切换实测。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-18 目标： 01、02 同时接流量（双活）；任意关掉其中一台，客户端不受影响 。 改动位置：入口机 34.151.249.53（线上真正生效）+ 宝塔 35.247.205.6（保…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-18T00:00:00+08:00">发布于 2026-09-18</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,637 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-09-18-【运维】nginx双后端01+02容灾优化与故障切换实测.md</code></p>
+<p>整理日期：2026-09-18 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>时间：2026-09-18
+目标：<strong>01、02 同时接流量（双活）；任意关掉其中一台，客户端不受影响</strong>。
+改动位置：入口机 34.151.249.53（线上真正生效）+ 宝塔 35.247.205.6（保持一致）。</p>
+<hr/>
+<h2 id="一-改前的问题">一、改前的问题</h2>
+<pre><code class="language-text">1) proxy_connect_timeout 60s
+   后端"卡住但不拒绝连接"时，请求要干等 60 秒才失败 —— 这段时间客户端就是转圈。
+2) 没有显式配置 proxy_next_upstream
+   只能吃默认值（error timeout），失败后是否改投另一台不明确。
+3) proxy_read_timeout 600s
+   后端"静默消失"（进程被强杀/网络被丢包）时，nginx 复用的 keepalive 空闲连接
+   不会立刻断开，请求要等到 600 秒才报错 —— 实测已经复现（见第四节）。
+4) upstream max_fails=3 fail_timeout=10s
+   坏节点要累计 3 次失败才被摘除，摘除慢一步。
+</code></pre>
+<h2 id="二-改后的配置-两台机器一致">二、改后的配置（两台机器一致）</h2>
+<h3 id="1-后端层-00-vendor-upstreams-conf">1）后端层：<code>00.vendor-upstreams.conf</code></h3>
+<pre><code class="language-nginx">upstream tada_game_backend {              # 以 TADA 为例，其它厂家同理
+    least_conn;                           # 按连接数最少的后端分发（双活要的就是它）
+    server 203.0.113.1:9096 max_fails=2 fail_timeout=5s;          # 01 生效
+    server 203.0.113.1:9096 max_fails=2 fail_timeout=5s;          # 02 生效
+    server 203.0.113.1:9096 max_fails=2 fail_timeout=5s down;    # 03 备用
+    keepalive 32;                         # 与后端保持最多 32 条长连接，省握手
+    keepalive_timeout 10s;                # 空闲 10s 回收（避免复用"对端其实已经死了"的连接）
+    keepalive_requests 1000;              # 每条上游连接最多复用 1000 次
+}
+</code></pre>
+<p>变化点：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>改前</th>
+<th>改后</th>
+<th>为什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>生效机器</td>
+<td>只有 02</td>
+<td><strong>01 + 02 同时</strong></td>
+<td>双活，单台挂掉仍有另一台</td>
+</tr>
+<tr>
+<td>max_fails</td>
+<td>3</td>
+<td><strong>2</strong></td>
+<td>更快摘除坏节点</td>
+</tr>
+<tr>
+<td>fail_timeout</td>
+<td>10s</td>
+<td><strong>5s</strong></td>
+<td>摘除后更快重新探测</td>
+</tr>
+<tr>
+<td>keepalive_timeout</td>
+<td>无（默认 60s）</td>
+<td><strong>10s</strong></td>
+<td>空闲连接快速回收</td>
+</tr>
+<tr>
+<td>keepalive_requests</td>
+<td>无（默认 1000）</td>
+<td>1000（显式）</td>
+<td>明确复用上限</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-代理层-all-games-proxy-conf-每个厂家-location-都一样">2）代理层：<code>all-games-proxy.conf</code>（每个厂家 location 都一样）</h3>
+<pre><code class="language-nginx">location @tada_game_backend {
+    proxy_pass http://tada_game_backend;
+    # 双后端容灾：连接失败/超时/网关错误时自动改投另一台（最多 2 次、总耗时 10s）
+    proxy_next_upstream error timeout http_502 http_503 http_504;
+    proxy_next_upstream_tries 2;
+    proxy_next_upstream_timeout 10s;
+    ...
+    proxy_connect_timeout 5s;   # 容灾优化：原 60s -&gt; 5s，后端卡住时快速切换
+    proxy_read_timeout 60s;     # 容灾优化：原 600s -&gt; 60s，后端静默挂掉时不至于卡 10 分钟
+    ...
+}
+</code></pre>
+<p>WebSocket 的两个 location（<code>/lifeservice/ws2</code>、<code>/ws2</code>）<strong>保持 <code>proxy_read_timeout 3600s</code></strong>
+（长连接本来就该长；它们也加了同一套 <code>proxy_next_upstream</code>，握手阶段失败会改投另一台）。</p>
+<p>改后统计：<code>proxy_connect_timeout 5s</code> 共 9 处；<code>proxy_read_timeout 60s</code> 8 处、<code>3600s</code> 2 处（WS）；
+<code>proxy_next_upstream</code> 规则 10 处；0 处仍是 600s/60s 连接超时。</p>
+<h2 id="三-参数为什么这样选">三、参数为什么这样选</h2>
+<pre><code class="language-text">· least_conn + 两台都不带 down        -&gt; 真正的双活（按连接数分摊）
+· proxy_next_upstream error          -&gt; 连接被拒/网络不可达时，自动改投健康那台（客户端无感）
+  timeout/502/503/504                -&gt; 后端超时或网关错误也改投（只重试"基础设施错误"，
+                                        不重试 500 这类业务错误，避免游戏 spin 重复下注）
+  tries 2 / timeout 10s              -&gt; 最多试 2 台、重试总耗时不超过 10s，故障不会被放大
+· proxy_connect_timeout 5s           -&gt; 内网互通 5s 足够；原来 60s，后端"半死"时客户要等 1 分钟
+· proxy_read_timeout 60s             -&gt; 正常请求都是秒级；静默挂掉时最多卡 60s（原 600s）
+· upstream keepalive_timeout 10s     -&gt; 空闲连接 10s 就回收，避免长期复用已死连接
+· max_fails=2 / fail_timeout=5s      -&gt; 坏节点 2 次失败就摘除，5s 后重试；减少"命中坏节点再重试"
+</code></pre>
+<h2 id="四-故障切换实测-在入口机上做-用-iptables-模拟后端不可达">四、故障切换实测（在入口机上做，用 iptables 模拟后端不可达）</h2>
+<p>测试方法：先把某台后端在入口机上 <code>iptables REJECT</code> 掉（等价于"这台机器没了"），
+等 12 秒让空闲连接回收，然后连续请求真实游戏路径 <code>https://tada-games.xqv9m8.icu/</code>
+（该路径会经 <code>error_page 419 -&gt; @tada_game_backend</code> 走后端），统计状态码与耗时。</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>请求数</th>
+<th>结果</th>
+<th>最大耗时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>基线（01+02 都在）</td>
+<td>10</td>
+<td>403 x10</td>
+<td><strong>0.01s</strong></td>
+</tr>
+<tr>
+<td><strong>模拟 02 挂掉</strong></td>
+<td>20</td>
+<td>403 x20</td>
+<td><strong>0.01s</strong></td>
+</tr>
+<tr>
+<td>恢复</td>
+<td>10</td>
+<td>403 x10</td>
+<td>0.01s</td>
+</tr>
+<tr>
+<td><strong>模拟 01 挂掉</strong></td>
+<td>20</td>
+<td>403 x20</td>
+<td><strong>0.01s</strong></td>
+</tr>
+<tr>
+<td>全部恢复</td>
+<td>10</td>
+<td>403 x10</td>
+<td>0.01s</td>
+</tr>
+<tr>
+<td>残留 iptables 规则</td>
+<td>—</td>
+<td>0 条</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>403 是后端对"本机 203.0.113.1 来源"的正常响应，说明<strong>请求确实打到了后端</strong>；
+关键点是：<strong>没有出现 502，也没有出现卡顿</strong>，两侧各 20 次全部瞬间成功。</p>
+</blockquote>
+<p>优化前同样测过：模拟 02 挂掉时 20 次里有 1 次卡满 10 秒（实际会卡到 600s 上限），
+优化后该现象消失。</p>
+<h2 id="五-回滚方式">五、回滚方式</h2>
+<p>两台机器上每次改动都留了备份（<code>&lt;文件&gt;.bak-&lt;时间戳&gt;-&lt;说明&gt;</code>）：</p>
+<pre><code class="language-text"># 入口机 34.151.249.53
+/etc/nginx/conf.d/00.vendor-upstreams.conf.bak-20260918-084534-before-keepalive
+/www/server/panel/vhost/nginx/common/all-games-proxy.conf.bak-20260918-084534-before-readtimeout
+/etc/nginx/conf.d/00.vendor-upstreams.conf.bak-20260918-084251-before-failover-opt
+/www/server/panel/vhost/nginx/common/all-games-proxy.conf.bak-20260918-084251-before-failover-opt
+
+# 回滚示例（入口机）
+cp /etc/nginx/conf.d/00.vendor-upstreams.conf.bak-... /etc/nginx/conf.d/00.vendor-upstreams.conf
+cp /www/server/panel/vhost/nginx/common/all-games-proxy.conf.bak-... /www/server/panel/vhost/nginx/common/all-games-proxy.conf
+nginx -t &amp;&amp; systemctl reload nginx
+</code></pre>
+<p>仓库存档（每次改完都同步过来）：</p>
+<pre><code class="language-text">docker/线上服务器信息/standby-nginx/00.vendor-upstreams.conf   （入口机线上的 upstream）
+docker/线上服务器信息/standby-nginx/all-games-proxy.conf        （入口机线上的代理层）
+docker/线上服务器信息/baota/nginx/panel-vhost-nginx/00.vendor-upstreams.conf （宝塔副本）
+</code></pre>
+<h2 id="六-还需要知道的限制">六、还需要知道的限制</h2>
+<pre><code class="language-text">1) 最坏情况仍可能有几十秒延迟：后端不是"明确拒绝"而是"静默消失"（强杀/断网丢包）时，
+   复用旧连接的那几个请求最多等 proxy_connect_timeout(5s) 或 proxy_read_timeout(60s)。
+   我们已把上限从 600s 压到 60s，并把空闲连接 10s 回收，把影响面降到很低。
+   要做到"完全零感知"需要主动健康检查（nginx plus / OpenResty 的 health check 模块），
+   现在用的是 nginx 自带的被动健康检查（max_fails/fail_timeout）。
+2) WebSocket（TADA WS2，8765）：后端挂掉时，已建立的实时连接会断开，客户端会重连；
+   新连接会自动落到健康的那台（两个 location 都已配置 proxy_next_upstream）。
+3) 游戏 spin 这类"非幂等"请求：我们只对"基础设施级错误"（连接错误/超时/502/503/504）重试，
+   不对 500 业务错误重试，避免重复下注风险。
+4) 入口机自身（34.151.249.53）仍是单点；如需入口高可用，需要再加一台入口 + DNS/Anycast 方案。
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-改前的问题">一、改前的问题</a></li><li style="margin-left:0.0rem"><a href="#二-改后的配置-两台机器一致">二、改后的配置（两台机器一致）</a></li><li style="margin-left:0.8rem"><a href="#1-后端层-00-vendor-upstreams-conf">1）后端层： 00.vendor-upstreams.conf</a></li><li style="margin-left:0.8rem"><a href="#2-代理层-all-games-proxy-conf-每个厂家-location-都一样">2）代理层： all-games-proxy.conf （每个厂家 location 都一样）</a></li><li style="margin-left:0.0rem"><a href="#三-参数为什么这样选">三、参数为什么这样选</a></li><li style="margin-left:0.0rem"><a href="#四-故障切换实测-在入口机上做-用-iptables-模拟后端不可达">四、故障切换实测（在入口机上做，用 iptables 模拟后端不可达）</a></li><li style="margin-left:0.0rem"><a href="#五-回滚方式">五、回滚方式</a></li><li style="margin-left:0.0rem"><a href="#六-还需要知道的限制">六、还需要知道的限制</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 巴西主站</li>
+          <li>日期：2026-09-18</li>
+          <li>标签：<span class="tag">巴西主站</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">DNS</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-09-18-【运维】nginx双后端01+02容灾优化与故障切换实测…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609180000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BDocker%2BNginx-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91nginx%20%E5%8F%8C%E5%90%8E%E7%AB%AF%EF%BC%8801%2B02%EF%BC%89%E5%AE%B9%E7%81%BE%E4%BC%98%E5%8C%96%20%2B%20%E6%95%85%E9%9A%9C%E5%88%87%E6%8D%A2%E5%AE%9E%E6%B5%8B.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【运维】nginx 双后端（01+02）容灾优化 + 故障切换实测。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-18 目标： 01、02 同时接流量（双活）；任意关掉其中一台，客户端不受影响 。 改动位置：入口机 34.151.249.53（线上真正生效）+ 宝塔 35.247.205.6（保…</p>
+      <p>关键词：巴西主站、Docker、Nginx、DNS、故障排查、数据库恢复、源码与配置、历史运维与项目交付、历史运维与项目交付 / 巴西主站、【运维】nginx 双后端（01+02）容灾优化 + 故障切换实测</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-44dc18916751.html"><small>上一篇</small>【运维】TADA WS2（8765）原始启动方式整理 + 02 手动启动命令</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f6015db0cb82.html"><small>下一篇</small>【运维】入口机 nginx CPU 偏高排查 + 浏览器巡检迁移到 03</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1e67956c2fce.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
