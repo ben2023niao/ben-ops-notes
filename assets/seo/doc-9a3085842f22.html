@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>2026-09-24 香港后端 /data/server-runtime 同步与结果集权限自愈接入记录｜历史运维与项目交付 / 香港 CN｜BEN.OPS</title>
+  <meta name="description" content="2026-09-24 香港后端 /data/server-runtime 同步与结果集权限自愈接入记录。本文属于历史运维与项目交付 / 香港 CN，流程：前置核验 → 执行 → 验证 → 文档 → 本地提交；本轮不发送「每步」通知，只按用户要求发同步进度。 说明：相比用户给的 -avP ，改用 -a --part…">
+  <meta name="keywords" content="香港 CN，Linux，Shell，Docker，监控告警，安全运维，故障排查，源码与配置，历史运维与项目交付，历史运维与项目交付 / 香港 CN">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a3085842f22.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a3085842f22.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609241650-%E9%A6%99%E6%B8%AF%20CN%2BLinux%2BShell-2026-09-24%20%E9%A6%99%E6%B8%AF%E5%90%8E%E7%AB%AF%20-data-server-runtime%20%E5%90%8C%E6%AD%A5%E4%B8%8E%E7%BB%93%E6%9E%9C%E9%9B%86%E6%9D%83%E9%99%90%E8%87%AA%E6%84%88%E6%8E%A5%E5%85%A5%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="2026-09-24 香港后端 /data/server-runtime 同步与结果集权限自愈接入记录">
+  <meta property="og:description" content="2026-09-24 香港后端 /data/server-runtime 同步与结果集权限自愈接入记录。本文属于历史运维与项目交付 / 香港 CN，流程：前置核验 → 执行 → 验证 → 文档 → 本地提交；本轮不发送「每步」通知，只按用户要求发同步进度。 说明：相比用户给的 -avP ，改用 -a --part…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a3085842f22.html">
+  <meta property="article:published_time" content="2026-09-24T16:50:00+08:00">
+  <meta property="article:modified_time" content="2026-09-24 16:50">
+  <meta property="article:section" content="历史运维与项目交付 / 香港 CN">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="2026-09-24 香港后端 /data/server-runtime 同步与结果集权限自愈接入记录">
+  <meta name="twitter:description" content="2026-09-24 香港后端 /data/server-runtime 同步与结果集权限自愈接入记录。本文属于历史运维与项目交付 / 香港 CN，流程：前置核验 → 执行 → 验证 → 文档 → 本地提交；本轮不发送「每步」通知，只按用户要求发同步进度。 说明：相比用户给的 -avP ，改用 -a --part…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a3085842f22.html#article","headline":"2026-09-24 香港后端 /data/server-runtime 同步与结果集权限自愈接入记录","description":"2026-09-24 香港后端 /data/server-runtime 同步与结果集权限自愈接入记录。本文属于历史运维与项目交付 / 香港 CN，流程：前置核验 → 执行 → 验证 → 文档 → 本地提交；本轮不发送「每步」通知，只按用户要求发同步进度。 说明：相比用户给的 -avP ，改用 -a --part…","datePublished":"2026-09-24T16:50:00+08:00","dateModified":"2026-09-24 16:50","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","香港 CN"],"keywords":["香港 CN","Linux","Shell","Docker","监控告警","安全运维","故障排查","源码与配置","历史运维与项目交付","历史运维与项目交付 / 香港 CN"],"wordCount":2646,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a3085842f22.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a3085842f22.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 香港 CN","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-09-24 香港后端 /data/server-runtime 同步与结果集权限自愈接入记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a3085842f22.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 香港 CN</span> › <span>2026-09-24 香港后端 /data/server-runtime 同步与结果集权限自愈接入记录</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 香港 CN</div>
+      <h1>2026-09-24 香港后端 /data/server-runtime 同步与结果集权限自愈接入记录</h1>
+      <p class="lede">2026-09-24 香港后端 /data/server-runtime 同步与结果集权限自愈接入记录。本文属于历史运维与项目交付 / 香港 CN，流程：前置核验 → 执行 → 验证 → 文档 → 本地提交；本轮不发送「每步」通知，只按用户要求发同步进度。 说明：相比用户给的 -avP ，改用 -a --part…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-24T16:50:00+08:00">发布于 2026-09-24</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,646 字</span>
+        <span class="badge">8 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/cn/docker/doc/2026-09-24-1650-【数据维护+架构改造】香港后端结果集server-runtime同步与权限自愈接入记录.md</code></p>
+<p>整理日期：2026-09-24 16:50｜日期依据：文件名日期</p>
+</blockquote>
+<h2 id="一-任务">一、任务</h2>
+<pre><code class="language-text">把巴西打包机 dbqp-saopaulo-sanic-prod-03 的 /data/server-runtime
+同步到香港两台后端 /data/server-runtime：
+  先 dbqp-hongkong-sanic-prod-01（跨公网直连巴西）
+  再由 prod-01 走香港内网推送 dbqp-hongkong-sanic-prod-02
+参考命令（用户提供）：
+  rsync -avP --delete -e "ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=3" \
+    --exclude 'logs' --exclude '*.db-shm' --exclude '*.db-wal' \
+    root@203.0.113.1:/data/server-runtime /data/
+额外要求：
+  1) 同步过程挂后台一次性任务（本地离开也能继续），每 10 分钟把网速/进度条发飞机群
+  2) 同步完成后参考巴西 01/02，加上定时任务监控结果集权限
+</code></pre>
+<p>流程：前置核验 → 执行 → 验证 → 文档 → 本地提交；本轮不发送「每步」通知，只按用户要求发同步进度。</p>
+<h2 id="二-前置核验">二、前置核验</h2>
+<pre><code class="language-text">git：本地 cn 领先 origin/cn 77，工作区干净
+数据源：巴西 prod-03 /data/server-runtime 实测 152.1 GiB（du -sb = 163,297,197,003）
+  目录：version.json / stop.sh / server_configs / md5sum.txt / conf /
+        game_result_datas / logs / share.so / xxxxxx.mmdb
+连通：香港 prod-01 -&gt; 34.39.180.82:22（prod-03 公网）可达，同一 root 密码可登录
+  香港内网 prod-01(203.0.113.1) &lt;-&gt; prod-02(203.0.113.1) 已互通
+磁盘：香港两台 / 485G，剩余 482G，容纳 152G 结果集无压力
+权限目标（从巴西 prod-01 复刻）：game_result_datas 与 logs 需要 uid:gid = 1000:1000
+  （容器内业务进程 appuser uid 1000 要写 SQLite 的 .db/-wal/-shm）
+</code></pre>
+<h2 id="三-执行内容">三、执行内容</h2>
+<h3 id="3-1-同步任务-后台一次性-systemd-任务">3.1 同步任务（后台一次性 systemd 任务）</h3>
+<pre><code class="language-text">脚本：/root/hk-runtime-sync.sh（prod-01）
+任务：systemd-run --unit=hk-runtime-sync --collect --no-block /bin/bash /root/hk-runtime-sync.sh
+  一次性 unit，跑完自动 collect；与 SSH 会话解耦，本地下线不影响
+阶段：
+  STAGE1  prod-03(34.39.180.82) -&gt; prod-01   rsync -a --partial --info=progress2 --stats
+          --exclude logs --exclude '*.db-shm' --exclude '*.db-wal' --delete
+  STAGE2  prod-01 -&gt; prod-02(203.0.113.1)     同样的参数（走香港内网），仅当 STAGE1 rc=0
+日志：/root/hk-runtime-sync.log（上一轮日志归档为 .log.prev）
+凭据：/root/.rsync-pass（600，root；sshpass 使用，明文不入库）
+</code></pre>
+<p>说明：相比用户给的 <code>-avP</code>，改用 <code>-a --partial --info=progress2</code>，多出「总体进度 + 网速 +
+剩余时间」一行，作为进度上报的数据源；<code>--delete</code> 与排除项保持与参考命令一致。</p>
+<h3 id="3-2-每-10-分钟进度上报-飞机群">3.2 每 10 分钟进度上报（飞机群）</h3>
+<pre><code class="language-text">脚本：/opt/dbqp-scripts/notify_runtime_sync.py（仓库 docker/deploy/hongkong/notify_runtime_sync.py）
+定时：systemd 单元 hk-runtime-sync-notify.timer（OnBootSec=3min / OnUnitActiveSec=10min）
+凭据：/opt/benbot-runtime.env（从巴西 prod-01 复制，600；含 TG_BOT_TOKEN /
+     BEN_BOT_MONITOR_CHAT_ID，明文不入库）
+目标群：监控报警群（-5203304347），与巴西告警同群
+</code></pre>
+<p>消息样例（实测，message_id=7422）：</p>
+<pre><code class="language-text">【香港后端结果集同步｜进度】
+阶段：① 巴西 prod-03 → 香港 prod-01（跨公网）
+进度：758.3MB / 152.1GB　0.5%
+　　　░░░░░░░░░░░░░░░░░░░░
+瞬时速度：6.61 MB/s
+预计剩余：6:25:30
+日志：/root/hk-runtime-sync.log
+时间：2026-09-24 08:50:16 UTC
+</code></pre>
+<p>同步结束后脚本会自动发最后一条并 disable 通知 timer（避免继续刷群）。</p>
+<h3 id="3-3-结果集权限自愈-参考巴西-01-02">3.3 结果集权限自愈（参考巴西 01/02）</h3>
+<p>从巴西 prod-01 复刻到香港 prod-01 与 prod-02：</p>
+<pre><code class="language-text">脚本：/opt/dbqp-scripts/fix_result_perms.sh（11,758 字节，与巴西一致）
+单元：/etc/systemd/system/dbqp-result-perms.{service,timer}
+  每 2 分钟检查一次（OnBootSec=2min / OnUnitActiveSec=2min）
+目标：/data/server-runtime/game_result_datas、/data/server-runtime/logs
+  异常时 chown -R 1000:1000 + chmod -R u+rwX，并发飞机群告警（10 分钟限流）
+日志：/var/log/dbqp-result-perms.log
+</code></pre>
+<p>为什么必须做：巴西 2026-09-24 线上事故就是 <code>rsync -a</code>（隐含 -o -g -p）把源端
+<code>root:root</code> 覆盖到 01/02，容器内 appuser(uid1000) 无法写 SQLite，表现为
+「所有厂家都下不了注 / attempt to write a readonly database」。本脚本既是修复也是自愈。</p>
+<p>实测：香港 prod-01 首次运行即修复 <code>game_result_datas</code> 16/16 个条目（root:root → 1000:1000）：</p>
+<pre><code class="language-text">[2026-09-24 08:47:23+0000] 已修复权限 /data/server-runtime/game_result_datas :
+  修复前异常 16/16 个条目，修复后剩余 0（属主 1000:1000）
+</code></pre>
+<h3 id="3-4-通知文案与进度口径修正-2026-09-24-16-58-追加">3.4 通知文案与进度口径修正（2026-09-24 16:58 追加）</h3>
+<p>用户反馈两点：结果集告警要<strong>标识香港项目</strong>；并且群消息尾部多出一段「只有标签、没有内容」
+的重复模板。本轮一起修掉：</p>
+<pre><code class="language-text">1) 标题加项目标识（只改香港两台，巴西保持原样）
+   香港：`【DBQP 香港项目｜结果集权限告警】@运维 @Ben_Bird @benb6879`
+2) 修 printf 参数个数 bug（这就是「空模板段」的根因）
+   alert_text 在「修复后剩余 = 0」时不追加告警行，但 printf 仍多传了一个参数；
+   bash 内置 printf 在参数多于占位符时会复用格式串再渲染一遍，于是群里多出一段空模板。
+   改为按占位符数量分支传参（left≠0 / left=0 两种写法）。已发模拟演练验证（message_id 7424）。
+3) 同步命令加 --chown=1000:1000（从源头消掉刷屏）
+   自愈日志显示 rsync -a 每落盘新文件都会带 root:root，自愈每 2 分钟修一次并告警；
+   已在 /root/hk-runtime-sync.sh 的 RSYNC_OPTS 加 --chown=1000:1000，自愈任务保留作兜底。
+   重启后实测 /data/server-runtime/game_result_datas 属主直接就是 ubuntu:ubuntu。
+4) 进度口径改为「本地已落盘大小」（du -sb）
+   rsync 重启后会话计数从 0 开始，会让百分比回退、均速虚高（曾出现 446 MB/s、ETA 26 秒）；
+   改为本地落盘字节为分子，均速与 ETA 自算。实测消息（message_id 7427/7428）：
+     进度：6.2GB / 152.1GB　4.1%　██░░░░…
+     瞬时速度：6.53 MB/s　近 1 分钟均速：6.52 MB/s
+     预计剩余：约 6 小时 21 分（按均速估算）
+</code></pre>
+<h3 id="3-5-公网同步完成后的收尾校验-2026-09-24-22-00-追加">3.5 公网同步完成后的收尾校验（2026-09-24 22:00 追加）</h3>
+<p>用户要求：公网同步（prod-03 → prod-01）完成后再同步一次做校验，然后由 prod-01 走内网同步 prod-02。</p>
+<pre><code class="language-text">脚本：/root/hk-runtime-sync-finalize.sh（prod-01）
+任务：systemd-run --unit=hk-runtime-sync-finalize（一次性，已挂起）
+日志：/root/hk-runtime-sync-finalize.log
+流程：
+  1) 轮询等待主任务 hk-runtime-sync 结束（每 60s）
+  2) STEP1  prod-03 → prod-01 二次 rsync（校验补漏，参数与主任务一致，含 --delete/--chown/排除项）
+  3) STEP2  prod-01 → prod-02 内网 rsync（203.0.113.1）
+  4) CHECK1/CHECK2 用 `rsync -n -i --delete` 统计差异条目数
+     （prod-03↔prod-01 / prod-01↔prod-02，0 表示完全一致）
+  5) 完成后往监控报警群发一条「同步完成校验」：
+     二次同步返回码、两条差异条目数、两台体积、日志路径
+</code></pre>
+<h3 id="3-6-执行结果-2026-09-24-23-35-完成">3.6 执行结果（2026-09-24 23:35 完成）</h3>
+<pre><code class="language-text">主任务 hk-runtime-sync：
+  STAGE1 done rc=0 size=147G    （15:19:19Z，巴西 prod-03 -&gt; prod-01 跨公网）
+  STAGE2 done rc=0              （15:30:56Z，prod-01 -&gt; prod-02 香港内网 203.0.113.1）
+  SYNC END rc1=0 rc2=0
+收尾任务 hk-runtime-sync-finalize：
+  STEP1（prod-03 -&gt; prod-01 二次同步）rc=0
+  STEP2（prod-01 -&gt; prod-02 内网同步）rc=0
+  CHECK1 prod-03 vs prod-01 差异条目 = 0
+  CHECK2 prod-01 vs prod-02 差异条目 = 0
+  FINALIZE END size_prod01=147G size_prod02=147G
+进度通知 timer：同步结束后自动停用（hk-runtime-sync-notify.timer = inactive）
+</code></pre>
+<p>完成后逐项验证（实测）：</p>
+<table>
+<thead>
+<tr>
+<th>验证项</th>
+<th>prod-01</th>
+<th>prod-02</th>
+<th>源 prod-03</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/data/server-runtime</code> 体积</td>
+<td>147G</td>
+<td>147G</td>
+<td>153G</td>
+</tr>
+<tr>
+<td>game_result_datas 条目数</td>
+<td>742</td>
+<td>742</td>
+<td>882</td>
+</tr>
+<tr>
+<td>game_result_datas 属主</td>
+<td>ubuntu:ubuntu</td>
+<td>ubuntu:ubuntu（0777）</td>
+<td>ubuntu:ubuntu</td>
+</tr>
+<tr>
+<td><code>game_result_datas/pg/pg_1.db</code> md5</td>
+<td><code>5db34996b11455dc4106668e3db7f953</code></td>
+<td>同上</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>version.json</td>
+<td>bx.2026.09.09（一致）</td>
+<td>一致</td>
+<td>一致</td>
+</tr>
+<tr>
+<td>结果集权限自愈 timer</td>
+<td>active + 心跳「权限全部正常」</td>
+<td>active + 心跳「权限全部正常」</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>体积/条目比源端少的原因：按用户参考命令排除了 <code>logs</code>、<code>*.db-shm</code>、<code>*.db-wal</code>
+（SQLite 每个库常带 shm/wal 附属文件）。<code>rsync -n -i --delete</code> 的差异条目为 0，
+说明<strong>传输范围内两棵树完全一致</strong>。</p>
+<h2 id="四-验证与当前状态">四、验证与当前状态</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主任务</td>
+<td><code>hk-runtime-sync</code> 已完成（STAGE1 rc=0 / STAGE2 rc=0 / SYNC END rc1=0 rc2=0）</td>
+</tr>
+<tr>
+<td>收尾校验</td>
+<td><code>hk-runtime-sync-finalize</code> 已完成（CHECK1=0、CHECK2=0，差异条目为 0）</td>
+</tr>
+<tr>
+<td>两台体积</td>
+<td>prod-01 = 147G，prod-02 = 147G（源 153G，差值来自被排除项）</td>
+</tr>
+<tr>
+<td>数据一致性</td>
+<td><code>pg_1.db</code> md5 三台一致；version.json 一致</td>
+</tr>
+<tr>
+<td>进度上报</td>
+<td>同步期间每 10 分钟一条（含阶段/进度条/均速/ETA）；结束后 timer 自动停用</td>
+</tr>
+<tr>
+<td>权限自愈</td>
+<td>香港两台 timer active，心跳正常，无需修复</td>
+</tr>
+<tr>
+<td>本地依赖</td>
+<td>无（systemd 托管，SSH 断开不影响）</td>
+</tr>
+</tbody>
+</table>
+<p>查询方法（任何人/任何 AI 都可用）：</p>
+<pre><code class="language-bash">ssh root@34.92.83.132 'tail -c 500 /root/hk-runtime-sync.log | tr "\r" "\n" | tail -3'   # 最新进度行
+ssh root@34.92.83.132 'systemctl is-active hk-runtime-sync'                              # 是否还在跑
+ssh root@34.92.83.132 'grep -E "STAGE|SYNC END" /root/hk-runtime-sync.log | tail -5'      # 阶段状态
+ssh root@34.92.83.132 'tail -3 /var/log/dbqp-result-perms.log'                           # 权限自愈
+</code></pre>
+<h2 id="五-踩坑记录">五、踩坑记录</h2>
+<pre><code class="language-text">1) pkill/pgrep -f 自匹配：命令行里出现同样的模式串，会把执行命令的 shell 自己杀掉
+   （表现为命令无输出、rsync 没启动）。改用 pgrep -x / 精确 PID。
+2) heredoc 只喂一个 cat：一条命令里写两个 `cat &gt; file &lt;&lt;EOF`，第二个文件会是空的
+   （notify 脚本先是 0 字节）。改为每个文件单独一条命令传输。
+3) 进度解析单位换算 bug：把 speed 的单位换算（MB/s -&gt; B/s）误加到 bytes 上，
+   导致进度显示 389.7TB。已修正为「bytes 原样、scale 只用于 speed」，
+   并把百分比改成「已传 / 源总大小」计算（rsync 早期整数百分比一直是 0%）。
+4) 香港机原先没有飞机群凭据：从巴西 prod-01 复制 /opt/benbot-runtime.env（600），
+   权限告警与进度上报才能发到监控报警群。
+</code></pre>
+<h2 id="六-待办">六、待办</h2>
+<pre><code class="language-text">1. 同步完成后（STAGE2 rc=0）核对：
+   - 两台 du -sh /data/server-runtime 与巴西源接近；
+   - game_result_datas / logs 属主保持 1000:1000（自愈日志无新增修复记录）；
+   - 抽查 md5sum.txt 与关键 db 文件。
+2. 若后续自建后端部署容器，注意同步命令可加 --chown=1000:1000 从源头规避权限问题。
+3. 香港机 /root/.rsync-pass 与 /opt/benbot-runtime.env 均为 600 且不入库；
+   如不再需要跨机同步，可删除 .rsync-pass。
+</code></pre>
+<h2 id="七-关联文件">七、关联文件</h2>
+<pre><code class="language-text">docker/deploy/hongkong/notify_runtime_sync.py   同步进度上报脚本（仓库本源）
+docker/doc/2026-09-24-1300-【架构改造】香港两台后端服务器创建与Docker环境部署记录.md
+docker/doc/2026-09-24-1400-【架构改造】香港standby入口与新域名hkcloudplay0607接入记录.md
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-任务">一、任务</a></li><li style="margin-left:0.0rem"><a href="#二-前置核验">二、前置核验</a></li><li style="margin-left:0.0rem"><a href="#三-执行内容">三、执行内容</a></li><li style="margin-left:0.8rem"><a href="#3-1-同步任务-后台一次性-systemd-任务">3.1 同步任务（后台一次性 systemd 任务）</a></li><li style="margin-left:0.8rem"><a href="#3-2-每-10-分钟进度上报-飞机群">3.2 每 10 分钟进度上报（飞机群）</a></li><li style="margin-left:0.8rem"><a href="#3-3-结果集权限自愈-参考巴西-01-02">3.3 结果集权限自愈（参考巴西 01/02）</a></li><li style="margin-left:0.8rem"><a href="#3-4-通知文案与进度口径修正-2026-09-24-16-58-追加">3.4 通知文案与进度口径修正（2026-09-24 16:58 追加）</a></li><li style="margin-left:0.8rem"><a href="#3-5-公网同步完成后的收尾校验-2026-09-24-22-00-追加">3.5 公网同步完成后的收尾校验（2026-09-24 22:00 追加）</a></li><li style="margin-left:0.8rem"><a href="#3-6-执行结果-2026-09-24-23-35-完成">3.6 执行结果（2026-09-24 23:35 完成）</a></li><li style="margin-left:0.0rem"><a href="#四-验证与当前状态">四、验证与当前状态</a></li><li style="margin-left:0.0rem"><a href="#五-踩坑记录">五、踩坑记录</a></li><li style="margin-left:0.0rem"><a href="#六-待办">六、待办</a></li><li style="margin-left:0.0rem"><a href="#七-关联文件">七、关联文件</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 香港 CN</li>
+          <li>日期：2026-09-24</li>
+          <li>标签：<span class="tag">香港 CN</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">监控告警</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/cn/docker/doc/2026-09-24-1650-【数据维护+架构改造】香港后端结果集server-runt…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609241650-%E9%A6%99%E6%B8%AF%20CN%2BLinux%2BShell-2026-09-24%20%E9%A6%99%E6%B8%AF%E5%90%8E%E7%AB%AF%20-data-server-runtime%20%E5%90%8C%E6%AD%A5%E4%B8%8E%E7%BB%93%E6%9E%9C%E9%9B%86%E6%9D%83%E9%99%90%E8%87%AA%E6%84%88%E6%8E%A5%E5%85%A5%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>2026-09-24 香港后端 /data/server-runtime 同步与结果集权限自愈接入记录。本文属于历史运维与项目交付 / 香港 CN，流程：前置核验 → 执行 → 验证 → 文档 → 本地提交；本轮不发送「每步」通知，只按用户要求发同步进度。 说明：相比用户给的 -avP ，改用 -a --part…</p>
+      <p>关键词：香港 CN、Linux、Shell、Docker、监控告警、安全运维、故障排查、源码与配置、历史运维与项目交付、历史运维与项目交付 / 香港 CN</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e2e21c1097e7.html"><small>上一篇</small>【优化+问题排查】结果集权限被改坏的原因定位 + 权限自愈监控上线</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0bee5104822d.html"><small>下一篇</small>【问题排查】02 的 TADA 容器为什么消失（game-service-tada-prod / 9096）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a3085842f22.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

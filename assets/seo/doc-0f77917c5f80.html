@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>2026-09-24 香港两台后端服务器创建与 Docker 环境部署记录｜历史运维与项目交付 / 香港 CN｜BEN.OPS</title>
+  <meta name="description" content="2026-09-24 香港两台后端服务器创建与 Docker 环境部署记录。本文属于历史运维与项目交付 / 香港 CN，用户要求： 参考巴西后端服务器配置，为香港项目创建 2 台后端服务器 。 流程按用户要求执行：前置核验 → 分析 → 执行 → 验证 → 文档 → 本地提交； 用户明确「不通知群」，故本轮不发送…">
+  <meta name="keywords" content="香港 CN，Linux，Shell，Docker，Nginx，Redis，监控告警，自动化，历史运维与项目交付，历史运维与项目交付 / 香港 CN，2026-09-24 香港两台后端服务器创建与 Docker 环境部署记录">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0f77917c5f80.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0f77917c5f80.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609241300-%E9%A6%99%E6%B8%AF%20CN%2BLinux%2BShell-2026-09-24%20%E9%A6%99%E6%B8%AF%E4%B8%A4%E5%8F%B0%E5%90%8E%E7%AB%AF%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%9B%E5%BB%BA%E4%B8%8E%20Docker%20%E7%8E%AF%E5%A2%83%E9%83%A8%E7%BD%B2%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="2026-09-24 香港两台后端服务器创建与 Docker 环境部署记录">
+  <meta property="og:description" content="2026-09-24 香港两台后端服务器创建与 Docker 环境部署记录。本文属于历史运维与项目交付 / 香港 CN，用户要求： 参考巴西后端服务器配置，为香港项目创建 2 台后端服务器 。 流程按用户要求执行：前置核验 → 分析 → 执行 → 验证 → 文档 → 本地提交； 用户明确「不通知群」，故本轮不发送…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0f77917c5f80.html">
+  <meta property="article:published_time" content="2026-09-24T13:00:00+08:00">
+  <meta property="article:modified_time" content="2026-09-24 13:00">
+  <meta property="article:section" content="历史运维与项目交付 / 香港 CN">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="2026-09-24 香港两台后端服务器创建与 Docker 环境部署记录">
+  <meta name="twitter:description" content="2026-09-24 香港两台后端服务器创建与 Docker 环境部署记录。本文属于历史运维与项目交付 / 香港 CN，用户要求： 参考巴西后端服务器配置，为香港项目创建 2 台后端服务器 。 流程按用户要求执行：前置核验 → 分析 → 执行 → 验证 → 文档 → 本地提交； 用户明确「不通知群」，故本轮不发送…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0f77917c5f80.html#article","headline":"2026-09-24 香港两台后端服务器创建与 Docker 环境部署记录","description":"2026-09-24 香港两台后端服务器创建与 Docker 环境部署记录。本文属于历史运维与项目交付 / 香港 CN，用户要求： 参考巴西后端服务器配置，为香港项目创建 2 台后端服务器 。 流程按用户要求执行：前置核验 → 分析 → 执行 → 验证 → 文档 → 本地提交； 用户明确「不通知群」，故本轮不发送…","datePublished":"2026-09-24T13:00:00+08:00","dateModified":"2026-09-24 13:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","香港 CN"],"keywords":["香港 CN","Linux","Shell","Docker","Nginx","Redis","监控告警","自动化","历史运维与项目交付","历史运维与项目交付 / 香港 CN","2026-09-24 香港两台后端服务器创建与 Docker 环境部署记录"],"wordCount":1936,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0f77917c5f80.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0f77917c5f80.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 香港 CN","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-09-24 香港两台后端服务器创建与 Docker 环境部署记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0f77917c5f80.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 香港 CN</span> › <span>2026-09-24 香港两台后端服务器创建与 Docker 环境部署记录</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 香港 CN</div>
+      <h1>2026-09-24 香港两台后端服务器创建与 Docker 环境部署记录</h1>
+      <p class="lede">2026-09-24 香港两台后端服务器创建与 Docker 环境部署记录。本文属于历史运维与项目交付 / 香港 CN，用户要求： 参考巴西后端服务器配置，为香港项目创建 2 台后端服务器 。 流程按用户要求执行：前置核验 → 分析 → 执行 → 验证 → 文档 → 本地提交； 用户明确「不通知群」，故本轮不发送…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-24T13:00:00+08:00">发布于 2026-09-24</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,936 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/cn/docker/doc/2026-09-24-1300-【架构改造】香港两台后端服务器创建与Docker环境部署记录.md</code></p>
+<p>整理日期：2026-09-24 13:00｜日期依据：文件名日期</p>
+</blockquote>
+<h2 id="一-任务与要求">一、任务与要求</h2>
+<p>用户要求：<strong>参考巴西后端服务器配置，为香港项目创建 2 台后端服务器</strong>。</p>
+<pre><code class="language-text">1. 2 台，Docker 环境
+2. 与香港现有 nginx 入口机（34.92.13.108 / 203.0.113.1）内网相通
+3. 公网 IP 固定
+4. root 密码按用户指定值设置（密码明文不入库，见第七节）
+5. 命名参考巴西（巴西为 dbqp-saopaulo-sanic-prod-01/02/03）
+6. 部署完成后列出服务器信息
+</code></pre>
+<p>流程按用户要求执行：前置核验 → 分析 → 执行 → 验证 → 文档 → 本地提交；
+用户明确「不通知群」，故本轮不发送任何飞机群通知。</p>
+<h2 id="二-参考的巴西配置-对照">二、参考的巴西配置（对照）</h2>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>巴西（参考）</th>
+<th>香港（本次）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>命名</td>
+<td><code>dbqp-saopaulo-sanic-prod-01/02/03</code></td>
+<td><code>dbqp-hongkong-sanic-prod-01/02</code></td>
+</tr>
+<tr>
+<td>区域</td>
+<td><code>southamerica-east1-a</code></td>
+<td><code>asia-east2-b</code> / <code>asia-east2-c</code></td>
+</tr>
+<tr>
+<td>机型</td>
+<td><code>e2-standard-8</code>（8 vCPU / 32GB）</td>
+<td><code>e2-standard-8</code>（8 vCPU / 32GB）</td>
+</tr>
+<tr>
+<td>系统盘</td>
+<td>500GB <code>pd-balanced</code></td>
+<td>500GB <code>pd-balanced</code></td>
+</tr>
+<tr>
+<td>网络</td>
+<td><code>dbqp-saopaulo-slotsapi-network-v2</code></td>
+<td><code>dbqp-hongkong-slotsapi-network-v2</code> / <code>dbqp-hongkong-slotsapi-subnet-v2</code></td>
+</tr>
+<tr>
+<td>内网</td>
+<td><code>10.145.0.x</code></td>
+<td><code>203.0.113.1</code> / <code>203.0.113.1</code></td>
+</tr>
+<tr>
+<td>公网</td>
+<td>固定 IP</td>
+<td>固定 IP（复用已预留的静态地址）</td>
+</tr>
+<tr>
+<td>系统</td>
+<td>Ubuntu LTS</td>
+<td><code>ubuntu-2204-lts</code>（与香港入口机一致）</td>
+</tr>
+<tr>
+<td>Docker</td>
+<td>有</td>
+<td>Docker 29.8.1 + Compose v5.5.1</td>
+</tr>
+</tbody>
+</table>
+<p>香港旧后端（2026-07-15 创建、后退出 cn 架构）的静态 IP 一直保留未释放，
+本次直接复用，因此公网 IP 与历史记录一致。</p>
+<h2 id="三-执行前置核验">三、执行前置核验</h2>
+<pre><code class="language-text">git：本地 cn HEAD f462639d，领先 origin/cn 73，0 behind，工作区仅 docker/.DS_Store 未跟踪
+凭据：本地无 gcloud/aws 凭据；香港入口机 34.92.13.108 可用 root 密码登录，且机上有 gcloud
+GCP：项目 infra-alc-20260511，服务账号 [邮箱已脱敏]（已认证）
+实例现状：香港区原有实例仅剩 dbqp-hongkong-game-results-data-bt（入口机）与
+  dbqp-hk-zentao-prod-01；旧的两台后端实例已不存在（仅静态 IP 保留 RESERVED）
+静态 IP：dbqp-hongkong-sanic-prod-01-ip=34.92.83.132、-02-ip=34.150.91.228（RESERVED）
+子网：dbqp-hongkong-slotsapi-subnet-v2 = 203.0.113.1/20（网关 203.0.113.1）
+防火墙：hk-ssh（公网 22）、hk-backend（入口机 203.0.113.1 → 8765/9090-9104）、
+  子网内 22 与 ICMP、beszel 45876 —— 现有规则已满足「与 nginx 内网相通」
+镜像：`ubuntu-minimal-2604-lts` 与 `ubuntu-pro-*` 均不可用（查询报 not found），
+  实际可用且在用的是 `ubuntu-2204-lts`（入口机即 2204）
+</code></pre>
+<h2 id="四-执行动作">四、执行动作</h2>
+<pre><code class="language-text">1. 在香港入口机写入初始化脚本 /root/hk-backend-startup.sh（945 字节，
+   sha256 918da669a127b69cffae649d14038e767598545ca6e01863d7bfdfbadce4d0a7）：
+   设置 root 密码、开启 SSH 密码登录、时区 UTC、安装基础包与 Docker、启用 docker 服务
+2. 小规格试跑一台探针实例，确认服务账号具备创建权限、镜像族可用，随后删除
+3. 创建 dbqp-hongkong-sanic-prod-01（asia-east2-b，内网 203.0.113.1，绑定 34.92.83.132）
+4. 创建 dbqp-hongkong-sanic-prod-02（asia-east2-c，内网 203.0.113.1，绑定 34.150.91.228）
+5. 两台共用同一份 startup-script（创建时通过 metadata 注入）
+</code></pre>
+<p>遇到的问题与处理：</p>
+<pre><code class="language-text">问题：创建时 --image-family=ubuntu-pro-2604-lts-amd64 报 imageFamilyViews not found。
+处理：改用实践可用的 ubuntu-2204-lts（与香港入口机同版本）。
+问题：startup-script 执行成功（串口日志 exit status 0、Docker 已装），但 SSH 密码登录
+  仍被拒（Permission denied (publickey)）。
+原因：Ubuntu 云镜像的 cloud-init 写 /etc/ssh/sshd_config.d/50-cloud-init.conf，
+  内含 PasswordAuthentication no；sshd 配置为「首次匹配优先」，主配置里追加的设置不生效。
+处理：新增 /etc/ssh/sshd_config.d/00-dbqp-password.conf（字母序在 50- 之前），
+  写入 PasswordAuthentication yes + PermitRootLogin yes 并重启 sshd；
+  通过 gcloud compute ssh（项目 metadata 临时密钥）进入执行，
+  修复后两台 `sshd -T` 均为 passwordauthentication yes / permitrootlogin yes。
+</code></pre>
+<h2 id="五-服务器信息-部署完成后核验">五、服务器信息（部署完成后核验）</h2>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>实例名</th>
+<th>可用区</th>
+<th>机型</th>
+<th>内网 IP</th>
+<th>固定公网 IP</th>
+<th>系统盘</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>香港后端 01</td>
+<td><code>dbqp-hongkong-sanic-prod-01</code></td>
+<td><code>asia-east2-b</code></td>
+<td><code>e2-standard-8</code></td>
+<td><code>203.0.113.1</code></td>
+<td><code>34.92.83.132</code></td>
+<td>500GB <code>pd-balanced</code></td>
+<td>RUNNING</td>
+</tr>
+<tr>
+<td>香港后端 02</td>
+<td><code>dbqp-hongkong-sanic-prod-02</code></td>
+<td><code>asia-east2-c</code></td>
+<td><code>e2-standard-8</code></td>
+<td><code>203.0.113.1</code></td>
+<td><code>34.150.91.228</code></td>
+<td>500GB <code>pd-balanced</code></td>
+<td>RUNNING</td>
+</tr>
+</tbody>
+</table>
+<p>两台实例内部信息（实测）：</p>
+<pre><code class="language-text">prod-01：hostname dbqp-hongkong-sanic-prod-01，8 vCPU / 31GB，/ 485G（3.0G 已用 1%）
+prod-02：hostname dbqp-hongkong-sanic-prod-02，8 vCPU / 31GB，/ 485G（3.0G 已用 1%）
+公共：Ubuntu 22.04 LTS、UTC 时区、Docker 29.8.1、Docker Compose v5.5.1、
+     标签 hk-backend,hk-ssh、root 密码登录已开启
+</code></pre>
+<p>固定公网 IP 确认（静态地址 IN_USE）：</p>
+<pre><code class="language-text">dbqp-hongkong-sanic-prod-01-ip  34.92.83.132    IN_USE  -&gt; dbqp-hongkong-sanic-prod-01
+dbqp-hongkong-sanic-prod-02-ip  34.150.91.228   IN_USE  -&gt; dbqp-hongkong-sanic-prod-02
+</code></pre>
+<h2 id="六-验证结果">六、验证结果</h2>
+<table>
+<thead>
+<tr>
+<th>验证项</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>实例状态</td>
+<td>两台 RUNNING</td>
+</tr>
+<tr>
+<td>root 密码登录（用户指定密码）</td>
+<td>两台通过</td>
+</tr>
+<tr>
+<td>SSH 配置</td>
+<td><code>passwordauthentication yes</code> / <code>permitrootlogin yes</code>（两台）</td>
+</tr>
+<tr>
+<td>Docker</td>
+<td>两台 <code>Docker version 29.8.1</code> + <code>Compose v5.5.1</code>，<code>docker</code> 服务 enable</td>
+</tr>
+<tr>
+<td>时区</td>
+<td>两台 UTC</td>
+</tr>
+<tr>
+<td>系统盘</td>
+<td>485G（500GB pd-balanced，系统自动扩展成功）</td>
+</tr>
+<tr>
+<td>内网互通（新机 → nginx）</td>
+<td>203.0.113.1 / 203.0.113.1 → 203.0.113.1：ping OK、TCP22 OK</td>
+</tr>
+<tr>
+<td>内网互通（nginx → 新机）</td>
+<td>203.0.113.1 → 203.0.113.1 / 203.0.113.1：ping OK、TCP22 OK</td>
+</tr>
+<tr>
+<td>公网 IP</td>
+<td>两台均为预留静态地址（固定）</td>
+</tr>
+</tbody>
+</table>
+<p>内网互通不需要新增防火墙规则：现有 <code>dbqp-hk-allow-internal-admin</code>（子网内 22）、
+<code>dbqp-hk-allow-icmp</code>（子网内 ICMP）已覆盖两台新机的 <code>hk-backend</code> 标签。</p>
+<h2 id="七-安全说明-重要">七、安全说明（重要）</h2>
+<pre><code class="language-text">1. root 密码按用户指定值设置，明文不写入本仓库、工作台、日志或文档。
+2. 初始化脚本 /root/hk-backend-startup.sh 含该明文密码，仅保留在香港入口机（权限 700），
+   需要时可删除；实例 metadata 的 startup-script 也含该值，如需收敛可在实例内
+   `gcloud compute instances remove-metadata --keys=startup-script` 清除。
+3. 为执行修复，`gcloud compute ssh` 向项目 metadata 写入了运维公钥
+   （key 名 `compute.511057654766442468`、`compute.2166080764923942857`）。
+   如不需要，可在 GCP 控制台/命令删除对应 ssh-keys 条目。
+4. 两台新机只加了 ssh/内网/beszel 端口规则，未开放数据库、Redis、Docker API 等公网端口。
+</code></pre>
+<h2 id="八-待办-本次未做">八、待办（本次未做）</h2>
+<pre><code class="language-text">1. 后端容器/业务代码部署（cn 分支不携带后端发布体系，需后端流程或另行授权）。
+2. Beszel 监控 agent（旧后端曾运行 henrygd/beszel-agent，需 TOKEN 后补装）。
+3. 每日快照策略（现有 dbqp-hk-nginx-daily-snapshot / dbqp-hk-zentao-daily-snapshot，
+   新后端可参照新增 dbqp-hk-backend-01/02-daily-snapshot）。
+4. nginx 上游接入：香港入口机的 external 后端目前是 18.163.34.9 / 43.198.52.147，
+   若要切到自建后端，需在新机起服务后调整 nginx upstream 并验证；
+   防火墙已放行入口机 203.0.113.1 → 8765 与 9090-9104。
+5. 工作台与服务器索引已同步更新（见关联文件）。
+</code></pre>
+<h2 id="九-边界与决策">九、边界与决策</h2>
+<p>本次为香港项目新增<strong>后端机器</strong>，超出「cn 只维护入口与云资源」的旧边界
+（原决策 <code>DEC-20260716-CN-NO-BACKEND-DEPLOY</code>）。机器已创建并通过验证，
+但<strong>后端代码/容器发布体系仍未纳入 cn 分支</strong>，<code>docker/ci/check.py</code> 的边界检查未放宽。
+是否把后端发布纳入 cn 由用户后续确认。</p>
+<h2 id="十-关联文件">十、关联文件</h2>
+<pre><code class="language-text">docker/线上服务器信息/servers.json                 （新增两台，脱敏）
+docker/线上服务器信息/README.md                    （服务器表更新）
+docker/workbench/MACHINE_ACCESS_MATRIX.md          （香港后端从「历史」改为 ACTIVE）
+docker/workbench/CURRENT_STATE.md                  （环境与变更记录）
+docker/workbench/DECISIONS.md                      （新增边界决策）
+docker/workbench/ACTIVE_TASKS.md                   （新增后端后续待办）
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-任务与要求">一、任务与要求</a></li><li style="margin-left:0.0rem"><a href="#二-参考的巴西配置-对照">二、参考的巴西配置（对照）</a></li><li style="margin-left:0.0rem"><a href="#三-执行前置核验">三、执行前置核验</a></li><li style="margin-left:0.0rem"><a href="#四-执行动作">四、执行动作</a></li><li style="margin-left:0.0rem"><a href="#五-服务器信息-部署完成后核验">五、服务器信息（部署完成后核验）</a></li><li style="margin-left:0.0rem"><a href="#六-验证结果">六、验证结果</a></li><li style="margin-left:0.0rem"><a href="#七-安全说明-重要">七、安全说明（重要）</a></li><li style="margin-left:0.0rem"><a href="#八-待办-本次未做">八、待办（本次未做）</a></li><li style="margin-left:0.0rem"><a href="#九-边界与决策">九、边界与决策</a></li><li style="margin-left:0.0rem"><a href="#十-关联文件">十、关联文件</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 香港 CN</li>
+          <li>日期：2026-09-24</li>
+          <li>标签：<span class="tag">香港 CN</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">Redis</span><span class="tag">监控告警</span><span class="tag">自动化</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/cn/docker/doc/2026-09-24-1300-【架构改造】香港两台后端服务器创建与Docker环境部署记…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609241300-%E9%A6%99%E6%B8%AF%20CN%2BLinux%2BShell-2026-09-24%20%E9%A6%99%E6%B8%AF%E4%B8%A4%E5%8F%B0%E5%90%8E%E7%AB%AF%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%9B%E5%BB%BA%E4%B8%8E%20Docker%20%E7%8E%AF%E5%A2%83%E9%83%A8%E7%BD%B2%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>2026-09-24 香港两台后端服务器创建与 Docker 环境部署记录。本文属于历史运维与项目交付 / 香港 CN，用户要求： 参考巴西后端服务器配置，为香港项目创建 2 台后端服务器 。 流程按用户要求执行：前置核验 → 分析 → 执行 → 验证 → 文档 → 本地提交； 用户明确「不通知群」，故本轮不发送…</p>
+      <p>关键词：香港 CN、Linux、Shell、Docker、Nginx、Redis、监控告警、自动化、历史运维与项目交付、历史运维与项目交付 / 香港 CN、2026-09-24 香港两台后端服务器创建与 Docker 环境部署记录</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b9637f02d464.html"><small>上一篇</small>香港静态域名上 CDN 操作手册（运维 + 后端手动）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-063fa6eb2d04.html"><small>下一篇</small>2026-09-24 香港 standby 入口服务器与新域名 hkcloudplay06/07 接入记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0f77917c5f80.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

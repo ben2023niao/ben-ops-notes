@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>香港静态域名上 CDN 操作手册（运维 + 后端手动）｜历史运维与项目交付 / 香港 CN｜BEN.OPS</title>
+  <meta name="description" content="香港静态域名上 CDN 操作手册（运维 + 后端手动）。本文属于历史运维与项目交付 / 香港 CN，目标：把 70 个静态域名从「灰云 → CloudFront → 香港 S3」切成「橙云 → Cloudflare Worker → 香港 S3（带边缘缓存）」，与巴西口径一致。 范围：只动 14 个静态前缀 ×…">
+  <meta name="keywords" content="香港 CN，Shell，Python，Docker，自动化，CDN，DNS，故障排查，历史运维与项目交付，历史运维与项目交付 / 香港 CN，香港静态域名上 CDN 操作手册（运维 + 后端手动）">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b9637f02d464.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b9637f02d464.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609241245-%E9%A6%99%E6%B8%AF%20CN%2BShell%2BPython-%E9%A6%99%E6%B8%AF%E9%9D%99%E6%80%81%E5%9F%9F%E5%90%8D%E4%B8%8A%20CDN%20%E6%93%8D%E4%BD%9C%E6%89%8B%E5%86%8C%EF%BC%88%E8%BF%90%E7%BB%B4%20%2B%20%E5%90%8E%E7%AB%AF%E6%89%8B%E5%8A%A8%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="香港静态域名上 CDN 操作手册（运维 + 后端手动）">
+  <meta property="og:description" content="香港静态域名上 CDN 操作手册（运维 + 后端手动）。本文属于历史运维与项目交付 / 香港 CN，目标：把 70 个静态域名从「灰云 → CloudFront → 香港 S3」切成「橙云 → Cloudflare Worker → 香港 S3（带边缘缓存）」，与巴西口径一致。 范围：只动 14 个静态前缀 ×…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b9637f02d464.html">
+  <meta property="article:published_time" content="2026-09-24T12:45:00+08:00">
+  <meta property="article:modified_time" content="2026-09-24 12:45">
+  <meta property="article:section" content="历史运维与项目交付 / 香港 CN">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="香港静态域名上 CDN 操作手册（运维 + 后端手动）">
+  <meta name="twitter:description" content="香港静态域名上 CDN 操作手册（运维 + 后端手动）。本文属于历史运维与项目交付 / 香港 CN，目标：把 70 个静态域名从「灰云 → CloudFront → 香港 S3」切成「橙云 → Cloudflare Worker → 香港 S3（带边缘缓存）」，与巴西口径一致。 范围：只动 14 个静态前缀 ×…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b9637f02d464.html#article","headline":"香港静态域名上 CDN 操作手册（运维 + 后端手动）","description":"香港静态域名上 CDN 操作手册（运维 + 后端手动）。本文属于历史运维与项目交付 / 香港 CN，目标：把 70 个静态域名从「灰云 → CloudFront → 香港 S3」切成「橙云 → Cloudflare Worker → 香港 S3（带边缘缓存）」，与巴西口径一致。 范围：只动 14 个静态前缀 ×…","datePublished":"2026-09-24T12:45:00+08:00","dateModified":"2026-09-24 12:45","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","香港 CN"],"keywords":["香港 CN","Shell","Python","Docker","自动化","CDN","DNS","故障排查","历史运维与项目交付","历史运维与项目交付 / 香港 CN","香港静态域名上 CDN 操作手册（运维 + 后端手动）"],"wordCount":1968,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b9637f02d464.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b9637f02d464.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 香港 CN","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"香港静态域名上 CDN 操作手册（运维 + 后端手动）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b9637f02d464.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 香港 CN</span> › <span>香港静态域名上 CDN 操作手册（运维 + 后端手动）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 香港 CN</div>
+      <h1>香港静态域名上 CDN 操作手册（运维 + 后端手动）</h1>
+      <p class="lede">香港静态域名上 CDN 操作手册（运维 + 后端手动）。本文属于历史运维与项目交付 / 香港 CN，目标：把 70 个静态域名从「灰云 → CloudFront → 香港 S3」切成「橙云 → Cloudflare Worker → 香港 S3（带边缘缓存）」，与巴西口径一致。 范围：只动 14 个静态前缀 ×…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-24T12:45:00+08:00">发布于 2026-09-24</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,968 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/cn/docker/doc/2026-09-24-1245-【运维记录】香港静态域名上CDN操作手册（运维+后端手动）.md</code></p>
+<p>整理日期：2026-09-24 12:45｜日期依据：文件名日期</p>
+</blockquote>
+<p>目标：把 70 个静态域名从「灰云 → CloudFront → 香港 S3」切成「橙云 → Cloudflare Worker → 香港 S3（带边缘缓存）」，与巴西口径一致。</p>
+<p>范围：只动 <strong>14 个静态前缀 × 5 个 zone</strong>；<code>*-games</code>、<code>api.hkcloudplay0X.com</code>、<code>hkplaycore.com</code> 一律不动。</p>
+<p>本文是<strong>给人照着做的手册</strong>，本轮没有执行任何生产变更。</p>
+<hr/>
+<h2 id="一页速查">一页速查</h2>
+<table>
+<thead>
+<tr>
+<th>谁</th>
+<th>做什么</th>
+<th>生效时机</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>运维</td>
+<td>① 部署 Worker ② 建 Worker 路由 ③ 建 Cache Rules</td>
+<td>都不影响现网（灰云不走 Cloudflare）</td>
+</tr>
+<tr>
+<td>运维</td>
+<td>④ 静态 DNS 记录改「已代理」</td>
+<td><strong>这一步才生效</strong></td>
+</tr>
+<tr>
+<td>后端</td>
+<td>⑤ platform-api <code>static_hosts</code> 改成 CF 域名</td>
+<td>玩家开始走 Worker</td>
+</tr>
+<tr>
+<td>运维</td>
+<td>⑥ 发布后清缓存（改 <code>CACHE_SALT</code> 重部署）</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>回滚顺序相反：后端改回 S3 → DNS 改回灰云。<strong>先做①~③再做④</strong>，任何一步都可回滚。</p>
+<hr/>
+<h2 id="A-运维操作-Cloudflare-侧">A. 运维操作（Cloudflare 侧）</h2>
+<p>在<strong>香港入口机</strong>（34.92.13.108）执行，工作目录是 cn 仓库。</p>
+<p>前置：</p>
+<pre><code class="language-bash">export CF_ACCOUNT_ID=eaf1a5f4eb53c8cd384ce9088181b97c   # 香港与巴西同一个 Cloudflare 账号
+T=/root/.config/cloudflare/workers-token                # 需要 Workers Scripts:Edit、Workers Routes:Edit、Cache Rules:Edit
+Z=hkcloudplay01.com,hkcloudplay02.com,hkcloudplay03.com,hkcloudplay04.com,hkcloudplay05.com
+</code></pre>
+<h3 id="A1-部署-Worker-不影响现网">A1. 部署 Worker（不影响现网）</h3>
+<p>⚠️ <code>--account</code> / <code>--token-file</code> / <code>--zones</code> 是<strong>顶层参数，必须写在子命令前面</strong>（写成 <code>deploy --account ...</code> 会报 unrecognized arguments）。</p>
+<pre><code class="language-bash">python3 docker/deploy/hongkong/deploy_static_worker.py \
+    --account "$CF_ACCOUNT_ID" --token-file $T --zones "$Z" \
+    deploy --backup-dir /root/dbqp-hk-worker-backup/$(date +%Y%m%d-%H%M)
+</code></pre>
+<p>期望输出：<code>deploy: http=200 success=True</code> → <code>deployed ok</code>。</p>
+<p>说明：只上传脚本，没有路由就不会对任何域名生效；旧脚本会自动备份到 <code>--backup-dir</code>。</p>
+<h3 id="A2-建-Worker-路由-不影响现网">A2. 建 Worker 路由（不影响现网）</h3>
+<pre><code class="language-bash">python3 docker/deploy/hongkong/deploy_static_worker.py --token-file $T --zones "$Z" routes --dry-run   # 先看要建哪些
+python3 docker/deploy/hongkong/deploy_static_worker.py --token-file $T --zones "$Z" routes --apply      # 建 14 x 5 = 70 条
+</code></pre>
+<p>期望输出：每条 <code>create route &lt;域名&gt;/*: success=True</code>。</p>
+<h3 id="A3-建-Cache-Rules-面板操作-不影响现网">A3. 建 Cache Rules（面板操作，不影响现网）</h3>
+<p>对 <code>hkcloudplay01.com</code> ~ <code>hkcloudplay05.com</code> <strong>每个 zone 各建 1 条</strong>：</p>
+<pre><code class="language-text">位置：Cloudflare 面板 -&gt; 该 zone -&gt; 缓存 -&gt; Cache Rules -&gt; 创建规则
+名称：statics
+匹配：自定义表达式（把下面表达式里的 02 换成对应 zone 编号）
+操作：符合缓存条件（Eligible）+ 边缘 TTL：覆写源站 604800 秒
+状态：活动
+</code></pre>
+<p>表达式（每个 zone 一条，<code>02</code> 换成 <code>01</code>~<code>05</code>）：</p>
+<pre><code class="language-text">(ends_with(http.host, "-static.hkcloudplay02.com"))
+or (ends_with(http.host, "-static1.hkcloudplay02.com"))
+or (ends_with(http.host, "-static2.hkcloudplay02.com"))
+</code></pre>
+<p>注意：香港 JILI 对外是 <code>jili-static</code>/<code>jili-static1</code>/<code>jili-static2</code>，所以必须像上面这样写三段；<strong>不要照抄巴西的 <code>starts_with("tada-statics...")</code></strong>。</p>
+<h3 id="A4-切-DNS-这一步才生效-建议先灰度-1-个域名">A4. 切 DNS（这一步才生效，建议先灰度 1 个域名）</h3>
+<p>灰度（面板操作）：</p>
+<pre><code class="language-text">位置：面板 -&gt; 该 zone -&gt; DNS -&gt; pg-static.hkcloudplay02.com
+操作：编辑 -&gt; 代理状态改为「已代理」-&gt; 保存
+</code></pre>
+<p>验证灰度域名（在任意能上网的机器执行）：</p>
+<pre><code class="language-bash"># 1) 第一次请求：期望 200，并且带 x-dbqp-worker 头
+curl -s -D - -o /dev/null "https://pg-static.hkcloudplay02.com/85/c445ebb91e.cadb1.json" | head -20
+
+# 2) 第二次请求：期望 cf-cache-status: HIT
+curl -s -D - -o /dev/null "https://pg-static.hkcloudplay02.com/85/c445ebb91e.cadb1.json" | grep -i cf-cache-status
+
+# 3) 目录请求：期望 302 到 index.html
+curl -s -D - -o /dev/null "https://pg6-static.hkcloudplay02.com/1834850/" | head -3
+
+# 4) OPTIONS 预检：期望 204
+curl -s -o /dev/null -w '%{http_code}\n' -X OPTIONS \
+    -H 'Origin: https://pg-static.hkcloudplay02.com' \
+    -H 'Access-Control-Request-Method: GET' \
+    "https://pg-static.hkcloudplay02.com/85/c445ebb91e.cadb1.json"
+</code></pre>
+<p>灰度通过后全量切换（70 条一起）：</p>
+<pre><code class="language-bash">python3 docker/deploy/hongkong/deploy_static_worker.py dns-proxy --enable --dry-run   # 先看计划
+python3 docker/deploy/hongkong/deploy_static_worker.py dns-proxy --enable --yes        # 执行，自动备份到 /root/dbqp-hk-worker-backup/
+</code></pre>
+<h3 id="A5-全量验证">A5. 全量验证</h3>
+<pre><code class="language-bash">python3 docker/deploy/hongkong/deploy_static_worker.py verify
+</code></pre>
+<p>期望：<code>worker verify summary passed=70 failed=0</code>（每个域名 200 + CORS 正确 + Worker 标记 + 缓存命中）。</p>
+<hr/>
+<h2 id="B-后端手动操作-platform-api">B. 后端手动操作（platform-api）</h2>
+<p>不做这一步，玩家不会走 Worker（现网 <code>static_hosts</code> 直指 S3 公开地址）。</p>
+<h3 id="B1-改配置">B1. 改配置</h3>
+<p>把 platform-api 的 domains 配置里静态前缀的 <code>static_hosts</code> 从 S3 地址改成 CF 域名：</p>
+<pre><code class="language-text">改前：https://dbqp-h5-hk-517506432530.s3.ap-east-1.amazonaws.com/pg-static
+改后：https://pg-static.hkcloudplay02.com
+</code></pre>
+<p>对应关系（每个前缀换成同名域名即可）：</p>
+<pre><code class="language-text">pg-static / pg3-static / pg4-static / pg5-static / pg6-static / pg7-static
+pp-static / ppk-static / panda-static / playson-static / g759-static
+jili-static / jili-static1 / jili-static2
+</code></pre>
+<p>建议顺序：先只配 <strong>1 个 zone</strong> 的域名（例如 <code>...hkcloudplay02.com</code>）验证，通过后再补齐到 5 个 zone。</p>
+<p>配置来源：cn 仓库 <code>docker/conf/domains/*.json</code>（复制到 <code>platform-api/conf/domains/</code>，或让 <code>GAME_DOMAINS_PATH</code> 指向该目录）。</p>
+<h3 id="B2-生效与验证">B2. 生效与验证</h3>
+<p>按后端既有流程应用配置（重启或热加载），然后验证：</p>
+<pre><code class="language-bash"># 静态资源请求头应出现 Worker 标记与缓存状态
+curl -s -D - -o /dev/null "https://&lt;后端下发的静态域名&gt;/&lt;任一真实资源路径&gt;" | \
+    grep -Ei 'HTTP|x-dbqp-worker|cf-cache-status|cache-control'
+</code></pre>
+<p>期望：<code>x-dbqp-worker: hk-static-proxy</code>，第二次请求 <code>cf-cache-status: HIT</code>。</p>
+<h3 id="B3-后端回滚">B3. 后端回滚</h3>
+<p>把 <code>static_hosts</code> 改回原 S3 地址并重新应用配置即可，不需要动 Cloudflare。</p>
+<hr/>
+<h2 id="C-发布后清缓存-运维">C. 发布后清缓存（运维）</h2>
+<pre><code class="language-text">1) Worker/边缘缓存：改 docker/deploy/hongkong/hk_static_worker.js 里的 CACHE_SALT，重新执行 A1 部署。
+   （Cache API 按 zone 隔离，Cloudflare 面板「清除缓存」清不掉它。）
+2) 浏览器缓存：改完 salt 后，配合静态域名 URL 版本变化自然失效。
+3) 回滚期：如需回到 CloudFront，先执行回滚，再用 CloudFront invalidation 兜底。
+</code></pre>
+<p>发布后建议预热（巴西是逐 20 zone，香港是 5 zone）：把变更文件在 5 个 zone 各请求一次，确认 <code>cf-cache-status: HIT</code>。</p>
+<hr/>
+<h2 id="D-回滚-3-步-任一步独立可用">D. 回滚（3 步，任一步独立可用）</h2>
+<pre><code class="language-bash"># 1) DNS 改回灰云（立即回到 CloudFront -&gt; S3，原有链路完全不变）
+python3 docker/deploy/hongkong/deploy_static_worker.py dns-proxy --disable --yes
+
+# 2) 后端 static_hosts 改回 S3 地址（B3）
+
+# 3) 可选：删 Worker 路由 / 停用 Cache Rules（面板操作）
+</code></pre>
+<hr/>
+<h2 id="E-常用命令速查-香港入口机">E. 常用命令速查（香港入口机）</h2>
+<pre><code class="language-bash">cd &lt;cn 仓库目录&gt;
+W="python3 docker/deploy/hongkong/deploy_static_worker.py"
+
+A=eaf1a5f4eb53c8cd384ce9088181b97c
+T=/root/.config/cloudflare/workers-token
+Z=&lt;目标 zone，逗号分隔，如 hkcloudplay06.com,hkcloudplay07.com&gt;
+
+# 注意：--account / --token-file / --zones 必须写在子命令前面
+$W --zones "$Z" plan                                            # 打印前缀与路由计划（不联网）
+$W --account $A --token-file $T --zones "$Z" deploy             # 部署 Worker
+$W --token-file $T --zones "$Z" routes --dry-run                # 查看要建的路由
+$W --token-file $T --zones "$Z" routes --apply                  # 建路由
+$W --token-file $T --zones "$Z" dns-proxy --enable --dry-run    # 查看要改的 DNS
+$W --token-file $T --zones "$Z" dns-proxy --enable --yes        # 切橙云
+$W --token-file $T --zones "$Z" dns-proxy --disable --yes       # 回滚成灰云
+$W --zones "$Z" verify                                          # 全量验证
+
+# Cache Rules（巴西口径 statics 规则；默认只打印，加 --apply 才落库）
+python3 docker/deploy/hongkong/static_cdn_config.py \
+    apply-cache-rules --zones "$Z" --token-file $T --apply
+</code></pre>
+<hr/>
+<h2 id="F-不要照抄巴西的-5-个地方">F. 不要照抄巴西的 5 个地方</h2>
+<pre><code class="language-text">1. 源站：巴西是 GCS newgg2-dbqp-gcs-*；香港是私有 S3 dbqp-h5-hk-517506432530（前缀公开读）。
+2. 前缀名：巴西对外 tada-statics*；香港对外 jili-static*（内部才映射 tada-statics*）。
+3. Cache Rules 表达式：香港要匹配 -static. / -static1. / -static2. 三种结尾。
+4. zone 数量：巴西 20 个，香港 5 个。
+5. 地区白名单：巴西 BR/SG/HK/AE；香港面向国内，是否限制需单独确认（当前 Worker 默认不限制）。
+</code></pre>
+<hr/>
+<h2 id="G-需要拍板的-5-件事-拍完再开工">G. 需要拍板的 5 件事（拍完再开工）</h2>
+<pre><code class="language-text">1. CORS：巴西口径一律 *，还是保留香港现网「平台域精确回显 + 其它 *」？
+   （Worker 里 CORS_MODE 开关：wildcard / echo-platform，默认 echo-platform）
+2. 是否加地区白名单（Worker 里 ALLOWED_COUNTRIES，默认空 = 不限制）。
+3. 是否切 platform-api 的 static_hosts（不切则改造空转）。
+4. 路由粒度：70 条精确（当前工具做法）还是 5 条通配 *.hkcloudplay0N.com/*。
+5. 灰度顺序（建议先 pg-static.hkcloudplay02.com）。
+</code></pre>
+<hr/>
+<h2 id="附-涉及文件">附：涉及文件</h2>
+<pre><code class="language-text">Worker 源码（未部署）  docker/deploy/hongkong/hk_static_worker.js
+部署/路由/DNS/验证工具 docker/deploy/hongkong/deploy_static_worker.py
+本地逻辑自检          docker/ci/test_hk_static_worker.mjs
+差异清单（分析）      docker/doc/2026-09-24-1230-【问题排查+架构改造】香港CN静态域名CDN与巴西口径差异清单.md
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一页速查">一页速查</a></li><li style="margin-left:0.0rem"><a href="#A-运维操作-Cloudflare-侧">A. 运维操作（Cloudflare 侧）</a></li><li style="margin-left:0.8rem"><a href="#A1-部署-Worker-不影响现网">A1. 部署 Worker（不影响现网）</a></li><li style="margin-left:0.8rem"><a href="#A2-建-Worker-路由-不影响现网">A2. 建 Worker 路由（不影响现网）</a></li><li style="margin-left:0.8rem"><a href="#A3-建-Cache-Rules-面板操作-不影响现网">A3. 建 Cache Rules（面板操作，不影响现网）</a></li><li style="margin-left:0.8rem"><a href="#A4-切-DNS-这一步才生效-建议先灰度-1-个域名">A4. 切 DNS（这一步才生效，建议先灰度 1 个域名）</a></li><li style="margin-left:0.8rem"><a href="#A5-全量验证">A5. 全量验证</a></li><li style="margin-left:0.0rem"><a href="#B-后端手动操作-platform-api">B. 后端手动操作（platform-api）</a></li><li style="margin-left:0.8rem"><a href="#B1-改配置">B1. 改配置</a></li><li style="margin-left:0.8rem"><a href="#B2-生效与验证">B2. 生效与验证</a></li><li style="margin-left:0.8rem"><a href="#B3-后端回滚">B3. 后端回滚</a></li><li style="margin-left:0.0rem"><a href="#C-发布后清缓存-运维">C. 发布后清缓存（运维）</a></li><li style="margin-left:0.0rem"><a href="#D-回滚-3-步-任一步独立可用">D. 回滚（3 步，任一步独立可用）</a></li><li style="margin-left:0.0rem"><a href="#E-常用命令速查-香港入口机">E. 常用命令速查（香港入口机）</a></li><li style="margin-left:0.0rem"><a href="#F-不要照抄巴西的-5-个地方">F. 不要照抄巴西的 5 个地方</a></li><li style="margin-left:0.0rem"><a href="#G-需要拍板的-5-件事-拍完再开工">G. 需要拍板的 5 件事（拍完再开工）</a></li><li style="margin-left:0.0rem"><a href="#附-涉及文件">附：涉及文件</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 香港 CN</li>
+          <li>日期：2026-09-24</li>
+          <li>标签：<span class="tag">香港 CN</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">自动化</span><span class="tag">CDN</span><span class="tag">DNS</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/cn/docker/doc/2026-09-24-1245-【运维记录】香港静态域名上CDN操作手册（运维+后端手动）…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609241245-%E9%A6%99%E6%B8%AF%20CN%2BShell%2BPython-%E9%A6%99%E6%B8%AF%E9%9D%99%E6%80%81%E5%9F%9F%E5%90%8D%E4%B8%8A%20CDN%20%E6%93%8D%E4%BD%9C%E6%89%8B%E5%86%8C%EF%BC%88%E8%BF%90%E7%BB%B4%20%2B%20%E5%90%8E%E7%AB%AF%E6%89%8B%E5%8A%A8%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>香港静态域名上 CDN 操作手册（运维 + 后端手动）。本文属于历史运维与项目交付 / 香港 CN，目标：把 70 个静态域名从「灰云 → CloudFront → 香港 S3」切成「橙云 → Cloudflare Worker → 香港 S3（带边缘缓存）」，与巴西口径一致。 范围：只动 14 个静态前缀 ×…</p>
+      <p>关键词：香港 CN、Shell、Python、Docker、自动化、CDN、DNS、故障排查、历史运维与项目交付、历史运维与项目交付 / 香港 CN、香港静态域名上 CDN 操作手册（运维 + 后端手动）</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a960821c9319.html"><small>上一篇</small>2026-09-24 香港 CN 静态域名 CDN 与巴西口径差异清单</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0f77917c5f80.html"><small>下一篇</small>2026-09-24 香港两台后端服务器创建与 Docker 环境部署记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b9637f02d464.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
