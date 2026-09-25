@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【安全分析】线上环境攻击来源画像与真实用户区分方法｜可观测性 / 日志分析｜BEN.OPS</title>
+  <meta name="description" content="【安全分析】线上环境攻击来源画像与真实用户区分方法。本文属于可观测性 / 日志分析，文档日期：2026-09-26 11:05（CST）/ 03:05（UTC） 环境：游点涩线上环境（main 分支） 分类：安全分析 标签：攻击来源、机房 IP、真实用户、deviceId、X-Forwarded-For、Host…">
+  <meta name="keywords" content="可观测性，日志分析，Docker，Nginx，PHP，监控告警，知识笔记，可观测性 / 日志分析，【安全分析】线上环境攻击来源画像与真实用户区分方法">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ccba6ef7eacd.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ccba6ef7eacd.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609261105-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%2B%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90%2BDocker%2BNginx-%E3%80%90%E5%AE%89%E5%85%A8%E5%88%86%E6%9E%90%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E6%94%BB%E5%87%BB%E6%9D%A5%E6%BA%90%E7%94%BB%E5%83%8F%E4%B8%8E%E7%9C%9F%E5%AE%9E%E7%94%A8%E6%88%B7%E5%8C%BA%E5%88%86%E6%96%B9%E6%B3%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【安全分析】线上环境攻击来源画像与真实用户区分方法">
+  <meta property="og:description" content="【安全分析】线上环境攻击来源画像与真实用户区分方法。本文属于可观测性 / 日志分析，文档日期：2026-09-26 11:05（CST）/ 03:05（UTC） 环境：游点涩线上环境（main 分支） 分类：安全分析 标签：攻击来源、机房 IP、真实用户、deviceId、X-Forwarded-For、Host…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ccba6ef7eacd.html">
+  <meta property="article:published_time" content="2026-09-26T11:05:00">
+  <meta property="article:modified_time" content="2026-09-26 11:05">
+  <meta property="article:section" content="可观测性 / 日志分析">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【安全分析】线上环境攻击来源画像与真实用户区分方法">
+  <meta name="twitter:description" content="【安全分析】线上环境攻击来源画像与真实用户区分方法。本文属于可观测性 / 日志分析，文档日期：2026-09-26 11:05（CST）/ 03:05（UTC） 环境：游点涩线上环境（main 分支） 分类：安全分析 标签：攻击来源、机房 IP、真实用户、deviceId、X-Forwarded-For、Host…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ccba6ef7eacd.html#article","headline":"【安全分析】线上环境攻击来源画像与真实用户区分方法","description":"【安全分析】线上环境攻击来源画像与真实用户区分方法。本文属于可观测性 / 日志分析，文档日期：2026-09-26 11:05（CST）/ 03:05（UTC） 环境：游点涩线上环境（main 分支） 分类：安全分析 标签：攻击来源、机房 IP、真实用户、deviceId、X-Forwarded-For、Host…","datePublished":"2026-09-26T11:05:00","dateModified":"2026-09-26 11:05","inLanguage":"zh-CN","articleSection":["可观测性","日志分析"],"keywords":["可观测性","日志分析","Docker","Nginx","PHP","监控告警","知识笔记","可观测性 / 日志分析","【安全分析】线上环境攻击来源画像与真实用户区分方法"],"wordCount":1357,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ccba6ef7eacd.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ccba6ef7eacd.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"可观测性 / 日志分析","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【安全分析】线上环境攻击来源画像与真实用户区分方法","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ccba6ef7eacd.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>可观测性 / 日志分析</span> › <span>【安全分析】线上环境攻击来源画像与真实用户区分方法</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">可观测性 / 日志分析</div>
+      <h1>【安全分析】线上环境攻击来源画像与真实用户区分方法</h1>
+      <p class="lede">【安全分析】线上环境攻击来源画像与真实用户区分方法。本文属于可观测性 / 日志分析，文档日期：2026-09-26 11:05（CST）/ 03:05（UTC） 环境：游点涩线上环境（main 分支） 分类：安全分析 标签：攻击来源、机房 IP、真实用户、deviceId、X-Forwarded-For、Host…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-26T11:05:00">发布于 2026-09-26</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,357 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源：本地项目文档 <code>game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-26-1105-【安全分析】线上环境攻击来源画像与真实用户区分方法.md</code>
+整理：2026-11-09。仅复制到知识库，未改动原项目文件；敏感凭据已脱敏。</p>
+</blockquote>
+<p>文档日期：2026-09-26 11:05（CST）/ 03:05（UTC）
+环境：游点涩线上环境（main 分支）
+分类：安全分析
+标签：攻击来源、机房 IP、真实用户、deviceId、X-Forwarded-For、Hostinger、AWS、CloudFront</p>
+<h2 id="一-分析目的与方法">一、分析目的与方法</h2>
+<pre><code class="language-text">目的：把「刷量攻击来源」和「真实用户」区分开，避免误封真实用户，同时不放过脚本。
+
+数据源：
+  · 网关日志（203.0.113.1，2026-09-26 已补 X-Forwarded-For，可看到真实客户端 IP、UA、路径）；
+  · 后端业务日志（runtime/app-logs/api_request-2026-09-2x.log，含 ip / deviceId / userId / action / version）。
+
+三条判据：
+  1) 是否带设备号 deviceId：正常 App/H5 每个请求都带；脚本通常为空；
+  2) 访问接口数量：真人会跨首页/详情/列表/充值等；脚本常固定打 1 个接口；
+  3) 频率形态：真人随浏览波动；脚本 24 小时恒定。
+
+辅助手段：对来源 IP 做反查（PTR）。
+  · 含 hstgr.cloud / compute.amazonaws.com → 机房、云服务器；
+  · 含 adsl / broad / dynamic / 省份+运营商 → 家宽或移动网络（真实用户）。
+</code></pre>
+<h2 id="二-三类来源-结论">二、三类来源（结论）</h2>
+<h3 id="2-1-第一类-机房服务器-真-刷量攻击-已封">2.1 第一类｜机房服务器（真·刷量攻击，已封）</h3>
+<pre><code class="language-text">IP：2a02:4780:5e:7a89::1（PTR: srv1541998.hstgr.cloud → Hostinger 机房 VPS）
+同段其它 IP：…:5274::1（525 次）、…:d5f7::1（358）、…:4376::1（78）、…:5158::1（49）
+行为：24 小时只打 POST /api/v1/modules/home；deviceId 为空、userId 为空；恒定 ~258-264 次/分钟（4.4 次/秒）
+规模：09-24 302,114 次；09-25 371,421 次；09-26 00:00-10:35 160,702 次；合计约 83.4 万次
+处置：整段 2a02:4780 已在网关 nginx 拦截（返回 444）+ ip6tables 直连封禁；后端日志已 0 命中
+</code></pre>
+<h3 id="2-2-第二类-云主机上的自动化程序-疑似-未封-待业务确认">2.2 第二类｜云主机上的自动化程序（疑似，未封，待业务确认）</h3>
+<pre><code class="language-text">· 203.0.113.1（AWS 香港 ec2-16-162-40-152.ap-east-1）
+  16,612 次 / 只打 /customer/other/checkTokenV2 / deviceId 全空 → 疑似脚本或自动化工具
+· 203.0.113.1（AWS 新加坡 ec2-3-1-244-240.ap-southeast-1）
+  64,812 次 / LoginNew/account 与 UserProduct/getProductList 成对调用（各 32,406）/ 带 deviceId
+  → 更像自动化客户端、监控或渠道程序，不具备刷量攻击特征，暂不封
+· 一批小量云 IP（均无 deviceId）：203.0.113.1（2,170）、203.0.113.1（2,126）、203.0.113.1（2,086）、
+  203.0.113.1（2,084）、203.0.113.1（1,981）、203.0.113.1（1,297）、203.0.113.1（1,216）、
+  203.0.113.1（540）→ 集中在 AWS 新加坡/香港，疑似爬虫或自动化采集
+</code></pre>
+<h3 id="2-3-第三类-CDN-边缘-IP-不是攻击来源">2.3 第三类｜CDN 边缘 IP（不是攻击来源）</h3>
+<pre><code class="language-text">52.46.x / 64.252.x / 3.172.x / 18.68.x / 143.x / 13.x 等是 CloudFront 边缘节点：
+网关看到的「来源」其实是 CDN，真实用户 IP 在 X-Forwarded-For 中（本次新增该字段后才看清）。
+因此：这些段绝不能封（封了等于封自己的用户），现有 CC 守卫也已配置跳过 CDN 段。
+</code></pre>
+<h3 id="2-4-真实用户长什么样-举例">2.4 真实用户长什么样（举例）</h3>
+<pre><code class="language-text">· 203.0.113.1 → PTR …203.0.113.1.broad.zz.fj.dynamic.163data.com.cn（福建漳州电信宽带）
+· 203.0.113.1   → PTR …adsl-pool.jlccptt.net.cn（吉林联通 ADSL 拨号池）
+· 大量 2408:xxxx / 2409:xxxx 开头的 IPv6 = 国内手机流量用户
+共同特征：带 deviceId、访问多个接口、频率随浏览起伏、UA 为手机浏览器或 App
+</code></pre>
+<h2 id="三-区分真实用户-vs-刷量脚本-判定口径">三、区分真实用户 vs 刷量脚本（判定口径）</h2>
+<p>| 特征 | 真实用户 | 刷量脚本 |</p>
+<p>| --- | --- | --- |</p>
+<p>| IP 归属 | 家宽/移动网络（PTR 含 adsl / broad / dynamic） | 机房/云厂商（hstgr.cloud、compute.amazonaws.com） |</p>
+<p>| deviceId | 有 | 空 |</p>
+<p>| userId | 登录后有 | 空 |</p>
+<p>| 访问接口 | 多个（首页/详情/列表/充值…） | 常固定 1 个 |</p>
+<p>| 访问频率 | 随浏览波动 | 24 小时恒定（如 4.4 次/秒） |</p>
+<p>| UA | 手机浏览器/App（HeyTap / Chrome / Safari…） | 非浏览器或固定值（Dart / python-requests…） |</p>
+<p>封禁口径（防误伤）：</p>
+<pre><code class="language-text">1. 只封「机房段 + 单接口 + 无 deviceId + 恒定高频」四项同时命中的来源；
+2. 家宽/移动段（含 adsl/broad/dynamic）一律不按段封，仅做频率限制；
+3. CDN 边缘段永不封。
+</code></pre>
+<h2 id="四-当前防护与待确认">四、当前防护与待确认</h2>
+<pre><code class="language-text">已生效：
+  · Hostinger 段 2a02:4780：网关 444 + ip6tables 直连封禁（后端 0 命中）；
+  · CC 守卫：每分钟按真实客户端 IP 统计 /api，单客户端 ≥4 次/秒（6 万行窗口）自动写入网关拦截清单；
+  · 网关日志带 XFF；磁盘 75% 看门狗；日志每 6 小时归档 S3（本地 1-2 天）。
+
+待业务确认后再处理：
+  · 203.0.113.1（checkTokenV2，16.6k/天，无 deviceId）
+  · 203.0.113.1（LoginNew/account + UserProduct/getProductList，65k/天，带 deviceId）
+  · 上述一批 AWS 小量 IP（合计约 1.2 万次/天，无 deviceId）
+</code></pre>
+<h2 id="五-通知记录">五、通知记录</h2>
+<pre><code class="language-text">攻击来源画像 1/3（分析方法）        18game运维 95850 / 上线群 12103
+攻击来源画像 2/3（三类来源结论）    18game运维 95851 / 上线群 12104
+攻击来源画像 3/3（区分口径+防护）   18game运维 95852 / 上线群 12105
+</code></pre>
+<h2 id="六-安全与敏感内容">六、安全与敏感内容</h2>
+<pre><code class="language-text">本记录不输出 Telegram token/chat_id、私钥正文、Git 凭据；
+攻击源 IP、PTR、统计口径属安全事件证据，可记录。
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-分析目的与方法">一、分析目的与方法</a></li><li style="margin-left:0.0rem"><a href="#二-三类来源-结论">二、三类来源（结论）</a></li><li style="margin-left:0.8rem"><a href="#2-1-第一类-机房服务器-真-刷量攻击-已封">2.1 第一类｜机房服务器（真·刷量攻击，已封）</a></li><li style="margin-left:0.8rem"><a href="#2-2-第二类-云主机上的自动化程序-疑似-未封-待业务确认">2.2 第二类｜云主机上的自动化程序（疑似，未封，待业务确认）</a></li><li style="margin-left:0.8rem"><a href="#2-3-第三类-CDN-边缘-IP-不是攻击来源">2.3 第三类｜CDN 边缘 IP（不是攻击来源）</a></li><li style="margin-left:0.8rem"><a href="#2-4-真实用户长什么样-举例">2.4 真实用户长什么样（举例）</a></li><li style="margin-left:0.0rem"><a href="#三-区分真实用户-vs-刷量脚本-判定口径">三、区分真实用户 vs 刷量脚本（判定口径）</a></li><li style="margin-left:0.0rem"><a href="#四-当前防护与待确认">四、当前防护与待确认</a></li><li style="margin-left:0.0rem"><a href="#五-通知记录">五、通知记录</a></li><li style="margin-left:0.0rem"><a href="#六-安全与敏感内容">六、安全与敏感内容</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：可观测性 / 日志分析</li>
+          <li>日期：2026-09-26</li>
+          <li>标签：<span class="tag">可观测性</span><span class="tag">日志分析</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">PHP</span><span class="tag">监控告警</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/05-日志分析与攻击研判/2026-09-26-1105-【安全分析】线上环境攻击来源画像与真实用户区分方法.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609261105-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%2B%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90%2BDocker%2BNginx-%E3%80%90%E5%AE%89%E5%85%A8%E5%88%86%E6%9E%90%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E6%94%BB%E5%87%BB%E6%9D%A5%E6%BA%90%E7%94%BB%E5%83%8F%E4%B8%8E%E7%9C%9F%E5%AE%9E%E7%94%A8%E6%88%B7%E5%8C%BA%E5%88%86%E6%96%B9%E6%B3%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【安全分析】线上环境攻击来源画像与真实用户区分方法。本文属于可观测性 / 日志分析，文档日期：2026-09-26 11:05（CST）/ 03:05（UTC） 环境：游点涩线上环境（main 分支） 分类：安全分析 标签：攻击来源、机房 IP、真实用户、deviceId、X-Forwarded-For、Host…</p>
+      <p>关键词：可观测性、日志分析、Docker、Nginx、PHP、监控告警、知识笔记、可观测性 / 日志分析、【安全分析】线上环境攻击来源画像与真实用户区分方法</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f95cd04714c8.html"><small>上一篇</small>【优化】线上环境网关日志 S3 归档与磁盘 75% 看门狗改造记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3982d7f6a2e2.html"><small>下一篇</small>【安全分析】线上环境授权安全测试来源画像与真实用户区分方法</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ccba6ef7eacd.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

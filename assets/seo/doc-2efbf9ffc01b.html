@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【问题排查】线上环境网关 nginx 日志打满磁盘导致 SSL Monitor 连环告警处置记录｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="【问题排查】线上环境网关 nginx 日志打满磁盘导致 SSL Monitor 连环告警处置记录。本文属于业务系统运维 / 游点涩，文档日期：2026-09-26 02:27（UTC）/ 10:27（CST） 环境：游点涩线上环境（main 分支） 分类：问题排查（E4 生产告警刷屏） 标签：线上环境、网关 ng…">
+  <meta name="keywords" content="游点涩，Shell，Docker，Nginx，监控告警，CDN，安全运维，故障排查，业务系统运维，业务系统运维 / 游点涩，【问题排查】线上环境网关 nginx 日志打满磁盘导致 SSL Monitor 连环告警处置记录，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2efbf9ffc01b.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2efbf9ffc01b.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609260227-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E7%BD%91%E5%85%B3%20nginx%20%E6%97%A5%E5%BF%97%E6%89%93%E6%BB%A1%E7%A3%81%E7%9B%98%E5%AF%BC%E8%87%B4%20SSL%20Monitor%20%E8%BF%9E%E7%8E%AF%E5%91%8A%E8%AD%A6%E5%A4%84%E7%BD%AE%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【问题排查】线上环境网关 nginx 日志打满磁盘导致 SSL Monitor 连环告警处置记录">
+  <meta property="og:description" content="【问题排查】线上环境网关 nginx 日志打满磁盘导致 SSL Monitor 连环告警处置记录。本文属于业务系统运维 / 游点涩，文档日期：2026-09-26 02:27（UTC）/ 10:27（CST） 环境：游点涩线上环境（main 分支） 分类：问题排查（E4 生产告警刷屏） 标签：线上环境、网关 ng…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2efbf9ffc01b.html">
+  <meta property="article:published_time" content="2026-09-26T02:27:00+08:00">
+  <meta property="article:modified_time" content="2026-09-26 02:27">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【问题排查】线上环境网关 nginx 日志打满磁盘导致 SSL Monitor 连环告警处置记录">
+  <meta name="twitter:description" content="【问题排查】线上环境网关 nginx 日志打满磁盘导致 SSL Monitor 连环告警处置记录。本文属于业务系统运维 / 游点涩，文档日期：2026-09-26 02:27（UTC）/ 10:27（CST） 环境：游点涩线上环境（main 分支） 分类：问题排查（E4 生产告警刷屏） 标签：线上环境、网关 ng…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2efbf9ffc01b.html#article","headline":"【问题排查】线上环境网关 nginx 日志打满磁盘导致 SSL Monitor 连环告警处置记录","description":"【问题排查】线上环境网关 nginx 日志打满磁盘导致 SSL Monitor 连环告警处置记录。本文属于业务系统运维 / 游点涩，文档日期：2026-09-26 02:27（UTC）/ 10:27（CST） 环境：游点涩线上环境（main 分支） 分类：问题排查（E4 生产告警刷屏） 标签：线上环境、网关 ng…","datePublished":"2026-09-26T02:27:00+08:00","dateModified":"2026-09-26 02:27","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Shell","Docker","Nginx","监控告警","CDN","安全运维","故障排查","业务系统运维","业务系统运维 / 游点涩","【问题排查】线上环境网关 nginx 日志打满磁盘导致 SSL Monitor 连环告警处置记录","php"],"wordCount":1599,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2efbf9ffc01b.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2efbf9ffc01b.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【问题排查】线上环境网关 nginx 日志打满磁盘导致 SSL Monitor 连环告警处置记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2efbf9ffc01b.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>【问题排查】线上环境网关 nginx 日志打满磁盘导致 SSL Monitor 连环告警处置记录</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>【问题排查】线上环境网关 nginx 日志打满磁盘导致 SSL Monitor 连环告警处置记录</h1>
+      <p class="lede">【问题排查】线上环境网关 nginx 日志打满磁盘导致 SSL Monitor 连环告警处置记录。本文属于业务系统运维 / 游点涩，文档日期：2026-09-26 02:27（UTC）/ 10:27（CST） 环境：游点涩线上环境（main 分支） 分类：问题排查（E4 生产告警刷屏） 标签：线上环境、网关 ng…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-26T02:27:00+08:00">发布于 2026-09-26</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,599 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-26-0227-【问题排查】线上环境网关nginx日志打满磁盘导致SSL Monitor连环告警处置记录.md</code></p>
+<p>整理日期：2026-09-26 02:27｜日期依据：文件名日期</p>
+</blockquote>
+<p>文档日期：2026-09-26 02:27（UTC）/ 10:27（CST）
+环境：游点涩线上环境（main 分支）
+分类：问题排查（E4 生产告警刷屏）
+标签：线上环境、网关 nginx、16.208.38.88、磁盘打满、访问日志、SSL Monitor、CC 守卫</p>
+<h2 id="一-现象">一、现象</h2>
+<pre><code class="language-text">1. 群内 SSL Monitor 连环告警（多条）：
+   🚨【网页访问异常】Response ended prematurely —— h5.game-app543.com / feijuka.com / onbrp.com /
+   buttonp.com / zjyzsjj.com / txsyds.com / maogoudaxia.com / yundingly.com / wdjxhn.com / wangcaitt.com 等
+   （同一时间还有「HTTPS 回源失败、HTTP 仍可访问」与「已恢复」交替出现）
+2. Beszel 告警：游点涩-pc-nginx 磁盘使用 在过去的 10 分钟中超过 80%
+3. 监控面板：游点涩-pc-nginx = 16.208.38.88，CPU 47.5%、磁盘 100%、负载 5.9~8.5、网络 15.9 MB/s
+4. 同期 CC 守卫告警（2026-09-25 06:31 UTC）：负载异常 15.54，TOP 来源为 CloudFront 边缘 IP
+</code></pre>
+<h2 id="二-根因">二、根因</h2>
+<pre><code class="language-text">1. 磁盘被打满（直接原因）：
+   /dev/root 49G 已用 49G，可用 0（100%）；/var 44G，其中 /var/log 31G，/var/log/nginx 28G：
+   · access.log    13.8G（当天，仍在增长）
+   · access.log.1  12.0G（前一天）
+   · access.log.2~7.gz 约 2.5G（滚动压缩日志）
+   · journal 3.7G
+2. 该机器（16.208.38.88）是 18game H5/PC 统一网关：公网域名 → CloudFront → 本机 nginx →
+   H5/PC 前端容器（3003/3004）与 /api 回源宝塔/后端。
+3. 磁盘写满后 nginx 无法正常落盘/处理，HTTPS 回源请求中途断开 →
+   拨测侧表现为 “Response ended prematurely / HTTPS 回源失败”，触发 SSL Monitor 连环告警。
+4. 日志暴涨的驱动是网关侧的请求量：实测网关约 546 req/s（TOP 路径全部为 /api/v1/*：
+   Tracking/recordPageVisit、system/info、configDict/getConfigDict、AppVersion/latestVersion、modules/home），
+   而 logrotate 原配置为 daily + rotate 7（无大小上限）→ 单日 13G 日志、7 天≈28G，必然打满 49G 根盘。
+5. 该机器就是 CC 守卫（ben-bot cron 每分钟）监控对象；本次其 root_qps 阈值未触发（当前 root_qps=4.7），
+   守卫仅按 SSR 根路径（GET / HTTP）判定，不覆盖 /api 类接口流量。
+</code></pre>
+<h2 id="三-处置">三、处置</h2>
+<h3 id="3-1-紧急释放磁盘-2026-09-26-02-24-02-26-UTC">3.1 紧急释放磁盘（2026-09-26 02:24~02:26 UTC）</h3>
+<pre><code class="language-text">1. 删除 Sep 22-23 旧滚动日志（access.log.3~7.gz）
+2. 清空昨日 access.log.1（12G）→ 可用空间 0 → 14G
+3. 保存告警证据样本：/root/nginx-attack-sample-20260926-022459.log.gz（5.5MB，末 30 万行）
+4. 清空当前 access.log 并执行 nginx -s reopen（保持句柄、服务不中断）
+结果：根盘 49G → 已用 22G、可用 27G（使用率 100% → 46%）
+</code></pre>
+<h3 id="3-2-日志轮转加固-防止再次打满">3.2 日志轮转加固（防止再次打满）</h3>
+<pre><code class="language-text">备份：/root/logrotate-nginx-backup-20260926-022636.conf
+新配置 /etc/logrotate.d/nginx：
+  daily + maxsize 2G + rotate 3 + compress + delaycompress + notifempty + create 0640 www-data adm
+  （相对原配置：无大小上限、rotate 7 → 改为单文件超 2G 即轮转、仅保留 3 份压缩）
+执行 logrotate -d 干跑校验通过后 logrotate -f 强制轮转一次：
+  /var/log/nginx 由 28G → 481M（access.log 7.8M / access.log.1 13.7M / 其余压缩）
+</code></pre>
+<h2 id="四-验证">四、验证</h2>
+<pre><code class="language-text">· 磁盘：/dev/root 已用 22G、可用 27G（46%），/var/log/nginx 481M
+· 服务：nginx active；H5/PC 前端容器 Up 38~39 小时；本机回源复测
+  h5.yds-pc-h5-01.cc = 200（0.16s）、pc.yds-pc-h5-01.cc = 200（0.12s）
+· 公网复测：feijuka.com / onbrp.com / buttonp.com / maogoudaxia.com / wangcaitt.com = 200
+  （h5.game-app543.com 在本机所在地被菲律宾侧访问策略验证，属已知问题，非本次故障）
+· 负载：由峰值 8.57 回落至 4.98（仍偏高，见遗留）
+· 后端：16.209.16.108 负载 0.77，容器正常，近 5 分钟 0 个 5xx，磁盘 40%
+· 请求量对比：后端今天 10:22–10:27 约 6.9k~10.0k 请求/分钟（≈120–165 req/s），
+  低于昨天晚间 23:54–23:59 的 17.6k~18.5k 请求/分钟（≈300 req/s）→ 后端量级未异常
+</code></pre>
+<h2 id="五-结论-回答-是不是有授权安全测试或前端容器异常">五、结论（回答“是不是有授权安全测试或前端容器异常”）</h2>
+<pre><code class="language-text">1. 前端容器正常：H5/PC 容器持续 Up，本机与公网复测均 200；PC 容器日志里的
+   “SSR 请求失败 … terminated UND_ERR_SOCKET”是磁盘打满期间的下游表现，非容器自身故障。
+2. 本次群内连环告警的直接原因是「网关 nginx 日志打满磁盘」，已修复并加固轮转。
+3. 网关侧确有较大请求量（约 546 req/s 的 /api 流量）与大量短连接（TIME_WAIT 1.7 万），
+   但后端量级低于昨日峰值、无 5xx，暂不支持“正在被打挂”的判断；
+   CC 守卫仍在运行（累计封禁 843 条 iptables 规则，封禁对象为真实客户端 IP，非 CloudFront 边缘）。
+</code></pre>
+<h2 id="六-遗留与建议">六、遗留与建议</h2>
+<pre><code class="language-text">1. 【建议】网关 49G 根盘 + 13G/天日志仍有风险：除本次 maxsize 2G + rotate 3 外，
+   建议把网关访问日志纳入「S3 归档 + 本地短保留」（既有日志归档脚本按 7 天保留，需同步调整为 1-2 天）。
+2. 【建议】为网关增加磁盘看门狗：&gt;80% 告警（Beszel 已有）+ &gt;90% 自动清理最旧日志/截断当前日志，
+   参考后端 ops/production/scripts/youdianse-disk-auto-clean.py。
+3. 【建议】/api 类流量缺少防护：CC 守卫目前只按 SSR 根路径判定，建议补充
+   /api 维度的 QPS/来源画像（网关日志目前用默认 combined 格式，不含 X-Forwarded-For，
+   需先补 XFF 或从 CloudFront 日志侧关联真实客户端）。
+4. 【观察】网关负载仍在 5 左右、TIME_WAIT 1.7 万，建议持续观察是否随业务高峰回落。
+5. 本次仅改网关 logrotate 与清理日志，未改动 nginx 站点配置与业务容器；证据样本留存
+   /root/nginx-attack-sample-20260926-022459.log.gz、logrotate 备份 /root/logrotate-nginx-backup-20260926-022636.conf。
+</code></pre>
+<h2 id="七-通知记录">七、通知记录</h2>
+<pre><code class="language-text">步骤 1 告警根因定位（磁盘打满）        18game运维 95798
+步骤 2 紧急清理磁盘（0 → 27G）         18game运维 95799
+步骤 3 日志轮转加固 + 流量/容器分析     见后续通知
+步骤 4 文档 / 5 提交结果               见后续通知
+</code></pre>
+<h2 id="八-安全与敏感内容">八、安全与敏感内容</h2>
+<pre><code class="language-text">本记录不输出 Telegram token/chat_id、私钥正文、Git 凭据；
+服务器 IP、域名、日志路径与统计口径属基础设施信息，可记录。
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-现象">一、现象</a></li><li style="margin-left:0.0rem"><a href="#二-根因">二、根因</a></li><li style="margin-left:0.0rem"><a href="#三-处置">三、处置</a></li><li style="margin-left:0.8rem"><a href="#3-1-紧急释放磁盘-2026-09-26-02-24-02-26-UTC">3.1 紧急释放磁盘（2026-09-26 02:24~02:26 UTC）</a></li><li style="margin-left:0.8rem"><a href="#3-2-日志轮转加固-防止再次打满">3.2 日志轮转加固（防止再次打满）</a></li><li style="margin-left:0.0rem"><a href="#四-验证">四、验证</a></li><li style="margin-left:0.0rem"><a href="#五-结论-回答-是不是有授权安全测试或前端容器异常">五、结论（回答“是不是有授权安全测试或前端容器异常”）</a></li><li style="margin-left:0.0rem"><a href="#六-遗留与建议">六、遗留与建议</a></li><li style="margin-left:0.0rem"><a href="#七-通知记录">七、通知记录</a></li><li style="margin-left:0.0rem"><a href="#八-安全与敏感内容">八、安全与敏感内容</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-09-26</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">监控告警</span><span class="tag">CDN</span><span class="tag">安全运维</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-26-0227-【问题排…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609260227-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E7%BD%91%E5%85%B3%20nginx%20%E6%97%A5%E5%BF%97%E6%89%93%E6%BB%A1%E7%A3%81%E7%9B%98%E5%AF%BC%E8%87%B4%20SSL%20Monitor%20%E8%BF%9E%E7%8E%AF%E5%91%8A%E8%AD%A6%E5%A4%84%E7%BD%AE%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【问题排查】线上环境网关 nginx 日志打满磁盘导致 SSL Monitor 连环告警处置记录。本文属于业务系统运维 / 游点涩，文档日期：2026-09-26 02:27（UTC）/ 10:27（CST） 环境：游点涩线上环境（main 分支） 分类：问题排查（E4 生产告警刷屏） 标签：线上环境、网关 ng…</p>
+      <p>关键词：游点涩、Shell、Docker、Nginx、监控告警、CDN、安全运维、故障排查、业务系统运维、业务系统运维 / 游点涩、【问题排查】线上环境网关 nginx 日志打满磁盘导致 SSL Monitor 连环告警处置记录、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8e384dcf3bf7.html"><small>上一篇</small>2026-09-25 香港静态 Worker 并发部署冲突与恢复记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5b14af1ca769.html"><small>下一篇</small>【安全事件】线上环境 H5/PC 网关被 IPv6 脚本刷量攻击的取证分析与拦截记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2efbf9ffc01b.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
