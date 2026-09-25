@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>2026-09-25 香港静态 Worker 并发部署冲突与恢复记录｜历史运维与项目交付 / 香港 CN｜BEN.OPS</title>
+  <meta name="description" content="2026-09-25 香港静态 Worker 并发部署冲突与恢复记录。本文属于历史运维与项目交付 / 香港 CN，用户要求「部署 worker 代码，代码里比对巴西的标识备注哪些地方改动了」→ 已执行：">
+  <meta name="keywords" content="香港 CN，Shell，Docker，CDN，安全运维，故障排查，数据库恢复，源码与配置，历史运维与项目交付，历史运维与项目交付 / 香港 CN，2026-09-25 香港静态 Worker 并发部署冲突与恢复记录">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8e384dcf3bf7.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8e384dcf3bf7.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609251615-%E9%A6%99%E6%B8%AF%20CN%2BShell%2BDocker-2026-09-25%20%E9%A6%99%E6%B8%AF%E9%9D%99%E6%80%81%20Worker%20%E5%B9%B6%E5%8F%91%E9%83%A8%E7%BD%B2%E5%86%B2%E7%AA%81%E4%B8%8E%E6%81%A2%E5%A4%8D%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="2026-09-25 香港静态 Worker 并发部署冲突与恢复记录">
+  <meta property="og:description" content="2026-09-25 香港静态 Worker 并发部署冲突与恢复记录。本文属于历史运维与项目交付 / 香港 CN，用户要求「部署 worker 代码，代码里比对巴西的标识备注哪些地方改动了」→ 已执行：">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8e384dcf3bf7.html">
+  <meta property="article:published_time" content="2026-09-25T16:15:00+08:00">
+  <meta property="article:modified_time" content="2026-09-25 16:15">
+  <meta property="article:section" content="历史运维与项目交付 / 香港 CN">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="2026-09-25 香港静态 Worker 并发部署冲突与恢复记录">
+  <meta name="twitter:description" content="2026-09-25 香港静态 Worker 并发部署冲突与恢复记录。本文属于历史运维与项目交付 / 香港 CN，用户要求「部署 worker 代码，代码里比对巴西的标识备注哪些地方改动了」→ 已执行：">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8e384dcf3bf7.html#article","headline":"2026-09-25 香港静态 Worker 并发部署冲突与恢复记录","description":"2026-09-25 香港静态 Worker 并发部署冲突与恢复记录。本文属于历史运维与项目交付 / 香港 CN，用户要求「部署 worker 代码，代码里比对巴西的标识备注哪些地方改动了」→ 已执行：","datePublished":"2026-09-25T16:15:00+08:00","dateModified":"2026-09-25 16:15","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","香港 CN"],"keywords":["香港 CN","Shell","Docker","CDN","安全运维","故障排查","数据库恢复","源码与配置","历史运维与项目交付","历史运维与项目交付 / 香港 CN","2026-09-25 香港静态 Worker 并发部署冲突与恢复记录"],"wordCount":1593,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8e384dcf3bf7.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8e384dcf3bf7.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 香港 CN","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-09-25 香港静态 Worker 并发部署冲突与恢复记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8e384dcf3bf7.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 香港 CN</span> › <span>2026-09-25 香港静态 Worker 并发部署冲突与恢复记录</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 香港 CN</div>
+      <h1>2026-09-25 香港静态 Worker 并发部署冲突与恢复记录</h1>
+      <p class="lede">2026-09-25 香港静态 Worker 并发部署冲突与恢复记录。本文属于历史运维与项目交付 / 香港 CN，用户要求「部署 worker 代码，代码里比对巴西的标识备注哪些地方改动了」→ 已执行：</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-25T16:15:00+08:00">发布于 2026-09-25</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,593 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/cn/docker/doc/2026-09-25-1615-【问题排查】香港静态Worker并发部署冲突与恢复记录.md</code></p>
+<p>整理日期：2026-09-25 16:15｜日期依据：文件名日期</p>
+</blockquote>
+<h2 id="一-时间线-UTC">一、时间线（UTC）</h2>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>04:0x</td>
+<td>本侧部署 v3 版（全部前缀改为「一厂家一 S3 桶」，大阪 <code>dbqp-s3-&lt;前缀&gt;</code>）</td>
+</tr>
+<tr>
+<td>04:13:09</td>
+<td><strong>线上 Worker 被另一侧改成「指向 GCS 桶名」的版本</strong>（<code>["pg-static", "newgg2-dbqp-gcs-pg-static"]</code> 等），脚本 7295 字节</td>
+</tr>
+<tr>
+<td>04:14:19</td>
+<td>公网实测全站静态 404：响应体 <code>&lt;Error&gt;&lt;Code&gt;NoSuchBucket&lt;/Code&gt;&lt;BucketName&gt;newgg2-dbqp-gcs-pg-static&lt;/BucketName&gt;</code>（GCS 桶名被拼到了 S3 地址上，S3 侧不存在该桶），且 404 被边缘缓存（<code>cf-cache-status: HIT</code>、<code>cache-control: max-age=604800</code>）</td>
+</tr>
+<tr>
+<td>04:14:37</td>
+<td>本侧恢复部署 v4 版（一厂家一桶 + 缓存盐升到 <code>v4-20260925</code>，让错误缓存整体失效）</td>
+</tr>
+<tr>
+<td>04:15+</td>
+<td>复测：06/07 两个 zone 的 pg/pg6/pp/ppk/panda/playson/g759/jili-static1 <strong>全部 200</strong>；仅 <code>jili-static.hkcloudplay06.com</code> 仍 403</td>
+</tr>
+<tr>
+<td>04:20</td>
+<td>用户指示：<strong>本侧先不部署，Worker 交给开发调试</strong> → 本侧停止所有线上 Worker 操作</td>
+</tr>
+</tbody>
+</table>
+<h2 id="二-jili-static-06-zone-403-的定位">二、jili-static（06 zone）403 的定位</h2>
+<pre><code class="language-text">实测：https://jili-static.hkcloudplay06.com/fg/index.html
+  HTTP/2 403，cf-cache-status: HIT，age: 2019（约 33 分钟前写入的边缘缓存）
+  body：&lt;Error&gt;&lt;Code&gt;AccessDenied&lt;/Code&gt; ... （S3 侧对象权限/存在性错误形态）
+对照：
+  - 直接打桶：https://dbqp-s3-jili-static.s3.ap-northeast-3.amazonaws.com/fg/index.html = 200 ✓
+  - 同域名在 07 zone = 200 ✓
+=&gt; 属于「桶尚未公开期间（或错误版本期间）产生的 403 被边缘缓存」，
+   换盐后该 zone 的请求仍命中了旧缓存条目，需要再做一次缓存失效才能自愈。
+</code></pre>
+<h2 id="三-恢复手段-已执行-备选">三、恢复手段（已执行 / 备选）</h2>
+<pre><code class="language-text">已执行：改 CACHE_SALT -&gt; v4-20260925 并重新部署（作为兜底，已让大部分前缀恢复正常）。
+若个别域名仍命中旧错误缓存，两种做法二选一：
+  a) 再升一次缓存盐（改 CACHE_SALT）并重新部署；
+  b) 对该 zone 做一次 Cloudflare 缓存清除（Cache Purge，需要相应权限）。
+注意：Worker 用的是 `cf: { cacheEverything: true, cacheTtl: 604800 }`，
+      错误响应（403/404）也可能被缓存，所以「源修好」不等于「立刻恢复」。
+</code></pre>
+<h2 id="四-当前线上状态-本侧最后确认-04-20">四、当前线上状态（本侧最后确认，04:20）</h2>
+<pre><code class="language-text">脚本：dbqp-hk-static-proxy，modified 2026-09-25T04:14:37Z（正是本侧 v4 版）
+缓存盐：v4-20260925 / h4-20260925
+映射：一个前缀一个 S3 桶（dbqp-s3-&lt;前缀&gt;.s3.ap-northeast-3.amazonaws.com）
+测试结果：
+  06 zone：pg / pg6 / pp / ppk / panda / playson / g759 / jili-static1 = 200；jili-static = 403（旧缓存）
+  07 zone：以上全部 = 200
+后续：按用户指示，本侧不再部署，Worker 由开发侧继续调试。
+</code></pre>
+<h2 id="五-经验与建议">五、经验与建议</h2>
+<pre><code class="language-text">1) Worker 是账号级脚本，多人/多会话同时部署会互相覆盖——改动前先确认「当前线上是哪一版」
+   （从 CF 拉源码比对，本侧工具：deploy_static_worker.py 部署时会自动备份被覆盖的版本）。
+2) 切源（S3 桶 / GCS）必须先确认目标桶对匿名请求可读：
+   本侧踩过两次——先是以「对象不存在」误判，后经 GCS 对照（同路径 S3 403 / GCS 200）
+   才确认是桶策略未公开；桶策略没配好就切 Worker 会导致全站 403/404。
+3) 错误响应会被边缘缓存，源修好后仍可能看到旧状态；必要时升缓存盐或 purge。
+4) 若确认要改走 GCS 源，Worker 里的回源地址必须写成
+   `https://storage.googleapis.com/&lt;GCS桶&gt;/&lt;路径&gt;`（或 GCS 的 bucket host 形式），
+   不能把 GCS 桶名拼到 S3 域名上（本次 404 就是这个原因）。
+</code></pre>
+<h2 id="六-追加-Worker-重新部署-v5-jili-static-403-的最终根因-2026-09-25-16-30">六、追加：Worker 重新部署（v5）+ jili-static 403 的最终根因（2026-09-25 16:30）</h2>
+<p>用户要求「部署 worker 代码，代码里比对巴西的标识备注哪些地方改动了」→ 已执行：</p>
+<pre><code class="language-text">1) Worker 文件头新增「与巴西版的差异清单」，逐条对照巴西线上版（summer-wave-c94f）：
+   [HK-差异 1] 源站：巴西 GCS（newgg2-dbqp-gcs-&lt;前缀&gt;.storage.googleapis.com）
+              / 香港「一个厂家一个 S3 桶」（dbqp-s3-&lt;前缀&gt;.s3.ap-northeast-3.amazonaws.com）
+   [HK-差异 2] 地区白名单：巴西 BR/SG/HK/AE；香港不限制
+   [HK-差异 3] CORS：巴西一律 *；香港平台域回显 + 其它 *
+   [HK-差异 4] 缓存盐：同机制，health 独立盐；当前 v5-20260925
+   [HK-差异 5] 转发前清理头：巴西删 host/cookie；香港额外删 origin/referer
+   + 「与巴西一致未改动」清单（OPTIONS 204 / 目录 302 / cacheEverything 7 天 / 放行非静态子域等）
+   代码内对应位置另有 `[HK-差异 N]` 行内标记。
+2) 部署：deploy http=200 success=True（旧版备份 /root/dbqp-hk-worker-backup/20260925-v5）。
+3) 复验：06/07 × 13 前缀 = 26 个域名，25 个 200；
+   仅 jili-static.hkcloudplay06.com 仍 403。
+</code></pre>
+<h3 id="6-1-jili-static-06-403-的最终根因">6.1 jili-static（06）403 的最终根因</h3>
+<pre><code class="language-text">关键证据：403 响应的 x-amz-request-id = 4FNVS5TJHH29GMAH，与 04:14 诊断时完全相同；
+         cf-cache-status: HIT、age: 2718（约 45 分钟前写入）。
+=&gt; 这条 403 是「桶还是私有」时期缓存的同一条响应，**至今没有被清掉**。
+
+为什么升 Worker 的 CACHE_SALT 不起作用：
+  Worker 内的缓存键（cf.cacheKey）只影响 Worker 自己发起的回源缓存；
+  06 zone 上还有一条 zone 级 Cache Rules「statics」（按主机名结尾 -static. 匹配、
+  边缘 TTL 604800），它按 URL 缓存 Worker 返回的响应 —— 包括这条 403，
+  与 Worker 的缓存盐无关，所以升盐（v3/v4/v5）都无法让它失效。
+
+为什么 07 正常：07 上这条 URL 是在桶公开之后才第一次被请求，缓存里存的是 200。
+</code></pre>
+<h3 id="6-2-处理方式-需要权限">6.2 处理方式（需要权限）</h3>
+<pre><code class="language-text">本侧尝试用现有 token 直接 purge：POST /zones/&lt;id&gt;/purge_cache
+  -&gt; 401 Authentication error（该 token 没有 Cache Purge 权限）
+
+可选做法（任一）：
+  a) 面板手动清：Cloudflare -&gt; hkcloudplay06.com -&gt; 缓存 -&gt; 清除缓存 -&gt;
+     自定义清除，填 https://jili-static.hkcloudplay06.com/*  （首选，最直接）
+  b) 给 workers-token 补 "Cache Purge" 权限后，本侧执行：
+     cf-api POST /zones/fd8476ddbd25b40f4c870d8066329aca/purge_cache \
+       --data '{"files":["https://jili-static.hkcloudplay06.com/fg/index.html"]}'
+  c) 临时把 jili-static 从 zone 的 statics Cache Rules 排除（会失去该前缀的边缘缓存）
+</code></pre>
+<pre><code class="language-text">docker/deploy/hongkong/hk_static_worker.js                 Worker 源码（v4：一厂家一 S3 桶）
+docker/deploy/hongkong/deploy_static_worker.py             部署工具（自动备份被覆盖版本）
+docker/deploy/hongkong/cdn-backup/                         CDN 配置与 Worker 备份目录
+docker/doc/2026-09-25-1420-【架构改造】香港JILI静态资源独立桶接入与Worker跨桶改造记录.md
+</code></pre>
+<h2 id="七-关联">七、关联</h2>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-时间线-UTC">一、时间线（UTC）</a></li><li style="margin-left:0.0rem"><a href="#二-jili-static-06-zone-403-的定位">二、jili-static（06 zone）403 的定位</a></li><li style="margin-left:0.0rem"><a href="#三-恢复手段-已执行-备选">三、恢复手段（已执行 / 备选）</a></li><li style="margin-left:0.0rem"><a href="#四-当前线上状态-本侧最后确认-04-20">四、当前线上状态（本侧最后确认，04:20）</a></li><li style="margin-left:0.0rem"><a href="#五-经验与建议">五、经验与建议</a></li><li style="margin-left:0.0rem"><a href="#六-追加-Worker-重新部署-v5-jili-static-403-的最终根因-2026-09-25-16-30">六、追加：Worker 重新部署（v5）+ jili-static 403 的最终根因（2026-09-25 16:30）</a></li><li style="margin-left:0.8rem"><a href="#6-1-jili-static-06-403-的最终根因">6.1 jili-static（06）403 的最终根因</a></li><li style="margin-left:0.8rem"><a href="#6-2-处理方式-需要权限">6.2 处理方式（需要权限）</a></li><li style="margin-left:0.0rem"><a href="#七-关联">七、关联</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 香港 CN</li>
+          <li>日期：2026-09-25</li>
+          <li>标签：<span class="tag">香港 CN</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">CDN</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/cn/docker/doc/2026-09-25-1615-【问题排查】香港静态Worker并发部署冲突与恢复记录.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609251615-%E9%A6%99%E6%B8%AF%20CN%2BShell%2BDocker-2026-09-25%20%E9%A6%99%E6%B8%AF%E9%9D%99%E6%80%81%20Worker%20%E5%B9%B6%E5%8F%91%E9%83%A8%E7%BD%B2%E5%86%B2%E7%AA%81%E4%B8%8E%E6%81%A2%E5%A4%8D%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>2026-09-25 香港静态 Worker 并发部署冲突与恢复记录。本文属于历史运维与项目交付 / 香港 CN，用户要求「部署 worker 代码，代码里比对巴西的标识备注哪些地方改动了」→ 已执行：</p>
+      <p>关键词：香港 CN、Shell、Docker、CDN、安全运维、故障排查、数据库恢复、源码与配置、历史运维与项目交付、历史运维与项目交付 / 香港 CN、2026-09-25 香港静态 Worker 并发部署冲突与恢复记录</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-536c2ca61e43.html"><small>上一篇</small>2026-09-25 香港 JILI 静态资源独立桶接入 + Worker 跨桶改造记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2efbf9ffc01b.html"><small>下一篇</small>【问题排查】线上环境网关 nginx 日志打满磁盘导致 SSL Monitor 连环告警处置记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8e384dcf3bf7.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

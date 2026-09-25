@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>2026-09-25 香港后端按巴西流程启动（version-zh / start.sh / 最新镜像）+ 静态资源同步｜历史运维与项目交付 / 香港 CN｜BEN.OPS</title>
+  <meta name="description" content="2026-09-25 香港后端按巴西流程启动（version-zh / start.sh / 最新镜像）+ 静态资源同步。本文属于历史运维与项目交付 / 香港 CN，各镜像自带 env 已核对（可省去手工传 env）：api=platform-api/main.py、pg=pg/server.py、 pp=pp/…">
+  <meta name="keywords" content="香港 CN，Shell，Python，Docker，Nginx，安全运维，故障排查，数据库恢复，历史运维与项目交付，历史运维与项目交付 / 香港 CN">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a2f2fd798f5.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a2f2fd798f5.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609251230-%E9%A6%99%E6%B8%AF%20CN%2BShell%2BPython-2026-09-25%20%E9%A6%99%E6%B8%AF%E5%90%8E%E7%AB%AF%E6%8C%89%E5%B7%B4%E8%A5%BF%E6%B5%81%E7%A8%8B%E5%90%AF%E5%8A%A8%EF%BC%88version-zh%20-%20start.sh%20-%20%E6%9C%80%E6%96%B0%E9%95%9C%E5%83%8F%EF%BC%89%2B%20%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E5%90%8C%E6%AD%A5.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="2026-09-25 香港后端按巴西流程启动（version-zh / start.sh / 最新镜像）+ 静态资源同步">
+  <meta property="og:description" content="2026-09-25 香港后端按巴西流程启动（version-zh / start.sh / 最新镜像）+ 静态资源同步。本文属于历史运维与项目交付 / 香港 CN，各镜像自带 env 已核对（可省去手工传 env）：api=platform-api/main.py、pg=pg/server.py、 pp=pp/…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a2f2fd798f5.html">
+  <meta property="article:published_time" content="2026-09-25T12:30:00+08:00">
+  <meta property="article:modified_time" content="2026-09-25 12:30">
+  <meta property="article:section" content="历史运维与项目交付 / 香港 CN">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="2026-09-25 香港后端按巴西流程启动（version-zh / start.sh / 最新镜像）+ 静态资源同步">
+  <meta name="twitter:description" content="2026-09-25 香港后端按巴西流程启动（version-zh / start.sh / 最新镜像）+ 静态资源同步。本文属于历史运维与项目交付 / 香港 CN，各镜像自带 env 已核对（可省去手工传 env）：api=platform-api/main.py、pg=pg/server.py、 pp=pp/…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a2f2fd798f5.html#article","headline":"2026-09-25 香港后端按巴西流程启动（version-zh / start.sh / 最新镜像）+ 静态资源同步","description":"2026-09-25 香港后端按巴西流程启动（version-zh / start.sh / 最新镜像）+ 静态资源同步。本文属于历史运维与项目交付 / 香港 CN，各镜像自带 env 已核对（可省去手工传 env）：api=platform-api/main.py、pg=pg/server.py、 pp=pp/…","datePublished":"2026-09-25T12:30:00+08:00","dateModified":"2026-09-25 12:30","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","香港 CN"],"keywords":["香港 CN","Shell","Python","Docker","Nginx","安全运维","故障排查","数据库恢复","历史运维与项目交付","历史运维与项目交付 / 香港 CN"],"wordCount":1590,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a2f2fd798f5.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a2f2fd798f5.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 香港 CN","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-09-25 香港后端按巴西流程启动（version-zh / start.sh / 最新镜像）+ 静态资源同步","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a2f2fd798f5.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 香港 CN</span> › <span>2026-09-25 香港后端按巴西流程启动（version-zh / start.sh / 最新镜像）+ 静态资源同步</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 香港 CN</div>
+      <h1>2026-09-25 香港后端按巴西流程启动（version-zh / start.sh / 最新镜像）+ 静态资源同步</h1>
+      <p class="lede">2026-09-25 香港后端按巴西流程启动（version-zh / start.sh / 最新镜像）+ 静态资源同步。本文属于历史运维与项目交付 / 香港 CN，各镜像自带 env 已核对（可省去手工传 env）：api=platform-api/main.py、pg=pg/server.py、 pp=pp/…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-25T12:30:00+08:00">发布于 2026-09-25</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,590 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/cn/docker/doc/2026-09-25-1230-【架构改造】香港后端按巴西流程启动与静态资源同步记录.md</code></p>
+<p>整理日期：2026-09-25 12:30｜日期依据：文件名日期</p>
+</blockquote>
+<h2 id="一-用户给出的-9-步流程与执行结果">一、用户给出的 9 步流程与执行结果</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">#</th>
+<th>要求</th>
+<th>状态</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td>静态资源采用 AWS S3，同步到最新</td>
+<td>🔄 执行中</td>
+<td>香港 S3 <code>dbqp-h5-hk-517506432530</code> 已是静态源；本轮修正同步工具的过期桶名后重新增量同步（见第四节）</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td>域名参考巴西，静态域名挂 S3，复刻巴西 Worker/规则（hkcloudplay06/07）</td>
+<td>✅ 已完成</td>
+<td>2026-09-24/25 已做：14 前缀 × 2 zone 橙云 A + Worker <code>dbqp-hk-static-proxy</code> + <code>statics</code> Cache Rules</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td>动态域名走 nginx，nginx 复刻巴西配置</td>
+<td>✅ 已完成</td>
+<td>standby 入口（34.150.1.185）8 个 upstream 复刻巴西 <code>socket_backend</code> 口径，只反代自建后端内网 IP</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td>首次 sync 同步</td>
+<td>✅ 已完成</td>
+<td>152.1 GiB：prod-03 → prod-01 → prod-02，CHECK 差异条目 0/0</td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td><code>/data/server-runtime/</code> 执行 <code>cp version-zh/* ./</code></td>
+<td>✅ 已完成</td>
+<td>两台执行；<code>config_version</code> 由 <code>bx.2026.09.09</code> → <strong><code>zh.2026.09.09</code></strong>（中文版 server_configs + version.json），原文件备份 <code>*.bx-bak-*</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">6</td>
+<td>修改 <code>start.sh</code> 的 <code>REGISTRY="34.39.180.82:5000"</code></td>
+<td>✅ 已完成</td>
+<td>两台已改（原 <code>203.0.113.1:5000</code>），备份 <code>start.sh.bak-*</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">7</td>
+<td><code>/data/server-runtime/conf/domains</code> 改域名配置</td>
+<td>✅ 已完成</td>
+<td>10 个 JSON 香港化（hkcloudplay06/07 + <code>socket.hk-socket.com</code>，JILI 前缀映射），原配置备份 <code>conf/domains.br-backup-*</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td>后续 sync 只同步 share.so</td>
+<td>✅ 已完成</td>
+<td><code>/root/hk-runtime-sync.sh</code> 已收窄为只同步 share.so</td>
+</tr>
+<tr>
+<td style="text-align: right;">9</td>
+<td>找到线上各厂商最新版本并启动 docker</td>
+<td>✅ 已完成</td>
+<td>由 registry 取各厂商最新日期 tag，用 <code>start.sh</code> 启动 8 个厂商（见第三节）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="二-start-sh-结构核对-香港可直接用">二、start.sh 结构核对（香港可直接用）</h2>
+<pre><code class="language-text">用法：./start.sh &lt;vendor&gt; &lt;VERSION_TAG&gt;
+镜像：${REGISTRY}/game-service-&lt;vendor&gt;:&lt;TAG&gt;
+容器：game-service-&lt;vendor&gt;-prod，端口按内置映射（api 9090 / pg 9091 / jili 9093 /
+      ppk 9098 / pp 9099 / panda 9018 / g759 9019 / playson 9020 / tada 9096 / tada_ws 8765）
+挂载：share.so / server_configs / version.json / xxxxxx.mmdb / conf/domains /
+      game_result_datas/&lt;vendor&gt; / logs
+JILI：脚本内置 `docker run ... python /app/tada/jili.py`（与镜像自带
+      CURRENT_VENDOR=tada + MAIN_ENTRY=jili.py 一致）
+容器用户：脚本未写 --user，但镜像 Config.User=appuser，仍以 appuser 运行（与巴西一致）
+</code></pre>
+<p>各镜像自带 env 已核对（可省去手工传 env）：api=platform-api/main.py、pg=pg/server.py、
+pp=pp/pp.py、ppk=ppk/ppk.py、panda=panda/panda.py、g759=g759/g759.py、
+playson=playson/playson.py、jili=<strong>tada/jili.py</strong>。</p>
+<h2 id="三-步骤-9-各厂商最新版本与启动">三、步骤 9：各厂商最新版本与启动</h2>
+<p>从 registry（<code>34.39.180.82:5000</code>）按日期取最新 tag：</p>
+<table>
+<thead>
+<tr>
+<th>厂商</th>
+<th>最新 tag</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>api</td>
+<td><code>20260923-ben</code></td>
+</tr>
+<tr>
+<td>pg</td>
+<td><code>20260921-ben</code></td>
+</tr>
+<tr>
+<td>pp</td>
+<td><code>20260923-ben</code></td>
+</tr>
+<tr>
+<td>panda</td>
+<td><code>20260919-ben</code></td>
+</tr>
+<tr>
+<td>jili / ppk / g759 / playson</td>
+<td><code>20260916-ben-cb8f2c55</code></td>
+</tr>
+</tbody>
+</table>
+<p>两台分别执行：</p>
+<pre><code class="language-bash">cd /data/server-runtime
+./start.sh api     20260923-ben
+./start.sh pg      20260921-ben
+./start.sh jili    20260916-ben-cb8f2c55
+./start.sh ppk     20260916-ben-cb8f2c55
+./start.sh pp      20260923-ben
+./start.sh panda   20260919-ben
+./start.sh g759    20260916-ben-cb8f2c55
+./start.sh playson 20260916-ben-cb8f2c55
+</code></pre>
+<p>启动后状态（<code>docker ps</code>）：8 个容器都起来了；Sanic 日志显示
+<code>Goin' Fast @ http://0.0.0.0:&lt;port&gt;</code>、<code>mode: production, w/ 4 workers</code>。</p>
+<pre><code class="language-text">api 容器 restarts=0（platform-api 正常，socket.hk-socket.com/ 返回 404 形态、/healthz 200）；
+其余厂商容器 restarts 逐步增加（重启循环）——与用户说明的「数据库没开权限」一致，
+属预期；DB 权限开通后应稳定。
+</code></pre>
+<p>（TADA / TADA-WS 不在 cn 范围，未用 start.sh 启动；prod-02 上另有用户手工起的
+<code>game-service-tada-prod</code> / <code>game-service-tada_ws-prod</code>，未干预。）</p>
+<h2 id="四-步骤-1-静态资源同步-含工具修复">四、步骤 1：静态资源同步（含工具修复）</h2>
+<p>发现问题：<code>/usr/local/bin/dbqp-sync-gcs-to-s3</code> 的桶映射仍是旧桶名
+<code>dbqp-gcs-*</code>，实测报 <code>directory not found</code>（旧桶已在 2026-09-11 迁移中删除），
+现役桶是 <code>newgg2-dbqp-gcs-*</code>（公网抽查 200）。</p>
+<p>处理：</p>
+<pre><code class="language-text">1) 备份 /opt/dbqp-hk-ops/sync_gcs_to_s3.py -&gt; *.bak-YYYYMMDD-HHMM
+2) 映射统一改为 newgg2-dbqp-gcs-&lt;前缀&gt;（含 tada-statics/1/2）
+3) 重新执行增量同步（后台）：/root/sync-statics.sh -&gt; /root/sync-statics.log
+   前缀：pg-static / pg3 / pg4 / pg5 / pp-static / ppk-static / panda-static /
+        playson-static / jili-static / jili-static1 / jili-static2
+</code></pre>
+<p>待补：pg6-static / pg7-static / g759-static 的源是 gitlab client 仓库（非 GCS），
+需按 2026-09-02 的 git→S3 流程单独同步（不在本次脚本范围内）。</p>
+<h2 id="五-踩坑记录">五、踩坑记录</h2>
+<pre><code class="language-text">1) GCS 桶名过期：同步工具写死旧桶 dbqp-gcs-*，实际已迁移到 newgg2-dbqp-gcs-*，
+   不改会一直 directory not found。
+2) pkill -f 自匹配（第二次踩）：命令行里包含同一模式串时会把自己所在 shell 杀掉，
+   表现为命令无输出/后续步骤不执行；应使用 pgrep -x（精确进程名）或按 PID kill。
+3) JILI 入口：必须 CURRENT_VENDOR=tada + MAIN_ENTRY=jili.py（镜像代码在 /app/tada），
+   用 vendor=jili 会 can't open file '/app/jili/jili.py' 无限重启；start.sh 已内置正确写法。
+4) /data/server-runtime/server_configs 是文件不是目录。
+</code></pre>
+<h2 id="六-待办">六、待办</h2>
+<pre><code class="language-text">1. 数据库权限开通后复测各厂商（当前除 api 外仍在重启循环）；
+2. pg6/pg7/g759 静态资源（git 源）按 git→S3 流程同步；
+3. share.so 更新：跑 /root/hk-runtime-sync.sh（只同步 share.so）+ 重启容器；
+4. 老入口机上游仍为外部双后端（老域名现网），如需收口另行授权。
+</code></pre>
+<h2 id="七-范围变更-2026-09-25-12-45-用户指示">七、范围变更（2026-09-25 12:45，用户指示）</h2>
+<pre><code class="language-text">用户：「不需要同步前端资源了，开发操作了」
+=&gt; 前端/静态资源（S3 上的 static 前缀）同步**改由开发侧操作**，cn 运维不再执行该类同步。
+
+本轮处理：
+1. 已停止后台静态同步任务（/root/sync-statics.sh 与 rclone 进程全部停止，无残留）；
+   停止前进度：pg-static 校验进行中（chk#25460/35584），S3 对象数 39264 -&gt; 39326（+62）。
+2. 同步工具的桶名修正**保留**（旧桶 dbqp-gcs-* 已删除，现役 newgg2-dbqp-gcs-*；
+   原文件备份 /opt/dbqp-hk-ops/sync_gcs_to_s3.py.bak-*）——以后若开发侧需要该工具可直接用。
+3. 本节之后，文档第一节表格中「步骤 1 静态同步」与 TASK-20260925-HK-STATIC-* 相关
+   待办均移交开发侧，不再由 cn 跟进。
+</code></pre>
+<h2 id="八-关联">八、关联</h2>
+<pre><code class="language-text">docker/deploy/hongkong/start_hk_backends.py      容器启停/状态/日志工具（备用，与 start.sh 等效）
+docker/deploy/hongkong/render_hk_domains.py      conf/domains 香港化渲染
+docker/doc/2026-09-25-1130-【架构改造】香港后端conf-domains香港化与业务容器启动记录.md
+docker/doc/2026-09-25-1030-【架构改造】香港standby入口上游收口为自建后端内网IP记录.md
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-用户给出的-9-步流程与执行结果">一、用户给出的 9 步流程与执行结果</a></li><li style="margin-left:0.0rem"><a href="#二-start-sh-结构核对-香港可直接用">二、start.sh 结构核对（香港可直接用）</a></li><li style="margin-left:0.0rem"><a href="#三-步骤-9-各厂商最新版本与启动">三、步骤 9：各厂商最新版本与启动</a></li><li style="margin-left:0.0rem"><a href="#四-步骤-1-静态资源同步-含工具修复">四、步骤 1：静态资源同步（含工具修复）</a></li><li style="margin-left:0.0rem"><a href="#五-踩坑记录">五、踩坑记录</a></li><li style="margin-left:0.0rem"><a href="#六-待办">六、待办</a></li><li style="margin-left:0.0rem"><a href="#七-范围变更-2026-09-25-12-45-用户指示">七、范围变更（2026-09-25 12:45，用户指示）</a></li><li style="margin-left:0.0rem"><a href="#八-关联">八、关联</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 香港 CN</li>
+          <li>日期：2026-09-25</li>
+          <li>标签：<span class="tag">香港 CN</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/cn/docker/doc/2026-09-25-1230-【架构改造】香港后端按巴西流程启动与静态资源同步记录.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609251230-%E9%A6%99%E6%B8%AF%20CN%2BShell%2BPython-2026-09-25%20%E9%A6%99%E6%B8%AF%E5%90%8E%E7%AB%AF%E6%8C%89%E5%B7%B4%E8%A5%BF%E6%B5%81%E7%A8%8B%E5%90%AF%E5%8A%A8%EF%BC%88version-zh%20-%20start.sh%20-%20%E6%9C%80%E6%96%B0%E9%95%9C%E5%83%8F%EF%BC%89%2B%20%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E5%90%8C%E6%AD%A5.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>2026-09-25 香港后端按巴西流程启动（version-zh / start.sh / 最新镜像）+ 静态资源同步。本文属于历史运维与项目交付 / 香港 CN，各镜像自带 env 已核对（可省去手工传 env）：api=platform-api/main.py、pg=pg/server.py、 pp=pp/…</p>
+      <p>关键词：香港 CN、Shell、Python、Docker、Nginx、安全运维、故障排查、数据库恢复、历史运维与项目交付、历史运维与项目交付 / 香港 CN</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-76f1944d680e.html"><small>上一篇</small>2026-09-25 香港后端 conf/domains 香港化 + 业务容器启动记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-91281e73c42a.html"><small>下一篇</small>2026-09-25 香港 g759 等厂商端口不可达：GCP 防火墙端口范围修复记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a2f2fd798f5.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
