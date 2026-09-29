@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>2026-09-30 【问题排查】线上后端&quot;内存暴涨&quot;根因：nginx access.log 涨到 78G，内存实为它的 page cache｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="2026-09-30 【问题排查】线上后端&quot;内存暴涨&quot;根因：nginx access.log 涨到 78G，内存实为它的 page cache。本文属于业务系统运维 / 游点涩，环境标签：线上环境（正式） 时间：2026-09-30 10:00 ~ 10:20（北京时间） CPU 已回落（刷量被压制），但监控上…">
+  <meta name="keywords" content="游点涩，Shell，Docker，Nginx，监控告警，安全运维，故障排查，源码与配置，业务系统运维，业务系统运维 / 游点涩，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dc6503af28d9.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dc6503af28d9.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609300000-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-2026-09-30%20%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E7%BA%BF%E4%B8%8A%E5%90%8E%E7%AB%AF-%E5%86%85%E5%AD%98%E6%9A%B4%E6%B6%A8-%E6%A0%B9%E5%9B%A0%EF%BC%9Anginx%20access.log%20%E6%B6%A8%E5%88%B0%2078G%EF%BC%8C%E5%86%85%E5%AD%98%E5%AE%9E%E4%B8%BA%E5%AE%83%E7%9A%84%20page%20cache.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="2026-09-30 【问题排查】线上后端&quot;内存暴涨&quot;根因：nginx access.log 涨到 78G，内存实为它的 page cache">
+  <meta property="og:description" content="2026-09-30 【问题排查】线上后端&quot;内存暴涨&quot;根因：nginx access.log 涨到 78G，内存实为它的 page cache。本文属于业务系统运维 / 游点涩，环境标签：线上环境（正式） 时间：2026-09-30 10:00 ~ 10:20（北京时间） CPU 已回落（刷量被压制），但监控上…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dc6503af28d9.html">
+  <meta property="article:published_time" content="2026-09-30T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-09-30 00:00">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="2026-09-30 【问题排查】线上后端&quot;内存暴涨&quot;根因：nginx access.log 涨到 78G，内存实为它的 page cache">
+  <meta name="twitter:description" content="2026-09-30 【问题排查】线上后端&quot;内存暴涨&quot;根因：nginx access.log 涨到 78G，内存实为它的 page cache。本文属于业务系统运维 / 游点涩，环境标签：线上环境（正式） 时间：2026-09-30 10:00 ~ 10:20（北京时间） CPU 已回落（刷量被压制），但监控上…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dc6503af28d9.html#article","headline":"2026-09-30 【问题排查】线上后端\"内存暴涨\"根因：nginx access.log 涨到 78G，内存实为它的 page cache","description":"2026-09-30 【问题排查】线上后端\"内存暴涨\"根因：nginx access.log 涨到 78G，内存实为它的 page cache。本文属于业务系统运维 / 游点涩，环境标签：线上环境（正式） 时间：2026-09-30 10:00 ~ 10:20（北京时间） CPU 已回落（刷量被压制），但监控上…","datePublished":"2026-09-30T00:00:00+08:00","dateModified":"2026-09-30 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Shell","Docker","Nginx","监控告警","安全运维","故障排查","源码与配置","业务系统运维","业务系统运维 / 游点涩","php"],"wordCount":645,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dc6503af28d9.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dc6503af28d9.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-09-30 【问题排查】线上后端\"内存暴涨\"根因：nginx access.log 涨到 78G，内存实为它的 page cache","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dc6503af28d9.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>2026-09-30 【问题排查】线上后端&quot;内存暴涨&quot;根因：nginx access.log 涨到 78G，内存实为它的 page cache</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>2026-09-30 【问题排查】线上后端&quot;内存暴涨&quot;根因：nginx access.log 涨到 78G，内存实为它的 page cache</h1>
+      <p class="lede">2026-09-30 【问题排查】线上后端&quot;内存暴涨&quot;根因：nginx access.log 涨到 78G，内存实为它的 page cache。本文属于业务系统运维 / 游点涩，环境标签：线上环境（正式） 时间：2026-09-30 10:00 ~ 10:20（北京时间） CPU 已回落（刷量被压制），但监控上…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-30T00:00:00+08:00">发布于 2026-09-30</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">645 字</span>
+        <span class="badge">2 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-30-【问题排查】线上后端内存暴涨根因-nginx日志78G占page cache.md</code></p>
+<p>整理日期：2026-09-30 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>环境标签：线上环境（正式）
+时间：2026-09-30 10:00 ~ 10:20（北京时间）</p>
+<h2 id="一-现象">一、现象</h2>
+<p>CPU 已回落（刷量被压制），但监控上<strong>内存占用明显上涨</strong>：后端容器
+<code>youdianse-main-php-nginx</code> 显示 9.79 GiB（32%）。</p>
+<h2 id="二-定位过程">二、定位过程</h2>
+<ol>
+<li>宿主机 <code>free</code>：used 仅 2.3 GB、buff/cache 28 GB → 内存不是"被进程吃掉"</li>
+<li>容器内存构成（cgroup v2 <code>memory.stat</code>）：</li>
+</ol>
+<pre><code class="language-text">anon   = 35 MB      ← 真实进程内存（很小）
+file   = 25.1 GB    ← page cache（几乎全部）
+kernel = 128 MB
+memory.current = 25.28 GB
+</code></pre>
+<ol start="3">
+<li>nginx worker：16 个进程合计 RSS 仅 91 MB → 没有泄漏</li>
+<li>日志目录：<code>/opt/docker-youdianse-php/runtime/nginx-logs/access.log</code> = <strong>78 GB</strong>
+   → 结论：容器"内存"里那 25 GB 全是这个巨型日志文件的 page cache</li>
+<li>根因：<strong>后端 nginx 日志没有轮转</strong>（既没有 logrotate 也没有 S3 归档），
+   加上此前登录刷量写入量大，日志一路涨到 78 GB</li>
+</ol>
+<h2 id="三-处置">三、处置</h2>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>立即</td>
+<td><code>truncate -s 0</code> 截断 access.log（copytruncate 方式，nginx 无需重启）→ 容器内存 9.79 GiB → <strong>41 MB</strong>，/data 释放 78 G（101G → 23G）</td>
+</tr>
+<tr>
+<td>持久化 1</td>
+<td>新增 <code>/etc/logrotate.d/youdianse-backend-nginx</code>：<code>size 200M / rotate 5 / compress / copytruncate</code>，cron 每 15 分钟检查</td>
+</tr>
+<tr>
+<td>持久化 2</td>
+<td>新增 ben-bot 脚本 <code>youdianse-backend-log-s3-archive.sh</code>：超过 24 小时的 .gz 上传 <code>s3://youdianse-prod-gateway-logs/backend/</code> 后删除本地，cron 每 6 小时</td>
+</tr>
+<tr>
+<td>顺带治理</td>
+<td>后端业务日志（PHP 写的 api_request/api_response/big_data_click，每天约 5G）新增 logrotate：<code>size 500M / rotate 3 / compress / copytruncate</code>，cron 每 15 分钟</td>
+</tr>
+</tbody>
+</table>
+<h2 id="四-验证">四、验证</h2>
+<ul>
+<li>容器内存：nginx <strong>41 MB</strong>、web 205 MB、cron 46 MB、logbus 40 MB（全部正常水位）</li>
+<li>宿主机：used 2.3 GB / available 28 GB</li>
+<li>磁盘：/data 23G / 492G（释放 78G）</li>
+<li>业务回归：www api 200、h5 页面 200、登录接口 200</li>
+</ul>
+<h2 id="五-结论与经验">五、结论与经验</h2>
+<ol>
+<li><strong>Docker/Beszel 显示的"容器内存"包含 page cache</strong>（读写大日志产生），
+   不等于进程真实占用；排查时先看 <code>memory.stat</code> 的 anon 与 file 构成</li>
+<li>线上每个写日志的组件都应有<strong>轮转 + 远端归档</strong>：本次事故前，网关与宝塔已有轮转，
+   唯独<strong>后端漏了</strong>，导致 78G 日志 → 内存虚高 + 磁盘占用</li>
+<li>后续巡检建议把「日志目录大小」纳入例行检查（本仓 <code>youdianse-*-log-s3-archive.sh</code>
+   已覆盖网关 / 宝塔 / 后端三处）</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-现象">一、现象</a></li><li style="margin-left:0.0rem"><a href="#二-定位过程">二、定位过程</a></li><li style="margin-left:0.0rem"><a href="#三-处置">三、处置</a></li><li style="margin-left:0.0rem"><a href="#四-验证">四、验证</a></li><li style="margin-left:0.0rem"><a href="#五-结论与经验">五、结论与经验</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-09-30</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">监控告警</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-30-【问题排查】线上后…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609300000-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-2026-09-30%20%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E7%BA%BF%E4%B8%8A%E5%90%8E%E7%AB%AF-%E5%86%85%E5%AD%98%E6%9A%B4%E6%B6%A8-%E6%A0%B9%E5%9B%A0%EF%BC%9Anginx%20access.log%20%E6%B6%A8%E5%88%B0%2078G%EF%BC%8C%E5%86%85%E5%AD%98%E5%AE%9E%E4%B8%BA%E5%AE%83%E7%9A%84%20page%20cache.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>2026-09-30 【问题排查】线上后端&quot;内存暴涨&quot;根因：nginx access.log 涨到 78G，内存实为它的 page cache。本文属于业务系统运维 / 游点涩，环境标签：线上环境（正式） 时间：2026-09-30 10:00 ~ 10:20（北京时间） CPU 已回落（刷量被压制），但监控上…</p>
+      <p>关键词：游点涩、Shell、Docker、Nginx、监控告警、安全运维、故障排查、源码与配置、业务系统运维、业务系统运维 / 游点涩、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ad55b6fd57d2.html"><small>上一篇</small>2026-09-30 【问题排查】h5.game-app543.com 浏览器报证书错误 → 实为菲律宾政府 CICC 封锁</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d18833b6f448.html"><small>下一篇</small>2026-09-30 页缓存定期回收（运维侧缓解&quot;内存使用率虚高&quot;）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dc6503af28d9.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

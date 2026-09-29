@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>2026-09-30 香港项目接入腾讯云 EdgeOne 架构方案（动态 + S3 静态）｜历史运维与项目交付 / 香港 CN｜BEN.OPS</title>
+  <meta name="description" content="2026-09-30 香港项目接入腾讯云 EdgeOne 架构方案（动态 + S3 静态）。本文属于历史运维与项目交付 / 香港 CN，站点： hkcloudplay06.com （07 同理，或先只做 06） 接入模式：CNAME 接入 ｜ 加速区域： 全球（不含中国大陆） （未备案）｜ 证书：EdgeOne…">
+  <meta name="keywords" content="香港 CN，Docker，Nginx，自动化，CDN，DNS，故障排查，源码与配置，历史运维与项目交付，历史运维与项目交付 / 香港 CN，2026-09-30 香港项目接入腾讯云 EdgeOne 架构方案（动态 + S3 静态）">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fef1b26bb05e.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fef1b26bb05e.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609301145-%E9%A6%99%E6%B8%AF%20CN%2BDocker%2BNginx-2026-09-30%20%E9%A6%99%E6%B8%AF%E9%A1%B9%E7%9B%AE%E6%8E%A5%E5%85%A5%E8%85%BE%E8%AE%AF%E4%BA%91%20EdgeOne%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%EF%BC%88%E5%8A%A8%E6%80%81%20%2B%20S3%20%E9%9D%99%E6%80%81%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="2026-09-30 香港项目接入腾讯云 EdgeOne 架构方案（动态 + S3 静态）">
+  <meta property="og:description" content="2026-09-30 香港项目接入腾讯云 EdgeOne 架构方案（动态 + S3 静态）。本文属于历史运维与项目交付 / 香港 CN，站点： hkcloudplay06.com （07 同理，或先只做 06） 接入模式：CNAME 接入 ｜ 加速区域： 全球（不含中国大陆） （未备案）｜ 证书：EdgeOne…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fef1b26bb05e.html">
+  <meta property="article:published_time" content="2026-09-30T11:45:00+08:00">
+  <meta property="article:modified_time" content="2026-09-30 11:45">
+  <meta property="article:section" content="历史运维与项目交付 / 香港 CN">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="2026-09-30 香港项目接入腾讯云 EdgeOne 架构方案（动态 + S3 静态）">
+  <meta name="twitter:description" content="2026-09-30 香港项目接入腾讯云 EdgeOne 架构方案（动态 + S3 静态）。本文属于历史运维与项目交付 / 香港 CN，站点： hkcloudplay06.com （07 同理，或先只做 06） 接入模式：CNAME 接入 ｜ 加速区域： 全球（不含中国大陆） （未备案）｜ 证书：EdgeOne…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fef1b26bb05e.html#article","headline":"2026-09-30 香港项目接入腾讯云 EdgeOne 架构方案（动态 + S3 静态）","description":"2026-09-30 香港项目接入腾讯云 EdgeOne 架构方案（动态 + S3 静态）。本文属于历史运维与项目交付 / 香港 CN，站点： hkcloudplay06.com （07 同理，或先只做 06） 接入模式：CNAME 接入 ｜ 加速区域： 全球（不含中国大陆） （未备案）｜ 证书：EdgeOne…","datePublished":"2026-09-30T11:45:00+08:00","dateModified":"2026-09-30 11:45","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","香港 CN"],"keywords":["香港 CN","Docker","Nginx","自动化","CDN","DNS","故障排查","源码与配置","历史运维与项目交付","历史运维与项目交付 / 香港 CN","2026-09-30 香港项目接入腾讯云 EdgeOne 架构方案（动态 + S3 静态）"],"wordCount":1729,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fef1b26bb05e.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fef1b26bb05e.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 香港 CN","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-09-30 香港项目接入腾讯云 EdgeOne 架构方案（动态 + S3 静态）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fef1b26bb05e.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 香港 CN</span> › <span>2026-09-30 香港项目接入腾讯云 EdgeOne 架构方案（动态 + S3 静态）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 香港 CN</div>
+      <h1>2026-09-30 香港项目接入腾讯云 EdgeOne 架构方案（动态 + S3 静态）</h1>
+      <p class="lede">2026-09-30 香港项目接入腾讯云 EdgeOne 架构方案（动态 + S3 静态）。本文属于历史运维与项目交付 / 香港 CN，站点： hkcloudplay06.com （07 同理，或先只做 06） 接入模式：CNAME 接入 ｜ 加速区域： 全球（不含中国大陆） （未备案）｜ 证书：EdgeOne…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-30T11:45:00+08:00">发布于 2026-09-30</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,729 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/cn/docker/doc/2026-09-30-1145-【架构改造】香港项目接入腾讯云EdgeOne架构方案（动态+S3静态）.md</code></p>
+<p>整理日期：2026-09-30 11:45｜日期依据：文件名日期</p>
+</blockquote>
+<h2 id="一-先认清一个硬约束">一、先认清一个硬约束</h2>
+<pre><code class="language-text">同一个主机名，不可能同时被「Cloudflare 橙云」和「EdgeOne」加速 —— DNS 只能指向一家。
+现状：hkcloudplay06/07.com 的 NS 在 Cloudflare，且所有记录（静态 + 动态）都是**橙云**
+      （实测解析到 104.21.10.104 / 172.67.131.80 = CF 边缘 IP）。
+所以「加腾讯 CDN」只有下面三条路，选一条：
+
+  路线 1（推荐先做）多主机名竞速：EdgeOne 用**新增子域**（如 xxx-eo.hkcloudplay06.com），
+       老记录一动不动，客户端在两个域名之间测速择优。
+  路线 2  DNS 按运营商/地区分线路：同一个主机名，电信走 EdgeOne、联通走 CF……
+       前提是 DNS 得支持分线路解析（Cloudflare 免费版不支持，需换腾讯云 DNSPod 之类）。
+  路线 3  整站迁移：把 06/07 整体交给 EdgeOne，CF 只留境外兜底（定型阶段再谈）。
+</code></pre>
+<h2 id="二-推荐架构-路线-1">二、推荐架构（路线 1）</h2>
+<pre><code class="language-text">玩家(大陆)
+  |
+  | 项目代码做多 CDN 域名竞速（并发测速，谁快用谁，失败自动换线）
+  |
+  +--&gt; 渠道 C  Cloudflare : pg-static.hkcloudplay06.com
+  |                          -&gt; CF Worker -&gt; 边缘缓存 7 天 -&gt; AWS S3 大阪
+  +--&gt; 渠道 A  EdgeOne    : pg-static-eo.hkcloudplay06.com     ← 本次新增
+  |                          -&gt; EdgeOne 边缘缓存 -&gt; AWS S3 大阪（直连桶）
+  |
+  +--&gt; 渠道 C  Cloudflare : pg-games.hkcloudplay06.com
+  |                          -&gt; 34.150.1.185 standby nginx -&gt; 香港后端
+  +--&gt; 渠道 A  EdgeOne    : pg-games-eo.hkcloudplay06.com      ← 本次新增
+                             -&gt; 34.150.1.185 standby nginx -&gt; 香港后端
+
+老域名 01-05 与 06/07 现有记录：全程不动。
+新增的 *-eo 子域在 Cloudflare DNS 里加「灰云 CNAME」指向 EdgeOne 的加速域名（不经 CF）。
+</code></pre>
+<h2 id="三-EdgeOne-站点配置清单-一个站点同时装静态与动态">三、EdgeOne 站点配置清单（一个站点同时装静态与动态）</h2>
+<p>站点：<code>hkcloudplay06.com</code>（07 同理，或先只做 06）
+接入模式：CNAME 接入 ｜ 加速区域：<strong>全球（不含中国大陆）</strong>（未备案）｜ 证书：EdgeOne 免费证书</p>
+<h3 id="3-1-静态子域-13-条-源站直连-S3-桶">3.1 静态子域（13 条，源站直连 S3 桶）</h3>
+<table>
+<thead>
+<tr>
+<th>加速域名（新增）</th>
+<th>源站类型</th>
+<th>源站地址</th>
+<th>回源协议</th>
+<th>缓存</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pg-static-eo.hkcloudplay06.com</code></td>
+<td>域名</td>
+<td><code>dbqp-s3-pg-static.s3.ap-northeast-3.amazonaws.com</code></td>
+<td>HTTPS（S3 可信证书）</td>
+<td>按后缀 7 天</td>
+</tr>
+<tr>
+<td><code>pg3-static-eo</code> / <code>pg4-static-eo</code> / <code>pg5-static-eo</code> / <code>pg6-static-eo</code> / <code>pg7-static-eo</code></td>
+<td>域名</td>
+<td><code>dbqp-s3-&lt;前缀&gt;.s3.ap-northeast-3.amazonaws.com</code></td>
+<td>HTTPS</td>
+<td>7 天</td>
+</tr>
+<tr>
+<td><code>pp-static-eo</code> / <code>ppk-static-eo</code> / <code>panda-static-eo</code> / <code>playson-static-eo</code> / <code>g759-static-eo</code></td>
+<td>域名</td>
+<td>同上</td>
+<td>HTTPS</td>
+<td>7 天</td>
+</tr>
+<tr>
+<td><code>jili-static-eo</code> / <code>jili-static1-eo</code></td>
+<td>域名</td>
+<td>同上</td>
+<td>HTTPS</td>
+<td>7 天</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-text">回源 Host：默认（= 源站域名，S3 必须按桶域名访问，别改成别的）
+缓存键：如果开 CORS 回显，必须把 Origin 放进缓存键（见第五节坑 2）
+目录请求 /xxx/：用边缘函数或 URL 重写补 index.html（见第五节坑 1）
+</code></pre>
+<h3 id="3-2-动态子域-8-条-socket-源站指香港-standby">3.2 动态子域（8 条 + socket，源站指香港 standby）</h3>
+<table>
+<thead>
+<tr>
+<th>加速域名（新增）</th>
+<th>源站类型</th>
+<th>源站地址</th>
+<th>回源协议/Host</th>
+<th>缓存</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pg-games-eo</code> / <code>api-eo</code></td>
+<td>IP</td>
+<td><code>34.150.1.185</code></td>
+<td>HTTP:80，Host=<code>pg-games.hkcloudplay06.com</code></td>
+<td>不缓存</td>
+</tr>
+<tr>
+<td><code>jili-games-eo</code></td>
+<td>IP</td>
+<td><code>34.150.1.185</code></td>
+<td>HTTP:80，Host=<code>jili-games.hkcloudplay06.com</code></td>
+<td>不缓存，<strong>开 WebSocket</strong></td>
+</tr>
+<tr>
+<td><code>pp-games-eo</code> / <code>ppk-games-eo</code> / <code>panda-games-eo</code> / <code>playson-games-eo</code> / <code>g759-games-eo</code></td>
+<td>IP</td>
+<td><code>34.150.1.185</code></td>
+<td>HTTP:80，Host=对应现域名</td>
+<td>不缓存</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-text">回源为什么用 HTTP：standby nginx 443 是自签证书（CN=hkcloudplay06.com，SAN 里没有 *-eo 域名），
+  EdgeOne 回源 HTTPS 会证书校验失败。等换可信证书（或补 SAN）再改 HTTPS。
+回源 Host 为什么要写现域名：nginx 按 server_name 分站，Host 对不上会落到默认站（80 返回 404）。
+WebSocket：jili 的 /lifeservice/ws2、/ws2 必须显式开启 WS 支持，否则握手 400。
+</code></pre>
+<h2 id="四-为什么静态源站直连-S3-不要过-nginx">四、为什么静态源站直连 S3、不要过 nginx</h2>
+<pre><code class="language-text">现在 CF 上的静态就是 Worker 直连 S3（不经香港服务器），EdgeOne 保持一致：
+  玩家 -&gt; EdgeOne 边缘缓存 -&gt; S3 大阪桶
+好处：① 少一跳（不过香港 nginx）；② 香港进口带宽不承担静态流量；
+     ③ 与现状行为一致，便于两边结果比对。
+代价：未备案只能走境外节点，回源大阪属跨境回源，命中率不高时会慢 —— 所以要开缓存 + 发布后预热。
+</code></pre>
+<h2 id="五-必须复刻的-4-个行为-现在由-CF-Worker-负责">五、必须复刻的 4 个行为（现在由 CF Worker 负责）</h2>
+<pre><code class="language-text">1. 目录请求 302/重写：/xxx/ -&gt; /xxx/index.html（现在 Worker 返回 302；EdgeOne 用规则引擎
+   「URL 重写」或边缘函数实现，二选一）。
+2. CORS：现在香港是「平台自有域名精确回显 + 其它 *」并带 Vary: Origin。
+   在 CDN 上做回显时，**缓存键必须包含 Origin**，否则会把 A 域名的响应复用给 B 域名
+   —— 2026-09-02 就是这么串源的。省事做法：EdgeOne 一律返回 *（与巴西口径一致）。
+3. OPTIONS 预检：边缘直接 204，不回源。
+4. health.json：单独处理（不缓存或独立缓存键），避免与真实对象互相污染。
+</code></pre>
+<h2 id="六-分阶段执行">六、分阶段执行</h2>
+<pre><code class="language-text">Phase 0（本周，0 风险）：拿测试域名 m4q7z1.shop 在 EdgeOne 建站。
+  先验动态（源站 34.150.1.185:80，回源 Host=pg-games.hkcloudplay06.com），
+  再验静态（源站指 dbqp-s3-pg-static 桶，看缓存命中与 CORS）。
+  填写口径见 docker/doc/2026-09-30-1129。
+
+Phase 1（低风险）：在 Cloudflare DNS 给 06（先不加 07）加新增的 *-eo 灰云 CNAME，
+  指向 EdgeOne 加速域名。老记录一动不动，随时可删。
+
+Phase 2（需开发配合）：platform-api 下发的静态地址（static_hosts）加上 EdgeOne 候选地址；
+  客户端做多域名竞速择优 + 失败换线。这一步做完才算真正「多 CDN」。
+
+Phase 3（需用户决策）：按实测覆盖数据决定是否做 DNS 分线路（换 DNSPod）或整站迁移 EdgeOne。
+</code></pre>
+<h2 id="七-风险与注意事项">七、风险与注意事项</h2>
+<pre><code class="language-text">1. 未备案 = 只有境外/香港节点，别期待等同国内 CDN；大陆节点必须备案（域名注册商是硬卡点）。
+2. 静态跨境回源大阪有延迟，靠缓存命中率摊平；建议开「预热缓存」并在发布后主动预热。
+3. 源站是自签证书 -&gt; 回源先走 HTTP；长期应换可信证书（也利于以后开回源 HTTPS 校验）。
+4. 动态 API 过 CDN 会多一跳，收益主要是隐藏源站 + 抗打；建议先静态灰度，动态后跟。
+5. WebSocket、CORS 回显、目录 302 这三件事如果没配好，会出现「静态 403/404、WS 400、
+   跨域名串源」等典型故障，验收时必须逐项测。
+6. 计费按流量，静态是大头；先小流量灰度，观察用量再放量。
+</code></pre>
+<h2 id="八-关联">八、关联</h2>
+<pre><code class="language-text">docker/doc/2026-09-30-1129-【架构改造】EdgeOne接入香港standby入口回源填写指南.md
+docker/doc/2026-09-29-1808-【架构改造】香港项目大陆加速多CDN渠道免备案优先沟通口径与前置条件.md
+docker/deploy/hongkong/hk_static_worker.js（要复刻的 4 个行为都在这里）
+docker/deploy/hongkong/nginx-standby.conf（动态回源对应的 nginx 站点）
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-先认清一个硬约束">一、先认清一个硬约束</a></li><li style="margin-left:0.0rem"><a href="#二-推荐架构-路线-1">二、推荐架构（路线 1）</a></li><li style="margin-left:0.0rem"><a href="#三-EdgeOne-站点配置清单-一个站点同时装静态与动态">三、EdgeOne 站点配置清单（一个站点同时装静态与动态）</a></li><li style="margin-left:0.8rem"><a href="#3-1-静态子域-13-条-源站直连-S3-桶">3.1 静态子域（13 条，源站直连 S3 桶）</a></li><li style="margin-left:0.8rem"><a href="#3-2-动态子域-8-条-socket-源站指香港-standby">3.2 动态子域（8 条 + socket，源站指香港 standby）</a></li><li style="margin-left:0.0rem"><a href="#四-为什么静态源站直连-S3-不要过-nginx">四、为什么静态源站直连 S3、不要过 nginx</a></li><li style="margin-left:0.0rem"><a href="#五-必须复刻的-4-个行为-现在由-CF-Worker-负责">五、必须复刻的 4 个行为（现在由 CF Worker 负责）</a></li><li style="margin-left:0.0rem"><a href="#六-分阶段执行">六、分阶段执行</a></li><li style="margin-left:0.0rem"><a href="#七-风险与注意事项">七、风险与注意事项</a></li><li style="margin-left:0.0rem"><a href="#八-关联">八、关联</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 香港 CN</li>
+          <li>日期：2026-09-30</li>
+          <li>标签：<span class="tag">香港 CN</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">自动化</span><span class="tag">CDN</span><span class="tag">DNS</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/cn/docker/doc/2026-09-30-1145-【架构改造】香港项目接入腾讯云EdgeOne架构方案（动态…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609301145-%E9%A6%99%E6%B8%AF%20CN%2BDocker%2BNginx-2026-09-30%20%E9%A6%99%E6%B8%AF%E9%A1%B9%E7%9B%AE%E6%8E%A5%E5%85%A5%E8%85%BE%E8%AE%AF%E4%BA%91%20EdgeOne%20%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%EF%BC%88%E5%8A%A8%E6%80%81%20%2B%20S3%20%E9%9D%99%E6%80%81%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>2026-09-30 香港项目接入腾讯云 EdgeOne 架构方案（动态 + S3 静态）。本文属于历史运维与项目交付 / 香港 CN，站点： hkcloudplay06.com （07 同理，或先只做 06） 接入模式：CNAME 接入 ｜ 加速区域： 全球（不含中国大陆） （未备案）｜ 证书：EdgeOne…</p>
+      <p>关键词：香港 CN、Docker、Nginx、自动化、CDN、DNS、故障排查、源码与配置、历史运维与项目交付、历史运维与项目交付 / 香港 CN、2026-09-30 香港项目接入腾讯云 EdgeOne 架构方案（动态 + S3 静态）</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4deaf9777225.html"><small>上一篇</small>2026-09-30 EdgeOne（腾讯云国际版）接入香港 standby 入口：回源填写指南</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-bff16b33a5de.html"><small>下一篇</small>2026-09-30 腾讯云 API 密钥（子用户）创建与 AI 调用规范</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fef1b26bb05e.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

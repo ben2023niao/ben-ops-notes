@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【问题排查】iOS「在 iTunes 中打开」无反应（plist 无法下载）根因与修复｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="【问题排查】iOS「在 iTunes 中打开」无反应（plist 无法下载）根因与修复。本文属于业务系统运维 / 游点涩，环境：游点涩线上（www.youdianse.com / h5.game-app543.com） 等级：线上业务影响（iOS 安装分发链路不可用） 处置：网关 + 宝塔源站 UA 清单与路径规…">
+  <meta name="keywords" content="游点涩，Shell，Python，Go，Docker，Nginx，监控告警，自动化，业务系统运维，业务系统运维 / 游点涩，【问题排查】iOS「在 iTunes 中打开」无反应（plist 无法下载）根因与修复，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c9f65db9dbaa.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c9f65db9dbaa.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609301900-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91iOS%E3%80%8C%E5%9C%A8%20iTunes%20%E4%B8%AD%E6%89%93%E5%BC%80%E3%80%8D%E6%97%A0%E5%8F%8D%E5%BA%94%EF%BC%88plist%20%E6%97%A0%E6%B3%95%E4%B8%8B%E8%BD%BD%EF%BC%89%E6%A0%B9%E5%9B%A0%E4%B8%8E%E4%BF%AE%E5%A4%8D.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【问题排查】iOS「在 iTunes 中打开」无反应（plist 无法下载）根因与修复">
+  <meta property="og:description" content="【问题排查】iOS「在 iTunes 中打开」无反应（plist 无法下载）根因与修复。本文属于业务系统运维 / 游点涩，环境：游点涩线上（www.youdianse.com / h5.game-app543.com） 等级：线上业务影响（iOS 安装分发链路不可用） 处置：网关 + 宝塔源站 UA 清单与路径规…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c9f65db9dbaa.html">
+  <meta property="article:published_time" content="2026-09-30T19:00:00+08:00">
+  <meta property="article:modified_time" content="2026-09-30 19:00">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【问题排查】iOS「在 iTunes 中打开」无反应（plist 无法下载）根因与修复">
+  <meta name="twitter:description" content="【问题排查】iOS「在 iTunes 中打开」无反应（plist 无法下载）根因与修复。本文属于业务系统运维 / 游点涩，环境：游点涩线上（www.youdianse.com / h5.game-app543.com） 等级：线上业务影响（iOS 安装分发链路不可用） 处置：网关 + 宝塔源站 UA 清单与路径规…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c9f65db9dbaa.html#article","headline":"【问题排查】iOS「在 iTunes 中打开」无反应（plist 无法下载）根因与修复","description":"【问题排查】iOS「在 iTunes 中打开」无反应（plist 无法下载）根因与修复。本文属于业务系统运维 / 游点涩，环境：游点涩线上（www.youdianse.com / h5.game-app543.com） 等级：线上业务影响（iOS 安装分发链路不可用） 处置：网关 + 宝塔源站 UA 清单与路径规…","datePublished":"2026-09-30T19:00:00+08:00","dateModified":"2026-09-30 19:00","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Shell","Python","Go","Docker","Nginx","监控告警","自动化","业务系统运维","业务系统运维 / 游点涩","【问题排查】iOS「在 iTunes 中打开」无反应（plist 无法下载）根因与修复","php"],"wordCount":2044,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c9f65db9dbaa.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c9f65db9dbaa.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【问题排查】iOS「在 iTunes 中打开」无反应（plist 无法下载）根因与修复","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c9f65db9dbaa.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>【问题排查】iOS「在 iTunes 中打开」无反应（plist 无法下载）根因与修复</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>【问题排查】iOS「在 iTunes 中打开」无反应（plist 无法下载）根因与修复</h1>
+      <p class="lede">【问题排查】iOS「在 iTunes 中打开」无反应（plist 无法下载）根因与修复。本文属于业务系统运维 / 游点涩，环境：游点涩线上（www.youdianse.com / h5.game-app543.com） 等级：线上业务影响（iOS 安装分发链路不可用） 处置：网关 + 宝塔源站 UA 清单与路径规…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-30T19:00:00+08:00">发布于 2026-09-30</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,044 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-30-1900-【问题排查】iOS plist 无法下载根因与修复-UA真实性规则误拦Apple客户端.md</code></p>
+<p>整理日期：2026-09-30 19:00｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>日期：2026-09-30 19:00（北京时间）</li>
+<li>环境：游点涩线上（www.youdianse.com / h5.game-app543.com）</li>
+<li>等级：线上业务影响（iOS 安装分发链路不可用）</li>
+<li>处置：网关 + 宝塔源站 UA 清单与路径规则放行 Apple 客户端；已生效并验证</li>
+</ul>
+<h2 id="一-结论-先看这里">一、结论（先看这里）</h2>
+<p>不是回调地址写错，也不是 plist 内容或域名解析问题，是<strong>我们自己的「UA 真实性」防护规则误伤了 iOS 系统客户端</strong>。</p>
+<p><code>itms-services://?action=download-manifest&amp;url=...</code> 被点击后，真正去抓取 plist 的是系统 App Store 客户端
+（UA = <code>com.apple.appstored</code> / <code>MacAppStore</code> / <code>itunesstored</code>），它不是浏览器、也不属于我们登记过的原生 App 前缀，
+于是被 UA 规则判成「非完整真实客户端」直接 <code>444</code>（不回包）；CloudFront 对空响应统一包装成 <code>502</code>，
+前端表现就是「点了没反应」。</p>
+<h2 id="二-现象与影响">二、现象与影响</h2>
+<ul>
+<li>iPhone 点击「在 iTunes 中打开」无反应；<code>/api/v1/appVersionManifest/index?channel=official</code> 对 iOS 客户端返回 502。</li>
+<li>ipa 包本身可直接下载，测试环境可正常下载，只有线上 www.youdianse.com 不行 —— 差异在域名走的入口链路。</li>
+<li>影响面：仅 iOS / macOS 的 plist 安装分发链路；浏览器访问、Android 渠道、支付回调、SDK / 合作方接口均不受影响。</li>
+<li>该问题不是被授权安全测试，也不存在安全敞口，属于防护规则漏放行。</li>
+</ul>
+<h2 id="三-排查过程-证据">三、排查过程（证据）</h2>
+<h3 id="3-1-网关日志-同一路径-同一时间窗-只有-UA-不同">3.1 网关日志：同一路径、同一时间窗，只有 UA 不同</h3>
+<p>网关 <code>16.208.38.88</code> <code>/var/log/nginx/access.log</code>，09-30 10:50~10:55：</p>
+<pre><code class="language-text">"GET /api/v1/appVersionManifest/index?channel=official" 444
+  UA: com.apple.appstored/1.0 iOS/27.2 model/iPhone18,4 hwp/t8150 build/24B5089g (6; dt:362) AMS/1
+"GET /api/v1/appVersionManifest/index?channel=official" 444
+  UA: MacAppStore/3.0 MacAppStore/3.0 (Macintosh; OS X 26.5; 25F71) AppleWebKit/1624.2.5.11.4 AMS/1 (dt:1)
+"GET /api/v1/appVersionManifest/index?channel=official" 200 1774
+  UA: Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) ... Version/18.0 Mobile/15E148 Safari/604.1
+</code></pre>
+<p>浏览器 UA 200、系统客户端 UA 444 —— 直接指向 UA 真实性规则。</p>
+<h3 id="3-2-分层复现-只改-UA-其余完全相同">3.2 分层复现（只改 UA，其余完全相同）</h3>
+<table>
+<thead>
+<tr>
+<th>测试位置</th>
+<th>UA</th>
+<th>修复前</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>https://www.youdianse.com/...</code>（经 CloudFront）</td>
+<td><code>com.apple.appstored/1.0 ...</code></td>
+<td>502</td>
+</tr>
+<tr>
+<td><code>https://www.youdianse.com/...</code>（经 CloudFront）</td>
+<td><code>MacAppStore/3.0 ...</code></td>
+<td>502</td>
+</tr>
+<tr>
+<td><code>https://www.youdianse.com/...</code>（经 CloudFront）</td>
+<td>iPhone Safari</td>
+<td>200</td>
+</tr>
+<tr>
+<td>宝塔源站 <code>16.208.5.147</code> 直连（Host: www.youdianse.com）</td>
+<td><code>com.apple.appstored/1.0 ...</code></td>
+<td>连接被断开（444）</td>
+</tr>
+</tbody>
+</table>
+<p>说明网关与宝塔源站<strong>两层都在拦</strong>，只修一层仍会被下一层 444。</p>
+<h2 id="四-根因">四、根因</h2>
+<p>2026-09-30 为对抗「授权安全测试者在接口之间切换做 CC」上线了通用「UA 真实性」拦截：凡是 UA 不像完整真实客户端的请求
+（<code>$yds_ua_real = 0</code>）直接 444。当时的白名单只覆盖：</p>
+<ul>
+<li>完整浏览器 UA（<code>Mozilla/5.0 (平台信息) ... 引擎标识</code>）</li>
+<li>原生 App / SDK 固定前缀（<code>Dart</code>、<code>okhttp</code>、<code>Dalvik</code>、<code>UnityPlayer</code>、<code>BestHTTP</code>、<code>UnityWebRequest</code>、<code>node</code>）</li>
+<li>自有拨测监控（<code>DomainSecurityMonitor</code>）、ACME 校验（<code>Let's Encrypt</code>）</li>
+<li>合作方 / 服务端接口路径（<code>/customer</code>、<code>/channel</code>、<code>/sdk</code>、<code>/api/sdk/</code>）、支付路径、自有 IP、三方白名单</li>
+</ul>
+<p><strong>没有覆盖 Apple 系统客户端</strong>，而 plist 抓取恰恰由它们发起，于是被一棍子打死。</p>
+<h2 id="五-处置">五、处置</h2>
+<h3 id="5-1-改动清单">5.1 改动清单</h3>
+<p>三层同步，全部是「放行」方向：</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>主机 / 文件</th>
+<th>改动</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>网关</td>
+<td><code>16.208.38.88</code> <code>/etc/nginx/conf.d/10-youdianse-prod-maps.conf</code></td>
+<td><code>$yds_ua_real</code> 增加 <code>com.apple.appstored</code> / <code>MacAppStore</code> / <code>AppStore/</code> / <code>itunesstored</code> / <code>iTunes/</code></td>
+</tr>
+<tr>
+<td>网关</td>
+<td><code>16.208.38.88</code> <code>/etc/nginx/conf.d/20-youdianse-prod-unified.conf</code></td>
+<td>server 级新增路径级豁免：<code>if ($request_uri ~* "^/api/(v1/)?appVersionManifest(/|$)") { set $yds_gw_all_block 0; }</code></td>
+</tr>
+<tr>
+<td>宝塔源站</td>
+<td><code>16.208.5.147</code> <code>/www/server/panel/vhost/nginx/00-abuse-guard-http.conf</code></td>
+<td>同上 UA 清单同步补齐</td>
+</tr>
+<tr>
+<td>宝塔源站</td>
+<td><code>16.208.5.147</code> <code>extension/new.youdianse.com/01-abuse-guard.conf</code></td>
+<td>server 级路径豁免 <code>set $yds_all_block 0</code></td>
+</tr>
+<tr>
+<td>宝塔源站</td>
+<td><code>16.208.5.147</code> <code>extension/new.youdianse.com/00-youdianse-fixed-reverse-proxy.conf</code></td>
+<td><code>/api</code> location 路径豁免 <code>set $yds_api_block 0</code></td>
+</tr>
+<tr>
+<td>宝塔源站</td>
+<td><code>16.208.5.147</code> <code>allvhost/40-allvhost-guard.conf</code></td>
+<td>全站 vhost 路径豁免 <code>set $yds_allvhost_block 0</code></td>
+</tr>
+<tr>
+<td>后端</td>
+<td><code>16.209.16.108</code> 容器 <code>youdianse-main-php-nginx</code></td>
+<td><strong>无需现场变更</strong>：容器内 <code>$yds_ua_real</code> 只作用于登录 location，不拦该路径；仓库 <code>nginx/main.conf</code> 同步补齐保持三层一致</td>
+</tr>
+</tbody>
+</table>
+<h3 id="5-2-设计取舍-为什么不干脆整条路径全放行">5.2 设计取舍（为什么不干脆整条路径全放行）</h3>
+<p>路径级豁免<strong>只跳过「UA 真实性判断」</strong>，IP 黑名单与限流（网关 50r/s、源站 30r/s）继续生效。
+这样既解决系统客户端被误伤，又不会把该路径变成授权安全测试者可随意刷的开口子 —— 与「支付回调整体免限制」那种
+（连黑名单都跳过）的处理刻意区分开，因为支付是钱的事、而这是分发清单。</p>
+<p>另外为什么要加路径级豁免：同类「UA 规则误伤」这个月已经发生 5 次（1game token 校验、支付回调、
+<code>/api/sdk/*</code>、自动化测试机、以及本次 Apple 客户端），每次都是靠人工发现。
+iOS 后续版本若更换 UA 前缀，只靠 UA 清单还会再复发；路径级豁免把这条链路的不确定性一次性消掉。</p>
+<h3 id="5-3-执行细节与回滚">5.3 执行细节与回滚</h3>
+<ul>
+<li>每处改动前先备份，备份文件：
+  <code>*.bak.appleua-20260930-105811</code>（网关）、<code>*.bak.appleua-20260930-185834 / -185844</code>（宝塔源站）。</li>
+<li>宝塔 <code>00-youdianse-fixed-reverse-proxy.conf</code> 带 <code>chattr +i</code> 不可改位，按规范执行
+  <code>chattr -i</code> → 修改 → <code>chattr +i</code> 还原，已确认锁回（<code>lsattr</code> 复核）。</li>
+<li>网关与宝塔均先 <code>nginx -t</code> 通过再 <code>nginx -s reload</code>，未重启服务、无中断。</li>
+<li>回滚方式：还原对应 <code>.bak.appleua-*</code> → <code>nginx -t</code> → <code>nginx -s reload</code>。</li>
+</ul>
+<h2 id="六-验证">六、验证</h2>
+<h3 id="6-1-修复后同一请求-四类-UA-全通过">6.1 修复后同一请求（四类 UA 全通过）</h3>
+<table>
+<thead>
+<tr>
+<th>UA</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>com.apple.appstored/1.0 iOS/27.2 ...</code></td>
+<td>200，合法 plist（<code>&lt;plist version="1.0"&gt;</code>、<code>&lt;key&gt;items&lt;/key&gt;</code>，1762 字节）</td>
+</tr>
+<tr>
+<td><code>MacAppStore/3.0 ... AMS/1</code></td>
+<td>200，同上</td>
+</tr>
+<tr>
+<td><code>itunesstored/1.0 (iPhone; iPhone OS 12_5_7)</code></td>
+<td>200，同上</td>
+</tr>
+<tr>
+<td>iPhone Safari</td>
+<td>200，同上</td>
+</tr>
+</tbody>
+</table>
+<p><code>h5.game-app543.com</code> 从网关机（日本）测同样 200。</p>
+<h3 id="6-2-真实用户前后对比">6.2 真实用户前后对比</h3>
+<table>
+<thead>
+<tr>
+<th>客户来源 IP</th>
+<th>修复前</th>
+<th>修复后</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>116.98.248.45</code>（iPhone18,4 / iOS 27.2）</td>
+<td>10:51 连续 444</td>
+<td>10:59:42 → <strong>200</strong></td>
+</tr>
+<tr>
+<td><code>160.30.98.71</code>（iPhone15,2 / iOS 27.0）</td>
+<td>444</td>
+<td><strong>200</strong></td>
+</tr>
+<tr>
+<td><code>23.234.78.74</code>（macOS 26.6.2 / MacAppStore）</td>
+<td>444</td>
+<td><strong>200</strong></td>
+</tr>
+<tr>
+<td><code>180.165.43.242</code>（iPhone14,7 / iOS 17.6.1）</td>
+<td>444</td>
+<td><strong>200</strong></td>
+</tr>
+</tbody>
+</table>
+<p>统计口径：10:59 起该路径 <strong>73 次请求全部 200，零报错</strong>；网关 error.log 中该路径最后一条
+<code>upstream prematurely closed connection</code> 停在 <strong>10:58:35</strong>（早于源站 reload 的 10:58:40）。</p>
+<h3 id="6-3-回归-确认防护没有被削弱">6.3 回归（确认防护没有被削弱）</h3>
+<ul>
+<li><code>python-requests/2.34.2</code> 打 <code>/api/v1/Login/account</code> → 依旧 444（经 CloudFront 表现 502）✅</li>
+<li>极简伪造 UA <code>Mozilla/5.0</code> 打登录 → 依旧 444 ✅</li>
+<li>真实 Safari UA 打登录 → 200 ✅</li>
+<li>业务页面：www 首页 200、h5 首页 200 ✅</li>
+<li>支付回调（<code>Go-http-client</code> UA）→ 200，未受影响 ✅</li>
+</ul>
+<h2 id="七-附带发现-与本次无关-另记">七、附带发现（与本次无关，另记）</h2>
+<p><code>h5.game-app543.com</code> 从 AWS 香港出口访问返回 <code>000</code>（浏览器 UA 同样 000），从网关机（日本）访问正常。
+属既有的地区性访问差异，与本次 UA 规则改动无关，未在本次处理。</p>
+<h2 id="八-后续建议">八、后续建议</h2>
+<ol>
+<li><strong>新增入口先过一遍 UA 清单</strong>：任何「服务端 / 系统客户端 / 非浏览器」调用方接入前，
+   确认其 UA 是否已被 <code>$yds_ua_real</code> 覆盖，否则先加白再上线。</li>
+<li><strong>把「路径级 UA 豁免」作为标准动作</strong>：对由固定客户端调用的业务路径（分发清单、回调、鉴权、SDK），
+   优先用路径级豁免而不是逐个补 UA 前缀，避免每次客户端升级都要再改一次配置。</li>
+<li><strong>误伤监控</strong>：对 444 比例突然升高的路径做日巡检，把「防护误伤」和「真实授权安全测试」分开统计，
+   避免下次仍然依赖业务方反馈才发现。</li>
+</ol>
+<h2 id="九-代码与仓库文件">九、代码与仓库文件</h2>
+<p>仓库内同步修改（保持线上与仓库一致）：</p>
+<ul>
+<li><code>ops/production/scripts/gateway-ua-authenticity.conf</code></li>
+<li><code>ops/production/scripts/baota-www-abuse-guard-http.conf</code></li>
+<li><code>ops/production/scripts/baota-www-abuse-guard-server.conf</code></li>
+<li><code>ops/production/scripts/baota-allvhost-40-guard.conf</code></li>
+<li><code>ops/production/scripts/baota-new-youdianse-fixed-reverse-proxy.conf</code></li>
+<li><code>nginx/main.conf</code></li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-结论-先看这里">一、结论（先看这里）</a></li><li style="margin-left:0.0rem"><a href="#二-现象与影响">二、现象与影响</a></li><li style="margin-left:0.0rem"><a href="#三-排查过程-证据">三、排查过程（证据）</a></li><li style="margin-left:0.8rem"><a href="#3-1-网关日志-同一路径-同一时间窗-只有-UA-不同">3.1 网关日志：同一路径、同一时间窗，只有 UA 不同</a></li><li style="margin-left:0.8rem"><a href="#3-2-分层复现-只改-UA-其余完全相同">3.2 分层复现（只改 UA，其余完全相同）</a></li><li style="margin-left:0.0rem"><a href="#四-根因">四、根因</a></li><li style="margin-left:0.0rem"><a href="#五-处置">五、处置</a></li><li style="margin-left:0.8rem"><a href="#5-1-改动清单">5.1 改动清单</a></li><li style="margin-left:0.8rem"><a href="#5-2-设计取舍-为什么不干脆整条路径全放行">5.2 设计取舍（为什么不干脆整条路径全放行）</a></li><li style="margin-left:0.8rem"><a href="#5-3-执行细节与回滚">5.3 执行细节与回滚</a></li><li style="margin-left:0.0rem"><a href="#六-验证">六、验证</a></li><li style="margin-left:0.8rem"><a href="#6-1-修复后同一请求-四类-UA-全通过">6.1 修复后同一请求（四类 UA 全通过）</a></li><li style="margin-left:0.8rem"><a href="#6-2-真实用户前后对比">6.2 真实用户前后对比</a></li><li style="margin-left:0.8rem"><a href="#6-3-回归-确认防护没有被削弱">6.3 回归（确认防护没有被削弱）</a></li><li style="margin-left:0.0rem"><a href="#七-附带发现-与本次无关-另记">七、附带发现（与本次无关，另记）</a></li><li style="margin-left:0.0rem"><a href="#八-后续建议">八、后续建议</a></li><li style="margin-left:0.0rem"><a href="#九-代码与仓库文件">九、代码与仓库文件</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-09-30</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Go</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">监控告警</span><span class="tag">自动化</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-30-1900-【问题排…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609301900-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91iOS%E3%80%8C%E5%9C%A8%20iTunes%20%E4%B8%AD%E6%89%93%E5%BC%80%E3%80%8D%E6%97%A0%E5%8F%8D%E5%BA%94%EF%BC%88plist%20%E6%97%A0%E6%B3%95%E4%B8%8B%E8%BD%BD%EF%BC%89%E6%A0%B9%E5%9B%A0%E4%B8%8E%E4%BF%AE%E5%A4%8D.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【问题排查】iOS「在 iTunes 中打开」无反应（plist 无法下载）根因与修复。本文属于业务系统运维 / 游点涩，环境：游点涩线上（www.youdianse.com / h5.game-app543.com） 等级：线上业务影响（iOS 安装分发链路不可用） 处置：网关 + 宝塔源站 UA 清单与路径规…</p>
+      <p>关键词：游点涩、Shell、Python、Go、Docker、Nginx、监控告警、自动化、业务系统运维、业务系统运维 / 游点涩、【问题排查】iOS「在 iTunes 中打开」无反应（plist 无法下载）根因与修复、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5a97c7cc3073.html"><small>上一篇</small>2026-09-30 香港后端域名配置切换到 m4q7z1.shop（腾讯 CDN）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7bcac96f4157.html"><small>下一篇</small>【安全配置】线上网关 UA 真实性规则重排（放行搜索引擎爬虫与真实客户端）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c9f65db9dbaa.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【安全配置】线上网关 UA 真实性规则重排（放行搜索引擎爬虫与真实客户端）（2026-09-30 · 4157）｜安全与堡垒机 / 访问控制｜BEN.OPS</title>
+  <meta name="description" content="【安全配置】线上网关 UA 真实性规则重排（放行搜索引擎爬虫与真实客户端）。本文属于安全与堡垒机 / 访问控制，起因：iOS plist 误拦修复后复核「安卓/浏览器是不是真的默认放行」，实测发现 UA 规则还在误伤真实客户端， 且搜索引擎爬虫全部被拦（站点无法被收录） 原「UA 真实性」规则是 白名单式 （默认…">
+  <meta name="keywords" content="安全与堡垒机，访问控制，DNS，Docker，Nginx，PHP，Java，知识笔记，安全与堡垒机 / 访问控制，【安全配置】线上网关 UA 真实性规则重排（放行搜索引擎爬虫与真实客户端）">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7bcac96f4157.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7bcac96f4157.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609301920-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%2BDNS%2BDocker-%E3%80%90%E5%AE%89%E5%85%A8%E9%85%8D%E7%BD%AE%E3%80%91%E7%BA%BF%E4%B8%8A%E7%BD%91%E5%85%B3%20UA%20%E7%9C%9F%E5%AE%9E%E6%80%A7%E8%A7%84%E5%88%99%E9%87%8D%E6%8E%92%EF%BC%88%E6%94%BE%E8%A1%8C%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E%E7%88%AC%E8%99%AB%E4%B8%8E%E7%9C%9F%E5%AE%9E%E5%AE%A2%E6%88%B7%E7%AB%AF%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【安全配置】线上网关 UA 真实性规则重排（放行搜索引擎爬虫与真实客户端）（2026-09-30 · 4157）">
+  <meta property="og:description" content="【安全配置】线上网关 UA 真实性规则重排（放行搜索引擎爬虫与真实客户端）。本文属于安全与堡垒机 / 访问控制，起因：iOS plist 误拦修复后复核「安卓/浏览器是不是真的默认放行」，实测发现 UA 规则还在误伤真实客户端， 且搜索引擎爬虫全部被拦（站点无法被收录） 原「UA 真实性」规则是 白名单式 （默认…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7bcac96f4157.html">
+  <meta property="article:published_time" content="2026-09-30T19:20:00">
+  <meta property="article:modified_time" content="2026-09-30 19:20">
+  <meta property="article:section" content="安全与堡垒机 / 访问控制">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【安全配置】线上网关 UA 真实性规则重排（放行搜索引擎爬虫与真实客户端）（2026-09-30 · 4157）">
+  <meta name="twitter:description" content="【安全配置】线上网关 UA 真实性规则重排（放行搜索引擎爬虫与真实客户端）。本文属于安全与堡垒机 / 访问控制，起因：iOS plist 误拦修复后复核「安卓/浏览器是不是真的默认放行」，实测发现 UA 规则还在误伤真实客户端， 且搜索引擎爬虫全部被拦（站点无法被收录） 原「UA 真实性」规则是 白名单式 （默认…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7bcac96f4157.html#article","headline":"【安全配置】线上网关 UA 真实性规则重排（放行搜索引擎爬虫与真实客户端）（2026-09-30 · 4157）","description":"【安全配置】线上网关 UA 真实性规则重排（放行搜索引擎爬虫与真实客户端）。本文属于安全与堡垒机 / 访问控制，起因：iOS plist 误拦修复后复核「安卓/浏览器是不是真的默认放行」，实测发现 UA 规则还在误伤真实客户端， 且搜索引擎爬虫全部被拦（站点无法被收录） 原「UA 真实性」规则是 白名单式 （默认…","datePublished":"2026-09-30T19:20:00","dateModified":"2026-09-30 19:20","inLanguage":"zh-CN","articleSection":["安全与堡垒机","访问控制"],"keywords":["安全与堡垒机","访问控制","DNS","Docker","Nginx","PHP","Java","知识笔记","安全与堡垒机 / 访问控制","【安全配置】线上网关 UA 真实性规则重排（放行搜索引擎爬虫与真实客户端）"],"wordCount":1777,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7bcac96f4157.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7bcac96f4157.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 访问控制","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【安全配置】线上网关 UA 真实性规则重排（放行搜索引擎爬虫与真实客户端）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7bcac96f4157.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机 / 访问控制</span> › <span>【安全配置】线上网关 UA 真实性规则重排（放行搜索引擎爬虫与真实客户端）（2026-09-30 · 4157）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机 / 访问控制</div>
+      <h1>【安全配置】线上网关 UA 真实性规则重排（放行搜索引擎爬虫与真实客户端）（2026-09-30 · 4157）</h1>
+      <p class="lede">【安全配置】线上网关 UA 真实性规则重排（放行搜索引擎爬虫与真实客户端）。本文属于安全与堡垒机 / 访问控制，起因：iOS plist 误拦修复后复核「安卓/浏览器是不是真的默认放行」，实测发现 UA 规则还在误伤真实客户端， 且搜索引擎爬虫全部被拦（站点无法被收录） 原「UA 真实性」规则是 白名单式 （默认…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-30T19:20:00">发布于 2026-09-30</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,777 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源：本地项目文档 <code>game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-30-1920-【安全配置】线上网关UA真实性规则重排-放行搜索引擎爬虫与真实客户端.md</code>
+整理：2026-11-09。仅复制到知识库，未改动原项目文件；敏感凭据已脱敏。</p>
+</blockquote>
+<ul>
+<li>日期：2026-09-30 19:20（北京时间）</li>
+<li>影响面：线上全站入口（网关 203.0.113.1 + 宝塔源站 203.0.113.1）</li>
+<li>起因：iOS plist 误拦修复后复核「安卓/浏览器是不是真的默认放行」，实测发现 UA 规则还在误伤真实客户端，
+  且搜索引擎爬虫全部被拦（站点无法被收录）</li>
+</ul>
+<h2 id="一-结论">一、结论</h2>
+<p>原「UA 真实性」规则是<strong>白名单式</strong>（默认 0 = 不是完整真实客户端就 444），名单偏窄，导致三类流量被误杀：</p>
+<ol>
+<li><strong>搜索引擎爬虫全部被拦</strong>：Googlebot / bingbot / Baiduspider / 搜狗 / 360 / PetalBot 等一个都进不来，
+   站点等于对搜索引擎关门（Googlebot 桌面版 UA 是 <code>Mozilla/5.0 AppleWebKit/... (compatible; Googlebot/2.1; ...)</code>，
+   没有平台括号，旧正则必然判 0）。</li>
+<li><strong>国产手机浏览器被拦</strong>：华为/荣耀机型 UA 里带 <code>GMSCore 25.38.30 (260400-807569344)</code> 这种<strong>嵌套括号</strong>，
+   旧正则 <code>\([^)]+\)[ ]+</code> 只能吃一层括号 → 整条 UA 判 0 → 真实用户被 444。</li>
+<li><strong>Apple 系统网络进程被拦</strong>：Safari 的 <code>NetworkingExtension/...</code>、<code>MobileSafari</code>、Firefox 的 <code>MozacFetch</code>、
+   <code>com.apple.*</code>、<code>CFNetwork</code> —— 与今天 plist 那次是同一类问题。</li>
+</ol>
+<p>本次按实测数据把名单<strong>重排为「真实客户端 + 全部搜索引擎爬虫」</strong>，共 95 条规则。</p>
+<h2 id="二-实测证据-修复前">二、实测证据（修复前）</h2>
+<h3 id="2-1-逐-UA-探测-打网关-healthz-server-级-UA-规则在-location-之前执行-200-放行">2.1 逐 UA 探测（打网关 <code>/healthz</code>，server 级 UA 规则在 location 之前执行，200 = 放行）</h3>
+<p>| 客户端 | 修复前 |</p>
+<p>| --- | --- |</p>
+<p>| Googlebot（桌面版 <code>compatible;</code> 形态） | <strong>被拦 444</strong> |</p>
+<p>| bingbot（桌面版） | <strong>被拦 444</strong> |</p>
+<p>| Baiduspider / 百度移动版 | <strong>被拦 444</strong> |</p>
+<p>| 搜狗 / 360Spider / 神兽(PetalBot) / Yandex | <strong>被拦 444</strong> |</p>
+<p>| 荣耀/华为手机浏览器（HonorBrowser，嵌套括号 UA） | <strong>被拦 444</strong> |</p>
+<p>| 华为鸿蒙浏览器（com.huawei.hmos.browser） | <strong>被拦 444</strong> |</p>
+<p>| Safari 系统网络进程（NetworkingExtension） | <strong>被拦 444</strong> |</p>
+<p>| Firefox 系统进程（MozacFetch） / MobileSafari | <strong>被拦 444</strong> |</p>
+<p>| com.apple.AuthenticationServices | <strong>被拦 444</strong> |</p>
+<p>| iOS 夸克浏览器 / vivo 浏览器 / 小米旧版 | <strong>被拦 444</strong> |</p>
+<p>| 安卓微信 WebView / 安卓 Chrome / Dalvik / okhttp / Flutter | 放行 200 |</p>
+<h3 id="2-2-线上真实流量-网关-access-log-约-40-分钟窗口">2.2 线上真实流量（网关 access.log，约 40 分钟窗口）</h3>
+<p>按「来源 IP 不在攻击黑名单」统计（即确定不是被 IP 封禁，而是被 UA 规则拦的）：</p>
+<p>| 指纹家族 | 被拦次数 | 独立来源 IP |</p>
+<p>| --- | --- | --- |</p>
+<p>| 华为/荣耀浏览器（嵌套括号 UA） | 1,825 | 201 |</p>
+<p>| Safari 系统网络进程 NetworkingExtension | 966 | 65 |</p>
+<p>| 华为鸿蒙浏览器 | 609 | 21 |</p>
+<p>| iOS 夸克浏览器 | 208 | 60 |</p>
+<p>| Firefox 系统进程 MozacFetch | 306 | 44 |</p>
+<p>结论：<strong>这不是"个别用户"，是每天成千上万次的真实访问被静默掐断</strong>；
+群里「安卓和浏览器默认都放行」的说法与实测不符，安卓 App（Flutter/Dalvik/okhttp）确实放行，
+但<strong>安卓/鸿蒙侧的手机浏览器</strong>一直在被拦。</p>
+<h2 id="三-改动内容">三、改动内容</h2>
+<p>单文件模板 <code>ops/production/scripts/…</code> 与线上三处保持同一份规则（95 条）：</p>
+<h3 id="3-1-放行搜索引擎-SEO-爬虫-本次新增-全部为主线爬虫">3.1 放行搜索引擎 / SEO 爬虫（本次新增，全部为主线爬虫）</h3>
+<pre><code>Googlebot / Google-InspectionTool / AdsBot-Google / Mediapartners-Google / APIs-Google /
+Storebot-Google / FeedFetcher-Google / GoogleOther / Google-Read-Aloud
+bingbot / msnbot / BingPreview / adidxbot
+Baiduspider（含 image / video / news / cpro / favo / sfkr / render / mobile）
+Sogou（web / inst / news / orion）/ 360Spider / HaosouSpider / YisouSpider / ShenmaBot /
+PetalBot（华为花瓣）
+YandexBot / YandexImages / YandexMobileBot / Applebot / DuckDuckBot / Yahoo! Slurp / Yeti(Naver) /
+Bytespider / TikTokSpider / ToutiaoSpider / Qwantify / SeznamBot / MojeekBot / Exabot / ia_archiver
+常见 SEO 工具：AhrefsBot / SemrushBot / MJ12bot / DotBot / Barkrowler / DataForSeoBot / serpstatbot /
+SEOkicks / Screaming Frog
+兜底：`compatible; xxxbot` / `compatible; xxxspider` 形态
+</code></pre>
+<h3 id="3-2-修掉-嵌套括号-误杀-真实浏览器">3.2 修掉「嵌套括号」误杀（真实浏览器）</h3>
+<pre><code class="language-diff">- "~*^Mozilla/5\.0[ ]+\([^)]+\)[ ].*(AppleWebKit|Gecko|…)" 1;
++ "~*^Mozilla/5\.0[ ]+\(.*(AppleWebKit|Gecko|Trident|Chrome|Chromium|CriOS|FxiOS|Firefox|Safari|Edg|OPR|
+   YaBrowser|MiuiBrowser|MiBrowser|HuaweiBrowser|HonorBrowser|Quark|UCBrowser|MicroMessenger|MQQBrowser|
+   QQBrowser|SogouMobileBrowser|BIDUBrowser|VivoBrowser|OppoBrowser|HeyTapBrowser)" 1;
+</code></pre>
+<p>去掉了只吃一层括号的 <code>[^)]+</code>，改为 <code>.*</code> + 引擎标识，<code>GMSCore 25.38.30 (260400-…)</code> 这类不再误判。</p>
+<h3 id="3-3-补齐-Apple-系统进程-国产浏览器">3.3 补齐 Apple 系统进程 / 国产浏览器</h3>
+<ul>
+<li>Apple：<code>^com.apple.</code>（appstored / WebKit.Networking / AuthenticationServices 等）、<code>NetworkingExtension</code>、
+  <code>MobileSafari</code>、<code>MozacFetch</code>、<code>CFNetwork</code>、<code>CFNetwork/</code>、<code>Darwin/</code>、<code>AppStore/</code>、<code>MacAppStore</code>、<code>itunesstored</code></li>
+<li>国产/第三方浏览器：<code>com.huawei.hmos.browser</code>、<code>HuaweiBrowser</code>、<code>ANDROID-</code>、<code>android</code>、<code>Xiaomi</code>、<code>vivo</code>、
+  <code>OPPO</code>、<code>Honor</code>、<code>Quark</code>、<code>UCBrowser</code>、<code>MiuiBrowser</code>、<code>MiBrowser</code>、<code>MQQBrowser</code>、<code>QQBrowser</code>、
+  <code>SogouMobileBrowser</code>、<code>BIDUBrowser</code>、<code>HeyTapBrowser</code></li>
+<li>安卓下载器：<code>AndroidDownloadManager</code>（apk 分发链路）</li>
+</ul>
+<h3 id="3-4-仍保持拦截-防护没有被削弱">3.4 仍保持拦截（防护没有被削弱）</h3>
+<p><code>curl</code> / <code>Wget</code> / <code>python-requests</code> / <code>Go-http-client</code>（除支付等豁免路径）/ <code>Java</code> / <code>Scrapy</code> /
+极简伪造 UA <code>Mozilla/5.0</code> / 空 UA / 未识别 UA（default 0）。</p>
+<blockquote>
+<p>注意：<strong>放行 UA ≠ 取消限制</strong>。IP 黑名单、限流（网关 API 50r/s、源站 30r/s、登录 5r/s）
+对所有来源继续生效，爬虫也一样受限流约束。</p>
+</blockquote>
+<h2 id="四-部署与生效">四、部署与生效</h2>
+<p>| 层 | 文件 | 状态 |</p>
+<p>| --- | --- | --- |</p>
+<p>| 网关 203.0.113.1 | <code>/etc/nginx/conf.d/10-youdianse-prod-maps.conf</code> | 已重写 + <code>nginx -t</code> 通过 + reload（8 个新 worker，11:09:48） |</p>
+<p>| 宝塔源站 203.0.113.1 | <code>/www/server/panel/vhost/nginx/00-abuse-guard-http.conf</code> | 已重写 + <code>nginx -t</code> 通过 + reload |</p>
+<p>| 后端 203.0.113.1 | <code>nginx/main.conf</code> | 仓库已同步；该层 <code>$yds_ua_real</code> 仅作用于登录 location，无需现场变更 |</p>
+<p>回滚：还原 <code>*.bak.uav2-20260930-110945</code>（网关）/ <code>*.bak.uav2-20260930-190951</code>（源站）→ <code>nginx -t</code> → <code>nginx -s reload</code>。</p>
+<h2 id="五-验证">五、验证</h2>
+<h3 id="5-1-逐-UA-探测-修复后-同一个探针">5.1 逐 UA 探测（修复后，同一个探针）</h3>
+<ul>
+<li>搜索引擎爬虫：Googlebot 桌面版/手机版、Googlebot-Image、Baiduspider、百度移动渲染版、Sogou、360Spider、
+  YisouSpider、PetalBot、YandexBot、bingbot、Bytespider → <strong>全部 200</strong></li>
+<li>真实客户端：荣耀/华为浏览器、鸿蒙浏览器、NetworkingExtension、MozacFetch、MobileSafari、
+  com.apple.AuthenticationServices、iOS 夸克、vivo、小米、iOS 第三方 App(CFNetwork) → <strong>全部 200</strong></li>
+<li>安卓侧：微信 WebView、Chrome、Dalvik、okhttp、Flutter → 依旧 200</li>
+<li>应继续拦：<code>python-requests</code> / <code>Mozilla/5.0</code> / <code>curl</code> / <code>Wget</code> / <code>Go-http-client</code> / 空 UA → <strong>依旧 444</strong></li>
+</ul>
+<p>经 CloudFront 端到端复测：Googlebot、Baiduspider、荣耀浏览器 UA 请求首页 → 200；
+支付回调（Go-http-client UA）→ 200（未受影响）。</p>
+<h3 id="5-2-真实流量对比">5.2 真实流量对比</h3>
+<p>| 窗口 | 荣耀/华为浏览器 | Apple 系统进程 | 搜索引擎爬虫 |</p>
+<p>| --- | --- | --- | --- |</p>
+<p>| 修复前（约 12 分钟） | 239 次被拦 + 7,063 次放行 | 146 次被拦 | 183 次被拦 |</p>
+<p>| 修复后（当前窗口） | 全部 200，无 444 | 无 444 | 无 444 |</p>
+<p>该类别最后一条 444 出现在 <strong>11:11:38</strong>（本次 reload 是 11:09:48），
+属旧 worker 收尾（nginx 未设 <code>worker_shutdown_timeout</code>，老 worker 要等长连接自然结束才退出），
+其后至今无新增；nginx worker 已全部为 11:09:48 新进程。</p>
+<h2 id="六-遗留与建议">六、遗留与建议</h2>
+<ol>
+<li><strong><code>worker_shutdown_timeout</code> 未设置</strong>：reload 后旧 worker 会继续用旧规则服务一段时间，
+   造成「改了配置但个别请求仍被旧规则拦」的假象（本次排障就踩到了）。
+   建议在网关 <code>nginx.conf</code> 加 <code>worker_shutdown_timeout 5s</code>，让 reload 秒级收敛。</li>
+<li><strong>爬虫 UA 可伪造</strong>：按 UA 放行意味着伪造 Googlebot UA 也能过 UA 层（仍受限流与 IP 黑名单约束）。
+   如需更严格，可对 Googlebot/Bingbot 增加反向 DNS 校验（FCrDNS）后再放行。</li>
+<li><strong>AI 爬虫未单独列出</strong>：<code>GPTBot</code> / <code>ClaudeBot</code> / <code>PerplexityBot</code> 属 <code>compatible; xxxBot</code> 形态，
+   会被本次兜底规则放行；若确定不希望被 AI 抓取，需要单独加回拒绝。</li>
+<li><strong><code>Apache-HttpClient</code> 仍在拦</strong>：部分合作方/游戏服务端 SDK 会用这个 UA（今天实测仍有 15 次被拦），
+   若确认是合作方调用，需要按「路径级豁免」或加白处理。</li>
+</ol>
+<h2 id="七-涉及文件">七、涉及文件</h2>
+<ul>
+<li><code>ops/production/scripts/gateway-ua-authenticity.conf</code></li>
+<li><code>ops/production/scripts/baota-www-abuse-guard-http.conf</code></li>
+<li><code>nginx/main.conf</code></li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-结论">一、结论</a></li><li style="margin-left:0.0rem"><a href="#二-实测证据-修复前">二、实测证据（修复前）</a></li><li style="margin-left:0.8rem"><a href="#2-1-逐-UA-探测-打网关-healthz-server-级-UA-规则在-location-之前执行-200-放行">2.1 逐 UA 探测（打网关 /healthz ，server 级 UA 规则在 location 之前执行，200 = 放行）</a></li><li style="margin-left:0.8rem"><a href="#2-2-线上真实流量-网关-access-log-约-40-分钟窗口">2.2 线上真实流量（网关 access.log，约 40 分钟窗口）</a></li><li style="margin-left:0.0rem"><a href="#三-改动内容">三、改动内容</a></li><li style="margin-left:0.8rem"><a href="#3-1-放行搜索引擎-SEO-爬虫-本次新增-全部为主线爬虫">3.1 放行搜索引擎 / SEO 爬虫（本次新增，全部为主线爬虫）</a></li><li style="margin-left:0.8rem"><a href="#3-2-修掉-嵌套括号-误杀-真实浏览器">3.2 修掉「嵌套括号」误杀（真实浏览器）</a></li><li style="margin-left:0.8rem"><a href="#3-3-补齐-Apple-系统进程-国产浏览器">3.3 补齐 Apple 系统进程 / 国产浏览器</a></li><li style="margin-left:0.8rem"><a href="#3-4-仍保持拦截-防护没有被削弱">3.4 仍保持拦截（防护没有被削弱）</a></li><li style="margin-left:0.0rem"><a href="#四-部署与生效">四、部署与生效</a></li><li style="margin-left:0.0rem"><a href="#五-验证">五、验证</a></li><li style="margin-left:0.8rem"><a href="#5-1-逐-UA-探测-修复后-同一个探针">5.1 逐 UA 探测（修复后，同一个探针）</a></li><li style="margin-left:0.8rem"><a href="#5-2-真实流量对比">5.2 真实流量对比</a></li><li style="margin-left:0.0rem"><a href="#六-遗留与建议">六、遗留与建议</a></li><li style="margin-left:0.0rem"><a href="#七-涉及文件">七、涉及文件</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机 / 访问控制</li>
+          <li>日期：2026-09-30</li>
+          <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">访问控制</span><span class="tag">DNS</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">PHP</span><span class="tag">Java</span><span class="tag">知识笔记</span></li>
+          <li><span>来源：03-安全运营与应急/03-安全配置与访问控制/游点涩-网关与白名单/2026-09-30-1920-【安全配置】线上网关UA真实性规则重排-放行搜索引擎爬虫与真实客户端.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609301920-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%2BDNS%2BDocker-%E3%80%90%E5%AE%89%E5%85%A8%E9%85%8D%E7%BD%AE%E3%80%91%E7%BA%BF%E4%B8%8A%E7%BD%91%E5%85%B3%20UA%20%E7%9C%9F%E5%AE%9E%E6%80%A7%E8%A7%84%E5%88%99%E9%87%8D%E6%8E%92%EF%BC%88%E6%94%BE%E8%A1%8C%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E%E7%88%AC%E8%99%AB%E4%B8%8E%E7%9C%9F%E5%AE%9E%E5%AE%A2%E6%88%B7%E7%AB%AF%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【安全配置】线上网关 UA 真实性规则重排（放行搜索引擎爬虫与真实客户端）。本文属于安全与堡垒机 / 访问控制，起因：iOS plist 误拦修复后复核「安卓/浏览器是不是真的默认放行」，实测发现 UA 规则还在误伤真实客户端， 且搜索引擎爬虫全部被拦（站点无法被收录） 原「UA 真实性」规则是 白名单式 （默认…</p>
+      <p>关键词：安全与堡垒机、访问控制、DNS、Docker、Nginx、PHP、Java、知识笔记、安全与堡垒机 / 访问控制、【安全配置】线上网关 UA 真实性规则重排（放行搜索引擎爬虫与真实客户端）</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c9f65db9dbaa.html"><small>上一篇</small>【问题排查】iOS「在 iTunes 中打开」无反应（plist 无法下载）根因与修复</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ad2cfacb6e4e.html"><small>下一篇</small>【安全配置】线上网关 UA 真实性规则重排（放行搜索引擎爬虫与真实客户端）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7bcac96f4157.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

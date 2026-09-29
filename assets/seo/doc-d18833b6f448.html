@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>2026-09-30 页缓存定期回收（运维侧缓解&quot;内存使用率虚高&quot;）｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="2026-09-30 页缓存定期回收（运维侧缓解&quot;内存使用率虚高&quot;）。本文属于历史运维与项目交付 / 18Game 测试环境，Docker / Beszel 等监控把 page cache 计入&quot;已用内存&quot; ，导致线上多台机器长期显示 80%+， 而 MemAvailable 一直很充裕（真实占用很低）。国庆前开…">
+  <meta name="keywords" content="18Game 测试环境，Shell，Docker，Redis，监控告警，源码与配置，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，2026-09-30 页缓存定期回收（运维侧缓解&quot;内存使用率虚高&quot;），devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d18833b6f448.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d18833b6f448.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609300000-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BDocker-2026-09-30%20%E9%A1%B5%E7%BC%93%E5%AD%98%E5%AE%9A%E6%9C%9F%E5%9B%9E%E6%94%B6%EF%BC%88%E8%BF%90%E7%BB%B4%E4%BE%A7%E7%BC%93%E8%A7%A3-%E5%86%85%E5%AD%98%E4%BD%BF%E7%94%A8%E7%8E%87%E8%99%9A%E9%AB%98-%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="2026-09-30 页缓存定期回收（运维侧缓解&quot;内存使用率虚高&quot;）">
+  <meta property="og:description" content="2026-09-30 页缓存定期回收（运维侧缓解&quot;内存使用率虚高&quot;）。本文属于历史运维与项目交付 / 18Game 测试环境，Docker / Beszel 等监控把 page cache 计入&quot;已用内存&quot; ，导致线上多台机器长期显示 80%+， 而 MemAvailable 一直很充裕（真实占用很低）。国庆前开…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d18833b6f448.html">
+  <meta property="article:published_time" content="2026-09-30T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-09-30 00:00">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="2026-09-30 页缓存定期回收（运维侧缓解&quot;内存使用率虚高&quot;）">
+  <meta name="twitter:description" content="2026-09-30 页缓存定期回收（运维侧缓解&quot;内存使用率虚高&quot;）。本文属于历史运维与项目交付 / 18Game 测试环境，Docker / Beszel 等监控把 page cache 计入&quot;已用内存&quot; ，导致线上多台机器长期显示 80%+， 而 MemAvailable 一直很充裕（真实占用很低）。国庆前开…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d18833b6f448.html#article","headline":"2026-09-30 页缓存定期回收（运维侧缓解\"内存使用率虚高\"）","description":"2026-09-30 页缓存定期回收（运维侧缓解\"内存使用率虚高\"）。本文属于历史运维与项目交付 / 18Game 测试环境，Docker / Beszel 等监控把 page cache 计入\"已用内存\" ，导致线上多台机器长期显示 80%+， 而 MemAvailable 一直很充裕（真实占用很低）。国庆前开…","datePublished":"2026-09-30T00:00:00+08:00","dateModified":"2026-09-30 00:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Shell","Docker","Redis","监控告警","源码与配置","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","2026-09-30 页缓存定期回收（运维侧缓解\"内存使用率虚高\"）","devops"],"wordCount":697,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d18833b6f448.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d18833b6f448.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-09-30 页缓存定期回收（运维侧缓解\"内存使用率虚高\"）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d18833b6f448.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>2026-09-30 页缓存定期回收（运维侧缓解&quot;内存使用率虚高&quot;）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>2026-09-30 页缓存定期回收（运维侧缓解&quot;内存使用率虚高&quot;）</h1>
+      <p class="lede">2026-09-30 页缓存定期回收（运维侧缓解&quot;内存使用率虚高&quot;）。本文属于历史运维与项目交付 / 18Game 测试环境，Docker / Beszel 等监控把 page cache 计入&quot;已用内存&quot; ，导致线上多台机器长期显示 80%+， 而 MemAvailable 一直很充裕（真实占用很低）。国庆前开…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-09-30T00:00:00+08:00">发布于 2026-09-30</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">697 字</span>
+        <span class="badge">2 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/scripts/doc/2026-09-30-页缓存定期回收.md</code></p>
+<p>整理日期：2026-09-30 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<h2 id="背景">背景</h2>
+<p>Docker / Beszel 等监控把 <strong>page cache 计入"已用内存"</strong>，导致线上多台机器长期显示 80%+，
+而 <code>MemAvailable</code> 一直很充裕（真实占用很低）。国庆前开发不发版、无法从应用侧减少日志写入量
+（后端 <code>api_request</code> + <code>api_response</code> 每天约 5G），因此运维侧用定时回收页缓存来缓解。</p>
+<p>实测（处理前 → 处理后，含 cache 口径）：</p>
+<table>
+<thead>
+<tr>
+<th>主机</th>
+<th>处理前</th>
+<th>处理后</th>
+<th>真实占用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>后端 16.209.16.108</td>
+<td>88%</td>
+<td>19%</td>
+<td>9%</td>
+</tr>
+<tr>
+<td>网关 16.208.38.88</td>
+<td>82%</td>
+<td>51%</td>
+<td>40%</td>
+</tr>
+<tr>
+<td>前端 13.208.101.121</td>
+<td>58%</td>
+<td>41%</td>
+<td>35%</td>
+</tr>
+<tr>
+<td>宝塔 16.208.5.147</td>
+<td>85%</td>
+<td>16%</td>
+<td>12%</td>
+</tr>
+</tbody>
+</table>
+<h2 id="方案">方案</h2>
+<p>脚本：<code>devops/scripts/youdianse-mem-cache-reclaim.sh</code> → 部署到 <code>/usr/local/sbin/</code>
+cron：<code>7 * * * * /usr/local/sbin/youdianse-mem-cache-reclaim.sh</code>（每小时）
+日志：<code>/var/log/youdianse-mem-reclaim.log</code></p>
+<p><strong>不是无脑清缓存</strong>，只有同时满足以下条件才动手：</p>
+<ol>
+<li>「缓存计入后的使用率」≥ <code>MEM_RECLAIM_THRESHOLD</code>（<strong>默认 50%</strong>，2026-09-30 由 70% 下调）</li>
+<li>「真实可用内存」≥ <code>MEM_RECLAIM_MIN_AVAILABLE</code>（默认 15%）—— 确认没有真实内存压力</li>
+<li>先 <code>sync</code> 落盘，再 <code>echo 1 &gt; /proc/sys/vm/drop_caches</code>（只回收 page cache）</li>
+</ol>
+<p>否则记一条 <code>skip</code> 日志（已验证：占用降到 15% 时会正确跳过，不做无谓 I/O）。</p>
+<h3 id="阈值调整记录">阈值调整记录</h3>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>阈值</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-09-30 初始</td>
+<td>70%</td>
+<td>只在明显虚高时动手，尽量减少无谓 I/O</td>
+</tr>
+<tr>
+<td>2026-09-30 调整</td>
+<td><strong>50%</strong></td>
+<td>阈值 70% 时，含 cache 使用率长时间停在 60~65% 就永远不触发；运维侧要求提早就把数字拉回来</td>
+</tr>
+</tbody>
+</table>
+<p>调整后同一时段（后端 16.209.16.108 实测）触发情况：
+· 调整前：18:07 65%、19:07 65% → 连续 skip
+· 调整为 50% 后：同样 65% 会直接触发回收（缓存 16.9G → 0.5G，可用内存 10G → 26G）</p>
+<h2 id="已部署">已部署</h2>
+<ul>
+<li>后端 16.209.16.108、网关 16.208.38.88、前端 13.208.101.121、宝塔 16.208.5.147（共 4 台）</li>
+<li><strong>未覆盖</strong>：数据库主机（Mongo 主/从、Redis，内网 172.31.x，当前跳板不可直连）。
+  如这些机器也出现"内存虚高"，需按同一脚本部署（或从可直连的机器上跳过去执行）。</li>
+</ul>
+<h2 id="注意事项">注意事项</h2>
+<ol>
+<li>这是<strong>缓解手段</strong>：缓存清掉后仍会随文件读写重新增长，只是每小时被拉回一次</li>
+<li>对 I/O 有轻微影响（热点文件需重新从磁盘读），阈值+可用内存双判断已把无谓回收降下来</li>
+<li><strong>根治仍要开发侧</strong>（节后）：减少 <code>api_request</code> / <code>api_response</code> 的日志量或采样</li>
+<li>若长期仍频繁触发回收，建议同时把监控告警口径从 <code>(总-空闲)/总</code> 改为 <code>总-可用</code></li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#背景">背景</a></li><li style="margin-left:0.0rem"><a href="#方案">方案</a></li><li style="margin-left:0.8rem"><a href="#阈值调整记录">阈值调整记录</a></li><li style="margin-left:0.0rem"><a href="#已部署">已部署</a></li><li style="margin-left:0.0rem"><a href="#注意事项">注意事项</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-09-30</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Redis</span><span class="tag">监控告警</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/scripts/doc/2026-09-30-页缓存定期回收.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609300000-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BDocker-2026-09-30%20%E9%A1%B5%E7%BC%93%E5%AD%98%E5%AE%9A%E6%9C%9F%E5%9B%9E%E6%94%B6%EF%BC%88%E8%BF%90%E7%BB%B4%E4%BE%A7%E7%BC%93%E8%A7%A3-%E5%86%85%E5%AD%98%E4%BD%BF%E7%94%A8%E7%8E%87%E8%99%9A%E9%AB%98-%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>2026-09-30 页缓存定期回收（运维侧缓解&quot;内存使用率虚高&quot;）。本文属于历史运维与项目交付 / 18Game 测试环境，Docker / Beszel 等监控把 page cache 计入&quot;已用内存&quot; ，导致线上多台机器长期显示 80%+， 而 MemAvailable 一直很充裕（真实占用很低）。国庆前开…</p>
+      <p>关键词：18Game 测试环境、Shell、Docker、Redis、监控告警、源码与配置、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、2026-09-30 页缓存定期回收（运维侧缓解&quot;内存使用率虚高&quot;）、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dc6503af28d9.html"><small>上一篇</small>2026-09-30 【问题排查】线上后端&quot;内存暴涨&quot;根因：nginx access.log 涨到 78G，内存实为它的 page cac…</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-81d117884b73.html"><small>下一篇</small>2026-09-30 【安全事件】线上登录接口刷量打满后端 + 网关根盘告警 处置记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d18833b6f448.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
