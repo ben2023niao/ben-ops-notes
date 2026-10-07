@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【问题排查】线上环境-游点涩-新h5-发版失败：corepack 自动拉取最新版 pnpm 12.x 与 corepack 0.34 不兼容｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="【问题排查】线上环境-游点涩-新h5-发版失败：corepack 自动拉取最新版 pnpm 12.x 与 corepack 0.34 不兼容。本文属于历史运维与项目交付 / 18Game 测试环境，环境：游点涩线上（新 h5 / 16.208.38.88） 提交：涉及 18game_devops 构建模板 标签：…">
+  <meta name="keywords" content="18Game 测试环境，Shell，Python，Docker，自动化，故障排查，数据库恢复，源码与配置，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a5c08425363a.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a5c08425363a.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610071245-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83-%E6%B8%B8%E7%82%B9%E6%B6%A9-%E6%96%B0h5-%E5%8F%91%E7%89%88%E5%A4%B1%E8%B4%A5%EF%BC%9Acorepack%20%E8%87%AA%E5%8A%A8%E6%8B%89%E5%8F%96%E6%9C%80%E6%96%B0%E7%89%88%20pnpm%2012.x%20%E4%B8%8E%20corepack%200.34%20%E4%B8%8D%E5%85%BC%E5%AE%B9.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【问题排查】线上环境-游点涩-新h5-发版失败：corepack 自动拉取最新版 pnpm 12.x 与 corepack 0.34 不兼容">
+  <meta property="og:description" content="【问题排查】线上环境-游点涩-新h5-发版失败：corepack 自动拉取最新版 pnpm 12.x 与 corepack 0.34 不兼容。本文属于历史运维与项目交付 / 18Game 测试环境，环境：游点涩线上（新 h5 / 16.208.38.88） 提交：涉及 18game_devops 构建模板 标签：…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a5c08425363a.html">
+  <meta property="article:published_time" content="2026-10-07T12:45:00+08:00">
+  <meta property="article:modified_time" content="2026-10-07 12:45">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【问题排查】线上环境-游点涩-新h5-发版失败：corepack 自动拉取最新版 pnpm 12.x 与 corepack 0.34 不兼容">
+  <meta name="twitter:description" content="【问题排查】线上环境-游点涩-新h5-发版失败：corepack 自动拉取最新版 pnpm 12.x 与 corepack 0.34 不兼容。本文属于历史运维与项目交付 / 18Game 测试环境，环境：游点涩线上（新 h5 / 16.208.38.88） 提交：涉及 18game_devops 构建模板 标签：…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a5c08425363a.html#article","headline":"【问题排查】线上环境-游点涩-新h5-发版失败：corepack 自动拉取最新版 pnpm 12.x 与 corepack 0.34 不兼容","description":"【问题排查】线上环境-游点涩-新h5-发版失败：corepack 自动拉取最新版 pnpm 12.x 与 corepack 0.34 不兼容。本文属于历史运维与项目交付 / 18Game 测试环境，环境：游点涩线上（新 h5 / 16.208.38.88） 提交：涉及 18game_devops 构建模板 标签：…","datePublished":"2026-10-07T12:45:00+08:00","dateModified":"2026-10-07 12:45","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Shell","Python","Docker","自动化","故障排查","数据库恢复","源码与配置","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","devops"],"wordCount":1290,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a5c08425363a.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a5c08425363a.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【问题排查】线上环境-游点涩-新h5-发版失败：corepack 自动拉取最新版 pnpm 12.x 与 corepack 0.34 不兼容","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a5c08425363a.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>【问题排查】线上环境-游点涩-新h5-发版失败：corepack 自动拉取最新版 pnpm 12.x 与 corepack 0.34 不兼容</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>【问题排查】线上环境-游点涩-新h5-发版失败：corepack 自动拉取最新版 pnpm 12.x 与 corepack 0.34 不兼容</h1>
+      <p class="lede">【问题排查】线上环境-游点涩-新h5-发版失败：corepack 自动拉取最新版 pnpm 12.x 与 corepack 0.34 不兼容。本文属于历史运维与项目交付 / 18Game 测试环境，环境：游点涩线上（新 h5 / 16.208.38.88） 提交：涉及 18game_devops 构建模板 标签：…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-07T12:45:00+08:00">发布于 2026-10-07</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,290 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-10-07_1245-【问题排查】线上环境新h5发版失败-pnpm12与corepack0.34不兼容.md</code></p>
+<p>整理日期：2026-10-07 12:45｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>日期：2026-10-07 12:45（北京）</li>
+<li>环境：游点涩线上（新 h5 / 16.208.38.88）</li>
+<li>分类：问题排查 + 构建链路修复（P2）</li>
+<li>提交：涉及 <code>18game_devops</code> 构建模板</li>
+<li>标签：新h5发版、Docker build、corepack、pnpm、构建缓存、16.208.38.88</li>
+</ul>
+<h2 id="一-现象">一、现象</h2>
+<pre><code class="language-text">· 「线上环境-游点涩-新h5-发版」连续 3 次失败（48.4s / 51.3s / 38.0s）
+· 同一个 git 提交 13f43ca，老的「线上环境-游点涩-h5-发版」两次发布都成功（202.9s / exit 0）
+· 即"同一个提交、一个成一个败"，指向构建环境差异而不是代码
+</code></pre>
+<h2 id="二-关键报错">二、关键报错</h2>
+<pre><code class="language-text">#10 [build 3/8] RUN ... corepack enable; pnpm -v
+#10 4.144 ! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-12.9.1.tgz
+#10 4.379 Error: Cannot find module '/root/.cache/node/corepack/v1/pnpm/12.9.1/bin/pnpm.cjs'
+ERROR: failed to build: ... did not complete successfully: exit code: 1
+</code></pre>
+<h2 id="三-根因-已实测复现">三、根因（已实测复现）</h2>
+<ol>
+<li><strong>构建脚本把 <code>corepack enable; pnpm -v</code> 放在 <code>COPY package.json</code> 之前</strong>，
+   此时 corepack 读不到 package.json 里的 <code>"packageManager": "pnpm@10.33.2"</code> 约束，
+   于是去下载<strong>当前最新版</strong> pnpm —— 2026-10-07 时为 <code>12.9.1</code>。</li>
+<li><strong>node:22.19.0-alpine 自带的 corepack 是 0.34，与 pnpm 12.x 不兼容</strong>。实测两个版本包结构：</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>包内 bin 文件</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pnpm@12.9.1（最新）</td>
+<td>无 <code>bin/pnpm.cjs</code>（只有 <code>dist/...</code>）</td>
+<td>corepack 0.34 生成的 shim 找不到入口 → MODULE_NOT_FOUND</td>
+</tr>
+<tr>
+<td>pnpm@10.33.2（前端仓库声明）</td>
+<td>有 <code>bin/pnpm.cjs</code></td>
+<td>正常，<code>pnpm -v</code> 输出 10.33.2</td>
+</tr>
+</tbody>
+</table>
+<ol start="3">
+<li><strong>为什么老 h5 还能发成功</strong>：它台机器的 BuildKit 缓存里「工具链那一层」还在，
+   构建直接复用缓存层，这条命令根本没重新执行；而新 h5 这台（16.208.38.88）的构建缓存
+   在 2026-09-30 因磁盘治理被清理过，必须真跑这条命令 → 隐藏问题被暴露。
+   所以本质是「缓存掩盖了缺陷」，不是新老代码差异。</li>
+</ol>
+<h3 id="顺带排除的怀疑">顺带排除的怀疑</h3>
+<pre><code class="language-text">有人怀疑"打包后提交有污染"（工作区里出现 M nuxt.config.ts / M ecosystem.config.cjs /
+?? Dockerfile / env.txt / public/version.*）。经核对：那些是发布脚本自己写入的
+（注入 env、版本号文件、按模板生成 Dockerfile），属正常产物；
+且失败发生在 build 3/8 阶段（在 COPY 代码之前），与工作区文件内容无关。
+</code></pre>
+<h2 id="四-修复">四、修复</h2>
+<p>文件（两套模板都改，新 h5 走「测试环境」那套）：</p>
+<ul>
+<li><code>devops/python/ben-bot/data/scripts/线上环境-游点涩-h5-发版/remote_youdianse_h5_templates.py</code></li>
+<li><code>devops/python/ben-bot/data/scripts/测试环境-游点涩-h5-发版/remote_youdianse_h5_templates.py</code></li>
+</ul>
+<pre><code class="language-diff">+Pnpm版本 = os.environ.get("H5_PNPM_VERSION", "10.33.2").strip() or "10.33.2"
+
+ RUN set -eux; \
+     ...
+     corepack --version; \
+     corepack enable; \
++    corepack prepare pnpm@{Pnpm版本} --activate; \
+     pnpm -v
+</code></pre>
+<ul>
+<li>默认固定为前端仓库 <code>package.json</code> 声明的 <strong>10.33.2</strong>，可用环境变量 <code>H5_PNPM_VERSION</code> 覆盖，
+  以后前端升 pnpm 只需改一处</li>
+<li>不再依赖「registry 上的最新版」，从根上避免同类问题（corepack 版本升级前一直有效）</li>
+</ul>
+<h2 id="五-部署">五、部署</h2>
+<pre><code class="language-text">· ben-bot 宿主机脚本目录是挂载进容器的（/opt/telegram/18game_devops/.../data/scripts → /app/data/scripts），
+  改宿主机文件即生效，无需重建机器人
+· 备份：~/tpl-backup/tpl-prod-20261007-124534.py、tpl-test-20261007-124534.py
+· 校验：宿主机两处 + 容器内均包含修复；Python 语法校验通过
+</code></pre>
+<h2 id="六-验证-真实构建-只构建不发布">六、验证（真实构建，只构建不发布）</h2>
+<pre><code class="language-text">机器/目录：16.208.38.88 上失败现场原目录（未换代码）
+        /18game_h5_client/youdianse_prod_h5_main_13f43ca_18game_h5_client_3003
+命令：docker build --target build --build-arg BRANCH=main --build-arg SHORT_ID=13f43ca
+      --build-arg SYNC_STATIC_TO_S3=0 --build-arg SYNC_STATIC_TO_COS=0
+（只把修复行注入该目录 Dockerfile，注入前备份 Dockerfile.bak.&lt;时间戳&gt;；不动线上容器）
+
+结果：exit 0，全流程通过
+  · build 3/8（原失败点）：Preparing pnpm@10.33.2 for immediate activation... → pnpm -v = 10.33.2 ✅
+  · build 5/8：packageManager=pnpm@10.33.2，pnpm install --no-frozen-lockfile 完成 ✅
+  · build 6/8：pnpm build 完成（135.7s），.output 正常生成 ✅
+  · build 8/8：按预期输出「跳过 S3 静态资源同步」「跳过腾讯 COS…」（验证时同步开关关掉了）
+  · 日志中 2 处 "ERROR" 只是 Nuxt 产物文件名 error-500.mjs，非真实错误
+· 验证用镜像已删除；构建机根盘 14G/49G（28%）
+</code></pre>
+<h2 id="七-回滚">七、回滚</h2>
+<pre><code class="language-text">· 模板：还原 ~/tpl-backup/tpl-prod-&lt;ts&gt;.py / tpl-test-&lt;ts&gt;.py 到对应脚本目录
+· 失败现场 Dockerfile：目录内 Dockerfile.bak.&lt;时间戳&gt;（下次发布会按模板重新生成）
+</code></pre>
+<h2 id="八-后续建议">八、后续建议</h2>
+<ol>
+<li><strong>构建工具链要么固定版本，要么固定镜像</strong>：本次教训是「工具链版本随上游漂移」，
+   建议后续把 node 镜像 + pnpm 版本一起固化（必要时引入锁文件 <code>corepack</code> 版本）</li>
+<li><strong>构建缓存清理会暴露隐藏问题</strong>：缓存清理属于常规运维动作，
+   今后清理前后建议各跑一次「只构建不发布」的冒烟验证</li>
+<li><strong>新老两套 h5 发布链路建议统一</strong>：目前老 h5 依赖缓存侥幸成功，
+   本次修复已同时覆盖两套模板</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-现象">一、现象</a></li><li style="margin-left:0.0rem"><a href="#二-关键报错">二、关键报错</a></li><li style="margin-left:0.0rem"><a href="#三-根因-已实测复现">三、根因（已实测复现）</a></li><li style="margin-left:0.8rem"><a href="#顺带排除的怀疑">顺带排除的怀疑</a></li><li style="margin-left:0.0rem"><a href="#四-修复">四、修复</a></li><li style="margin-left:0.0rem"><a href="#五-部署">五、部署</a></li><li style="margin-left:0.0rem"><a href="#六-验证-真实构建-只构建不发布">六、验证（真实构建，只构建不发布）</a></li><li style="margin-left:0.0rem"><a href="#七-回滚">七、回滚</a></li><li style="margin-left:0.0rem"><a href="#八-后续建议">八、后续建议</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-10-07</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">自动化</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-10-07_1245-【问题排查】线上环境新h5发版失败-pnpm1…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610071245-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83-%E6%B8%B8%E7%82%B9%E6%B6%A9-%E6%96%B0h5-%E5%8F%91%E7%89%88%E5%A4%B1%E8%B4%A5%EF%BC%9Acorepack%20%E8%87%AA%E5%8A%A8%E6%8B%89%E5%8F%96%E6%9C%80%E6%96%B0%E7%89%88%20pnpm%2012.x%20%E4%B8%8E%20corepack%200.34%20%E4%B8%8D%E5%85%BC%E5%AE%B9.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【问题排查】线上环境-游点涩-新h5-发版失败：corepack 自动拉取最新版 pnpm 12.x 与 corepack 0.34 不兼容。本文属于历史运维与项目交付 / 18Game 测试环境，环境：游点涩线上（新 h5 / 16.208.38.88） 提交：涉及 18game_devops 构建模板 标签：…</p>
+      <p>关键词：18Game 测试环境、Shell、Python、Docker、自动化、故障排查、数据库恢复、源码与配置、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c01efb3d797.html"><small>上一篇</small>2026-10-05 香港 JILI 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-45c7a3a9f3d5.html"><small>下一篇</small>2026-10-07 香港 Panda 玩家日志收集工具 + UID 678（富贵兔）对账</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a5c08425363a.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
