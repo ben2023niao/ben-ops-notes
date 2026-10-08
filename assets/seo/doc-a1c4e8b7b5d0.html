@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>2026-10-08 JILI 进不去：EdgeOne 回源 HTTP → X-Forwarded-Proto 为 http｜历史运维与项目交付 / 香港 CN｜BEN.OPS</title>
+  <meta name="description" content="2026-10-08 JILI 进不去：EdgeOne 回源 HTTP → X-Forwarded-Proto 为 http 来源文件： ~/Projects/work/game/pgserver/cn/docker/doc/2026-10-08-1425-【故障处理】腾讯EdgeOne回源HTTP">
+  <meta name="keywords" content="香港 CN，Docker，Nginx，CDN，DNS，故障排查，数据库恢复，源码与配置，历史运维与项目交付，历史运维与项目交付 / 香港 CN">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a1c4e8b7b5d0.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a1c4e8b7b5d0.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610081425-%E9%A6%99%E6%B8%AF%20CN%2BDocker%2BNginx-2026-10-08%20JILI%20%E8%BF%9B%E4%B8%8D%E5%8E%BB%EF%BC%9AEdgeOne%20%E5%9B%9E%E6%BA%90%20HTTP%20%E2%86%92%20X-Forwarded-Proto%20%E4%B8%BA%20http.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="2026-10-08 JILI 进不去：EdgeOne 回源 HTTP → X-Forwarded-Proto 为 http">
+  <meta property="og:description" content="2026-10-08 JILI 进不去：EdgeOne 回源 HTTP → X-Forwarded-Proto 为 http 来源文件： ~/Projects/work/game/pgserver/cn/docker/doc/2026-10-08-1425-【故障处理】腾讯EdgeOne回源HTTP">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a1c4e8b7b5d0.html">
+  <meta property="article:published_time" content="2026-10-08T14:25:00+08:00">
+  <meta property="article:modified_time" content="2026-10-08 14:25">
+  <meta property="article:section" content="历史运维与项目交付 / 香港 CN">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="2026-10-08 JILI 进不去：EdgeOne 回源 HTTP → X-Forwarded-Proto 为 http">
+  <meta name="twitter:description" content="2026-10-08 JILI 进不去：EdgeOne 回源 HTTP → X-Forwarded-Proto 为 http 来源文件： ~/Projects/work/game/pgserver/cn/docker/doc/2026-10-08-1425-【故障处理】腾讯EdgeOne回源HTTP">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a1c4e8b7b5d0.html#article","headline":"2026-10-08 JILI 进不去：EdgeOne 回源 HTTP → X-Forwarded-Proto 为 http","description":"2026-10-08 JILI 进不去：EdgeOne 回源 HTTP → X-Forwarded-Proto 为 http 来源文件： ~/Projects/work/game/pgserver/cn/docker/doc/2026-10-08-1425-【故障处理】腾讯EdgeOne回源HTTP","datePublished":"2026-10-08T14:25:00+08:00","dateModified":"2026-10-08 14:25","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","香港 CN"],"keywords":["香港 CN","Docker","Nginx","CDN","DNS","故障排查","数据库恢复","源码与配置","历史运维与项目交付","历史运维与项目交付 / 香港 CN"],"wordCount":1069,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a1c4e8b7b5d0.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a1c4e8b7b5d0.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 香港 CN","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-10-08 JILI 进不去：EdgeOne 回源 HTTP → X-Forwarded-Proto 为 http","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a1c4e8b7b5d0.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 香港 CN</span> › <span>2026-10-08 JILI 进不去：EdgeOne 回源 HTTP → X-Forwarded-Proto 为 http</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 香港 CN</div>
+      <h1>2026-10-08 JILI 进不去：EdgeOne 回源 HTTP → X-Forwarded-Proto 为 http</h1>
+      <p class="lede">2026-10-08 JILI 进不去：EdgeOne 回源 HTTP → X-Forwarded-Proto 为 http 来源文件： ~/Projects/work/game/pgserver/cn/docker/doc/2026-10-08-1425-【故障处理】腾讯EdgeOne回源HTTP</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-08T14:25:00+08:00">发布于 2026-10-08</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,069 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/cn/docker/doc/2026-10-08-1425-【故障处理】腾讯EdgeOne回源HTTP导致X-Forwarded-Proto为http（JILI进不去）修复.md</code></p>
+<p>整理日期：2026-10-08 14:25｜日期依据：文件名日期</p>
+</blockquote>
+<h2 id="一-现象">一、现象</h2>
+<pre><code class="language-text">开发（C++）反馈：「线上吉利进不去了」，要求处理；用户补充：这次是**腾讯云（EdgeOne）那条线**，
+并提示两个方向：① 看代码里配置的域名；② 怀疑 nginx 把 https 转发成了 http。
+</code></pre>
+<h2 id="二-排查">二、排查</h2>
+<pre><code class="language-text">1) 先做整体健康检查（都正常，排除了服务挂掉）：
+   · 四套动态域名 /health 全 200：jili-games.m4q7z1.shop / .k8x2v9.shop / .hkcloudplay06.com / .hkcloudplay07.com
+   · 静态页与资源 200：jili-static1.&lt;新域名&gt;/lj500/index.html（97,383B）、/commom_v3_1.0.9.js、/lj500/src/*.bundle.js
+   · 香港 01/02：9 个业务容器 Up、磁盘 40%、负载 &lt;1；ws 容器日志显示真实客户端消息正常收发
+   · nginx 错误日志只有扫描器的 SSL handshake 噪音
+2) 配置核对（用户提示①）：线上 conf/domains/jili.json 的 default/v1/v2 用的都是腾讯域名
+   （jili-static{,1,2}.m4q7z1.shop / .k8x2v9.shop，DNS 与 nginx 都正常）；
+   v3/v4/v5 仍写的是 jili-static{3,4,5}-aws.hkcloudplay0[67].com（CF 侧命名），本机 nginx 没有这些 server_name
+   → 命中默认站点返回平台页/404。**这条单独记，等开发确认这几个分组的目标域名**（不属本次 https→http 问题）。
+3) 抓包对账（用户提示②，决定性证据）：在 prod-01 上 tcpdump 9093/8765，看后端实际收到的头：
+
+   修复前
+     Host: jili-games.m4q7z1.shop        X-Forwarded-Proto: http     ← 腾讯 EdgeOne 链路
+     Host: jili-games.hkcloudplay06.com  X-Forwarded-Proto: https    ← Cloudflare 链路
+
+   即：**EdgeOne 回源到本机用的是 HTTP**，而 nginx 片段里写的是
+   `proxy_set_header X-Forwarded-Proto $scheme;` → `$scheme` 取的是「边缘→本机」这一跳的协议（http），
+   后端据此认为客户端在 http 上 → 生成 http:// 链接 → 浏览器按混合内容/协议不一致拦掉 → 游戏进不去。
+   CF 链路回源是 HTTPS，所以只有腾讯线出问题，这也解释了「为什么只有腾讯云这条线进不去」。
+</code></pre>
+<h2 id="三-修复-两台-nginx-入口">三、修复（两台 nginx 入口）</h2>
+<pre><code class="language-text">原则：对外（EdgeOne / Cloudflare / 浏览器）实际都是 HTTPS，边缘→源站那一跳用什么协议不代表客户端协议；
+      统一告诉后端 https，和 Cloudflare 链路的行为对齐。
+
+· standby 34.150.1.185（腾讯域名 + 06/07 都在这台）
+    /etc/nginx/snippets/dbqp-hk-standby-proxy.conf   X-Forwarded-Proto: $scheme →  https；新增 X-Forwarded-Port 443
+    /etc/nginx/snippets/dbqp-hk-standby-ws.conf      X-Forwarded-Proto: $scheme →  https；X-Forwarded-Port: $server_port → 443
+· 入口机 34.92.13.108（老域名 01-05）
+    /etc/nginx/snippets/dbqp-hongkong-proxy.conf     同上（避免 CF 那条线哪天回源走 HTTP 时重演）
+· 只改「告诉后端的协议」，不动任何业务口径（动态 CORS 仍归开发、静态 CORS 仍 ACAO *），静态域名不受影响。
+· nginx -t 通过后才 reload。
+</code></pre>
+<h2 id="四-验证">四、验证</h2>
+<pre><code class="language-text">· 抓包（修复后）：腾讯线 jili-games.m4q7z1.shop 与 CF 线 jili-games.hkcloudplay06.com 的后端请求头均为
+  `X-Forwarded-Proto: https` + `X-Forwarded-Port: 443`；ws 升级请求（8765）同样带上 https/443。
+· 四套动态域名 /health 全 200；静态资源 200；ws 容器继续正常收发包。
+· 请开发在腾讯线重新进一次游戏确认（群里已同步）。
+</code></pre>
+<h2 id="五-备份与回滚">五、备份与回滚</h2>
+<pre><code class="language-text">nginx（两台入口）
+  standby：/etc/nginx/sites-available/dbqp-hk-standby.conf.bak-20261008-1419-scheme、
+           snippets/dbqp-hk-standby-{proxy,ws}.conf.bak-20261008-1419-scheme、
+           /root/nginx-backup-20261008-1419/（配置副本）
+  入口机：/etc/nginx/sites-available/dbqp-hongkong.conf.bak-20261008-1419-scheme、
+          snippets/dbqp-hongkong-proxy.conf.bak-20261008-1419
+  入仓：docker/deploy/hongkong/nginx-backup/nginx-{standby,entry}-etc-nginx-20261008-1419.tgz（已排除 /etc/nginx/ssl）
+香港 01/02 后端
+  /root/dbqp-backup-20261008-1419/（conf/、start.sh、version.json、server_configs/）+ /root/dbqp-backup-20261008-1419.tgz
+  记录 share.so md5（e55895552004c189bd22cb9ba297161d）到 MANIFEST.txt
+回滚：把对应 .bak-20261008-1419-scheme 覆盖回原位 → nginx -t → systemctl reload nginx
+</code></pre>
+<h2 id="六-关联">六、关联</h2>
+<pre><code class="language-text">docker/deploy/hongkong/nginx-standby-proxy.conf、nginx-standby-ws.conf、dbqp-hongkong-proxy.conf（本次修改）
+docker/deploy/hongkong/nginx-backup/nginx-{standby,entry}-etc-nginx-20261008-1419.tgz
+docker/doc/2026-10-05-1400-【架构改造】香港JILI静态域名按Worker路径映射并补intro-astarte处理.md（同一条腾讯链路的映射改造）
+docker/doc/2026-10-05-1310-【运维】跨域职责划分-动态归开发静态归运维（撤销动态CORS兜底）.md（跨域口径，本次未动）
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-现象">一、现象</a></li><li style="margin-left:0.0rem"><a href="#二-排查">二、排查</a></li><li style="margin-left:0.0rem"><a href="#三-修复-两台-nginx-入口">三、修复（两台 nginx 入口）</a></li><li style="margin-left:0.0rem"><a href="#四-验证">四、验证</a></li><li style="margin-left:0.0rem"><a href="#五-备份与回滚">五、备份与回滚</a></li><li style="margin-left:0.0rem"><a href="#六-关联">六、关联</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 香港 CN</li>
+          <li>日期：2026-10-08</li>
+          <li>标签：<span class="tag">香港 CN</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">CDN</span><span class="tag">DNS</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/cn/docker/doc/2026-10-08-1425-【故障处理】腾讯EdgeOne回源HTTP导致X-Forw…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610081425-%E9%A6%99%E6%B8%AF%20CN%2BDocker%2BNginx-2026-10-08%20JILI%20%E8%BF%9B%E4%B8%8D%E5%8E%BB%EF%BC%9AEdgeOne%20%E5%9B%9E%E6%BA%90%20HTTP%20%E2%86%92%20X-Forwarded-Proto%20%E4%B8%BA%20http.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>2026-10-08 JILI 进不去：EdgeOne 回源 HTTP → X-Forwarded-Proto 为 http 来源文件： ~/Projects/work/game/pgserver/cn/docker/doc/2026-10-08-1425-【故障处理】腾讯EdgeOne回源HTTP</p>
+      <p>关键词：香港 CN、Docker、Nginx、CDN、DNS、故障排查、数据库恢复、源码与配置、历史运维与项目交付、历史运维与项目交付 / 香港 CN</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-45c7a3a9f3d5.html"><small>上一篇</small>2026-10-07 香港 Panda 玩家日志收集工具 + UID 678（富贵兔）对账</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c39ed980849.html"><small>下一篇</small>2026-10-08 大厅（97578aa.com）拉不起 JILI：静态域名根探活 403 + v2~v5 分组 404</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a1c4e8b7b5d0.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

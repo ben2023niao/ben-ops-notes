@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【问题排查】线上环境小时数据报告重复发送：兜底脚本抢跑 + 报告任务写入幂等缺陷｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="【问题排查】线上环境小时数据报告重复发送：兜底脚本抢跑 + 报告任务写入幂等缺陷。本文属于业务系统运维 / 游点涩，环境：游点涩线上环境（main 分支，后端 16.209.16.108） 分类：问题排查（报告重复发送 / 兜底逻辑缺陷） 关联： 2026-08-20-2345-【问题排查】线上环境小时数据报告缺…">
+  <meta name="keywords" content="游点涩，Shell，Python，Docker，监控告警，自动化，安全运维，故障排查，业务系统运维，业务系统运维 / 游点涩，【问题排查】线上环境小时数据报告重复发送：兜底脚本抢跑 + 报告任务写入幂等缺陷，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cfe77b4a515b.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cfe77b4a515b.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610081630-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E5%B0%8F%E6%97%B6%E6%95%B0%E6%8D%AE%E6%8A%A5%E5%91%8A%E9%87%8D%E5%A4%8D%E5%8F%91%E9%80%81%EF%BC%9A%E5%85%9C%E5%BA%95%E8%84%9A%E6%9C%AC%E6%8A%A2%E8%B7%91%20%2B%20%E6%8A%A5%E5%91%8A%E4%BB%BB%E5%8A%A1%E5%86%99%E5%85%A5%E5%B9%82%E7%AD%89%E7%BC%BA%E9%99%B7.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【问题排查】线上环境小时数据报告重复发送：兜底脚本抢跑 + 报告任务写入幂等缺陷">
+  <meta property="og:description" content="【问题排查】线上环境小时数据报告重复发送：兜底脚本抢跑 + 报告任务写入幂等缺陷。本文属于业务系统运维 / 游点涩，环境：游点涩线上环境（main 分支，后端 16.209.16.108） 分类：问题排查（报告重复发送 / 兜底逻辑缺陷） 关联： 2026-08-20-2345-【问题排查】线上环境小时数据报告缺…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cfe77b4a515b.html">
+  <meta property="article:published_time" content="2026-10-08T16:30:00+08:00">
+  <meta property="article:modified_time" content="2026-10-08 16:30">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【问题排查】线上环境小时数据报告重复发送：兜底脚本抢跑 + 报告任务写入幂等缺陷">
+  <meta name="twitter:description" content="【问题排查】线上环境小时数据报告重复发送：兜底脚本抢跑 + 报告任务写入幂等缺陷。本文属于业务系统运维 / 游点涩，环境：游点涩线上环境（main 分支，后端 16.209.16.108） 分类：问题排查（报告重复发送 / 兜底逻辑缺陷） 关联： 2026-08-20-2345-【问题排查】线上环境小时数据报告缺…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cfe77b4a515b.html#article","headline":"【问题排查】线上环境小时数据报告重复发送：兜底脚本抢跑 + 报告任务写入幂等缺陷","description":"【问题排查】线上环境小时数据报告重复发送：兜底脚本抢跑 + 报告任务写入幂等缺陷。本文属于业务系统运维 / 游点涩，环境：游点涩线上环境（main 分支，后端 16.209.16.108） 分类：问题排查（报告重复发送 / 兜底逻辑缺陷） 关联： 2026-08-20-2345-【问题排查】线上环境小时数据报告缺…","datePublished":"2026-10-08T16:30:00+08:00","dateModified":"2026-10-08 16:30","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Shell","Python","Docker","监控告警","自动化","安全运维","故障排查","业务系统运维","业务系统运维 / 游点涩","【问题排查】线上环境小时数据报告重复发送：兜底脚本抢跑 + 报告任务写入幂等缺陷","php"],"wordCount":1410,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cfe77b4a515b.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cfe77b4a515b.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【问题排查】线上环境小时数据报告重复发送：兜底脚本抢跑 + 报告任务写入幂等缺陷","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cfe77b4a515b.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>【问题排查】线上环境小时数据报告重复发送：兜底脚本抢跑 + 报告任务写入幂等缺陷</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>【问题排查】线上环境小时数据报告重复发送：兜底脚本抢跑 + 报告任务写入幂等缺陷</h1>
+      <p class="lede">【问题排查】线上环境小时数据报告重复发送：兜底脚本抢跑 + 报告任务写入幂等缺陷。本文属于业务系统运维 / 游点涩，环境：游点涩线上环境（main 分支，后端 16.209.16.108） 分类：问题排查（报告重复发送 / 兜底逻辑缺陷） 关联： 2026-08-20-2345-【问题排查】线上环境小时数据报告缺…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-08T16:30:00+08:00">发布于 2026-10-08</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,410 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-08-1630-【问题排查】线上环境小时报告重复发送-兜底脚本抢跑与写入幂等缺陷.md</code></p>
+<p>整理日期：2026-10-08 16:30｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>文档日期：2026-10-08 16:30（北京）</li>
+<li>环境：游点涩线上环境（main 分支，后端 16.209.16.108）</li>
+<li>分类：问题排查（报告重复发送 / 兜底逻辑缺陷）</li>
+<li>关联：<code>2026-08-20-2345-【问题排查】线上环境小时数据报告缺失排查与兜底记录</code>（兜底脚本的由来）</li>
+<li>触发反馈：番子反馈「最近的小时报告会偶发重复发送，怀疑是兜底机制误触发」</li>
+</ul>
+<h2 id="一-结论-先看这里">一、结论（先看这里）</h2>
+<p><strong>是兜底机制误触发</strong>，而且兜底与报告任务之间存在真实的并发窗口：</p>
+<ol>
+<li>报告任务 <code>HourlyStatsMonitorJob</code> 的执行顺序是
+   <strong>「先查重 → 采集统计（实测约 2 分钟）→ 写记录 → 发报告」</strong>；</li>
+<li>Spug 任务 <code>HourlyStatsMonitor monitor</code> 在整点后 :07 触发，通常 :09 前后才写入记录；
+   而兜底脚本 v1 固定 <strong>:09</strong> 检查，正好落在这段「采集窗口」内 → 判定「记录缺失」→ 自己也跑一遍；</li>
+<li>两个进程于是<strong>各发一条同一小时的报告</strong> —— 重复发送；</li>
+<li>更要命的是：写重复 <code>_id</code> 时 <code>MongoModel::insert()</code> <strong>不抛异常</strong>，只写一条错误日志并 <code>return null</code>，
+   而 Job <strong>不检查返回值</strong>，照样往下执行 <code>TgNotifyService::sendMessage()</code> → 重复消息真实发出。</li>
+</ol>
+<p>即：<strong>兜底抢跑是触发条件，报告任务"写入失败仍发送"是让重复消息真正落地的原因。</strong></p>
+<h2 id="二-证据">二、证据</h2>
+<h3 id="2-1-兜底日志-几乎每小时都在补跑">2.1 兜底日志：几乎每小时都在补跑</h3>
+<pre><code class="language-text">2026-10-08 08:09:01 WARNING record missing, backfill: 2026-10-08_07   → 08:11:04 backfill done
+2026-10-08 09:09:01 WARNING record missing, backfill: 2026-10-08_08   → 09:11:06 backfill done
+2026-10-08 10:09:01 INFO    record exists,  skip:   2026-10-08_09
+2026-10-08 11:09:01 WARNING record missing, backfill: 2026-10-08_10   → 11:11:04 backfill done
+2026-10-08 13:09:01 WARNING record missing, backfill: 2026-10-08_12   → 13:11:09 backfill done
+2026-10-08 14:09:01 WARNING record missing, backfill: 2026-10-08_13   → 14:11:07 backfill done
+2026-10-08 15:09:01 WARNING record missing, backfill: 2026-10-08_14   → 15:11:05 backfill done
+2026-10-08 16:09:01 WARNING record missing, backfill: 2026-10-08_15   → 16:11:10 backfill done
+</code></pre>
+<p>补跑耗时稳定在 <strong>约 2 分钟</strong>（08:09:01 → 08:11:04），正好印证「采集很慢」这一点；
+而 Spug 是 :07 触发 —— :09 检查时它多半还没写记录。</p>
+<h3 id="2-2-代码层面-两个关键点">2.2 代码层面（两个关键点）</h3>
+<p><code>app/Jobs/Monitor/HourlyStatsMonitorJob.php</code>：</p>
+<pre><code class="language-php">$existing = HourlyStatsMonitorModel::findFirst(['_id' =&gt; $id]);
+if (!empty($existing)) { echo "已存在记录: {$id}，跳过\n"; return; }   // ← 查重
+$currentData = self::collectStats(...);                              // ← 约 2 分钟（并发窗口）
+HourlyStatsMonitorModel::insert($record);                            // ← 写记录（返回值被忽略）
+...
+TgNotifyService::sendMessage($reportMsg, 'monitor');                 // ← 照样发送
+</code></pre>
+<p><code>app/Core/Mongodb/MongoModel.php</code>：</p>
+<pre><code class="language-php">$result = self::connect()-&gt;executeCommand($cmd);
+if ($result[0]['n'] == 0) {
+    $cmd['error'] = ...;
+    LogUtil::error($cmd);            // 只记日志
+}
+return $result[0]['n'] &gt; 0 ? $document['_id'] : null;   // 不抛异常
+</code></pre>
+<p>即：<strong>重复键不会中断流程</strong>，第二个进程照样把报告发出去。</p>
+<h2 id="三-修复-本次已上线">三、修复（本次已上线）</h2>
+<h3 id="3-1-兜底脚本-v2-我方代码-已部署并生效">3.1 兜底脚本 v2（我方代码，已部署并生效）</h3>
+<p>文件：<code>ops/production/scripts/youdianse-hourly-report-guard.py</code></p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>v1</th>
+<th>v2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>检查时间</td>
+<td>每小时 <strong>:09</strong></td>
+<td>每小时 <strong>:25</strong>（给 Spug :07 任务留足时间）</td>
+</tr>
+<tr>
+<td>缺失时的动作</td>
+<td>直接补跑</td>
+<td>先做<strong>在跑检测</strong>，有实例则等待后复检</td>
+</tr>
+<tr>
+<td>在跑检测</td>
+<td>无</td>
+<td>宿主机 <code>docker top</code> 查 cron/web 两容器命令行里有无 <code>HourlyStatsMonitor</code></td>
+</tr>
+<tr>
+<td>等待预算</td>
+<td>无</td>
+<td><code>--wait 30 --retries 20</code>（≈10 分钟），预算内一直在跑则<strong>跳过并告警</strong>（宁晚不重）</td>
+</tr>
+<tr>
+<td>安全开关</td>
+<td>无</td>
+<td>新增 <code>--dry-run</code>、<code>--hour</code>，值班可安全演练</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>注：容器内没有 <code>ps</code>/<code>pgrep</code>（PHP 镜像精简），因此用<strong>宿主机</strong> <code>docker top -o pid,args</code> 做检测，实测可用。</p>
+</blockquote>
+<h3 id="3-2-cron-调整-已生效">3.2 cron 调整（已生效）</h3>
+<pre><code class="language-text">旧： 9 * * * *  … youdianse-hourly-report-guard.py
+新：25 * * * *  … youdianse-hourly-report-guard.py   （其余 flock/日志路径不变）
+</code></pre>
+<h2 id="四-验证-5-项-全部通过">四、验证（5 项，全部通过）</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>场景</th>
+<th>命令</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>上一小时记录已存在</td>
+<td><code>--dry-run</code></td>
+<td><code>record exists, skip</code> ✅</td>
+</tr>
+<tr>
+<td>2</td>
+<td>记录缺失且无在跑实例</td>
+<td><code>--dry-run --hour 2020-01-01_00</code></td>
+<td><code>record missing and no in-flight job -&gt; 会补跑</code> ✅</td>
+</tr>
+<tr>
+<td>3</td>
+<td>造一个在跑实例（假进程带标记）</td>
+<td><code>--dry-run --hour … --retries 2</code></td>
+<td>检出 in-flight、等待复检、<strong>不补跑</strong> ✅</td>
+</tr>
+<tr>
+<td>4</td>
+<td>真实运行 + 一直在跑</td>
+<td><code>--wait 3 --retries 2</code></td>
+<td>等待 2 轮后 <code>skip this hour to avoid duplicate</code>，<strong>未补跑</strong> ✅</td>
+</tr>
+<tr>
+<td>5</td>
+<td>清理假进程后回归</td>
+<td><code>--dry-run --hour …</code></td>
+<td>恢复「缺失且无在跑 → 会补跑」判断 ✅</td>
+</tr>
+</tbody>
+</table>
+<p>其他：<code>python3 -m py_compile</code> 语法校验通过；脚本替换前备份 <code>/root/hourly-report-guard-backup-&lt;时间戳&gt;.py</code>。</p>
+<h2 id="五-遗留与建议-需后端-流程侧配合">五、遗留与建议（需后端/流程侧配合）</h2>
+<ol>
+<li><strong>报告任务写入幂等（根因，建议后端修）</strong>：把插入结果用起来，写入失败（重复 <code>_id</code>）时不要继续发送：</li>
+</ol>
+<pre><code class="language-php">$inserted = HourlyStatsMonitorModel::insert($record);
+if ($inserted === null) {
+    echo "记录写入失败（可能已被其它进程写入），跳过本次发送: {$id}\n";
+    return;
+}
+</code></pre>
+<p>更彻底的做法是「原子占位」：先 <code>findAndModify</code> 带 <code>upsert</code> 抢占该小时的记录（占位），
+   抢到才采集与发送，从机制上消灭并发窗口。
+2. <strong>Spug 任务配置失败重试</strong>：Spug 侧给该任务加失败重试，减少对兜底的依赖。
+3. <strong>发布窗口避开整点 :00-:10</strong>：避免重建容器与 :07 执行窗口重叠（这是当初报告缺失的原因）。
+4. 兜底仍保留：本次只解决「重复」，不降低「缺报兜底」能力。</p>
+<h2 id="六-回滚">六、回滚</h2>
+<pre><code class="language-text">· 脚本：还原 /root/hourly-report-guard-backup-&lt;时间戳&gt;.py 到
+        /opt/docker-youdianse-php/ops/production/scripts/youdianse-hourly-report-guard.py
+· cron：把 25 * * * * 改回 9 * * * *（/tmp/cron.bak 为改前备份）
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-结论-先看这里">一、结论（先看这里）</a></li><li style="margin-left:0.0rem"><a href="#二-证据">二、证据</a></li><li style="margin-left:0.8rem"><a href="#2-1-兜底日志-几乎每小时都在补跑">2.1 兜底日志：几乎每小时都在补跑</a></li><li style="margin-left:0.8rem"><a href="#2-2-代码层面-两个关键点">2.2 代码层面（两个关键点）</a></li><li style="margin-left:0.0rem"><a href="#三-修复-本次已上线">三、修复（本次已上线）</a></li><li style="margin-left:0.8rem"><a href="#3-1-兜底脚本-v2-我方代码-已部署并生效">3.1 兜底脚本 v2（我方代码，已部署并生效）</a></li><li style="margin-left:0.8rem"><a href="#3-2-cron-调整-已生效">3.2 cron 调整（已生效）</a></li><li style="margin-left:0.0rem"><a href="#四-验证-5-项-全部通过">四、验证（5 项，全部通过）</a></li><li style="margin-left:0.0rem"><a href="#五-遗留与建议-需后端-流程侧配合">五、遗留与建议（需后端/流程侧配合）</a></li><li style="margin-left:0.0rem"><a href="#六-回滚">六、回滚</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-10-08</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">监控告警</span><span class="tag">自动化</span><span class="tag">安全运维</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-08-1630-【问题排…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610081630-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E5%B0%8F%E6%97%B6%E6%95%B0%E6%8D%AE%E6%8A%A5%E5%91%8A%E9%87%8D%E5%A4%8D%E5%8F%91%E9%80%81%EF%BC%9A%E5%85%9C%E5%BA%95%E8%84%9A%E6%9C%AC%E6%8A%A2%E8%B7%91%20%2B%20%E6%8A%A5%E5%91%8A%E4%BB%BB%E5%8A%A1%E5%86%99%E5%85%A5%E5%B9%82%E7%AD%89%E7%BC%BA%E9%99%B7.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【问题排查】线上环境小时数据报告重复发送：兜底脚本抢跑 + 报告任务写入幂等缺陷。本文属于业务系统运维 / 游点涩，环境：游点涩线上环境（main 分支，后端 16.209.16.108） 分类：问题排查（报告重复发送 / 兜底逻辑缺陷） 关联： 2026-08-20-2345-【问题排查】线上环境小时数据报告缺…</p>
+      <p>关键词：游点涩、Shell、Python、Docker、监控告警、自动化、安全运维、故障排查、业务系统运维、业务系统运维 / 游点涩、【问题排查】线上环境小时数据报告重复发送：兜底脚本抢跑 + 报告任务写入幂等缺陷、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-bf245aba6ab1.html"><small>上一篇</small>2026-10-08 静态域名目录跳转变成 http：//（游戏 iframe 被拦）修复</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-32cccf573e7e.html"><small>下一篇</small>【验证记录】前端依赖版本范围与构建可复现性核查（运维只验证不改代码）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cfe77b4a515b.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
