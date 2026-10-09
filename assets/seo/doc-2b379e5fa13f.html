@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【问题排查】测试环境 H5 发版失败：前端 preinstall 依赖校验脚本未进镜像｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="【问题排查】测试环境 H5 发版失败：前端 preinstall 依赖校验脚本未进镜像。本文属于历史运维与项目交付 / 18Game 测试环境，环境：测试环境 H5（构建机 15.152.247.196）+ ben-bot 发布链路 分类：问题排查（构建镜像缺文件 / 与前端新增 preinstall 钩子冲突）…">
+  <meta name="keywords" content="18Game 测试环境，Shell，Python，Docker，自动化，安全运维，故障排查，数据库恢复，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，【问题排查】测试环境 H5 发版失败：前端 preinstall 依赖校验脚本未进镜像，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2b379e5fa13f.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2b379e5fa13f.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610090830-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20H5%20%E5%8F%91%E7%89%88%E5%A4%B1%E8%B4%A5%EF%BC%9A%E5%89%8D%E7%AB%AF%20preinstall%20%E4%BE%9D%E8%B5%96%E6%A0%A1%E9%AA%8C%E8%84%9A%E6%9C%AC%E6%9C%AA%E8%BF%9B%E9%95%9C%E5%83%8F.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【问题排查】测试环境 H5 发版失败：前端 preinstall 依赖校验脚本未进镜像">
+  <meta property="og:description" content="【问题排查】测试环境 H5 发版失败：前端 preinstall 依赖校验脚本未进镜像。本文属于历史运维与项目交付 / 18Game 测试环境，环境：测试环境 H5（构建机 15.152.247.196）+ ben-bot 发布链路 分类：问题排查（构建镜像缺文件 / 与前端新增 preinstall 钩子冲突）…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2b379e5fa13f.html">
+  <meta property="article:published_time" content="2026-10-09T08:30:00+08:00">
+  <meta property="article:modified_time" content="2026-10-09 08:30">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【问题排查】测试环境 H5 发版失败：前端 preinstall 依赖校验脚本未进镜像">
+  <meta name="twitter:description" content="【问题排查】测试环境 H5 发版失败：前端 preinstall 依赖校验脚本未进镜像。本文属于历史运维与项目交付 / 18Game 测试环境，环境：测试环境 H5（构建机 15.152.247.196）+ ben-bot 发布链路 分类：问题排查（构建镜像缺文件 / 与前端新增 preinstall 钩子冲突）…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2b379e5fa13f.html#article","headline":"【问题排查】测试环境 H5 发版失败：前端 preinstall 依赖校验脚本未进镜像","description":"【问题排查】测试环境 H5 发版失败：前端 preinstall 依赖校验脚本未进镜像。本文属于历史运维与项目交付 / 18Game 测试环境，环境：测试环境 H5（构建机 15.152.247.196）+ ben-bot 发布链路 分类：问题排查（构建镜像缺文件 / 与前端新增 preinstall 钩子冲突）…","datePublished":"2026-10-09T08:30:00+08:00","dateModified":"2026-10-09 08:30","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Shell","Python","Docker","自动化","安全运维","故障排查","数据库恢复","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","【问题排查】测试环境 H5 发版失败：前端 preinstall 依赖校验脚本未进镜像","devops"],"wordCount":1337,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2b379e5fa13f.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2b379e5fa13f.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【问题排查】测试环境 H5 发版失败：前端 preinstall 依赖校验脚本未进镜像","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2b379e5fa13f.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>【问题排查】测试环境 H5 发版失败：前端 preinstall 依赖校验脚本未进镜像</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>【问题排查】测试环境 H5 发版失败：前端 preinstall 依赖校验脚本未进镜像</h1>
+      <p class="lede">【问题排查】测试环境 H5 发版失败：前端 preinstall 依赖校验脚本未进镜像。本文属于历史运维与项目交付 / 18Game 测试环境，环境：测试环境 H5（构建机 15.152.247.196）+ ben-bot 发布链路 分类：问题排查（构建镜像缺文件 / 与前端新增 preinstall 钩子冲突）…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-09T08:30:00+08:00">发布于 2026-10-09</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,337 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-10-09_0830-【问题排查】测试环境h5发版失败-preinstall依赖校验脚本未进镜像.md</code></p>
+<p>整理日期：2026-10-09 08:30｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>日期：2026-10-09 08:30（北京）</li>
+<li>环境：测试环境 H5（构建机 15.152.247.196）+ ben-bot 发布链路</li>
+<li>分类：问题排查（构建镜像缺文件 / 与前端新增 preinstall 钩子冲突）</li>
+<li>触发：<code>测试环境-游点涩-h5-发版失败，退出码 1，耗时 63.5s</code>（前端 方林 反馈）</li>
+<li>关联：<code>2026-10-07_1245</code>（固定 pnpm 版本）、<code>2026-10-08_1700</code>（依赖版本范围核查——本次前端就是按那份建议做的改造）</li>
+</ul>
+<h2 id="一-现象">一、现象</h2>
+<pre><code class="language-text">· 10-08 16:36 提交 c1efd22、10-09 08:05 提交 68332c4 两次测试 H5 发布均失败（exit 1）
+· 失败发生在 Docker build 的 pnpm install 阶段（不是编译阶段）：
+    #11 &gt; youdianse-h5@ preinstall /app
+    #11 &gt; node scripts/check-dependency-policy.mjs
+    #11 Error: Cannot find module '/app/scripts/check-dependency-policy.mjs'  (MODULE_NOT_FOUND)
+    #11  ELIFECYCLE  Command failed with exit code 1.
+</code></pre>
+<h2 id="二-根因">二、根因</h2>
+<ol>
+<li>前端按运维 10-08 的建议做了依赖治理，并在 <code>package.json</code> 里加了安装期钩子：</li>
+</ol>
+<pre><code class="language-json">"preinstall":  "node scripts/check-dependency-policy.mjs",
+"check:deps":  "node scripts/check-dependency-policy.mjs &amp;&amp; pnpm install --frozen-lockfile",
+"build:ci":    "pnpm run check:deps &amp;&amp; pnpm list --depth 0 &amp;&amp; pnpm run build"
+</code></pre>
+<ol start="2">
+<li>而我们的 Dockerfile 为了复用 pnpm 安装层缓存，在 install 前<strong>只拷贝了两个文件</strong>：</li>
+</ol>
+<pre><code class="language-dockerfile">COPY package.json pnpm-lock.yaml ./
+RUN ... pnpm install --no-frozen-lockfile     # ← 此时镜像里没有 scripts/ 目录
+COPY . .                                      # ← 源码在这之后才进来（太晚）
+</code></pre>
+<ol start="3">
+<li><code>preinstall</code> 由 pnpm 在安装前执行，此时 <code>scripts/</code> 还不存在 → 模块找不到 → 安装失败 → 构建失败。</li>
+</ol>
+<p><strong>结论：不是前端代码问题，是我们的构建镜像没有把"安装期钩子需要用的仓库文件"带进去。</strong></p>
+<h2 id="三-修复-本次已改-已部署">三、修复（本次已改、已部署）</h2>
+<p>两套模板都把源码拷贝提前到 install 之前（<code>.dockerignore</code> 已排除 <code>.git</code>/<code>node_modules</code>/<code>.output</code> 等）：</p>
+<pre><code class="language-diff">-COPY package.json pnpm-lock.yaml ./
++# 依赖安装期的钩子（preinstall/postinstall/prepare）需要仓库内的脚本文件，故先 COPY 全量源码
++COPY . .
+ RUN set -eux; ... pnpm install {Pnpm安装参数}
+-
+-COPY . .
+</code></pre>
+<p>文件：</p>
+<ul>
+<li><code>devops/python/ben-bot/data/scripts/线上环境-游点涩-h5-发版/remote_youdianse_h5_templates.py</code></li>
+<li><code>devops/python/ben-bot/data/scripts/测试环境-游点涩-h5-发版/remote_youdianse_h5_templates.py</code></li>
+</ul>
+<p>部署：ben-bot 宿主机脚本目录是挂载进容器的，替换即生效；
+备份 <code>~/tpl-backup/tpl-prod-20261009-082928.py</code>、<code>tpl-test-20261009-082928.py</code>；
+校验：两处模板 <code>COPY . .</code> 各 1 次、Python 语法 OK。</p>
+<p>代价说明：源码先于 install 拷贝后，pnpm 安装层不再跨提交复用，每次构建多约 30 秒安装时间
+（实测 install 34.3s），换来的是"任何安装期钩子都不缺文件"。</p>
+<h2 id="四-验证-真实构建-只构建不发布">四、验证（真实构建，只构建不发布）</h2>
+<pre><code class="language-text">机器/目录：15.152.247.196 的失败现场 /www/wwwroot/18game_h5_client/youdianse_test_68332c4_18game_h5_client_3003
+        （未换代码；只把该目录 Dockerfile 按新模板调整，原文件备份 Dockerfile.bak.&lt;时间戳&gt;）
+命令：docker build --progress=plain --build-arg BRANCH=test --build-arg SHORT_ID=68332c4
+      --build-arg SYNC_STATIC_TO_S3=0 …（验证时关闭静态资源同步，不产生任何发布副作用）
+
+结果：exit 0，全流程通过
+  #11 . preinstall$ node scripts/check-dependency-policy.mjs
+  #11 . preinstall: [依赖校验通过] pnpm@10.33.2，直接依赖均为精确版本。   ← 前端策略校验通过
+  #11 Done in 34.3s using pnpm v10.33.2                                ← 依赖安装完成
+  #12 pnpm build 完成、#18 镜像导出成功
+· 验证用镜像已删除，构建机无残留
+</code></pre>
+<h2 id="五-影响面-重要">五、影响面（重要）</h2>
+<p>线上 H5 与测试 H5 <strong>是同一个前端仓库</strong>（<code>youdianse-h5</code>，分支不同），
+同样的 <code>preinstall</code> 在线上构建时也会触发 —— 也就是说<strong>不修的话线上 H5 下次发布同样会失败</strong>。
+本次两套模板一起修，测试与线上都已覆盖。</p>
+<h2 id="六-前端侧状态-本次顺带核实">六、前端侧状态（本次顺带核实）</h2>
+<pre><code class="language-text">· packageManager = pnpm@10.33.2（精确）
+· dependencies + devDependencies 共 46 个，全部为精确版本（0 个 ~ / ^）—— 10-08 建议已落实
+· scripts 新增 check-dependency-policy.mjs / check:deps / build:ci，
+  其中 build:ci = 依赖策略校验 + pnpm install --frozen-lockfile + pnpm list --depth 0 + build
+</code></pre>
+<h2 id="七-建议-需-Ben-前端确认-属发布配置项">七、建议（需 Ben/前端确认，属发布配置项）</h2>
+<p>发布构建命令目前是 <code>pnpm build:prod</code>，而前端 <code>package.json</code> 没有 <code>build:prod</code>，
+运行时<strong>自动回退成 <code>pnpm build</code></strong>（日志里可见「package.json 缺少 scripts.build:prod，自动改用: pnpm build」）。
+也就是说：发布过程中<strong>没有</strong>跑前端的 <code>check:deps</code>（含 <code>--frozen-lockfile</code>）与依赖清单打印。</p>
+<p>若希望发布也强约束依赖（与 10-08 的建议一致），把构建命令改成 <code>pnpm run build:ci</code> 即可：</p>
+<pre><code class="language-text">测试：H5_BUILD_COMMAND / YOUDIANSE_H5_TEST_BUILD_COMMAND=pnpm run build:ci
+线上：YOUDIANSE_H5_PROD_BUILD_COMMAND=pnpm run build:ci
+</code></pre>
+<p>安全性：脚本名解析是通用的（<code>获取实际构建命令</code>），若某个提交/仓库没有 <code>build:ci</code>，
+会自动回退到 <code>pnpm build</code>，不会因为这条配置把老提交卡死。</p>
+<h2 id="八-回滚">八、回滚</h2>
+<pre><code class="language-text">· 模板：还原 ~/tpl-backup/tpl-prod-20261009-082928.py / tpl-test-20261009-082928.py 到对应脚本目录
+· 失败现场 Dockerfile：目录内 Dockerfile.bak.&lt;时间戳&gt;（下次发布会按模板重新生成）
+</code></pre>
+<h2 id="九-操作边界">九、操作边界</h2>
+<ul>
+<li>仅修改构建模板（两套），未改前端代码、未改业务服务、未重启容器；</li>
+<li>测试机验证只做 <code>docker build</code>（关闭 S3/COS 同步），未执行发布动作；</li>
+<li>验证前备份现场 Dockerfile，验证后删除验证镜像。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-现象">一、现象</a></li><li style="margin-left:0.0rem"><a href="#二-根因">二、根因</a></li><li style="margin-left:0.0rem"><a href="#三-修复-本次已改-已部署">三、修复（本次已改、已部署）</a></li><li style="margin-left:0.0rem"><a href="#四-验证-真实构建-只构建不发布">四、验证（真实构建，只构建不发布）</a></li><li style="margin-left:0.0rem"><a href="#五-影响面-重要">五、影响面（重要）</a></li><li style="margin-left:0.0rem"><a href="#六-前端侧状态-本次顺带核实">六、前端侧状态（本次顺带核实）</a></li><li style="margin-left:0.0rem"><a href="#七-建议-需-Ben-前端确认-属发布配置项">七、建议（需 Ben/前端确认，属发布配置项）</a></li><li style="margin-left:0.0rem"><a href="#八-回滚">八、回滚</a></li><li style="margin-left:0.0rem"><a href="#九-操作边界">九、操作边界</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-10-09</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">自动化</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-10-09_0830-【问题排查】测试环境h5发版失败-preins…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610090830-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20H5%20%E5%8F%91%E7%89%88%E5%A4%B1%E8%B4%A5%EF%BC%9A%E5%89%8D%E7%AB%AF%20preinstall%20%E4%BE%9D%E8%B5%96%E6%A0%A1%E9%AA%8C%E8%84%9A%E6%9C%AC%E6%9C%AA%E8%BF%9B%E9%95%9C%E5%83%8F.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【问题排查】测试环境 H5 发版失败：前端 preinstall 依赖校验脚本未进镜像。本文属于历史运维与项目交付 / 18Game 测试环境，环境：测试环境 H5（构建机 15.152.247.196）+ ben-bot 发布链路 分类：问题排查（构建镜像缺文件 / 与前端新增 preinstall 钩子冲突）…</p>
+      <p>关键词：18Game 测试环境、Shell、Python、Docker、自动化、安全运维、故障排查、数据库恢复、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、【问题排查】测试环境 H5 发版失败：前端 preinstall 依赖校验脚本未进镜像、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-32cccf573e7e.html"><small>上一篇</small>【验证记录】前端依赖版本范围与构建可复现性核查（运维只验证不改代码）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-59221326eb3f.html"><small>下一篇</small>【验证记录】测试/线上 PC 发布链路已随 H5 修复一并覆盖（无需重复改造）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2b379e5fa13f.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【停用记录】Boce 拨测检测停用（账户波点不足导致批量误报与刷屏）｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="【停用记录】Boce 拨测检测停用（账户波点不足导致批量误报与刷屏）。本文属于历史运维与项目交付 / 18Game 测试环境，范围：监控机 52.79.252.255 的 php-server 容器（应用目录 /opt/18game_devops/devops/php ） 分类：误报治理 / 检测任务停用（用户要…">
+  <meta name="keywords" content="18Game 测试环境，Shell，Docker，监控告警，DNS，故障排查，数据库恢复，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，【停用记录】Boce 拨测检测停用（账户波点不足导致批量误报与刷屏），devops，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a10398de5a48.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a10398de5a48.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610091420-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BDocker-%E3%80%90%E5%81%9C%E7%94%A8%E8%AE%B0%E5%BD%95%E3%80%91Boce%20%E6%8B%A8%E6%B5%8B%E6%A3%80%E6%B5%8B%E5%81%9C%E7%94%A8%EF%BC%88%E8%B4%A6%E6%88%B7%E6%B3%A2%E7%82%B9%E4%B8%8D%E8%B6%B3%E5%AF%BC%E8%87%B4%E6%89%B9%E9%87%8F%E8%AF%AF%E6%8A%A5%E4%B8%8E%E5%88%B7%E5%B1%8F%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【停用记录】Boce 拨测检测停用（账户波点不足导致批量误报与刷屏）">
+  <meta property="og:description" content="【停用记录】Boce 拨测检测停用（账户波点不足导致批量误报与刷屏）。本文属于历史运维与项目交付 / 18Game 测试环境，范围：监控机 52.79.252.255 的 php-server 容器（应用目录 /opt/18game_devops/devops/php ） 分类：误报治理 / 检测任务停用（用户要…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a10398de5a48.html">
+  <meta property="article:published_time" content="2026-10-09T14:20:00+08:00">
+  <meta property="article:modified_time" content="2026-10-09 14:20">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【停用记录】Boce 拨测检测停用（账户波点不足导致批量误报与刷屏）">
+  <meta name="twitter:description" content="【停用记录】Boce 拨测检测停用（账户波点不足导致批量误报与刷屏）。本文属于历史运维与项目交付 / 18Game 测试环境，范围：监控机 52.79.252.255 的 php-server 容器（应用目录 /opt/18game_devops/devops/php ） 分类：误报治理 / 检测任务停用（用户要…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a10398de5a48.html#article","headline":"【停用记录】Boce 拨测检测停用（账户波点不足导致批量误报与刷屏）","description":"【停用记录】Boce 拨测检测停用（账户波点不足导致批量误报与刷屏）。本文属于历史运维与项目交付 / 18Game 测试环境，范围：监控机 52.79.252.255 的 php-server 容器（应用目录 /opt/18game_devops/devops/php ） 分类：误报治理 / 检测任务停用（用户要…","datePublished":"2026-10-09T14:20:00+08:00","dateModified":"2026-10-09 14:20","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Shell","Docker","监控告警","DNS","故障排查","数据库恢复","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","【停用记录】Boce 拨测检测停用（账户波点不足导致批量误报与刷屏）","devops","php"],"wordCount":1231,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a10398de5a48.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a10398de5a48.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【停用记录】Boce 拨测检测停用（账户波点不足导致批量误报与刷屏）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a10398de5a48.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>【停用记录】Boce 拨测检测停用（账户波点不足导致批量误报与刷屏）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>【停用记录】Boce 拨测检测停用（账户波点不足导致批量误报与刷屏）</h1>
+      <p class="lede">【停用记录】Boce 拨测检测停用（账户波点不足导致批量误报与刷屏）。本文属于历史运维与项目交付 / 18Game 测试环境，范围：监控机 52.79.252.255 的 php-server 容器（应用目录 /opt/18game_devops/devops/php ） 分类：误报治理 / 检测任务停用（用户要…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-09T14:20:00+08:00">发布于 2026-10-09</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,231 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/php/doc/2026-10-09_1420-【停用记录】Boce检测停用（波点不足导致批量误报刷屏）.md</code></p>
+<p>整理日期：2026-10-09 14:20｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>日期：2026-10-09 14:20（北京）</li>
+<li>范围：监控机 52.79.252.255 的 <code>php-server</code> 容器（应用目录 <code>/opt/18game_devops/devops/php</code>）</li>
+<li>分类：误报治理 / 检测任务停用（用户要求：拨测 API 异常、没钱了，先关掉）</li>
+<li>影响接口：<code>/boce_check_api.php</code>（Boce 批量检测 + Telegram 通知）</li>
+<li><strong>不影响</strong>：<code>/dns_check.php</code>（DNS/SNI 检测）、<code>/boce_balance.php</code>（余额查询）实测均正常</li>
+</ul>
+<h2 id="一-现象">一、现象</h2>
+<pre><code class="language-text">数据汇报bot（推送内容）：
+  Boce 检测通知：共 10 个域名，异常 10 个
+  失败主机：h5.game-app543.com, g654321.com, g9876543.com, jtr4u6j3243w.com, kmjyr543.com,
+           lokhjgbfvdcx.com, kfvdcsxx目标示例, d5fr6gt7hy8ju9ki0lo.com, jytfhdgrsfdzd.com, kjghgcfxd.com
+  波点：未知或不可用
+  时间：2026-10-09 14:04:47
+  提醒：@Ben_Bird @Kermit0824 @make6384
+</code></pre>
+<p>即：10 个域名<strong>全部</strong>被报异常，且"波点：未知或不可用"——典型的账户额度不可用造成的伪异常。</p>
+<h2 id="二-根因">二、根因</h2>
+<ol>
+<li><code>public/boce_check_api.php</code> 对每个域名调 Boce 接口 <code>task/create/wall</code>，<strong>任何非 0 返回都计入"异常"</strong>；
+   账户波点不足时接口不可用，10 个域名就全部被判成异常 → 批量误报。</li>
+<li>该接口的注释写明"每次 API 调用都发送通知（移除防刷）"，即<strong>每次都无条件发 Telegram</strong>；
+   调用方触发频率较高（近 3 小时 <code>/boce_check_api.php</code> 14 次、<code>/dns_check.php</code> 32 次），于是刷屏。</li>
+<li>触发方为外部调用（<code>103.107.199.30</code>，不在我们的机器清单内），不是本机 cron：</li>
+</ol>
+<pre><code class="language-text">php-server 访问日志（近 3 小时，按调用方统计）：
+  103.107.199.30  /dns_check.php       32 次
+  103.107.199.30  /boce_check_api.php  14 次
+  103.107.199.30  /boce_balance.php     2 次
+</code></pre>
+<h2 id="三-处置-已生效">三、处置（已生效）</h2>
+<p>在应用侧加"停用开关"，默认关闭，从根上止住误报与刷屏（无需联系调用方、改动可逆）：</p>
+<ol>
+<li><code>conf/config.php</code> 新增开关：</li>
+</ol>
+<pre><code class="language-php">// 2026-10-09 停用开关：Boce 账户波点不足导致批量误报与刷屏，由运维关闭检测与 Telegram 通知
+$boceCheckEnabled = filter_var(getenv('BOCE_CHECK_ENABLED') ?: '0', FILTER_VALIDATE_BOOLEAN);
+</code></pre>
+<ol start="2">
+<li><code>public/boce_check_api.php</code> 在<strong>调用 Boce API 之前</strong>短路返回：</li>
+</ol>
+<pre><code class="language-php">if (empty($boceCheckEnabled)) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode([
+        'success' =&gt; false,
+        'disabled' =&gt; true,
+        'message' =&gt; 'Boce 检测已停用（账户波点不足，2026-10-09 由运维关闭）；充值后设置 BOCE_CHECK_ENABLED=1 可恢复',
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+</code></pre>
+<ol start="3">
+<li>部署（容器 <code>php-server</code> 以 bind mount 方式挂载该目录，替换文件即生效，无需重启容器）：</li>
+</ol>
+<pre><code class="language-text">备份：/root/php-config-backup-20261009-141100.php
+      /root/boce-check-api-backup-20261009-141100.php
+目标：/opt/18game_devops/devops/php/conf/config.php
+      /opt/18game_devops/devops/php/public/boce_check_api.php
+</code></pre>
+<h2 id="四-验证">四、验证</h2>
+<table>
+<thead>
+<tr>
+<th>验证项</th>
+<th>命令/方式</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>语法</td>
+<td><code>docker exec php-server php -l /app/conf/config.php</code>、<code>…/boce_check_api.php</code></td>
+<td>均 <code>No syntax errors detected</code></td>
+</tr>
+<tr>
+<td>开关落地</td>
+<td>容器内 <code>grep -c boceCheckEnabled</code></td>
+<td>两个文件各 1 处</td>
+</tr>
+<tr>
+<td>主接口行为（用调用方真实 URL 的 10 个域名）</td>
+<td><code>curl 'http://203.0.113.1:8080/boce_check_api.php?notify_format=summary_link&amp;hosts=…'</code></td>
+<td>返回 <code>{"success":false,"disabled":true,"message":"Boce 检测已停用…"}</code>，<strong>未调用 Boce API、未发送 Telegram</strong></td>
+</tr>
+<tr>
+<td>无参数调用</td>
+<td><code>curl 'http://203.0.113.1:8080/boce_check_api.php'</code></td>
+<td>同样返回 disabled（不是报错）</td>
+</tr>
+<tr>
+<td>其它接口不受影响</td>
+<td><code>dns_check.php?h5.game-app543.com</code>、<code>boce_balance.php?format=json</code></td>
+<td>均 HTTP 200</td>
+</tr>
+</tbody>
+</table>
+<p>（短路逻辑位于任何发送动作之前，因此不会再产生 Boce 告警消息。）</p>
+<h2 id="五-影响与说明">五、影响与说明</h2>
+<ul>
+<li>调用方（<code>103.107.199.30</code>）<strong>仍可继续调用</strong>该接口，但只会拿到"已停用"的 JSON，不再触发 Boce API 调用与群消息；</li>
+<li>DNS/SNI 检测（<code>/dns_check.php</code>）<strong>未受影响</strong>，仍按原逻辑推送（本次用户只要求关闭 Boce 拨测）；</li>
+<li>Boce 余额查询接口保留，便于充值后确认额度恢复。</li>
+</ul>
+<h2 id="六-恢复方式-充值后">六、恢复方式（充值后）</h2>
+<pre><code class="language-bash"># 方式一：给容器加环境变量后重启（推荐，不动代码）
+#   在 php-server 的启动参数/compose 中设置 BOCE_CHECK_ENABLED=1，然后重建容器
+# 方式二：直接改默认值
+sudo sed -i "s/getenv('BOCE_CHECK_ENABLED') ?: '0'/getenv('BOCE_CHECK_ENABLED') ?: '1'/" \
+  /opt/18game_devops/devops/php/conf/config.php
+curl -s "http://203.0.113.1:8080/boce_balance.php?format=json"   # 确认波点已恢复
+</code></pre>
+<h2 id="七-回滚">七、回滚</h2>
+<pre><code class="language-bash">sudo cp -a /root/php-config-backup-20261009-141100.php /opt/18game_devops/devops/php/conf/config.php
+sudo cp -a /root/boce-check-api-backup-20261009-141100.php /opt/18game_devops/devops/php/public/boce_check_api.php
+</code></pre>
+<h2 id="八-后续建议">八、后续建议</h2>
+<ol>
+<li><strong>接口补保护</strong>：<code>boce_check_api.php</code> 建议增加"余额不足/波点不可用时不判定为异常、不发通知"
+   的分支，避免同类误报（本次为快速止血，采用了整站停用开关）。</li>
+<li><strong>告警限流</strong>：该接口目前"每次调用都发通知"，建议恢复时加回节流（同一批域名 N 分钟内只发一次）。</li>
+<li><strong>确认调用方</strong>：<code>103.107.199.30</code> 上的调度方若能改，建议同步降低频率或在充值前暂停；
+   它同时还在调用 <code>/dns_check.php</code>（近 3 小时 32 次），如果 DNS/SNI 告警也想收敛，可以一并评估。</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-现象">一、现象</a></li><li style="margin-left:0.0rem"><a href="#二-根因">二、根因</a></li><li style="margin-left:0.0rem"><a href="#三-处置-已生效">三、处置（已生效）</a></li><li style="margin-left:0.0rem"><a href="#四-验证">四、验证</a></li><li style="margin-left:0.0rem"><a href="#五-影响与说明">五、影响与说明</a></li><li style="margin-left:0.0rem"><a href="#六-恢复方式-充值后">六、恢复方式（充值后）</a></li><li style="margin-left:0.0rem"><a href="#七-回滚">七、回滚</a></li><li style="margin-left:0.0rem"><a href="#八-后续建议">八、后续建议</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-10-09</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">监控告警</span><span class="tag">DNS</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/php/doc/2026-10-09_1420-【停用记录】Boce检测停用（波点不足导致批量误报刷屏）.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610091420-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BDocker-%E3%80%90%E5%81%9C%E7%94%A8%E8%AE%B0%E5%BD%95%E3%80%91Boce%20%E6%8B%A8%E6%B5%8B%E6%A3%80%E6%B5%8B%E5%81%9C%E7%94%A8%EF%BC%88%E8%B4%A6%E6%88%B7%E6%B3%A2%E7%82%B9%E4%B8%8D%E8%B6%B3%E5%AF%BC%E8%87%B4%E6%89%B9%E9%87%8F%E8%AF%AF%E6%8A%A5%E4%B8%8E%E5%88%B7%E5%B1%8F%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【停用记录】Boce 拨测检测停用（账户波点不足导致批量误报与刷屏）。本文属于历史运维与项目交付 / 18Game 测试环境，范围：监控机 52.79.252.255 的 php-server 容器（应用目录 /opt/18game_devops/devops/php ） 分类：误报治理 / 检测任务停用（用户要…</p>
+      <p>关键词：18Game 测试环境、Shell、Docker、监控告警、DNS、故障排查、数据库恢复、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、【停用记录】Boce 拨测检测停用（账户波点不足导致批量误报与刷屏）、devops、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-59221326eb3f.html"><small>上一篇</small>【验证记录】测试/线上 PC 发布链路已随 H5 修复一并覆盖（无需重复改造）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5197ad8c2b43.html"><small>下一篇</small>【停用记录】DNS/SNI 巡检停用（功能已废弃 + 被外部高频调用导致告警刷屏）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a10398de5a48.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

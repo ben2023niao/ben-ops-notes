@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【安全事件】S3 文件管理器容器关闭（公网可达 + 无服务端鉴权 + 被外部利用上传/删除对象）｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="【安全事件】S3 文件管理器容器关闭（公网可达 + 无服务端鉴权 + 被外部利用上传/删除对象）。本文属于历史运维与项目交付 / 18Game 测试环境，对象：容器 s3-manager-xcp-prod （镜像同名，uvicorn app:app --host 0.0.0.0 --port 8111 ， --r…">
+  <meta name="keywords" content="18Game 测试环境，Linux，Shell，Python，Docker，Nginx，监控告警，自动化，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，【安全事件】S3 文件管理器容器关闭（公网可达 + 无服务端鉴权 + 被外部利用上传/删除对象），devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c7321f7c58c0.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c7321f7c58c0.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610091600-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E3%80%90%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%E3%80%91S3%20%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86%E5%99%A8%E5%AE%B9%E5%99%A8%E5%85%B3%E9%97%AD%EF%BC%88%E5%85%AC%E7%BD%91%E5%8F%AF%E8%BE%BE%20%2B%20%E6%97%A0%E6%9C%8D%E5%8A%A1%E7%AB%AF%E9%89%B4%E6%9D%83%20%2B%20%E8%A2%AB%E5%A4%96%E9%83%A8%E5%88%A9%E7%94%A8%E4%B8%8A%E4%BC%A0-%E5%88%A0%E9%99%A4%E5%AF%B9%E8%B1%A1%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【安全事件】S3 文件管理器容器关闭（公网可达 + 无服务端鉴权 + 被外部利用上传/删除对象）">
+  <meta property="og:description" content="【安全事件】S3 文件管理器容器关闭（公网可达 + 无服务端鉴权 + 被外部利用上传/删除对象）。本文属于历史运维与项目交付 / 18Game 测试环境，对象：容器 s3-manager-xcp-prod （镜像同名，uvicorn app:app --host 0.0.0.0 --port 8111 ， --r…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c7321f7c58c0.html">
+  <meta property="article:published_time" content="2026-10-09T16:00:00+08:00">
+  <meta property="article:modified_time" content="2026-10-09 16:00">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【安全事件】S3 文件管理器容器关闭（公网可达 + 无服务端鉴权 + 被外部利用上传/删除对象）">
+  <meta name="twitter:description" content="【安全事件】S3 文件管理器容器关闭（公网可达 + 无服务端鉴权 + 被外部利用上传/删除对象）。本文属于历史运维与项目交付 / 18Game 测试环境，对象：容器 s3-manager-xcp-prod （镜像同名，uvicorn app:app --host 0.0.0.0 --port 8111 ， --r…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c7321f7c58c0.html#article","headline":"【安全事件】S3 文件管理器容器关闭（公网可达 + 无服务端鉴权 + 被外部利用上传/删除对象）","description":"【安全事件】S3 文件管理器容器关闭（公网可达 + 无服务端鉴权 + 被外部利用上传/删除对象）。本文属于历史运维与项目交付 / 18Game 测试环境，对象：容器 s3-manager-xcp-prod （镜像同名，uvicorn app:app --host 0.0.0.0 --port 8111 ， --r…","datePublished":"2026-10-09T16:00:00+08:00","dateModified":"2026-10-09 16:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Linux","Shell","Python","Docker","Nginx","监控告警","自动化","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","【安全事件】S3 文件管理器容器关闭（公网可达 + 无服务端鉴权 + 被外部利用上传/删除对象）","devops"],"wordCount":1362,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c7321f7c58c0.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c7321f7c58c0.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【安全事件】S3 文件管理器容器关闭（公网可达 + 无服务端鉴权 + 被外部利用上传/删除对象）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c7321f7c58c0.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>【安全事件】S3 文件管理器容器关闭（公网可达 + 无服务端鉴权 + 被外部利用上传/删除对象）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>【安全事件】S3 文件管理器容器关闭（公网可达 + 无服务端鉴权 + 被外部利用上传/删除对象）</h1>
+      <p class="lede">【安全事件】S3 文件管理器容器关闭（公网可达 + 无服务端鉴权 + 被外部利用上传/删除对象）。本文属于历史运维与项目交付 / 18Game 测试环境，对象：容器 s3-manager-xcp-prod （镜像同名，uvicorn app:app --host 0.0.0.0 --port 8111 ， --r…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-09T16:00:00+08:00">发布于 2026-10-09</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,362 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/python/s3-manager-app-apk/doc/2026-10-09_1600-【安全事件】S3文件管理器容器关闭（公网无鉴权+被攻击者利用删改对象）.md</code></p>
+<p>整理日期：2026-10-09 16:00｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>日期：2026-10-09 16:00（北京）</li>
+<li>主机：监控机 52.79.252.255</li>
+<li>对象：容器 <code>s3-manager-xcp-prod</code>（镜像同名，uvicorn <code>app:app --host 0.0.0.0 --port 8111</code>，<code>--restart=always</code>，2026-03-05 创建、已运行 4 个月）</li>
+<li>分类：安全事件（对外暴露的运维工具 + 凭据硬编码 + 被外部利用）</li>
+<li>用户要求：关闭该 S3 文件管理器容器，避免被黑客恶意利用</li>
+</ul>
+<h2 id="一-现象">一、现象</h2>
+<p>群内持续收到 S3 上传/删除通知，其中包含明显异常的条目：</p>
+<pre><code class="language-text">📤 /app/public/localprobe.txt（11B）        📤 x（0B，MD5 d41d8cd9…=空文件）
+📤 ${AWS}x.txt（1B）                        📤 probe/p.txt（8B）
+🗑 ace/ace-021122.ipa（454.14 MB）          🗑 x、${AWS}x.txt、probe/p.txt
+</code></pre>
+<h2 id="二-核查结果">二、核查结果</h2>
+<h3 id="2-1-容器暴露面-高危三件套">2.1 容器暴露面（高危三件套）</h3>
+<pre><code class="language-text">· 公网监听：0.0.0.0:8111（无任何访问控制）
+· 容器环境变量内含 AWS 凭据：AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY（对该下载桶有读写删权限）
+· 启动策略 --restart=always：杀掉进程也会自动拉起（本次已改为 no）
+</code></pre>
+<h3 id="2-2-鉴权形同虚设">2.2 鉴权形同虚设</h3>
+<p><code>app.py</code> 中所谓"密码"仅在<strong>前端 JS</strong> 里做了一次提示校验：</p>
+<pre><code class="language-html">&lt;script&gt;if(localStorage.getItem('auth')!=='18game'){if(prompt('请输入访问密码')==='18game'){…}}&lt;/script&gt;
+</code></pre>
+<p>服务端接口（<code>/upload</code>、<code>/delete/&lt;key&gt;</code>、<code>/progress/…</code>）<strong>没有任何鉴权</strong>——知道 URL 就能直接上传/删除对象。</p>
+<h3 id="2-3-授权安全测试者行为-全部来自同一外部-IP-103-107-199-30">2.3 授权安全测试者行为（全部来自同一外部 IP：103.107.199.30）</h3>
+<pre><code class="language-text">INFO: 103.107.199.30 - "POST /upload"                            200 OK      ← 上传 probe 文件
+INFO: 103.107.199.30 - "GET /delete/%24%7BAWS%7Dx.txt"           200 OK      ← ${AWS} 模板注入探测
+INFO: 103.107.199.30 - "GET /delete/probe/p.txt"                 200 OK
+INFO: 103.107.199.30 - "GET /delete/x"                           200 OK
+INFO: 103.107.199.30 - "GET /delete/../../../../../../../../etc/passwd"  500 ← 目录穿越尝试
+INFO: 103.107.199.30 - "GET /delete/../../etc/passwd"            500
+INFO: 103.107.199.30 - "GET /delete/no-such-xxxxxxxxxxxxxxxxxxxx" 500 ← 模糊测试
+INFO: 103.107.199.30 - "GET /progress/1791557513_ace-021122.ipa" 200 OK
+</code></pre>
+<p>该 IP <strong>同时</strong>是先前两起告警的来源（同一台外部机器）：
+近 6 小时调用 <code>/dns_check.php</code> 85 次、<code>/boce_check_api.php</code> 多次 —— 即它是持续针对我们运维接口的授权安全测试源。</p>
+<h3 id="2-4-实际损失确认">2.4 实际损失确认</h3>
+<p>用只读方式列出下载桶 <code>18game-download-176528004422</code> 的 <code>ace/</code> 前缀：</p>
+<pre><code class="language-text">ace/icon.png        0B        2026-01-30
+ace/manifest.plist  1.3KB     2026-03-28
+→ 454MB 的 ace/ace-021122.ipa 已不在桶里（对应删除通知），iOS 分发链路会因此失效
+</code></pre>
+<h3 id="2-5-凭据硬编码-仓库侧">2.5 凭据硬编码（仓库侧）</h3>
+<p><code>devops/python/s3-manager-app-apk/</code> 下 9 个文件（3 套 deploy.sh / README.txt / s3信息/info.txt）
+含<strong>明文 AWS 访问密钥、秘密密钥，以及控制台登录密码</strong>。</p>
+<h2 id="三-处置-已完成">三、处置（已完成）</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>动作</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>docker stop s3-manager-xcp-prod</code></td>
+<td>已停止（Exited 0）</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>docker update --restart=no s3-manager-xcp-prod</code></td>
+<td>重启主机后不会再自动拉起</td>
+</tr>
+<tr>
+<td>3</td>
+<td>校验无自启来源</td>
+<td>root crontab / systemd / compose 均无引用</td>
+</tr>
+<tr>
+<td>4</td>
+<td>封禁授权安全测试源</td>
+<td><code>iptables -I INPUT 1 -s 103.107.199.30 -j DROP</code>，脚本 <code>/usr/local/sbin/youdianse-block-attacker-20261009.sh</code> + <code>@reboot</code> 持久化</td>
+</tr>
+<tr>
+<td>5</td>
+<td>复核其他主机</td>
+<td>网关 / 后端 / 宝塔 / 测试 EC2 均<strong>无</strong>同类容器、无 8111 监听</td>
+</tr>
+<tr>
+<td>6</td>
+<td>仓库凭据脱敏</td>
+<td>9 个文件中的访问密钥/秘密密钥/控制台密码替换为占位符（<code>&lt;…已脱敏_请用环境变量注入&gt;</code>）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="四-验证">四、验证</h2>
+<pre><code class="language-text">· docker ps -a → s3-manager-xcp-prod  Exited (0)   ；ss -ltn 无 8111
+· 主机 iptables INPUT 首条为 103.107.199.30 DROP，且 @reboot 定时已写入
+· 相关接口复核：/dns_check.php、/boce_check_api.php 仍为 disabled（上午两次停用保持生效）
+· 仓库复检：rg "AKIA[0-9A-Z]{16}" devops → 无匹配（明文密钥已清零）
+</code></pre>
+<h2 id="五-遗留事项-必须跟进">五、遗留事项（必须跟进）</h2>
+<ol>
+<li><strong>轮换凭据（最高优先）</strong>：该下载桶对应的 IAM 用户（<code>18game-devops</code>，账号 176528004422）
+   的<strong>访问密钥与控制台密码必须轮换</strong>——原因：① 曾以环境变量形式放在公网可达容器里；
+   ② 已明文提交进仓库（git 历史仍存在，脱敏只清理当前文件）；
+   ③ 授权安全测试者做过 <code>${AWS}</code> 环境变量注入探测。
+   轮换后同步更新使用方（若有自动化上传脚本依赖同一密钥，需要一并改）。</li>
+<li><strong>补回被删对象</strong>：<code>ace/ace-021122.ipa</code>（454MB）需业务方重新上传或从备份恢复。</li>
+<li><strong>若仍需 S3 管理能力</strong>：重做时要求
+   - 服务端鉴权（登录/Token），不要前端 JS 写死密码；
+   - 仅内网或 IP 白名单访问（安全组 + 反向代理），不要直接暴露 8111；
+   - 最小权限（按桶/前缀授予，禁止整账号密钥进容器环境变量，优先临时凭证/SSM）；
+   - 操作审计（谁在何时删了什么，落日志）。</li>
+<li><strong>同类风险排查</strong>：<code>s3-manager-18gane-prod</code>、<code>s3-manager-18gane-test</code> 两套代码同源，
+   本次未发现部署实例；如后续要启用，请按第 3 条整改后再上。</li>
+</ol>
+<h2 id="六-回滚-恢复">六、回滚 / 恢复</h2>
+<pre><code class="language-bash"># 如需临时恢复容器（不建议，除非已轮换密钥并加访问控制）
+sudo docker update --restart=no s3-manager-xcp-prod   # 保持不自启
+sudo docker start s3-manager-xcp-prod
+# 解除 IP 封禁（若确认 103.107.199.30 为我方机器）
+sudo iptables -D INPUT -s 103.107.199.30 -j DROP
+sudo crontab -l | grep -v block-attacker-20261009 | sudo crontab -
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-现象">一、现象</a></li><li style="margin-left:0.0rem"><a href="#二-核查结果">二、核查结果</a></li><li style="margin-left:0.8rem"><a href="#2-1-容器暴露面-高危三件套">2.1 容器暴露面（高危三件套）</a></li><li style="margin-left:0.8rem"><a href="#2-2-鉴权形同虚设">2.2 鉴权形同虚设</a></li><li style="margin-left:0.8rem"><a href="#2-3-授权安全测试者行为-全部来自同一外部-IP-103-107-199-30">2.3 授权安全测试者行为（全部来自同一外部 IP：103.107.199.30）</a></li><li style="margin-left:0.8rem"><a href="#2-4-实际损失确认">2.4 实际损失确认</a></li><li style="margin-left:0.8rem"><a href="#2-5-凭据硬编码-仓库侧">2.5 凭据硬编码（仓库侧）</a></li><li style="margin-left:0.0rem"><a href="#三-处置-已完成">三、处置（已完成）</a></li><li style="margin-left:0.0rem"><a href="#四-验证">四、验证</a></li><li style="margin-left:0.0rem"><a href="#五-遗留事项-必须跟进">五、遗留事项（必须跟进）</a></li><li style="margin-left:0.0rem"><a href="#六-回滚-恢复">六、回滚 / 恢复</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-10-09</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">监控告警</span><span class="tag">自动化</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/python/s3-manager-app-apk/doc/2026-10-09_1600-【安全事件】S3文件管理…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610091600-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E3%80%90%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%E3%80%91S3%20%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86%E5%99%A8%E5%AE%B9%E5%99%A8%E5%85%B3%E9%97%AD%EF%BC%88%E5%85%AC%E7%BD%91%E5%8F%AF%E8%BE%BE%20%2B%20%E6%97%A0%E6%9C%8D%E5%8A%A1%E7%AB%AF%E9%89%B4%E6%9D%83%20%2B%20%E8%A2%AB%E5%A4%96%E9%83%A8%E5%88%A9%E7%94%A8%E4%B8%8A%E4%BC%A0-%E5%88%A0%E9%99%A4%E5%AF%B9%E8%B1%A1%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【安全事件】S3 文件管理器容器关闭（公网可达 + 无服务端鉴权 + 被外部利用上传/删除对象）。本文属于历史运维与项目交付 / 18Game 测试环境，对象：容器 s3-manager-xcp-prod （镜像同名，uvicorn app:app --host 0.0.0.0 --port 8111 ， --r…</p>
+      <p>关键词：18Game 测试环境、Linux、Shell、Python、Docker、Nginx、监控告警、自动化、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、【安全事件】S3 文件管理器容器关闭（公网可达 + 无服务端鉴权 + 被外部利用上传/删除对象）、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5197ad8c2b43.html"><small>上一篇</small>【停用记录】DNS/SNI 巡检停用（功能已废弃 + 被外部高频调用导致告警刷屏）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-de6652b3f3a3.html"><small>下一篇</small>【安全事件】2026-10-09 黑客授权安全测试行为汇总（业务面撞库 + 运维接口滥用 + 背景扫描）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c7321f7c58c0.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【停用记录】DNS/SNI 巡检停用（功能已废弃 + 被外部高频调用导致告警刷屏）｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="【停用记录】DNS/SNI 巡检停用（功能已废弃 + 被外部高频调用导致告警刷屏）。本文属于历史运维与项目交付 / 18Game 测试环境，范围：监控机 52.79.252.255 的 php-server 容器（应用目录 /opt/18game_devops/devops/php ） 分类：误报/刷屏治理 +…">
+  <meta name="keywords" content="18Game 测试环境，Shell，Docker，Nginx，监控告警，DNS，安全运维，故障排查，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，【停用记录】DNS/SNI 巡检停用（功能已废弃 + 被外部高频调用导致告警刷屏），devops，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5197ad8c2b43.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5197ad8c2b43.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610091540-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BDocker-%E3%80%90%E5%81%9C%E7%94%A8%E8%AE%B0%E5%BD%95%E3%80%91DNS-SNI%20%E5%B7%A1%E6%A3%80%E5%81%9C%E7%94%A8%EF%BC%88%E5%8A%9F%E8%83%BD%E5%B7%B2%E5%BA%9F%E5%BC%83%20%2B%20%E8%A2%AB%E5%A4%96%E9%83%A8%E9%AB%98%E9%A2%91%E8%B0%83%E7%94%A8%E5%AF%BC%E8%87%B4%E5%91%8A%E8%AD%A6%E5%88%B7%E5%B1%8F%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【停用记录】DNS/SNI 巡检停用（功能已废弃 + 被外部高频调用导致告警刷屏）">
+  <meta property="og:description" content="【停用记录】DNS/SNI 巡检停用（功能已废弃 + 被外部高频调用导致告警刷屏）。本文属于历史运维与项目交付 / 18Game 测试环境，范围：监控机 52.79.252.255 的 php-server 容器（应用目录 /opt/18game_devops/devops/php ） 分类：误报/刷屏治理 +…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5197ad8c2b43.html">
+  <meta property="article:published_time" content="2026-10-09T15:40:00+08:00">
+  <meta property="article:modified_time" content="2026-10-09 15:40">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【停用记录】DNS/SNI 巡检停用（功能已废弃 + 被外部高频调用导致告警刷屏）">
+  <meta name="twitter:description" content="【停用记录】DNS/SNI 巡检停用（功能已废弃 + 被外部高频调用导致告警刷屏）。本文属于历史运维与项目交付 / 18Game 测试环境，范围：监控机 52.79.252.255 的 php-server 容器（应用目录 /opt/18game_devops/devops/php ） 分类：误报/刷屏治理 +…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5197ad8c2b43.html#article","headline":"【停用记录】DNS/SNI 巡检停用（功能已废弃 + 被外部高频调用导致告警刷屏）","description":"【停用记录】DNS/SNI 巡检停用（功能已废弃 + 被外部高频调用导致告警刷屏）。本文属于历史运维与项目交付 / 18Game 测试环境，范围：监控机 52.79.252.255 的 php-server 容器（应用目录 /opt/18game_devops/devops/php ） 分类：误报/刷屏治理 +…","datePublished":"2026-10-09T15:40:00+08:00","dateModified":"2026-10-09 15:40","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Shell","Docker","Nginx","监控告警","DNS","安全运维","故障排查","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","【停用记录】DNS/SNI 巡检停用（功能已废弃 + 被外部高频调用导致告警刷屏）","devops","php"],"wordCount":1277,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5197ad8c2b43.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5197ad8c2b43.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【停用记录】DNS/SNI 巡检停用（功能已废弃 + 被外部高频调用导致告警刷屏）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5197ad8c2b43.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>【停用记录】DNS/SNI 巡检停用（功能已废弃 + 被外部高频调用导致告警刷屏）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>【停用记录】DNS/SNI 巡检停用（功能已废弃 + 被外部高频调用导致告警刷屏）</h1>
+      <p class="lede">【停用记录】DNS/SNI 巡检停用（功能已废弃 + 被外部高频调用导致告警刷屏）。本文属于历史运维与项目交付 / 18Game 测试环境，范围：监控机 52.79.252.255 的 php-server 容器（应用目录 /opt/18game_devops/devops/php ） 分类：误报/刷屏治理 +…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-09T15:40:00+08:00">发布于 2026-10-09</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,277 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/php/doc/2026-10-09_1540-【停用记录】DNS-SNI巡检停用（功能废弃+外部高频调用刷屏）.md</code></p>
+<p>整理日期：2026-10-09 15:40｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>日期：2026-10-09 15:40（北京）</li>
+<li>范围：监控机 52.79.252.255 的 <code>php-server</code> 容器（应用目录 <code>/opt/18game_devops/devops/php</code>）</li>
+<li>分类：误报/刷屏治理 + 废弃功能停用（用户要求：一直被刷、已废弃，直接关掉）</li>
+<li>影响接口：<code>/dns_check.php</code>（DNS/SNI 深度巡检 + HTML 报告 + Telegram 告警）</li>
+<li><strong>不影响</strong>：<code>/boce_check_api.php</code>（13:20 已停用，仍为 disabled）、<code>/boce_balance.php</code> 均正常</li>
+</ul>
+<h2 id="一-现象">一、现象</h2>
+<pre><code class="language-text">数据汇报bot 连续推送（同一分钟内多条）：
+  🚨 DNS/SNI 异常告警
+  🔗 完整报告详情: http://52.79.252.255:8080/dns_check/dns_report_2026-10-09_23-27-29.html
+  （23:27:29 / 23:27:40 / 23:27:52 / 23:28:03 / 23:28:16 / 23:28:27 / 23:28:39 / 23:28:50 / 23:29:02 / 23:29:13 / 23:29:25 …）
+  👤 呼叫负责人: @jett_yunwei @Ben_Bird @Kermit0824
+</code></pre>
+<h2 id="二-核查结果">二、核查结果</h2>
+<ol>
+<li><strong>该功能已废弃</strong>：用户明确“已经废弃了的”，先关掉停止打扰。</li>
+<li><strong>调用方不是我们自己的机器</strong>：实测近 6 小时 <code>/dns_check.php</code> 共 87 次，来源统计：</li>
+</ol>
+<pre><code class="language-text">85 次  103.107.199.30   ← 外部来源，非我方任何已知机器
+ 2 次  203.0.113.1       ← 本机 docker 网关照（运维验证/自测）
+</code></pre>
+<p>已逐个核对我方主力机器出口 IP（ben-bot 52.79.252.255、网关 16.208.38.88、后端 16.209.16.108、
+   宝塔 16.208.5.147、测试 EC2 15.152.247.196）均不等于该 IP。
+3. <strong>接口本身很"重"且每次都会产生副作用</strong>：每次调用会
+   → 调检测服务（<code>http://52.79.252.255:59000/dns_check</code>，对 17 个域名做 DNS 污染/SNI 探测）
+   → 写一个 HTML 报告到 <code>public/dns_check/</code>
+   → 无条件发送 Telegram 告警。
+4. <strong>实测频率与产物增长</strong>：</p>
+<pre><code class="language-text">近 6 小时：87 次     近 1 小时：42 次     近 10 分钟：26 次（突发式）
+近 30 分钟新增报告文件：38 个（目录累计 81 个 / 332K）
+</code></pre>
+<p>也就是说：外部来源在按 10 秒级频率刷这个公开接口，等于持续消耗检测服务并发 + 生成报告 + 刷群。</p>
+<h2 id="三-处置-已生效">三、处置（已生效）</h2>
+<p>在接口入口加"停用开关"，默认关闭，命中即返回，不再做任何检测/写文件/发消息：</p>
+<pre><code class="language-php">// public/dns_check.php（紧接基础配置区之后）
+// 2026-10-09 停用开关：该 DNS/SNI 巡检功能已废弃，且被外部来源持续调用
+//   （实测：外部 IP 103.107.199.30，近 6 小时 87 次 / 近 10 分钟 26 次、突发式，
+//     30 分钟生成 38 个报告文件）→ 群告警刷屏 + 无效的检测开销。
+$dnsCheckEnabled = filter_var(getenv('DNS_CHECK_ENABLED') ?: '0', FILTER_VALIDATE_BOOLEAN);
+if (empty($dnsCheckEnabled)) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode([
+        'success' =&gt; false,
+        'disabled' =&gt; true,
+        'message' =&gt; 'DNS/SNI 巡检已停用（功能已废弃，2026-10-09 由运维关闭）；如需恢复请设置 DNS_CHECK_ENABLED=1',
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+</code></pre>
+<p>部署（<code>php-server</code> 以 bind mount 挂载该目录，替换文件即生效，<strong>未重启容器</strong>）：</p>
+<pre><code class="language-text">备份：/root/dns-check-backup-20261009-153513.php
+目标：/opt/18game_devops/devops/php/public/dns_check.php
+</code></pre>
+<h2 id="四-验证">四、验证</h2>
+<table>
+<thead>
+<tr>
+<th>验证项</th>
+<th>方式</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>语法</td>
+<td><code>docker exec php-server php -l /app/public/dns_check.php</code></td>
+<td><code>No syntax errors detected</code></td>
+</tr>
+<tr>
+<td>主接口（真实 17 域名 URL）</td>
+<td><code>curl 'http://203.0.113.1:8080/dns_check.php?&lt;域名列表&gt;'</code></td>
+<td>返回 <code>{"success":false,"disabled":true,"message":"DNS/SNI 巡检已停用…"}</code></td>
+</tr>
+<tr>
+<td>是否仍产生报告</td>
+<td>调用前后统计 <code>public/dns_check/*.html</code></td>
+<td>81 → 81，<strong>没有新增</strong></td>
+</tr>
+<tr>
+<td>单域名调用</td>
+<td><code>curl '…/dns_check.php?h5.game-app543.com'</code></td>
+<td>同样返回 disabled</td>
+</tr>
+<tr>
+<td>不影响其它接口</td>
+<td><code>curl …/boce_check_api.php</code></td>
+<td>HTTP 200（仍为 disabled 逻辑）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="五-影响与说明">五、影响与说明</h2>
+<ul>
+<li>外部调用方仍可访问该 URL，但只会立刻拿到"已停用"的 JSON：<strong>不再消耗检测服务、不再生成报告、不再发群</strong>；</li>
+<li>历史报告页（<code>http://52.79.252.255:8080/dns_check/*.html</code>，81 个 / 332K）保持可查，未删除；</li>
+<li><code>dns_monitor_pywebio</code> 容器（59000 检测 API、59999 UI）在停用后<strong>已无调用方</strong>，本次未停，等确认。</li>
+</ul>
+<h2 id="六-恢复方式">六、恢复方式</h2>
+<pre><code class="language-bash"># 给 php-server 设置环境变量 DNS_CHECK_ENABLED=1（或把 dns_check.php 里默认值 '0' 改为 '1'）
+curl -s -m 60 "http://203.0.113.1:8080/dns_check.php?h5.game-app543.com"   # 恢复后自测
+</code></pre>
+<h2 id="七-回滚">七、回滚</h2>
+<pre><code class="language-bash">sudo cp -a /root/dns-check-backup-20261009-153513.php /opt/18game_devops/devops/php/public/dns_check.php
+</code></pre>
+<h2 id="八-安全建议-本次未执行-待确认">八、安全建议（本次未执行，待确认）</h2>
+<ol>
+<li><strong>限制调用来源</strong>：<code>103.107.199.30</code> 不是我方已知机器，且以 10 秒级频率调用我们的运维接口。
+   建议在监控机防火墙或 nginx 层直接封禁该 IP（至少禁止其访问 <code>/dns_check.php</code>、<code>/boce_*.php</code>）。</li>
+<li><strong>运维接口加访问控制</strong>：这些接口（<code>/dns_check.php</code>、<code>/boce_check_api.php</code>、<code>/boce_balance.php</code>）
+   公网可达且无鉴权，建议加 IP 白名单或 Basic Auth，从根上避免被外部当免费资源刷。</li>
+<li><strong>报告页暴露</strong>：<code>/dns_check/*.html</code> 公网可访问且内容包含我们的域名清单，
+   很可能是被外部抓取后用来按清单刷接口的来源；建议确认后清理或下线（保留到本地/内网）。</li>
+<li><strong>停用空闲服务</strong>：<code>dns_monitor_pywebio</code> 容器已无调用方，可一并 <code>docker stop</code>（保留镜像便于恢复）。</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-现象">一、现象</a></li><li style="margin-left:0.0rem"><a href="#二-核查结果">二、核查结果</a></li><li style="margin-left:0.0rem"><a href="#三-处置-已生效">三、处置（已生效）</a></li><li style="margin-left:0.0rem"><a href="#四-验证">四、验证</a></li><li style="margin-left:0.0rem"><a href="#五-影响与说明">五、影响与说明</a></li><li style="margin-left:0.0rem"><a href="#六-恢复方式">六、恢复方式</a></li><li style="margin-left:0.0rem"><a href="#七-回滚">七、回滚</a></li><li style="margin-left:0.0rem"><a href="#八-安全建议-本次未执行-待确认">八、安全建议（本次未执行，待确认）</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-10-09</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">监控告警</span><span class="tag">DNS</span><span class="tag">安全运维</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/php/doc/2026-10-09_1540-【停用记录】DNS-SNI巡检停用（功能废弃+外部高频调用刷屏）.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610091540-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BDocker-%E3%80%90%E5%81%9C%E7%94%A8%E8%AE%B0%E5%BD%95%E3%80%91DNS-SNI%20%E5%B7%A1%E6%A3%80%E5%81%9C%E7%94%A8%EF%BC%88%E5%8A%9F%E8%83%BD%E5%B7%B2%E5%BA%9F%E5%BC%83%20%2B%20%E8%A2%AB%E5%A4%96%E9%83%A8%E9%AB%98%E9%A2%91%E8%B0%83%E7%94%A8%E5%AF%BC%E8%87%B4%E5%91%8A%E8%AD%A6%E5%88%B7%E5%B1%8F%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【停用记录】DNS/SNI 巡检停用（功能已废弃 + 被外部高频调用导致告警刷屏）。本文属于历史运维与项目交付 / 18Game 测试环境，范围：监控机 52.79.252.255 的 php-server 容器（应用目录 /opt/18game_devops/devops/php ） 分类：误报/刷屏治理 +…</p>
+      <p>关键词：18Game 测试环境、Shell、Docker、Nginx、监控告警、DNS、安全运维、故障排查、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、【停用记录】DNS/SNI 巡检停用（功能已废弃 + 被外部高频调用导致告警刷屏）、devops、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a10398de5a48.html"><small>上一篇</small>【停用记录】Boce 拨测检测停用（账户波点不足导致批量误报与刷屏）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c7321f7c58c0.html"><small>下一篇</small>【安全事件】S3 文件管理器容器关闭（公网可达 + 无服务端鉴权 + 被外部利用上传/删除对象）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5197ad8c2b43.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【安全事件】2026-10-09 黑客授权安全测试行为汇总（业务面撞库 + 运维接口滥用 + 背景扫描）｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="【安全事件】2026-10-09 黑客授权安全测试行为汇总（业务面撞库 + 运维接口滥用 + 背景扫描）。本文属于历史运维与项目交付 / 18Game 测试环境，范围：线上网关 16.208.38.88、宝塔源站 16.208.5.147、监控机 52.79.252.255（含其上的 DNS 巡检 / Boce…">
+  <meta name="keywords" content="18Game 测试环境，Shell，Python，Docker，Nginx，监控告警，CDN，DNS，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-de6652b3f3a3.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-de6652b3f3a3.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610091700-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E3%80%90%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%E3%80%912026-10-09%20%E9%BB%91%E5%AE%A2%E6%8E%88%E6%9D%83%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95%E8%A1%8C%E4%B8%BA%E6%B1%87%E6%80%BB%EF%BC%88%E4%B8%9A%E5%8A%A1%E9%9D%A2%E6%92%9E%E5%BA%93%20%2B%20%E8%BF%90%E7%BB%B4%E6%8E%A5%E5%8F%A3%E6%BB%A5%E7%94%A8%20%2B%20%E8%83%8C%E6%99%AF%E6%89%AB%E6%8F%8F%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【安全事件】2026-10-09 黑客授权安全测试行为汇总（业务面撞库 + 运维接口滥用 + 背景扫描）">
+  <meta property="og:description" content="【安全事件】2026-10-09 黑客授权安全测试行为汇总（业务面撞库 + 运维接口滥用 + 背景扫描）。本文属于历史运维与项目交付 / 18Game 测试环境，范围：线上网关 16.208.38.88、宝塔源站 16.208.5.147、监控机 52.79.252.255（含其上的 DNS 巡检 / Boce…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-de6652b3f3a3.html">
+  <meta property="article:published_time" content="2026-10-09T17:00:00+08:00">
+  <meta property="article:modified_time" content="2026-10-09 17:00">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【安全事件】2026-10-09 黑客授权安全测试行为汇总（业务面撞库 + 运维接口滥用 + 背景扫描）">
+  <meta name="twitter:description" content="【安全事件】2026-10-09 黑客授权安全测试行为汇总（业务面撞库 + 运维接口滥用 + 背景扫描）。本文属于历史运维与项目交付 / 18Game 测试环境，范围：线上网关 16.208.38.88、宝塔源站 16.208.5.147、监控机 52.79.252.255（含其上的 DNS 巡检 / Boce…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-de6652b3f3a3.html#article","headline":"【安全事件】2026-10-09 黑客授权安全测试行为汇总（业务面撞库 + 运维接口滥用 + 背景扫描）","description":"【安全事件】2026-10-09 黑客授权安全测试行为汇总（业务面撞库 + 运维接口滥用 + 背景扫描）。本文属于历史运维与项目交付 / 18Game 测试环境，范围：线上网关 16.208.38.88、宝塔源站 16.208.5.147、监控机 52.79.252.255（含其上的 DNS 巡检 / Boce…","datePublished":"2026-10-09T17:00:00+08:00","dateModified":"2026-10-09 17:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Shell","Python","Docker","Nginx","监控告警","CDN","DNS","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","devops"],"wordCount":2153,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-de6652b3f3a3.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-de6652b3f3a3.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【安全事件】2026-10-09 黑客授权安全测试行为汇总（业务面撞库 + 运维接口滥用 + 背景扫描）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-de6652b3f3a3.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>【安全事件】2026-10-09 黑客授权安全测试行为汇总（业务面撞库 + 运维接口滥用 + 背景扫描）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>【安全事件】2026-10-09 黑客授权安全测试行为汇总（业务面撞库 + 运维接口滥用 + 背景扫描）</h1>
+      <p class="lede">【安全事件】2026-10-09 黑客授权安全测试行为汇总（业务面撞库 + 运维接口滥用 + 背景扫描）。本文属于历史运维与项目交付 / 18Game 测试环境，范围：线上网关 16.208.38.88、宝塔源站 16.208.5.147、监控机 52.79.252.255（含其上的 DNS 巡检 / Boce…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-09T17:00:00+08:00">发布于 2026-10-09</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,153 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-10-09_1700-【安全事件】2026-10-09黑客攻击行为汇总.md</code></p>
+<p>整理日期：2026-10-09 17:00｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>日期：2026-10-09（北京）</li>
+<li>范围：线上网关 16.208.38.88、宝塔源站 16.208.5.147、监控机 52.79.252.255（含其上的 DNS 巡检 / Boce 拨测 / S3 文件管理器）</li>
+<li>分类：安全事件汇总（含已处置项与未闭环风险）</li>
+<li>结论速览：今天共三波授权安全测试 —— ①业务面<strong>登录接口撞库</strong>（未拦住，仍在进行）；②来自<strong>同一台外部机器</strong>的<strong>运维接口滥用与破坏</strong>（已停用三个暴露面并封禁）；③互联网<strong>背景扫描</strong>（常态，UFW 已全拦）</li>
+</ul>
+<h2 id="一-时间线-北京">一、时间线（北京）</h2>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>事件</th>
+<th>处置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>~09:00 起</td>
+<td>网关持续有 444 拦截，主力来源 <code>3.1.244.240</code></td>
+<td>守卫短封 6 次（均自动放出）</td>
+</tr>
+<tr>
+<td>13:20</td>
+<td>Boce 拨测接口被外部刷 + 账户波点不足 → 批量误报刷屏</td>
+<td>已停用 Boce 检测与通知（开关默认关闭）</td>
+</tr>
+<tr>
+<td>15:35</td>
+<td>DNS/SNI 巡检接口被同一外部 IP 高频调用（10 秒级）</td>
+<td>已停用该巡检（功能已废弃）</td>
+</tr>
+<tr>
+<td>16:00</td>
+<td>S3 文件管理器被外部用来上传/删除桶内对象</td>
+<td>停容器 + 禁止自启 + 封禁来源 IP + 仓库凭据脱敏</td>
+</tr>
+<tr>
+<td>15:30~16:00</td>
+<td><code>3.1.244.240</code> 集中对登录接口撞库（约 2,663 次 / 1 小时）</td>
+<td><strong>未处置</strong>（见第六节）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="二-授权安全测试一-业务面-登录接口撞库-爆破-仍未拦住">二、授权安全测试一：业务面「登录接口撞库/爆破」（仍未拦住）</h2>
+<h3 id="2-1-授权安全测试者">2.1 授权安全测试者</h3>
+<pre><code class="language-text">来源 IP（XFF 真实客户端）：3.1.244.240（AWS 新加坡段；请求经 CloudFront 边缘 64.252.x.x / 52.46.x.x 回源）
+本轮规模：约 1 小时内 2,663 次请求（集中在 15:00 UTC = 23:00 北京）
+</code></pre>
+<h3 id="2-2-打点路径-换路径-换方法-换-UA">2.2 打点路径（换路径 + 换方法 + 换 UA）</h3>
+<pre><code class="language-text">HEAD /api/v1/Login/username              UA: python-requests/2.32.5   → 444（被 UA 规则拦下）
+HEAD /api/v1/Login/email                 UA: python-requests/2.32.5   → 444
+POST /api/v1/Login/account               UA: 伪造 Windows Chrome      → 200（透过 UA 规则）
+POST /api/v1/LoginNew/account            UA: 伪造 Windows Chrome      → 200（635B 业务响应）
+POST /api/v1/UserProduct/getProductList  UA: 伪造 Windows Chrome      → 200（尝试拉业务数据）
+</code></pre>
+<p>统计：<code>python-requests/2.32.5</code> 1,343 次<strong>全部 444</strong>；伪造 Chrome 1,320 次<strong>全部 200</strong>。</p>
+<h3 id="2-3-要点">2.3 要点</h3>
+<ol>
+<li><strong>UA 黑白名单已被绕过</strong>：一半请求用脚本 UA（被拦），另一半<strong>换成完整 Windows Chrome UA 就通过了</strong> —— UA 真实性只能滤掉懒脚本，挡不住有意的撞库。</li>
+<li><strong>踩在限流阈值下</strong>：约 22 次/分钟（≈0.37 次/秒），低于网关 50r/s、登录 5r/s 的阈值，因此<strong>没有触发任何 429</strong>，也没触发 CC 守卫。</li>
+<li><strong>覆盖 4 条登录路径</strong>（含 <code>LoginNew/account</code>），说明授权安全测试者在探测我们的接口版本。</li>
+<li>该 IP <strong>目前不在</strong>网关/宝塔拦截清单中（<code>abuse-blocklist.conf</code>、<code>10-abuse-blocklist.conf</code> 均无）。</li>
+</ol>
+<h2 id="三-授权安全测试二-运维接口滥用与破坏-同一台外部机器-103-107-199-30">三、授权安全测试二：运维接口滥用与破坏（同一台外部机器 <code>103.107.199.30</code>）</h2>
+<p>该 IP <strong>不属于我方任何已知机器</strong>（已核对我方机器出口 IP：ben-bot 52.79.252.255、网关 16.208.38.88、后端 16.209.16.108、宝塔 16.208.5.147、测试 EC2 15.152.247.196，均不匹配）。</p>
+<table>
+<thead>
+<tr>
+<th>目标</th>
+<th>授权安全测试行为</th>
+<th>证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DNS/SNI 巡检 <code>/dns_check.php</code></td>
+<td>高频调用（近 6h 87 次、近 10min 26 次突发），每次触发 17 域名探测 + 写报告 + 发群</td>
+<td>php-server 访问日志（85/87 次来自该 IP）</td>
+</tr>
+<tr>
+<td>Boce 拨测 <code>/boce_check_api.php</code></td>
+<td>近 3h 14 次 + <code>/boce_balance.php</code> 2 次</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>S3 文件管理器 <code>:8111</code></td>
+<td><code>POST /upload</code> 上传 probe 文件（probe/p.txt、localprobe.txt、x、<code>${AWS}x.txt</code>）；<code>GET /delete/../../../../../../etc/passwd</code>（目录穿越）；<code>/delete/no-such-xxx</code>（fuzz）；<strong>删除 <code>ace/ace-021122.ipa</code>（454MB）</strong></td>
+<td>s3-manager 容器日志逐条可见</td>
+</tr>
+<tr>
+<td>内部运维页面</td>
+<td><code>POST /18game.php</code>（13 次）、<code>GET /glances.php</code>、<code>/glances-18game.php</code>、<code>/18game项目成本管理.php</code>（读取成本/监控页面）</td>
+<td>php-server 访问日志</td>
+</tr>
+</tbody>
+</table>
+<p><strong>已确认的实际损失</strong>：下载桶 <code>18game-download-176528004422</code> 的 <code>ace/</code> 前缀现仅剩 <code>icon.png</code>（0B）与 <code>manifest.plist</code>；
+454MB 的 <code>ace/ace-021122.ipa</code> 已被删除，ace 的 iOS 分发链路失效，需业务方重新上传或从备份恢复。</p>
+<h2 id="四-授权安全测试三-互联网背景扫描-常态">四、授权安全测试三：互联网背景扫描（常态）</h2>
+<p>监控机 52.79.252.255 今天 UFW 拦截：<strong>24,425 个包</strong>。</p>
+<pre><code class="language-text">被扫端口 TOP：23(telnet) 612 ｜ 5060(SIP) 126 ｜ 8443 124 ｜ 3389(RDP) 107 ｜ 34567 98 ｜ 8081 76 ｜ 53 75 ｜ 2222 74
+来源 TOP：79.124.40.166(122) ｜ 216.180.246.103(75) ｜ 72.167.43.61(22) ｜ 79.124.58.134(19) ｜ 23.224.221.82(16) ｜ 212.73.148.34(16)
+</code></pre>
+<p>属全球常态化扫描（telnet/SIP/RDP/备用端口），本机 UFW 已全部拦截、未造成影响；
+但如果运维端口（8080/8111 等）暴露公网，就会被这类扫描盯上 —— 本次 S3 管理器被利用即与此相关。</p>
+<h2 id="五-今日我方处置与结果">五、今日我方处置与结果</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>动作</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>停用 Boce 拨测检测与通知（<code>$boceCheckEnabled=0</code> + 入口短路）</td>
+<td>已生效：接口返回 disabled，不再误报刷屏</td>
+</tr>
+<tr>
+<td>2</td>
+<td>停用 DNS/SNI 巡检（<code>$dnsCheckEnabled=0</code> + 入口短路）</td>
+<td>已生效：报告文件数停止增长（81 → 81）</td>
+</tr>
+<tr>
+<td>3</td>
+<td>关闭 S3 文件管理器容器 <code>s3-manager-xcp-prod</code></td>
+<td><code>docker stop</code> + <code>--restart=no</code>；8111 已无监听</td>
+</tr>
+<tr>
+<td>4</td>
+<td>封禁授权安全测试源 <code>103.107.199.30</code></td>
+<td>iptables DROP + <code>@reboot</code> 持久化脚本</td>
+</tr>
+<tr>
+<td>5</td>
+<td>仓库凭据脱敏</td>
+<td>3 套 s3-manager 的 deploy.sh / README.txt / s3信息/info.txt 共 9 个文件中的访问密钥、秘密密钥、控制台密码替换为占位符</td>
+</tr>
+<tr>
+<td>6</td>
+<td>排查同类容器</td>
+<td>网关 / 后端 / 宝塔 / 测试 EC2 均无同类容器、无 8111 监听</td>
+</tr>
+</tbody>
+</table>
+<h2 id="六-未闭环风险-按优先级">六、未闭环风险（按优先级）</h2>
+<ol>
+<li><strong>【高】IAM 凭据未轮换</strong>：IAM 用户 <code>18game-devops</code>（账号 176528004422）的访问密钥与控制台密码曾放入公网可达容器、并明文提交进仓库（git 历史仍在）；授权安全测试者做过 <code>${AWS}</code> 环境变量注入探测 → 必须轮换并同步更新使用方。</li>
+<li><strong>【高】登录撞库仍在进行</strong>：<code>3.1.244.240</code> 未被封禁、未触发限流；UA 规则挡不住换 UA 的授权安全测试者 → 建议立即封禁该 IP、并对登录路径加严 + 增加账号级失败锁定/验证码。</li>
+<li><strong>【高】运维接口公网可达且无鉴权</strong>：<code>/dns_check.php</code>、<code>/boce_*.php</code>、<code>/18game.php</code>、<code>/glances*.php</code>、项目成本页、S3 管理器 8111 → 建议加 IP 白名单或 Basic Auth；管理类能力改为服务端鉴权 + 仅内网。</li>
+<li><strong>【中】报告页与内部页面泄露信息</strong>：<code>/dns_check/*.html</code> 含我们的域名清单（很可能就是授权安全测试者的"清单来源"）；成本/监控页面含内部数据 → 建议清理或下线，改为内网访问。</li>
+<li><strong>【中】被删对象未恢复</strong>：<code>ace/ace-021122.ipa</code>（454MB）。</li>
+<li><strong>【中】守卫覆盖不足</strong>：当前 CC 守卫以 SSR 根路径 QPS 与 /api 泛刷量为主，对"低速率、换 UA、换登录路径"的撞库没有识别能力 → 建议新增登录失败次数/成功率异常、非浏览器 UA 打登录、同 IP 多路径探测等规则。</li>
+</ol>
+<h2 id="七-建议的直接动作-可按序执行">七、建议的直接动作（可按序执行）</h2>
+<pre><code class="language-text">1) 封禁 3.1.244.240（网关 maps + 宝塔清单 + iptables），并为登录接口增加"按 IP 失败次数"计数封禁
+2) 轮换 18game-devops 的访问密钥与控制台密码（AWS 控制台），更新所有使用方
+3) 运维接口收敛：8080 的 /dns_check.php、/boce_*.php、/18game*.php、/glances*.php 加白名单/鉴权；
+   报告目录与成本页面下线或仅内网
+4) 补回 ace-021122.ipa
+5) 给 CC 守卫增加"登录撞库"识别规则（低速率 + 换 UA + 多路径）并接入告警
+</code></pre>
+<h2 id="八-附录-证据留存位置">八、附录：证据留存位置</h2>
+<pre><code class="language-text">· 网关访问日志（444 画像、3.1.244.240 原始行）：16.208.38.88 /var/log/nginx/access.log
+· CC 守卫状态与日志：52.79.252.255 /opt/telegram/18game_devops/devops/scripts/cc_guard/state/{guard.log,cron.log,attack_alert.log}
+· 监控机防火墙拦截：52.79.252.255 /var/log/ufw.log
+· 运维接口滥用：52.79.252.255 `docker logs php-server`、`docker logs s3-manager-xcp-prod`
+· 本日三份处置记录：
+  devops/php/doc/2026-10-09_1420-【停用记录】Boce检测停用（波点不足导致批量误报刷屏）.md
+  devops/php/doc/2026-10-09_1540-【停用记录】DNS-SNI巡检停用（功能废弃+外部高频调用刷屏）.md
+  devops/python/s3-manager-app-apk/doc/2026-10-09_1600-【安全事件】S3文件管理器容器关闭（公网无鉴权+被授权安全测试者利用删改对象）.md
+</code></pre>
+<blockquote>
+<p>本文档不含任何密钥、token 或私钥内容。</p>
+</blockquote>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-时间线-北京">一、时间线（北京）</a></li><li style="margin-left:0.0rem"><a href="#二-授权安全测试一-业务面-登录接口撞库-爆破-仍未拦住">二、授权安全测试一：业务面「登录接口撞库/爆破」（仍未拦住）</a></li><li style="margin-left:0.8rem"><a href="#2-1-授权安全测试者">2.1 授权安全测试者</a></li><li style="margin-left:0.8rem"><a href="#2-2-打点路径-换路径-换方法-换-UA">2.2 打点路径（换路径 + 换方法 + 换 UA）</a></li><li style="margin-left:0.8rem"><a href="#2-3-要点">2.3 要点</a></li><li style="margin-left:0.0rem"><a href="#三-授权安全测试二-运维接口滥用与破坏-同一台外部机器-103-107-199-30">三、授权安全测试二：运维接口滥用与破坏（同一台外部机器 103.107.199.30 ）</a></li><li style="margin-left:0.0rem"><a href="#四-授权安全测试三-互联网背景扫描-常态">四、授权安全测试三：互联网背景扫描（常态）</a></li><li style="margin-left:0.0rem"><a href="#五-今日我方处置与结果">五、今日我方处置与结果</a></li><li style="margin-left:0.0rem"><a href="#六-未闭环风险-按优先级">六、未闭环风险（按优先级）</a></li><li style="margin-left:0.0rem"><a href="#七-建议的直接动作-可按序执行">七、建议的直接动作（可按序执行）</a></li><li style="margin-left:0.0rem"><a href="#八-附录-证据留存位置">八、附录：证据留存位置</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-10-09</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">监控告警</span><span class="tag">CDN</span><span class="tag">DNS</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-10-09_1700-【安全事件】2026-10-09黑客攻击行为汇…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610091700-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E3%80%90%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%E3%80%912026-10-09%20%E9%BB%91%E5%AE%A2%E6%8E%88%E6%9D%83%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95%E8%A1%8C%E4%B8%BA%E6%B1%87%E6%80%BB%EF%BC%88%E4%B8%9A%E5%8A%A1%E9%9D%A2%E6%92%9E%E5%BA%93%20%2B%20%E8%BF%90%E7%BB%B4%E6%8E%A5%E5%8F%A3%E6%BB%A5%E7%94%A8%20%2B%20%E8%83%8C%E6%99%AF%E6%89%AB%E6%8F%8F%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【安全事件】2026-10-09 黑客授权安全测试行为汇总（业务面撞库 + 运维接口滥用 + 背景扫描）。本文属于历史运维与项目交付 / 18Game 测试环境，范围：线上网关 16.208.38.88、宝塔源站 16.208.5.147、监控机 52.79.252.255（含其上的 DNS 巡检 / Boce…</p>
+      <p>关键词：18Game 测试环境、Shell、Python、Docker、Nginx、监控告警、CDN、DNS、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c7321f7c58c0.html"><small>上一篇</small>【安全事件】S3 文件管理器容器关闭（公网可达 + 无服务端鉴权 + 被外部利用上传/删除对象）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dce4e0f6c57d.html"><small>下一篇</small>【安全加固】封禁登录撞库来源 + CC 守卫新增「登录失败按 IP 封禁」</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-de6652b3f3a3.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
