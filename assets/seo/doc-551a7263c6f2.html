@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【架构改造】每日各厂家错误日志发群（巴西 + 香港）— S3 预签名链接方案｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
+  <meta name="description" content="【架构改造】每日各厂家错误日志发群（巴西 + 香港）— S3 预签名链接方案。本文属于历史运维与项目交付 / 巴西主站，时间：2026-10-10 13:40（北京）/ 05:40（UTC） 需求（群里逐步明确）： 状态： 脚本 + 四台机器的定时任务都已上线并实测跑通 ； 唯一待办是 目标群（后端技术群）的 c…">
+  <meta name="keywords" content="巴西主站，Shell，Python，Docker，监控告警，安全运维，故障排查，数据库恢复，历史运维与项目交付，历史运维与项目交付 / 巴西主站，【架构改造】每日各厂家错误日志发群（巴西 + 香港）— S3 预签名链接方案">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-551a7263c6f2.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-551a7263c6f2.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610101340-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-%E3%80%90%E6%9E%B6%E6%9E%84%E6%94%B9%E9%80%A0%E3%80%91%E6%AF%8F%E6%97%A5%E5%90%84%E5%8E%82%E5%AE%B6%E9%94%99%E8%AF%AF%E6%97%A5%E5%BF%97%E5%8F%91%E7%BE%A4%EF%BC%88%E5%B7%B4%E8%A5%BF%20%2B%20%E9%A6%99%E6%B8%AF%EF%BC%89%E2%80%94%20S3%20%E9%A2%84%E7%AD%BE%E5%90%8D%E9%93%BE%E6%8E%A5%E6%96%B9%E6%A1%88.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【架构改造】每日各厂家错误日志发群（巴西 + 香港）— S3 预签名链接方案">
+  <meta property="og:description" content="【架构改造】每日各厂家错误日志发群（巴西 + 香港）— S3 预签名链接方案。本文属于历史运维与项目交付 / 巴西主站，时间：2026-10-10 13:40（北京）/ 05:40（UTC） 需求（群里逐步明确）： 状态： 脚本 + 四台机器的定时任务都已上线并实测跑通 ； 唯一待办是 目标群（后端技术群）的 c…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-551a7263c6f2.html">
+  <meta property="article:published_time" content="2026-10-10T13:40:00+08:00">
+  <meta property="article:modified_time" content="2026-10-10 13:40">
+  <meta property="article:section" content="历史运维与项目交付 / 巴西主站">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【架构改造】每日各厂家错误日志发群（巴西 + 香港）— S3 预签名链接方案">
+  <meta name="twitter:description" content="【架构改造】每日各厂家错误日志发群（巴西 + 香港）— S3 预签名链接方案。本文属于历史运维与项目交付 / 巴西主站，时间：2026-10-10 13:40（北京）/ 05:40（UTC） 需求（群里逐步明确）： 状态： 脚本 + 四台机器的定时任务都已上线并实测跑通 ； 唯一待办是 目标群（后端技术群）的 c…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-551a7263c6f2.html#article","headline":"【架构改造】每日各厂家错误日志发群（巴西 + 香港）— S3 预签名链接方案","description":"【架构改造】每日各厂家错误日志发群（巴西 + 香港）— S3 预签名链接方案。本文属于历史运维与项目交付 / 巴西主站，时间：2026-10-10 13:40（北京）/ 05:40（UTC） 需求（群里逐步明确）： 状态： 脚本 + 四台机器的定时任务都已上线并实测跑通 ； 唯一待办是 目标群（后端技术群）的 c…","datePublished":"2026-10-10T13:40:00+08:00","dateModified":"2026-10-10 13:40","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","Python","Docker","监控告警","安全运维","故障排查","数据库恢复","历史运维与项目交付","历史运维与项目交付 / 巴西主站","【架构改造】每日各厂家错误日志发群（巴西 + 香港）— S3 预签名链接方案"],"wordCount":2225,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-551a7263c6f2.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-551a7263c6f2.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【架构改造】每日各厂家错误日志发群（巴西 + 香港）— S3 预签名链接方案","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-551a7263c6f2.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 巴西主站</span> › <span>【架构改造】每日各厂家错误日志发群（巴西 + 香港）— S3 预签名链接方案</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
+      <h1>【架构改造】每日各厂家错误日志发群（巴西 + 香港）— S3 预签名链接方案</h1>
+      <p class="lede">【架构改造】每日各厂家错误日志发群（巴西 + 香港）— S3 预签名链接方案。本文属于历史运维与项目交付 / 巴西主站，时间：2026-10-10 13:40（北京）/ 05:40（UTC） 需求（群里逐步明确）： 状态： 脚本 + 四台机器的定时任务都已上线并实测跑通 ； 唯一待办是 目标群（后端技术群）的 c…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-10T13:40:00+08:00">发布于 2026-10-10</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,225 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-10-10-1340-【架构改造】每日各厂家错误日志发群（巴西+香港）-S3预签名链接方案记录.md</code></p>
+<p>整理日期：2026-10-10 13:40｜日期依据：文件名日期</p>
+</blockquote>
+<p>时间：2026-10-10 13:40（北京）/ 05:40（UTC）
+需求（群里逐步明确）：</p>
+<pre><code class="language-text">1) 每天北京时间 15:00 发头一天的错误日志
+2) 时间换算成北京时间（日志本身是 UTC）
+3) 巴西项目 + 香港项目都要，且要标识「项目」和「后端 01/02」
+4) 群里只发错误日志，别加废话
+5) 错误日志从 01/02 上传到 **AWS S3**（专门放日志的桶）→ 群里发**各厂家的 S3 下载链接**
+   → 上传成功就删除本地错误日志文件
+6) 日志不要再发运维内部群（调试期误发过，已停止）
+</code></pre>
+<p>状态：<strong>脚本 + 四台机器的定时任务都已上线并实测跑通</strong>；
+唯一待办是<strong>目标群（后端技术群）的 chat_id</strong>（拿到前定时任务带 <code>--no-notify</code>，只上传不发群）。</p>
+<hr/>
+<h2 id="一-最终方案-S3-预签名链接">一、最终方案（S3 + 预签名链接）</h2>
+<pre><code class="language-text">01/02（巴西 07:00 UTC / 香港 15:00 CST，同一时刻 = 北京 15:00）
+  → 逐厂家抽「北京昨天」全天错误记录（整条记录，保留完整 Traceback）
+  → 行首时间戳换算北京时间（+0800）
+  → 每个厂家单独 gzip
+  → aws s3 cp 上传到 s3://dbqp-backend-game-logs-176528004422/error-packs/&lt;项目&gt;/prod-XX/&lt;北京日期&gt;/&lt;厂家&gt;.log.gz
+  → aws s3 presign 生成 7 天预签名下载链接
+  → 群里发一条消息：项目 + 后端 + 日期 + 每个厂家的条数与下载链接
+  → 该厂家上传成功后删除本地那份临时文件（源日志 /data/server-runtime/logs 只读、不动）
+</code></pre>
+<pre><code class="language-text">桶：沿用现成的日志桶 **dbqp-backend-game-logs-176528004422**（ap-northeast-3），
+    用独立前缀 `error-packs/` 与既有归档日志分开。
+    （该 IAM 用户没有 s3:CreateBucket 权限，实测 AccessDenied，所以没法另建新桶；
+      若确实要独立桶，需 AWS 侧补权限或控制台新建。）
+凭据：/etc/dbqp-game-log-s3.env（IAM user s3-game-prod，600）
+    巴西 01/02 本来就有；香港 01/02 原先没有 aws cli 与凭据 → 已装 awscli 并从巴西 01
+    复制同一份凭据（写入探针已通过）。
+</code></pre>
+<h2 id="二-为什么不用-GCS-先评估过-已放弃">二、为什么不用 GCS（先评估过，已放弃）</h2>
+<pre><code class="language-text">· 巴西 01/02、香港 01/02 的 VM access scope 都是 **devstorage.read_only**：
+  既不能 `buckets create`（403 Provided scope(s) are not authorized），也不能写对象。
+  只有宝塔和巴西 03 的 scope 是 cloud-platform（实测能写）。
+· 该 SA 也签不了 URL（缺 iam.serviceAccounts.getAccessToken，自 impersonate 亦被拒）。
+· 现有 GCS 桶全是私有的（匿名 403）。
+→ 要满足「01/02 自己上传 + 群里能直接下载」，GCS 侧至少需要控制台改权限/发密钥；
+  S3 侧用现有凭据零改动即可，且预签名链接实测可用，故改 S3。
+</code></pre>
+<h2 id="三-脚本-docker-scripts-daily_vendor_error_pack-py">三、脚本：docker/scripts/daily_vendor_error_pack.py</h2>
+<pre><code class="language-text">厂家 ↔ 日志目录（用各目录 Traceback 里的 /app 路径实测确认）
+  巴西：api-&gt;logs/main（/app/platform-api/）  pg-&gt;logs/server（/app/pg/）
+        tada-&gt;logs/tada（tada 主服务与 tada_ws 混在同一目录）
+        ppk/pp/playson/panda/g759 -&gt; 同名目录
+  香港：api-&gt;main  pg-&gt;server  jili-&gt;jili（/app/tada/，香港的 TADA 家族厂家）
+        tada_ws-&gt;tada（目录可能未生成，自动跳过）  ppk/pp/playson/panda/g759 -&gt; 同名目录
+
+关键实现点
+  · 项目/后端标识：按主机名识别（dbqp-saopaulo-* / dbqp-hongkong-*；后缀 -01/-02）→
+    消息标题「巴西项目 prod-01｜错误日志 2026-10-09（北京时间）」、key 路径含 br|hk + prodXX
+  · 窗口：北京 D 日 00:00~23:59 = UTC (D-1)16:00 ~ D16:00
+  · 抽取：日志只有记录首行带时间戳（Traceback 堆栈行没有）→ 必须**按记录整条**抽取；
+    实现是 awk 扫描源日志（只读）+ Python 处理抽出来的小结果
+  · 性能坑：最初 Python 逐行 + 正则 + ionice -c3(idle) 跑 16GB/天 11 分钟未完
+    （业务日志持续写盘，idle 级被饿死）；改 awk + `ionice -c2 -n7` → **151 秒**
+  · 不上传成功绝不删本地：只有该厂家 s3 cp 返回 0 才删掉它的临时文件
+  · 可选 --fallback-document：S3 不可用时退回「tar.gz 直接发群」
+  · --no-notify：只上传不发群（当前定时任务就是带这个参数在跑）
+</code></pre>
+<h2 id="四-实测验证-全部真跑">四、实测验证（全部真跑）</h2>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>巴西 prod-01（北京 10-09）</td>
+<td>45,470 条错误记录；上传 8 个厂家成功、失败 0；耗时 <strong>184s</strong></td>
+</tr>
+<tr>
+<td>香港 prod-01（北京 10-09）</td>
+<td>2,591 条；上传 8 个厂家（含 jili）成功、失败 0；耗时 <strong>130s</strong></td>
+</tr>
+<tr>
+<td>上传落地</td>
+<td><code>s3://dbqp-backend-game-logs-176528004422/error-packs/{br,hk}/prodXX/2026-10-09/*.log.gz</code> 实测可见</td>
+</tr>
+<tr>
+<td>预签名链接</td>
+<td>生成 7 天链接后<strong>匿名 curl 下载 http=200（250,853B，与上传大小一致）</strong>，内容首行是北京时间 <code>2026-10-09 00:00:08.587+0800</code></td>
+</tr>
+<tr>
+<td>本地删除</td>
+<td>上传结束后本地 <code>.log</code> 文件数 = 0；源日志目录零写入（只读抽取）</td>
+</tr>
+<tr>
+<td>部署一致性</td>
+<td>四台脚本 md5 相同 <code>5b82e7bf679b86b9cb4d63f62eeb53e8</code></td>
+</tr>
+<tr>
+<td>定时任务</td>
+<td>巴西 01/02：<code>0 7 * * *</code>；香港 01/02：<code>0 15 * * *</code>（本地 CST）；均带 <code>--no-notify</code>；旧 <code>daily_error_log_pack.py</code>（扫的路径已失效）已注释停用</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-text">各厂家错误量（北京 10-09）参考：
+  巴西 prod-01：api 1888｜pg 5685｜tada 2466｜ppk 21740｜pp 3962｜playson 12｜panda 9251｜g759 466
+  香港 prod-01：api 544｜pg 269｜jili 7｜ppk 98｜pp 1263｜playson 2｜panda 406｜g759 2
+</code></pre>
+<h2 id="五-目标群已确定-监控报警群-并发现该群已升级为超级群-id-变了">五、目标群已确定：监控报警群（并发现该群已升级为超级群，id 变了！）</h2>
+<pre><code class="language-text">用户 2026-10-12 指示：链接与每日错误日志都发 **监控报警群**。
+发送时发现：**该群已从普通群升级成超级群（supergroup），chat_id 变了**——
+  旧 id：-5203304347
+  新 id：-1004456082456      （getChat 确认 title=监控报警群、type=supergroup）
+  旧 id 发送会报：400 Bad Request: group chat was upgraded to a supergroup chat
+                 （附带 migrate_to_chat_id=-1004456082456）
+</code></pre>
+<pre><code class="language-text">影响面（重要）：所有机器上的 /opt/benbot-runtime.env 里
+  BEN_BOT_MONITOR_CHAT_ID / STARTUP_NOTIFY_CHAT_IDS 都还是旧 id，
+  也就是说**这期间如果任何监控要发告警，都会发失败**。
+  已排查：容器监控、权限自愈、重启监控、入口探活 的日志里**没有发送失败记录**，
+  说明这段时间它们没有触发过告警 —— 没有真的丢告警，但隐患已消除。
+
+已做的修正（2026-10-12）：
+  1) 7 台机器的 /opt/benbot-runtime.env 全部把旧 id 替换为新 id（各改 2 处：
+     BEN_BOT_MONITOR_CHAT_ID + STARTUP_NOTIFY_CHAT_IDS），改前均备份
+     .bak-&lt;时间戳&gt;-before-supergroup-id。
+     覆盖：巴西 01/02/03、宝塔、备用入口机、香港 01/02。
+  2) 四台后端 cron 去掉 `--no-notify`，改为发群（用 env 里的新 id）。
+  3) 实测：BR-01 与 HK-01 各跑一次 → 都成功发到 -1004456082456（ok:true）。
+  4) panda 一周日志的两条 S3 链接已发到该群（带文件大小标注）。
+
+⚠️ 后续注意：其它地方如果还有硬编码旧群 id（例如机器人自己的配置、
+   其它项目的脚本），应一并替换；判断依据就是 Telegram 报的那句
+   "group chat was upgraded to a supergroup chat" + migrate_to_chat_id。
+</code></pre>
+<h2 id="五bis-原来的待办-已解决-保留备查-目标群-chat_id">五bis、原来的待办（已解决，保留备查）：目标群 chat_id</h2>
+<pre><code class="language-text">要发的是「后端技术群」，但机器人侧拿不到该群 id：
+  · bot 源码只调 forget_chat、从不 remember_chat → 群注册表停在 7 月的 4 个老群；
+  · getUpdates 被两个实例抢着消费（宝塔主 bot + 入口机备用 bot 同 token 轮询，
+    日志里有 "Conflict: terminated by other getUpdates request"），pending = 0；
+  · bot 文件日志 9/10 之后未再写入。
+请二选一：
+  a) 把 @userinfobot / @RawDataBot 拉进「后端技术群」，它会把 group id 打出来，转给我；
+  b) 允许我给 ben-bot 加一个 /chatid 命令（改代码 + 重启主/备两个 bot 容器，约 10~20 秒不可用），
+     你在群里发 /chatid 即可。
+拿到后：把四台 cron 里的 `--no-notify` 换成 `DBQP_ERROR_PACK_CHAT_IDS=&lt;群id&gt;` 即可（我可以直接做），
+       定时任务第二天 15:00 就会自动发链接；也可以让我立刻补跑一次把今天的链接发出去。
+</code></pre>
+<h2 id="六-运维手册">六、运维手册</h2>
+<pre><code class="language-bash"># 试跑（只看抽取结果，不上传不发群）
+nice -n 10 ionice -c2 -n7 /usr/bin/python3 /opt/dbqp-scripts/daily_vendor_error_pack.py --date 2026-10-09 --dry-run
+
+# 正式跑但暂不发群（当前 cron 就是这个）
+nice -n 10 ionice -c2 -n7 /usr/bin/python3 /opt/dbqp-scripts/daily_vendor_error_pack.py --no-notify
+
+# 正式跑并发群
+DBQP_ERROR_PACK_CHAT_IDS=&lt;群id&gt; nice -n 10 ionice -c2 -n7 \
+  /usr/bin/python3 /opt/dbqp-scripts/daily_vendor_error_pack.py
+
+# 换桶 / 换前缀 / 换链接有效期
+DBQP_ERROR_PACK_S3_BUCKET=&lt;桶&gt; DBQP_ERROR_PACK_S3_PREFIX=error-packs \
+DBQP_ERROR_PACK_LINK_TTL_SECONDS=604800 ...
+
+# 查已上传的对象
+set -a; . /etc/dbqp-game-log-s3.env; set +a
+aws s3 ls --recursive "s3://$DBQP_LOG_S3_BUCKET/error-packs/"
+
+# 日志
+tail -20 /var/log/dbqp-error-pack.log
+</code></pre>
+<h2 id="七-相关文件">七、相关文件</h2>
+<pre><code class="language-text">docker/scripts/daily_vendor_error_pack.py      # 本方案主脚本
+docker/scripts/log_tz_convert.py               # 通用时区换算（本脚本内联了同样逻辑）
+/etc/dbqp-game-log-s3.env                      # S3 凭据（600，不入库）
+/var/log/dbqp-error-pack.log                   # 每日运行日志
+docker/doc/2026-10-10-1230-…TADA错误日志按上次更新窗口导出（两台分开）记录.md  # 手工导日志那次
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-最终方案-S3-预签名链接">一、最终方案（S3 + 预签名链接）</a></li><li style="margin-left:0.0rem"><a href="#二-为什么不用-GCS-先评估过-已放弃">二、为什么不用 GCS（先评估过，已放弃）</a></li><li style="margin-left:0.0rem"><a href="#三-脚本-docker-scripts-daily_vendor_error_pack-py">三、脚本：docker/scripts/daily_vendor_error_pack.py</a></li><li style="margin-left:0.0rem"><a href="#四-实测验证-全部真跑">四、实测验证（全部真跑）</a></li><li style="margin-left:0.0rem"><a href="#五-目标群已确定-监控报警群-并发现该群已升级为超级群-id-变了">五、目标群已确定：监控报警群（并发现该群已升级为超级群，id 变了！）</a></li><li style="margin-left:0.0rem"><a href="#五bis-原来的待办-已解决-保留备查-目标群-chat_id">五bis、原来的待办（已解决，保留备查）：目标群 chat_id</a></li><li style="margin-left:0.0rem"><a href="#六-运维手册">六、运维手册</a></li><li style="margin-left:0.0rem"><a href="#七-相关文件">七、相关文件</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 巴西主站</li>
+          <li>日期：2026-10-10</li>
+          <li>标签：<span class="tag">巴西主站</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">监控告警</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-10-10-1340-【架构改造】每日各厂家错误日志发群（巴西+香港…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610101340-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-%E3%80%90%E6%9E%B6%E6%9E%84%E6%94%B9%E9%80%A0%E3%80%91%E6%AF%8F%E6%97%A5%E5%90%84%E5%8E%82%E5%AE%B6%E9%94%99%E8%AF%AF%E6%97%A5%E5%BF%97%E5%8F%91%E7%BE%A4%EF%BC%88%E5%B7%B4%E8%A5%BF%20%2B%20%E9%A6%99%E6%B8%AF%EF%BC%89%E2%80%94%20S3%20%E9%A2%84%E7%AD%BE%E5%90%8D%E9%93%BE%E6%8E%A5%E6%96%B9%E6%A1%88.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【架构改造】每日各厂家错误日志发群（巴西 + 香港）— S3 预签名链接方案。本文属于历史运维与项目交付 / 巴西主站，时间：2026-10-10 13:40（北京）/ 05:40（UTC） 需求（群里逐步明确）： 状态： 脚本 + 四台机器的定时任务都已上线并实测跑通 ； 唯一待办是 目标群（后端技术群）的 c…</p>
+      <p>关键词：巴西主站、Shell、Python、Docker、监控告警、安全运维、故障排查、数据库恢复、历史运维与项目交付、历史运维与项目交付 / 巴西主站、【架构改造】每日各厂家错误日志发群（巴西 + 香港）— S3 预签名链接方案</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-918cfff89533.html"><small>上一篇</small>【运维记录】运维组新增成员 @fyb99：值班表排班 + 各类通知 @ 名单更新</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b7fc3378576c.html"><small>下一篇</small>【安全事件】全机队 XMRig 挖矿木马（伪装 kworker）处置记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-551a7263c6f2.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
