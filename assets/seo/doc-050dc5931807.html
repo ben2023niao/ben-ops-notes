@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【优化 + 安全】CC 守卫：误封 CloudFront 回源 IP 修复 + 群通知文案改版｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="【优化 + 安全】CC 守卫：误封 CloudFront 回源 IP 修复 + 群通知文案改版。本文属于历史运维与项目交付 / 18Game 测试环境，范围： devops/scripts/cc_guard/ （网关 CC 守卫、国家级拉黑、容器 CPU 看护） 触发：10-13 群里连续多条「CC 守卫告警（l…">
+  <meta name="keywords" content="18Game 测试环境，Linux，Shell，Python，Nginx，监控告警，自动化，CDN，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，【优化 + 安全】CC 守卫：误封 CloudFront 回源 IP 修复 + 群通知文案改版，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-050dc5931807.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-050dc5931807.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610131620-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E3%80%90%E4%BC%98%E5%8C%96%20%2B%20%E5%AE%89%E5%85%A8%E3%80%91CC%20%E5%AE%88%E5%8D%AB%EF%BC%9A%E8%AF%AF%E5%B0%81%20CloudFront%20%E5%9B%9E%E6%BA%90%20IP%20%E4%BF%AE%E5%A4%8D%20%2B%20%E7%BE%A4%E9%80%9A%E7%9F%A5%E6%96%87%E6%A1%88%E6%94%B9%E7%89%88.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【优化 + 安全】CC 守卫：误封 CloudFront 回源 IP 修复 + 群通知文案改版">
+  <meta property="og:description" content="【优化 + 安全】CC 守卫：误封 CloudFront 回源 IP 修复 + 群通知文案改版。本文属于历史运维与项目交付 / 18Game 测试环境，范围： devops/scripts/cc_guard/ （网关 CC 守卫、国家级拉黑、容器 CPU 看护） 触发：10-13 群里连续多条「CC 守卫告警（l…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-050dc5931807.html">
+  <meta property="article:published_time" content="2026-10-13T16:20:00+08:00">
+  <meta property="article:modified_time" content="2026-10-13 16:20">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【优化 + 安全】CC 守卫：误封 CloudFront 回源 IP 修复 + 群通知文案改版">
+  <meta name="twitter:description" content="【优化 + 安全】CC 守卫：误封 CloudFront 回源 IP 修复 + 群通知文案改版。本文属于历史运维与项目交付 / 18Game 测试环境，范围： devops/scripts/cc_guard/ （网关 CC 守卫、国家级拉黑、容器 CPU 看护） 触发：10-13 群里连续多条「CC 守卫告警（l…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-050dc5931807.html#article","headline":"【优化 + 安全】CC 守卫：误封 CloudFront 回源 IP 修复 + 群通知文案改版","description":"【优化 + 安全】CC 守卫：误封 CloudFront 回源 IP 修复 + 群通知文案改版。本文属于历史运维与项目交付 / 18Game 测试环境，范围： devops/scripts/cc_guard/ （网关 CC 守卫、国家级拉黑、容器 CPU 看护） 触发：10-13 群里连续多条「CC 守卫告警（l…","datePublished":"2026-10-13T16:20:00+08:00","dateModified":"2026-10-13 16:20","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Linux","Shell","Python","Nginx","监控告警","自动化","CDN","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","【优化 + 安全】CC 守卫：误封 CloudFront 回源 IP 修复 + 群通知文案改版","devops"],"wordCount":2169,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-050dc5931807.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-050dc5931807.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【优化 + 安全】CC 守卫：误封 CloudFront 回源 IP 修复 + 群通知文案改版","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-050dc5931807.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>【优化 + 安全】CC 守卫：误封 CloudFront 回源 IP 修复 + 群通知文案改版</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>【优化 + 安全】CC 守卫：误封 CloudFront 回源 IP 修复 + 群通知文案改版</h1>
+      <p class="lede">【优化 + 安全】CC 守卫：误封 CloudFront 回源 IP 修复 + 群通知文案改版。本文属于历史运维与项目交付 / 18Game 测试环境，范围： devops/scripts/cc_guard/ （网关 CC 守卫、国家级拉黑、容器 CPU 看护） 触发：10-13 群里连续多条「CC 守卫告警（l…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-13T16:20:00+08:00">发布于 2026-10-13</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,169 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-10-13_1620-【优化+安全】CC守卫误封CloudFront回源IP修复与群通知文案改版.md</code></p>
+<p>整理日期：2026-10-13 16:20｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>日期：2026-10-13 16:20（北京）</li>
+<li>范围：<code>devops/scripts/cc_guard/</code>（网关 CC 守卫、国家级拉黑、容器 CPU 看护）</li>
+<li>触发：10-13 群里连续多条「CC 守卫告警（login_bruteforce）」+ 1 条「容器 CPU 看护」；用户反馈通知"有效内容太少、太啰嗦"，要求继续优化</li>
+</ul>
+<hr/>
+<h2 id="一-历史运行结果总结-CC-守卫">一、历史运行结果总结（CC 守卫）</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>现状</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>运行方式</td>
+<td>监控机 52.79.252.255，ubuntu crontab 每 10 秒一轮（<code>flock</code> 串行），日志 <code>state/guard.log</code>、<code>state/cron.log</code></td>
+</tr>
+<tr>
+<td>识别来源</td>
+<td>网关并发连接、网关/源站 <code>/api</code> 刷量、后端「登录失败按 IP」、自有监控 UA</td>
+</tr>
+<tr>
+<td>处置</td>
+<td>按地区：常规刷量国内/港澳台只观察、海外临时封禁（10 分钟起、重复翻倍、上限 2 小时）；登录撞库国内也在更高阈值（60 次/10 分钟）封禁；必要时国家级临时拉黑</td>
+</tr>
+<tr>
+<td>生效位置</td>
+<td>网关 nginx XFF 清单（444）+ 宝塔源站清单（444）+ 宝塔 iptables + 限流</td>
+</tr>
+<tr>
+<td>通知</td>
+<td><code>serious</code>（故障类）即时发两群；<code>temp_block/api_flood/observe</code> 累计为 30 分钟摘要发两群</td>
+</tr>
+<tr>
+<td>本次之前状态</td>
+<td>守卫健康、磁盘 40%、load 1.5~5；<code>blocked=2</code>（<strong>异常，见第三节</strong>）、<code>xff 3</code>、temp 0</td>
+</tr>
+</tbody>
+</table>
+<p>长期观察结论：<strong>授权安全测试面在持续变化</strong>（换路径、换 UA、绕 CDN 打源站/旁站、低速率撞库、0day 挖矿），
+守卫的识别规则需要持续迭代；同时<strong>误拦正常流量</strong>才是最大的业务风险（历史已发生 5 次以上：支付回调、
+1game 鉴权、SDK 接口、自动化测试机、iOS plist、搜索引擎爬虫、手机浏览器）。</p>
+<hr/>
+<h2 id="二-本次触发的告警-现象">二、本次触发的告警（现象）</h2>
+<ol>
+<li>10-13 02:58~05:20 之间：连续多条 <code>【CC 守卫告警】触发：login_bruteforce=1</code>（load 1.5~4.3）。</li>
+<li>30 分钟摘要 2 条：<code>223.114.4.28｜CN｜60 次｜封 30 分钟</code>、<code>2402:1980:e238:3e59::1｜MY｜22 次｜封 30 分钟</code>。</li>
+<li>16:04 后端容器 <code>youdianse-main-php-web</code> CPU 805%（阈值 500%）→ 自动触发 CC 守卫处置（成功）。</li>
+</ol>
+<p><strong>结论：授权安全测试已被正常处置，但通知本身有问题</strong>（第三节 1、2 条）。</p>
+<hr/>
+<h2 id="三-排查发现的问题">三、排查发现的问题</h2>
+<h3 id="3-1-安全-高-网关-iptables-误封-CloudFront-回源-IP-3-个">3.1 【安全·高】网关 iptables 误封 CloudFront 回源 IP（3 个）</h3>
+<ul>
+<li>网关 <code>16.208.38.88</code> 的 iptables 里封了 <code>15.158.222.194</code>、<code>15.158.222.234</code>、<code>3.172.92.112</code>，端口 80/443 <code>DROP</code>。</li>
+<li>用 AWS 官方 <code>ip-ranges.json</code> 核验：三者都属 <strong><code>CLOUDFRONT_ORIGIN_FACING</code></strong>（15.158.0.0/16、3.172.64.0/18）——
+  即 <strong>CloudFront 回源时使用的源 IP</strong>；而本网关就是 CloudFront 的回源（网关日志里 <code>15.158.222.x</code> 每个文件约 2 万条）。</li>
+<li>封禁来源：守卫的「单 IP 到 80/443 并发 established ≥ 200 就判定可疑」规则——CloudFront 边缘天然会维持大量连接，属<strong>误判</strong>。</li>
+<li>影响：<code>blocked=2</code> 自 <strong>10-11 22:37 UTC（10-12 06:37 北京）</strong> 起持续约 1.5 天；
+  实测这 3 个 IP 在各日志文件中<strong>均为 0 命中</strong>（当时不在服务）→ <strong>未造成实际中断</strong>，
+  但属高危隐患：CloudFront 随时可能启用这些 IP，一旦启用即回源失败（用户侧 5xx/超时）。</li>
+</ul>
+<h3 id="3-2-体验-login_bruteforce-告警刷屏且与摘要重复">3.2 【体验】login_bruteforce 告警刷屏且与摘要重复</h3>
+<ul>
+<li><code>login_bruteforce=</code> 没有被归入"处置类"，于是每命中一次就走 <code>serious</code> <strong>即时告警</strong>（冷却仅 90 秒），
+  同时又计入 30 分钟摘要 → <strong>同一件事发两次、且最短 90 秒一条</strong>。</li>
+</ul>
+<h3 id="3-3-文案-摘要窗口标注错误">3.3 【文案】摘要窗口标注错误</h3>
+<ul>
+<li>摘要写死 <code>（北京时间，10 分钟汇总）</code>，实际 <code>CC_DIGEST_SECONDS=1800</code>（30 分钟）→ 与实际不符。</li>
+<li>即时告警里也写死"见 10 分钟聚合摘要"。</li>
+</ul>
+<h3 id="3-4-文案-北京时间-实际是-UTC">3.4 【文案】"北京时间"实际是 UTC</h3>
+<ul>
+<li>摘要/故障告警用 <code>time.localtime()</code> 格式化并标注「北京时间」，但监控机是 UTC → 时间整体差 8 小时。</li>
+</ul>
+<hr/>
+<h2 id="四-改动-devops-scripts-cc_guard">四、改动（<code>devops/scripts/cc_guard/</code>）</h2>
+<h3 id="4-1-CDN-永不封禁-新增">4.1 CDN 永不封禁（新增）</h3>
+<ul>
+<li>新增 <code>cdn_never_block_cidrs.txt</code>：AWS CloudFront 段清单（<code>CLOUDFRONT_ORIGIN_FACING</code> + <code>CLOUDFRONT</code>，共 <strong>309 条</strong>：IPv4 245 / IPv6 64）。</li>
+<li>新增 <code>refresh_cdn_never_block.py</code>：从 <code>https://ip-ranges.amazonaws.com/ip-ranges.json</code> 重新生成该清单。</li>
+<li><code>youdianse_cc_guard.py</code>：新增 <code>is_cdn_ip()</code>，并让 <code>is_skippable()</code> 一并跳过 CDN 段
+  → 覆盖 iptables 封禁、临时封禁、<code>/api</code> 刷量判定、登录撞库判定<strong>全部路径</strong>；文件缺失时用兜底段（15.158.0.0/16、3.172.64.0/18）。</li>
+</ul>
+<h3 id="4-2-通知降噪与文案改版">4.2 通知降噪与文案改版</h3>
+<ul>
+<li><code>login_bruteforce=</code>、<code>auto_country_block=</code> 归入"处置类"→ <strong>只进 30 分钟摘要</strong>，不再即时刷屏。</li>
+<li>摘要窗口文案改为按 <code>DIGEST_SECONDS // 60</code> 动态生成。</li>
+<li>新增 <code>bj_time()</code> / <code>human_geo()</code> / <code>human_src()</code>：时间统一<strong>北京时间</strong>；国家码转中文（CN→中国…）；
+  运营商取 AS 名可读部分（如 <code>中国·China Mobile…</code>）；授权安全测试类型转中文（<code>后端/登录失败</code>→<code>登录撞库</code>）。</li>
+<li>摘要拼装抽成 <code>render_digest()</code>（可本地单测，无发送副作用）。</li>
+<li>守卫日志行新增 <code>login_bruteforce=</code> 字段。</li>
+<li><code>youdianse-container-cpu-watch.py</code>、<code>youdianse-country-block.py</code> 的通知同步精简。</li>
+</ul>
+<h3 id="4-3-新文案-前后对比">4.3 新文案（前后对比）</h3>
+<p><strong>摘要（改前 ≈10 行，含 4 行固定样板）</strong></p>
+<pre><code class="language-text">【线上环境｜刷量处置摘要】02:58~03:28（北京时间，10 分钟汇总）
+- 本轮新临时封禁：1 个 IP｜按来源国：CN:1次封禁
+- 封禁明细（TOP1）：
+   223.114.4.28｜CN｜60次｜封30分钟
+- 当前状态：临时封禁中 1 个｜观察名单 1 个｜load 3.03｜nginx active｜磁盘 39%
+- 策略：单 IP &gt;500 次触发；国内/港澳台只观察；海外临时封禁（10 分钟起，重复违规翻倍，上限 2 小时）
+- 放出后进入 2 小时观察名单（阈值降到 100 次），防止「刚放出又授权安全测试」
+- 说明：**仅在有处置动作（封禁/国家级拉黑）时发送本摘要**；无授权安全测试则不发
+- 明细日志：/opt/telegram/18game_devops/devops/scripts/cc_guard/state/guard.log
+</code></pre>
+<p><strong>摘要（改后 6 行，一行一条，信息更全）</strong></p>
+<pre><code class="language-text">【刷量处置】15:47–16:17（北京）｜新封禁 2 · 观察 1
+· 223.114.4.28｜中国·China Mobile…｜登录撞库 60 次｜封 30 分钟
+· 2402:1980:e238:3e59::1｜马来西亚·DiGi…｜接口刷量 22 次｜封 30 分钟｜重复第 2 次
+· 观察未封：1.2.3.4（中国 45 次）
+· 国家级拉黑：PH（30 分钟，到期自动解除）
+· 现况：封禁中 1 · 观察名单 0 · load 3.03 · nginx active · 磁盘 39%
+</code></pre>
+<p><strong>故障告警（改后；只在真正故障时发两群）</strong></p>
+<pre><code class="language-text">【CC 守卫·故障】网关 16.208.38.88｜10-13 16:16（北京）
+· 网关请求 520 次/秒（正常 1~3）
+· Nginx 错误日志 +310 条（单轮）
+· 现况：nginx active｜load 4.2｜磁盘 78%
+· 处置：新增封禁 3 个（累计 3）
+</code></pre>
+<p><strong>容器 CPU 看护（改后）</strong></p>
+<pre><code class="language-text">【容器 CPU 看护】后端 youdianse-main-php-web｜10-13 16:04:01（北京）
+· 触发：CPU 飙升（阈值 500%）（当前 805%）
+· 自动处置：CC 守卫已执行 · 成功（3.8 秒）
+</code></pre>
+<hr/>
+<h2 id="五-线上部署与验证">五、线上部署与验证</h2>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>备份</td>
+<td>三个脚本各自 <code>*.bak.cdnfix-20261013-081310</code> / <code>*.bak.notifyopt-20261013-081643</code>；<code>guard_state.json.bak.cdnfix-*</code></td>
+</tr>
+<tr>
+<td>部署</td>
+<td>3 个脚本 + <code>cdn_never_block_cidrs.txt</code> + <code>refresh_cdn_never_block.py</code> 已下发（原子 <code>mv</code>；root:root 755/644）</td>
+</tr>
+<tr>
+<td>语法</td>
+<td>本地与线上 <code>py_compile</code> 均通过</td>
+</tr>
+<tr>
+<td>CDN 判定</td>
+<td>线上实测 <code>is_cdn_ip/is_skippable</code>：<code>15.158.222.194/.234</code>、<code>3.172.92.112</code> = True；<code>167.104.164.116</code>（真实授权安全测试源）= False</td>
+</tr>
+<tr>
+<td>解封</td>
+<td>网关 iptables 删除 3 条 DROP（<code>removed=1</code> ×3），<code>iptables -S</code> 已无匹配</td>
+</tr>
+<tr>
+<td>状态清理</td>
+<td><code>guard_state.json</code> → <code>blocked=[]</code>、<code>blocked_ips.txt</code> 清空；等待 40 秒后复查仍为 <code>[]</code>（守卫未回写）</td>
+</tr>
+<tr>
+<td>新日志字段</td>
+<td><code>CHECK ... login_bruteforce=0 blocked=0+xff 3 temp=0 observe=0</code> 正常输出</td>
+</tr>
+<tr>
+<td>渲染自检</td>
+<td>本地与线上调用 <code>render_digest()</code>，输出与预期一致（6 行）</td>
+</tr>
+<tr>
+<td>定时刷新</td>
+<td>ubuntu crontab 新增 <code>17 4 * * 1 ... refresh_cdn_never_block.py</code>（每周一刷新 CloudFront 段）</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="六-回滚">六、回滚</h2>
+<pre><code class="language-bash">G=52.79.252.255   # 监控机
+D=/opt/telegram/18game_devops/devops/scripts/cc_guard
+# 脚本回滚（用上面备份标签替换）
+sudo cp -a $D/youdianse_cc_guard.py.bak.notifyopt-20261013-081643 $D/youdianse_cc_guard.py
+sudo cp -a $D/youdianse-country-block.py.bak.notifyopt-20261013-081643 $D/youdianse-country-block.py
+sudo cp -a $D/youdianse-container-cpu-watch.py.bak.notifyopt-20261013-081643 $D/youdianse-container-cpu-watch.py
+# 状态回滚
+sudo cp -a $D/state/guard_state.json.bak.cdnfix-20261013-081310 $D/state/guard_state.json
+# 网关解封如需恢复（不建议）：ssh 16.208.38.88 'sudo iptables -I INPUT -p tcp -s &lt;ip&gt; -m multiport --dports 80,443 -j DROP'
+</code></pre>
+<hr/>
+<h2 id="七-待办-建议">七、待办 / 建议</h2>
+<ol>
+<li><code>SKIP_PREFIXES</code> 里仍有 <code>3.</code>、<code>18.</code>、<code>34.</code>、<code>47.</code> 这类<strong>过宽的字符串前缀</strong>（早期应急加的），
+   现在已有权威 CloudFront 段清单，建议后续收敛为精确网段（本次未动，避免引入新风险）。</li>
+<li>网关 iptables 现存 <strong>851 条</strong> DROP 规则，其中多数不在守卫状态中（历史遗留），建议做一次规则清理（人工确认）。</li>
+<li>如需「摘要只发 18game运维、不发上线群」，把 <code>telegram(digest)</code> 改成 <code>telegram(digest, only_ops=True)</code> 即可。</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-历史运行结果总结-CC-守卫">一、历史运行结果总结（CC 守卫）</a></li><li style="margin-left:0.0rem"><a href="#二-本次触发的告警-现象">二、本次触发的告警（现象）</a></li><li style="margin-left:0.0rem"><a href="#三-排查发现的问题">三、排查发现的问题</a></li><li style="margin-left:0.8rem"><a href="#3-1-安全-高-网关-iptables-误封-CloudFront-回源-IP-3-个">3.1 【安全·高】网关 iptables 误封 CloudFront 回源 IP（3 个）</a></li><li style="margin-left:0.8rem"><a href="#3-2-体验-login_bruteforce-告警刷屏且与摘要重复">3.2 【体验】login_bruteforce 告警刷屏且与摘要重复</a></li><li style="margin-left:0.8rem"><a href="#3-3-文案-摘要窗口标注错误">3.3 【文案】摘要窗口标注错误</a></li><li style="margin-left:0.8rem"><a href="#3-4-文案-北京时间-实际是-UTC">3.4 【文案】&quot;北京时间&quot;实际是 UTC</a></li><li style="margin-left:0.0rem"><a href="#四-改动-devops-scripts-cc_guard">四、改动（ devops/scripts/cc_guard/ ）</a></li><li style="margin-left:0.8rem"><a href="#4-1-CDN-永不封禁-新增">4.1 CDN 永不封禁（新增）</a></li><li style="margin-left:0.8rem"><a href="#4-2-通知降噪与文案改版">4.2 通知降噪与文案改版</a></li><li style="margin-left:0.8rem"><a href="#4-3-新文案-前后对比">4.3 新文案（前后对比）</a></li><li style="margin-left:0.0rem"><a href="#五-线上部署与验证">五、线上部署与验证</a></li><li style="margin-left:0.0rem"><a href="#六-回滚">六、回滚</a></li><li style="margin-left:0.0rem"><a href="#七-待办-建议">七、待办 / 建议</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-10-13</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Nginx</span><span class="tag">监控告警</span><span class="tag">自动化</span><span class="tag">CDN</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-10-13_1620-【优化+安全】CC守卫误封CloudFront…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610131620-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E3%80%90%E4%BC%98%E5%8C%96%20%2B%20%E5%AE%89%E5%85%A8%E3%80%91CC%20%E5%AE%88%E5%8D%AB%EF%BC%9A%E8%AF%AF%E5%B0%81%20CloudFront%20%E5%9B%9E%E6%BA%90%20IP%20%E4%BF%AE%E5%A4%8D%20%2B%20%E7%BE%A4%E9%80%9A%E7%9F%A5%E6%96%87%E6%A1%88%E6%94%B9%E7%89%88.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【优化 + 安全】CC 守卫：误封 CloudFront 回源 IP 修复 + 群通知文案改版。本文属于历史运维与项目交付 / 18Game 测试环境，范围： devops/scripts/cc_guard/ （网关 CC 守卫、国家级拉黑、容器 CPU 看护） 触发：10-13 群里连续多条「CC 守卫告警（l…</p>
+      <p>关键词：18Game 测试环境、Linux、Shell、Python、Nginx、监控告警、自动化、CDN、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、【优化 + 安全】CC 守卫：误封 CloudFront 回源 IP 修复 + 群通知文案改版、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-914428fe8b5c.html"><small>上一篇</small>【运维】panda 一周日志（北京时间）导出 + 上传 S3 交付</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ce9eb4728a08.html"><small>下一篇</small>【问题排查】测试环境 bigdata 队列积压 46000：根因与「队列守护自愈」加固</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-050dc5931807.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
