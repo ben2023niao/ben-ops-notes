@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【问题排查】测试环境 bigdata 队列积压 46000：根因与「队列守护自愈」加固｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="【问题排查】测试环境 bigdata 队列积压 46000：根因与「队列守护自愈」加固。本文属于业务系统运维 / 游点涩，环境： 测试环境 （15.152.247.196， youdianse-dev-php-* 三容器） 触发：后端反馈「测试环境定时任务 start.sh 守护进程是否开启，big_data 队…">
+  <meta name="keywords" content="游点涩，Shell，Docker，Nginx，Redis，自动化，故障排查，数据库恢复，业务系统运维，业务系统运维 / 游点涩，【问题排查】测试环境 bigdata 队列积压 46000：根因与「队列守护自愈」加固，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ce9eb4728a08.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ce9eb4728a08.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610140000-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20bigdata%20%E9%98%9F%E5%88%97%E7%A7%AF%E5%8E%8B%2046000%EF%BC%9A%E6%A0%B9%E5%9B%A0%E4%B8%8E%E3%80%8C%E9%98%9F%E5%88%97%E5%AE%88%E6%8A%A4%E8%87%AA%E6%84%88%E3%80%8D%E5%8A%A0%E5%9B%BA.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【问题排查】测试环境 bigdata 队列积压 46000：根因与「队列守护自愈」加固">
+  <meta property="og:description" content="【问题排查】测试环境 bigdata 队列积压 46000：根因与「队列守护自愈」加固。本文属于业务系统运维 / 游点涩，环境： 测试环境 （15.152.247.196， youdianse-dev-php-* 三容器） 触发：后端反馈「测试环境定时任务 start.sh 守护进程是否开启，big_data 队…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ce9eb4728a08.html">
+  <meta property="article:published_time" content="2026-10-14T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-10-14 00:00">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【问题排查】测试环境 bigdata 队列积压 46000：根因与「队列守护自愈」加固">
+  <meta name="twitter:description" content="【问题排查】测试环境 bigdata 队列积压 46000：根因与「队列守护自愈」加固。本文属于业务系统运维 / 游点涩，环境： 测试环境 （15.152.247.196， youdianse-dev-php-* 三容器） 触发：后端反馈「测试环境定时任务 start.sh 守护进程是否开启，big_data 队…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ce9eb4728a08.html#article","headline":"【问题排查】测试环境 bigdata 队列积压 46000：根因与「队列守护自愈」加固","description":"【问题排查】测试环境 bigdata 队列积压 46000：根因与「队列守护自愈」加固。本文属于业务系统运维 / 游点涩，环境： 测试环境 （15.152.247.196， youdianse-dev-php-* 三容器） 触发：后端反馈「测试环境定时任务 start.sh 守护进程是否开启，big_data 队…","datePublished":"2026-10-14T00:00:00+08:00","dateModified":"2026-10-14 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Shell","Docker","Nginx","Redis","自动化","故障排查","数据库恢复","业务系统运维","业务系统运维 / 游点涩","【问题排查】测试环境 bigdata 队列积压 46000：根因与「队列守护自愈」加固","php"],"wordCount":2217,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ce9eb4728a08.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ce9eb4728a08.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【问题排查】测试环境 bigdata 队列积压 46000：根因与「队列守护自愈」加固","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ce9eb4728a08.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>【问题排查】测试环境 bigdata 队列积压 46000：根因与「队列守护自愈」加固</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>【问题排查】测试环境 bigdata 队列积压 46000：根因与「队列守护自愈」加固</h1>
+      <p class="lede">【问题排查】测试环境 bigdata 队列积压 46000：根因与「队列守护自愈」加固。本文属于业务系统运维 / 游点涩，环境： 测试环境 （15.152.247.196， youdianse-dev-php-* 三容器） 触发：后端反馈「测试环境定时任务 start.sh 守护进程是否开启，big_data 队…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-14T00:00:00+08:00">发布于 2026-10-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,217 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-14-【问题排查】测试环境big_data队列积压实测根因与队列守护自愈.md</code></p>
+<p>整理日期：2026-10-14 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>日期：2026-10-14</li>
+<li>环境：<strong>测试环境</strong>（15.152.247.196，<code>youdianse-dev-php-*</code> 三容器）</li>
+<li>触发：后端反馈「测试环境定时任务 start.sh 守护进程是否开启，big_data 队列堆积 46000 条」「发版后 cron 没有同步开启」</li>
+<li>结论：<strong>根因是 php-cron 容器没有重建，运行中的容器仍是旧配置（少了 <code>bigDataJob:queue</code> 这个消费守护）</strong>；已修复，并新增每 10 分钟自检自愈的看护脚本防复发。</li>
+</ul>
+<hr/>
+<h2 id="一-现象">一、现象</h2>
+<pre><code class="language-text">· 测试环境 big_data 队列积压约 46000 条，埋点上报（18 测试后台-埋点统计）无数据 / 延迟
+· 后端反馈"发版后 cron 守护进程就没了"，需要人工去拉起来
+</code></pre>
+<hr/>
+<h2 id="二-排查过程与根因">二、排查过程与根因</h2>
+<h3 id="2-1-队列消费守护的架构">2.1 队列消费守护的架构</h3>
+<pre><code class="language-text">php-cron 容器（与 web 共用同一镜像）本身就是队列消费守护：
+  entrypoint: /usr/local/bin/cron-entrypoint.sh
+  command   : /usr/local/bin/queue-watchdog.sh
+  QUEUE_WORKERS: "crontab:queue job:queue bigDataJob:queue"   ← 三个常驻消费进程
+  watchdog 对每个 worker 执行 php bin/shell.php &lt;class&gt; &lt;queue&gt;，退出后 5 秒自动重启
+</code></pre>
+<h3 id="2-2-关键证据">2.2 关键证据</h3>
+<pre><code class="language-text">① 容器声明的环境变量（docker inspect）：
+   QUEUE_WORKERS=crontab:queue job:queue            ← 只有 2 个！少了 bigDataJob:queue
+② 容器内实际进程（docker top）：
+   shell.php crontab queue / shell.php job queue     ← 只有 2 个
+③ 守护日志（runtime/logs/queue/watchdog.log）：
+   starting workers: crontab:queue job:queue
+④ 但部署机上的 compose 文件里已经是正确值：
+   QUEUE_WORKERS: "crontab:queue job:queue bigDataJob:queue"
+</code></pre>
+<h3 id="2-3-根因">2.3 根因</h3>
+<p><strong>部署机上的 <code>docker-compose.yml</code> 已经加上了 <code>bigDataJob:queue</code>，但 php-cron 容器自当天 10:58 之后就没有再重建过</strong>，
+容器沿用创建时写入的环境变量（旧值 2 个 worker），因此 <code>big_data</code> 队列长期没有消费者 → 积压 4.6 万条。</p>
+<blockquote>
+<p>关键点：<code>docker restart</code> / 宿主机重启 / <code>restart: always</code> <strong>都只复用容器创建时的配置</strong>，
+只有 <strong>重建容器（<code>docker compose up -d --force-recreate</code>）</strong> 才会读到 compose 的新环境变量。</p>
+</blockquote>
+<p><strong>为什么没被发现</strong>：CICD 里其实已有 <code>check_bigdata_queue_worker()</code>（发布时校验 <code>shell.php bigDataJob queue</code>，
+缺失会在部署报告里写「队列：missing」），但它<strong>只在发布流程里执行</strong>——本次是「改了 compose、没有发布」，
+两次发布之间没有任何检查，所以静默了两天。</p>
+<h3 id="2-4-关于-发版后守护进程就没了">2.4 关于"发版后守护进程就没了"</h3>
+<p>实测（<code>docker compose --dry-run</code>）在测试环境复现：发布时执行的是
+<code>docker compose --profile cron up -d --force-recreate --remove-orphans web nginx cron</code>，
+<strong>cron 容器在每次发布都会被重建</strong>（<code>--force-recreate</code>），重建后应加载最新配置。
+若发布时选择的模式是「可多机扩容部署（web + nginx）」，则不会重建 cron；
+而 dev 分支界面上该选项是置灰不可选的，默认始终 <code>with_cron</code>。
+→ 因此"发版后掉"更可能是<strong>发布模式选错</strong>或<strong>未按发布流程重建</strong>，本次已用自愈守护兜住。</p>
+<hr/>
+<h2 id="三-处置-已执行并验证">三、处置（已执行并验证）</h2>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>动作</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>只重建 cron 容器（不动 web/nginx）：<code>docker compose --env-file .ops-build.env --profile cron up -d --force-recreate --no-build cron</code></td>
+<td>容器重建成功</td>
+</tr>
+<tr>
+<td>2</td>
+<td>校验容器环境变量</td>
+<td><code>QUEUE_WORKERS=crontab:queue job:queue bigDataJob:queue</code> ✅</td>
+</tr>
+<tr>
+<td>3</td>
+<td>校验实际进程</td>
+<td><code>docker top</code> 显示 3 个 <code>shell.php</code>：<code>crontab queue</code> / <code>job queue</code> / <code>bigDataJob queue</code> ✅</td>
+</tr>
+<tr>
+<td>4</td>
+<td>校验守护日志</td>
+<td><code>starting workers: crontab:queue job:queue bigDataJob:queue</code> ✅</td>
+</tr>
+<tr>
+<td>5</td>
+<td>校验消费是否生效</td>
+<td><code>bigDataJob-queue.log</code> 持续输出 <code>BigDataQueue: App\Jobs\BigData\ClickReportJob_... =&gt;success</code>（启动首分钟 158 条）</td>
+</tr>
+<tr>
+<td>6</td>
+<td>校验积压</td>
+<td>容器内按应用自身 Redis 配置实测：<code>18game_queue_big_data = 0</code>（所有队列均为 0）✅</td>
+</tr>
+<tr>
+<td>7</td>
+<td>新增自愈看护 + cron</td>
+<td><code>ops/test/scripts/youdianse-queue-guard.py</code>，<code>*/10 * * * *</code>；首跑输出 <code>ok workers=3 (crontab:queue, job:queue, bigDataJob:queue)</code> ✅</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="四-防复发-新增-队列守护自愈-看护">四、防复发：新增「队列守护自愈」看护</h2>
+<p>新增脚本：<code>ops/scripts/youdianse-queue-guard.py</code>（<strong>测试环境与线上后端共用同一份脚本</strong>，cron 每 10 分钟）</p>
+<pre><code class="language-text">0) 自动识别 php-cron 容器（按 compose 服务标签 `cron` 查找，测试/生产通用，无需按环境改脚本）
+1) **以 compose 配置为期望值**读 QUEUE_WORKERS（`docker compose config` → 解析 compose 文件 → 容器声明兜底）
+2) 用 /proc/&lt;pid&gt;/cmdline 逐个比对容器内实际在跑的 shell.php &lt;class&gt; &lt;method&gt;（不依赖容器内 ps，
+   php 官方镜像里没有 ps）
+3) 有缺失 → 自动重建 php-cron 容器（只重建 cron，不影响 web/nginx 与业务请求）→ 等待 15 秒复检
+4) 只在"确实做了处置"时通知群（沿用测试环境既有 /etc/youdianse-health-alert.json 的 bot 配置），避免刷屏
+5) 日志：/var/log/youdianse-queue-guard.log（cron 重定向另有 .cron.log）
+</code></pre>
+<p>可调环境变量：<code>YDS_COMPOSE_DIR</code> / <code>YDS_COMPOSE_ENV_FILE</code> / <code>YDS_CRON_CONTAINER</code> / <code>YDS_QUEUE_GUARD_WAIT</code> / <code>YDS_QUEUE_GUARD_LOG</code>。</p>
+<p><strong>验证</strong>：首跑检测到 3/3 worker 全部在跑（<code>ok workers=3</code>）；自愈动作与第三节步骤 1 是同一条 compose 命令（已实测可恢复）。</p>
+<h3 id="4-1-重要-设计修正-期望值必须取-compose-不能取容器自身声明">4.1 【重要】设计修正：期望值必须取 compose，不能取容器自身声明</h3>
+<p>第一版自测时发现一个致命缺陷：期望值取自<strong>容器自己声明的 QUEUE_WORKERS</strong>，而本次故障恰恰是
+「容器声明过期（2 个）、compose 已更新（3 个）」——两边都读容器的话<strong>两边都是 2 个，永远检测不出来</strong>。</p>
+<p>已修正为优先级：<strong>① <code>docker compose config</code>（展开 env 与 YAML anchor，配置真值）→ ② 直接解析 compose 文件 → ③ 兜底才用容器声明</strong>，
+并在日志/通知里标明「期望来源」。</p>
+<h3 id="4-2-端到端自愈实测-在测试环境真实复现故障后验证">4.2 端到端自愈实测（在测试环境真实复现故障后验证）</h3>
+<pre><code class="language-text">① 把测试机 compose 临时改成 2 个 worker 并重建容器 → 容器声明=crontab:queue job:queue，实际进程=2
+② 恢复 compose（3 个 worker），容器仍是旧配置 —— 精确复现本次生产故障形态
+③ 跑守护：
+   missing workers=['bigDataJob:queue']（期望来源=compose(config)，当前在跑 2 个）-&gt; healing（重建 cron 容器）
+   heal result: 已自动重建并恢复 still=[]
+④ 复检：容器声明 = crontab:queue job:queue bigDataJob:queue，实际进程 = 3 ✅
+</code></pre>
+<blockquote>
+<p>自测用的临时改动已完全还原（compose 当前为 3 个 worker），临时文件已清理。</p>
+</blockquote>
+<hr/>
+<h2 id="五-给研发-运维的注意事项">五、给研发/运维的注意事项</h2>
+<ol>
+<li><strong>改了 <code>docker-compose.yml</code> 的环境变量后，必须重建容器才生效</strong>——<code>docker restart</code> 无效。
+   正规做法是走一次发布（CICD）或手工 <code>docker compose up -d --force-recreate &lt;service&gt;</code>。</li>
+<li><strong>新增/调整队列名时</strong>，除了改 <code>QUEUE_WORKERS</code>，还要确认业务侧 <code>bin/shell.php &lt;class&gt; &lt;queue&gt;</code> 的类与方法真实存在，
+   否则 watchdog 会 5 秒一次空转重启（日志会持续 <code>exited status=...</code>）。</li>
+<li>发布后请看部署报告里的「队列：ok / missing」一行；现在另外有 10 分钟自检兜底。</li>
+<li>埋点/数数链路（18 测试后台-埋点统计 → 数数 YDS 测试环境）本次一并复核：
+   <code>big_data</code> 队列消费已恢复；<code>logbus-v2</code>（数数上报容器）近 6 小时 0 error，链路容器正常。
+   若仍有单条埋点未上报，需要业务侧按「事件 → 队列 → logbus」逐段核对，运维侧可提供对应时间点的消费日志。</li>
+</ol>
+<hr/>
+<h2 id="六-生产部署-两环境最终核对-2026-10-14-晚">六、生产部署 + 两环境最终核对（2026-10-14 晚）</h2>
+<p>按需求把<strong>同一份脚本</strong>部署到线上后端，作为生产兜底。</p>
+<h3 id="6-1-生产部署">6.1 生产部署</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>脚本路径</td>
+<td><code>/opt/docker-youdianse-php/ops/scripts/youdianse-queue-guard.py</code>（与测试环境<strong>同一份</strong>）</td>
+</tr>
+<tr>
+<td>容器识别</td>
+<td>自动（生产 <code>youdianse-main-php-cron</code>、测试 <code>youdianse-dev-php-cron</code>，无需按环境改脚本）</td>
+</tr>
+<tr>
+<td>通知</td>
+<td>复用 <code>/etc/youdianse-health-alert.json</code>，并加 <code>YDS_QUEUE_GUARD_EXTRA_CHATS="-4929911895"</code>（额外发 18game运维 群）</td>
+</tr>
+<tr>
+<td>cron</td>
+<td><code>*/10 * * * *</code>（测试与生产 root crontab 均已写入）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-2-最终核对-测试-生产-全部通过">6.2 最终核对（测试 + 生产，全部通过）</h3>
+<table>
+<thead>
+<tr>
+<th>检查项</th>
+<th>测试环境 15.152.247.196</th>
+<th>生产 16.209.16.108</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>compose <code>QUEUE_WORKERS</code></td>
+<td><code>crontab:queue job:queue bigDataJob:queue</code> ✅</td>
+<td>同 ✅</td>
+</tr>
+<tr>
+<td>容器声明的 worker</td>
+<td>3 个 ✅</td>
+<td>3 个 ✅</td>
+</tr>
+<tr>
+<td>实际运行的 worker 进程</td>
+<td>3（crontab / job / bigDataJob）✅</td>
+<td>3 ✅</td>
+</tr>
+<tr>
+<td>队列积压</td>
+<td><code>big_data=0 job=0 crontab=0</code> ✅</td>
+<td>bigDataJob 日志持续 <code>=&gt;success</code>（实时消费中）✅</td>
+</tr>
+<tr>
+<td>守护 cron</td>
+<td>已写入 ✅</td>
+<td>已写入 ✅</td>
+</tr>
+<tr>
+<td>守护运行结果</td>
+<td><code>ok workers=3</code>；<strong>自愈实测通过</strong>（4.2 节）✅</td>
+<td><code>ok workers=3 期望来源=compose(config)</code> ✅</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-3-遗留提示-非阻塞-建议处理">6.3 遗留提示（非阻塞，建议处理）</h3>
+<ul>
+<li>测试机上的 ops 仓库（<code>/opt/docker-youdianse-php</code>）落后于远端，<code>docker-compose.yml</code> 是<strong>本地手改</strong>
+  （内容与仓库提交 <code>2dc42f3</code> 等价）；建议在测试机 <code>git pull</code> 同步，避免后续发布与本地改动冲突。
+  ⚠️ 该机还有 <code>cicd-web/config/settings.json</code>、<code>ops/test/install-health-monitor.sh</code> 两处本地改动，
+  同步前先确认归属，不要直接覆盖。</li>
+</ul>
+<hr/>
+<h2 id="七-回滚">七、回滚</h2>
+<pre><code class="language-bash"># 1) 撤掉自愈守护（如需）
+sudo crontab -l | grep -v youdianse-queue-guard | sudo crontab -
+sudo rm -f /opt/docker-youdianse-php/ops/scripts/youdianse-queue-guard.py
+
+# 2) 恢复旧队列配置（不建议）：把 compose 的 QUEUE_WORKERS 改回去后重建 cron
+cd /opt/docker-youdianse-php &amp;&amp; sudo docker compose --env-file .ops-build.env --profile cron up -d --force-recreate --no-build cron
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-现象">一、现象</a></li><li style="margin-left:0.0rem"><a href="#二-排查过程与根因">二、排查过程与根因</a></li><li style="margin-left:0.8rem"><a href="#2-1-队列消费守护的架构">2.1 队列消费守护的架构</a></li><li style="margin-left:0.8rem"><a href="#2-2-关键证据">2.2 关键证据</a></li><li style="margin-left:0.8rem"><a href="#2-3-根因">2.3 根因</a></li><li style="margin-left:0.8rem"><a href="#2-4-关于-发版后守护进程就没了">2.4 关于&quot;发版后守护进程就没了&quot;</a></li><li style="margin-left:0.0rem"><a href="#三-处置-已执行并验证">三、处置（已执行并验证）</a></li><li style="margin-left:0.0rem"><a href="#四-防复发-新增-队列守护自愈-看护">四、防复发：新增「队列守护自愈」看护</a></li><li style="margin-left:0.8rem"><a href="#4-1-重要-设计修正-期望值必须取-compose-不能取容器自身声明">4.1 【重要】设计修正：期望值必须取 compose，不能取容器自身声明</a></li><li style="margin-left:0.8rem"><a href="#4-2-端到端自愈实测-在测试环境真实复现故障后验证">4.2 端到端自愈实测（在测试环境真实复现故障后验证）</a></li><li style="margin-left:0.0rem"><a href="#五-给研发-运维的注意事项">五、给研发/运维的注意事项</a></li><li style="margin-left:0.0rem"><a href="#六-生产部署-两环境最终核对-2026-10-14-晚">六、生产部署 + 两环境最终核对（2026-10-14 晚）</a></li><li style="margin-left:0.8rem"><a href="#6-1-生产部署">6.1 生产部署</a></li><li style="margin-left:0.8rem"><a href="#6-2-最终核对-测试-生产-全部通过">6.2 最终核对（测试 + 生产，全部通过）</a></li><li style="margin-left:0.8rem"><a href="#6-3-遗留提示-非阻塞-建议处理">6.3 遗留提示（非阻塞，建议处理）</a></li><li style="margin-left:0.0rem"><a href="#七-回滚">七、回滚</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-10-14</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">Redis</span><span class="tag">自动化</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-14-【问题排查】测试环…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610140000-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20bigdata%20%E9%98%9F%E5%88%97%E7%A7%AF%E5%8E%8B%2046000%EF%BC%9A%E6%A0%B9%E5%9B%A0%E4%B8%8E%E3%80%8C%E9%98%9F%E5%88%97%E5%AE%88%E6%8A%A4%E8%87%AA%E6%84%88%E3%80%8D%E5%8A%A0%E5%9B%BA.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【问题排查】测试环境 bigdata 队列积压 46000：根因与「队列守护自愈」加固。本文属于业务系统运维 / 游点涩，环境： 测试环境 （15.152.247.196， youdianse-dev-php-* 三容器） 触发：后端反馈「测试环境定时任务 start.sh 守护进程是否开启，big_data 队…</p>
+      <p>关键词：游点涩、Shell、Docker、Nginx、Redis、自动化、故障排查、数据库恢复、业务系统运维、业务系统运维 / 游点涩、【问题排查】测试环境 bigdata 队列积压 46000：根因与「队列守护自愈」加固、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-050dc5931807.html"><small>上一篇</small>【优化 + 安全】CC 守卫：误封 CloudFront 回源 IP 修复 + 群通知文案改版</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ad53e3032d89.html"><small>下一篇</small>【运维】巴西线上 PP 静态资源 CDN 缓存刷新（含 zone 查询漏刷 bug 修复）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ce9eb4728a08.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

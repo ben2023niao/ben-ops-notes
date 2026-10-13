@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【问题排查+修复】pg4 静态资源 404 被 CDN 缓存 7 天 → 访问不了（已刷缓存修复）｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
+  <meta name="description" content="【问题排查+修复】pg4 静态资源 404 被 CDN 缓存 7 天 → 访问不了（已刷缓存修复） 来源文件： ~/Projects/work/game/pgserver/master/docs/history/2026-10-14-1100-【问题排查+修复】pg4静态资源404被CDN缓存7天导">
+  <meta name="keywords" content="巴西主站，Shell，Docker，CDN，故障排查，数据库恢复，源码与配置，历史运维与项目交付，历史运维与项目交付 / 巴西主站">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7a1b5e3a8cb1.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7a1b5e3a8cb1.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610141100-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BDocker-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%2B%E4%BF%AE%E5%A4%8D%E3%80%91pg4%20%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20404%20%E8%A2%AB%20CDN%20%E7%BC%93%E5%AD%98%207%20%E5%A4%A9%20%E2%86%92%20%E8%AE%BF%E9%97%AE%E4%B8%8D%E4%BA%86%EF%BC%88%E5%B7%B2%E5%88%B7%E7%BC%93%E5%AD%98%E4%BF%AE%E5%A4%8D%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【问题排查+修复】pg4 静态资源 404 被 CDN 缓存 7 天 → 访问不了（已刷缓存修复）">
+  <meta property="og:description" content="【问题排查+修复】pg4 静态资源 404 被 CDN 缓存 7 天 → 访问不了（已刷缓存修复） 来源文件： ~/Projects/work/game/pgserver/master/docs/history/2026-10-14-1100-【问题排查+修复】pg4静态资源404被CDN缓存7天导">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7a1b5e3a8cb1.html">
+  <meta property="article:published_time" content="2026-10-14T11:00:00+08:00">
+  <meta property="article:modified_time" content="2026-10-14 11:00">
+  <meta property="article:section" content="历史运维与项目交付 / 巴西主站">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【问题排查+修复】pg4 静态资源 404 被 CDN 缓存 7 天 → 访问不了（已刷缓存修复）">
+  <meta name="twitter:description" content="【问题排查+修复】pg4 静态资源 404 被 CDN 缓存 7 天 → 访问不了（已刷缓存修复） 来源文件： ~/Projects/work/game/pgserver/master/docs/history/2026-10-14-1100-【问题排查+修复】pg4静态资源404被CDN缓存7天导">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7a1b5e3a8cb1.html#article","headline":"【问题排查+修复】pg4 静态资源 404 被 CDN 缓存 7 天 → 访问不了（已刷缓存修复）","description":"【问题排查+修复】pg4 静态资源 404 被 CDN 缓存 7 天 → 访问不了（已刷缓存修复） 来源文件： ~/Projects/work/game/pgserver/master/docs/history/2026-10-14-1100-【问题排查+修复】pg4静态资源404被CDN缓存7天导","datePublished":"2026-10-14T11:00:00+08:00","dateModified":"2026-10-14 11:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","Docker","CDN","故障排查","数据库恢复","源码与配置","历史运维与项目交付","历史运维与项目交付 / 巴西主站"],"wordCount":1160,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7a1b5e3a8cb1.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7a1b5e3a8cb1.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【问题排查+修复】pg4 静态资源 404 被 CDN 缓存 7 天 → 访问不了（已刷缓存修复）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7a1b5e3a8cb1.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 巴西主站</span> › <span>【问题排查+修复】pg4 静态资源 404 被 CDN 缓存 7 天 → 访问不了（已刷缓存修复）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
+      <h1>【问题排查+修复】pg4 静态资源 404 被 CDN 缓存 7 天 → 访问不了（已刷缓存修复）</h1>
+      <p class="lede">【问题排查+修复】pg4 静态资源 404 被 CDN 缓存 7 天 → 访问不了（已刷缓存修复） 来源文件： ~/Projects/work/game/pgserver/master/docs/history/2026-10-14-1100-【问题排查+修复】pg4静态资源404被CDN缓存7天导</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-14T11:00:00+08:00">发布于 2026-10-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,160 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-10-14-1100-【问题排查+修复】pg4静态资源404被CDN缓存7天导致访问不了-已刷缓存修复.md</code></p>
+<p>整理日期：2026-10-14 11:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>时间：2026-10-14 11:00（北京）/ 03:00（UTC）
+现象（用户报告）：</p>
+<pre><code class="language-text">https://pg4-static.tada-cdn-2026.icu/100/assets/resources/import/03/03bba7f7d.87cd6.json
+「为什么访问不了」，并补充「香港那边可正常访问」
+</code></pre>
+<p>本轮<strong>不通知飞机群</strong>。</p>
+<hr/>
+<h2 id="一-结论">一、结论</h2>
+<pre><code class="language-text">根因：这个 JSON 是**今天 05:51:31 UTC 才上传到 GCS 的**；
+      而它上传前后有请求打过来，拿到 GCS 的 404（NoSuchKey），
+      这个 404 被 Cloudflare **连响应一起缓存了 7 天**（cacheEverything + cacheTtl 604800），
+      于是文件补上之后，巴西侧用户仍然一直吃到缓存里的 404。
+      香港那台没被这个 404 污染（首次请求就是 MISS → 回源拿到 200），所以「香港能访问」。
+
+修复：对所有服务 pg4-static.* 的 22 个 zone 做 purge_everything；
+      复测该 URL 在巴西侧已恢复 200（application/json，696B）。
+</code></pre>
+<h2 id="二-排查证据-逐条实测">二、排查证据（逐条实测）</h2>
+<pre><code class="language-text">① 马尼拉（PH）出口：403 + Worker 的 "Access Denied" 页
+   → 这是 Worker 国家白名单（BR/SG/HK/AE）拦截，属预期行为，不是本次问题的原因。
+
+② 巴西出口（宝塔 35.247.205.6）：404，content-type: application/xml，
+   cf-cache-status: HIT，age=2280s，cache-control: public, max-age=604800
+   响应体：&lt;Error&gt;&lt;Code&gt;NoSuchKey&lt;/Code&gt;…No such object:
+           newgg2-dbqp-gcs-pg4-static/100/assets/resources/import/03/03bba7f7d.87cd6.json&lt;/Error&gt;
+   → 404 是 GCS 给的，而且被缓存在边缘（HIT + age=2280 + 7 天有效期）
+
+③ 香港出口（HK-01）：200，application/json，696B，cf-cache-status: MISS，
+   x-goog-stored-content-length: 696 → 没被污染，实时回源拿到正确内容
+
+④ GCS 侧：对象确实存在，696 字节，创建时间 2026-10-14T05:51:31Z（今天）
+   → 是"上传后被缓存 404 挡住"，不是对象缺失
+</code></pre>
+<p>时间线还原：</p>
+<pre><code class="language-text">~05:51  某请求命中 pg4-static.&lt;zone&gt;/100/assets/.../03bba7f7d.87cd6.json → GCS 404（对象还没上传/刚上传）
+~05:51  该 404 被 CF 缓存，TTL 604800s（7 天）
+之后    巴西侧再访问 → 直接吃缓存的 404（HIT），即使文件已在 GCS
+香港侧  本地边缘没有这条缓存 → MISS 回源 → 200
+</code></pre>
+<h2 id="三-修复动作与复测">三、修复动作与复测</h2>
+<pre><code class="language-text">在宝塔执行：
+  bash /opt/dbqp-scripts/cf_purge_zones.sh --vendor pg4
+  → PURGE_DONE ok=22 fail=0
+
+复测（巴西出口，同一个 URL）：
+  tada-cdn-2026.icu  200  application/json  696B  MISS  x-goog-stored-content-length: 696
+  xqv9m8.icu         200  …   696B  MISS
+  q7m9v8.icu         200  …   696B  MISS
+  t6qv8m.icu         200  …   696B  MISS
+  响应体是正常的 Cocos 图集 JSON（[1,[…sprite frame uuid…],["_textureSetter",…]]）
+→ 访问已恢复；首次 MISS 之后会按正常逻辑重新缓存 200。
+</code></pre>
+<h2 id="四-为什么会这样-Worker-的缓存行为-建议">四、为什么会这样（Worker 的缓存行为）+ 建议</h2>
+<pre><code class="language-text">当前 Worker（summer-wave-c94f）对静态资源是：
+  fetch(gcsRequest, { cf: { cacheKey: 内部键, cacheEverything: true, cacheTtl: 604800 } })
+它只对 200 的响应补写 Cache-Control: public, max-age=604800，
+但 cacheEverything: true 会把上游返回的任何状态码（含 404）都写进边缘缓存并保留 7 天，
+于是"上传前的 404"会把"上传后的正确文件"挡 7 天。
+
+建议（二选一或都做）：
+  A. Worker 侧：不要缓存非 200 —— 把 fetch(cf:{cacheEverything}) 换成显式 Cache API
+     （caches.default.match/put），只对 status===200 的响应 put，非 200 透传并加 no-store。
+  B. 运维侧（当下可做）：每次往 GCS 上传/替换静态资源后，刷一次对应厂家的 zone
+     （bash /opt/dbqp-scripts/cf_purge_zones.sh --vendor &lt;厂家&gt;），把可能被缓存住的旧 404/旧内容清掉。
+</code></pre>
+<h2 id="五-运维手册-同类问题怎么快速定位-处置">五、运维手册（同类问题怎么快速定位/处置）</h2>
+<pre><code class="language-bash"># 1) 看是不是"被缓存的错误响应"：重点看 cf-cache-status / age / content-type
+curl -s -o /dev/null -D - "https://&lt;静态域名&gt;/&lt;路径&gt;" | grep -iE "^HTTP/|cf-cache-status|age|cache-control|content-type"
+#    404 + application/xml + HIT + age 大 → 本文这种（缓存住的 GCS NoSuchKey）
+#    403 + text/html + Access Denied 页 → 国家白名单拦截（换允许的国家出口再试）
+
+# 2) 确认对象在不在 GCS
+export CLOUDSDK_CONFIG=/root/.config/gcloud
+gcloud storage ls -l "gs://newgg2-dbqp-gcs-&lt;厂家&gt;-static/&lt;路径&gt;"
+
+# 3) 刷缓存（整 zone；--vendor 会自动探测哪些 zone 在服务该厂家）
+bash /opt/dbqp-scripts/cf_purge_zones.sh --vendor &lt;厂家&gt;
+
+# 4) 复测时换一个"这次没请求过"的对象，避免被自己刚建立的缓存干扰
+</code></pre>
+<h2 id="六-相关文件">六、相关文件</h2>
+<pre><code class="language-text">docker/scripts/cf_purge_zones.sh                     # 刷缓存脚本（本次未改；上一轮修过 zone 查询漏刷）
+docker/doc/2026-10-14-1035-【运维】巴西线上PP静态资源CDN缓存刷新记录(含分区查询漏刷bug修复).md
+docker/doc/2026-09-14-1400-【架构改造+运维】客户端静态资源GCS单桶化与Worker变更全记录.md  # Worker 现状
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-结论">一、结论</a></li><li style="margin-left:0.0rem"><a href="#二-排查证据-逐条实测">二、排查证据（逐条实测）</a></li><li style="margin-left:0.0rem"><a href="#三-修复动作与复测">三、修复动作与复测</a></li><li style="margin-left:0.0rem"><a href="#四-为什么会这样-Worker-的缓存行为-建议">四、为什么会这样（Worker 的缓存行为）+ 建议</a></li><li style="margin-left:0.0rem"><a href="#五-运维手册-同类问题怎么快速定位-处置">五、运维手册（同类问题怎么快速定位/处置）</a></li><li style="margin-left:0.0rem"><a href="#六-相关文件">六、相关文件</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 巴西主站</li>
+          <li>日期：2026-10-14</li>
+          <li>标签：<span class="tag">巴西主站</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">CDN</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-10-14-1100-【问题排查+修复】pg4静态资源404被CDN…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610141100-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BDocker-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%2B%E4%BF%AE%E5%A4%8D%E3%80%91pg4%20%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20404%20%E8%A2%AB%20CDN%20%E7%BC%93%E5%AD%98%207%20%E5%A4%A9%20%E2%86%92%20%E8%AE%BF%E9%97%AE%E4%B8%8D%E4%BA%86%EF%BC%88%E5%B7%B2%E5%88%B7%E7%BC%93%E5%AD%98%E4%BF%AE%E5%A4%8D%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【问题排查+修复】pg4 静态资源 404 被 CDN 缓存 7 天 → 访问不了（已刷缓存修复） 来源文件： ~/Projects/work/game/pgserver/master/docs/history/2026-10-14-1100-【问题排查+修复】pg4静态资源404被CDN缓存7天导</p>
+      <p>关键词：巴西主站、Shell、Docker、CDN、故障排查、数据库恢复、源码与配置、历史运维与项目交付、历史运维与项目交付 / 巴西主站</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-77454554b7a8.html"><small>上一篇</small>2026-10-14 香港 PP 静态资源 CDN 缓存清理记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c85d2a8967e.html"><small>下一篇</small>【安全事件】GitLab 主机后门（kworker / 伪装 ntpd 内存马）处置与授权安全测试溯源</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7a1b5e3a8cb1.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【运维】巴西线上 PP 静态资源 CDN 缓存刷新（含 zone 查询漏刷 bug 修复）｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
+  <meta name="description" content="【运维】巴西线上 PP 静态资源 CDN 缓存刷新（含 zone 查询漏刷 bug 修复）。本文属于历史运维与项目交付 / 巴西主站，时间：2026-10-14 10:35（北京）/ 02:35（UTC） 需求：「清理一下巴西线上 pp 的静态资源缓存」，本轮 不通知飞机群 。 对象： pp-static.* （…">
+  <meta name="keywords" content="巴西主站，Shell，Docker，CDN，DNS，故障排查，数据库恢复，源码与配置，历史运维与项目交付，历史运维与项目交付 / 巴西主站，【运维】巴西线上 PP 静态资源 CDN 缓存刷新（含 zone 查询漏刷 bug 修复）">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ad53e3032d89.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ad53e3032d89.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610141035-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BDocker-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91%E5%B7%B4%E8%A5%BF%E7%BA%BF%E4%B8%8A%20PP%20%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20CDN%20%E7%BC%93%E5%AD%98%E5%88%B7%E6%96%B0%EF%BC%88%E5%90%AB%20zone%20%E6%9F%A5%E8%AF%A2%E6%BC%8F%E5%88%B7%20bug%20%E4%BF%AE%E5%A4%8D%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【运维】巴西线上 PP 静态资源 CDN 缓存刷新（含 zone 查询漏刷 bug 修复）">
+  <meta property="og:description" content="【运维】巴西线上 PP 静态资源 CDN 缓存刷新（含 zone 查询漏刷 bug 修复）。本文属于历史运维与项目交付 / 巴西主站，时间：2026-10-14 10:35（北京）/ 02:35（UTC） 需求：「清理一下巴西线上 pp 的静态资源缓存」，本轮 不通知飞机群 。 对象： pp-static.* （…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ad53e3032d89.html">
+  <meta property="article:published_time" content="2026-10-14T10:35:00+08:00">
+  <meta property="article:modified_time" content="2026-10-14 10:35">
+  <meta property="article:section" content="历史运维与项目交付 / 巴西主站">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【运维】巴西线上 PP 静态资源 CDN 缓存刷新（含 zone 查询漏刷 bug 修复）">
+  <meta name="twitter:description" content="【运维】巴西线上 PP 静态资源 CDN 缓存刷新（含 zone 查询漏刷 bug 修复）。本文属于历史运维与项目交付 / 巴西主站，时间：2026-10-14 10:35（北京）/ 02:35（UTC） 需求：「清理一下巴西线上 pp 的静态资源缓存」，本轮 不通知飞机群 。 对象： pp-static.* （…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ad53e3032d89.html#article","headline":"【运维】巴西线上 PP 静态资源 CDN 缓存刷新（含 zone 查询漏刷 bug 修复）","description":"【运维】巴西线上 PP 静态资源 CDN 缓存刷新（含 zone 查询漏刷 bug 修复）。本文属于历史运维与项目交付 / 巴西主站，时间：2026-10-14 10:35（北京）/ 02:35（UTC） 需求：「清理一下巴西线上 pp 的静态资源缓存」，本轮 不通知飞机群 。 对象： pp-static.* （…","datePublished":"2026-10-14T10:35:00+08:00","dateModified":"2026-10-14 10:35","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","Docker","CDN","DNS","故障排查","数据库恢复","源码与配置","历史运维与项目交付","历史运维与项目交付 / 巴西主站","【运维】巴西线上 PP 静态资源 CDN 缓存刷新（含 zone 查询漏刷 bug 修复）"],"wordCount":1175,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ad53e3032d89.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ad53e3032d89.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【运维】巴西线上 PP 静态资源 CDN 缓存刷新（含 zone 查询漏刷 bug 修复）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ad53e3032d89.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 巴西主站</span> › <span>【运维】巴西线上 PP 静态资源 CDN 缓存刷新（含 zone 查询漏刷 bug 修复）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
+      <h1>【运维】巴西线上 PP 静态资源 CDN 缓存刷新（含 zone 查询漏刷 bug 修复）</h1>
+      <p class="lede">【运维】巴西线上 PP 静态资源 CDN 缓存刷新（含 zone 查询漏刷 bug 修复）。本文属于历史运维与项目交付 / 巴西主站，时间：2026-10-14 10:35（北京）/ 02:35（UTC） 需求：「清理一下巴西线上 pp 的静态资源缓存」，本轮 不通知飞机群 。 对象： pp-static.* （…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-14T10:35:00+08:00">发布于 2026-10-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,175 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-10-14-1035-【运维】巴西线上PP静态资源CDN缓存刷新记录(含分区查询漏刷bug修复).md</code></p>
+<p>整理日期：2026-10-14 10:35｜日期依据：文件名日期</p>
+</blockquote>
+<p>时间：2026-10-14 10:35（北京）/ 02:35（UTC）
+需求：「清理一下巴西线上 pp 的静态资源缓存」，本轮<strong>不通知飞机群</strong>。
+对象：<code>pp-static.*</code>（21 个根域名 + d1b2q3p.cfd 不在服务列表）走 Cloudflare → Worker → GCS
+　　　<code>newgg2-dbqp-gcs-pp-static</code>（圣保罗桶）。</p>
+<hr/>
+<h2 id="一-结论">一、结论</h2>
+<pre><code class="language-text">· 22 个服务 pp-static.* 的 zone 全部 purge_everything 成功（ok=22 fail=0）
+· 复测：22 个 zone 上 pp 的资源都是 cf-cache-status=MISS + HTTP 200（缓存已清、回源正常）；
+  再打一次即回到 HIT（缓存重新建立），说明链路健康
+· 顺带修掉脚本一个会「漏刷主域名」的 bug（见第三节），并留了备份
+</code></pre>
+<h2 id="二-为什么是-整-zone-刷新-而不是-按-URL-刷新">二、为什么是「整 zone 刷新」而不是「按 URL 刷新」</h2>
+<pre><code class="language-text">仓库里 docker/scripts/cf_purge_zones.sh 顶部就写了（2026-09-16 实测）：
+  静态链路是 Cloudflare Worker + fetch(cf.cacheKey/cacheEverything)，
+  **purge files（按 URL 刷新）对它是无效的**，刷新后请求仍是 cf-cache=HIT；
+  只有两种有效方式：① 整 zone purge_everything（本脚本用的）② 改 Worker 的缓存盐重新部署。
+本次沿用 ①：只对**确实在服务 pp-static.* 的 zone** 做 purge_everything，
+把影响面压到最小（代价：同一 zone 下其它厂家的缓存也会被清掉，
+它们会重新从 GCS 回源一次，属可接受的冷缓存抖动）。
+
+判定"哪些 zone 在服务 pp-static.*"的方式：脚本对每个候选根域名请求
+  https://pp-static.&lt;zone&gt;/health.json
+返回 200 的才算（本次 22 个 zone 命中，从宝塔巴西出口请求，不受国家白名单影响）。
+</code></pre>
+<h2 id="三-修复-zone-列表只读第一页导致-漏刷主域名">三、⚠️ 修复：zone 列表只读第一页导致「漏刷主域名」</h2>
+<pre><code class="language-text">现象：第一次执行显示 PURGE_DONE ok=19 fail=0（看着成功），但复测发现
+      pp-static.xqv9m8.icu 的资源仍是 cf-cache-status=HIT —— 也就是说**根本没刷到**。
+原因：旧脚本用列表接口取 zone id：
+        GET /client/v4/zones?per_page=50
+      但本账户 zone 总数 &gt; 50，接口只返回第一页 → xqv9m8.icu、
+      tada-host-2026.icu、tada-host-game.icu 三个 zone 不在第一页，直接被漏掉。
+      （其中 xqv9m8.icu 是最主要的根域名，漏刷影响最大。）
+
+修复（docker/scripts/cf_purge_zones.sh）：改为**按名字逐个精确查**：
+        GET /client/v4/zones?name=&lt;zone&gt;   → 取 result[0].id
+      并把查不到的 zone 显式打印「⚠️ 查不到 zone（跳过）」，避免静默漏刷。
+
+修复后重新执行：PURGE_DONE ok=22 fail=0（这次包含 xqv9m8.icu），复测全部 MISS。
+
+历史影响提醒：**这个 bug 从脚本诞生起就存在**——此前按本脚本做的刷新
+（例如文档里 2026-09-16 那次）同样会漏掉这 3 个 zone，需要时值得补刷一次。
+</code></pre>
+<h2 id="四-实测验证">四、实测验证</h2>
+<pre><code class="language-text">基线（刷新前）：GET https://pp-static.xqv9m8.icu/gs2c/common/game-history-client/0.28720e9b.min.js
+  第 1 次 MISS → 第 2/3 次 HIT（确认该 zone 原本有缓存，验证有意义）
+
+刷新：bash /opt/dbqp-scripts/cf_purge_zones.sh --vendor pp   （耗时 26s，ok=22 fail=0）
+
+刷新后：
+  · 22 个 zone 抽样：cf-cache-status=MISS + HTTP 200 + content-length 13311（与源一致）
+  · 用「没被验证请求碰过」的对象复核（favicon.ico）→ 5 个 zone 全 MISS，排除"是我自己把它又拉回缓存"的干扰
+  · 再请求一次 → 回到 HIT，回源与缓存重建正常
+【注】第一次 22-zone 复盘时看到的 5 个 HIT，正是我验证时请求过的那 5 个 zone（被自己重新缓存），
+      用另一个对象复核后确认为 MISS，属正常现象。
+</code></pre>
+<h2 id="五-运维手册">五、运维手册</h2>
+<pre><code class="language-bash"># 刷新某个厂家的静态缓存（在宝塔上跑，CF token 在 /root/dbqp-cf-dns.env，有 IP 白名单）
+bash /opt/dbqp-scripts/cf_purge_zones.sh --vendor pp
+bash /opt/dbqp-scripts/cf_purge_zones.sh --vendor panda
+bash /opt/dbqp-scripts/cf_purge_zones.sh --zones xqv9m8.icu,q7m9v8.icu      # 指定 zone
+bash /opt/dbqp-scripts/cf_purge_zones.sh --all                            # 全部静态 zone
+
+# 验证（换一个你这次没请求过的对象，避免误判）
+curl -s -o /dev/null -D - "https://pp-static.xqv9m8.icu/favicon.ico" | grep -iE "^HTTP/|cf-cache-status"
+
+# 如果未来要「只刷一个厂家」，需要把 Worker 的缓存盐改成 per-vendor 才能做到；
+# 换全局盐会影响所有厂家（cf_worker_cache_refresh.sh）
+</code></pre>
+<h2 id="六-相关文件">六、相关文件</h2>
+<pre><code class="language-text">docker/scripts/cf_purge_zones.sh          # 本次修复（zone 按名字精确查）
+/opt/dbqp-scripts/cf_purge_zones.sh       # 宝塔部署副本（旧版已备份 .bak-20261014-103225-before-zone-lookup-fix）
+docker/doc/2026-09-10-0949-…CDN缓存清理与Worker缓存盐记录.md   # 同类操作历史记录
+docker/doc/2026-09-14-1400-…GCS单桶化与Worker变更全记录.md      # 静态链路（Worker + GCS）现状
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-结论">一、结论</a></li><li style="margin-left:0.0rem"><a href="#二-为什么是-整-zone-刷新-而不是-按-URL-刷新">二、为什么是「整 zone 刷新」而不是「按 URL 刷新」</a></li><li style="margin-left:0.0rem"><a href="#三-修复-zone-列表只读第一页导致-漏刷主域名">三、⚠️ 修复：zone 列表只读第一页导致「漏刷主域名」</a></li><li style="margin-left:0.0rem"><a href="#四-实测验证">四、实测验证</a></li><li style="margin-left:0.0rem"><a href="#五-运维手册">五、运维手册</a></li><li style="margin-left:0.0rem"><a href="#六-相关文件">六、相关文件</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 巴西主站</li>
+          <li>日期：2026-10-14</li>
+          <li>标签：<span class="tag">巴西主站</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">CDN</span><span class="tag">DNS</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-10-14-1035-【运维】巴西线上PP静态资源CDN缓存刷新记录…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610141035-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BDocker-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91%E5%B7%B4%E8%A5%BF%E7%BA%BF%E4%B8%8A%20PP%20%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20CDN%20%E7%BC%93%E5%AD%98%E5%88%B7%E6%96%B0%EF%BC%88%E5%90%AB%20zone%20%E6%9F%A5%E8%AF%A2%E6%BC%8F%E5%88%B7%20bug%20%E4%BF%AE%E5%A4%8D%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【运维】巴西线上 PP 静态资源 CDN 缓存刷新（含 zone 查询漏刷 bug 修复）。本文属于历史运维与项目交付 / 巴西主站，时间：2026-10-14 10:35（北京）/ 02:35（UTC） 需求：「清理一下巴西线上 pp 的静态资源缓存」，本轮 不通知飞机群 。 对象： pp-static.* （…</p>
+      <p>关键词：巴西主站、Shell、Docker、CDN、DNS、故障排查、数据库恢复、源码与配置、历史运维与项目交付、历史运维与项目交付 / 巴西主站、【运维】巴西线上 PP 静态资源 CDN 缓存刷新（含 zone 查询漏刷 bug 修复）</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ce9eb4728a08.html"><small>上一篇</small>【问题排查】测试环境 bigdata 队列积压 46000：根因与「队列守护自愈」加固</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-77454554b7a8.html"><small>下一篇</small>2026-10-14 香港 PP 静态资源 CDN 缓存清理记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ad53e3032d89.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

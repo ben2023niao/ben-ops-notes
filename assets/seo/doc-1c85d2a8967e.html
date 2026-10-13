@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【安全事件】GitLab 主机后门（kworker / 伪装 ntpd 内存马）处置与授权安全测试溯源｜历史运维与项目交付 / 18Game 测试环境｜BEN.OPS</title>
+  <meta name="description" content="【安全事件】GitLab 主机后门（kworker / 伪装 ntpd 内存马）处置与授权安全测试溯源。本文属于历史运维与项目交付 / 18Game 测试环境，主机： GitLab 服务器 18game-git（公网 154.36.178.157，hostname instance-WLPzsND3 ，AWS E…">
+  <meta name="keywords" content="18Game 测试环境，Linux，Shell，Python，Docker，MySQL，Redis，监控告警，历史运维与项目交付，历史运维与项目交付 / 18Game 测试环境，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c85d2a8967e.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c85d2a8967e.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610141800-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E3%80%90%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%E3%80%91GitLab%20%E4%B8%BB%E6%9C%BA%E5%90%8E%E9%97%A8%EF%BC%88kworker%20-%20%E4%BC%AA%E8%A3%85%20ntpd%20%E5%86%85%E5%AD%98%E9%A9%AC%EF%BC%89%E5%A4%84%E7%BD%AE%E4%B8%8E%E6%8E%88%E6%9D%83%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95%E6%BA%AF%E6%BA%90.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【安全事件】GitLab 主机后门（kworker / 伪装 ntpd 内存马）处置与授权安全测试溯源">
+  <meta property="og:description" content="【安全事件】GitLab 主机后门（kworker / 伪装 ntpd 内存马）处置与授权安全测试溯源。本文属于历史运维与项目交付 / 18Game 测试环境，主机： GitLab 服务器 18game-git（公网 154.36.178.157，hostname instance-WLPzsND3 ，AWS E…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c85d2a8967e.html">
+  <meta property="article:published_time" content="2026-10-14T18:00:00+08:00">
+  <meta property="article:modified_time" content="2026-10-14 18:00">
+  <meta property="article:section" content="历史运维与项目交付 / 18Game 测试环境">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【安全事件】GitLab 主机后门（kworker / 伪装 ntpd 内存马）处置与授权安全测试溯源">
+  <meta name="twitter:description" content="【安全事件】GitLab 主机后门（kworker / 伪装 ntpd 内存马）处置与授权安全测试溯源。本文属于历史运维与项目交付 / 18Game 测试环境，主机： GitLab 服务器 18game-git（公网 154.36.178.157，hostname instance-WLPzsND3 ，AWS E…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c85d2a8967e.html#article","headline":"【安全事件】GitLab 主机后门（kworker / 伪装 ntpd 内存马）处置与授权安全测试溯源","description":"【安全事件】GitLab 主机后门（kworker / 伪装 ntpd 内存马）处置与授权安全测试溯源。本文属于历史运维与项目交付 / 18Game 测试环境，主机： GitLab 服务器 18game-git（公网 154.36.178.157，hostname instance-WLPzsND3 ，AWS E…","datePublished":"2026-10-14T18:00:00+08:00","dateModified":"2026-10-14 18:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","18Game 测试环境"],"keywords":["18Game 测试环境","Linux","Shell","Python","Docker","MySQL","Redis","监控告警","历史运维与项目交付","历史运维与项目交付 / 18Game 测试环境","devops"],"wordCount":2684,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c85d2a8967e.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c85d2a8967e.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 18Game 测试环境","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【安全事件】GitLab 主机后门（kworker / 伪装 ntpd 内存马）处置与授权安全测试溯源","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c85d2a8967e.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 18Game 测试环境</span> › <span>【安全事件】GitLab 主机后门（kworker / 伪装 ntpd 内存马）处置与授权安全测试溯源</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 18Game 测试环境</div>
+      <h1>【安全事件】GitLab 主机后门（kworker / 伪装 ntpd 内存马）处置与授权安全测试溯源</h1>
+      <p class="lede">【安全事件】GitLab 主机后门（kworker / 伪装 ntpd 内存马）处置与授权安全测试溯源。本文属于历史运维与项目交付 / 18Game 测试环境，主机： GitLab 服务器 18game-git（公网 154.36.178.157，hostname instance-WLPzsND3 ，AWS E…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-14T18:00:00+08:00">发布于 2026-10-14</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,684 字</span>
+        <span class="badge">8 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-10-14_1800-【安全事件】GitLab主机后门处置与入侵溯源.md</code></p>
+<p>整理日期：2026-10-14 18:00｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>日期：2026-10-14 18:00（北京）</li>
+<li>主机：<strong>GitLab 服务器 18game-git（公网 154.36.178.157，hostname <code>instance-WLPzsND3</code>，AWS EC2）</strong></li>
+<li>分类：安全事件（E4 · 生产环境 root 级后门 + 远控）</li>
+<li>触发：排查 <code>youdianse-php</code> 推送失败时，Davie 发现可疑进程</li>
+</ul>
+<hr/>
+<h2 id="一-结论速览">一、结论速览</h2>
+<ol>
+<li><strong>后门已确认并已清除</strong>：root 权限、内存马（<code>/memfd:a</code>）、伪装成内核线程 <code>[kworker/0:2]</code>，外连两个 C2；已取证、封禁、杀进程、移除持久化，GitLab 业务未受影响。</li>
+<li><strong>不是"开发上传代码"导致的</strong>：34 个仓库全量搜索恶意样本哈希与 C2 关键字<strong>零命中</strong>，无 CI Runner，唯一 webhook 是正常 CICD 地址 → 恶意样本分析<strong>不是随代码提交进来的</strong>，而是<strong>主机层被授权安全测试</strong>。</li>
+<li><strong>最可能的授权安全测试入口：宝塔面板暴露在公网 + 默认凭据</strong>（详见第五节）。面板 <code>users</code> 表是出厂默认（<code>admin</code> / MD5("admin")），端口 <strong>888 / 33587 对公网开放</strong>；<strong>2026-08-21 21:17 有外部 IP 成功登录面板</strong>（日本 G-Core Labs VPS + 菲律宾 ISP，随后 AWS 新加坡 IP 继续访问）。</li>
+<li><strong>同一批授权安全测试者</strong>：植入目录 <code>/var/local/kworker/</code>（kworker + kworker.sh + c + cert.pem）与 <strong>2026-10-10「全机队 XMRig 挖矿」事件完全同构</strong>；且 <code>/etc/systemd/system/kworker.service</code> 在 <strong>10-10 18:41 被重写</strong>（正是我们清理其它主机之后）。</li>
+<li><strong>我方其它 6 台机器已排查：全部干净</strong>（无 memfd 内存马、无伪装 kworker、无 C2 外连、无该 IP 登录）。</li>
+</ol>
+<hr/>
+<h2 id="二-证据-已固定">二、证据（已固定）</h2>
+<h3 id="2-1-恶意进程">2.1 恶意进程</h3>
+<pre><code class="language-text">pid=2347130  uid=0  cmdline=[kworker/0:2]  exe=/memfd:a (deleted)   ← 内存马（磁盘无文件）
+启动时间：2026-10-09 01:27:21 +0800
+fd: 0/1/2=/dev/null  3=eventpoll  4=socket(C2:443)  5=/dev/ptmx(pty)  6=/memfd:a  9/10=socket(C2:4096)
+另有一个 pid=825（exe=/usr/lib/ntpd，非任何 deb 包所有）从 2026-09-24 23:34 起运行，持有同一个 C2:443 连接
+</code></pre>
+<h3 id="2-2-C2-外连">2.2 C2 外连</h3>
+<pre><code class="language-text">38.147.189.199:443    （与 pid 825 共用连接）
+23.224.221.82:4096    ×2 条
+</code></pre>
+<blockquote>
+<p>注：<code>23.224.221.82</code> 曾出现在我们 CC 守卫的扫描来源 TOP 里——同一条授权安全测试链。</p>
+</blockquote>
+<h3 id="2-3-样本与哈希">2.3 样本与哈希</h3>
+<pre><code class="language-text">/proc/2347130/exe            → 7864320 bytes  ELF 64-bit, statically linked, stripped
+  sha256 9277dc11d2d52a3c6bb934cb245ab45cf97f60883e3ead69dfccad9f91f19ee9
+/lib/ntpd 与 /usr/lib/ntpd    （同一 inode，非 deb 包文件，mtime 被伪造成 2022-02-08）
+  sha256 87a6e74b47b763ac9372803077bfd8da1389685095a45ac8a100a87cc1ffbebb  (3700880 bytes)
+/var/local/kworker/kworker    sha256 b0e1ae6d73d656b203514f498b59cbcf29f067edf6fbd3803a3de7d21960848d  (XMRig 特征：randomx/1gb-pages/cpu 配置)
+/var/local/kworker/kworker.sh sha256 8da1fc9342d4e047af3b3ac4239f55f9b0b8aab2cc38101c33ce72518d663eb5
+/var/local/kworker/c          sha256 29493a5fc2a532b2423aaf430552350490f2e12bfcac63b78fa39cf7d7021417
+/var/local/kworker/cert.pem   sha256 b8cdb995bf1b73b4d27e4eeea0100ef611518ec5eef3bd4aaec02863fdebc6a2
+</code></pre>
+<h3 id="2-4-持久化">2.4 持久化</h3>
+<pre><code class="language-text">/etc/systemd/system/kworker.service   enabled  ExecStart=/var/local/kworker/kworker.sh  Restart=on-failure  User=root
+                                      （文件 mtime 2026-10-10 18:41，说明授权安全测试者在我们清理其它主机后重新下发了持久化）
+/var/local/kworker/                   载荷目录（0777，含 XMRig + 配置 + 自签证书）
+</code></pre>
+<p>其它持久化点排查结果（均干净）：<code>/etc/ld.so.preload</code> 空、无隐藏 UID=0 账号、root crontab 与 <code>/etc/cron.d</code> 无异常、<code>.bashrc</code>/<code>profile.d</code>/<code>rc.local</code> 正常。</p>
+<h3 id="2-5-证据保全位置">2.5 证据保全位置</h3>
+<pre><code class="language-text">主机 154.36.178.157: /root/incident-20261014-gitlab/
+  ├─ sample_memfd_exe.bin            内存马样本（7.8MB）
+  ├─ artifacts_kworker_dir.tgz       /var/local/kworker 整目录（3.5MB）
+  ├─ artifacts_lib_ntpd              /lib/ntpd（伪装 ntpd 的组件）
+  ├─ artifacts_sha256.txt            全部样本哈希
+  ├─ artifacts_kworker.service       systemd 单元原文
+  ├─ proc_cmdline/status/maps/environ/fd_listing、ss_tnp/ss_tlnp、ps_full、authorized_keys、last、persistence_check.txt
+</code></pre>
+<hr/>
+<h2 id="三-处置动作-已执行并验证">三、处置动作（已执行并验证）</h2>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>动作</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>取证：复制内存样本、/proc 元数据、socket、单元文件、日志</td>
+<td>见 2.5，样本 7.8MB 已落盘并计算 sha256</td>
+</tr>
+<tr>
+<td>2</td>
+<td>停止并禁用 <code>kworker.service</code>（<code>systemctl disable --now</code>）</td>
+<td>单元已移出 <code>multi-user.target.wants</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>SIGKILL 两个植入进程（2347130 / 825）</td>
+<td><code>ps</code> 已无该进程</td>
+</tr>
+<tr>
+<td>4</td>
+<td>iptables 双向封锁两个 C2（INPUT/OUTPUT）</td>
+<td>4 条 DROP 规则生效</td>
+</tr>
+<tr>
+<td>5</td>
+<td>归档并移除 <code>/var/local/kworker</code>、<code>/lib/ntpd</code>（=<code>/usr/lib/ntpd</code>）、<code>/etc/systemd/system/kworker.service</code></td>
+<td>目录与文件均已移除，<code>daemon-reload</code> + <code>reset-failed</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td>C2 封禁持久化：<code>/usr/local/sbin/youdianse-git-c2-block.sh</code> + <code>@reboot</code></td>
+<td>crontab 已写入，脚本幂等</td>
+</tr>
+</tbody>
+</table>
+<p><strong>最终验证（全部通过）</strong></p>
+<pre><code class="language-text">残留 memfd 进程 = 0 ｜ 伪装 kworker 进程 = 0 ｜ C2 连接 = 0
+kworker 单元文件 = 已移除 ｜ /var/local/kworker 与 /lib/ntpd = 已移除
+GitLab 业务自检：dk_gitlab_ce-web-1 Up 2 weeks (healthy)，https://18game.18git.com/ → 302（正常跳登录）
+</code></pre>
+<blockquote>
+<p>处置期间未重启、未改动 GitLab 容器，推送/拉取不受影响。</p>
+</blockquote>
+<hr/>
+<h2 id="四-是不是开发上传代码导致的-结论-不是">四、"是不是开发上传代码导致的？" —— 结论：不是</h2>
+<table>
+<thead>
+<tr>
+<th>检查项</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>34 个仓库搜索恶意哈希/C2 关键字（<code>kworker</code>、<code>xmrig</code>、<code>/memfd</code>、<code>38.147.189.199</code>、<code>23.224.221.82</code>）</td>
+<td><strong>零命中</strong></td>
+</tr>
+<tr>
+<td>CI Runner（<code>/runners/all</code>）</td>
+<td><strong>无</strong>（不存在"提交代码即被执行"的通道）</td>
+</tr>
+<tr>
+<td>项目 webhook</td>
+<td>仅 1 个：<code>php/youdianse-php → https://cicd.youdianse-test.xyz/auto-deploy/youdianse</code>（正常 CICD）</td>
+</tr>
+<tr>
+<td>代码交付路径</td>
+<td>GitLab → webhook → CICD 构建镜像 → 容器；构建在<strong>其它机器</strong>，不会把宿主跑成 root</td>
+</tr>
+</tbody>
+</table>
+<p><strong>判定依据</strong>：把代码推到 GitLab 只会在"仓库/CI"层面产生影响，<strong>无法在 GitLab 宿主机上获得 root 并写入 <code>/var/local/kworker</code> + systemd 单元</strong>。因此这是<strong>主机层授权安全测试（面板/SSH 暴露面）</strong>，不是研发提交带入。</p>
+<blockquote>
+<p>另注：GitLab 事件流里所有推送作者都显示为 <code>root</code>（我们自动化发布共用 root 凭据），所以<strong>即使</strong>是代码问题也无法靠事件流归属到个人——这是需要改善的（建议发布改用专用账号/Deploy Token）。</p>
+</blockquote>
+<hr/>
+<h2 id="五-授权安全测试入口分析-最可能-次可能">五、授权安全测试入口分析（最可能 → 次可能）</h2>
+<h3 id="5-1-最可能-宝塔面板暴露公网-默认凭据">5.1 【最可能】宝塔面板暴露公网 + 默认凭据</h3>
+<pre><code class="language-text">暴露端口：888（宝塔 http）、33587（面板实际端口）—— 公网可达（实测 nc 通）
+面板用户表（/www/server/panel/data/default.db → users）：
+  username = admin
+  敏感凭据：[已脱敏]   ← MD5("admin")，即安装镜像的出厂默认
+  login_ip = 203.0.113.1 / login_time = 2016-12-10   ← 镜像内置默认行，从未被业务改写
+</code></pre>
+<p><strong>外部登录记录（宝塔面板请求日志）</strong>：</p>
+<pre><code class="language-text">2026-08-21 21:17:40  31.223.184.227  (日本·G-Core Labs VPS, Windows Chrome)  GET /6a68e69f? + /code
+2026-08-21 21:17:45  202.57.45.123   (菲律宾·PhilCom, iPhone Safari)          GET /6a68e69f? + /code
+2026-08-21 21:17:52  31.223.184.227  POST /login? → 200（成功）→ GET /? → 面板 API
+2026-08-21 21:17:55  202.57.45.123   POST /login? → 200（成功）→ GET /? → 面板 API
+2026-08-21 21:20:02  54.169.79.27    (AWS 新加坡 EC2) 面板请求 29 次
+2026-08-21 21:20:12  54.255.18.97    (AWS 新加坡 EC2) 面板请求 12 次
+</code></pre>
+<p>登录后行为：浏览软件列表、<code>/system?action=upgrade_panel</code>（面板升级）、<code>/site?action=GetSSL</code>、<code>/ssl/cert/new_ssl_proxy</code>、<code>/acme?action=apply_cert_api</code>、<code>/ajax?action=get_lines</code>（读日志）等——<strong>与"拿面板当跳板"的特征吻合</strong>。</p>
+<blockquote>
+<p>说明：<strong>无法 100% 断定</strong>该会话是授权安全测试者还是我方同事（菲律宾 PhilCom 也可能是同事家宽）。<strong>需要业务确认 31.223.184.227 / 202.57.45.123 是否为我方人员</strong>；若不是，即为授权安全测试入口。</p>
+</blockquote>
+<h3 id="5-2-次可能-其它暴露面">5.2 【次可能】其它暴露面</h3>
+<pre><code class="language-text">· MySQL 3306 与 33060 对公网开放（面板 config 表里 mysql_root=admin）——弱口令 + INTO OUTFILE 可写文件
+· SSH：PermitRootLogin yes + PasswordAuthentication yes —— 外网已观测到 79,425 次 root 密码爆破（来自 31.172.85.162，未成功）
+· Docker 端口（16380/16443/16522）绕过 ufw 直接暴露（ufw 实际只放行 20/tcp）
+</code></pre>
+<h3 id="5-3-时间线">5.3 时间线</h3>
+<pre><code class="language-text">2026-05-23        GitLab 与宝塔部署（/var/local/kworker 目录即在该日创建，可疑）
+2026-08-21 21:17  宝塔面板被外部 IP 成功登录（见 5.1）
+2026-08-25 14:41  /var/local/kworker/* 载荷文件落盘（kworker/kworker.sh/cert.pem/单元副本）
+2026-09-01 19:27  XMRig 配置 ./c 生成（首次运行痕迹）
+2026-09-24 23:34  主机重启，kworker.service 随系统自启，植入体（伪装 ntpd）常驻
+2026-10-09 01:27  内存马子进程启动（/memfd:a，伪装 [kworker/0:2]），建立 C2
+2026-10-10 18:41  kworker.service 文件被重写（我方清理其它主机之后，授权安全测试者重新下发）
+2026-10-14 17:2x  我方发现并完成取证 + 清除 + 封禁
+</code></pre>
+<hr/>
+<h2 id="六-我方其它主机排查-本次同步完成">六、我方其它主机排查（本次同步完成）</h2>
+<table>
+<thead>
+<tr>
+<th>主机</th>
+<th>角色</th>
+<th>memfd 内存马</th>
+<th>伪装 kworker</th>
+<th>C2 外连</th>
+<th>31.172.85.162 登录</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>52.79.252.255</td>
+<td>监控机 / ben-bot</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td>16.208.38.88</td>
+<td>线上网关</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td>16.209.16.108</td>
+<td>线上后端</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td>16.208.5.147</td>
+<td>线上宝塔源站</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td>15.152.247.196</td>
+<td>测试前后端</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td>15.152.6.51</td>
+<td>测试数据库</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>各机 <code>/proc/*/exe</code> 里的 <code>(deleted)</code> 项均为「系统升级后仍在运行的旧 <code>/usr/bin/python3.x</code>」等良性情况，<strong>不是</strong> memfd 内存马。</p>
+</blockquote>
+<hr/>
+<h2 id="七-必须跟进-需要业务-权限确认">七、必须跟进（需要业务/权限确认）</h2>
+<h3 id="7-1-立即-高">7.1 立即（高）</h3>
+<ol>
+<li><strong>确认 31.223.184.227 / 202.57.45.123 / 54.169.79.27 / 54.255.18.97 是否为我方</strong>；若不是 → 面板即入口。</li>
+<li><strong>宝塔面板</strong>：改强密码 + 关闭公网 888/33587（只允许内网/跳板），并核查面板插件与计划任务。</li>
+<li><strong>收敛暴露面</strong>：关闭 MySQL 3306/33060 公网、SSH 改 <code>PermitRootLogin prohibit-password</code> + 关闭密码登录（我方均已用密钥）。</li>
+<li><strong>凭据轮换</strong>（按已泄露处理）：GitLab root 与所有 Token、服务器 root/SSH 密钥、宝塔面板、配置仓库里的 DB/Redis/第三方密钥。</li>
+</ol>
+<h3 id="7-2-建议-中">7.2 建议（中）</h3>
+<ol start="5">
+<li><strong>GitLab 迁移重建</strong>：主机已被 root 级植入，建议备份后迁到新机，旧机下线；旧机至少重装。</li>
+<li><strong>清理我方凭据暴露面</strong>（见第八节），并把发布改用专用账号 + Deploy Token（不要再共用 root PAT）。</li>
+<li>核查 <code>GitLab-Admin-Bot</code>（user id=33，<code>bot=true</code>、有 admin 权限、从未登录）与 <code>site_total.service</code>（<code>/www/server/site_total</code>，疑似宝塔正规插件，<strong>待业务确认后再决定是否保留</strong>）。</li>
+</ol>
+<hr/>
+<h2 id="八-我方凭据暴露清单-轮换用">八、我方凭据暴露清单（轮换用）</h2>
+<p><code>glpat-...</code>（GitLab root PAT，2027-05-23 到期）目前写死在下列位置，<strong>轮换时必须同步替换</strong>：</p>
+<pre><code class="language-text">18game_devops 仓库（10 处）：
+  devops/python/ben-bot/data/scripts/线上环境-游点涩-h5-发版/{remote_youdianse_h5_config.py,server_config.py}
+  devops/python/ben-bot/data/scripts/测试环境-游点涩-h5-发版/{remote_youdianse_h5_config.py,server_config.py}
+  devops/python/ben-bot/data/scripts/备份/{测试环境-后端-发版,测试环境-前端-h5-发版,预发环境-前端-h5-发版,预发环境-后端-发版}/*.py
+  devops/python/ben-bot/doc/2026-08-24_1835-…md 、 workbench/AI运维教程.md
+docker-youdianse-php 仓库（1 处）
+两个仓库的 git remote URL（origin 里内嵌 token）
+监控机 52.79.252.255 上 20 个文件（含 __pycache__ 编译产物）
+</code></pre>
+<hr/>
+<h2 id="九-参考">九、参考</h2>
+<ul>
+<li>关联事件：<code>2026-10-10_2030-【安全事件】全机队XMRig挖矿木马处置记录.md</code>（同构载荷：<code>/var/local/kworker/</code> + <code>kworker.service</code>）</li>
+<li>关联排查：<code>2026-09-30</code> 系列（暴露面与防护误伤）、CC 守卫 RUNBOOK（<code>devops/scripts/cc_guard/RUNBOOK.md</code>）</li>
+<li>本次证据目录（GitLab 主机）：<code>/root/incident-20261014-gitlab/</code></li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-结论速览">一、结论速览</a></li><li style="margin-left:0.0rem"><a href="#二-证据-已固定">二、证据（已固定）</a></li><li style="margin-left:0.8rem"><a href="#2-1-恶意进程">2.1 恶意进程</a></li><li style="margin-left:0.8rem"><a href="#2-2-C2-外连">2.2 C2 外连</a></li><li style="margin-left:0.8rem"><a href="#2-3-样本与哈希">2.3 样本与哈希</a></li><li style="margin-left:0.8rem"><a href="#2-4-持久化">2.4 持久化</a></li><li style="margin-left:0.8rem"><a href="#2-5-证据保全位置">2.5 证据保全位置</a></li><li style="margin-left:0.0rem"><a href="#三-处置动作-已执行并验证">三、处置动作（已执行并验证）</a></li><li style="margin-left:0.0rem"><a href="#四-是不是开发上传代码导致的-结论-不是">四、&quot;是不是开发上传代码导致的？&quot; —— 结论：不是</a></li><li style="margin-left:0.0rem"><a href="#五-授权安全测试入口分析-最可能-次可能">五、授权安全测试入口分析（最可能 → 次可能）</a></li><li style="margin-left:0.8rem"><a href="#5-1-最可能-宝塔面板暴露公网-默认凭据">5.1 【最可能】宝塔面板暴露公网 + 默认凭据</a></li><li style="margin-left:0.8rem"><a href="#5-2-次可能-其它暴露面">5.2 【次可能】其它暴露面</a></li><li style="margin-left:0.8rem"><a href="#5-3-时间线">5.3 时间线</a></li><li style="margin-left:0.0rem"><a href="#六-我方其它主机排查-本次同步完成">六、我方其它主机排查（本次同步完成）</a></li><li style="margin-left:0.0rem"><a href="#七-必须跟进-需要业务-权限确认">七、必须跟进（需要业务/权限确认）</a></li><li style="margin-left:0.8rem"><a href="#7-1-立即-高">7.1 立即（高）</a></li><li style="margin-left:0.8rem"><a href="#7-2-建议-中">7.2 建议（中）</a></li><li style="margin-left:0.0rem"><a href="#八-我方凭据暴露清单-轮换用">八、我方凭据暴露清单（轮换用）</a></li><li style="margin-left:0.0rem"><a href="#九-参考">九、参考</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 18Game 测试环境</li>
+          <li>日期：2026-10-14</li>
+          <li>标签：<span class="tag">18Game 测试环境</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">MySQL</span><span class="tag">Redis</span><span class="tag">监控告警</span></li>
+          <li><span>来源：~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-10-14_1800-【安全事件】GitLab主机后门处置与入侵溯源…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610141800-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E3%80%90%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%E3%80%91GitLab%20%E4%B8%BB%E6%9C%BA%E5%90%8E%E9%97%A8%EF%BC%88kworker%20-%20%E4%BC%AA%E8%A3%85%20ntpd%20%E5%86%85%E5%AD%98%E9%A9%AC%EF%BC%89%E5%A4%84%E7%BD%AE%E4%B8%8E%E6%8E%88%E6%9D%83%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95%E6%BA%AF%E6%BA%90.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【安全事件】GitLab 主机后门（kworker / 伪装 ntpd 内存马）处置与授权安全测试溯源。本文属于历史运维与项目交付 / 18Game 测试环境，主机： GitLab 服务器 18game-git（公网 154.36.178.157，hostname instance-WLPzsND3 ，AWS E…</p>
+      <p>关键词：18Game 测试环境、Linux、Shell、Python、Docker、MySQL、Redis、监控告警、历史运维与项目交付、历史运维与项目交付 / 18Game 测试环境、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7a1b5e3a8cb1.html"><small>上一篇</small>【问题排查+修复】pg4 静态资源 404 被 CDN 缓存 7 天 → 访问不了（已刷缓存修复）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-bd66f03ce275.html"><small>下一篇</small>2026-10-15 UAT 堡垒机 + 监控 + 域名部署记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c85d2a8967e.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
