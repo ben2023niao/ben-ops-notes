@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>UAT 环境部署手册｜基础设施与自动化 / BKL UAT｜BEN.OPS</title>
+  <meta name="description" content="UAT 环境部署手册。本文属于基础设施与自动化 / BKL UAT，文中 xxxx 换成实际值（IP、域名、账号、密码）。命令用 root 执行或加 sudo。每节标了在哪台做。 装 JumpServer、Beszel Hub、nginx 系统统一 Ubuntu 24.04，服务目录统一放 /opt 。">
+  <meta name="keywords" content="BKL UAT，Linux，Shell，Python，Docker，Nginx，Redis，监控告警，基础设施与自动化，基础设施与自动化 / BKL UAT，UAT 环境部署手册，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4531db377f4a.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4531db377f4a.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610150000-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BLinux-UAT%20%E7%8E%AF%E5%A2%83%E9%83%A8%E7%BD%B2%E6%89%8B%E5%86%8C.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="UAT 环境部署手册">
+  <meta property="og:description" content="UAT 环境部署手册。本文属于基础设施与自动化 / BKL UAT，文中 xxxx 换成实际值（IP、域名、账号、密码）。命令用 root 执行或加 sudo。每节标了在哪台做。 装 JumpServer、Beszel Hub、nginx 系统统一 Ubuntu 24.04，服务目录统一放 /opt 。">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4531db377f4a.html">
+  <meta property="article:published_time" content="2026-10-15T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-10-15 00:00">
+  <meta property="article:section" content="基础设施与自动化 / BKL UAT">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="UAT 环境部署手册">
+  <meta name="twitter:description" content="UAT 环境部署手册。本文属于基础设施与自动化 / BKL UAT，文中 xxxx 换成实际值（IP、域名、账号、密码）。命令用 root 执行或加 sudo。每节标了在哪台做。 装 JumpServer、Beszel Hub、nginx 系统统一 Ubuntu 24.04，服务目录统一放 /opt 。">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4531db377f4a.html#article","headline":"UAT 环境部署手册","description":"UAT 环境部署手册。本文属于基础设施与自动化 / BKL UAT，文中 xxxx 换成实际值（IP、域名、账号、密码）。命令用 root 执行或加 sudo。每节标了在哪台做。 装 JumpServer、Beszel Hub、nginx 系统统一 Ubuntu 24.04，服务目录统一放 /opt 。","datePublished":"2026-10-15T00:00:00+08:00","dateModified":"2026-10-15 00:00","inLanguage":"zh-CN","articleSection":["基础设施与自动化","BKL UAT"],"keywords":["BKL UAT","Linux","Shell","Python","Docker","Nginx","Redis","监控告警","基础设施与自动化","基础设施与自动化 / BKL UAT","UAT 环境部署手册","devops"],"wordCount":6760,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4531db377f4a.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4531db377f4a.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"基础设施与自动化 / BKL UAT","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"UAT 环境部署手册","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4531db377f4a.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>基础设施与自动化 / BKL UAT</span> › <span>UAT 环境部署手册</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">基础设施与自动化 / BKL UAT</div>
+      <h1>UAT 环境部署手册</h1>
+      <p class="lede">UAT 环境部署手册。本文属于基础设施与自动化 / BKL UAT，文中 xxxx 换成实际值（IP、域名、账号、密码）。命令用 root 执行或加 sudo。每节标了在哪台做。 装 JumpServer、Beszel Hub、nginx 系统统一 Ubuntu 24.04，服务目录统一放 /opt 。</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-15T00:00:00+08:00">发布于 2026-10-15</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">6,760 字</span>
+        <span class="badge">20 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/ops/devops/devops-bkl/doc/2026年10月15日-UAT环境部署手册/UAT环境部署手册-2026年10月15日-v1.md</code></p>
+<p>整理日期：2026-10-15 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>v1　2026-10-15</p>
+<p>文中 <code>xxxx</code> 换成实际值（IP、域名、账号、密码）。命令用 root 执行或加 sudo。每节标了在哪台做。</p>
+<h2 id="一-机器规划">一、机器规划</h2>
+<p>堡垒机（服务端，1 台，4C8G）</p>
+<ul>
+<li>装 JumpServer、Beszel Hub、nginx</li>
+<li>对外只开 80、443、2222</li>
+</ul>
+<p>业务机（客户端，4 台，8C32G）</p>
+<ul>
+<li>装 Beszel Agent</li>
+</ul>
+<p>系统统一 Ubuntu 24.04，服务目录统一放 <code>/opt</code>。</p>
+<p>资产命名规范：<code>角色-公网IP</code>，例如 <code>UAT-middleware-43.249.251.11</code>。资产节点分两个：<code>UAT</code>（5 台业务机）、<code>运维管理</code>（堡垒机自己）。</p>
+<h2 id="二-每台机器-装-Docker">二、每台机器：装 Docker</h2>
+<pre><code class="language-bash">apt update
+apt install -y ca-certificates curl gnupg
+install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+chmod a+r /etc/apt/keyrings/docker.asc
+
+ARCH=$(dpkg --print-architecture)
+CODENAME=$(. /etc/os-release; echo $VERSION_CODENAME)
+REPO="deb [arch=$ARCH signed-by=/etc/apt/keyrings/docker.asc] \
+https://download.docker.com/linux/ubuntu $CODENAME stable"
+echo "$REPO" &gt; /etc/apt/sources.list.d/docker.list
+
+apt update
+apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+systemctl enable --now docker
+</code></pre>
+<p>验证：</p>
+<pre><code class="language-bash">docker --version
+docker compose version
+</code></pre>
+<p>坑：keyring 直接用下载的 <code>.asc</code> 文件，不要走 <code>gpg --dearmor</code>，否则 apt 报 NO_PUBKEY，源加不上。</p>
+<p>业务机如果要从公司内部 Harbor 拉镜像，daemon.json 里要加 <code>insecure-registries</code>（见下一节，按项目标准填地址）。</p>
+<h2 id="三-每台机器-限制容器日志大小">三、每台机器：限制容器日志大小</h2>
+<pre><code class="language-bash">cat &gt; /etc/docker/daemon.json &lt;&lt;'EOF'
+{
+  "insecure-registries": ["&lt;内部Harbor地址:端口&gt;"],
+  "log-driver": "json-file",
+  "log-opts": { "max-size": "100m", "max-file": "3" },
+  "live-restore": true
+}
+EOF
+systemctl restart docker
+</code></pre>
+<p>不限制会写满磁盘；<code>live-restore</code> 让 docker 重启时容器不断。不需要内部 Harbor 的机器，把 <code>insecure-registries</code> 那行删掉。</p>
+<h2 id="四-每台机器-运维账号免密-sudo">四、每台机器：运维账号免密 sudo</h2>
+<pre><code class="language-bash">echo "blkuat ALL=(ALL:ALL) [敏感内容已脱敏] &gt; /etc/sudoers.d/90-blkuat-nopasswd
+chmod 0440 /etc/sudoers.d/90-blkuat-nopasswd
+visudo -c -f /etc/sudoers.d/90-blkuat-nopasswd
+</code></pre>
+<p>验证：</p>
+<pre><code class="language-bash">sudo -n -i whoami      # 输出 root 就对了
+</code></pre>
+<h2 id="五-堡垒机-部署-JumpServer-服务端">五、堡垒机：部署 JumpServer（服务端）</h2>
+<p>版本用 <code>jumpserver/jms_all:v4.10.19</code>，自带 PostgreSQL 17 和 Redis，一个容器搞定。</p>
+<h3 id="5-1-建目录-生成密钥">5.1 建目录、生成密钥</h3>
+<pre><code class="language-bash">mkdir -p /opt/jumpserver/{data,download,pgdata}
+cd /opt/jumpserver
+cat &gt; .env &lt;&lt;EOF
+[敏感内容已脱敏] rand -hex 32)
+[敏感内容已脱敏] rand -hex 12)
+[敏感内容已脱敏] rand -hex 16)
+[敏感内容已脱敏] rand -hex 16)
+EOF
+chmod 600 .env
+</code></pre>
+<h3 id="5-2-初始化数据库目录-关键-别跳过">5.2 初始化数据库目录（关键，别跳过）</h3>
+<pre><code class="language-bash">docker run --rm -v /opt/jumpserver/pgdata:/target --entrypoint sh jumpserver/jms_all:v4.10.19 \
+  -c "cp -a /var/lib/postgresql/. /target/ &amp;&amp; rm -f /target/17/main/inited.txt"
+</code></pre>
+<p>不做这步，挂空目录启动会报 No PostgreSQL cluster found。</p>
+<h3 id="5-3-写-docker-compose-yml">5.3 写 docker-compose.yml</h3>
+<pre><code class="language-bash">cat &gt; /opt/jumpserver/docker-compose.yml &lt;&lt;'EOF'
+services:
+  jms_all:
+    image: jumpserver/jms_all:v4.10.19
+    container_name: jms_all
+    restart: always
+    env_file: .env
+    environment:
+      LOG_LEVEL: ERROR
+      DOMAINS: manage.xxxx          # Web SSH 走域名访问时填，用 IP 访问可留空
+    ports:
+      - "203.0.113.1:8081:80"         # Web 只监听本机，外网由 nginx 反代
+      - "2222:2222"                 # 资产 SSH 接入
+    volumes:
+      - /opt/jumpserver/data:/opt/data
+      - /opt/jumpserver/pgdata:/var/lib/postgresql
+      - /opt/jumpserver/download:/opt/download
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://203.0.113.1/api/health/ -o /dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 300s
+    logging:
+      driver: json-file
+      options: { max-size: "100m", max-file: "3" }
+EOF
+</code></pre>
+<p>8081 是给 nginx 腾出 80；不用域名可改回 <code>80:80</code>。</p>
+<h3 id="5-4-启动">5.4 启动</h3>
+<pre><code class="language-bash">cd /opt/jumpserver
+docker compose up -d
+</code></pre>
+<p>首次启动要跑数据库迁移，等 1 到 3 分钟，然后验证：</p>
+<pre><code class="language-bash">docker ps                                    # 状态 healthy
+curl -s http://203.0.113.1:8081/api/health/    # db_status 和 redis_status 都是 true
+</code></pre>
+<h3 id="5-5-设置-admin-密码">5.5 设置 admin 密码</h3>
+<p>把 <code>01-初始化/reset_admin_password.py</code> 拷进容器再执行：</p>
+<pre><code class="language-bash">docker cp reset_admin_password.py jms_all:/tmp/
+docker exec \
+  -e DB_ENGINE=postgresql -e DB_HOST=203.0.113.1 -e DB_PORT=5432 \
+  -e DB_USER=postgres -e DB_NAME=jumpserver \
+  -e [敏感内容已脱敏] \
+  -e [敏感内容已脱敏] \
+  jms_all /opt/py3/bin/python /tmp/reset_admin_password.py
+</code></pre>
+<p>浏览器打开 <code>http://xxxx:8081</code> 用 admin / xxxx 登录，第一次会引导绑定 Google Authenticator。</p>
+<h3 id="5-6-建用户-资产-授权">5.6 建用户、资产、授权</h3>
+<p>方式一，跑脚本（幂等，可重复执行）：</p>
+<pre><code class="language-bash">export [敏感内容已脱敏]
+export [敏感内容已脱敏]          # 资产的登录密码
+python3 01-初始化/setup_uat.py        # 建用户组、用户、资产、账号、授权
+python3 01-初始化/setup_uat_sudo.py   # 建 root 提权账号
+</code></pre>
+<p>方式二，界面手工做：</p>
+<ul>
+<li>用户管理 -&gt; 用户组：建 运维组、开发组</li>
+<li>用户管理 -&gt; 用户列表：建账号，运维给系统管理员，开发给系统普通用户</li>
+<li>资产管理 -&gt; 资产列表：按 名字-公网IP 命名，填内网 IP，平台选 Linux</li>
+<li>资产管理 -&gt; 账号列表：每台两个账号，blkuat 登录用，root 提权用（提权自选 blkuat）</li>
+<li>授权管理 -&gt; 资产授权：运维组授全部资产、账号 @ALL；开发组授应用节点、账号 blkuat</li>
+</ul>
+<h3 id="5-7-让提权走-sudo-免密的前提">5.7 让提权走 sudo（免密的前提）</h3>
+<p>不改的话默认走 su，要 root 密码，连接会报 EOF。</p>
+<pre><code class="language-bash">python3 02-修复/fix_platform_su.py
+</code></pre>
+<p>界面位置：资产管理 -&gt; 平台列表 -&gt; Linux -&gt; 提权方式选 <code>sudo su -</code>。</p>
+<h3 id="5-8-强制-MFA">5.8 强制 MFA</h3>
+<p>系统设置 -&gt; 安全设置 -&gt; 全局 MFA，选"全局开启"（值 1 = 全员强制，2 = 仅管理员）。每个用户的 MFA 等级设成强制。用户首次登录会要求扫码绑 GA。</p>
+<h3 id="5-9-验证审计">5.9 验证审计</h3>
+<p>普通账号登录，连一台资产，选 root 账号，能看到 root shell 就是通了。后台确认：会话管理有录像可回放；命令记录有命令。</p>
+<h2 id="六-堡垒机-部署-Beszel-监控-服务端">六、堡垒机：部署 Beszel 监控（服务端）</h2>
+<h3 id="6-1-起-Hub">6.1 起 Hub</h3>
+<pre><code class="language-bash">docker run -d --name beszel --restart unless-stopped -p 8090:8090 \
+  -v /opt/beszel/beszel_data:/beszel_data \
+  -e APP_URL="https://xxxx" \
+  henrygd/beszel
+</code></pre>
+<p>打开 <code>http://xxxx:8090</code> 注册，第一个注册的就是管理员。数据在 <code>/opt/beszel/beszel_data</code>，备份这个目录。</p>
+<p><code>APP_URL</code> 填监控的对外地址（走域名就填域名）。不填的话，告警通知里的链接会是 <code>http://localhost:8090</code>，点不开。</p>
+<p>建议：8090 只对内网开放，让机房不要放通公网 8090；用域名访问就走 nginx 反代。</p>
+<h3 id="6-1-1-中文告警版镜像">6.1.1 中文告警版镜像</h3>
+<p>官方镜像的告警文案是英文写死在代码里的（例如 <code>Connection to xxx is down 🔴</code>），官方没有多语言开关。本项目用一份打过补丁的镜像，告警全部中文：</p>
+<pre><code>xxx 已断开 🔴 / xxx 已恢复 ✅
+xxx CPU 超过阈值 / 低于阈值
+xxx 的容器全部正常 / 异常容器 xxx（xxx）
+xxx 有服务失败 / 服务已恢复
+</code></pre>
+<p>复现方式（在堡垒机上）：</p>
+<pre><code class="language-bash"># 1. 下载与线上版本一致的源码，进入目录
+tar xzf beszel-main.tar.gz -C /opt/beszel-src --strip-components=1
+cd /opt/beszel-src
+# 2. 打中文补丁（补丁文件在 code/ops-scripts-运维部署脚本/beszel/beszel-zh-alerts.patch）
+patch -p1 &lt; beszel-zh-alerts.patch
+# 3. 构建中文版镜像（Dockerfile.zh 也在这个目录）
+docker build -f Dockerfile.zh -t beszel-zh:v0.21.0 .
+</code></pre>
+<p>然后 <code>docker-compose.yml</code> 里把 <code>image</code> 换成 <code>beszel-zh:v0.21.0</code>，<code>docker compose up -d</code>。升级 Beszel 版本时，拿新版本源码重新打一次补丁、重新构建即可（补丁只改告警文案，不碰逻辑）。</p>
+<h3 id="6-2-建通用-token">6.2 建通用 token</h3>
+<p>Hub -&gt; 设置 -&gt; Tokens/Fingerprints，复制公钥，并生成通用 token。通用 token 所有机器填同一个，agent 起来自动注册到列表。</p>
+<h2 id="七-每台业务机-装-Beszel-Agent-客户端">七、每台业务机：装 Beszel Agent（客户端）</h2>
+<pre><code class="language-bash">docker run -d --name beszel-agent --restart unless-stopped --network host \
+  -v /opt/beszel-agent:/var/lib/beszel-agent \
+  -v /var/run/docker.sock:/var/run/docker.sock:ro \
+  -e KEY="xxxx" -e 敏感凭据：[已脱敏] \
+  -e HUB_URL="http://xxxx:8090" \
+  henrygd/beszel-agent:alpine
+</code></pre>
+<ul>
+<li>KEY 填 Hub 公钥，TOKEN 填通用 token，HUB_URL 填 Hub 地址</li>
+<li>agent 主动外连，业务机不用开端口</li>
+<li><code>/opt/beszel-agent</code> 存 agent 身份，重建容器不会多出重复机器</li>
+<li>用 <code>:alpine</code> 镜像是因为它自带 smartctl，后面要采磁盘健康数据直接加参数即可</li>
+</ul>
+<p>验证：Hub 刷新，机器出现在列表且状态 up。</p>
+<h2 id="八-Beszel-告警配置-服务端">八、Beszel：告警配置（服务端）</h2>
+<p>Hub -&gt; 设置 -&gt; 通知，Webhook / Push 里填：</p>
+<pre><code class="language-text">telegram://&lt;机器人token&gt;@telegram?chats=&lt;群ID&gt;
+</code></pre>
+<p>填完点测试，群里能收到就通了。</p>
+<p>坑：在界面改完通知设置点保存后，webhook 有被清掉的情况（实测遇到过），保存完回来看一眼 webhooks 还在不在，再点一次测试。</p>
+<p>系统页面开启告警，默认四条：离线、CPU 超 80%、内存超 80%、磁盘超 80%（各持续 10 分钟）。阈值和时长可改，也能把一台的规则复制到其他机器。</p>
+<p><strong>告警带 IP</strong>：监控里的系统名统一按 <code>角色-公网IP</code> 命名（如 <code>UAT-middleware-43.249.251.11</code>），这样"某某 is down"的告警里直接带公网 IP，一眼知道是哪台。</p>
+<p><strong>通知目标</strong>：监控告警只发这一个报警群；换群只改通知 URL 里的 <code>chats=</code>。机器人不主动推送值班信息（2026-10-17 起改为只在点「运维值班表」按钮时查看），启动也不再发在线通知。</p>
+<h2 id="九-Beszel-S-M-A-R-T-磁盘健康">九、Beszel：S.M.A.R.T. 磁盘健康</h2>
+<p>如果要采磁盘健康数据，在第七节的命令里加设备映射和能力（alpine 镜像已经自带 smartctl）：</p>
+<pre><code class="language-bash">docker run -d --name beszel-agent --restart unless-stopped --network host \
+  -v /opt/beszel-agent:/var/lib/beszel-agent \
+  -v /var/run/docker.sock:/var/run/docker.sock:ro \
+  --device /dev/sda:/dev/sda \
+  --cap-add SYS_RAWIO --cap-add SYS_ADMIN \
+  -e KEY="xxxx" -e 敏感凭据：[已脱敏] \
+  -e HUB_URL="http://xxxx:8090" \
+  henrygd/beszel-agent:alpine
+</code></pre>
+<p>设备名填控制器名（sda、nvme0），不要填分区（sda1）。</p>
+<p>KVM 虚拟机的 virtio 磁盘（<code>/dev/vda</code>）不暴露 SMART，配了也没数据，smartctl 报 <code>Unable to detect device type</code>。要拿物理盘健康数据，得在宿主机上监控，或者让机房把虚拟机磁盘换成 virtio-scsi。物理机、直通盘不受影响。</p>
+<p>告警自动生效：只要有数据且通知通道配好了，磁盘报故障就会发通知。</p>
+<h2 id="十-域名和反向代理-服务端">十、域名和反向代理（服务端）</h2>
+<h3 id="10-1-起-nginx-容器">10.1 起 nginx 容器</h3>
+<pre><code class="language-bash">mkdir -p /opt/nginx/{conf.d,certs,www/certbot,logs}
+
+cat &gt; /opt/nginx/docker-compose.yml &lt;&lt;'EOF'
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: nginx
+    restart: unless-stopped
+    network_mode: host          # 直接占宿主 80/443，反代本机服务
+    volumes:
+      - ./conf.d:/etc/nginx/conf.d:ro
+      - ./certs:/etc/nginx/certs:ro
+      - ./www:/var/www
+      - ./logs:/var/log/nginx
+    logging:
+      driver: json-file
+      options: { max-size: "100m", max-file: "3" }
+EOF
+</code></pre>
+<h3 id="10-2-站点配置">10.2 站点配置</h3>
+<pre><code class="language-bash">cat &gt; /opt/nginx/conf.d/00-map.conf &lt;&lt;'EOF'
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+EOF
+
+cat &gt; /opt/nginx/conf.d/10-manage.conf &lt;&lt;'EOF'
+server {
+    listen 80;
+    listen 443 ssl;
+    server_name manage.xxxx;
+
+    ssl_certificate     /etc/nginx/certs/live/manage.xxxx/fullchain.pem;
+    ssl_certificate_key /etc/nginx/certs/live/manage.xxxx/privkey.pem;
+
+    location /.well-known/acme-challenge/ { root /var/www/certbot; }
+
+    client_max_body_size 500m;
+
+    location / {
+        proxy_pass http://203.0.113.1:8081;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;        # Web SSH 要用
+        proxy_set_header Connection $connection_upgrade;
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+}
+EOF
+</code></pre>
+<p>监控和文档站按同样格式再写两个文件，<code>proxy_pass</code> 分别指到 <code>203.0.113.1:8090</code> 和 <code>203.0.113.1:8190</code>。</p>
+<h3 id="10-3-起-nginx-前先腾出-80-端口">10.3 起 nginx 前先腾出 80 端口</h3>
+<p>顺序不能反。先把 JumpServer 的 80 改成 <code>203.0.113.1:8081</code>（见 5.3），重启：</p>
+<pre><code class="language-bash">cd /opt/jumpserver &amp;&amp; docker compose up -d
+</code></pre>
+<p>再起 nginx：</p>
+<pre><code class="language-bash">cd /opt/nginx &amp;&amp; docker compose up -d
+docker exec nginx nginx -t        # 语法检查
+docker exec nginx nginx -s reload
+</code></pre>
+<p>验证（在服务端本机）：</p>
+<pre><code class="language-bash">curl -s -o /dev/null -w "%{http_code}\n" -H "Host: manage.xxxx" http://203.0.113.1/
+</code></pre>
+<h3 id="10-4-申请-HTTPS-证书">10.4 申请 HTTPS 证书</h3>
+<p>先确认 <code>http://manage.xxxx/.well-known/acme-challenge/</code> 能访问，证书验证走这个路径。</p>
+<pre><code class="language-bash">docker run --rm -v /opt/nginx/certs:/etc/letsencrypt -v /opt/nginx/www/certbot:/var/www \
+  certbot/certbot certonly --webroot -w /var/www \
+  -d manage.xxxx -d monitor.xxxx \
+  --email xxxx@xxxx --agree-tos --no-eff-email --non-interactive
+</code></pre>
+<p><code>-w</code> 后面必须是 nginx 里 root 指的那个目录（这里 <code>/var/www/certbot</code>），不一致会一直报 404。</p>
+<p>自动续期（加到 <code>/etc/cron.d/certbot-renew</code>）：</p>
+<pre><code class="language-bash">cat &gt; /opt/nginx/renew-cert.sh &lt;&lt;'EOF'
+#!/bin/bash
+docker run --rm -v /opt/nginx/certs:/etc/letsencrypt \
+  -v /opt/nginx/www/certbot:/var/www \
+  certbot/certbot renew --webroot -w /var/www --quiet
+docker exec nginx nginx -s reload
+EOF
+chmod +x /opt/nginx/renew-cert.sh
+
+echo "0 3 * * * root /opt/nginx/renew-cert.sh" &gt; /etc/cron.d/certbot-renew
+</code></pre>
+<h3 id="10-5-走-Cloudflare-的话">10.5 走 Cloudflare 的话</h3>
+<p>SSL/TLS 模式必须是 Full 或 Full(strict)，否则页面报 521。</p>
+<p>记录真实客户端 IP，nginx 里加：</p>
+<pre><code class="language-nginx">set_real_ip_from &lt;Cloudflare 网段&gt;;
+real_ip_header CF-Connecting-IP;
+</code></pre>
+<h2 id="十一-日常运维">十一、日常运维</h2>
+<p>重启服务：</p>
+<pre><code class="language-bash">cd /opt/jumpserver &amp;&amp; docker compose restart
+docker restart beszel
+docker restart beszel-agent
+cd /opt/nginx &amp;&amp; docker compose restart
+</code></pre>
+<p>看日志：</p>
+<pre><code class="language-bash">docker logs jms_all --tail 100
+docker logs beszel --tail 50
+docker logs beszel-agent --tail 50
+docker logs nginx --tail 50
+</code></pre>
+<p>证书续期脚本：<code>/opt/nginx/renew-cert.sh</code>，定时任务在 <code>/etc/cron.d/certbot-renew</code>。改完配置先跑一次 <code>docker exec nginx nginx -t</code> 再 reload。</p>
+<p>备份（每天定时打包，异地存一份）：</p>
+<pre><code class="language-text">/opt/jumpserver/pgdata      堡垒机数据库
+/opt/jumpserver/data        堡垒机附件、录像
+/opt/beszel/beszel_data     监控数据
+/opt/nginx/certs            证书
+/opt/jumpserver/.env        密钥，丢了数据解不开
+</code></pre>
+<p>升级：改 compose 里的版本号，<code>docker compose up -d</code>。先停服务、备份 pgdata。</p>
+<h2 id="十二-运维机器人-ben-bot-精简版">十二、运维机器人（ben-bot 精简版）</h2>
+<p>三个入口：运维值班表、堡垒机、监控。值班人 @Ben_Bird（运维），工作时间 09:00-19:00，每周日单休。</p>
+<p>代码：<code>/opt/ben-bot</code>（本地对应 <code>code/ben-bot-运维机器人/</code> 目录，含 <code>deploy.sh</code>）</p>
+<h3 id="12-1-部署">12.1 部署</h3>
+<pre><code class="language-bash"># 把 ben-bot 目录传到服务器后：
+cd /opt/ben-bot &amp;&amp; bash deploy.sh
+docker logs --tail 30 ben-bot     # 出现 ben-bot started 就是起来了
+</code></pre>
+<p>机器人主动轮询 Telegram，不需要开放端口。</p>
+<h3 id="12-2-使用">12.2 使用</h3>
+<ul>
+<li>私聊或群里发 <code>/start</code>，显示当前信息（用户、用户ID、身份、权限、聊天ID、聊天类型；群里额外显示群名称）</li>
+<li>三个按钮：<code>📅 运维值班表</code>（显示今天谁值班 + 本周安排）、<code>🖥 堡垒机</code>、<code>📊 监控</code></li>
+<li>堡垒机和监控是链接按钮，点一下直接在 Telegram 内嵌浏览器里打开对应域名，不需要额外登录方式（沿用各自的账号）</li>
+<li>权限：运维（@Ben_Bird）和后端开发（@SVDSeven、@brenttto、@Markwu999）都是全部权限，能看到三个按钮；其他人在私聊里只能看到值班表</li>
+<li>通知：机器人<strong>不主动推送</strong>值班信息，启动也不发在线通知；值班表只在点按钮时显示（<code>duty_status.py</code> 里 <code>DUTY_NOTIFY_CHAT_IDS</code> 为空即关闭定时推送，填群 ID 可恢复）</li>
+</ul>
+<h3 id="12-2-1-命令">12.2.1 命令</h3>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/start</code></td>
+<td>打开菜单（当前信息 + 三个入口）</td>
+</tr>
+<tr>
+<td><code>/help</code></td>
+<td>帮助（值班表说明）</td>
+</tr>
+<tr>
+<td><code>/id</code></td>
+<td>查看当前聊天 / 用户 ID</td>
+</tr>
+<tr>
+<td><code>/sh 命令</code></td>
+<td>在机器人容器里执行命令并返回输出，例：<code>/sh ls /app/data/scripts</code>、<code>/sh df -h</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>/sh</code> 的权限：运维和后端开发可用，其他人会被拒绝。</p>
+<p>安全策略：<code>rm</code> 在黑名单里直接拦截；命令里带 <code>;</code>、<code>&amp;</code> 等拼接字符会被拒绝；执行范围只在机器人容器内（<code>/app</code> 目录和容器里已装的工具），不会碰到宿主机。</p>
+<h3 id="12-3-改入口和角色">12.3 改入口和角色</h3>
+<p>入口按目录注册，一个目录一个按钮：</p>
+<table>
+<thead>
+<tr>
+<th>位置</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>data/scripts/运维值班表/.benbot.json</code></td>
+<td>值班表按钮，<code>order</code> 控制排序</td>
+</tr>
+<tr>
+<td><code>data/scripts/堡垒机/.benbot.json</code></td>
+<td>堡垒机链接按钮，改 <code>url</code> 换地址</td>
+</tr>
+<tr>
+<td><code>data/scripts/监控/.benbot.json</code></td>
+<td>监控链接按钮，改 <code>url</code> 换地址</td>
+</tr>
+</tbody>
+</table>
+<p>加新入口：在 <code>data/scripts/</code> 下新建目录，放一个 <code>.benbot.json</code>（<code>action</code> 填 <code>link</code>、<code>url</code> 填链接），再把目录名加进 <code>app/benbot/constants.py</code> 的 <code>VISIBLE_TOP_LEVEL_DIRS</code>，重启容器生效。</p>
+<p>角色名单同样在 <code>constants.py</code>：<code>OPS_USERNAMES</code>（运维）、<code>BACKEND_USERNAMES</code>（后端开发）；能看哪些入口在 <code>app/benbot/permissions.py</code> 的 <code>ROLE_ALLOWED_PATHS</code>。</p>
+<h3 id="12-4-改值班表">12.4 改值班表</h3>
+<p>改 <code>/opt/ben-bot/data/scripts/运维值班表/weekend_duty.json</code>，改完在群里重点一次按钮即可生效，不用重启容器。</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>member</td>
+<td>值班人姓名、用户名、角色</td>
+</tr>
+<tr>
+<td>work.start / work.end</td>
+<td>上下班时间，当前 09:00-19:00</td>
+</tr>
+<tr>
+<td>rest_weekday</td>
+<td>每周固定休息日，0=周一 … 6=周日（当前 6，即每周日单休）</td>
+</tr>
+<tr>
+<td>rest_by_date</td>
+<td>临时多休的日期，例：<code>{"2026-10-20": "调休"}</code></td>
+</tr>
+<tr>
+<td>duty_by_date</td>
+<td>本该休息但临时值班的日期，例：<code>["2026-10-18"]</code></td>
+</tr>
+<tr>
+<td>note</td>
+<td>值班表底部的说明文字</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-5-注意">12.5 注意</h3>
+<ol>
+<li>一个机器人 token 只能有一个实例在轮询。这个 token 同时给监控告警发消息用（那只是单向发送，不冲突），但不要再起第二个 ben-bot。</li>
+<li>本地调试用环境变量 <code>TELEGRAM_API_TOKEN</code> 换一个机器人 token，避免和服务器上的实例抢更新。</li>
+<li>值班信息默认<strong>只在点「运维值班表」按钮时显示</strong>，不自动推送、启动也不发通知（2026-10-17 按要求调整）。要恢复 08:30 / 09:00 / 19:00 的定时提醒，把群 ID 填进 <code>app/benbot/duty_status.py</code> 的 <code>DUTY_NOTIFY_CHAT_IDS</code> 并重启容器。</li>
+</ol>
+<h3 id="12-6-代码每日自动备份">12.6 代码每日自动备份</h3>
+<p>每天 09:00（Asia/Shanghai）自动把代码打包成 <code>ben-bot-代码-YYYY年MM月DD日.zip</code> 发到报警群。</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>脚本</td>
+<td><code>/opt/ben-bot/scripts/daily_code_backup.sh</code>（仓库内 <code>code/ben-bot-运维机器人/scripts/</code>）</td>
+</tr>
+<tr>
+<td>定时任务</td>
+<td><code>/etc/cron.d/ben-bot-code-backup</code>，写 <code>0 1 * * *</code>（服务器 UTC，等于 09:00 上海）</td>
+</tr>
+<tr>
+<td>产物</td>
+<td><code>/opt/ben-bot-backup/</code>，保留最近 7 份</td>
+</tr>
+<tr>
+<td>日志</td>
+<td><code>/var/log/ben-bot-code-backup.log</code>，记录每次是否发送成功</td>
+</tr>
+</tbody>
+</table>
+<p>注意：<strong>这台机器的 cron 不认 <code>CRON_TZ</code></strong>（实测），要按服务器本地时间（UTC）换算；脚本内部仍用 Shanghai 时区取日期。</p>
+<h3 id="12-7-堡垒机域名的访问密码-nginx-Basic-Auth">12.7 堡垒机域名的访问密码（nginx Basic Auth）</h3>
+<blockquote>
+<p>历史：2026-10-16 曾做过"机器人里开关堡垒机账号 + 管理放行 IP"的面板，当天下午按团队决定<strong>撤销</strong>（理由：堡垒机不需要这些花活，且有安全隐患，统一收敛到域名访问控制）。机器人的堡垒机菜单节点、IP 输入 handler 和专用 API 账号 <code>botapi</code> 都已移除/停用（归档在服务器 <code>/opt/_removed_20261016/</code>）。菜单回到三个入口：<code>📅 运维值班表</code> / <code>🖥 堡垒机</code> / <code>📊 监控</code>。</p>
+</blockquote>
+<p>现在采用 nginx 层保护：打开 <code>https://manage.evercare.id</code> 会先弹一个 HTTP Basic 认证，输入运维内部约定的账号密码才能看到登录页。</p>
+<p>配置在 <code>code/ops-scripts-运维部署脚本/nginx/</code>：</p>
+<pre><code class="language-nginx"># conf.d/10-manage.conf 里 server 段
+auth_basic "BKL UAT";
+auth_basic_user_file /etc/nginx/auth/manage.htpasswd;
+
+location /.well-known/acme-challenge/ {
+    root /var/www/certbot;
+    auth_basic off;     # 证书续期路径必须免密，否则 90 天后续期失败
+}
+</code></pre>
+<pre><code class="language-yaml"># docker-compose.yml 增加挂载
+volumes:
+  - ./auth:/etc/nginx/auth:ro
+</code></pre>
+<p>操作步骤：</p>
+<pre><code class="language-bash"># 1. 生成密码（不用装 apache2-utils）
+PW=$(openssl rand -base64 15 | tr -d '/+=' | head -c 12)
+sudo mkdir -p /opt/nginx/auth
+printf 'ops:%s\n' "$(openssl passwd -apr1 "$PW")" | sudo tee /opt/nginx/auth/manage.htpasswd
+sudo chmod 644 /opt/nginx/auth/manage.htpasswd
+# 2. 生效
+cd /opt/nginx &amp;&amp; sudo docker compose up -d &amp;&amp; sudo docker exec nginx nginx -t &amp;&amp; sudo docker exec nginx nginx -s reload
+</code></pre>
+<p>验证：不带密码 → 401；带账号密码 → 200；<code>/.well-known/acme-challenge/</code> 免密；监控域名不受影响。</p>
+<p>注意：密码是团队共享的，人员变动要换（改 <code>/opt/nginx/auth/manage.htpasswd</code> 后 reload）；服务器上另存了一份 <code>/root/nginx-manage-password.txt</code>（600）。</p>
+<h3 id="12-7-1-运维工作台页面-work-evercare-id">12.7.1 运维工作台页面（work.evercare.id）</h3>
+<p>把常用入口收在一个静态页面上，团队成员收藏一个网址即可。页面基于团队原有的导航页改造，放在 <code>code/work-console-运维工作台页面/</code>，服务器目录 <code>/opt/nginx/www/work</code>。</p>
+<p>按钮：堡垒机 / 监控 / 文档（Google Drive 共享文件夹）/ 运维机器人 / 报警群 / Cloudflare。</p>
+<p>其中「文档」用的是 Google Drive 的<strong>内嵌文件夹视图</strong>（<code>https://drive.google.com/embeddedfolderview?id=1_jl0zo_lQahhZunI-rieO9UABs5dOZt0#list</code>）：普通 Drive 链接带 <code>X-Frame-Options: SAMEORIGIN</code> 不能内嵌，这个视图是 Google 专门给嵌入用的。限制是浏览器必须已登录有权限的 Google 账号，否则 iframe 里是登录页；要完整界面就用普通链接 <code>https://drive.google.com/drive/folders/1_jl0zo_lQahhZunI-rieO9UABs5dOZt0</code> 打开。换文件夹只改这一处 URL。</p>
+<p>打开方式由每个按钮的 <code>openInNewWindow</code> 决定（双击图标触发）：监控、文档用<strong>内嵌面板</strong>（<code>false</code>，在工作台页面里弹出可拖动窗口）；堡垒机、Telegram 机器人、报警群、Cloudflare 用<strong>新窗口</strong>（<code>true</code>）。堡垒机改新窗口是使用体验决定的（要输访问密码 + 后续跳转），Telegram / Cloudflare 则是外部服务发 <code>X-Frame-Options</code> 禁止被 iframe 嵌入，只能新窗口。</p>
+<p>想内嵌的站点如果自带 <code>X-Frame-Options</code>，需要在对应反代里加一行 <code>proxy_hide_header X-Frame-Options;</code>（监控和文档的配置已加）。</p>
+<p>nignx 站点配置 <code>conf.d/40-work.conf</code>：</p>
+<pre><code class="language-nginx">server {
+    listen 80;
+    listen 443 ssl;
+    server_name work.evercare.id;
+
+    ssl_certificate     /etc/nginx/certs/live/work.evercare.id/fullchain.pem;
+    ssl_certificate_key /etc/nginx/certs/live/work.evercare.id/privkey.pem;
+
+    auth_basic "BKL UAT";                      # 与堡垒机同一套密码
+    auth_basic_user_file /etc/nginx/auth/manage.htpasswd;
+
+    location /.well-known/acme-challenge/ { root /var/www/certbot; auth_basic off; }
+
+    root /var/www/work;
+    index index.html;
+    location / { try_files $uri $uri/ =404; }
+}
+</code></pre>
+<p>部署顺序：先上 HTTP 版配置 → 签证书（<code>certbot certonly --webroot -w /var/www -d work.evercare.id</code>）→ 换 443 版 → <code>nginx -t</code> + reload。</p>
+<p>加新入口只改 <code>code/work-console-运维工作台页面/index.html</code> 里的 <code>icons</code> 数组，然后把文件传到 <code>/opt/nginx/www/work/</code>，不需要改 nginx。</p>
+<h3 id="12-8-登录来源-IP-管控与全局-MFA-防爆破">12.8 登录来源 IP 管控与全局 MFA（防爆破）</h3>
+<p><strong>全局 MFA 已开启</strong>（2026-10-16，按项目要求）：</p>
+<pre><code>SECURITY_MFA_AUTH = 1     # 0 不开启 / 1 全员强制 / 2 仅管理员强制
+</code></pre>
+<p>效果：所有账号下次登录都要扫码绑定 Google Authenticator，之后每次登录输验证码。注意：脚本/接口登录同样会被 MFA 拦住，需要自动化时要先想好怎么处理（例如给服务账号单独放行或临时调整）。</p>
+<p>坑：改完设置后<strong>接口读回可能还是旧值</strong>（进程内缓存），别被误导——以数据库 <code>settings.Setting</code> 或"重新登录试一次"为准。</p>
+<p>2026-10-16 发现公网在暴力破解登录接口（3 个 IP 两天内 3000+ 次失败，导致 admin 反复被锁）。已配置：</p>
+<table>
+<thead>
+<tr>
+<th>设置</th>
+<th>值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SECURITY_LOGIN_IP_BLACK_LIST</code></td>
+<td>授权安全测试 IP</td>
+<td>黑名单在<strong>验密码之前</strong>拦，不再累计失败次数</td>
+</tr>
+<tr>
+<td><code>SECURITY_LOGIN_IP_WHITE_LIST</code></td>
+<td>自己人的 IP + <code>203.0.113.1</code></td>
+<td>白名单永不限速、永不封禁</td>
+</tr>
+<tr>
+<td><code>SECURITY_LOGIN_IP_LIMIT_COUNT</code></td>
+<td>30</td>
+<td>原值 99999 等于没限速</td>
+</tr>
+<tr>
+<td><code>SECURITY_LOGIN_IP_LIMIT_TIME</code></td>
+<td>30（分钟）</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>注意：</p>
+<ol>
+<li><strong><code>203.0.113.1</code> 必须留在白名单</strong>，它是 nginx → JumpServer 的 docker 网关地址，封了控制台直接打不开。</li>
+<li>这些设置<strong>改完要重启 JumpServer 容器</strong>才生效（进程启动时加载）。</li>
+<li>账号被临时锁定时，解锁要用 ORM（<code>LoginBlockUtil.unblock_user</code>），因为登录接口本身也被锁住了。</li>
+<li>长期方案：域名侧加访问控制（Cloudflare Access / WAF）+ 恢复全局 MFA。</li>
+</ol>
+<h2 id="十三-部署检查清单">十三、部署检查清单</h2>
+<ul>
+<li>[ ] 每台机器 Docker 装好，daemon.json 配好，docker 开机自启</li>
+<li>[ ] 运维账号 sudo 免密</li>
+<li>[ ] 堡垒机能打开登录页，admin 能登录</li>
+<li>[ ] 用户组、用户、资产、账号、授权都建好</li>
+<li>[ ] 用普通账号连一次资产，能提权到 root</li>
+<li>[ ] 会话有录像，命令有记录</li>
+<li>[ ] 所有账号 MFA 已开</li>
+<li>[ ] Beszel 里所有机器状态 up</li>
+<li>[ ] 告警测试能收到消息</li>
+<li>[ ] 域名 HTTPS 能打开，证书自动续期已配</li>
+<li>[ ] 备份任务已配</li>
+</ul>
+<h2 id="十四-踩过的坑-按出现顺序">十四、踩过的坑（按出现顺序）</h2>
+<ol>
+<li><strong>Docker 源加不上，报 NO_PUBKEY</strong>：别用 <code>gpg --dearmor</code>，直接下载 <code>.asc</code> 当 keyring。</li>
+<li><strong>JumpServer 起不来，日志报 No PostgreSQL cluster found</strong>：挂载的 pgdata 目录是空的，要先从镜像里拷贝初始化好的数据目录（5.2）。</li>
+<li><strong>用户连资产提示 No account found，但权限明明给了</strong>：授权里的账号字段要填别名，不是账号 UUID。填 <code>blkuat</code>、<code>root</code> 这种用户名，或者 <code>@ALL</code>。</li>
+<li><strong>提权连接报 EOF，目标机日志显示 su 认证失败</strong>：默认走 su，需要 root 密码。要在平台设置里把提权方式改成 sudo。</li>
+<li><strong>强制首次改密后，登录报 500</strong>：v4.10.19 + Python 3.14 的已知问题。不要给用户设"首次登录必须改密"。</li>
+<li><strong>改了 MFA 相关的数据库配置不生效</strong>：这些配置在进程里是缓存的，改完要重启容器。</li>
+<li><strong>80 端口被占用，nginx 起不来</strong>：JumpServer 默认占 80，先把它改到 <code>203.0.113.1:8081</code>，再起 nginx。</li>
+<li><strong>证书签不下来，报 404</strong>：certbot 的 <code>-w</code> 目录和 nginx 里 acme-challenge 的 root 目录要一致。</li>
+<li><strong>域名打开报 521</strong>：Cloudflare 的 SSL 模式不是 Full。</li>
+<li><strong>Beszel 的 S.M.A.R.T. 一直没数据</strong>：KVM 虚拟机的 virtio 磁盘不暴露 SMART，不是配置问题（见第九节）。</li>
+<li><strong>Telegram 机器人给个人发消息失败</strong>：机器人不能主动给没和它对话过的人发消息，让本人先给机器人发一句 <code>/start</code>。</li>
+<li><strong>告警突然不发了</strong>：去 Hub 通知设置里看 webhook 还在不在，界面上保存过设置可能把它清掉。</li>
+<li><strong>容器反复重启，日志报 <code>Fatal glibc error: CPU does not support x86-64-v2</code></strong>：虚拟机的 CPU 型号太老（缺 popcnt），不是 Docker 或应用问题。见第 12.9 节。</li>
+</ol>
+<h3 id="12-9-容器报-CPU-does-not-support-x86-64-v2-怎么处理">12.9 容器报 <code>CPU does not support x86-64-v2</code> 怎么处理</h3>
+<p>2026-10-16 在 UAT 中间件服务器上遇到：minio、rocketmq-dashboard 反复重启，日志是
+<code>Fatal glibc error: CPU does not support x86-64-v2</code>（exit 127），同机其它容器正常。</p>
+<p><strong>判断（一条命令）</strong></p>
+<pre><code class="language-bash">grep -m1 "model name" /proc/cpuinfo
+grep -qw popcnt /proc/cpuinfo &amp;&amp; echo "CPU 满足 x86-64-v2" || echo "缺 popcnt → 就是这个原因"
+</code></pre>
+<p><strong>原因</strong>：UAT 这几台虚拟机的 CPU 型号是 <code>Intel Core 2 Duo T7700</code>（缺 popcnt、无 AVX），达不到 x86-64-v2 基线；而基于 RHEL9 / UBI9 等较新基线构建的镜像要求 v2，启动即退出。与 Docker 版本无关（换 docker-ce 无效）。</p>
+<p><strong>解决</strong></p>
+<ol>
+<li>根治：请机房把虚拟机的 CPU 类型改成 <code>host</code>（直通宿主机）或 Skylake 及以上，关机改、开机生效。之后所有新镜像可直接使用。</li>
+<li>临时绕行：
+   - 能降版本的降版本：<code>apacherocketmq/rocketmq-dashboard</code> 2.1.0 → 2.0.1 可直接运行（改 compose 里的 image 后 <code>docker compose up -d &lt;服务&gt;</code>）。
+   - 不能降版本的自建静态镜像：minio 官方镜像仓库（<code>minio/minio</code> 404）和下载站（<code>dl.min.io</code> 410）都已下线，镜像站所有 tag 都是新基线；用源码编译静态二进制（Go 静态编译，与 glibc / CPU 指令集无关）：</li>
+</ol>
+<pre><code class="language-bash"># 服务器上 /opt/minio-build/Dockerfile 已就绪
+cd /opt/minio-build
+sudo docker build --build-arg MINIO_TAG=RELEASE.2025-10-15T17-29-55Z \
+  -t minio-uat:RELEASE.2025-10-15T17-29-55Z .
+# 改 /home/chili/docker-compose.yml 中 minio 的 image 为 minio-uat:RELEASE.2025-10-15T17-29-55Z
+cd /home/chili &amp;&amp; sudo docker compose up -d minio
+</code></pre>
+<p><strong>验证</strong>：<code>docker ps</code> 两个容器 Up；<code>curl -s -o /dev/null -w "%{http_code}\n" http://203.0.113.1:9000/minio/health/live</code> 返回 200；<code>docker logs --tail 5 rocketmq-dashboard</code> 能看到 Tomcat started。</p>
+<h3 id="12-10-UAT-SRS-专线质量监控">12.10 UAT → SRS 专线质量监控</h3>
+<p>UAT 两台 worker 通过 IEPL 专线连 SRS（<code>203.0.113.1</code>），监控链路连通性与稳定性。</p>
+<table>
+<thead>
+<tr>
+<th>位置</th>
+<th>文件</th>
+<th>定时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>worker01 / worker02</td>
+<td><code>/opt/net-quality/check.py</code></td>
+<td><code>*/5 * * * *</code>（每 5 分钟调度，单次约 3 分钟）</td>
+</tr>
+<tr>
+<td>堡垒机</td>
+<td><code>/opt/net-quality/report.py</code></td>
+<td><code>0 14 * * *</code>（每天 22:00 发 24 小时汇总）</td>
+</tr>
+</tbody>
+</table>
+<p>采样内容：到 <code>203.0.113.1</code> 执行 <code>ping -c 180 -i 1 -w 190</code>（约 3 分钟），记录丢包率、延迟 min/avg/max/mdev（抖动）、1935/1985 端口 TCP 建连。原始数据在 worker 的 <code>/var/log/net-quality.jsonl</code>。</p>
+<p>告警阈值（<code>check.py</code> 顶部）：丢包 ≥ 5%、平均延迟 ≥ 60ms、抖动 ≥ 10ms、1935/1985 不通 → <strong>立刻发群</strong>，同类异常 30 分钟内不重复。</p>
+<p>注意：只有 worker01/02 有 <code>192.168.172.x</code> 专线地址；中间件和 manager 不在该网段。堡垒机取数据走内网 <code>203.0.113.1/14</code>（公网 IP 从堡垒机不可达），用 root 的 <code>/root/.ssh/net_quality</code> 密钥。</p>
+<h2 id="十五-文档信息">十五、文档信息</h2>
+<p>版本：v1</p>
+<p>编写：Ben</p>
+<p>日期：2026 年 10 月 15 日</p>
+<p>核对：已按 UAT 实际环境逐项核对（容器、端口、目录、账号、资产、授权、告警、证书），核对日期 2026 年 10 月 15 日</p>
+<p>维护：改完在下面的更新记录里追加一行，写清日期、改了什么、谁改的</p>
+<p>更新记录</p>
+<pre><code class="language-text">2026 年 10 月 15 日    v1    Ben    首次编写，按当前 UAT 环境核对
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-机器规划">一、机器规划</a></li><li style="margin-left:0.0rem"><a href="#二-每台机器-装-Docker">二、每台机器：装 Docker</a></li><li style="margin-left:0.0rem"><a href="#三-每台机器-限制容器日志大小">三、每台机器：限制容器日志大小</a></li><li style="margin-left:0.0rem"><a href="#四-每台机器-运维账号免密-sudo">四、每台机器：运维账号免密 sudo</a></li><li style="margin-left:0.0rem"><a href="#五-堡垒机-部署-JumpServer-服务端">五、堡垒机：部署 JumpServer（服务端）</a></li><li style="margin-left:0.8rem"><a href="#5-1-建目录-生成密钥">5.1 建目录、生成密钥</a></li><li style="margin-left:0.8rem"><a href="#5-2-初始化数据库目录-关键-别跳过">5.2 初始化数据库目录（关键，别跳过）</a></li><li style="margin-left:0.8rem"><a href="#5-3-写-docker-compose-yml">5.3 写 docker-compose.yml</a></li><li style="margin-left:0.8rem"><a href="#5-4-启动">5.4 启动</a></li><li style="margin-left:0.8rem"><a href="#5-5-设置-admin-密码">5.5 设置 admin 密码</a></li><li style="margin-left:0.8rem"><a href="#5-6-建用户-资产-授权">5.6 建用户、资产、授权</a></li><li style="margin-left:0.8rem"><a href="#5-7-让提权走-sudo-免密的前提">5.7 让提权走 sudo（免密的前提）</a></li><li style="margin-left:0.8rem"><a href="#5-8-强制-MFA">5.8 强制 MFA</a></li><li style="margin-left:0.8rem"><a href="#5-9-验证审计">5.9 验证审计</a></li><li style="margin-left:0.0rem"><a href="#六-堡垒机-部署-Beszel-监控-服务端">六、堡垒机：部署 Beszel 监控（服务端）</a></li><li style="margin-left:0.8rem"><a href="#6-1-起-Hub">6.1 起 Hub</a></li><li style="margin-left:0.8rem"><a href="#6-1-1-中文告警版镜像">6.1.1 中文告警版镜像</a></li><li style="margin-left:0.8rem"><a href="#6-2-建通用-token">6.2 建通用 token</a></li><li style="margin-left:0.0rem"><a href="#七-每台业务机-装-Beszel-Agent-客户端">七、每台业务机：装 Beszel Agent（客户端）</a></li><li style="margin-left:0.0rem"><a href="#八-Beszel-告警配置-服务端">八、Beszel：告警配置（服务端）</a></li><li style="margin-left:0.0rem"><a href="#九-Beszel-S-M-A-R-T-磁盘健康">九、Beszel：S.M.A.R.T. 磁盘健康</a></li><li style="margin-left:0.0rem"><a href="#十-域名和反向代理-服务端">十、域名和反向代理（服务端）</a></li><li style="margin-left:0.8rem"><a href="#10-1-起-nginx-容器">10.1 起 nginx 容器</a></li><li style="margin-left:0.8rem"><a href="#10-2-站点配置">10.2 站点配置</a></li><li style="margin-left:0.8rem"><a href="#10-3-起-nginx-前先腾出-80-端口">10.3 起 nginx 前先腾出 80 端口</a></li><li style="margin-left:0.8rem"><a href="#10-4-申请-HTTPS-证书">10.4 申请 HTTPS 证书</a></li><li style="margin-left:0.8rem"><a href="#10-5-走-Cloudflare-的话">10.5 走 Cloudflare 的话</a></li><li style="margin-left:0.0rem"><a href="#十一-日常运维">十一、日常运维</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：基础设施与自动化 / BKL UAT</li>
+          <li>日期：2026-10-15</li>
+          <li>标签：<span class="tag">BKL UAT</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">Redis</span><span class="tag">监控告警</span></li>
+          <li><span>来源：~/Projects/work/ops/devops/devops-bkl/doc/2026年10月15日-UAT环境部署手册/UAT环境部署手册-2026年10月15日-v1.…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610150000-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BLinux-UAT%20%E7%8E%AF%E5%A2%83%E9%83%A8%E7%BD%B2%E6%89%8B%E5%86%8C.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>UAT 环境部署手册。本文属于基础设施与自动化 / BKL UAT，文中 xxxx 换成实际值（IP、域名、账号、密码）。命令用 root 执行或加 sudo。每节标了在哪台做。 装 JumpServer、Beszel Hub、nginx 系统统一 Ubuntu 24.04，服务目录统一放 /opt 。</p>
+      <p>关键词：BKL UAT、Linux、Shell、Python、Docker、Nginx、Redis、监控告警、基础设施与自动化、基础设施与自动化 / BKL UAT、UAT 环境部署手册、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4bb40f4b2a07.html"><small>上一篇</small>Beszel监控安装配置-对外版</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e69e51f36927.html"><small>下一篇</small>【优化】后端日志三层保留策略：24h 明文 → 本地压缩 7 天 → 超 7 天 S3</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4531db377f4a.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

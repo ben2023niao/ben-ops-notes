@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【问题排查】CICD 发布「未识别到最新 git id」根因与修复（git 警告行污染解析）｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="【问题排查】CICD 发布「未识别到最新 git id」根因与修复（git 警告行污染解析）。本文属于业务系统运维 / 游点涩，环境： 线上环境 CICD Web（ https://cicd.youdianse-main.xyz/ ，宿主机 16.209.16.108） 触发：Davie 发布后端时卡在「第二步：…">
+  <meta name="keywords" content="游点涩，Shell，Python，Docker，监控告警，自动化，故障排查，数据库恢复，业务系统运维，业务系统运维 / 游点涩，【问题排查】CICD 发布「未识别到最新 git id」根因与修复（git 警告行污染解析），git，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-61cf1e78a040.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-61cf1e78a040.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610150000-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91CICD%20%E5%8F%91%E5%B8%83%E3%80%8C%E6%9C%AA%E8%AF%86%E5%88%AB%E5%88%B0%E6%9C%80%E6%96%B0%20git%20id%E3%80%8D%E6%A0%B9%E5%9B%A0%E4%B8%8E%E4%BF%AE%E5%A4%8D%EF%BC%88git%20%E8%AD%A6%E5%91%8A%E8%A1%8C%E6%B1%A1%E6%9F%93%E8%A7%A3%E6%9E%90%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【问题排查】CICD 发布「未识别到最新 git id」根因与修复（git 警告行污染解析）">
+  <meta property="og:description" content="【问题排查】CICD 发布「未识别到最新 git id」根因与修复（git 警告行污染解析）。本文属于业务系统运维 / 游点涩，环境： 线上环境 CICD Web（ https://cicd.youdianse-main.xyz/ ，宿主机 16.209.16.108） 触发：Davie 发布后端时卡在「第二步：…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-61cf1e78a040.html">
+  <meta property="article:published_time" content="2026-10-15T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-10-15 00:00">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【问题排查】CICD 发布「未识别到最新 git id」根因与修复（git 警告行污染解析）">
+  <meta name="twitter:description" content="【问题排查】CICD 发布「未识别到最新 git id」根因与修复（git 警告行污染解析）。本文属于业务系统运维 / 游点涩，环境： 线上环境 CICD Web（ https://cicd.youdianse-main.xyz/ ，宿主机 16.209.16.108） 触发：Davie 发布后端时卡在「第二步：…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-61cf1e78a040.html#article","headline":"【问题排查】CICD 发布「未识别到最新 git id」根因与修复（git 警告行污染解析）","description":"【问题排查】CICD 发布「未识别到最新 git id」根因与修复（git 警告行污染解析）。本文属于业务系统运维 / 游点涩，环境： 线上环境 CICD Web（ https://cicd.youdianse-main.xyz/ ，宿主机 16.209.16.108） 触发：Davie 发布后端时卡在「第二步：…","datePublished":"2026-10-15T00:00:00+08:00","dateModified":"2026-10-15 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Shell","Python","Docker","监控告警","自动化","故障排查","数据库恢复","业务系统运维","业务系统运维 / 游点涩","【问题排查】CICD 发布「未识别到最新 git id」根因与修复（git 警告行污染解析）","git","php"],"wordCount":1455,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-61cf1e78a040.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-61cf1e78a040.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【问题排查】CICD 发布「未识别到最新 git id」根因与修复（git 警告行污染解析）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-61cf1e78a040.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>【问题排查】CICD 发布「未识别到最新 git id」根因与修复（git 警告行污染解析）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>【问题排查】CICD 发布「未识别到最新 git id」根因与修复（git 警告行污染解析）</h1>
+      <p class="lede">【问题排查】CICD 发布「未识别到最新 git id」根因与修复（git 警告行污染解析）。本文属于业务系统运维 / 游点涩，环境： 线上环境 CICD Web（ https://cicd.youdianse-main.xyz/ ，宿主机 16.209.16.108） 触发：Davie 发布后端时卡在「第二步：…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-15T00:00:00+08:00">发布于 2026-10-15</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,455 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-15-【问题排查】CICD发布未识别最新gitid-警告行污染解析.md</code></p>
+<p>整理日期：2026-10-15 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>日期：2026-10-15</li>
+<li>环境：<strong>线上环境</strong> CICD Web（<code>https://cicd.youdianse-main.xyz/</code>，宿主机 16.209.16.108）</li>
+<li>触发：Davie 发布后端时卡在「第二步：选择部署 git id」，页面显示 <code>后端业务 git id：warning:</code>，开发给的提交 <code>6e46c0cc3f77bc81d43e50e94d9e60aab19768af</code> 没有被识别</li>
+<li>结论：<strong>远端仓库完全正常</strong>（<code>main</code> 的头就是 <code>6e46c0cc3f77…</code>）；是 CICD 解析 <code>git ls-remote</code> 输出时<strong>把 git 的告警行当成了 git id</strong></li>
+</ul>
+<hr/>
+<h2 id="一-现象">一、现象</h2>
+<pre><code class="language-text">· 发布流程第二步：「正在选择 youdianse-php main 分支最近 5 个提交。」后没有下文
+· 发布日志文件名带 warning：游点涩-后端-运维[邮箱已脱敏]
+· 日志里：后端业务 git id：warning:  ← 明显不是 40 位 SHA
+· 发布锁（publish-lock.json）停在第二步，active=true
+</code></pre>
+<hr/>
+<h2 id="二-根因-已-100-复现">二、根因（已 100% 复现）</h2>
+<h3 id="2-1-直接原因-git-先打印一行-warning-解析取了第一段">2.1 直接原因：git 先打印一行 warning，解析取了第一段</h3>
+<p>在生产宿主机上执行 CICD 实际调用的命令：</p>
+<pre><code class="language-bash">$ git -C /opt/docker-youdianse-php/src/youdianse-php ls-remote origin refs/heads/main
+warning: redirecting to https://18game.18git.com/php/youdianse-php.git/
+6e46c0cc3f77bc81d43e50e94d9e60aab19768af    refs/heads/main
+</code></pre>
+<p>而 <code>cicd-web/core.py</code> 里（修复前，第 767 行）：</p>
+<pre><code class="language-python">    if result.code == 0 and result.output:
+        return result.output.split()[0], "远端分支"     # ← 取第一段
+</code></pre>
+<p><code>run_cmd()</code>（<code>command.py</code>）用的是 <code>stderr=subprocess.STDOUT</code>，<strong>stderr 被合并进 stdout</strong>，
+于是 <code>output.split()[0]</code> 拿到的是 <code>warning:</code> —— 这就是日志里那个 <code>warning:</code> 的来历。
+git id 非法 → 第二步无法继续 → 发布卡住并留下 warning 日志 + 发布锁。</p>
+<h3 id="2-2-为什么会出现这行-warning">2.2 为什么会出现这行 warning</h3>
+<p>该仓库的 <code>origin</code> 地址形如 <code>https://18game.18git.com/php/youdianse-php</code>（不带 <code>.git</code>），
+GitLab 会把它 <strong>301 重定向</strong>到 <code>.../php/youdianse-php.git/</code>，git 于是打印
+<code>warning: redirecting to ...</code>。<strong>这本身无害</strong>，只是被脆弱的解析放大了。</p>
+<h3 id="2-3-排除项-确认与仓库-开发无关">2.3 排除项（确认与仓库/开发无关）</h3>
+<pre><code class="language-text">· 远端 main 的头 = 6e46c0cc3f77bc81d43e50e94d9e60aab19768af ← 正是开发给的提交
+· 最近 5 个提交正常：6e46c0cc / 252e5faa / ad7cb029 / 2c49a9c0 / b211823f（渠道包相关）
+</code></pre>
+<hr/>
+<h2 id="三-修复-cicd-web-core-py">三、修复（<code>cicd-web/core.py</code>）</h2>
+<p>新增两个工具函数，并把三处解析全部改为「按内容取 SHA」：</p>
+<pre><code class="language-python">def extract_sha(text: str) -&gt; str:
+    """从可能混有 stderr 告警的输出里提取第一个 40 位十六进制 SHA。"""
+    match = re.search(r"\b[0-9a-f]{40}\b", text or "")
+    return match.group(0) if match else ""
+
+def parse_ls_remote_sha(output: str, branch: str) -&gt; str:
+    """从 `git ls-remote &lt;remote&gt; refs/heads/&lt;branch&gt;` 输出里精确取该分支的 SHA。"""
+    want = f"refs/heads/{branch}"
+    for line in (output or "").splitlines():
+        parts = line.split()
+        if len(parts) &gt;= 2 and parts[1] == want and re.fullmatch(r"[0-9a-f]{40}", parts[0]):
+            return parts[0]
+    ...  # 兜底：任何 "&lt;40位sha&gt;\trefs/..." 也接受
+</code></pre>
+<p><code>backend_branch_git_id()</code> 的三条路径（远端 ls-remote / 本地 origin 缓存 / 本地 HEAD 兜底）全部改用上面两个函数，
+不再有 <code>output.split()[0]</code> 这种写法。</p>
+<p><strong>单测（用真实输出）</strong>：</p>
+<pre><code class="language-text">含 warning 的真实输出 -&gt; 6e46c0cc3f77bc81d43e50e94d9e60aab19768af   ✅
+旧逻辑 split()[0]     -&gt; warning:                                   ← 事故原因
+空输出 / fatal        -&gt; ''（走后续兜底，不会把错误信息当 git id）    ✅
+</code></pre>
+<hr/>
+<h2 id="四-线上处置与验证-生产-16-209-16-108">四、线上处置与验证（生产 16.209.16.108）</h2>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>动作</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>备份并部署修复版 <code>cicd-web/core.py</code></td>
+<td>备份 <code>core.py.bak.gitidfix-20261015-135700</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>服务端语法校验</td>
+<td><code>py_compile</code> 通过</td>
+</tr>
+<tr>
+<td>3</td>
+<td>释放卡住的发布锁（TTL 默认 6 小时，等不到自动释放）</td>
+<td>删除 <code>runtime/publish-lock.json</code>，备份到 <code>/tmp/publish-lock.bak-20261015-135700.json</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>重启 <code>cicd-web</code></td>
+<td><code>active</code>；18090 → <strong>200</strong></td>
+</tr>
+<tr>
+<td>5</td>
+<td>直接调用校验</td>
+<td><code>backend_branch_git_id("main")</code> → <strong><code>6e46c0cc3f77bc81d43e50e94d9e60aab19768af</code></strong>（来源：远端分支）✅</td>
+</tr>
+<tr>
+<td>6</td>
+<td>最近 5 个提交</td>
+<td>正确列出（头部队列为开发提交）✅</td>
+</tr>
+</tbody>
+</table>
+<p><strong>现在可以直接重试发布</strong>（Davie 再次点发布即可，页面会正常列出最近 5 个提交）。</p>
+<hr/>
+<h2 id="五-处理过程中的一次误操作-如实记录-避免重犯">五、处理过程中的一次误操作（如实记录，避免重犯）</h2>
+<p>最初我把<strong>生产的 <code>core.py</code> 整体复制到测试环境</strong>，导致测试环境 CICD 起不来：</p>
+<pre><code class="language-text">ImportError: cannot import name 'ADMIN_LOGIN_PATH' from 'config'
+</code></pre>
+<p>原因：<strong>测试与生产的 cicd-web 代码版本不同</strong>（测试机仓库检出停在 <code>45d04aa</code>），
+生产版 core.py 依赖的 config 项在测试版里还没有。</p>
+<ul>
+<li>处置：立即用备份回滚测试环境 <code>core.py</code> → 重启 → 18090 恢复 <strong>200</strong>；测试环境未留下修复（保持原版本，避免二次分叉）。</li>
+<li>教训：<strong>跨环境只做"最小改动"，不要整文件覆盖</strong>；改完必须立刻验证服务端口。</li>
+<li>测试环境该缺陷属<strong>潜伏</strong>（它的 origin 地址不触发重定向，所以不会打印 warning）；
+  等测试机 <code>git pull</code> 到含修复的提交后即自动修好。</li>
+</ul>
+<hr/>
+<h2 id="六-影响与后续建议">六、影响与后续建议</h2>
+<ol>
+<li><strong>发布锁 TTL 默认 6 小时</strong>（<code>defaults.publish_lock_ttl_seconds=21600</code>）——发布异常中断后，
+   运维要等 6 小时才能再发。建议调小（如 600~1800 秒），或在页面提供「强制释放发布锁」按钮。</li>
+<li><strong>统一两环境 cicd-web 版本</strong>：测试机 <code>/opt/docker-youdianse-php</code> 落后于远端，
+   建议 <code>git pull</code> 同步（注意该机还有 <code>docker-compose.yml</code>、<code>cicd-web/config/settings.json</code>、
+   <code>ops/test/install-health-monitor.sh</code> 三处本地改动，同步前确认归属）。</li>
+<li><strong>根治 redirect 告警（可选）</strong>：把仓库 <code>origin</code> 地址补成带 <code>.git</code> 的形式，
+   或在调用前加 <code>git -c advice.detachedHead=false</code> / 统一用 <code>git ls-remote &lt;url&gt;.git</code>，让输出保持干净。</li>
+<li>排查同类隐患：任何「命令输出直接 <code>split()[0]</code> / 取首行」的解析，都可能被 stderr 告警污染
+   （本次已全仓检查，仅此一处）。</li>
+</ol>
+<hr/>
+<h2 id="七-回滚">七、回滚</h2>
+<pre><code class="language-bash"># 生产（16.209.16.108）
+cd /opt/docker-youdianse-php
+sudo cp -a cicd-web/core.py.bak.gitidfix-20261015-135700 cicd-web/core.py
+sudo systemctl restart cicd-web &amp;&amp; systemctl is-active cicd-web
+
+# 测试（15.152.247.196）—— 若需回滚（当前已是原版本）
+cd /opt/docker-youdianse-php
+sudo cp -a cicd-web/core.py.bak.gitidfix-20261015-055722 cicd-web/core.py
+sudo ./cicd-web.sh restart
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-现象">一、现象</a></li><li style="margin-left:0.0rem"><a href="#二-根因-已-100-复现">二、根因（已 100% 复现）</a></li><li style="margin-left:0.8rem"><a href="#2-1-直接原因-git-先打印一行-warning-解析取了第一段">2.1 直接原因：git 先打印一行 warning，解析取了第一段</a></li><li style="margin-left:0.8rem"><a href="#2-2-为什么会出现这行-warning">2.2 为什么会出现这行 warning</a></li><li style="margin-left:0.8rem"><a href="#2-3-排除项-确认与仓库-开发无关">2.3 排除项（确认与仓库/开发无关）</a></li><li style="margin-left:0.0rem"><a href="#三-修复-cicd-web-core-py">三、修复（ cicd-web/core.py ）</a></li><li style="margin-left:0.0rem"><a href="#四-线上处置与验证-生产-16-209-16-108">四、线上处置与验证（生产 16.209.16.108）</a></li><li style="margin-left:0.0rem"><a href="#五-处理过程中的一次误操作-如实记录-避免重犯">五、处理过程中的一次误操作（如实记录，避免重犯）</a></li><li style="margin-left:0.0rem"><a href="#六-影响与后续建议">六、影响与后续建议</a></li><li style="margin-left:0.0rem"><a href="#七-回滚">七、回滚</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-10-15</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">监控告警</span><span class="tag">自动化</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-15-【问题排查】CIC…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610150000-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91CICD%20%E5%8F%91%E5%B8%83%E3%80%8C%E6%9C%AA%E8%AF%86%E5%88%AB%E5%88%B0%E6%9C%80%E6%96%B0%20git%20id%E3%80%8D%E6%A0%B9%E5%9B%A0%E4%B8%8E%E4%BF%AE%E5%A4%8D%EF%BC%88git%20%E8%AD%A6%E5%91%8A%E8%A1%8C%E6%B1%A1%E6%9F%93%E8%A7%A3%E6%9E%90%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【问题排查】CICD 发布「未识别到最新 git id」根因与修复（git 警告行污染解析）。本文属于业务系统运维 / 游点涩，环境： 线上环境 CICD Web（ https://cicd.youdianse-main.xyz/ ，宿主机 16.209.16.108） 触发：Davie 发布后端时卡在「第二步：…</p>
+      <p>关键词：游点涩、Shell、Python、Docker、监控告警、自动化、故障排查、数据库恢复、业务系统运维、业务系统运维 / 游点涩、【问题排查】CICD 发布「未识别到最新 git id」根因与修复（git 警告行污染解析）、git、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e69e51f36927.html"><small>上一篇</small>【优化】后端日志三层保留策略：24h 明文 → 本地压缩 7 天 → 超 7 天 S3</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-18c160aa9b6b.html"><small>下一篇</small>【问题排查】发布健康检查 WARNING 假警：.env 值以 = 结尾导致 PHP 解析失败</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-61cf1e78a040.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

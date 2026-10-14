@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>排错手册｜工具与脚本 / 打孔业务｜BEN.OPS</title>
+  <meta name="description" content="排错手册。本文属于工具与脚本 / 打孔业务，排错顺序永远是： 先跑 doctor ，再看 logs/run-*.log ，再看 shots/ /*.png 。 自己写脚本时容易遇到：调用 ScreenCaptureKit 之前没有初始化 CoreGraphics 连接。 本项目里已经在 macos_shot.en…">
+  <meta name="keywords" content="打孔业务，Shell，Python，安全运维，故障排查，源码与配置，工具与脚本，工具与脚本 / 打孔业务，排错手册">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-afb3bc15f356.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-afb3bc15f356.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610152029-%E6%89%93%E5%AD%94%E4%B8%9A%E5%8A%A1%2BShell%2BPython-%E6%8E%92%E9%94%99%E6%89%8B%E5%86%8C.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="排错手册">
+  <meta property="og:description" content="排错手册。本文属于工具与脚本 / 打孔业务，排错顺序永远是： 先跑 doctor ，再看 logs/run-*.log ，再看 shots/ /*.png 。 自己写脚本时容易遇到：调用 ScreenCaptureKit 之前没有初始化 CoreGraphics 连接。 本项目里已经在 macos_shot.en…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-afb3bc15f356.html">
+  <meta property="article:published_time" content="2026-10-15T20:29:45+08:00">
+  <meta property="article:modified_time" content="2026-10-15 20:29">
+  <meta property="article:section" content="工具与脚本 / 打孔业务">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="排错手册">
+  <meta name="twitter:description" content="排错手册。本文属于工具与脚本 / 打孔业务，排错顺序永远是： 先跑 doctor ，再看 logs/run-*.log ，再看 shots/ /*.png 。 自己写脚本时容易遇到：调用 ScreenCaptureKit 之前没有初始化 CoreGraphics 连接。 本项目里已经在 macos_shot.en…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-afb3bc15f356.html#article","headline":"排错手册","description":"排错手册。本文属于工具与脚本 / 打孔业务，排错顺序永远是： 先跑 doctor ，再看 logs/run-*.log ，再看 shots/ /*.png 。 自己写脚本时容易遇到：调用 ScreenCaptureKit 之前没有初始化 CoreGraphics 连接。 本项目里已经在 macos_shot.en…","datePublished":"2026-10-15T20:29:45+08:00","dateModified":"2026-10-15 20:29","inLanguage":"zh-CN","articleSection":["工具与脚本","打孔业务"],"keywords":["打孔业务","Shell","Python","安全运维","故障排查","源码与配置","工具与脚本","工具与脚本 / 打孔业务","排错手册"],"wordCount":1925,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-afb3bc15f356.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-afb3bc15f356.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"工具与脚本 / 打孔业务","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"排错手册","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-afb3bc15f356.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>工具与脚本 / 打孔业务</span> › <span>排错手册</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">工具与脚本 / 打孔业务</div>
+      <h1>排错手册</h1>
+      <p class="lede">排错手册。本文属于工具与脚本 / 打孔业务，排错顺序永远是： 先跑 doctor ，再看 logs/run-*.log ，再看 shots/ /*.png 。 自己写脚本时容易遇到：调用 ScreenCaptureKit 之前没有初始化 CoreGraphics 连接。 本项目里已经在 macos_shot.en…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-15T20:29:45+08:00">发布于 2026-10-15</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,925 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/automation/line-punch/docs/04-排错手册.md</code></p>
+<p>整理日期：2026-10-15 20:29｜日期依据：文件创建/修改时间</p>
+</blockquote>
+<p>排错顺序永远是：<strong>先跑 <code>doctor</code>，再看 <code>logs/run-*.log</code>，再看 <code>shots/&lt;run_id&gt;/*.png</code>。</strong></p>
+<pre><code class="language-bash">./.venv/bin/python punch.py doctor
+./.venv/bin/python punch.py logs --tail 100
+open shots/$(ls -t shots | head -1)      # 打开最近一次运行的截图目录
+</code></pre>
+<hr/>
+<h2 id="1-启动阶段">1. 启动阶段</h2>
+<h3 id="ModuleNotFoundError-No-module-named-Quartz"><code>ModuleNotFoundError: No module named 'Quartz'</code></h3>
+<p>用了系统 python3。</p>
+<pre><code class="language-bash">./.venv/bin/python punch.py doctor
+</code></pre>
+<p>如果 <code>.venv</code> 不存在：</p>
+<pre><code class="language-bash">python3.11 -m venv .venv
+./.venv/bin/pip install -r requirements.txt
+</code></pre>
+<h3 id="Assertion-failed-did_initialize-function-CGS_REQUIRE_INIT"><code>Assertion failed: (did_initialize), function CGS_REQUIRE_INIT</code></h3>
+<p>自己写脚本时容易遇到：调用 ScreenCaptureKit 之前没有初始化 CoreGraphics 连接。
+本项目里已经在 <code>macos_shot.ensure_nsapp()</code> 处理了
+（<code>NSApplication.sharedApplication()</code> + 设置成 Prohibited，保证不会抢焦点）。</p>
+<h3 id="截图成功-但-OCR-一个字符都认不出来">截图成功，但 OCR 一个字符都认不出来</h3>
+<p><strong>最常见的原因是没有屏幕录制权限</strong>，拿到的是全白或全黑图。</p>
+<p>验证方法：</p>
+<pre><code class="language-bash">open shots/$(ls -t shots | head -1)
+</code></pre>
+<p>如果图是空白 → 去系统设置授权屏幕录制，然后<strong>重启运行它的程序</strong>。</p>
+<hr/>
+<h2 id="2-LINE-相关">2. LINE 相关</h2>
+<h3 id="退出码-11-没找到-LINE-进程">退出码 11：没找到 LINE 进程</h3>
+<ul>
+<li>LINE 没开</li>
+<li>或者 <code>line.bundle_id</code> 不对（正常是 <code>jp.naver.line.mac</code>）</li>
+</ul>
+<h3 id="退出码-12-拿不到-LINE-主窗口">退出码 12：拿不到 LINE 主窗口</h3>
+<p>LINE 收在菜单栏没开窗口。点一下 Dock 图标把窗口调出来。
+（LINE 关闭窗口后进程还在，只是没有窗口。）</p>
+<h3 id="退出码-13-窗口布局不对">退出码 13：窗口布局不对</h3>
+<pre><code>LAYOUT: LINE 窗口太窄，右侧聊天面板没有渲染
+</code></pre>
+<p>LINE 在窗口偏窄时会显示"展开此窗口可在右侧显示聊天"，此时右侧根本没有控件。</p>
+<p>两种解法：</p>
+<ol>
+<li>手动把 LINE 窗口拉宽</li>
+<li>打开自动拉宽（<strong>不抢焦点</strong>）：</li>
+</ol>
+<p><code>toml
+   [behavior]
+   auto_expand_window = true</code></p>
+<h3 id="退出码-14-目标会话不匹配-重要">退出码 14：目标会话不匹配（重要）</h3>
+<p>日志长这样：</p>
+<pre><code>目标校验：期望包含 '打卡'，实际标题 'LINE 官方账号' -&gt; 不通过
+运行结束  状态=aborted
+</code></pre>
+<p><strong>这是保护机制生效了，不是 bug。</strong> 它拦下了"把打卡消息发到错误的会话"这件事。</p>
+<p>处理：</p>
+<ol>
+<li>看 <code>shots/&lt;run_id&gt;/01-header.png</code>，确认脚本看到的画面和你看到的一致</li>
+<li>在 LINE 里把「打卡」群打开</li>
+<li>如果群名确实不是「打卡」，改 <code>config.toml</code> 里的 <code>line.group_name</code></li>
+</ol>
+<h3 id="输入框内容为空-和期望不一致">输入框内容为空 / 和期望不一致</h3>
+<p>日志里会有：</p>
+<pre><code>输入框复核：写入 '下班打卡'，读回 ''
+</code></pre>
+<p>可能原因：</p>
+<ol>
+<li><strong>环境不认 <code>CGEventPostToPid</code>。</strong> 这是最可能的原因。脚本会自动激活 LINE 重试一次，
+   如果还是不行，把配置打开走老路：</li>
+</ol>
+<p>脚本默认是 <code>input_mode = "auto"</code>：先按老方式（事件流）试一次，
+   没进输入框就自动换 <code>PostToPid</code> 兜底，日志里会写明哪一次命中：</p>
+<p><code>输入方式 [事件流] 没进输入框（读回 ''），换 PostToPid 重试
+   输入方式 [PostToPid] 命中</code></p>
+<p>如果两种都不行，把 <code>behavior.step_settle_ms</code> 调大（例如 800）再试。
+2. <strong>输入框里本来就有草稿。</strong> 脚本会因此中止并提示，加 <code>--clear-first</code> 清空后重试。
+3. 有输入法（IME）在中间截胡。脚本用的是 Unicode 键盘事件，理论上绕开输入法，
+   但如果输入法处于"候选窗打开"状态会吃掉按键。手动按一下 Esc 再跑。
+4. <strong>搜索框里残留了关键字</strong>，把聊天列表过滤成了搜索结果，导致"找不到目标群"。
+   脚本读列表之前会自动清空搜索框，日志里会有一条 WARNING 说明它清掉了什么。</p>
+<h3 id="找不到目标群-标题校验不通过">找不到目标群 / 标题校验不通过</h3>
+<p>先看日志里这两行：</p>
+<pre><code>目标校验：期望 '打卡'，标题 '...' → 解析出 '...'；&lt;不通过的原因&gt;
+聊天列表里没有找到 '打卡'，列表实际内容：[...]
+</code></pre>
+<p>标题匹配的规则（<code>strict_title_match = true</code>）是：先切掉成员数角标 <code>(5)</code>，
+再要求<strong>等于</strong>群名。所以：</p>
+<ul>
+<li><code>打卡（5） 4心</code> → 解析出 <code>打卡</code> → 通过（<code>4心</code> 是标题图标的 OCR 噪声，被角标规则一起切掉了）</li>
+<li><code>打卡2（5）</code> → 解析出 <code>打卡2</code> → 不通过</li>
+<li><code>打卡群（5）</code> → 解析出 <code>打卡群</code> → 不通过</li>
+</ul>
+<p>如果确实需要放宽（比如群名和 OCR 结果总差一点），可以关掉严格模式，
+它会退化成"前缀 + 词边界"匹配 —— 仍然拒绝 <code>打卡2</code> / <code>打卡群</code>：</p>
+<pre><code class="language-toml">[behavior]
+strict_title_match = false
+</code></pre>
+<h3 id="消息发出去了-但发送后复核失败">消息发出去了，但发送后复核失败</h3>
+<p>复核靠的是"OCR 消息流里能不能看到刚发的内容"。失败可能只是 OCR 没认准，
+不一定是真的没发出去。</p>
+<p><strong>先去 LINE 里人工看一眼。</strong> 然后看 <code>shots/&lt;run_id&gt;/</code> 最后一张图。</p>
+<p>如果确实发出去了但经常误报，可以把复核关掉：</p>
+<pre><code class="language-toml">[behavior]
+verify_after_send = false
+</code></pre>
+<p>（不建议关；关了以后发送失败就完全静默了。）</p>
+<hr/>
+<h2 id="3-定时任务">3. 定时任务</h2>
+<h3 id="手动能跑-launchd-跑不起来">手动能跑，launchd 跑不起来</h3>
+<p>99% 是 <strong>TCC 权限问题</strong>。launchd 进程不在前台，弹不出授权框，只会静默失败。</p>
+<p>处理步骤：</p>
+<ol>
+<li>手动跑一次 <code>./.venv/bin/python punch.py doctor</code> 并点掉授权框</li>
+<li><code>./tools/install_agent.sh uninstall</code> 再 <code>install</code></li>
+<li>用 <code>launchctl kickstart -p gui/$(id -u)/com.ben.linepunch.out</code> 立刻触发一次</li>
+<li>看 <code>logs/run-*.log</code></li>
+</ol>
+<p>如果还是不行，说明授权挂在了别的二进制上（比如你是从 VS Code 跑的）。
+这种情况建议按 <a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/03-权限与部署.md" rel="noopener noreferrer">03-权限与部署.md</a> 第 2.2 节打包成 <code>.app</code>。</p>
+<h3 id="到点了但什么都没发生">到点了但什么都没发生</h3>
+<pre><code class="language-bash">launchctl list | grep linepunch       # 确认加载了
+cat logs/launchd-out.err.log          # 看 launchd 捕获的 stderr
+ls -lt logs/run-* | head              # 看有没有产生新的运行日志
+</code></pre>
+<p>如果完全没产生 <code>run-*.log</code>，说明脚本压根没启动起来，问题在 launchd 那一层
+（plist 路径、<code>gui/</code> 域、PATH）。</p>
+<h3 id="时间不对-补跑了">时间不对 / 补跑了</h3>
+<p><code>StartCalendarInterval</code> 用的是<strong>系统本地时间</strong>。如果你改了时区，
+或者 Mac 在到点时处于睡眠状态，行为会和预期不同（睡眠会在唤醒后补跑）。</p>
+<hr/>
+<h2 id="4-Telegram-汇报">4. Telegram 汇报</h2>
+<h3 id="完全收不到消息">完全收不到消息</h3>
+<pre><code class="language-bash">./.venv/bin/python punch.py notify-test
+</code></pre>
+<ul>
+<li>报 <code>未配置 bot_token</code> → <code>config.toml</code> 里没填</li>
+<li>报 401 → token 不对</li>
+<li>报 400 <code>chat not found</code> → <code>chat_id</code> 不对，
+  <strong>或者你还没在 Telegram 里给这个机器人发过 <code>/start</code></strong>（机器人不能主动给没交互过的用户发消息）</li>
+</ul>
+<h3 id="文字消息能收到-日志附件收不到">文字消息能收到，日志附件收不到</h3>
+<p>日志里会写：</p>
+<pre><code>Telegram 日志附件已发送：run-....log
+</code></pre>
+<p>或</p>
+<pre><code>WARNING  Telegram 附件发送失败：URLError: &lt;urlopen error [Errno 54] Connection reset by peer&gt;
+</code></pre>
+<p>后者是网络问题（挂 VPN / 代理时常见）。上传比发文字更容易被重置。
+已经做了 2 次重试；如果经常失败，可以关掉附件：</p>
+<pre><code class="language-toml">[telegram]
+attach_log = false
+</code></pre>
+<p>或者只对长时间运行才发附件：</p>
+<pre><code class="language-toml">attach_log_min_seconds = 10
+</code></pre>
+<h3 id="汇报很慢-每次调用几十秒">汇报很慢（每次调用几十秒）</h3>
+<p>现象：日志里 <code>机器人身份：@xxx</code> 要等 30–40 秒才出现，整个运行被拖到几分钟。</p>
+<p>原因：这台机器挂了 VPN（看 <code>api.telegram.org</code> 的 IPv6 路由是不是黑洞）。
+<code>curl</code> 有 Happy Eyeballs，IPv6 不通会立刻回落到 IPv4；Python 的 <code>urllib</code> 没有，
+于是会一直等到超时。</p>
+<p>本项目默认已经开启 IPv4 优先：</p>
+<pre><code class="language-toml">[telegram]
+force_ipv4 = true
+</code></pre>
+<p>打开后每次调用应该在 1–2 秒。如果反而报连接失败（极少数只开 IPv6 的网络），
+把它改成 <code>false</code>。</p>
+<h3 id="收到了-但状态是-failure">收到了，但状态是 <code>failure</code></h3>
+<p>以 <code>logs/run-*.log</code> 里的记载为准，Telegram 上只是摘要。
+汇报文本里的 <code>run_id</code> 就是用来对应日志文件的。</p>
+<hr/>
+<h2 id="5-快速自查清单">5. 快速自查清单</h2>
+<p>上线之前过一遍：</p>
+<ul>
+<li>[ ] <code>punch.py doctor</code> 全绿</li>
+<li>[ ] <code>punch.py status</code> 能正确读出会话标题</li>
+<li>[ ] <code>punch.py type</code> 空跑 3 次以上，每次「校验目标会话」都 OK</li>
+<li>[ ] <code>punch.py notify-test</code> 能收到消息</li>
+<li>[ ] <code>config.toml</code> 里 <code>group_name</code> 和 LINE 里的群名完全一致（含空格/括号）</li>
+<li>[ ] <code>logs/</code> 能正常写入（有 <code>run-*.log</code> 在生成）</li>
+<li>[ ] 定时任务的执行时间点，机器通常是醒着的</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-启动阶段">1. 启动阶段</a></li><li style="margin-left:0.8rem"><a href="#ModuleNotFoundError-No-module-named-Quartz">ModuleNotFoundError: No module named &#x27;Quartz&#x27;</a></li><li style="margin-left:0.8rem"><a href="#Assertion-failed-did_initialize-function-CGS_REQUIRE_INIT">Assertion failed: (did_initialize), function CGS_REQUIRE_INIT</a></li><li style="margin-left:0.8rem"><a href="#截图成功-但-OCR-一个字符都认不出来">截图成功，但 OCR 一个字符都认不出来</a></li><li style="margin-left:0.0rem"><a href="#2-LINE-相关">2. LINE 相关</a></li><li style="margin-left:0.8rem"><a href="#退出码-11-没找到-LINE-进程">退出码 11：没找到 LINE 进程</a></li><li style="margin-left:0.8rem"><a href="#退出码-12-拿不到-LINE-主窗口">退出码 12：拿不到 LINE 主窗口</a></li><li style="margin-left:0.8rem"><a href="#退出码-13-窗口布局不对">退出码 13：窗口布局不对</a></li><li style="margin-left:0.8rem"><a href="#退出码-14-目标会话不匹配-重要">退出码 14：目标会话不匹配（重要）</a></li><li style="margin-left:0.8rem"><a href="#输入框内容为空-和期望不一致">输入框内容为空 / 和期望不一致</a></li><li style="margin-left:0.8rem"><a href="#找不到目标群-标题校验不通过">找不到目标群 / 标题校验不通过</a></li><li style="margin-left:0.8rem"><a href="#消息发出去了-但发送后复核失败">消息发出去了，但发送后复核失败</a></li><li style="margin-left:0.0rem"><a href="#3-定时任务">3. 定时任务</a></li><li style="margin-left:0.8rem"><a href="#手动能跑-launchd-跑不起来">手动能跑，launchd 跑不起来</a></li><li style="margin-left:0.8rem"><a href="#到点了但什么都没发生">到点了但什么都没发生</a></li><li style="margin-left:0.8rem"><a href="#时间不对-补跑了">时间不对 / 补跑了</a></li><li style="margin-left:0.0rem"><a href="#4-Telegram-汇报">4. Telegram 汇报</a></li><li style="margin-left:0.8rem"><a href="#完全收不到消息">完全收不到消息</a></li><li style="margin-left:0.8rem"><a href="#文字消息能收到-日志附件收不到">文字消息能收到，日志附件收不到</a></li><li style="margin-left:0.8rem"><a href="#汇报很慢-每次调用几十秒">汇报很慢（每次调用几十秒）</a></li><li style="margin-left:0.8rem"><a href="#收到了-但状态是-failure">收到了，但状态是 failure</a></li><li style="margin-left:0.0rem"><a href="#5-快速自查清单">5. 快速自查清单</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：工具与脚本 / 打孔业务</li>
+          <li>日期：2026-10-15</li>
+          <li>标签：<span class="tag">打孔业务</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/automation/line-punch/docs/04-排错手册.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610152029-%E6%89%93%E5%AD%94%E4%B8%9A%E5%8A%A1%2BShell%2BPython-%E6%8E%92%E9%94%99%E6%89%8B%E5%86%8C.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>排错手册。本文属于工具与脚本 / 打孔业务，排错顺序永远是： 先跑 doctor ，再看 logs/run-*.log ，再看 shots/ /*.png 。 自己写脚本时容易遇到：调用 ScreenCaptureKit 之前没有初始化 CoreGraphics 连接。 本项目里已经在 macos_shot.en…</p>
+      <p>关键词：打孔业务、Shell、Python、安全运维、故障排查、源码与配置、工具与脚本、工具与脚本 / 打孔业务、排错手册</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3f8b047a2313.html"><small>上一篇</small>原理与可行性调研</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9f31f3ecf5b1.html"><small>下一篇</small>2026-10-16 堡垒机账号开关按钮 + 攻击 IP 封禁 + admin 解锁</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-afb3bc15f356.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

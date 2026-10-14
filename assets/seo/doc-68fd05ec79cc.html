@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>视讯项目 UAT · 运维部署记录（堡垒机 + 监控）｜基础设施与自动化 / BKL UAT｜BEN.OPS</title>
+  <meta name="description" content="视讯项目 UAT · 运维部署记录（堡垒机 + 监控）。本文属于基础设施与自动化 / BKL UAT，资产： UAT-middleware (203.0.113.1)、 UAT-manager (.12)、 UAT-worker01 (.13)、 UAT-worker02 (.14)、 UAT-srs (203.…">
+  <meta name="keywords" content="BKL UAT，Linux，Shell，Python，Docker，Nginx，Redis，监控告警，基础设施与自动化，基础设施与自动化 / BKL UAT，视讯项目 UAT · 运维部署记录（堡垒机 + 监控），devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-68fd05ec79cc.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-68fd05ec79cc.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610150000-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BLinux-%E8%A7%86%E8%AE%AF%E9%A1%B9%E7%9B%AE%20UAT%20%C2%B7%20%E8%BF%90%E7%BB%B4%E9%83%A8%E7%BD%B2%E8%AE%B0%E5%BD%95%EF%BC%88%E5%A0%A1%E5%9E%92%E6%9C%BA%20%2B%20%E7%9B%91%E6%8E%A7%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="视讯项目 UAT · 运维部署记录（堡垒机 + 监控）">
+  <meta property="og:description" content="视讯项目 UAT · 运维部署记录（堡垒机 + 监控）。本文属于基础设施与自动化 / BKL UAT，资产： UAT-middleware (203.0.113.1)、 UAT-manager (.12)、 UAT-worker01 (.13)、 UAT-worker02 (.14)、 UAT-srs (203.…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-68fd05ec79cc.html">
+  <meta property="article:published_time" content="2026-10-15T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-10-15 00:00">
+  <meta property="article:section" content="基础设施与自动化 / BKL UAT">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="视讯项目 UAT · 运维部署记录（堡垒机 + 监控）">
+  <meta name="twitter:description" content="视讯项目 UAT · 运维部署记录（堡垒机 + 监控）。本文属于基础设施与自动化 / BKL UAT，资产： UAT-middleware (203.0.113.1)、 UAT-manager (.12)、 UAT-worker01 (.13)、 UAT-worker02 (.14)、 UAT-srs (203.…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-68fd05ec79cc.html#article","headline":"视讯项目 UAT · 运维部署记录（堡垒机 + 监控）","description":"视讯项目 UAT · 运维部署记录（堡垒机 + 监控）。本文属于基础设施与自动化 / BKL UAT，资产： UAT-middleware (203.0.113.1)、 UAT-manager (.12)、 UAT-worker01 (.13)、 UAT-worker02 (.14)、 UAT-srs (203.…","datePublished":"2026-10-15T00:00:00+08:00","dateModified":"2026-10-15 00:00","inLanguage":"zh-CN","articleSection":["基础设施与自动化","BKL UAT"],"keywords":["BKL UAT","Linux","Shell","Python","Docker","Nginx","Redis","监控告警","基础设施与自动化","基础设施与自动化 / BKL UAT","视讯项目 UAT · 运维部署记录（堡垒机 + 监控）","devops"],"wordCount":1633,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-68fd05ec79cc.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-68fd05ec79cc.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"基础设施与自动化 / BKL UAT","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"视讯项目 UAT · 运维部署记录（堡垒机 + 监控）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-68fd05ec79cc.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>基础设施与自动化 / BKL UAT</span> › <span>视讯项目 UAT · 运维部署记录（堡垒机 + 监控）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">基础设施与自动化 / BKL UAT</div>
+      <h1>视讯项目 UAT · 运维部署记录（堡垒机 + 监控）</h1>
+      <p class="lede">视讯项目 UAT · 运维部署记录（堡垒机 + 监控）。本文属于基础设施与自动化 / BKL UAT，资产： UAT-middleware (203.0.113.1)、 UAT-manager (.12)、 UAT-worker01 (.13)、 UAT-worker02 (.14)、 UAT-srs (203.…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-15T00:00:00+08:00">发布于 2026-10-15</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,633 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/ops/devops/devops-bkl/doc/2026年10月15日-堡垒机与监控部署/2026年10月15日-堡垒机与监控部署-完整记录.md</code></p>
+<p>整理日期：2026-10-15 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>版本</td>
+<td>v0.3</td>
+</tr>
+<tr>
+<td>日期</td>
+<td>2026-10-15</td>
+</tr>
+<tr>
+<td>主机</td>
+<td>管理机 blk-uat-oob / 公网 43.249.251.15 / 内网 203.0.113.1（Ubuntu 24.04.5，4C8G，LVM 剩余 154G 可扩）</td>
+</tr>
+<tr>
+<td>部署方式</td>
+<td>全部容器化（Docker Compose），与项目现有风格一致</td>
+</tr>
+<tr>
+<td>访问入口</td>
+<td>堡垒机 https://manage.evercare.id ；监控 https://beszel.evercare.id（Cloudflare → nginx → 内部服务）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-堡垒机-JumpServer">1. 堡垒机（JumpServer）</h2>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>版本</td>
+<td>jumpserver/jms_all:v4.10.19（all-in-one，内置 PostgreSQL 17 + Redis）</td>
+</tr>
+<tr>
+<td>部署目录</td>
+<td><code>/opt/jumpserver/</code>（<code>docker-compose.yml</code>、<code>.env</code>、<code>data/</code>、<code>pgdata/</code>）</td>
+</tr>
+<tr>
+<td>端口</td>
+<td>80（Web）、2222（资产 SSH 接入）</td>
+</tr>
+<tr>
+<td>控制台</td>
+<td>http://43.249.251.15/core/auth/login/</td>
+</tr>
+<tr>
+<td>admin 初始密码</td>
+<td>见服务器 <code>/root/jumpserver-admin-initial.txt</code>（600，仅 root 可读）</td>
+</tr>
+<tr>
+<td>启动/重启</td>
+<td><code>cd /opt/jumpserver &amp;&amp; sudo docker compose up -d</code></td>
+</tr>
+<tr>
+<td>数据落盘</td>
+<td><code>/opt/jumpserver/pgdata</code>（数据库）、<code>/opt/jumpserver/data</code>（附件/录像等）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="1-1-组织与账号">1.1 组织与账号</h3>
+<table>
+<thead>
+<tr>
+<th>账号</th>
+<th>组</th>
+<th>系统角色</th>
+<th>权限</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>admin</td>
+<td>Default</td>
+<td>System Admin</td>
+<td>超级管理员（给 jack）</td>
+</tr>
+<tr>
+<td>ben / berd</td>
+<td>运维组</td>
+<td>System Admin</td>
+<td>UAT 全部资产 + root 提权</td>
+</tr>
+<tr>
+<td>ak</td>
+<td>运维组 + 管理员组</td>
+<td>System Admin</td>
+<td>同运维组，并在管理员组</td>
+</tr>
+<tr>
+<td>bruce</td>
+<td>开发组</td>
+<td>System Operator</td>
+<td>4 台应用节点，仅连接 + 剪贴板，无 root</td>
+</tr>
+</tbody>
+</table>
+<h3 id="1-2-资产与账号">1.2 资产与账号</h3>
+<ul>
+<li>节点树：<code>/DEFAULT/UAT</code></li>
+<li>资产：<code>UAT-middleware</code>(203.0.113.1)、<code>UAT-manager</code>(.12)、<code>UAT-worker01</code>(.13)、<code>UAT-worker02</code>(.14)、<code>UAT-srs</code>(203.0.113.1)</li>
+<li>每台两个账号：<code>blkuat</code>（登录账号）、<code>root</code>（提权账号，<code>su_from</code> = blkuat，以 sudo 免密提权）</li>
+<li>授权：<code>UAT-运维组-全部资产</code>（accounts = <code>@ALL</code>，全动作）、<code>UAT-开发组-应用节点</code>（accounts = <code>blkuat</code>）</li>
+</ul>
+<h3 id="1-3-关键配置项-踩过的坑">1.3 关键配置项（踩过的坑）</h3>
+<ol>
+<li><strong>授权里的 accounts 必须写别名</strong>，不是账号 UUID。格式：用户名（如 <code>blkuat</code>）、虚拟账号（<code>@ALL/@SPEC/@USER/@ANON/@INPUT</code>）、账号模版（<code>%&lt;模板ID&gt;</code>）。写 UUID 会导致 <code>permed_accounts</code> 为空，连资产时 koko 报 <code>No account found</code>。</li>
+<li><strong>提权方式配在「平台」上</strong>：<code>assets.Platform</code> 的 <code>su_enabled=True</code>、<code>su_method=sudo</code>（表示执行 <code>sudo su -</code>）。留空会走 <code>su - root</code>（需要 root 密码，免密环境会失败）。</li>
+<li><strong><code>SECURITY_MFA_AUTH</code> 语义</strong>：0 不开启、1 全员强制、2 仅管理员强制（不是"更严格"）。改数据库后需要重启容器才生效。</li>
+<li><strong>强制首次改密有 bug</strong>：<code>[敏感内容已脱敏] 时，v4.10.19 + Python 3.14 登录会 500（</code>PasswordNeedUpdate<code>缺</code>detail` 属性）。因此初始密码不设"首次必须修改"，由使用人登录后自行改。</li>
+<li><strong>站点 URL</strong>：默认是 <code>http://203.0.113.1</code>，已改为 <code>http://43.249.251.15</code>。</li>
+<li><strong>脚本化配置时的 MFA</strong>：全局 MFA 开启后 API 登录会被拦；用脚本批量配置时需要临时把 <code>SECURITY_MFA_AUTH</code> 设为 0 并重启容器，配置完再改回。</li>
+</ol>
+<h2 id="2-服务器免密提权">2. 服务器免密提权</h2>
+<p>5 台机器（堡垒机 + 4 台 UAT）均已给 <code>blkuat</code> 配置免密 sudo：</p>
+<pre><code>/etc/sudoers.d/90-blkuat-nopasswd
+blkuat ALL=(ALL:ALL) [敏感内容已脱敏]
+</code></pre>
+<p>验证：<code>sudo -n -i whoami</code> 返回 <code>root</code>。Java/Koko 侧使用 <code>sudo su -</code> 提权，全程有会话录像与命令记录。</p>
+<h2 id="3-监控-Beszel">3. 监控（Beszel）</h2>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>版本</td>
+<td>hub/agent <code>henrygd/beszel</code> + <code>henrygd/beszel-agent</code>（v0.21.0）</td>
+</tr>
+<tr>
+<td>部署目录</td>
+<td><code>/opt/beszel/</code>（hub）、<code>/opt/beszel-agent/</code>（agent）</td>
+</tr>
+<tr>
+<td>访问</td>
+<td>http://43.249.251.15:8090/</td>
+</tr>
+</tbody>
+</table>
+<h2 id="0-域名与反向代理-nginx">0. 域名与反向代理（nginx）</h2>
+<ul>
+<li>域名（Cloudflare 代理，源站 43.249.251.15）：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>域名</th>
+<th>用途</th>
+<th>后端</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>manage.evercare.id</td>
+<td>堡垒机控制台</td>
+<td>203.0.113.1:8081（JumpServer）</td>
+</tr>
+<tr>
+<td>beszel.evercare.id</td>
+<td>监控</td>
+<td>203.0.113.1:8090（Beszel）</td>
+</tr>
+<tr>
+<td>wendang.evercare.id</td>
+<td>文档站（Confluence）</td>
+<td>203.0.113.1:8190（SVD 部署）；DNS 解析后执行 <code>/opt/nginx/issue_cert_wendang.sh</code> 补 HTTPS</td>
+</tr>
+<tr>
+<td>- nginx：容器部署，<code>network_mode: host</code>，配置 <code>/opt/nginx/conf.d</code>，证书 <code>/opt/nginx/certs</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>- 端口调整：JumpServer 只监听 <code>203.0.113.1:8081</code>（不再占用 80），Beszel 8090 由 nginx 反代</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>- HTTPS：Let's Encrypt（certbot webroot），已加 <code>/etc/cron.d/certbot-renew</code> 每天 3 点自动续期</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>- 已配置 Cloudflare 真实 IP（<code>real_ip_header CF-Connecting-IP</code> + CF 网段），审计日志记录真实来源</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>- 未匹配域名或直接用 IP 访问 → 302 跳转到 <code>https://manage.evercare.id</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>- 注意：Cloudflare SSL/TLS 模式需为 Full 或 Full(strict)，否则报 521</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>管理员</td>
+<td><code>[邮箱已脱敏]</code>（用户名可填 admin），密码见服务器 <code>/root/beszel-admin.txt</code></td>
+<td></td>
+</tr>
+<tr>
+<td>接入方式</td>
+<td>通用 token（<code>universal_tokens</code> 集合）自动注册，agent 用 WebSocket 主动连 hub</td>
+<td></td>
+</tr>
+<tr>
+<td>已接入</td>
+<td>UAT-堡垒机、UAT-middleware、UAT-manager、UAT-worker01、UAT-worker02（全部 up）</td>
+<td></td>
+</tr>
+<tr>
+<td>告警通道</td>
+<td>Telegram（Shoutrrr URL：<code>telegram://&lt;bot_token&gt;@telegram?chats=&lt;chat_id&gt;</code>）</td>
+<td></td>
+</tr>
+<tr>
+<td>默认规则</td>
+<td>离线告警；CPU / 内存 / 磁盘 超过 80% 持续 10 分钟</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-1-S-M-A-R-T-磁盘健康监控-已配置-待机房支持才能出数据">3.1 S.M.A.R.T. 磁盘健康监控（已配置，待机房支持才能出数据）</h3>
+<ul>
+<li>已按官方文档把 5 台机器的 agent 换成 <code>:alpine</code> 镜像（自带 smartctl 7.5），并加设备映射与 <code>SYS_RAWIO</code> / <code>SYS_ADMIN</code> 能力，脚本见 <code>code/ops-scripts-运维部署脚本/beszel/enable_smart.sh</code>。</li>
+<li><strong>实测拿不到数据</strong>：5 台都是 KVM 虚拟机，磁盘为 virtio（<code>/dev/vda</code>），虚拟化层不向虚拟机暴露 SMART；容器内与宿主机上 <code>smartctl -i /dev/vda</code> 均报 <code>Unable to detect device type</code>，<code>smartctl --scan</code> 为空。</li>
+<li>要拿到盘健康数据，需要机房二选一：宿主机侧监控物理盘（推荐）；或把虚拟机磁盘由 virtio-blk 换成 virtio-scsi（盘符变 <code>/dev/sda</code>，需重新映射设备）。</li>
+<li>Beszel 的 SMART 告警是自动的：只要有数据且已配置通知通道，磁盘报故障即触发，无需额外配置。</li>
+</ul>
+<p>Agent 安装（每台执行，见 <code>beszel/install_agent.sh</code>）：</p>
+<pre><code class="language-bash">sudo ./install_agent.sh "&lt;hub 公钥&gt;" "&lt;通用 token&gt;" http://203.0.113.1:8090
+</code></pre>
+<h2 id="4-脚本清单-工作目录">4. 脚本清单（工作目录）</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>jumpserver/setup_uat.py</code></td>
+<td>建用户组 / 用户 / 资产 / 账号 / 授权（幂等）</td>
+</tr>
+<tr>
+<td><code>jumpserver/setup_uat_sudo.py</code></td>
+<td>建 root 提权账号（su_from=blkuat）</td>
+</tr>
+<tr>
+<td><code>jumpserver/fix_permission_accounts.py</code></td>
+<td>修正授权里的账号别名</td>
+</tr>
+<tr>
+<td><code>jumpserver/fix_platform_su.py</code></td>
+<td>把平台提权方式改成 sudo</td>
+</tr>
+<tr>
+<td><code>jumpserver/add_admin_group.py</code></td>
+<td>用户加入管理员组</td>
+</tr>
+<tr>
+<td><code>jumpserver/_verify_db.py</code> / <code>_verify_audit.py</code></td>
+<td>只读核对配置 / 会话录像 / 命令记录</td>
+</tr>
+<tr>
+<td><code>beszel/add_systems.py</code></td>
+<td>创建被监控系统（或改用通用 token 自动注册）</td>
+</tr>
+<tr>
+<td><code>beszel/install_agent.sh</code></td>
+<td>被监控机器一键装 agent</td>
+</tr>
+<tr>
+<td><code>telegram/get_chat_ids.py</code></td>
+<td>取机器人所在群的 chat_id</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-待办">5. 待办</h2>
+<ol>
+<li>交接前把全局 MFA 恢复为「全员强制」并把 admin / ben 的 MFA 等级调回强制（当前为调试期临时关闭）。</li>
+<li>各账号首次登录绑定 Google Authenticator；初始密码登录后自行修改。</li>
+<li>如需独立报警群（SVD 提到），把新群 chat_id 发运维，改 Beszel 通知 URL 即可。</li>
+<li>SRS(203.0.113.1/28) 私网路由待机房确认；确认后可正常纳管与监控。</li>
+<li>报警规则可按需细化：容器异常退出、端口/接口存活、带宽阈值等。</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-堡垒机-JumpServer">1. 堡垒机（JumpServer）</a></li><li style="margin-left:0.8rem"><a href="#1-1-组织与账号">1.1 组织与账号</a></li><li style="margin-left:0.8rem"><a href="#1-2-资产与账号">1.2 资产与账号</a></li><li style="margin-left:0.8rem"><a href="#1-3-关键配置项-踩过的坑">1.3 关键配置项（踩过的坑）</a></li><li style="margin-left:0.0rem"><a href="#2-服务器免密提权">2. 服务器免密提权</a></li><li style="margin-left:0.0rem"><a href="#3-监控-Beszel">3. 监控（Beszel）</a></li><li style="margin-left:0.0rem"><a href="#0-域名与反向代理-nginx">0. 域名与反向代理（nginx）</a></li><li style="margin-left:0.8rem"><a href="#3-1-S-M-A-R-T-磁盘健康监控-已配置-待机房支持才能出数据">3.1 S.M.A.R.T. 磁盘健康监控（已配置，待机房支持才能出数据）</a></li><li style="margin-left:0.0rem"><a href="#4-脚本清单-工作目录">4. 脚本清单（工作目录）</a></li><li style="margin-left:0.0rem"><a href="#5-待办">5. 待办</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：基础设施与自动化 / BKL UAT</li>
+          <li>日期：2026-10-15</li>
+          <li>标签：<span class="tag">BKL UAT</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">Redis</span><span class="tag">监控告警</span></li>
+          <li><span>来源：~/Projects/work/ops/devops/devops-bkl/doc/2026年10月15日-堡垒机与监控部署/2026年10月15日-堡垒机与监控部署-完整记录.…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610150000-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BLinux-%E8%A7%86%E8%AE%AF%E9%A1%B9%E7%9B%AE%20UAT%20%C2%B7%20%E8%BF%90%E7%BB%B4%E9%83%A8%E7%BD%B2%E8%AE%B0%E5%BD%95%EF%BC%88%E5%A0%A1%E5%9E%92%E6%9C%BA%20%2B%20%E7%9B%91%E6%8E%A7%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>视讯项目 UAT · 运维部署记录（堡垒机 + 监控）。本文属于基础设施与自动化 / BKL UAT，资产： UAT-middleware (203.0.113.1)、 UAT-manager (.12)、 UAT-worker01 (.13)、 UAT-worker02 (.14)、 UAT-srs (203.…</p>
+      <p>关键词：BKL UAT、Linux、Shell、Python、Docker、Nginx、Redis、监控告警、基础设施与自动化、基础设施与自动化 / BKL UAT、视讯项目 UAT · 运维部署记录（堡垒机 + 监控）、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-533c840de6aa.html"><small>上一篇</small>一行部署，8090 是访问端口</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d999f4430e91.html"><small>下一篇</small>视讯项目 UAT 环境 · 堡垒机（JumpServer）部署与需求确认</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-68fd05ec79cc.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

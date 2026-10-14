@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>原理与可行性调研｜工具与脚本 / 打孔业务｜BEN.OPS</title>
+  <meta name="description" content="原理与可行性调研。本文属于工具与脚本 / 打孔业务，这份文档记录&quot;为什么最后是现在这个方案&quot;。所有结论都是在目标机器上实测出来的， 不是查资料抄的。环境： 个人 LINE 账号 没有任何官方读取 / 发送接口 。想自动化只有两条路： 解密本地数据库 —— 一次性成本极高，见第 4 节">
+  <meta name="keywords" content="打孔业务，Shell，Python，自动化，故障排查，源码与配置，工具与脚本，工具与脚本 / 打孔业务，原理与可行性调研">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3f8b047a2313.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3f8b047a2313.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610152027-%E6%89%93%E5%AD%94%E4%B8%9A%E5%8A%A1%2BShell%2BPython-%E5%8E%9F%E7%90%86%E4%B8%8E%E5%8F%AF%E8%A1%8C%E6%80%A7%E8%B0%83%E7%A0%94.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="原理与可行性调研">
+  <meta property="og:description" content="原理与可行性调研。本文属于工具与脚本 / 打孔业务，这份文档记录&quot;为什么最后是现在这个方案&quot;。所有结论都是在目标机器上实测出来的， 不是查资料抄的。环境： 个人 LINE 账号 没有任何官方读取 / 发送接口 。想自动化只有两条路： 解密本地数据库 —— 一次性成本极高，见第 4 节">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3f8b047a2313.html">
+  <meta property="article:published_time" content="2026-10-15T20:27:35+08:00">
+  <meta property="article:modified_time" content="2026-10-15 20:27">
+  <meta property="article:section" content="工具与脚本 / 打孔业务">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="原理与可行性调研">
+  <meta name="twitter:description" content="原理与可行性调研。本文属于工具与脚本 / 打孔业务，这份文档记录&quot;为什么最后是现在这个方案&quot;。所有结论都是在目标机器上实测出来的， 不是查资料抄的。环境： 个人 LINE 账号 没有任何官方读取 / 发送接口 。想自动化只有两条路： 解密本地数据库 —— 一次性成本极高，见第 4 节">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3f8b047a2313.html#article","headline":"原理与可行性调研","description":"原理与可行性调研。本文属于工具与脚本 / 打孔业务，这份文档记录\"为什么最后是现在这个方案\"。所有结论都是在目标机器上实测出来的， 不是查资料抄的。环境： 个人 LINE 账号 没有任何官方读取 / 发送接口 。想自动化只有两条路： 解密本地数据库 —— 一次性成本极高，见第 4 节","datePublished":"2026-10-15T20:27:35+08:00","dateModified":"2026-10-15 20:27","inLanguage":"zh-CN","articleSection":["工具与脚本","打孔业务"],"keywords":["打孔业务","Shell","Python","自动化","故障排查","源码与配置","工具与脚本","工具与脚本 / 打孔业务","原理与可行性调研"],"wordCount":2648,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3f8b047a2313.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3f8b047a2313.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"工具与脚本 / 打孔业务","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"原理与可行性调研","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3f8b047a2313.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>工具与脚本 / 打孔业务</span> › <span>原理与可行性调研</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">工具与脚本 / 打孔业务</div>
+      <h1>原理与可行性调研</h1>
+      <p class="lede">原理与可行性调研。本文属于工具与脚本 / 打孔业务，这份文档记录&quot;为什么最后是现在这个方案&quot;。所有结论都是在目标机器上实测出来的， 不是查资料抄的。环境： 个人 LINE 账号 没有任何官方读取 / 发送接口 。想自动化只有两条路： 解密本地数据库 —— 一次性成本极高，见第 4 节</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-15T20:27:35+08:00">发布于 2026-10-15</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,648 字</span>
+        <span class="badge">8 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/automation/line-punch/docs/01-原理与可行性调研.md</code></p>
+<p>整理日期：2026-10-15 20:27｜日期依据：文件创建/修改时间</p>
+</blockquote>
+<p>这份文档记录"为什么最后是现在这个方案"。所有结论都是在目标机器上实测出来的，
+不是查资料抄的。环境：</p>
+<pre><code>macOS            26.6.2 (25G83)
+LINE for Mac     26.5.0 (Qt/QML)
+Python           3.11.15 (Homebrew)
+机器时区         Asia/Manila
+</code></pre>
+<hr/>
+<h2 id="1-先说结论">1. 先说结论</h2>
+<p>个人 LINE 账号<strong>没有任何官方读取 / 发送接口</strong>。想自动化只有两条路：</p>
+<ol>
+<li><strong>驱动桌面客户端</strong> —— 本方案采用</li>
+<li><strong>解密本地数据库</strong> —— 一次性成本极高，见第 4 节</li>
+</ol>
+<p>而"驱动桌面客户端"里，读取部分必须靠<strong>截图 + OCR</strong>，因为 LINE 是 Qt/QML，
+辅助功能树里没有文字。</p>
+<hr/>
+<h2 id="2-逐个排除的通道">2. 逐个排除的通道</h2>
+<h3 id="2-1-LINE-Messaging-API">2.1 LINE Messaging API</h3>
+<p>Bot API 的模型是：你创建一个 <strong>Official Account（官方账号）</strong>，用户加你为好友或把你
+拉进群。它<strong>不能</strong>以你的个人身份登录，也<strong>不能</strong>读你个人账号的聊天记录。
+想让它往你那个「打卡」群里发消息，前提是那个群本身挂了官方账号 —— 不成立。</p>
+<h3 id="2-2-LINE-Notify">2.2 LINE Notify</h3>
+<p>实测 <code>curl https://notify-bot.line.me/</code> 返回 HTTP 200，但页面正文是停服公告：</p>
+<blockquote>
+<p>…with regret, we will end this service on <strong>March 31, 2025</strong>.</p>
+</blockquote>
+<p>已死。</p>
+<h3 id="2-3-LINE-Login-LIFF">2.3 LINE Login / LIFF</h3>
+<p>是给第三方网站做"用 LINE 登录"和"在 LINE 里打开网页"的，只能拿到用户 ID、
+头像、昵称（还要用户授权），拿不到聊天内容。</p>
+<h3 id="2-4-AppleScript-Apple-Events">2.4 AppleScript / Apple Events</h3>
+<pre><code>$ /usr/libexec/PlistBuddy -c "Print :NSAppleScriptEnabled" \
+    /Applications/LINE.app/Contents/Info.plist
+Print: Entry, ":NSAppleScriptEnabled", Does Not Exist
+
+$ /usr/libexec/PlistBuddy -c "Print :OSAScriptingDefinition" \
+    /Applications/LINE.app/Contents/Info.plist
+Print: Entry, ":OSAScriptingDefinition", Does Not Exist
+</code></pre>
+<p>没有脚本字典，<code>tell application "LINE"</code> 除了 <code>activate</code> 什么都做不了。</p>
+<h3 id="2-5-URL-scheme">2.5 URL scheme</h3>
+<p><code>Info.plist</code> 里注册了 <code>line</code> 和 <code>lineb</code> 两个 scheme。它能做的是"打开某个页面 /
+拉起分享面板"，不能读内容，也不能指定群发消息。</p>
+<h3 id="2-6-本地-API-IPC">2.6 本地 API / IPC</h3>
+<p><code>~/Library/Group Containers/VUTU7AKEUR.jp.naver.line.mac/LINEPB_IPC</code> 看着像接口目录，
+实际是个 <strong>ASCII 文本文件</strong>（里面是几个 base64 token），不是目录。</p>
+<p><code>lsof -p &lt;LINE pid&gt;</code> 显示 LINE 只开了几个 UNIX socket（Qt 单实例锁、distnoted 连接），
+<strong>没有监听任何 TCP 端口</strong>。没有可以蹭的本地 API。</p>
+<h3 id="2-7-通知中心数据库">2.7 通知中心数据库</h3>
+<p>LINE 的消息通知会落到
+<code>~/Library/Group Containers/group.com.apple.usernoted/db2/db</code>。
+实测该库里 LINE（<code>app_id=95</code>）的 <code>record</code> 表是<strong>空的</strong> —— 这台机器上没留下通知记录，
+而且就算有，也只覆盖"最近收到过通知的会话"，不是全量列表。</p>
+<hr/>
+<h2 id="3-辅助功能-API-能拿结构-拿不到文字">3. 辅助功能 API：能拿结构，拿不到文字</h2>
+<p>这是最反直觉的一点，值得单独说。</p>
+<p><code>AXWindows</code> 属性返回<strong>空数组</strong>（LINE 的主窗口不在里面），但 <code>AXMainWindow</code> 有值。
+遍历之后能拿到完整的控件结构：</p>
+<pre><code>[AXWindow] LINE
+  [AXSplitGroup]
+    [AXSplitGroup]
+      [AXTextArea]        ← 消息输入框
+      [AXList]            ← 左侧聊天列表（rows=2）
+    [AXList]              ← 右侧消息列表（rows=11）
+    [AXTextField]         ← 搜索框
+</code></pre>
+<p>每一行的<strong>矩形是精确的</strong>：</p>
+<pre><code>AXList frame=(431.0, 352.0, 302.0, 377.0) rows=2
+    row 0 (431.0, 352.0, 302.0, 71.0)
+    row 1 (431.0, 423.0, 302.0, 71.0)
+</code></pre>
+<p>但把某一行的<strong>所有</strong>属性打出来，文字字段全是空：</p>
+<pre><code>AXRow         AXTitle = ""   AXDescription = ""   AXValue = (不存在)
+AXStaticText  AXTitle = ""   AXDescription = ""   AXValue = (不存在)
+</code></pre>
+<p>原因是 LINE 用 Qt Quick/QML 渲染，这些列表项是自定义 QML 组件，
+没有设置 <code>Accessible.name</code>，所以 Qt 只生成了"占位"的辅助功能节点。</p>
+<p><strong>结论：AX 用来拿位置，不用来拿文字。</strong></p>
+<hr/>
+<h2 id="4-本地数据库">4. 本地数据库</h2>
+<pre><code>~/Library/Containers/jp.naver.line.mac/Data/Library/Containers/
+    jp.naver.line/Data/db/
+├── qw7fdffd1e7f4d5a5869cbb3b8dda2e3.edb        主库（聊天、消息）
+├── qw7fdffd1e7f4d5a5869cbb3b8dda2e3.edb-wal    3MB 的 WAL
+├── album_*.edb / keep_*.edb / chatStats_*.edb  相册 / Keep / 统计
+└── f59c00309acd23908b1254ee081d8258            ← 这个**是**明文 SQLite
+</code></pre>
+<p>那唯一的明文 SQLite 里只有贴纸元数据：</p>
+<pre><code class="language-sql">CREATE TABLE _meta_info(m_n varchar(50) PRIMARY KEY, ...);
+CREATE TABLE _sticker_metadata(_packageId INTEGER, _metadata TEXT, ...);
+</code></pre>
+<p>其余 <code>.edb</code> 的头部是 <code>76 32 f3 7a 6d 4a a4 9a</code>（<code>"v2"</code> + 4 字节），
+每个文件的第 5–8 字节都不同，说明是<strong>逐文件的密钥 / IV</strong>。
+WAL 里的 <code>strings</code> 输出全是随机字节。</p>
+<p>这是 LINE 自己改造过的加密 SQLite（二进制里有 <code>PRAGMA %Q.page_size</code> 之类的定制串）。
+要读它得逆向它的密钥派生与页加密算法。</p>
+<p><strong>评估：</strong> 收益是"100% 精确、结构化、含全部历史"，成本是一次性的逆向工作，
+而且 LINE 每次大版本更新都可能改算法。<strong>作为长期方案值得考虑，但不适合作为第一步。</strong></p>
+<hr/>
+<h2 id="5-读取-ScreenCaptureKit-是关键">5. 读取：ScreenCaptureKit 是关键</h2>
+<p><code>screencapture -l &lt;windowID&gt;</code> 也能抓单个窗口，但有个致命问题：
+<strong>窗口被遮挡、或应用不在前台时，经常抓到空白图</strong>（拿不到 GPU 表面）。</p>
+<p><code>ScreenCaptureKit</code>（macOS 12.3+）的 <code>SCContentFilter(desktopIndependentWindow:)</code>
+配合 <code>SCScreenshotManager.captureImage</code>，可以稳定拿到被遮挡窗口的真实内容，
+而且<strong>不需要激活它</strong>。</p>
+<p>实测对比（前台应用是 Telegram，LINE 窗口被完全盖住）：</p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>结果</th>
+<th>前台是否变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>screencapture -l</code></td>
+<td>有时是空白图</td>
+<td>不变</td>
+</tr>
+<tr>
+<td>ScreenCaptureKit</td>
+<td>✅ 拿到完整内容（能 OCR 出「打卡（5）」「Bob 上班打卡 上午8:30」）</td>
+<td><strong>不变</strong></td>
+</tr>
+</tbody>
+</table>
+<p>PyObjC 里两个坑：</p>
+<ul>
+<li>必须先 <code>NSApplication.sharedApplication()</code>，否则直接断言失败：
+  <code>Assertion failed: (did_initialize), function CGS_REQUIRE_INIT</code></li>
+<li>完成回调要走 RunLoop 才会被调度，不能直接 <code>Event.wait()</code> 干等</li>
+</ul>
+<p>本项目里对应 <a href="https://ben2023niao.github.io/ben-ops-notes/doc/linepunch/macos_shot.py" rel="noopener noreferrer">linepunch/macos_shot.py</a>。</p>
+<hr/>
+<h2 id="6-文字识别-Vision">6. 文字识别：Vision</h2>
+<p><code>VNRecognizeTextRequest</code>，<code>recognitionLevel = accurate</code>，
+语言设成 <code>["zh-Hans", "en-US"]</code>，<strong>关掉</strong> <code>usesLanguageCorrection</code>（会让中文乱猜）。</p>
+<p>两个提高准确率的做法：</p>
+<ol>
+<li><strong>先裁剪再识别。</strong> 用 AX 拿到的行矩形把图裁成一条，再放大 3 倍送进 OCR。
+   一张图里只有一行字，错误率显著下降。</li>
+<li><strong>按视觉行聚类排序。</strong> 直接按 y 排序，在"一行里混着消息预览和时间戳"的布局上会错位，
+   要先按 y 聚类成行、行内再按 x 排。</li>
+</ol>
+<p>实测（对「打卡」群）：</p>
+<pre><code>会话标题   打卡（5） 4心 QC目： 5 @Aken @maggie        → 包含"打卡" ✅
+最近消息   Bob | 上班打卡 | 上午 8:30
+           @Aken @maggie | 上班 下 | 上午 8:04
+           cw-阿果（资金往来当面） | 泰铢换 人民币 5.08 泰铢换 | U 33.5 | 下午 1:06
+</code></pre>
+<hr/>
+<h2 id="7-写入-CGEvent-必须投给进程-不能投给事件流">7. 写入：CGEvent 必须投给进程，不能投给事件流</h2>
+<h3 id="7-0-最重要的一条-踩了很久才发现">7.0 最重要的一条（踩了很久才发现）</h3>
+<p>把事件投到 <code>kCGHIDEventTap</code> / <code>kCGSessionEventTap</code>，<strong>LINE 收不到</strong>：</p>
+<pre><code>kCGHIDEventTap   + HID 事件源      → 输入框 AXValue 仍是 ''   ❌
+kCGSessionEventTap + 合并会话源     → 输入框 AXValue 仍是 ''   ❌
+CGEventPostToPid(pid, event)       → 输入框 AXValue 变成 '下班打卡' ✅
+</code></pre>
+<p>早期的实现是"先把 LINE 切到前台，再往 tap 投事件"，那时候能work，所以一直没暴露。
+直到 LINE 重启过一次之后彻底不生效，才定位到根因。</p>
+<p>改用 <code>CGEventPostToPid</code> 之后，键盘输入不再需要焦点：
+LINE 全程在后台，你正在用的程序一直是最前台，鼠标也不会被挪走。</p>
+<h3 id="7-0-1-但鼠标不能照搬-Qt-列表行有它自己的脾气">7.0.1 但鼠标不能照搬 —— Qt 列表行有它自己的脾气</h3>
+<p>同一条路用在鼠标上就失效了。实测三种"点开某个聊天"的方式：</p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CGEventPostToPid</code> 投鼠标事件</td>
+<td>❌ 标题不变</td>
+</tr>
+<tr>
+<td><code>AXPress</code> 按在行 / 单元格 / 静态文本上</td>
+<td>❌ 标题不变</td>
+</tr>
+<tr>
+<td><strong>标准事件流点击（<code>CGEventPost</code> 到 <code>kCGHIDEventTap</code>）</strong></td>
+<td>✅ 标题变成目标会话</td>
+</tr>
+</tbody>
+</table>
+<p>所以最终的分工是：</p>
+<table>
+<thead>
+<tr>
+<th>动作</th>
+<th>方式</th>
+<th>抢焦点</th>
+<th>动鼠标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读窗口 / 列表 / 标题 / 消息</td>
+<td>ScreenCaptureKit + Vision OCR</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>输入文字、按回车</td>
+<td><code>CGEventPostToPid</code></td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>点列表行打开会话</strong></td>
+<td>标准事件流点击</td>
+<td>❌</td>
+<td>✅（用完放回）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="7-0-2-顺带发现-macOS-会拒绝后台应用抢焦点">7.0.2 顺带发现：macOS 会拒绝后台应用抢焦点</h3>
+<p>为了点列表行，代码里调用了 <code>NSRunningApplication.activate()</code>。虽然它返回 <code>True</code>，
+但 20ms 频率采样 1.3 秒的结果是：</p>
+<pre><code>调用 activate(LINE) -&gt; True
+之后前台: Code        ← 没有变
+20ms 采样到的前台序列: Code (1280 ms)
+</code></pre>
+<p><strong>系统实际拒绝了这次激活</strong>（现代 macOS 对抢焦点有拦截）。点击之所以还能送达
+LINE 窗口，是靠"穿透点击" —— 事件带绝对坐标，直接落到那个坐标上的窗口。</p>
+<p>结论：连"点列表行"这一步，你的前台窗口也不会被切走，只是鼠标会跳一下。</p>
+<p>实测（从"目标群未打开"开始跑完整流程）：</p>
+<pre><code>运行前  前台=Code  光标=(1091.83, 452.06)
+运行后  前台=Code  光标=(1091.83, 452.06)
+</code></pre>
+<h3 id="7-1-中文输入">7.1 中文输入</h3>
+<p>不需要切输入法。用 <code>CGEventKeyboardSetUnicodeString</code> 把 UTF-16 直接塞进键盘事件：</p>
+<pre><code class="language-python">event = Quartz.CGEventCreateKeyboardEvent(source, 0, True)
+Quartz.CGEventKeyboardSetUnicodeString(event, len(ch), ch)
+Quartz.CGEventPost(Quartz.kCGHIDEventTap, event)
+</code></pre>
+<p>注意 PyObjC 里这个函数<strong>只接受 Python 字符串</strong>，
+传 <code>ctypes</code> 缓冲区会报 <code>buffer not compatible</code>。</p>
+<h3 id="7-2-聚焦输入框">7.2 聚焦输入框</h3>
+<p>两种手段要组合用，缺一不可：</p>
+<pre><code class="language-python">AXUIElementSetAttributeValue(input_el, kAXFocusedAttribute, True)  # 辅助功能置焦点
+CGEventPost(...)                                                    # 再补一次鼠标点击
+</code></pre>
+<p>只做前者时有些 Qt 版本不认；只做后者时，窗口被遮挡会点到别的窗口上。</p>
+<h3 id="7-3-一个真实的坑">7.3 一个真实的坑</h3>
+<p>早期用 Swift 版本测试时出现过"点击生效了但按键没打进去"。
+事后定位到原因：<strong>点击确实发生了</strong>（LINE 的搜索框拿到了焦点，AX 里 <code>AXFocused=1</code>），
+但随后 LINE 又被别的窗口盖住了，键盘事件就发到别的应用去了。</p>
+<p>教训：<strong>激活之后不要假设焦点还在</strong>。所以现在每次输入完都会回读输入框的 <code>AXValue</code>
+做二次确认，不一致就判定失败，而不是盲目按回车。</p>
+<hr/>
+<h2 id="8-窗口识别">8. 窗口识别</h2>
+<p>LINE 一个进程里有十来个窗口（<code>LINE.AudioService</code>、各种 <code>VideoPreviewService</code>、
+多个 <code>1440x30</code> 的辅助条、一个在 <code>-10000,10899</code> 的离屏窗口）。
+它们的标题都是空的，靠 <code>kCGWindowName</code> 根本分不出来。</p>
+<p>可靠的办法是<strong>用几何位置匹配</strong>：AX 给出主窗口的矩形（点），
+在 <code>CGWindowListCopyWindowInfo</code> 的结果里找 layer=0、位置尺寸在 4 点容差内完全吻合的那个。</p>
+<pre><code class="language-python">d = abs(x - ax.x) + abs(y - ax.y) + abs(w - ax.w) + abs(h - ax.h)
+</code></pre>
+<p>本项目里对应 <code>macos_shot.window_id_for()</code>。</p>
+<hr/>
+<h2 id="9-为什么没有用-完全不起窗口-的方案">9. 为什么没有用"完全不起窗口"的方案</h2>
+<p>理论上还有一条路：把脚本跑在<strong>独立的 macOS 用户会话</strong>里，
+这样它抢焦点也影响不到你。这是生产环境最干净的形态，但需要：</p>
+<ul>
+<li>新建一个 macOS 用户，在里面单独登录 LINE</li>
+<li>或者用一台专门的机器 / 虚拟机</li>
+</ul>
+<p>本项目没有强制这么做，而是把"抢焦点"压缩到发送前后的约 2 秒，
+并且支持把执行时间安排在你不使用电脑的时段。
+需要更强隔离时，直接把这套代码搬到独立用户会话即可，代码本身不用改。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-先说结论">1. 先说结论</a></li><li style="margin-left:0.0rem"><a href="#2-逐个排除的通道">2. 逐个排除的通道</a></li><li style="margin-left:0.8rem"><a href="#2-1-LINE-Messaging-API">2.1 LINE Messaging API</a></li><li style="margin-left:0.8rem"><a href="#2-2-LINE-Notify">2.2 LINE Notify</a></li><li style="margin-left:0.8rem"><a href="#2-3-LINE-Login-LIFF">2.3 LINE Login / LIFF</a></li><li style="margin-left:0.8rem"><a href="#2-4-AppleScript-Apple-Events">2.4 AppleScript / Apple Events</a></li><li style="margin-left:0.8rem"><a href="#2-5-URL-scheme">2.5 URL scheme</a></li><li style="margin-left:0.8rem"><a href="#2-6-本地-API-IPC">2.6 本地 API / IPC</a></li><li style="margin-left:0.8rem"><a href="#2-7-通知中心数据库">2.7 通知中心数据库</a></li><li style="margin-left:0.0rem"><a href="#3-辅助功能-API-能拿结构-拿不到文字">3. 辅助功能 API：能拿结构，拿不到文字</a></li><li style="margin-left:0.0rem"><a href="#4-本地数据库">4. 本地数据库</a></li><li style="margin-left:0.0rem"><a href="#5-读取-ScreenCaptureKit-是关键">5. 读取：ScreenCaptureKit 是关键</a></li><li style="margin-left:0.0rem"><a href="#6-文字识别-Vision">6. 文字识别：Vision</a></li><li style="margin-left:0.0rem"><a href="#7-写入-CGEvent-必须投给进程-不能投给事件流">7. 写入：CGEvent 必须投给进程，不能投给事件流</a></li><li style="margin-left:0.8rem"><a href="#7-0-最重要的一条-踩了很久才发现">7.0 最重要的一条（踩了很久才发现）</a></li><li style="margin-left:0.8rem"><a href="#7-0-1-但鼠标不能照搬-Qt-列表行有它自己的脾气">7.0.1 但鼠标不能照搬 —— Qt 列表行有它自己的脾气</a></li><li style="margin-left:0.8rem"><a href="#7-0-2-顺带发现-macOS-会拒绝后台应用抢焦点">7.0.2 顺带发现：macOS 会拒绝后台应用抢焦点</a></li><li style="margin-left:0.8rem"><a href="#7-1-中文输入">7.1 中文输入</a></li><li style="margin-left:0.8rem"><a href="#7-2-聚焦输入框">7.2 聚焦输入框</a></li><li style="margin-left:0.8rem"><a href="#7-3-一个真实的坑">7.3 一个真实的坑</a></li><li style="margin-left:0.0rem"><a href="#8-窗口识别">8. 窗口识别</a></li><li style="margin-left:0.0rem"><a href="#9-为什么没有用-完全不起窗口-的方案">9. 为什么没有用&quot;完全不起窗口&quot;的方案</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：工具与脚本 / 打孔业务</li>
+          <li>日期：2026-10-15</li>
+          <li>标签：<span class="tag">打孔业务</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">自动化</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/automation/line-punch/docs/01-原理与可行性调研.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610152027-%E6%89%93%E5%AD%94%E4%B8%9A%E5%8A%A1%2BShell%2BPython-%E5%8E%9F%E7%90%86%E4%B8%8E%E5%8F%AF%E8%A1%8C%E6%80%A7%E8%B0%83%E7%A0%94.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>原理与可行性调研。本文属于工具与脚本 / 打孔业务，这份文档记录&quot;为什么最后是现在这个方案&quot;。所有结论都是在目标机器上实测出来的， 不是查资料抄的。环境： 个人 LINE 账号 没有任何官方读取 / 发送接口 。想自动化只有两条路： 解密本地数据库 —— 一次性成本极高，见第 4 节</p>
+      <p>关键词：打孔业务、Shell、Python、自动化、故障排查、源码与配置、工具与脚本、工具与脚本 / 打孔业务、原理与可行性调研</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c9a764f81dbe.html"><small>上一篇</small>命令行手册</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-afb3bc15f356.html"><small>下一篇</small>排错手册</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-3f8b047a2313.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
