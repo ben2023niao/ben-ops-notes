@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>2026-10-16 堡垒机账号开关按钮 + 授权安全测试 IP 封禁 + admin 解锁｜基础设施与自动化 / BKL UAT｜BEN.OPS</title>
+  <meta name="description" content="2026-10-16 堡垒机账号开关按钮 + 授权安全测试 IP 封禁 + admin 解锁。本文属于基础设施与自动化 / BKL UAT，Mark 反馈「堡垒机 admin 账号被锁了」。排查结论： 不是内部操作，是公网在暴力破解登录接口 。 查 audits.UserLoginLog ：近 2 天 3100+…">
+  <meta name="keywords" content="BKL UAT，Linux，Shell，Python，Go，Docker，Nginx，监控告警，基础设施与自动化，基础设施与自动化 / BKL UAT，2026-10-16 堡垒机账号开关按钮 + 授权安全测试 IP 封禁 + admin 解锁，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2f7158d20a0c.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2f7158d20a0c.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610160000-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BLinux-2026-10-16%20%E5%A0%A1%E5%9E%92%E6%9C%BA%E8%B4%A6%E5%8F%B7%E5%BC%80%E5%85%B3%E6%8C%89%E9%92%AE%20%2B%20%E6%8E%88%E6%9D%83%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95%20IP%20%E5%B0%81%E7%A6%81%20%2B%20admin%20%E8%A7%A3%E9%94%81.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="2026-10-16 堡垒机账号开关按钮 + 授权安全测试 IP 封禁 + admin 解锁">
+  <meta property="og:description" content="2026-10-16 堡垒机账号开关按钮 + 授权安全测试 IP 封禁 + admin 解锁。本文属于基础设施与自动化 / BKL UAT，Mark 反馈「堡垒机 admin 账号被锁了」。排查结论： 不是内部操作，是公网在暴力破解登录接口 。 查 audits.UserLoginLog ：近 2 天 3100+…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2f7158d20a0c.html">
+  <meta property="article:published_time" content="2026-10-16T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-10-16 00:00">
+  <meta property="article:section" content="基础设施与自动化 / BKL UAT">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="2026-10-16 堡垒机账号开关按钮 + 授权安全测试 IP 封禁 + admin 解锁">
+  <meta name="twitter:description" content="2026-10-16 堡垒机账号开关按钮 + 授权安全测试 IP 封禁 + admin 解锁。本文属于基础设施与自动化 / BKL UAT，Mark 反馈「堡垒机 admin 账号被锁了」。排查结论： 不是内部操作，是公网在暴力破解登录接口 。 查 audits.UserLoginLog ：近 2 天 3100+…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2f7158d20a0c.html#article","headline":"2026-10-16 堡垒机账号开关按钮 + 授权安全测试 IP 封禁 + admin 解锁","description":"2026-10-16 堡垒机账号开关按钮 + 授权安全测试 IP 封禁 + admin 解锁。本文属于基础设施与自动化 / BKL UAT，Mark 反馈「堡垒机 admin 账号被锁了」。排查结论： 不是内部操作，是公网在暴力破解登录接口 。 查 audits.UserLoginLog ：近 2 天 3100+…","datePublished":"2026-10-16T00:00:00+08:00","dateModified":"2026-10-16 00:00","inLanguage":"zh-CN","articleSection":["基础设施与自动化","BKL UAT"],"keywords":["BKL UAT","Linux","Shell","Python","Go","Docker","Nginx","监控告警","基础设施与自动化","基础设施与自动化 / BKL UAT","2026-10-16 堡垒机账号开关按钮 + 授权安全测试 IP 封禁 + admin 解锁","devops"],"wordCount":2517,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2f7158d20a0c.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2f7158d20a0c.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"基础设施与自动化 / BKL UAT","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-10-16 堡垒机账号开关按钮 + 授权安全测试 IP 封禁 + admin 解锁","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2f7158d20a0c.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>基础设施与自动化 / BKL UAT</span> › <span>2026-10-16 堡垒机账号开关按钮 + 授权安全测试 IP 封禁 + admin 解锁</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">基础设施与自动化 / BKL UAT</div>
+      <h1>2026-10-16 堡垒机账号开关按钮 + 授权安全测试 IP 封禁 + admin 解锁</h1>
+      <p class="lede">2026-10-16 堡垒机账号开关按钮 + 授权安全测试 IP 封禁 + admin 解锁。本文属于基础设施与自动化 / BKL UAT，Mark 反馈「堡垒机 admin 账号被锁了」。排查结论： 不是内部操作，是公网在暴力破解登录接口 。 查 audits.UserLoginLog ：近 2 天 3100+…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-16T00:00:00+08:00">发布于 2026-10-16</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,517 字</span>
+        <span class="badge">8 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/ops/devops/devops-bkl/doc/2026年10月16日-堡垒机账号开关按钮与攻击IP封禁/2026年10月16日-堡垒机账号开关按钮与攻击IP封禁.md</code></p>
+<p>整理日期：2026-10-16 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>日期</td>
+<td>2026 年 10 月 16 日</td>
+</tr>
+<tr>
+<td>事项</td>
+<td>排查 admin 被锁 → 封禁授权安全测试 IP、白名单自有 IP；机器人新增「堡垒机账号」开关按钮</td>
+</tr>
+<tr>
+<td>参与</td>
+<td>Ben（执行）、Mark Wu（报障）、SVD（要求开放 admin 给 jack）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="一-起因">一、起因</h2>
+<p>Mark 反馈「堡垒机 admin 账号被锁了」。排查结论：<strong>不是内部操作，是公网在暴力破解登录接口</strong>。</p>
+<h2 id="二-排查过程与证据">二、排查过程与证据</h2>
+<ol>
+<li>查 <code>audits.UserLoginLog</code>：近 2 天 3100+ 次失败登录，集中在三个 IP：</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>来源 IP</th>
+<th>失败次数</th>
+<th>归属</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>143.198.159.21</td>
+<td>1036</td>
+<td>DigitalOcean 圣克拉拉（爆破主机）</td>
+</tr>
+<tr>
+<td>43.226.47.192</td>
+<td>434</td>
+<td>境外</td>
+</tr>
+<tr>
+<td>120.26.240.78</td>
+<td>303</td>
+<td>阿里云杭州</td>
+</tr>
+</tbody>
+</table>
+<ol start="2">
+<li>UA 全是 <code>Go-http-client/1.1</code> → 脚本直接打 API 登录接口，网页验证码拦不住。</li>
+<li>被猜账号：<code>root</code> 1426 次、<code>admin</code> 54 次，还有 <code>user/test/ubuntu/ftpuser/zhang/adm</code> 等（持续换用户名）。</li>
+<li>锁定机制：<code>SECURITY_LOGIN_LIMIT_COUNT=7</code>（错 7 次）+ <code>SECURITY_LOGIN_LIMIT_TIME=30</code>（锁 30 分钟），授权安全测试者每 30 分钟一轮 → admin 反复被锁。</li>
+<li>成功登录记录逐条核对，全部来自我们自己的 IP（Ben 的出口、Bruce 曼谷、Berd、AK 线路），<strong>没有发现被攻入的迹象</strong>。</li>
+</ol>
+<h2 id="三-处置-含-10-16-下午追加的-填-IP-才开启-改造">三、处置（含 10-16 下午追加的"填 IP 才开启"改造）</h2>
+<h3 id="1-登录来源-IP-黑-白名单-JumpServer-内置">1. 登录来源 IP 黑/白名单（JumpServer 内置）</h3>
+<pre><code>SECURITY_LOGIN_IP_BLACK_LIST = ["143.198.159.21", "43.226.47.192", "120.26.240.78"]
+SECURITY_LOGIN_IP_WHITE_LIST = ["203.0.113.1", "203.0.113.1", "112.207.100.18",
+                                "171.99.134.110", "103.54.44.47", "23.226.61.242"]
+SECURITY_LOGIN_IP_LIMIT_COUNT = 30     # 原来是 99999，等于没限速
+SECURITY_LOGIN_IP_LIMIT_TIME  = 30
+</code></pre>
+<p>代码逻辑（<code>users/utils.py</code> 的 <code>BlockGlobalIpUtilBase</code>）：</p>
+<ul>
+<li><code>is_block()</code>：白名单 → 永不拦；黑名单 → 直接拦；否则看 IP 限速计数。</li>
+<li>黑名单在<strong>验密码之前</strong>拦 → 授权安全测试流量不再累计失败次数，admin 也就不会被它们锁掉了。</li>
+<li>白名单里的 IP 不参与限速计数 → 自己人反复试密码也不会被自己的限速封掉。</li>
+</ul>
+<p>白名单里 <code>203.0.113.1</code> 是 docker 网关（nginx → JumpServer 的通道），<strong>必须留</strong>，否则控制台直接打不开。</p>
+<h3 id="2-解锁-admin">2. 解锁 admin</h3>
+<pre><code>LoginBlockUtil.unblock_user("admin")   # 顺带清了 root
+</code></pre>
+<h3 id="3-机器人专用-API-账号">3. 机器人专用 API 账号</h3>
+<p>机器人要能开关堡垒机账号，就不能依赖 admin（admin 被关掉后没人能再打开）。所以建了独立服务账号：</p>
+<ul>
+<li>账号 <code>botapi</code>，角色 <code>SystemAdmin</code>，<code>mfa_level=0</code>，<code>is_active=True</code></li>
+<li>密码只写在服务器 <code>/opt/ben-bot/docker/.env</code>（600 权限），不进仓库</li>
+<li>机器人用 <code>network_mode: host</code> 直连 <code>203.0.113.1:8081</code> 调 API</li>
+</ul>
+<h3 id="4-机器人-堡垒机放行-IP-面板-最终版-只做白名单-IP-增删">4. 机器人「🌐 堡垒机放行 IP」面板（最终版：只做白名单 IP 增删）</h3>
+<blockquote>
+<p>演进说明：最初做的是"每个账号一对开启/关闭按钮，开启时必须填公网 IP"；当天下午按需求<strong>简化</strong>成"账号全部保持启用，机器人只管登录白名单 IP 的增删"。下面是最新形态。</p>
+</blockquote>
+<p>菜单入口（运维和后端可见）：</p>
+<pre><code>🌐 堡垒机登录放行 IP
+🔗 登录地址：https://manage.evercare.id        [🖥 打开堡垒机登录页]
+
+🌐 当前放行 IP
+　112.207.100.18　基线·不可删
+　203.0.113.7
+👤 账号：admin、ben、ak、berd、bruce　全部启用
+
+[➕ 增加放行 IP]  [➖ 删除 203.0.113.7]  [🔄 刷新]  [返回首页]
+</code></pre>
+<p>流程：</p>
+<ol>
+<li>点「➕ 增加放行 IP」→ 机器人要求发 IP（支持 <code>1.2.3.4</code> 与 <code>1.2.3.0/24</code>）→ 校验通过后写入 JumpServer 登录白名单；</li>
+<li>每个非基线 IP 有独立的「➖ 删除 xxx」按钮，点一下直接移除；</li>
+<li>基线 IP（我们自己的固定出口，含内部通道 <code>203.0.113.1</code>）不显示删除按钮，直接调接口也会被拦；</li>
+<li>面板上还显示 5 个账号的启用状态（当前全部启用）。</li>
+</ol>
+<p>发 <code>/cancel</code> 可以取消正在等待输入 IP 的操作。</p>
+<p>面板第一行还放了一个「🖥 打开堡垒机登录页」按钮，点一下直接进登录页，不用手敲域名。</p>
+<p>代码：</p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>code/ben-bot-运维机器人/data/scripts/堡垒机账号/.benbot.json</code></td>
+<td>菜单节点定义</td>
+</tr>
+<tr>
+<td><code>code/ben-bot-运维机器人/data/scripts/堡垒机账号/jms_accounts.py</code></td>
+<td>接口逻辑（可命令行用：<code>list</code> / <code>enable x</code> / <code>disable x</code>）</td>
+</tr>
+<tr>
+<td><code>code/ben-bot-运维机器人/data/scripts/堡垒机账号/benbot_plugin.py</code></td>
+<td>Telegram 面板与回调</td>
+</tr>
+<tr>
+<td><code>code/ben-bot-运维机器人/app/benbot/handlers/jms.py</code></td>
+<td>接住用户回的 IP（<code>/cancel</code> 取消），没有待办时保持安静</td>
+</tr>
+</tbody>
+</table>
+<h2 id="四-验证">四、验证</h2>
+<ol>
+<li>账号状态互通：容器内 <code>jms_accounts.py list</code> 输出 5 个账号状态。</li>
+<li>增加 IP：<code>add_ip_only("203.0.113.7")</code> → 白名单新增 <code>203.0.113.7/32</code>，面板出现对应的删除按钮。</li>
+<li>删除 IP：用不带掩码的 <code>203.0.113.7</code> 也能删掉（做了规范化）。</li>
+<li>基线保护：删除 <code>112.207.100.18</code> 被拒（提示是基线 IP）。</li>
+<li>输入校验：<code>999.1.1.1</code> 被拒（格式不对）。</li>
+<li>账号状态：5 个账号全部 <code>is_active=True</code>。</li>
+<li>面板渲染：登录地址、URL 按钮、IP 列表、增删按钮都正确；基线 IP 不出现删除按钮。</li>
+<li>写入即时生效：改白名单后立即读取已包含新 IP（不需要重启容器）。</li>
+<li>菜单按角色渲染：运维/后端看到 4 个入口（值班表/堡垒机账号/堡垒机/监控），其他人只有值班表。</li>
+<li>插件渲染：面板文案与按钮回调（<code>plugin:&lt;node&gt;:enable:&lt;user&gt;</code>）生成正确。</li>
+<li>封禁效果：容器重启后授权安全测试者的登录尝试停止（之前约每 30 秒一次）。</li>
+</ol>
+<h2 id="五-踩的坑">五、踩的坑</h2>
+<ol>
+<li><strong>Cloudflare 会拦脚本调用</strong>：从公网用脚本 POST 登录接口被 CF 以 <code>error code: 1010</code> 拒绝（bot 防护）。给服务器做接口调用要走内部地址 <code>203.0.113.1:8081</code>。</li>
+<li><strong>设置改完要重启容器</strong>：IP 黑白名单写进了数据库，但进程内是启动时加载的，不重启不生效（第一次验证时读到的还是旧值就是这原因）。</li>
+<li><strong>admin 被锁时 API 也用不了</strong>：「解锁」这个动作本身需要登录 → 死锁。解决办法是用 ORM 直接跑（<code>docker exec</code> + Django），不经 API。</li>
+<li><strong>授权安全测试者会换 IP 和用户名</strong>：黑名单只能挡已知的，长期要靠 IP 限速（30/30min）+ 全局 MFA + 域名侧访问控制。</li>
+<li><strong>设计上让机器人不依赖 admin</strong>：否则一旦按流程把 admin 关掉，就没人能再打开了。</li>
+<li><strong>JumpServer 的"白名单"是豁免名单，不是准入名单</strong>：白名单里的 IP 不受限速/封禁影响，但<strong>不会</strong>限制其它 IP 登录。要做到"只有这个 IP 能登录"，需要另加 nginx 层 allow 列表或 JumpServer 的登录限制（ACL），属于下一步可选项。</li>
+<li><strong>隐藏文件差点漏传</strong>：菜单目录的配置文件名是 <code>.benbot.json</code>（点开头）。第一次同步用了 <code>cp 目录/*</code>，通配符不匹配隐藏文件，结果服务器上没这个配置 → 按钮点进去变成"下一级目录"，面板根本不出现。同步要整目录复制（<code>cp -R</code> / <code>shutil.copytree</code>）。</li>
+<li><strong>compose 的 <code>.env</code> 不等于容器环境变量</strong>：<code>docker/.env</code> 只用于 compose 里 <code>${VAR}</code> 的替换；容器要拿到变量必须写进 <code>environment:</code> 段。第一版基线 IP 没生效就是这个原因。</li>
+</ol>
+<h2 id="六-后续">六、后续</h2>
+<ol>
+<li><strong>恢复全局 MFA</strong>（<code>SECURITY_MFA_AUTH</code>）——目前是 0（关）。密码之前在群里出现过，建议尽快开启（管理员强制或全员强制）。</li>
+<li>Cloudflare 侧加 WAF 规则/国家限制，或在 manage 域名前加 Cloudflare Access。</li>
+<li>观察 IP 限速是否误伤（如有人换网络后登录异常，把他 IP 加白）。</li>
+<li>admin 平时保持关闭、需要时用机器人按钮打开，符合 SVD 定的用法。</li>
+</ol>
+<hr/>
+<h2 id="七-方案调整-同一天晚些时候-按最新决定改成-nginx-密码保护">七、方案调整（同一天晚些时候，按最新决定改成"nginx 密码保护"）</h2>
+<p>讨论之后大家认为：<strong>机器人里挂堡垒机功能没必要，而且有安全隐患</strong>（"就是个堡垒机，不用搞这么多花里胡哨"）。所以：</p>
+<h3 id="1-撤销机器人里的堡垒机功能">1. 撤销机器人里的堡垒机功能</h3>
+<ul>
+<li>删除菜单节点 <code>data/scripts/堡垒机账号/</code>（服务器上归档到 <code>/opt/_removed_20261016/</code>）</li>
+<li>删除接 IP 输入的 <code>app/benbot/handlers/jms.py</code> 与相关 handler 注册（普通文本机器人不再处理）</li>
+<li>compose 里去掉 <code>JMS_*</code> 环境变量，服务器 <code>docker/.env</code> 清空</li>
+<li>菜单恢复成三个入口：<code>📅 运维值班表</code> / <code>🖥 堡垒机</code> / <code>📊 监控</code></li>
+<li>当初为这个功能建的 API 账号 <code>botapi</code> 已<strong>停用</strong>（<code>is_active=False</code>，留着以后做工作台再用）</li>
+</ul>
+<h3 id="2-改用-nginx-给堡垒机域名加访问密码">2. 改用 nginx 给堡垒机域名加访问密码</h3>
+<p>思路：打开 <code>manage.evercare.id</code> 先弹一个 HTTP Basic 认证，输入运维内部知道的账号密码才能看到登录页。这样扫到的工具连页面都拿不到，也顺手挡掉一批扫描。</p>
+<p>配置（<code>code/ops-scripts-运维部署脚本/nginx/</code>）：</p>
+<pre><code class="language-nginx"># 10-manage.conf，server 段
+auth_basic "BKL UAT";
+auth_basic_user_file /etc/nginx/auth/manage.htpasswd;
+
+location /.well-known/acme-challenge/ {
+    root /var/www/certbot;
+    auth_basic off;      # 证书续期必须免密
+}
+</code></pre>
+<p>细节：</p>
+<ul>
+<li>密码文件 <code>/opt/nginx/auth/manage.htpasswd</code>，用 <code>openssl passwd -apr1</code> 生成（不用装 apache2-utils）</li>
+<li>nginx compose 增加挂载 <code>./auth:/etc/nginx/auth:ro</code></li>
+<li>账号密码另存在服务器 <code>/root/nginx-manage-password.txt</code>（600）</li>
+<li><strong>证书续期路径必须 <code>auth_basic off</code></strong>，否则 90 天后自动续期会失败</li>
+</ul>
+<p>验证：不带密码访问 <code>https://manage.evercare.id</code> → 401；带账号密码 → 200；<code>/.well-known/acme-challenge/</code> 免密可访问；监控域名不受影响（还是 200）。</p>
+<h3 id="3-按-Mark-要求开启全局-MFA">3. 按 Mark 要求开启全局 MFA</h3>
+<pre><code>SECURITY_MFA_AUTH = 1   # 1 = 全员强制
+</code></pre>
+<p>效果：5 个账号下次登录都会被要求绑定 Google Authenticator（扫码），之后每次登录要输验证码。</p>
+<p>注意（踩坑）：改完设置后<strong>接口读回可能还是旧值</strong>（进程内缓存），别被误导；确认要看数据库里的 <code>settings.Setting</code> 或重新登录试一次。这次就是"读回 0、实际已经是 1"，直到再登录报 <code>mfa_required</code> 才发现已生效。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-起因">一、起因</a></li><li style="margin-left:0.0rem"><a href="#二-排查过程与证据">二、排查过程与证据</a></li><li style="margin-left:0.0rem"><a href="#三-处置-含-10-16-下午追加的-填-IP-才开启-改造">三、处置（含 10-16 下午追加的&quot;填 IP 才开启&quot;改造）</a></li><li style="margin-left:0.8rem"><a href="#1-登录来源-IP-黑-白名单-JumpServer-内置">1. 登录来源 IP 黑/白名单（JumpServer 内置）</a></li><li style="margin-left:0.8rem"><a href="#2-解锁-admin">2. 解锁 admin</a></li><li style="margin-left:0.8rem"><a href="#3-机器人专用-API-账号">3. 机器人专用 API 账号</a></li><li style="margin-left:0.8rem"><a href="#4-机器人-堡垒机放行-IP-面板-最终版-只做白名单-IP-增删">4. 机器人「🌐 堡垒机放行 IP」面板（最终版：只做白名单 IP 增删）</a></li><li style="margin-left:0.0rem"><a href="#四-验证">四、验证</a></li><li style="margin-left:0.0rem"><a href="#五-踩的坑">五、踩的坑</a></li><li style="margin-left:0.0rem"><a href="#六-后续">六、后续</a></li><li style="margin-left:0.0rem"><a href="#七-方案调整-同一天晚些时候-按最新决定改成-nginx-密码保护">七、方案调整（同一天晚些时候，按最新决定改成&quot;nginx 密码保护&quot;）</a></li><li style="margin-left:0.8rem"><a href="#1-撤销机器人里的堡垒机功能">1. 撤销机器人里的堡垒机功能</a></li><li style="margin-left:0.8rem"><a href="#2-改用-nginx-给堡垒机域名加访问密码">2. 改用 nginx 给堡垒机域名加访问密码</a></li><li style="margin-left:0.8rem"><a href="#3-按-Mark-要求开启全局-MFA">3. 按 Mark 要求开启全局 MFA</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：基础设施与自动化 / BKL UAT</li>
+          <li>日期：2026-10-16</li>
+          <li>标签：<span class="tag">BKL UAT</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Go</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">监控告警</span></li>
+          <li><span>来源：~/Projects/work/ops/devops/devops-bkl/doc/2026年10月16日-堡垒机账号开关按钮与攻击IP封禁/2026年10月16日-堡垒机账号开…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610160000-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BLinux-2026-10-16%20%E5%A0%A1%E5%9E%92%E6%9C%BA%E8%B4%A6%E5%8F%B7%E5%BC%80%E5%85%B3%E6%8C%89%E9%92%AE%20%2B%20%E6%8E%88%E6%9D%83%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95%20IP%20%E5%B0%81%E7%A6%81%20%2B%20admin%20%E8%A7%A3%E9%94%81.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>2026-10-16 堡垒机账号开关按钮 + 授权安全测试 IP 封禁 + admin 解锁。本文属于基础设施与自动化 / BKL UAT，Mark 反馈「堡垒机 admin 账号被锁了」。排查结论： 不是内部操作，是公网在暴力破解登录接口 。 查 audits.UserLoginLog ：近 2 天 3100+…</p>
+      <p>关键词：BKL UAT、Linux、Shell、Python、Go、Docker、Nginx、监控告警、基础设施与自动化、基础设施与自动化 / BKL UAT、2026-10-16 堡垒机账号开关按钮 + 授权安全测试 IP 封禁 + admin 解锁、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d2962f3a2bd1.html"><small>上一篇</small>2026-10-16 代码每日打包备份到报警群</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e294ca77a1f9.html"><small>下一篇</small>2026-10-16 报警中文化 + 通知切到报警群 + 链接改公网 IP</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2f7158d20a0c.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

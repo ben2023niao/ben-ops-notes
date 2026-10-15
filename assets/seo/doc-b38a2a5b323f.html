@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>权限与部署｜工具与脚本 / 打孔业务｜BEN.OPS</title>
+  <meta name="description" content="权限与部署。本文属于工具与脚本 / 打孔业务，这套东西能不能跑起来， 80% 取决于 macOS 的隐私权限（TCC） 。 这一节把它讲透，因为踩一次坑能浪费一小时。 这是最容易踩的坑。TCC 授权的主体不是&quot;你这个人&quot;，而是 发起调用的那个二进制 。 你在 VS Code 的终端 里跑脚本 → 授权对象是 Vi…">
+  <meta name="keywords" content="打孔业务，Shell，Python，自动化，安全运维，源码与配置，工具与脚本，工具与脚本 / 打孔业务，权限与部署">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b38a2a5b323f.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b38a2a5b323f.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610160907-%E6%89%93%E5%AD%94%E4%B8%9A%E5%8A%A1%2BShell%2BPython-%E6%9D%83%E9%99%90%E4%B8%8E%E9%83%A8%E7%BD%B2.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="权限与部署">
+  <meta property="og:description" content="权限与部署。本文属于工具与脚本 / 打孔业务，这套东西能不能跑起来， 80% 取决于 macOS 的隐私权限（TCC） 。 这一节把它讲透，因为踩一次坑能浪费一小时。 这是最容易踩的坑。TCC 授权的主体不是&quot;你这个人&quot;，而是 发起调用的那个二进制 。 你在 VS Code 的终端 里跑脚本 → 授权对象是 Vi…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b38a2a5b323f.html">
+  <meta property="article:published_time" content="2026-10-16T09:07:32+08:00">
+  <meta property="article:modified_time" content="2026-10-16 09:07">
+  <meta property="article:section" content="工具与脚本 / 打孔业务">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="权限与部署">
+  <meta name="twitter:description" content="权限与部署。本文属于工具与脚本 / 打孔业务，这套东西能不能跑起来， 80% 取决于 macOS 的隐私权限（TCC） 。 这一节把它讲透，因为踩一次坑能浪费一小时。 这是最容易踩的坑。TCC 授权的主体不是&quot;你这个人&quot;，而是 发起调用的那个二进制 。 你在 VS Code 的终端 里跑脚本 → 授权对象是 Vi…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b38a2a5b323f.html#article","headline":"权限与部署","description":"权限与部署。本文属于工具与脚本 / 打孔业务，这套东西能不能跑起来， 80% 取决于 macOS 的隐私权限（TCC） 。 这一节把它讲透，因为踩一次坑能浪费一小时。 这是最容易踩的坑。TCC 授权的主体不是\"你这个人\"，而是 发起调用的那个二进制 。 你在 VS Code 的终端 里跑脚本 → 授权对象是 Vi…","datePublished":"2026-10-16T09:07:32+08:00","dateModified":"2026-10-16 09:07","inLanguage":"zh-CN","articleSection":["工具与脚本","打孔业务"],"keywords":["打孔业务","Shell","Python","自动化","安全运维","源码与配置","工具与脚本","工具与脚本 / 打孔业务","权限与部署"],"wordCount":2335,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b38a2a5b323f.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b38a2a5b323f.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"工具与脚本 / 打孔业务","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"权限与部署","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b38a2a5b323f.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>工具与脚本 / 打孔业务</span> › <span>权限与部署</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">工具与脚本 / 打孔业务</div>
+      <h1>权限与部署</h1>
+      <p class="lede">权限与部署。本文属于工具与脚本 / 打孔业务，这套东西能不能跑起来， 80% 取决于 macOS 的隐私权限（TCC） 。 这一节把它讲透，因为踩一次坑能浪费一小时。 这是最容易踩的坑。TCC 授权的主体不是&quot;你这个人&quot;，而是 发起调用的那个二进制 。 你在 VS Code 的终端 里跑脚本 → 授权对象是 Vi…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-16T09:07:32+08:00">发布于 2026-10-16</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,335 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/automation/line-punch/docs/03-权限与部署.md</code></p>
+<p>整理日期：2026-10-16 09:07｜日期依据：文件创建/修改时间</p>
+</blockquote>
+<p>这套东西能不能跑起来，<strong>80% 取决于 macOS 的隐私权限（TCC）</strong>。
+这一节把它讲透，因为踩一次坑能浪费一小时。</p>
+<hr/>
+<h2 id="1-需要两个权限">1. 需要两个权限</h2>
+<table>
+<thead>
+<tr>
+<th>权限</th>
+<th>用途</th>
+<th>不给会怎样</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>辅助功能</strong>（Accessibility）</td>
+<td>遍历 UI 树拿窗口/行矩形、给输入框置焦点</td>
+<td>读不到窗口结构，也按不了键</td>
+</tr>
+<tr>
+<td><strong>屏幕录制</strong>（Screen Recording）</td>
+<td>ScreenCaptureKit 抓窗口画面</td>
+<td>截图成功但是<strong>空白图</strong>，OCR 什么都认不出来</td>
+</tr>
+</tbody>
+</table>
+<p>两个都在：<strong>系统设置 → 隐私与安全性</strong>。</p>
+<hr/>
+<h2 id="2-关键-权限是按-可执行文件-授权的">2. 关键：权限是按"可执行文件"授权的</h2>
+<p>这是最容易踩的坑。TCC 授权的主体不是"你这个人"，而是<strong>发起调用的那个二进制</strong>。</p>
+<ul>
+<li>你在 <strong>VS Code 的终端</strong>里跑脚本 → 授权对象是 <code>Visual Studio Code.app</code>
+  （子进程会继承父进程的授权）</li>
+<li>你在 <strong>macOS 自带的终端 / iTerm</strong> 里跑 → 授权对象是那个终端 App</li>
+<li><strong>launchd</strong> 拉起来的进程 → 授权对象是它实际执行的那个二进制</li>
+</ul>
+<p>所以会出现这些现象：</p>
+<ul>
+<li>你在终端里跑得好好的，配成定时任务就失败</li>
+<li>你给 LINE 授过权，但脚本还是读不到东西（那是给 LINE 授权，不是给脚本）</li>
+</ul>
+<h3 id="2-1-两条实践建议">2.1 两条实践建议</h3>
+<p><strong>做法 A（简单）：给"跑的宿主程序"授权</strong></p>
+<p>如果你打算用终端手动跑，就给终端 App 授权，
+然后<strong>重启那个 App</strong>（改完权限不重启不生效）。</p>
+<p><strong>做法 B（推荐用于 launchd）：让脚本独立授权</strong></p>
+<p>launchd 任务执行的是 <code>.venv/bin/python</code>。这个二进制第一次尝试访问受保护资源时，
+<strong>前台会话</strong>会弹授权框 —— 但 launchd 任务不在前台，弹不出来，于是<strong>静默失败</strong>。</p>
+<p>规避方法：</p>
+<ol>
+<li><strong>先手动跑一次</strong> <code>./.venv/bin/python punch.py doctor</code>，让授权框正常弹出并点"允许"</li>
+<li>确认 <code>doctor</code> 全绿</li>
+<li><strong>再</strong>安装定时任务</li>
+</ol>
+<p>macOS 会记住"这个路径的二进制已被授权"，之后 launchd 用同一个路径执行就不会再被拦。</p>
+<h3 id="2-2-用-app-启动器让授权不随-Python-版本失效-已实现">2.2 用 .app 启动器让授权不随 Python 版本失效（已实现）</h3>
+<p><strong>问题</strong>：直接给 <code>.venv/bin/python</code> 授权时，macOS 会把它解析成真实路径再登记：</p>
+<pre><code>kTCCServiceScreenCapture | /opt/homebrew/Cellar/python@3.11/3.11.15_4/.../bin/python3.11 | 2
+                                                                      ↑ 这里带版本号
+</code></pre>
+<p><code>brew upgrade python@3.11</code> 一升级，路径就变了 → <strong>授权失效</strong> → 定时任务静默失败。</p>
+<p><strong>解法</strong>：项目里有 <code>LinePunch.app</code>，定时任务现在走它：</p>
+<pre><code>~/line-punch/
+├── LinePunch.app/
+│   └── Contents/
+│       ├── Info.plist              CFBundleIdentifier = com.ben.linepunch
+│       └── MacOS/LinePunch         编译出来的 Mach-O 启动器（源码 tools/launcher.swift）
+├── .venv/bin/python
+└── punch.py
+</code></pre>
+<p>启动器用 <code>execv</code> 把自己替换成 Python，所以 PID 不变、进程身份延续，
+<strong>TCC 认的是 app 的 bundle id</strong>：</p>
+<pre><code>kTCCServiceAccessibility | com.ben.linepunch | client_type=0 | 2
+kTCCServiceScreenCapture | com.ben.linepunch | client_type=0 | 2
+</code></pre>
+<p><code>client_type=0</code> 就是"按 bundle id"，与 Python 装在哪、什么版本完全无关。</p>
+<p>两个实现细节（都是踩出来的）：</p>
+<ul>
+<li><strong>主可执行文件必须是编译出来的二进制，不能是 shell 脚本</strong>。脚本会被内核通过
+  shebang 交给 <code>/bin/bash</code> 执行，TCC 就会把权限归到 bash 头上，授权界面里也不出现这个 app。</li>
+<li>启动器用 <code>execv</code> 而不是 fork+exec，保证进程身份延续。</li>
+</ul>
+<p><strong>授权步骤</strong>（只需要点一次）：</p>
+<pre><code class="language-bash">open ~/line-punch/LinePunch.app      # 或者直接跑 ./.venv/bin/python punch.py grant
+</code></pre>
+<p>会弹出两个系统对话框，分别允许即可。之后可以在
+系统设置 → 隐私与安全性 里看到名为 <strong>「LINE 打卡」（LinePunch）</strong> 的两个条目。</p>
+<p>验证：</p>
+<pre><code class="language-bash">./tools/install_agent.sh install --in-window 07:30-08:30 --out-window 20:00-20:50
+launchctl kickstart -p gui/$(id -u)/com.ben.linepunch.in
+tail -20 logs/latest.log     # 应该看到「确认截图与权限 OK」
+</code></pre>
+<hr/>
+<h2 id="3-部署步骤">3. 部署步骤</h2>
+<h3 id="3-1-安装依赖">3.1 安装依赖</h3>
+<pre><code class="language-bash">cd "/Users/ben/Desktop/line-自动化打卡上班下班"
+python3.11 -m venv .venv
+./.venv/bin/pip install -r requirements.txt
+</code></pre>
+<p><code>requirements.txt</code> 里只有 PyObjC 系列（macOS 系统框架的 Python 绑定），
+没有第三方网络库 —— Telegram 汇报是直接用标准库 <code>urllib</code> 打的。</p>
+<h3 id="3-2-授权">3.2 授权</h3>
+<pre><code class="language-bash">./.venv/bin/python punch.py doctor
+</code></pre>
+<p>如果出现 ❌，按提示去系统设置里勾选，然后<strong>重启运行它的那个程序</strong>，再跑一次 <code>doctor</code>。</p>
+<h3 id="3-3-确认能读到-LINE">3.3 确认能读到 LINE</h3>
+<pre><code class="language-bash">./.venv/bin/python punch.py status
+</code></pre>
+<p>应该能看到当前会话的标题和最近几条消息。
+如果标题是空的或者乱码，基本可以断定是屏幕录制权限没给。</p>
+<h3 id="3-4-空跑验证">3.4 空跑验证</h3>
+<pre><code class="language-bash">./.venv/bin/python punch.py type 下班打卡 --keep-focus
+</code></pre>
+<p>看到「下班打卡」出现在 LINE 的输入框里、且<strong>没有被发出去</strong>，说明链路是通的。</p>
+<p>建议连续验证 3–5 次（不同时间、不同会话状态下），确认"目标校验"每次都命中，
+再考虑开启真实发送。</p>
+<h3 id="3-5-开启真实发送">3.5 开启真实发送</h3>
+<p>编辑 <code>config.toml</code>：</p>
+<pre><code class="language-toml">[behavior]
+allow_send = true
+</code></pre>
+<p>然后：</p>
+<pre><code class="language-bash">./.venv/bin/python punch.py send --out --yes
+</code></pre>
+<hr/>
+<h2 id="4-配成定时任务-launchd">4. 配成定时任务（launchd）</h2>
+<h3 id="4-1-一键安装">4.1 一键安装</h3>
+<pre><code class="language-bash">./tools/install_agent.sh install --in 08:55 --out 18:05 --weekdays 1,2,3,4,5
+</code></pre>
+<p>它会在 <code>~/Library/LaunchAgents/</code> 下生成两个任务，并立即加载：</p>
+<ul>
+<li><code>com.ben.linepunch.in.plist</code> —— 上班打卡</li>
+<li><code>com.ben.linepunch.out.plist</code> —— 下班打卡</li>
+</ul>
+<pre><code class="language-bash">./tools/install_agent.sh status      # 看是否加载
+./tools/install_agent.sh uninstall   # 卸载
+</code></pre>
+<h3 id="4-2-为什么必须挂到-gui-域">4.2 为什么必须挂到 gui 域</h3>
+<pre><code class="language-bash">launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.ben.linepunch.in.plist
+</code></pre>
+<p><code>gui/&lt;uid&gt;</code> 表示"这个用户的图形会话"。只有挂在图形会话里的进程才能连上 WindowServer，
+才能截图、才能操作窗口。挂到 <code>user/&lt;uid&gt;</code> 域的话进程能跑起来，但<strong>看不到任何窗口</strong>。</p>
+<p><code>tools/install_agent.sh</code> 已经处理好了这一点。</p>
+<h3 id="4-3-几个必须知道的行为">4.3 几个必须知道的行为</h3>
+<p><strong>Mac 睡着时会补跑。</strong> <code>StartCalendarInterval</code> 的语义是：到点了机器没醒，
+醒来后会补执行一次。如果不希望补跑（比如 8:55 的上班卡 11 点才补发），
+得自己加判断逻辑，或者把任务时间设在机器通常醒着的时候。</p>
+<p><strong>改完 plist 要重新加载：</strong></p>
+<pre><code class="language-bash">launchctl bootout gui/$(id -u)/com.ben.linepunch.in 2&gt;/dev/null
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.ben.linepunch.in.plist
+</code></pre>
+<p>直接用 <code>install_agent.sh install</code> 重装也行，它会先 bootout 再 bootstrap。</p>
+<p><strong>手动触发一次（不用等到点）：</strong></p>
+<pre><code class="language-bash">launchctl kickstart -p gui/$(id -u)/com.ben.linepunch.out
+</code></pre>
+<p><strong>看 launchd 自己的输出：</strong></p>
+<pre><code class="language-bash">tail -f logs/launchd-out.out.log logs/launchd-out.err.log
+</code></pre>
+<p>注意这两个文件里只有脚本的 stdout/stderr。
+<strong>真正详细的日志还是在 <code>logs/run-*.log</code>。</strong></p>
+<h3 id="4-4-定时任务上线第一天一定要看日志">4.4 定时任务上线第一天一定要看日志</h3>
+<pre><code class="language-bash">tail -f logs/latest.log
+</code></pre>
+<p>重点看两件事：</p>
+<ol>
+<li>「校验目标会话」这一步是不是 <code>OK</code>，<code>header</code> 字段里是不是真的抓到了「打卡」</li>
+<li>有没有 <code>Telegram 汇报失败</code> 之类的 WARNING</li>
+</ol>
+<hr/>
+<h2 id="5-安全建议">5. 安全建议</h2>
+<ul>
+<li><code>config.toml</code> 里有机器人 token，已经 <code>chmod 600</code> 并写进 <code>.gitignore</code>，
+  <strong>不要</strong>提交到任何仓库，也不要发到群里</li>
+<li>更稳妥的做法是把 token 放环境变量，配置文件里留空：</li>
+</ul>
+<p><code>bash
+  export [敏感内容已脱敏]</code></p>
+<p>配置文件里对应的值会被环境变量覆盖
+* <code>logs/</code> 和 <code>shots/</code> 里包含你的群名、消息片段和屏幕截图。
+  默认 30 天自动清理，机器要给别人之前记得先清空这两个目录
+* 机器人 token 如果泄露过，去 BotFather 用 <code>/revoke</code> 换一个新的</p>
+<hr/>
+<h2 id="6-项目不能放在-Desktop-launchd-必踩">6. 项目不能放在 ~/Desktop（launchd 必踩）</h2>
+<p>这一条会直接让定时任务跑不起来，而且报错很不直观。</p>
+<p><strong>现象：</strong> launchd 任务完全不产生 <code>logs/run-*.log</code>，只有：</p>
+<pre><code>/bin/bash: /Users/ben/Desktop/line-自动化打卡上班下班/tools/run_punch.sh: Operation not permitted
+</code></pre>
+<p><strong>原因：</strong> <code>~/Desktop</code>、<code>~/Documents</code>、<code>~/Downloads</code> 是 macOS 的 TCC 保护目录。
+launchd 拉起的进程<strong>不属于任何获得授权的 App</strong>，对这些目录没有任何访问权，
+连脚本文件都读不到。</p>
+<p>实测（在 launchd 上下文里跑）：</p>
+<pre><code>ls ~/Desktop        → Operation not permitted   ❌
+ls ~/Documents      → Operation not permitted   ❌
+cat ~/.somefile     → 正常读到                   ✅
+</code></pre>
+<p><strong>解决：把项目移到 Home 根目录下。</strong> 这是最简单的做法，不需要额外授权：</p>
+<pre><code class="language-bash">mv "~/Desktop/line-自动化打卡上班下班" ~/line-punch
+ln -s ~/line-punch "~/Desktop/line-自动化打卡上班下班"   # 桌面留个入口，访问方式不变
+cd ~/line-punch
+./.venv/bin/python punch.py doctor
+</code></pre>
+<p><code>tools/install_agent.sh</code> 会检测这种情况并直接拒绝安装，同时把这段命令打出来。</p>
+<p><strong>另一条路（不推荐）：</strong> 给执行任务的 Python 解释器授予「完全磁盘访问权限」。
+代价是那个解释器跑的<strong>所有</strong>脚本都拿到全盘权限，范围太大。
+而且 <code>.venv/bin/python</code> 是指向 Homebrew Python 的符号链接，授权对象容易搞错。</p>
+<hr/>
+<h2 id="7-想更彻底地隔离">7. 想更彻底地隔离</h2>
+<p>如果不希望打卡时抢占你的焦点，可以在同一台 Mac 上再建一个 macOS 用户：</p>
+<ol>
+<li>新建用户（例如 <code>linepunch</code>），设置自动登录</li>
+<li>在新用户里登录 LINE、把本项目复制过去、跑一次 <code>doctor</code> 完成授权</li>
+<li>在新用户里安装 launchd 任务</li>
+</ol>
+<p>这样打卡全程发生在另一个图形会话里，你的主账号完全不受影响，<strong>代码一行都不用改</strong>。</p>
+<p>代价是那个用户会话必须处于活动状态（也就是这台 Mac 得开着，并且切换到那个用户，
+或者用自动登录让它常驻）。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-需要两个权限">1. 需要两个权限</a></li><li style="margin-left:0.0rem"><a href="#2-关键-权限是按-可执行文件-授权的">2. 关键：权限是按&quot;可执行文件&quot;授权的</a></li><li style="margin-left:0.8rem"><a href="#2-1-两条实践建议">2.1 两条实践建议</a></li><li style="margin-left:0.8rem"><a href="#2-2-用-app-启动器让授权不随-Python-版本失效-已实现">2.2 用 .app 启动器让授权不随 Python 版本失效（已实现）</a></li><li style="margin-left:0.0rem"><a href="#3-部署步骤">3. 部署步骤</a></li><li style="margin-left:0.8rem"><a href="#3-1-安装依赖">3.1 安装依赖</a></li><li style="margin-left:0.8rem"><a href="#3-2-授权">3.2 授权</a></li><li style="margin-left:0.8rem"><a href="#3-3-确认能读到-LINE">3.3 确认能读到 LINE</a></li><li style="margin-left:0.8rem"><a href="#3-4-空跑验证">3.4 空跑验证</a></li><li style="margin-left:0.8rem"><a href="#3-5-开启真实发送">3.5 开启真实发送</a></li><li style="margin-left:0.0rem"><a href="#4-配成定时任务-launchd">4. 配成定时任务（launchd）</a></li><li style="margin-left:0.8rem"><a href="#4-1-一键安装">4.1 一键安装</a></li><li style="margin-left:0.8rem"><a href="#4-2-为什么必须挂到-gui-域">4.2 为什么必须挂到 gui 域</a></li><li style="margin-left:0.8rem"><a href="#4-3-几个必须知道的行为">4.3 几个必须知道的行为</a></li><li style="margin-left:0.8rem"><a href="#4-4-定时任务上线第一天一定要看日志">4.4 定时任务上线第一天一定要看日志</a></li><li style="margin-left:0.0rem"><a href="#5-安全建议">5. 安全建议</a></li><li style="margin-left:0.0rem"><a href="#6-项目不能放在-Desktop-launchd-必踩">6. 项目不能放在 ~/Desktop（launchd 必踩）</a></li><li style="margin-left:0.0rem"><a href="#7-想更彻底地隔离">7. 想更彻底地隔离</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：工具与脚本 / 打孔业务</li>
+          <li>日期：2026-10-16</li>
+          <li>标签：<span class="tag">打孔业务</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">自动化</span><span class="tag">安全运维</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/automation/line-punch/docs/03-权限与部署.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610160907-%E6%89%93%E5%AD%94%E4%B8%9A%E5%8A%A1%2BShell%2BPython-%E6%9D%83%E9%99%90%E4%B8%8E%E9%83%A8%E7%BD%B2.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>权限与部署。本文属于工具与脚本 / 打孔业务，这套东西能不能跑起来， 80% 取决于 macOS 的隐私权限（TCC） 。 这一节把它讲透，因为踩一次坑能浪费一小时。 这是最容易踩的坑。TCC 授权的主体不是&quot;你这个人&quot;，而是 发起调用的那个二进制 。 你在 VS Code 的终端 里跑脚本 → 授权对象是 Vi…</p>
+      <p>关键词：打孔业务、Shell、Python、自动化、安全运维、源码与配置、工具与脚本、工具与脚本 / 打孔业务、权限与部署</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5ecdc3b43b45.html"><small>上一篇</small>2026-10-16 运维工作台页面（work.evercare.id）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5748768482c1.html"><small>下一篇</small>05 · 常见故障处置（按症状查）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b38a2a5b323f.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
