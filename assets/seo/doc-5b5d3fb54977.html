@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【日志包】线上异常日志分类清单（nginx / PHP / MongoDB / Redis）｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="【日志包】线上异常日志分类清单（nginx / PHP / MongoDB / Redis）。本文属于业务系统运维 / 游点涩，采集方式：服务器本地只读取证（未改动任何配置与数据） 背景：开发再次更新代码后，后端与数据库流量仍高（后端 ens5 入 ~65 MB/s、从库01 出 ~63 MB/s、主库仅 2~3…">
+  <meta name="keywords" content="游点涩，Shell，Docker，Nginx，Redis，故障排查，源码与配置，业务系统运维，业务系统运维 / 游点涩，【日志包】线上异常日志分类清单（nginx / PHP / MongoDB / Redis），PHP">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5b5d3fb54977.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5b5d3fb54977.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610170215-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E6%97%A5%E5%BF%97%E5%8C%85%E3%80%91%E7%BA%BF%E4%B8%8A%E5%BC%82%E5%B8%B8%E6%97%A5%E5%BF%97%E5%88%86%E7%B1%BB%E6%B8%85%E5%8D%95%EF%BC%88nginx%20-%20PHP%20-%20MongoDB%20-%20Redis%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【日志包】线上异常日志分类清单（nginx / PHP / MongoDB / Redis）">
+  <meta property="og:description" content="【日志包】线上异常日志分类清单（nginx / PHP / MongoDB / Redis）。本文属于业务系统运维 / 游点涩，采集方式：服务器本地只读取证（未改动任何配置与数据） 背景：开发再次更新代码后，后端与数据库流量仍高（后端 ens5 入 ~65 MB/s、从库01 出 ~63 MB/s、主库仅 2~3…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5b5d3fb54977.html">
+  <meta property="article:published_time" content="2026-10-17T02:15:00+08:00">
+  <meta property="article:modified_time" content="2026-10-17 02:15">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【日志包】线上异常日志分类清单（nginx / PHP / MongoDB / Redis）">
+  <meta name="twitter:description" content="【日志包】线上异常日志分类清单（nginx / PHP / MongoDB / Redis）。本文属于业务系统运维 / 游点涩，采集方式：服务器本地只读取证（未改动任何配置与数据） 背景：开发再次更新代码后，后端与数据库流量仍高（后端 ens5 入 ~65 MB/s、从库01 出 ~63 MB/s、主库仅 2~3…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5b5d3fb54977.html#article","headline":"【日志包】线上异常日志分类清单（nginx / PHP / MongoDB / Redis）","description":"【日志包】线上异常日志分类清单（nginx / PHP / MongoDB / Redis）。本文属于业务系统运维 / 游点涩，采集方式：服务器本地只读取证（未改动任何配置与数据） 背景：开发再次更新代码后，后端与数据库流量仍高（后端 ens5 入 ~65 MB/s、从库01 出 ~63 MB/s、主库仅 2~3…","datePublished":"2026-10-17T02:15:00+08:00","dateModified":"2026-10-17 02:15","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Shell","Docker","Nginx","Redis","故障排查","源码与配置","业务系统运维","业务系统运维 / 游点涩","【日志包】线上异常日志分类清单（nginx / PHP / MongoDB / Redis）","PHP"],"wordCount":1130,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5b5d3fb54977.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5b5d3fb54977.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【日志包】线上异常日志分类清单（nginx / PHP / MongoDB / Redis）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5b5d3fb54977.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>【日志包】线上异常日志分类清单（nginx / PHP / MongoDB / Redis）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>【日志包】线上异常日志分类清单（nginx / PHP / MongoDB / Redis）</h1>
+      <p class="lede">【日志包】线上异常日志分类清单（nginx / PHP / MongoDB / Redis）。本文属于业务系统运维 / 游点涩，采集方式：服务器本地只读取证（未改动任何配置与数据） 背景：开发再次更新代码后，后端与数据库流量仍高（后端 ens5 入 ~65 MB/s、从库01 出 ~63 MB/s、主库仅 2~3…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-17T02:15:00+08:00">发布于 2026-10-17</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,130 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-17-0215-【日志包】异常日志分类清单（nginx-PHP-MongoDB-Redis）.md</code></p>
+<p>整理日期：2026-10-17 02:15｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>采集时间：2026-10-17 02:10 ~ 02:15（北京时间）</li>
+<li>采集方式：服务器本地只读取证（未改动任何配置与数据）</li>
+<li>背景：开发再次更新代码后，后端与数据库流量仍高（后端 ens5 入 ~65 MB/s、从库01 出 ~63 MB/s、主库仅 2~3 MB/s）</li>
+<li>处理原则：<strong>只保留异常行，剔除正常噪音</strong>；每类日志一个独立压缩包</li>
+</ul>
+<h2 id="一-已发群的-6-个分类包">一、已发群的 6 个分类包</h2>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>包名</th>
+<th>内容</th>
+<th style="text-align: right;">条数</th>
+<th style="text-align: right;">大小</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>1-nginx后端.zip</code></td>
+<td><code>01-后端nginx-error-异常.log</code>（仅 <code>[error]</code> 7,612 + <code>[emerg]</code> 2，已剔除 <code>[warn]</code> 53,571 行与 <code>[notice]</code> 829 行）、<code>02-后端nginx-异常请求.log</code>（状态码 ≥400 原始行）</td>
+<td style="text-align: right;">7,620 / 1,591</td>
+<td style="text-align: right;">2.2 MB / 315 KB</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>2-网关nginx.zip</code></td>
+<td><code>07-网关nginx-error-异常.log</code>（<code>[error]</code> 级；其中 <code>limiting connections by zone "perip_ssr"</code> 约 6.3 万次）、<code>08-网关-异常请求.log</code></td>
+<td style="text-align: right;">63,537 / 7,031</td>
+<td style="text-align: right;">15.7 MB / 1.5 MB</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>3-PHP应用.zip</code></td>
+<td><code>03-PHP应用-异常日志.log</code>：10-16 1,865 行 + 10-17 342 行，全部 <code>level=ERROR</code></td>
+<td style="text-align: right;">2,224</td>
+<td style="text-align: right;">706 KB</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>4-PHP-FPM.zip</code></td>
+<td><code>04-php-fpm-异常.log</code>（scoreboard 1,021 / seems busy 2,307 / max_children 486 / 其它 498）、<code>05-php-fpm-缓慢请求.log</code>（27,250 条 executing too slow，含接口聚合 TOP25）、<code>06-php-fpm-慢调用栈-按栈去重.log</code>（原始栈去重，每栈留最近 5 条）</td>
+<td style="text-align: right;">4,318 / 27,255 / 20,490</td>
+<td style="text-align: right;">582 KB / 5.7 MB / 1.5 MB</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>5-MongoDB.zip</code></td>
+<td><code>09-MongoDB-异常.log</code>（复制集/读放大/网络/热点集合/写失败）、<code>10-当前流量快照.txt</code></td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">88 KB</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>6-Redis.zip</code></td>
+<td><code>11-Redis-异常.log</code>（SLOWLOG 128 条原始 + 指标异常 + 30 秒 MONITOR 危险命令）</td>
+<td style="text-align: right;">154</td>
+<td style="text-align: right;">17 KB</td>
+</tr>
+</tbody>
+</table>
+<h2 id="二-本次抽出来的关键异常-给开发直接对应代码">二、本次抽出来的关键异常（给开发直接对应代码）</h2>
+<h3 id="2-1-MongoDB">2.1 MongoDB</h3>
+<pre><code>逐节点读放大（15 秒窗口，directConnection 直连）
+  主库   203.0.113.1：网络出 2.5 MB/s | query 327.6/s getmore 356.6/s 写 85.5/s
+                       scanned 1,059,259/s → returned 1,012/s = 放大 1,047 倍  ← 异常
+  从库01 203.0.113.1：网络出 63.2 MB/s | 放大 3.3 倍
+  从库02 203.0.113.1：网络出 0 MB/s   | 放大 7.7 倍（基本空闲，query 2.9/s）
+
+热点集合累计 queries：game_category 14.41 亿、game 2.72 亿、user 2.24 亿、adv 2.19 亿、
+                     user_task_list 1.42 亿、app_version 1.39 亿、user_sign_config 1.33 亿
+
+写失败（新增，17 条）：insert job / user_game_follow 报错，
+  error 指向 app/Core/Mongodb/MongoModel.php line 238 且异常信息为空
+</code></pre>
+<h3 id="2-2-PHP">2.2 PHP</h3>
+<pre><code>slow_api（10-16 1,792 条 / 10-17 304 条）：recharge/create 占绝大多数，其次 spend/create2
+check_host_sign_failed（10-17 21 条）：step = hosts_list_empty / decrypt_host_sign_empty
+php-fpm：executing too slow 27,250 条；failed to acquire scoreboard 1,021 条
+</code></pre>
+<h3 id="2-3-Redis">2.3 Redis</h3>
+<pre><code>SLOWLOG 128 条：KEYS 126 条，单次 0.3~0.67 秒，平均 129 秒一次
+  token_user（登录踢下线）102 次、tracking 12、tracking_guest_dl 9、product_click 5
+连接风暴：20 秒新建 5,984 个连接（≈299/秒），连接不复用
+内存 1.02 GB、maxmemory 未设置、淘汰 0、命中率 92.29%
+</code></pre>
+<h3 id="2-4-nginx">2.4 nginx</h3>
+<pre><code>后端 error.log：[error] 7,612（含 connect() failed 长尾）、[emerg] 2
+后端 access：状态码 ≥400 1,591 行（404 为主）
+网关 error.log：limiting connections by zone "perip_ssr" ≈6.3 万次 + upstream prematurely closed 59 + recv() failed 36
+</code></pre>
+<h2 id="三-同时刻流量快照-2026-10-17-02-10-02-15">三、同时刻流量快照（2026-10-17 02:10~02:15）</h2>
+<table>
+<thead>
+<tr>
+<th>节点</th>
+<th>入/出</th>
+<th>CPU</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>后端 16.209.16.108</td>
+<td>入 69.35 MB/s / 出 4.58 MB/s（php-web 容器入 75.09 MB/s）</td>
+<td>12%</td>
+</tr>
+<tr>
+<td>从库01 203.0.113.1</td>
+<td>出 59.7~68.0 MB/s / 入 1.0~1.2 MB/s</td>
+<td>7~11%</td>
+</tr>
+<tr>
+<td>主库 203.0.113.1</td>
+<td>出 1.6~3.0 MB/s / 入 0.6 MB/s</td>
+<td>16~27%</td>
+</tr>
+<tr>
+<td>从库02 203.0.113.1</td>
+<td>出 0.2 MB/s</td>
+<td>4~8%</td>
+</tr>
+<tr>
+<td>网关 16.208.38.88</td>
+<td>入 7.2~8.0 MB/s / 出 15.8~18.0 MB/s</td>
+<td>49~58%</td>
+</tr>
+</tbody>
+</table>
+<p>结论：代码更新后流量结构没变——后端仍在从 Mongo 读约 65 MB/s，且<strong>主库读放大涨到 1,047 倍</strong>（主库自己只输出 2~3 MB/s，却每秒扫描 106 万索引键）；从库02 依旧没有承接读流量。</p>
+<h2 id="四-待开发处理优先级">四、待开发处理优先级</h2>
+<ol>
+<li><code>MongoModel.php:238</code> 的写失败（异常信息为空，建议补上下文日志并复现）</li>
+<li>主库那 ~327 query/s 的重查询定位（开 profiling 采样，确认哪些只读查询没走 <code>on('slave')</code>）</li>
+<li><code>game_category</code> / <code>user_sign_config</code> / <code>app_version</code> / <code>user_task_list</code> 等配置集合进缓存（Redis 已有能力）</li>
+<li>读流量均分到从库02</li>
+<li>Redis：<code>KEYS</code> 改 <code>SCAN</code>/Set 索引（登录踢下线 102/126 次）、开启连接复用</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-已发群的-6-个分类包">一、已发群的 6 个分类包</a></li><li style="margin-left:0.0rem"><a href="#二-本次抽出来的关键异常-给开发直接对应代码">二、本次抽出来的关键异常（给开发直接对应代码）</a></li><li style="margin-left:0.8rem"><a href="#2-1-MongoDB">2.1 MongoDB</a></li><li style="margin-left:0.8rem"><a href="#2-2-PHP">2.2 PHP</a></li><li style="margin-left:0.8rem"><a href="#2-3-Redis">2.3 Redis</a></li><li style="margin-left:0.8rem"><a href="#2-4-nginx">2.4 nginx</a></li><li style="margin-left:0.0rem"><a href="#三-同时刻流量快照-2026-10-17-02-10-02-15">三、同时刻流量快照（2026-10-17 02:10~02:15）</a></li><li style="margin-left:0.0rem"><a href="#四-待开发处理优先级">四、待开发处理优先级</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-10-17</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">Redis</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-17-0215-【日志包…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610170215-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E6%97%A5%E5%BF%97%E5%8C%85%E3%80%91%E7%BA%BF%E4%B8%8A%E5%BC%82%E5%B8%B8%E6%97%A5%E5%BF%97%E5%88%86%E7%B1%BB%E6%B8%85%E5%8D%95%EF%BC%88nginx%20-%20PHP%20-%20MongoDB%20-%20Redis%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【日志包】线上异常日志分类清单（nginx / PHP / MongoDB / Redis）。本文属于业务系统运维 / 游点涩，采集方式：服务器本地只读取证（未改动任何配置与数据） 背景：开发再次更新代码后，后端与数据库流量仍高（后端 ens5 入 ~65 MB/s、从库01 出 ~63 MB/s、主库仅 2~3…</p>
+      <p>关键词：游点涩、Shell、Docker、Nginx、Redis、故障排查、源码与配置、业务系统运维、业务系统运维 / 游点涩、【日志包】线上异常日志分类清单（nginx / PHP / MongoDB / Redis）、PHP</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5e3aaca84e42.html"><small>上一篇</small>Redis 原始数据包 · 分析结论（2026-10-17 01：30~01：36 北京时间）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-11e891841dff.html"><small>下一篇</small>【问题排查】改成&quot;随机查 01/02&quot;后，读流量为什么仍然全落在从库01</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5b5d3fb54977.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

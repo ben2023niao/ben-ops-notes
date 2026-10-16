@@ -1,0 +1,1018 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【优化方案】后端 / 前端 / 数据库流量优化实施指南（逐步可执行）｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="【优化方案】后端 / 前端 / 数据库流量优化实施指南（逐步可执行）。本文属于业务系统运维 / 游点涩，面向对象：后端（PHP）、前端（Nuxt H5/PC）、DBA/运维 依据： docs/2026-10-17-0040-【问题排查】线上后端与数据库流量猛涨取证及异常日志汇总.md 的只读取证 目标（三周内）：…">
+  <meta name="keywords" content="游点涩，Shell，Docker，Nginx，Redis，自动化，CDN，故障排查，业务系统运维，业务系统运维 / 游点涩，【优化方案】后端 / 前端 / 数据库流量优化实施指南（逐步可执行），php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-49b574b1f55b.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-49b574b1f55b.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610170120-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%E3%80%91%E5%90%8E%E7%AB%AF%20-%20%E5%89%8D%E7%AB%AF%20-%20%E6%95%B0%E6%8D%AE%E5%BA%93%E6%B5%81%E9%87%8F%E4%BC%98%E5%8C%96%E5%AE%9E%E6%96%BD%E6%8C%87%E5%8D%97%EF%BC%88%E9%80%90%E6%AD%A5%E5%8F%AF%E6%89%A7%E8%A1%8C%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【优化方案】后端 / 前端 / 数据库流量优化实施指南（逐步可执行）">
+  <meta property="og:description" content="【优化方案】后端 / 前端 / 数据库流量优化实施指南（逐步可执行）。本文属于业务系统运维 / 游点涩，面向对象：后端（PHP）、前端（Nuxt H5/PC）、DBA/运维 依据： docs/2026-10-17-0040-【问题排查】线上后端与数据库流量猛涨取证及异常日志汇总.md 的只读取证 目标（三周内）：…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-49b574b1f55b.html">
+  <meta property="article:published_time" content="2026-10-17T01:20:00+08:00">
+  <meta property="article:modified_time" content="2026-10-17 01:20">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【优化方案】后端 / 前端 / 数据库流量优化实施指南（逐步可执行）">
+  <meta name="twitter:description" content="【优化方案】后端 / 前端 / 数据库流量优化实施指南（逐步可执行）。本文属于业务系统运维 / 游点涩，面向对象：后端（PHP）、前端（Nuxt H5/PC）、DBA/运维 依据： docs/2026-10-17-0040-【问题排查】线上后端与数据库流量猛涨取证及异常日志汇总.md 的只读取证 目标（三周内）：…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-49b574b1f55b.html#article","headline":"【优化方案】后端 / 前端 / 数据库流量优化实施指南（逐步可执行）","description":"【优化方案】后端 / 前端 / 数据库流量优化实施指南（逐步可执行）。本文属于业务系统运维 / 游点涩，面向对象：后端（PHP）、前端（Nuxt H5/PC）、DBA/运维 依据： docs/2026-10-17-0040-【问题排查】线上后端与数据库流量猛涨取证及异常日志汇总.md 的只读取证 目标（三周内）：…","datePublished":"2026-10-17T01:20:00+08:00","dateModified":"2026-10-17 01:20","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Shell","Docker","Nginx","Redis","自动化","CDN","故障排查","业务系统运维","业务系统运维 / 游点涩","【优化方案】后端 / 前端 / 数据库流量优化实施指南（逐步可执行）","php"],"wordCount":6218,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-49b574b1f55b.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-49b574b1f55b.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【优化方案】后端 / 前端 / 数据库流量优化实施指南（逐步可执行）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-49b574b1f55b.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>【优化方案】后端 / 前端 / 数据库流量优化实施指南（逐步可执行）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>【优化方案】后端 / 前端 / 数据库流量优化实施指南（逐步可执行）</h1>
+      <p class="lede">【优化方案】后端 / 前端 / 数据库流量优化实施指南（逐步可执行）。本文属于业务系统运维 / 游点涩，面向对象：后端（PHP）、前端（Nuxt H5/PC）、DBA/运维 依据： docs/2026-10-17-0040-【问题排查】线上后端与数据库流量猛涨取证及异常日志汇总.md 的只读取证 目标（三周内）：…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-17T01:20:00+08:00">发布于 2026-10-17</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">6,218 字</span>
+        <span class="badge">18 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-17-0120-【优化方案】后端前端数据库流量优化实施指南（逐步可执行）.md</code></p>
+<p>整理日期：2026-10-17 01:20｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>时间：2026-10-17（北京时间）</li>
+<li>面向对象：后端（PHP）、前端（Nuxt H5/PC）、DBA/运维</li>
+<li>依据：<code>docs/2026-10-17-0040-【问题排查】线上后端与数据库流量猛涨取证及异常日志汇总.md</code> 的只读取证</li>
+<li>目标（三周内）：主库对外发送 107 MB/s → <strong>&lt; 30 MB/s</strong>；主库 query 535/s → <strong>&lt; 150/s</strong>；扫描/返回放大 ~280 倍 → <strong>&lt; 20 倍</strong>；应用慢接口日志 1,792 条/天 → <strong>&lt; 200 条/天</strong>；日志 13.9 GB/天 → <strong>&lt; 4 GB/天</strong></li>
+</ul>
+<hr/>
+<h2 id="零-先看这张-问题地图-一句话版">零、先看这张「问题地图」（一句话版）</h2>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>现象</th>
+<th>根因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>后端</td>
+<td>PHP web 容器入 104 MB/s、出 7.8 MB/s</td>
+<td>每个请求都在从 Mongo 拉配置/列表数据</td>
+</tr>
+<tr>
+<td>数据库</td>
+<td>出 107 MB/s、入 1 MB/s；每秒扫 128 万索引键只返回 5,752 文档</td>
+<td>小集合被亿级重复查询 + 大量无索引扫描</td>
+</tr>
+<tr>
+<td>前端</td>
+<td>用户侧只有 7 MB/s，但静态资源单请求 200~800 KB</td>
+<td>大 chunk 与未压缩图片、埋点单事件单请求</td>
+</tr>
+<tr>
+<td>共同</td>
+<td>日志 24h 新增 13.9 GB</td>
+<td>api_request/api_response 全量落盘</td>
+</tr>
+</tbody>
+</table>
+<p><strong>最扎眼的一条</strong>：<code>user_sign_config</code> 集合只有 <strong>1 个文档 1.2 KB</strong>，却被查询 <strong>1.33 亿次</strong>；<code>game_category</code> 只有 <strong>123 个文档 112 B/条</strong>，却被查询 <strong>14.41 亿次</strong>。这类集合全部加起来不到 1 MB，完全应该走缓存。</p>
+<hr/>
+<h2 id="一-后端-PHP-优化-7-步">一、后端（PHP）优化：7 步</h2>
+<blockquote>
+<p>通用背景：应用已有缓存层 —— <code>cache()-&gt;get/set/delete</code>（<code>CacheKey.php</code> 定义了 80+ 个键，全项目引用 289 处），后端存储为 <strong>Redis <code>203.0.113.1:6379</code> db=3、prefix=<code>ph_</code>、默认 lifetime=3600</strong>。所以问题不是"没有缓存能力"，而是<strong>热点路径绕过了缓存</strong>。</p>
+</blockquote>
+<h3 id="步骤-B1-把-配置型集合-全部收进缓存-收益最大-风险最低">步骤 B1：把「配置型集合」全部收进缓存（收益最大、风险最低）</h3>
+<p>按实测查询量排序，逐个落到具体代码：</p>
+<table>
+<thead>
+<tr>
+<th>集合</th>
+<th>文档数 / 体积</th>
+<th style="text-align: right;">累计 queries</th>
+<th>建议缓存键（已存在则复用）</th>
+<th>建议 TTL</th>
+<th>失效点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>game_category</code></td>
+<td>123 个 / 112 B</td>
+<td style="text-align: right;">14.41 亿</td>
+<td><code>CacheKey::GAME_CATEGORY_OPTIONS</code>（已存在，<code>GameCategoryService.php:60/102</code>）</td>
+<td>1800s</td>
+<td>后台增删改分类时 <code>cache()-&gt;delete()</code></td>
+</tr>
+<tr>
+<td><code>game</code></td>
+<td>743 个 / 11.8 KB</td>
+<td style="text-align: right;">2.70 亿</td>
+<td>新增 <code>game:list:{lang}:{filterHash}</code></td>
+<td>600s</td>
+<td>后台改游戏时按语言后缀删</td>
+</tr>
+<tr>
+<td><code>user</code></td>
+<td>1,163 万个 / 17 GB</td>
+<td style="text-align: right;">2.24 亿</td>
+<td>不动配置缓存，改「投影 + 从库」（见 B3/B4）</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>adv</code> / <code>adv_pos</code></td>
+<td>272 / 14 个</td>
+<td style="text-align: right;">2.19 亿 / 3,052 万</td>
+<td><code>CacheKey::ADV</code>、<code>CacheKey::ADV_APP</code>（已存在）</td>
+<td>600s</td>
+<td>后台广告位变更</td>
+</tr>
+<tr>
+<td><code>user_task_list</code></td>
+<td>15 个 / 399 B</td>
+<td style="text-align: right;">1.42 亿</td>
+<td><code>CacheKey::TASK_LIST_DAILY</code> / <code>TASK_LIST_NEWBIE</code>（已存在，<code>UserTaskService.php:154/199</code>）</td>
+<td>1800s</td>
+<td>任务配置变更</td>
+</tr>
+<tr>
+<td><code>app_version</code></td>
+<td>11 个 / 500 B</td>
+<td style="text-align: right;">1.39 亿</td>
+<td>新增 <code>CacheKey::APP_VERSION</code></td>
+<td>300s</td>
+<td>发版时删除</td>
+</tr>
+<tr>
+<td><code>user_sign_config</code></td>
+<td><strong>1 个 / 1.2 KB</strong></td>
+<td style="text-align: right;">1.33 亿</td>
+<td><code>CacheKey::SIGN_CONFIG</code>（已存在，<code>UserTaskService.php:66</code>）</td>
+<td>1800s</td>
+<td>签到配置变更</td>
+</tr>
+<tr>
+<td><code>article</code></td>
+<td>588 个 / 26.6 KB</td>
+<td style="text-align: right;">8,169 万</td>
+<td><code>CacheKey::ARTICLE</code>（已存在）</td>
+<td>600s</td>
+<td>后台发文</td>
+</tr>
+<tr>
+<td><code>game_sdk</code></td>
+<td>85 个</td>
+<td style="text-align: right;">4,635 万</td>
+<td>新增 <code>CacheKey::GAME_SDK</code></td>
+<td>1800s</td>
+<td>SDK 配置变更</td>
+</tr>
+<tr>
+<td><code>user_product</code></td>
+<td>58 个</td>
+<td style="text-align: right;">4,177 万</td>
+<td><code>CacheKey::USER_PRODUCT*</code>（已存在）</td>
+<td>180~600s</td>
+<td>商品变更</td>
+</tr>
+<tr>
+<td><code>channel_package</code></td>
+<td>787 个</td>
+<td style="text-align: right;">3,850 万</td>
+<td>新增 <code>channel_package:{channel}</code></td>
+<td>600s</td>
+<td>渠道包变更</td>
+</tr>
+</tbody>
+</table>
+<p><strong>为什么"已经有缓存却还打 1.33 亿次"？</strong> 因为直接调用 Model 的地方太多，绕过了走缓存的那条路径：</p>
+<pre><code>GameCategoryModel 直接调用   8 处
+AppVersionModel   直接调用  24 处
+UserSignConfigModel 直接调用 27 处   ← user_sign_config 只有 1 个文档却查了 1.33 亿次
+UserTaskListModel 直接调用  10 处
+AdvModel          直接调用   9 处
+GameModel         直接调用 199 处
+Controller 层直接查库        68 处（例：ApiV1/RechargeController.php、NotifyController.php、TrackingController.php）
+</code></pre>
+<p><strong>动作</strong>：先按上表把「走缓存」的入口补齐，再逐个把直接调用改成走 Service/Repository 方法（见 B7）。</p>
+<p><strong>验收（只读命令）</strong>：</p>
+<pre><code class="language-bash"># 主库查询速率（在 web 容器内执行，前后各跑一次对比）
+php -r '$m=new MongoDB\Driver\Manager("mongodb://server.db1.com:27017");
+$f=fn()=&gt;$m-&gt;executeCommand("admin",new MongoDB\Driver\Command(["serverStatus"=&gt;1]))-&gt;toArray()[0]-&gt;opcounters-&gt;query;
+$a=$f(); sleep(20); $b=$f(); printf("query %.1f /s\n",($b-$a)/20);'
+</code></pre>
+<p>期望：<code>query</code> 从 <strong>535/s 降到 150/s 以下</strong>，<code>top</code> 命令里上表集合的 queries 增速趋近于零。</p>
+<h3 id="步骤-B2-消除同一请求内的重复查询-N-1">步骤 B2：消除同一请求内的重复查询（N+1）</h3>
+<p>典型代码：<code>app/Services/User/UserTaskService.php</code> 里 <code>UserSignConfigModel::findFirst(['_id' =&gt; 1])</code> 出现在 70、42、225、1144 等多个方法；一次任务列表请求会反复取同一份配置。</p>
+<p><strong>动作</strong>：</p>
+<ol>
+<li>给这类「单文档配置」加<strong>进程内请求级缓存</strong>（<code>static</code> 数组或单例），一次请求只查一次：</li>
+</ol>
+<pre><code class="language-php">// 建议形态（示意）
+private static array $cfgMemo = [];
+$cfg = self::$cfgMemo['sign'] ??= UserSignConfigModel::findFirst(['_id' =&gt; 1]);
+</code></pre>
+<ol start="2">
+<li>列表型数据用<strong>一次 <code>find</code> 取全量 + 内存过滤</strong>替换循环里的 <code>findFirst</code>。</li>
+<li><code>UserTaskService.php:158/330/496</code> 三处 <code>UserTaskListModel::find(...)</code> 条件接近，合并为一次查询后内存分组。</li>
+</ol>
+<p><strong>验收</strong>：php-fpm slow.log 中 <code>MongoDbConnection::executeCommand</code> 出现次数下降；<code>scannedObjects/returned</code> 比值下降。</p>
+<h3 id="步骤-B3-加投影-projection-与分页-砍掉无用大字段">步骤 B3：加投影（projection）与分页，砍掉无用大字段</h3>
+<p>实测大对象：<code>game</code> 平均 <strong>11.8 KB/条</strong>、<code>article</code> 平均 <strong>26.6 KB/条</strong>；接口侧 <code>/api/v1/game/detail</code> <strong>98 KB/次</strong>、<code>/api/v1/modules/home</code> <strong>278 KB/次</strong>。</p>
+<p><strong>动作</strong>：</p>
+<ol>
+<li>所有列表接口只取前端真正用到的字段：</li>
+</ol>
+<pre><code class="language-php">// 示意：游戏列表只需要卡片字段
+GameModel::find($where, ['_id'=&gt;1,'name'=&gt;1,'icon'=&gt;1,'tags'=&gt;1,'hot'=&gt;1], $limit, $offset);
+</code></pre>
+<ol start="2">
+<li>富文本类（文章正文、帖子正文）<strong>拆成详情接口按需拉取</strong>，列表里只返回摘要。</li>
+<li>首页 <code>/api/v1/modules/home</code> 拆成「首屏必需」+「非首屏懒加载」两段。</li>
+<li>所有列表接口强制 <code>limit</code> + 游标分页（<code>_id</code> 或时间字段），禁止无 limit 的 <code>find</code>。</li>
+</ol>
+<p><strong>验收</strong>：网关日志中 <code>/api/v1/modules/home</code>、<code>/api/v1/game/detail</code> 的平均 KB/次下降 30%+。</p>
+<h3 id="步骤-B4-把只读流量切到从库-代码已有能力-几乎没用">步骤 B4：把只读流量切到从库（代码已有能力，几乎没用）</h3>
+<p>代码里已有：<code>app/Core/Mongodb/MongoModel.php:39</code>（<code>AbTestConfigModel::on('slave1')-&gt;find(...)</code>）和 <code>app/Constants/CommonConstKey.php:12-13</code>（<code>MONGODB_SLAVE_1/2</code>），但全项目 <code>-&gt;on('slave</code> 用法<strong>几乎为零</strong>；而 <code>.env</code> 里 <code>default</code> 与 <code>channel</code> 都指向主库 <code>server.db1.com</code>，从库 <code>server.db2.com</code> 没承接读。</p>
+<p><strong>动作</strong>：</p>
+<ol>
+<li>先确认 <code>slave1</code>、<code>slave2</code> 指向 <code>server.db2.com</code> 的两个从库，并复核复制延迟：</li>
+</ol>
+<pre><code class="language-javascript">// 在主库执行（只读）
+rs.printSecondaryReplicationInfo()
+</code></pre>
+<ol start="2">
+<li>把「只读 + 可容忍毫秒级延迟」的查询切到从库：配置类（B1 表）、游戏列表、文章列表、广告位。</li>
+<li><strong>保留在主库</strong>：写后立即读（下单、支付回调、任务完成后的状态查询）、事务相关。</li>
+<li>高风险提示：切换后要做一次「下单 → 立即查订单」的回归，防止复制延迟导致偶发查不到。</li>
+</ol>
+<p><strong>验收</strong>：主库 <code>bytesOut</code> 从 107 MB/s 降到 30 MB/s 以下；从库带宽上升；应用无「刚写读不到」报错。</p>
+<h3 id="步骤-B5-支付链路加超时-recharge-create-是慢接口第一名">步骤 B5：支付链路加超时（<code>recharge/create</code> 是慢接口第一名）</h3>
+<p>证据：应用 error 日志 <strong>99% 是 <code>slow_api</code></strong>，10-16 共 1,792 条，其中 <code>recharge/create</code> 1,532 条；php-fpm slow.log 里 <code>curl_exec</code> 2,054 次，栈为 <code>CommonUtil.php:278 → PaymentService.php:954(httpJson) → :1021(sharkPayment) → RechargeController.php:138</code>。</p>
+<p><strong>动作</strong>：</p>
+<ol>
+<li>第三方支付 HTTP 调用统一设置 <code>CURLOPT_CONNECTTIMEOUT</code>（建议 2s）与 <code>CURLOPT_TIMEOUT</code>（建议 5s），失败快速返回并给前端明确错误码。</li>
+<li>加熔断/重试（最多 1 次，指数退避），避免请求堆积占用 php-fpm 进程（当前 <code>pm.max_children=64</code>）。</li>
+<li>下单接口把「支付通道调用」与「订单落库」解耦：先落库返回订单号，通道调用异步补偿。</li>
+</ol>
+<p><strong>验收</strong>：应用 error 日志 <code>slow_api</code> 从 1,792 条/天降到 200 条以下；<code>recharge/create</code> P95 耗时下降。</p>
+<h3 id="步骤-B6-日志降采样-一天少写-9-GB">步骤 B6：日志降采样（一天少写 9 GB）</h3>
+<p>写入点在 <code>app/Controller/BaseApiController.php:208</code>（<code>api_request</code>）与 <code>:259</code>（<code>api_response</code>）；另有 <code>BaseCustomerController.php:112/129</code>。</p>
+<p><strong>动作</strong>：</p>
+<ol>
+<li>默认<strong>不写全量</strong>：仅记录「耗时 ≥ 200ms」「非 2xx」「白名单接口（支付/登录/下单）」。</li>
+<li>其余按 1/20 采样（可用请求 id 哈希取样，保证可复现）。</li>
+<li><code>api_response</code> 只记 <code>size</code>、<code>elapsed</code>、<code>status</code>，<strong>不记完整 body</strong>。</li>
+<li>观察一周后把 <code>api_request</code> 从 6.1 GB/天降到 1 GB/天以内。</li>
+</ol>
+<p><strong>验收</strong>：<code>du -sh /opt/docker-youdianse-php/runtime/app-logs</code> 的 24h 增量从 13.9 GB 降到 &lt;4 GB。</p>
+<h3 id="步骤-B7-把-Controller-里的直连数据库收敛到-Service-Repository-结构治理">步骤 B7：把 Controller 里的直连数据库收敛到 Service/Repository（结构治理）</h3>
+<p>当前 Controller 层直接查库 <strong>68 处</strong>（<code>grep -rn "Model::\(find\|findFirst\|insert\|update\)" app/Controller</code>）。这会让「缓存、投影、读分离」无法统一治理。</p>
+<p><strong>动作</strong>：按接口批次（先支付/通知类，再埋点类）把查询下沉到 Repository；每下沉一个 Controller，就顺手补上 B1 的缓存与 B3 的投影。</p>
+<hr/>
+<h2 id="二-前端-Nuxt-H5-PC-优化-6-步">二、前端（Nuxt H5/PC）优化：6 步</h2>
+<blockquote>
+<p>实测（网关 20 万请求窗口，按响应字节排序）：</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>资源</th>
+<th style="text-align: right;">次数</th>
+<th style="text-align: right;">平均大小</th>
+<th style="text-align: right;">小计</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/_nuxt/C8I3s652.js</code></td>
+<td style="text-align: right;">1,056</td>
+<td style="text-align: right;"><strong>822.8 KB</strong></td>
+<td style="text-align: right;">848.6 MB</td>
+</tr>
+<tr>
+<td><code>/api/v1/modules/home</code></td>
+<td style="text-align: right;">1,930</td>
+<td style="text-align: right;">278.3 KB</td>
+<td style="text-align: right;">524.5 MB</td>
+</tr>
+<tr>
+<td><code>/api/v1/game/detail</code></td>
+<td style="text-align: right;">3,026</td>
+<td style="text-align: right;">98.4 KB</td>
+<td style="text-align: right;">290.7 MB</td>
+</tr>
+<tr>
+<td><code>/images/index-new/G.svg</code></td>
+<td style="text-align: right;">383</td>
+<td style="text-align: right;"><strong>623.6 KB</strong></td>
+<td style="text-align: right;">233.2 MB</td>
+</tr>
+<tr>
+<td><code>/_nuxt/5-gpfbcI.js</code></td>
+<td style="text-align: right;">992</td>
+<td style="text-align: right;">226.2 KB</td>
+<td style="text-align: right;">219.1 MB</td>
+</tr>
+<tr>
+<td><code>/_nuxt/BgNepA1g.js</code></td>
+<td style="text-align: right;">959</td>
+<td style="text-align: right;">101.6 KB</td>
+<td style="text-align: right;">95.2 MB</td>
+</tr>
+<tr>
+<td><code>/images/mine/footer-bg.webp?v=2</code></td>
+<td style="text-align: right;">272</td>
+<td style="text-align: right;">248.2 KB</td>
+<td style="text-align: right;">65.9 MB</td>
+</tr>
+<tr>
+<td><code>/api/v1/system/info</code></td>
+<td style="text-align: right;">5,908</td>
+<td style="text-align: right;">10.0 KB</td>
+<td style="text-align: right;">57.7 MB</td>
+</tr>
+<tr>
+<td><code>/images/signup/tips.png</code></td>
+<td style="text-align: right;">281</td>
+<td style="text-align: right;">140.9 KB</td>
+<td style="text-align: right;">38.7 MB</td>
+</tr>
+<tr>
+<td><code>/og/home.jpg</code>（另测）</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;"><strong>2,120 KB</strong></td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr>
+<td><code>/images/mine/vip-daily-icon.svg</code>（另测）</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;"><strong>2,127 KB</strong></td>
+<td style="text-align: right;">—</td>
+</tr>
+</tbody>
+</table>
+<h3 id="步骤-F1-静态资源瘦身与缓存策略">步骤 F1：静态资源瘦身与缓存策略</h3>
+<ol>
+<li><code>C8I3s652.js</code> 823 KB —— 按路由做代码分割，把「非首屏组件（活动、商城、社区）」移出主 chunk；检查是否把 icon 库/大组件全量打进主包。</li>
+<li><code>G.svg</code> 623 KB、<code>vip-daily-icon.svg</code> 2.1 MB、<code>og/home.jpg</code> 2.1 MB —— <strong>SVG 里内嵌了大图</strong>，改为压缩后的 webp/avif（或外链小尺寸图），按展示尺寸（2x）导出。</li>
+<li><code>tips.png</code> 141 KB → 转 webp（预计 &lt;30 KB）。</li>
+<li>确认 CDN 开启 <strong>brotli/gzip</strong> 与 <strong>长缓存</strong>（<code>Cache-Control: public, max-age=31536000, immutable</code>，文件名带 hash 已在做）。</li>
+<li>首页预加载只保留首屏必要的 2~3 个 chunk（<code>&lt;link rel="preload"&gt;</code>）。</li>
+</ol>
+<p><strong>验收</strong>：网关日志中这些路径的「KB/次」下降 30%+，首屏流量下降。</p>
+<h3 id="步骤-F2-首屏请求合并-一次拿全-配置包">步骤 F2：首屏请求合并（一次拿全"配置包"）</h3>
+<p>首屏会并发打：<code>system/info</code>、<code>configDict/getConfigDict</code>、<code>AppVersion/latestVersion</code>、<code>modules/home</code>、<code>game/topPromotion</code>、<code>User/info</code>…</p>
+<p><strong>动作</strong>：</p>
+<ol>
+<li>后端提供一个聚合接口（如 <code>/api/v1/bootstrap</code>），一次返回：系统配置 + 配置字典 + 版本信息 + 签到配置 + 首页模块（首屏部分）。</li>
+<li><code>/api/v1/modules/home</code> 拆「首屏」与「非首屏」，非首屏用 IntersectionObserver 懒加载。</li>
+<li>同一次会话内配置类数据缓存在 <code>sessionStorage</code>/<code>localStorage</code>（带 TTL，例如 10 分钟，或用服务端返回的 <code>etag</code>/<code>maxAge</code>）。</li>
+<li>冷启动时先渲染骨架屏，避免为等配置而串行请求。</li>
+</ol>
+<p><strong>验收</strong>：<code>system/info</code>、<code>configDict/getConfigDict</code>、<code>AppVersion/latestVersion</code> 三个接口调用量下降 70%+。</p>
+<h3 id="步骤-F3-埋点类接口批量上报-当前是-一个事件一个请求">步骤 F3：埋点类接口批量上报（当前是「一个事件一个请求」）</h3>
+<p>实测窗口内：<code>tracking/record</code> 42,133 次、<code>Tracking/recordPageVisit</code> 39,803 次、<code>exposureCollect/report</code> 28,438 次。</p>
+<p><strong>动作</strong>：</p>
+<ol>
+<li>前端维护上报队列：<strong>每 20 条或每 5 秒</strong>合并成一次请求（后端提供批量入口）。</li>
+<li>页面 <code>visibilitychange → hidden</code>、<code>beforeunload</code> 时 flush（用 <code>sendBeacon</code>）。</li>
+<li>曝光采集去重：同一元素同一会话只上报一次；滚动节流 ≥500ms。</li>
+<li>路由切换才记一次页面访问，页面内锚点跳转不算。</li>
+</ol>
+<p><strong>验收</strong>：三个接口调用量下降 80%+；后端 <code>tracking</code> 相关写入与日志同步下降。</p>
+<h3 id="步骤-F4-轮询改退避-长轮询">步骤 F4：轮询改退避/长轮询</h3>
+<p><code>/api/v1/UserLsjAi/getAiSessionStatus</code> 在采样窗口内 12,195 次。</p>
+<p><strong>动作</strong>：改成 1s → 2s → 4s 指数退避，最长 15s；或改服务端长轮询/SSE；页面切到后台时停止轮询。</p>
+<h3 id="步骤-F5-静态资源不要走-API-网关回源">步骤 F5：静态资源不要走 API 网关回源</h3>
+<p>取证发现 <code>/_nuxt/*.js</code>、<code>/images/*</code> 在<strong>网关</strong>上被大量请求（单文件上千次、数百 KB），也就是静态资源走了 SSR/网关回源路径。</p>
+<p><strong>动作</strong>：</p>
+<ol>
+<li><code>_nuxt</code> 构建产物与 <code>images</code> 静态资源统一从 CDN/对象存储直出（S3 + CloudFront），网关只处理 API 与 HTML。</li>
+<li>检查 Nuxt 配置 <code>build.publicPath</code> / <code>cdnURL</code> 是否指向 CDN 域名；<code>/images/*</code> 是否被 Nginx location 误路由到 SSR。</li>
+<li>复核 SSR 内部到底渲染在做什么，避免 SSR 资源请求走 SSR 渲染链路（自放大）。</li>
+</ol>
+<p><strong>验收</strong>：网关日志里 <code>/_nuxt/*</code>、<code>/images/*</code> 的命中次数归零或降到极小。</p>
+<h3 id="步骤-F6-给接口加-Cache-Control-ETag">步骤 F6：给接口加 <code>Cache-Control</code> / <code>ETag</code></h3>
+<p>配置类 GET 接口（<code>configDict/getConfigDict</code>、<code>AppVersion/latestVersion</code>、<code>system/info</code> 的静态部分）由后端返回 <code>Cache-Control: public, max-age=300</code> + <code>ETag</code>，让客户端与 CDN 承担重复请求。</p>
+<hr/>
+<h2 id="三-数据库-MongoDB-主库-56-155-42-18-优化-6-步">三、数据库（MongoDB 主库 56.155.42.18）优化：6 步</h2>
+<h3 id="步骤-D1-打开慢查询采样-先拿数据再优化-需走变更审批">步骤 D1：打开慢查询采样（先拿数据再优化，需走变更审批）</h3>
+<p>当前 <code>profiling</code> 关闭（level 0、slowms 100），所以<strong>看不到慢查询形状</strong>。建议在低峰期开启采样 1~2 小时：</p>
+<pre><code class="language-javascript">// 主库执行（临时，采样结束后恢复）
+db.setProfilingLevel(1, 200)      // 只记录 &gt;=200ms 的操作（capped 集合，开销可控）
+// 采样后分析
+db.system.profile.aggregate([
+  {$group: {_id: {ns: "$ns", op: "$op", plan: "$planSummary"}, n: {$sum: 1}, ms: {$avg: "$millis"}}},
+  {$sort: {n: -1}}, {$limit: 30}
+])
+db.setProfilingLevel(0)           // 恢复
+</code></pre>
+<p><strong>注意</strong>：这是线上配置变更，需要运维/负责人确认后执行，并在低峰窗口。</p>
+<h3 id="步骤-D2-索引核查-重点看-有索引但没用-和-没有索引">步骤 D2：索引核查（重点看"有索引但没用"和"没有索引"）</h3>
+<pre><code class="language-javascript">// 1) 看每个索引到底有没有被用过（自重启累计）
+db.game_category.aggregate([{$indexStats: {}}])
+db.article.aggregate([{$indexStats: {}}])
+// 2) 看实际执行计划（把 profiler 抓到的查询形状拿来跑）
+db.game_category.find({...}).explain("executionStats")   // 关注 totalDocsExamined / nReturned
+</code></pre>
+<p>现状要点：</p>
+<ul>
+<li><code>user_sign_config</code> 只有 1 个文档、<code>user_task_list</code> 15 个文档 —— 亿级查询即便是 COLLSCAN 也快，但<strong>每秒百万级扫描会白吃 CPU 与缓存</strong>，应优先从应用层缓存解决（B1）。</li>
+<li><code>article</code>：588 个文档、平均 <strong>26.6 KB</strong>、<strong>只有 1 个索引</strong> —— 建议按列表筛选/排序字段（分类、发布时间、状态）补索引，并做 projection。</li>
+<li><code>user</code>：1,163 万文档、<strong>17 GB</strong>、14 个索引 —— 关注索引膨胀与写入放大，结合 B3 投影使用。</li>
+<li>判断标准：<code>explain</code> 中 <code>totalDocsExamined / nReturned &gt; 100</code> 即为读放大可疑点。</li>
+</ul>
+<h3 id="步骤-D3-读分离-连接复核">步骤 D3：读分离 + 连接复核</h3>
+<ol>
+<li>与 B4 配套：从库承接只读，主库只负责写与复制源。</li>
+<li>连接复核：主库当前 <code>current=56</code>、<code>available=51144</code>（余量充足）；但要注意 <code>default</code> 与 <code>channel</code> <strong>目前都连主库</strong>，各占 33/34 条连接，读分离后应重新分配。</li>
+<li>复核是否有长连接泄漏：<code>db.serverStatus().connections.totalCreated</code> 增长速率。</li>
+</ol>
+<h3 id="步骤-D4-WiredTiger-缓存与内存调优">步骤 D4：WiredTiger 缓存与内存调优</h3>
+<p>现状：<code>WT cache 已用 9.6 GB / 上限 12.0 GB（80%）</code>、<code>resident 12.5 GB</code>。</p>
+<p><strong>动作</strong>：</p>
+<ol>
+<li>观察 <code>wiredTiger.cache["pages evicted by application threads"]</code> 是否持续增长（= 缓存不够，应用线程在替 WT 做淘汰）。</li>
+<li>若主机内存允许（当前 <code>mp 51.96%</code>），把 <code>cacheSizeGB</code> 提到 20~24 GB，重启窗口内生效。</li>
+<li>关注 <code>wiredTiger.cache["bytes read into cache"]</code>：当前 4.3 MB/s，说明有磁盘回读。</li>
+</ol>
+<h3 id="步骤-D5-容量与写放大治理">步骤 D5：容量与写放大治理</h3>
+<p>现状：<code>18game</code> dataSize 78.8 GB / storageSize 14.5 GB、158 个集合、2.398 亿对象；写热点：<code>game</code> update 6,775 万、<code>user</code> update 3,929 万、<code>user_task_progress</code> update 447 万、<code>account_detail</code> insert 132 万。</p>
+<p><strong>动作</strong>：</p>
+<ol>
+<li>对「只增不减」的流水类集合（<code>account_detail</code>、埋点/日志类集合）建立<strong>按时间归档或 TTL 索引</strong>策略。</li>
+<li>复核 <code>user_task_progress</code> 是否可合并/精简字段（当前 update 447 万次，属于高频写）。</li>
+<li>复核 <code>post_love</code>、<code>user_message_read_state</code> 等 commands 高（1.1 亿 / 299 万）的集合是否存在频繁 count。</li>
+</ol>
+<h3 id="步骤-D6-把-例行只读体检-固化成定时任务">步骤 D6：把"例行只读体检"固化成定时任务</h3>
+<p>建议每天采集一次并留档（只读，不写库）：</p>
+<pre><code class="language-javascript">db.serverStatus().opcounters            // 查询/写入速率
+db.serverStatus().network               // bytesIn / bytesOut
+db.serverStatus().metrics.document      // returned / scanned
+db.serverStatus().wiredTiger.cache      // 缓存压力
+db.adminCommand({top: 1})               // 命名空间热点
+db.currentOp({secs_running: {$gte: 1}}) // 慢操作
+</code></pre>
+<hr/>
+<h2 id="四-实施顺序-一步一步来-与验收指标">四、实施顺序（一步一步来）与验收指标</h2>
+<h3 id="第-1-批-收益最大-风险最低-建议本周内">第 1 批（收益最大、风险最低，建议本周内）</h3>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>事项</th>
+<th>负责人</th>
+<th>验收</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>B1 配置类集合全部走缓存（重点 <code>user_sign_config</code>、<code>game_category</code>、<code>app_version</code>、<code>user_task_list</code>、<code>adv</code>）</td>
+<td>后端</td>
+<td>主库 query 535/s → &lt;300/s</td>
+</tr>
+<tr>
+<td>2</td>
+<td>F3 埋点批量上报（tracking/record、recordPageVisit、exposureCollect）</td>
+<td>前端 + 后端</td>
+<td>三个接口调用量 -80%</td>
+</tr>
+<tr>
+<td>3</td>
+<td>B6 日志降采样（BaseApiController.php:208/259）</td>
+<td>后端</td>
+<td>app-logs 增量 13.9 GB → &lt;6 GB</td>
+</tr>
+<tr>
+<td>4</td>
+<td>B5 支付 HTTP 超时（<code>recharge/create</code>）</td>
+<td>后端</td>
+<td>slow_api 1,792 → &lt;500 条/天</td>
+</tr>
+</tbody>
+</table>
+<h3 id="第-2-批-一到两周">第 2 批（一到两周）</h3>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>事项</th>
+<th>负责人</th>
+<th>验收</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5</td>
+<td>B4 + D3 只读切从库（先用 <code>slave1</code> 跑配置类查询）</td>
+<td>后端 + DBA</td>
+<td>主库 bytesOut 107 → &lt;50 MB/s</td>
+</tr>
+<tr>
+<td>6</td>
+<td>B3 投影 + 分页（game / article / lists）</td>
+<td>后端</td>
+<td><code>modules/home</code>、<code>game/detail</code> KB/次 -30%</td>
+</tr>
+<tr>
+<td>7</td>
+<td>D1 + D2 profiling 采样 + 索引整改</td>
+<td>DBA</td>
+<td>扫描/返回放大 280 倍 → &lt;50 倍</td>
+</tr>
+<tr>
+<td>8</td>
+<td>F1 静态资源瘦身（<code>C8I3s652.js</code> 823 KB、<code>G.svg</code> 624 KB 等）</td>
+<td>前端</td>
+<td>首屏字节 -30%</td>
+</tr>
+<tr>
+<td>9</td>
+<td>F2 首屏配置包合并</td>
+<td>前端 + 后端</td>
+<td><code>system/info</code> 等调用量 -70%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="第-3-批-三周内">第 3 批（三周内）</h3>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>事项</th>
+<th>负责人</th>
+<th>验收</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10</td>
+<td>B7 Controller 直连数据库收敛（68 处）</td>
+<td>后端</td>
+<td>—</td>
+</tr>
+<tr>
+<td>11</td>
+<td>F5 静态资源彻底走 CDN（<code>/_nuxt/*</code>、<code>/images/*</code> 不再回源网关）</td>
+<td>前端 + 运维</td>
+<td>网关静态命中归零</td>
+</tr>
+<tr>
+<td>12</td>
+<td>D4 WT 缓存调大 + D5 容量治理</td>
+<td>DBA</td>
+<td>缓存淘汰压力下降</td>
+</tr>
+<tr>
+<td>13</td>
+<td>B2 重复查询消除（UserTaskService 等）</td>
+<td>后端</td>
+<td>单请求 Mongo 命令数 -50%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="最终验收-一次全量复核-只读">最终验收（一次全量复核，只读）</h3>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th style="text-align: right;">当前</th>
+<th style="text-align: right;">目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>后端 ens5 入流量</td>
+<td style="text-align: right;">90~107 MB/s</td>
+<td style="text-align: right;">&lt; 25 MB/s</td>
+</tr>
+<tr>
+<td>主库 bytesOut</td>
+<td style="text-align: right;">107 MB/s</td>
+<td style="text-align: right;">&lt; 30 MB/s</td>
+</tr>
+<tr>
+<td>主库 query</td>
+<td style="text-align: right;">534.9/s</td>
+<td style="text-align: right;">&lt; 150/s</td>
+</tr>
+<tr>
+<td>扫描/返回放大</td>
+<td style="text-align: right;">222~299 倍</td>
+<td style="text-align: right;">&lt; 20 倍</td>
+</tr>
+<tr>
+<td>应用 slow_api</td>
+<td style="text-align: right;">1,792 条/天</td>
+<td style="text-align: right;">&lt; 200 条/天</td>
+</tr>
+<tr>
+<td>app-logs 24h 增量</td>
+<td style="text-align: right;">13.9 GB</td>
+<td style="text-align: right;">&lt; 4 GB</td>
+</tr>
+<tr>
+<td>网关静态资源 KB/次</td>
+<td style="text-align: right;">最高 823 KB</td>
+<td style="text-align: right;">下降 30%+</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="五-附-本次涉及的关键文件与行号索引-给开发直接跳转">五、附：本次涉及的关键文件与行号索引（给开发直接跳转）</h2>
+<table>
+<thead>
+<tr>
+<th>位置</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/Constants/CacheKey.php</code></td>
+<td>已定义的 80+ 缓存键（配置类缓存直接复用）</td>
+</tr>
+<tr>
+<td><code>app/Services/Common/GameCategoryService.php:60 / :102</code></td>
+<td><code>game_category</code> 的缓存写入/读取（14.41 亿次查询的整改入口）</td>
+</tr>
+<tr>
+<td><code>app/Services/User/UserTaskService.php:66 / :154 / :199</code></td>
+<td><code>SIGN_CONFIG</code>、<code>TASK_LIST_DAILY/NEWBIE</code> 缓存使用点</td>
+</tr>
+<tr>
+<td><code>app/Models/User/UserSignConfigModel.php</code></td>
+<td><code>user_sign_config</code>（1 个文档 / 1.33 亿次查询）</td>
+</tr>
+<tr>
+<td><code>app/Core/Mongodb/MongoModel.php:39</code></td>
+<td><code>-&gt;on('slave1')</code> 读从库用法（读分离入口）</td>
+</tr>
+<tr>
+<td><code>app/Constants/CommonConstKey.php:12-13</code></td>
+<td><code>MONGODB_SLAVE_1/2</code> 常量</td>
+</tr>
+<tr>
+<td><code>app/Controller/BaseApiController.php:208 / :259</code></td>
+<td><code>api_request</code> / <code>api_response</code> 日志写入点（日志降采样入口）</td>
+</tr>
+<tr>
+<td><code>app/Services/Payment/PaymentService.php:954 / :1021</code></td>
+<td>支付 HTTP 调用（加超时入口）</td>
+</tr>
+<tr>
+<td><code>app/Utils/CommonUtil.php:278</code></td>
+<td><code>curl_exec</code> 封装（统一下发超时参数）</td>
+</tr>
+<tr>
+<td><code>app/Controller/Sdk/RechargeController.php:138</code>、<code>app/Controller/ApiV1/RechargeController.php:140</code></td>
+<td>下单慢接口入口</td>
+</tr>
+<tr>
+<td><code>app/Controller/Backend/SystemController.php:26</code>、<code>app/Repositories/Backend/ReportRepository.php:88</code></td>
+<td>后台报表 <code>getNewReportData</code>（进慢栈 466 次）</td>
+</tr>
+<tr>
+<td><code>app/Controller/ApiV1/ExposureCollectController.php</code>、<code>app/Services/Common/ExposureCollectService.php:118</code></td>
+<td>曝光采集（单事件单请求改批量）</td>
+</tr>
+<tr>
+<td><code>app/Services/Common/TrackingService.php:456</code></td>
+<td><code>recordPageVisit</code> 上报逻辑</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>本文所有数据均为只读取证采集，未对数据库、网关、后端做任何配置或数据变更。</p>
+</blockquote>
+<hr/>
+<h2 id="6-1-体检结论-基础健康-但有一个-P0-隐患">6.1 体检结论：基础健康，但有一个 P0 隐患</h2>
+<p><strong>健康的部分（<code>203.0.113.1:6379</code>，应用使用 db1=业务 / db2=队列 / db3=缓存）</strong></p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>实测值</th>
+<th>判断</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>版本 / 运行时长</td>
+<td>Redis 6.2.20 / 130.1 天</td>
+<td>正常</td>
+</tr>
+<tr>
+<td>内存</td>
+<td>used 1.01 G，峰值 1.17 G，碎片率 0.99，淘汰键 0</td>
+<td>正常</td>
+</tr>
+<tr>
+<td>命中率</td>
+<td>hits 32.28 亿 / misses 2.70 亿 = <strong>92.29%</strong></td>
+<td>正常（缓存确实在生效）</td>
+</tr>
+<tr>
+<td>客户端</td>
+<td>connected 8、blocked 0、累计连接 19.7 亿、拒绝连接 0</td>
+<td>正常</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>PING 0.61 ms、GET(未命中) 0.58 ms</td>
+<td>正常</td>
+</tr>
+<tr>
+<td>持久化</td>
+<td>RDB 最近保存 00:59、状态 ok；save 策略 <code>3600 1 300 100 60 10000</code></td>
+<td>正常</td>
+</tr>
+<tr>
+<td>安全</td>
+<td>6379 在三台 DB 公网 IP 与后端/网关/宝塔 均不可达</td>
+<td>未暴露，正常</td>
+</tr>
+<tr>
+<td>应用报错</td>
+<td>近 24h 无 RedisException / 连接拒绝 / LOADING</td>
+<td>正常</td>
+</tr>
+</tbody>
+</table>
+<p><strong>P0 隐患：业务代码用 <code>KEYS</code> 做前缀删除，单线程 Redis 被周期性阻塞</strong></p>
+<pre><code>SLOWLOG 128 条构成：KEYS 126 条 + DEL 2 条
+每条 KEYS 耗时 0.32 ~ 0.64 秒，平均每 153 秒出现一次（时间跨度 5.3 小时）
+来源 IP：全部来自后端主机 203.0.113.1（即 16.209.16.108）
+
+按业务分类：
+  99 次  登录"多点登录踢下线"    pattern = [敏感内容已脱敏]
+  11 次  统计任务 tracking_guest_dl:{date}:*
+  10 次  统计任务 tracking:{date}:*:pv
+   6 次  统计任务 product_click:*
+</code></pre>
+<p>根因链路：</p>
+<ol>
+<li><code>redis()</code>（<code>[redis] index = 1</code>）所在 <strong>db1 有 1,771,045 个键</strong>，抽样 20 万键中 **96% 是 <code>[敏感内容已脱敏] 19.2 万），其余为</code>tracking_page_visit<code>、</code>growth<code>、</code>tracking<code>、</code>vip_received_coin<code>、</code>msg_click_uv` 等。</li>
+<li><code>KEYS</code> 是<strong>全库遍历</strong>，177 万键 ≈ 0.5 秒；Redis 单线程，这 0.5 秒内 session（db0）、queue（db2）、cache（db3）<strong>全部排队阻塞</strong>。</li>
+<li>最频繁的触发源是<strong>用户登录</strong>：<code>app/Services/User/UserService.php:1861</code> 在多点登录模式下，每次登录都会 `KEYS [敏感内容已脱敏] 再逐个删除旧 token。</li>
+</ol>
+<p>影响面：登录越密集，阻塞越频繁；阻塞期间所有接口的 Redis 调用（会话、验证码、缓存、队列）都要等几百毫秒。这也可能是后端 nginx 日志中 642 次 <code>recv() failed</code>、15 次 <code>upstream timed out</code> 的一个隐藏来源。</p>
+<h2 id="6-2-修复方案-按优先级-一步一步">6.2 修复方案（按优先级，一步一步）</h2>
+<h3 id="修复-R1-必须改-登录踢下线不再用-KEYS">修复 R1（必须改）：登录踢下线不再用 KEYS</h3>
+<p><strong>文件</strong>：<code>app/Services/User/UserService.php:1861</code>（多点登录删除该用户全部 token）</p>
+<p>推荐做法（改动小、立即见效）——<strong>用 Set 维护"用户 → token 列表"索引</strong>：</p>
+<pre><code class="language-php">// 登录时：写入 token 的同时登记索引
+redis()-&gt;setex("[敏感内容已脱敏], $ttl, $tokenValue);
+redis()-&gt;sadd("[敏感内容已脱敏], "{$tokenId}");
+redis()-&gt;expire("[敏感内容已脱敏], $ttl);
+
+// 踢下线时：按索引精确删除，不再全库扫描
+foreach (redis()-&gt;smembers("[敏感内容已脱敏] as $tid) {
+    redis()-&gt;del("[敏感内容已脱敏];
+}
+redis()-&gt;del("[敏感内容已脱敏];
+</code></pre>
+<p>低成本兜底（不改数据结构，先把阻塞去掉）：</p>
+<pre><code class="language-php">// 用 SCAN 游标分批替代 KEYS，每次 500~1000，非阻塞
+$cursor = '0';
+do {
+    $res = redis()-&gt;scan($cursor, "[敏感内容已脱敏], 500);
+    $cursor = $res[0] ?? '0';
+    foreach ((array) ($res[1] ?? []) as $key) { redis()-&gt;del($key); }
+} while ($cursor !== '0' &amp;&amp; $cursor !== 0);
+</code></pre>
+<blockquote>
+<p>注意：本项目 phpredis 设置了客户端前缀 <code>ph_</code>，<code>SCAN</code> 的 pattern 会被自动加前缀；不要手写 <code>ph_ph_*</code>。</p>
+</blockquote>
+<h3 id="修复-R2-统计类任务同样换成-SCAN">修复 R2：统计类任务同样换成 SCAN</h3>
+<p>把这 4 个文件的 <code>redis()-&gt;keys($pattern)</code> 全部替换为 SCAN 分批（模式同上）：</p>
+<table>
+<thead>
+<tr>
+<th>文件:行</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/Services/Common/TrackingService.php:116</code></td>
+<td><code>tracking:{date}:*:pv</code> 汇总</td>
+</tr>
+<tr>
+<td><code>app/Services/Common/TrackingService.php:359 / 419 / 601</code></td>
+<td><code>tracking_guest_dl:{date}:*</code> 等</td>
+</tr>
+<tr>
+<td><code>app/Services/Common/ProductClickStatService.php:34</code></td>
+<td><code>product_click:*</code> 落库</td>
+</tr>
+<tr>
+<td><code>app/Services/Common/MessageService.php:683</code></td>
+<td><code>msg_click_uv:*</code> 去重统计</td>
+</tr>
+<tr>
+<td><code>app/Services/Sdk/UserService.php:1589</code></td>
+<td>同上（SDK 侧）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="修复-R3-给-Redis-加上限与内存告警">修复 R3：给 Redis 加上限与内存告警</h3>
+<p>当前 <code>maxmemory=0</code>（未设置）+ <code>noeviction</code>，内存没有上限：一旦键数继续涨，可能触发 OOM Kill。</p>
+<pre><code class="language-bash"># 建议值（按实际内存评估后执行）：给缓存/会话留出余量，超出后按 LRU 淘汰
+CONFIG SET maxmemory 4gb
+CONFIG SET maxmemory-policy allkeys-lru
+# 并写入 redis.conf 持久化（重启后仍生效）
+</code></pre>
+<p>同时把 <code>used_memory</code>、<code>evicted_keys</code>、<code>keyspace_hits/misses</code>、<code>SLOWLOG</code> 长度纳入每日体检（与 <code>docs/2026-10-17-0040</code> 的数据侧体检合并）。</p>
+<h3 id="修复-R4-持久化与单点">修复 R4：持久化与单点</h3>
+<ul>
+<li>AOF 当前关闭、无副本（<code>role=master</code>、<code>connected_slaves=0</code>）：崩溃或重启最坏丢最近 1 小时数据，session 丢失会导致用户大面积掉线。建议开 <code>appendonly yes</code> + <code>appendfsync everysec</code>，或加一个副本。</li>
+<li>复核 token TTL：抽样看到最长 <strong>1,866,051 秒（约 21.6 天）</strong>、常见约 2.5 天。TTL 越长，db1 键数越多，<code>KEYS</code>/<code>SCAN</code> 成本越高，建议按业务安全要求收敛。</li>
+</ul>
+<h2 id="6-3-验收">6.3 验收</h2>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th style="text-align: right;">当前</th>
+<th style="text-align: right;">目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SLOWLOG 中 KEYS 次数</td>
+<td style="text-align: right;">126 条 / 5.3 小时</td>
+<td style="text-align: right;">趋零（改造完成后清空 SLOWLOG 复测）</td>
+</tr>
+<tr>
+<td>单次阻塞时长</td>
+<td style="text-align: right;">0.32~0.64 秒</td>
+<td style="text-align: right;">无单命令 &gt;10 ms</td>
+</tr>
+<tr>
+<td>PING P99 延迟</td>
+<td style="text-align: right;">未测（均值 0.61 ms）</td>
+<td style="text-align: right;">P99 &lt; 5 ms</td>
+</tr>
+<tr>
+<td>db1 键数</td>
+<td style="text-align: right;">1,771,045</td>
+<td style="text-align: right;">随 token 策略收敛而下降</td>
+</tr>
+<tr>
+<td>maxmemory</td>
+<td style="text-align: right;">0（无上限）</td>
+<td style="text-align: right;">4 GB + allkeys-lru + 内存告警</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="7-1-实测拓扑">7.1 实测拓扑</h2>
+<pre><code>203.0.113.1 = ip-172-31-44-11 = Beszel「游点涩-数据库-从库01」(公网 15.168.164.29)
+  └─ 同时跑着：MongoDB 从库（server.db2.com）+ Redis 6.2.20（应用 cache / queue 入口）
+</code></pre>
+<p>也就是 <strong>Redis 与应用的主要读库在同一台机器上</strong>。读分离改造后，这台机器的网卡发送量从平均 14 MB/s 涨到 77 MB/s（峰值 93.6 MB/s），而 Redis 本身只占其中约 1.4 MB/s（≈1.5%）。</p>
+<p>风险：一旦 Mongo 读把该机 CPU/网卡打满，Redis 的 P99 延迟会跟着恶化，进而影响缓存与队列，表现为"数据库慢带着 Redis 一起慢"，排查时容易误判成 Redis 的问题。</p>
+<h2 id="7-2-实证数据-切读前后-Beszel-主机监控-10-分钟粒度">7.2 实证数据（切读前后，Beszel 主机监控，10 分钟粒度）</h2>
+<table>
+<thead>
+<tr>
+<th>节点</th>
+<th>切读前 发送（平均/峰值）</th>
+<th>切读后 发送（平均/峰值）</th>
+<th>CPU 变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主库 203.0.113.1</td>
+<td>71.6 / 94.5 MB/s</td>
+<td>9.6 / 79.9 MB/s（最新 2.0~2.4）</td>
+<td>27.7% → 21.2%</td>
+</tr>
+<tr>
+<td>从库01 203.0.113.1（与 Redis 同机）</td>
+<td>14.0 / 17.2 MB/s</td>
+<td>76.7 / 93.6 MB/s</td>
+<td>10.2% → 10.0%</td>
+</tr>
+<tr>
+<td>从库02 203.0.113.1</td>
+<td>0.3 / 0.7 MB/s</td>
+<td>0.3 / 0.3 MB/s</td>
+<td>7.2% → 7.3%</td>
+</tr>
+</tbody>
+</table>
+<p>结论：主库 −62 MB/s、从库01 +62.7 MB/s，是<strong>流量搬家</strong>而不是总量下降；从库02 尚未承接读流量，仍有分流空间。</p>
+<h2 id="7-3-建议">7.3 建议</h2>
+<ol>
+<li>读流量按 <code>slave1</code> / <code>slave2</code> 均分（当前只落到从库01，从库02 处于空闲）。</li>
+<li>中期考虑把 Redis 独立到单独主机，或至少不要与承接主要读流量的从库同机；短期先给该机加"网卡 + CPU + Redis P99 延迟"的联合告警。</li>
+<li>副本角色/容量变化后，重新评估 Redis 的 <code>maxmemory</code>（当前未设置）与该机内存余量。</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#零-先看这张-问题地图-一句话版">零、先看这张「问题地图」（一句话版）</a></li><li style="margin-left:0.0rem"><a href="#一-后端-PHP-优化-7-步">一、后端（PHP）优化：7 步</a></li><li style="margin-left:0.8rem"><a href="#步骤-B1-把-配置型集合-全部收进缓存-收益最大-风险最低">步骤 B1：把「配置型集合」全部收进缓存（收益最大、风险最低）</a></li><li style="margin-left:0.8rem"><a href="#步骤-B2-消除同一请求内的重复查询-N-1">步骤 B2：消除同一请求内的重复查询（N+1）</a></li><li style="margin-left:0.8rem"><a href="#步骤-B3-加投影-projection-与分页-砍掉无用大字段">步骤 B3：加投影（projection）与分页，砍掉无用大字段</a></li><li style="margin-left:0.8rem"><a href="#步骤-B4-把只读流量切到从库-代码已有能力-几乎没用">步骤 B4：把只读流量切到从库（代码已有能力，几乎没用）</a></li><li style="margin-left:0.8rem"><a href="#步骤-B5-支付链路加超时-recharge-create-是慢接口第一名">步骤 B5：支付链路加超时（ recharge/create 是慢接口第一名）</a></li><li style="margin-left:0.8rem"><a href="#步骤-B6-日志降采样-一天少写-9-GB">步骤 B6：日志降采样（一天少写 9 GB）</a></li><li style="margin-left:0.8rem"><a href="#步骤-B7-把-Controller-里的直连数据库收敛到-Service-Repository-结构治理">步骤 B7：把 Controller 里的直连数据库收敛到 Service/Repository（结构治理）</a></li><li style="margin-left:0.0rem"><a href="#二-前端-Nuxt-H5-PC-优化-6-步">二、前端（Nuxt H5/PC）优化：6 步</a></li><li style="margin-left:0.8rem"><a href="#步骤-F1-静态资源瘦身与缓存策略">步骤 F1：静态资源瘦身与缓存策略</a></li><li style="margin-left:0.8rem"><a href="#步骤-F2-首屏请求合并-一次拿全-配置包">步骤 F2：首屏请求合并（一次拿全&quot;配置包&quot;）</a></li><li style="margin-left:0.8rem"><a href="#步骤-F3-埋点类接口批量上报-当前是-一个事件一个请求">步骤 F3：埋点类接口批量上报（当前是「一个事件一个请求」）</a></li><li style="margin-left:0.8rem"><a href="#步骤-F4-轮询改退避-长轮询">步骤 F4：轮询改退避/长轮询</a></li><li style="margin-left:0.8rem"><a href="#步骤-F5-静态资源不要走-API-网关回源">步骤 F5：静态资源不要走 API 网关回源</a></li><li style="margin-left:0.8rem"><a href="#步骤-F6-给接口加-Cache-Control-ETag">步骤 F6：给接口加 Cache-Control / ETag</a></li><li style="margin-left:0.0rem"><a href="#三-数据库-MongoDB-主库-56-155-42-18-优化-6-步">三、数据库（MongoDB 主库 56.155.42.18）优化：6 步</a></li><li style="margin-left:0.8rem"><a href="#步骤-D1-打开慢查询采样-先拿数据再优化-需走变更审批">步骤 D1：打开慢查询采样（先拿数据再优化，需走变更审批）</a></li><li style="margin-left:0.8rem"><a href="#步骤-D2-索引核查-重点看-有索引但没用-和-没有索引">步骤 D2：索引核查（重点看&quot;有索引但没用&quot;和&quot;没有索引&quot;）</a></li><li style="margin-left:0.8rem"><a href="#步骤-D3-读分离-连接复核">步骤 D3：读分离 + 连接复核</a></li><li style="margin-left:0.8rem"><a href="#步骤-D4-WiredTiger-缓存与内存调优">步骤 D4：WiredTiger 缓存与内存调优</a></li><li style="margin-left:0.8rem"><a href="#步骤-D5-容量与写放大治理">步骤 D5：容量与写放大治理</a></li><li style="margin-left:0.8rem"><a href="#步骤-D6-把-例行只读体检-固化成定时任务">步骤 D6：把&quot;例行只读体检&quot;固化成定时任务</a></li><li style="margin-left:0.0rem"><a href="#四-实施顺序-一步一步来-与验收指标">四、实施顺序（一步一步来）与验收指标</a></li><li style="margin-left:0.8rem"><a href="#第-1-批-收益最大-风险最低-建议本周内">第 1 批（收益最大、风险最低，建议本周内）</a></li><li style="margin-left:0.8rem"><a href="#第-2-批-一到两周">第 2 批（一到两周）</a></li><li style="margin-left:0.8rem"><a href="#第-3-批-三周内">第 3 批（三周内）</a></li><li style="margin-left:0.8rem"><a href="#最终验收-一次全量复核-只读">最终验收（一次全量复核，只读）</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-10-17</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">Redis</span><span class="tag">自动化</span><span class="tag">CDN</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-17-0120-【优化方…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610170120-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%E3%80%91%E5%90%8E%E7%AB%AF%20-%20%E5%89%8D%E7%AB%AF%20-%20%E6%95%B0%E6%8D%AE%E5%BA%93%E6%B5%81%E9%87%8F%E4%BC%98%E5%8C%96%E5%AE%9E%E6%96%BD%E6%8C%87%E5%8D%97%EF%BC%88%E9%80%90%E6%AD%A5%E5%8F%AF%E6%89%A7%E8%A1%8C%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【优化方案】后端 / 前端 / 数据库流量优化实施指南（逐步可执行）。本文属于业务系统运维 / 游点涩，面向对象：后端（PHP）、前端（Nuxt H5/PC）、DBA/运维 依据： docs/2026-10-17-0040-【问题排查】线上后端与数据库流量猛涨取证及异常日志汇总.md 的只读取证 目标（三周内）：…</p>
+      <p>关键词：游点涩、Shell、Docker、Nginx、Redis、自动化、CDN、故障排查、业务系统运维、业务系统运维 / 游点涩、【优化方案】后端 / 前端 / 数据库流量优化实施指南（逐步可执行）、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8752aa0e8fb5.html"><small>上一篇</small>【问题排查】线上后端与数据库流量猛涨取证及异常日志汇总</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f4c2c708517d.html"><small>下一篇</small>线上原始错误日志包（阅读指引 + 速查）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-49b574b1f55b.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Redis 原始数据包 · 分析结论（2026-10-17 01：30~01：36 北京时间）｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="Redis 原始数据包 · 分析结论（2026-10-17 01：30~01：36 北京时间）。本文属于业务系统运维 / 游点涩，采集对象： 203.0.113.1:6379 （线上唯一的 Redis，db0=session 占位 / db1=业务 redis() / db2=队列 / db3=缓存 cache(…">
+  <meta name="keywords" content="游点涩，Shell，Docker，Redis，监控告警，故障排查，源码与配置，业务系统运维，业务系统运维 / 游点涩，Redis 原始数据包 · 分析结论（2026-10-17 01：30~01：36 北京时间），php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5e3aaca84e42.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5e3aaca84e42.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610170140-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-Redis%20%E5%8E%9F%E5%A7%8B%E6%95%B0%E6%8D%AE%E5%8C%85%20%C2%B7%20%E5%88%86%E6%9E%90%E7%BB%93%E8%AE%BA%EF%BC%882026-10-17%2001%EF%BC%9A30~01%EF%BC%9A36%20%E5%8C%97%E4%BA%AC%E6%97%B6%E9%97%B4%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Redis 原始数据包 · 分析结论（2026-10-17 01：30~01：36 北京时间）">
+  <meta property="og:description" content="Redis 原始数据包 · 分析结论（2026-10-17 01：30~01：36 北京时间）。本文属于业务系统运维 / 游点涩，采集对象： 203.0.113.1:6379 （线上唯一的 Redis，db0=session 占位 / db1=业务 redis() / db2=队列 / db3=缓存 cache(…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5e3aaca84e42.html">
+  <meta property="article:published_time" content="2026-10-17T01:40:00+08:00">
+  <meta property="article:modified_time" content="2026-10-17 01:40">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Redis 原始数据包 · 分析结论（2026-10-17 01：30~01：36 北京时间）">
+  <meta name="twitter:description" content="Redis 原始数据包 · 分析结论（2026-10-17 01：30~01：36 北京时间）。本文属于业务系统运维 / 游点涩，采集对象： 203.0.113.1:6379 （线上唯一的 Redis，db0=session 占位 / db1=业务 redis() / db2=队列 / db3=缓存 cache(…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5e3aaca84e42.html#article","headline":"Redis 原始数据包 · 分析结论（2026-10-17 01：30~01：36 北京时间）","description":"Redis 原始数据包 · 分析结论（2026-10-17 01：30~01：36 北京时间）。本文属于业务系统运维 / 游点涩，采集对象： 203.0.113.1:6379 （线上唯一的 Redis，db0=session 占位 / db1=业务 redis() / db2=队列 / db3=缓存 cache(…","datePublished":"2026-10-17T01:40:00+08:00","dateModified":"2026-10-17 01:40","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Shell","Docker","Redis","监控告警","故障排查","源码与配置","业务系统运维","业务系统运维 / 游点涩","Redis 原始数据包 · 分析结论（2026-10-17 01：30~01：36 北京时间）","php"],"wordCount":1373,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5e3aaca84e42.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5e3aaca84e42.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Redis 原始数据包 · 分析结论（2026-10-17 01：30~01：36 北京时间）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5e3aaca84e42.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>Redis 原始数据包 · 分析结论（2026-10-17 01：30~01：36 北京时间）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>Redis 原始数据包 · 分析结论（2026-10-17 01：30~01：36 北京时间）</h1>
+      <p class="lede">Redis 原始数据包 · 分析结论（2026-10-17 01：30~01：36 北京时间）。本文属于业务系统运维 / 游点涩，采集对象： 203.0.113.1:6379 （线上唯一的 Redis，db0=session 占位 / db1=业务 redis() / db2=队列 / db3=缓存 cache(…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-17T01:40:00+08:00">发布于 2026-10-17</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,373 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-17-0140-【排查】Redis原始数据结论（内存未满-命中率94%-KEYS阻塞与连接风暴）.md</code></p>
+<p>整理日期：2026-10-17 01:40｜日期依据：文件名日期</p>
+</blockquote>
+<p>采集对象：<code>203.0.113.1:6379</code>（线上唯一的 Redis，db0=session 占位 / <strong>db1=业务 <code>redis()</code></strong> / db2=队列 / <strong>db3=缓存 <code>cache()</code></strong>）
+采集方式：全部只读（INFO / SLOWLOG / CLIENT LIST / SCAN / 5 秒 MONITOR）；MONITOR 采样 5 秒，期间 Redis 吞吐会略降，已自动结束。</p>
+<hr/>
+<h2 id="一-先回答-是不是-Redis-的问题">一、先回答「是不是 Redis 的问题」</h2>
+<p><strong>不是。</strong> 三条硬证据：</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Redis</th>
+<th>数据库</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>网络出流量</td>
+<td><strong>8.4 Mbps ≈ 1.05 MB/s</strong></td>
+<td>主库 2.3 MB/s + 从库 <strong>61.1 MB/s</strong></td>
+</tr>
+<tr>
+<td>网络入流量</td>
+<td>0.12~0.16 Mbps</td>
+<td>主库 1.1 MB/s / 从库 0.6 MB/s</td>
+</tr>
+<tr>
+<td>内存</td>
+<td>used <strong>1.00 GB</strong> 稳定，峰值 1.17 GB，<code>maxmemory=0</code>、<code>noeviction</code>、<strong>淘汰键 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>命中率</td>
+<td><strong>94.29%</strong>（命 999/s、未命中 60/s）</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>也就是说：</p>
+<ol>
+<li><strong>内存没满</strong>：1.00 GB 稳定，没有触发淘汰（<code>evicted_keys=0</code>），也没有拒绝连接（<code>rejected_connections=0</code>）。</li>
+<li><strong>Redis 不产生 Mongo 流量</strong>：Redis 的网卡只有约 1 MB/s，与数据库从库 61 MB/s 差 60 倍；两者没有量级上的因果关系。</li>
+<li>反过来看，Redis 命中率 94% 说明<strong>缓存是在工作的</strong>，并不是"缓存失效导致全打到数据库"。</li>
+</ol>
+<p>真正的原因仍是之前取证到的那条链：<strong>数据库读放大 ~280~590 倍</strong>。读分离只是把读请求从主库挪到了从库，扫描量没变，所以从库立刻被顶到 61 MB/s。</p>
+<hr/>
+<h2 id="二-但-Redis-确实有两个真实问题-都要修">二、但 Redis 确实有两个真实问题（都要修）</h2>
+<h3 id="问题-1-KEYS-周期性全阻塞-P0-依旧存在">问题 1：<code>KEYS</code> 周期性全阻塞（P0，依旧存在）</h3>
+<pre><code>SLOWLOG 128 条：KEYS 126 条、DEL 2 条
+单次耗时：0.50 ~ 0.67 秒        平均间隔：129 秒
+类别：token_user（登录踢下线）102 次、tracking 12 次、tracking_guest_dl 9 次、product_click 5 次
+样例：01:31:54  KEYS [敏感内容已脱敏]  513 ms
+      01:31:47  KEYS [敏感内容已脱敏]  542 ms
+</code></pre>
+<ul>
+<li>来源：后端 <code>203.0.113.1</code>，代码位置 <code>app/Services/User/UserService.php:1861</code>（多点登录踢下线）等 8 处。</li>
+<li>根因：<code>redis()</code> 用的 <strong>db1 有 1,739,744 个键</strong>，其中约 95% 是 `[敏感内容已脱敏] 是全库遍历，单线程 Redis 在这 0.5 秒内<strong>所有请求排队</strong>。</li>
+<li>影响：每 2 分钟一次全局停顿，登录越密集越频繁 → 接口偶发抖动。</li>
+</ul>
+<h3 id="问题-2-连接风暴-P0-P1-新发现">问题 2：连接风暴（P0/P1，新发现）</h3>
+<pre><code>20 秒窗口：新建连接 +8,780 个 ≈ 439 个/秒
+5 秒 MONITOR：出现过 2,037 个不同客户端连接
+CLIENT LIST 快照：只有 17 个连接在线，其中 14 个 age&lt;10 秒 → 连接寿命约 40 毫秒
+MONITOR 命令分布：GET 4,236、**SELECT 2,031**、EXPIRE 444、SETEX 373、SADD 302、INCRBY 231…
+</code></pre>
+<p>每个连接平均只服务 3~4 条命令就被关闭，而且每个连接都要发一次 <code>SELECT</code>（5 秒 2,031 次 <code>SELECT</code>，占总命令 25%）。</p>
+<p>结论：<strong>应用侧每次调用 <code>redis()</code> 都在新建连接、没有复用</strong>（未开启 pconnect / 无连接池）。代价是 TCP 握手 + Redis accept + <code>SELECT</code> 的开销全部由线上承担（累计连接数 19.7 亿），会拖慢接口并浪费 CPU。建议：</p>
+<ul>
+<li>开启持久连接（phpredis <code>pconnect</code>）或引入连接池；</li>
+<li>连接建立后只 SELECT 一次并复用；</li>
+<li>这一项与数据库流量无关，但和"接口偶发变慢"高度相关。</li>
+</ul>
+<h3 id="附-其他观察">附：其他观察</h3>
+<ul>
+<li><code>LATENCY</code> 监控未开启（返回 <code>[]</code> / "Latency monitoring is disabled"），所以拿不到延迟直方图；如需量化 P99，可临时开 <code>latency-monitor-threshold</code>（配置变更，需确认）。</li>
+<li>db2（<code>[queue] index = 2</code>）<strong>0 个键</strong> → 队列当前没有走 Redis；db0 只有 1 个键（<code>[session] adapter = Files</code>，session 落磁盘，符合配置）。</li>
+<li>db3（缓存）共 13,049 个键，热门键：<code>ph_system_config</code>、<code>ph_advbutton-popup</code>、<code>ph_jp_kf_config_list</code>、<code>ph_domain</code>、<code>ph_social_media</code>、<code>ph_config_dict</code>、<code>ph_lang_list</code>。</li>
+<li><strong>注意</strong>：<code>game_category</code>、<code>user_sign_config</code>、<code>app_version</code>、<code>user_task_list</code> 这些在数据库侧被查了上亿次的配置集合，<strong>在 Redis 里看不到对应缓存</strong>（见指南 B1）——这才是数据库压力的正主。</li>
+</ul>
+<hr/>
+<h2 id="三-同一时刻的数据库现状-对照用">三、同一时刻的数据库现状（对照用）</h2>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th style="text-align: right;">主库 203.0.113.1</th>
+<th style="text-align: right;">从库 server.db2.com</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>query</td>
+<td style="text-align: right;">313~380 /s</td>
+<td style="text-align: right;">192 /s</td>
+</tr>
+<tr>
+<td>getmore</td>
+<td style="text-align: right;">401~429 /s</td>
+<td style="text-align: right;">445 /s</td>
+</tr>
+<tr>
+<td>insert / update</td>
+<td style="text-align: right;">83 /s、20 /s</td>
+<td style="text-align: right;">0 / 0</td>
+</tr>
+<tr>
+<td>网络出</td>
+<td style="text-align: right;"><strong>2.3~3.4 MB/s</strong>（改造前约 107 MB/s）</td>
+<td style="text-align: right;"><strong>61.1 MB/s</strong></td>
+</tr>
+<tr>
+<td>复制延迟</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">主→从 1~2 秒</td>
+</tr>
+</tbody>
+</table>
+<p>主库侧扫描仍然很高：<strong>scanned 1,127,203 /s，但 returned 只有 1,920 /s → 放大 587 倍</strong>（改造前 returned 5,752/s、放大 222~299 倍）。</p>
+<p>解读：读分离生效了（主库输出从 107 MB/s 掉到 2.3 MB/s），但<strong>读放大没有解决</strong>，只是把压力搬到了从库。如果只做读分离不做缓存/投影，从库会重演主库之前的状况。</p>
+<hr/>
+<h2 id="四-建议动作顺序">四、建议动作顺序</h2>
+<table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>动作</th>
+<th>责任</th>
+<th>预期</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Redis：<code>KEYS</code> 改 <code>SCAN</code> / Set 索引（重点 <code>UserService.php:1861</code> 登录踢下线）</td>
+<td>后端</td>
+<td>消除每 129 秒一次的 0.5 秒阻塞</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Redis：开启连接复用（pconnect/连接池），避免 439 连接/秒</td>
+<td>后端</td>
+<td>降低连接与 CPU 开销，接口抖动减少</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Mongo：配置类集合进缓存（<code>game_category</code>/<code>user_sign_config</code>/<code>app_version</code>/<code>user_task_list</code>/<code>adv</code>），并做投影与批量查询</td>
+<td>后端</td>
+<td>把 scanned 从 113 万/s 降到十万级</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Mongo：给从库也做容量与读偏好复核（读分离后从库成为主要读节点）</td>
+<td>DBA</td>
+<td>从库 61 MB/s 回落</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>本包所有数据均为只读采集；唯一有性能影响的是 5 秒 MONITOR（已结束）。采样时间为凌晨低峰。</p>
+</blockquote>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-先回答-是不是-Redis-的问题">一、先回答「是不是 Redis 的问题」</a></li><li style="margin-left:0.0rem"><a href="#二-但-Redis-确实有两个真实问题-都要修">二、但 Redis 确实有两个真实问题（都要修）</a></li><li style="margin-left:0.8rem"><a href="#问题-1-KEYS-周期性全阻塞-P0-依旧存在">问题 1： KEYS 周期性全阻塞（P0，依旧存在）</a></li><li style="margin-left:0.8rem"><a href="#问题-2-连接风暴-P0-P1-新发现">问题 2：连接风暴（P0/P1，新发现）</a></li><li style="margin-left:0.8rem"><a href="#附-其他观察">附：其他观察</a></li><li style="margin-left:0.0rem"><a href="#三-同一时刻的数据库现状-对照用">三、同一时刻的数据库现状（对照用）</a></li><li style="margin-left:0.0rem"><a href="#四-建议动作顺序">四、建议动作顺序</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-10-17</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Redis</span><span class="tag">监控告警</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-17-0140-【排查】…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610170140-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-Redis%20%E5%8E%9F%E5%A7%8B%E6%95%B0%E6%8D%AE%E5%8C%85%20%C2%B7%20%E5%88%86%E6%9E%90%E7%BB%93%E8%AE%BA%EF%BC%882026-10-17%2001%EF%BC%9A30~01%EF%BC%9A36%20%E5%8C%97%E4%BA%AC%E6%97%B6%E9%97%B4%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Redis 原始数据包 · 分析结论（2026-10-17 01：30~01：36 北京时间）。本文属于业务系统运维 / 游点涩，采集对象： 203.0.113.1:6379 （线上唯一的 Redis，db0=session 占位 / db1=业务 redis() / db2=队列 / db3=缓存 cache(…</p>
+      <p>关键词：游点涩、Shell、Docker、Redis、监控告警、故障排查、源码与配置、业务系统运维、业务系统运维 / 游点涩、Redis 原始数据包 · 分析结论（2026-10-17 01：30~01：36 北京时间）、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f4c2c708517d.html"><small>上一篇</small>线上原始错误日志包（阅读指引 + 速查）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5b5d3fb54977.html"><small>下一篇</small>【日志包】线上异常日志分类清单（nginx / PHP / MongoDB / Redis）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5e3aaca84e42.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

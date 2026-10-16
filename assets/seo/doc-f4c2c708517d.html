@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>线上原始错误日志包（阅读指引 + 速查）｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="线上原始错误日志包（阅读指引 + 速查）。本文属于业务系统运维 / 游点涩，内容性质： 全部为服务器上的原始日志文件，未做删改 敏感值检查：已全量扫描 password / passwd / secret / token 等关键字， 未发现真实凭据 ；命中的全部是扫描器探测路径（如 /api/.htpasswd…">
+  <meta name="keywords" content="游点涩，Shell，Docker，Nginx，Redis，故障排查，业务系统运维，业务系统运维 / 游点涩，线上原始错误日志包（阅读指引 + 速查），php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f4c2c708517d.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f4c2c708517d.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610170125-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E7%BA%BF%E4%B8%8A%E5%8E%9F%E5%A7%8B%E9%94%99%E8%AF%AF%E6%97%A5%E5%BF%97%E5%8C%85%EF%BC%88%E9%98%85%E8%AF%BB%E6%8C%87%E5%BC%95%20%2B%20%E9%80%9F%E6%9F%A5%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="线上原始错误日志包（阅读指引 + 速查）">
+  <meta property="og:description" content="线上原始错误日志包（阅读指引 + 速查）。本文属于业务系统运维 / 游点涩，内容性质： 全部为服务器上的原始日志文件，未做删改 敏感值检查：已全量扫描 password / passwd / secret / token 等关键字， 未发现真实凭据 ；命中的全部是扫描器探测路径（如 /api/.htpasswd…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f4c2c708517d.html">
+  <meta property="article:published_time" content="2026-10-17T01:25:00+08:00">
+  <meta property="article:modified_time" content="2026-10-17 01:25">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="线上原始错误日志包（阅读指引 + 速查）">
+  <meta name="twitter:description" content="线上原始错误日志包（阅读指引 + 速查）。本文属于业务系统运维 / 游点涩，内容性质： 全部为服务器上的原始日志文件，未做删改 敏感值检查：已全量扫描 password / passwd / secret / token 等关键字， 未发现真实凭据 ；命中的全部是扫描器探测路径（如 /api/.htpasswd…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f4c2c708517d.html#article","headline":"线上原始错误日志包（阅读指引 + 速查）","description":"线上原始错误日志包（阅读指引 + 速查）。本文属于业务系统运维 / 游点涩，内容性质： 全部为服务器上的原始日志文件，未做删改 敏感值检查：已全量扫描 password / passwd / secret / token 等关键字， 未发现真实凭据 ；命中的全部是扫描器探测路径（如 /api/.htpasswd…","datePublished":"2026-10-17T01:25:00+08:00","dateModified":"2026-10-17 01:25","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Shell","Docker","Nginx","Redis","故障排查","业务系统运维","业务系统运维 / 游点涩","线上原始错误日志包（阅读指引 + 速查）","php"],"wordCount":984,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f4c2c708517d.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f4c2c708517d.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"线上原始错误日志包（阅读指引 + 速查）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f4c2c708517d.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>线上原始错误日志包（阅读指引 + 速查）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>线上原始错误日志包（阅读指引 + 速查）</h1>
+      <p class="lede">线上原始错误日志包（阅读指引 + 速查）。本文属于业务系统运维 / 游点涩，内容性质： 全部为服务器上的原始日志文件，未做删改 敏感值检查：已全量扫描 password / passwd / secret / token 等关键字， 未发现真实凭据 ；命中的全部是扫描器探测路径（如 /api/.htpasswd…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-17T01:25:00+08:00">发布于 2026-10-17</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">984 字</span>
+        <span class="badge">3 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-17-0125-【日志包】线上原始错误日志说明与排查指引.md</code></p>
+<p>整理日期：2026-10-17 01:25｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>采集时间：2026-10-17 01:15（北京时间）</li>
+<li>来源机器：后端 <code>16.209.16.108</code>（docker-youdianse-php 线上）、网关 <code>16.208.38.88</code>（H5/PC 回源入口）</li>
+<li>内容性质：<strong>全部为服务器上的原始日志文件，未做删改</strong></li>
+<li>敏感值检查：已全量扫描 <code>password / passwd / secret / token</code> 等关键字，<strong>未发现真实凭据</strong>；命中的全部是扫描器探测路径（如 <code>/api/.htpasswd</code>、<code>/api/secrets/settings.php</code>）与函数名（<code>password_hash()</code>）</li>
+</ul>
+<hr/>
+<h2 id="目录说明">目录说明</h2>
+<h3 id="01-应用错误日志-后端业务错误日志-JSON-行">01-应用错误日志/（后端业务错误日志，JSON 行）</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>error-2026-10-13.log.gz</code> ~ <code>error-2026-10-15.log.gz</code></td>
+<td>10-13 ~ 10-15 的压缩错误日志</td>
+</tr>
+<tr>
+<td><code>error-2026-10-16.log</code></td>
+<td>10-16 全天：<strong>1,865 条 ERROR</strong>，其中 <code>type=slow_api</code> <strong>1,792 条</strong></td>
+</tr>
+<tr>
+<td><code>error-2026-10-17.log</code></td>
+<td>10-17 当天到 01:15 为止：75 KB</td>
+</tr>
+</tbody>
+</table>
+<p>字段：<code>{"logId":..., "level":"ERROR", "data":{"type":"slow_api", "route":"...", "elapsed":"...", "request":{...}}}</code></p>
+<p>速查结论：错误量 99% 是「慢接口」记录，route 集中在 <code>recharge/create</code>（10-16 共 1,532 条）与 <code>spend/create2</code>（232 条），另有 <code>check_host_sign_failed</code> 11 条。</p>
+<h3 id="02-php-fpm错误与慢日志">02-php-fpm错误与慢日志/</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>master-error.log</code>（6.1 MB）</td>
+<td>FPM 主进程日志。含 <code>executing too slow</code>（例：<code>POST /index.php?_url=/api/v1/User/password</code>）；另有各 77 次的 <code>curl: (7) Failed to connect to 203.0.113.1 port N: Connection refused</code> 与 <code>sh: 1: free: not found</code> —— 说明容器内有个探活脚本既连不上本地端口、又缺少 <code>free</code> 命令，<strong>建议一并排查</strong></td>
+</tr>
+<tr>
+<td><code>worker-error.log</code></td>
+<td>业务 <code>error_log()</code> 输出，例：<code>[BlindBoxPool::delete] findFirst by ObjectId: null</code> 等调试行</td>
+</tr>
+<tr>
+<td><code>slow.log</code>（26.8 MB）</td>
+<td>PHP-FPM 慢日志，以调用栈输出。高频栈：<code>curl_exec</code>（<code>CommonUtil.php:278</code> → <code>PaymentService.php:954/1021</code>）、<code>MongoDbConnection::executeCommand</code>（<code>MongoDbConnection.php:68</code>）、<code>MongoModel::executeCommand</code>（<code>:490/:513</code>）、后台报表 <code>SystemController::getNewReportData</code></td>
+</tr>
+<tr>
+<td><code>access.log</code></td>
+<td>该文件为 0 字节（FPM 未启用 access 日志，保留占位）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="03-nginx错误日志-error-log-后端-18-5-MB">03-nginx错误日志/error.log（后端，18.5 MB）</h3>
+<p>近 3 MB 聚合：<code>an upstream response is buffered to a temporary file</code> <strong>6,942 次</strong>（响应体过大）、<code>recv() failed (104: Connection reset by peer)</code> <strong>642 次</strong>、<code>connect() failed (111: Connection refused)</code> <strong>302 次</strong>、<code>FastCGI sent in stderr: "Primary script unknown"</code> <strong>270 次</strong>（扫描器探测）、<code>upstream timed out</code> <strong>15 次</strong>。</p>
+<h3 id="04-非200请求明细-backend-access-non200-log">04-非200请求明细/backend-access-non200.log</h3>
+<p>后端 <code>access.log</code> 中<strong>所有非 200/204 的原始行</strong>（最新 2 万行截取）：404 <strong>2,117</strong>、499 <strong>65</strong>、444 <strong>18</strong>。
+404 TOP：<code>/api/v1/system/info</code> 393、<code>/api/sdk/system/info</code> 160、<code>/api/v1/game/detail</code> 135、<code>/api/v1/AppVersion/latestVersion</code> 121、<code>/api/v1/message/unreadCount</code> 89 —— 建议前端核对调用时机与版本兼容。</p>
+<h3 id="05-网关nginx错误日志-error-log-15-5-MB">05-网关nginx错误日志/error.log（15.5 MB）</h3>
+<p><code>limiting connections by zone "perip_ssr"</code> <strong>11,606 次</strong>（SSR 连接区被打满触发限流，与网关负载 11~15 一致）、<code>upstream prematurely closed connection</code> 59 次、<code>recv() failed</code> 36 次。</p>
+<h3 id="06-网关5xx请求明细-gateway-access-5xx-log">06-网关5xx请求明细/gateway-access-5xx.log</h3>
+<p>网关 <code>access.log</code> 中状态码 ≥ 500 的原始行（28 行）：<strong>502 共 22、500 共 6</strong>。
+其中 <code>/api/v1/Login/account</code> <strong>出现 8 次</strong>，另有 <code>/tag-code-detail/*</code>、<code>/api/v1/game/topPromotion</code> —— 登录 502 建议优先看。</p>
+<hr/>
+<h2 id="建议排查顺序-配合-优化实施指南">建议排查顺序（配合《优化实施指南》）</h2>
+<ol>
+<li><strong>支付下单慢</strong>：<code>02/slow.log</code> 搜 <code>sharkPayment</code> / <code>httpJson</code> / <code>curl_exec</code>；<code>01/</code> 里筛 <code>"route":"recharge/create"</code> → 对应指南 B5（支付 HTTP 加超时）。</li>
+<li><strong>登录 502</strong>：<code>06/</code> 里筛 <code>/api/v1/Login/account</code>，再对照 <code>05/</code> 的 <code>upstream prematurely closed</code>；同时看 <code>02/master-error.log</code> 的 <code>executing too slow</code>。</li>
+<li><strong>Mongo 慢命令</strong>：<code>02/slow.log</code> 搜 <code>MongoDbConnection</code> / <code>MongoModel</code> → 对应指南 B1/B2/B3（缓存、消除重复查询、投影）与 D1（profiling）。</li>
+<li><strong>404 噪音</strong>：<code>04/</code> 里的 <code>system/info</code>、<code>game/detail</code> 等，核对前端调用时机/App 版本。</li>
+<li><strong>FPM 探活失败</strong>：<code>02/master-error.log</code> 里 <code>curl: (7) ... 203.0.113.1 ... Connection refused</code> 与 <code>sh: 1: free: not found</code>（各 77 次）。</li>
+<li><strong>Redis 阻塞</strong>：本包不含 Redis 日志；见《优化实施指南》第六章（业务用 <code>KEYS</code> 每 153 秒阻塞 0.5 秒）。</li>
+</ol>
+<blockquote>
+<p>需要更多原始数据时可直接找运维要：完整 <code>access.log</code>（后端 177 MB / 网关 848 MB）、<code>api_request</code>/<code>api_response</code>（含完整请求响应体，涉及用户数据，按需单独提供）。</p>
+</blockquote>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#目录说明">目录说明</a></li><li style="margin-left:0.8rem"><a href="#01-应用错误日志-后端业务错误日志-JSON-行">01-应用错误日志/（后端业务错误日志，JSON 行）</a></li><li style="margin-left:0.8rem"><a href="#02-php-fpm错误与慢日志">02-php-fpm错误与慢日志/</a></li><li style="margin-left:0.8rem"><a href="#03-nginx错误日志-error-log-后端-18-5-MB">03-nginx错误日志/error.log（后端，18.5 MB）</a></li><li style="margin-left:0.8rem"><a href="#04-非200请求明细-backend-access-non200-log">04-非200请求明细/backend-access-non200.log</a></li><li style="margin-left:0.8rem"><a href="#05-网关nginx错误日志-error-log-15-5-MB">05-网关nginx错误日志/error.log（15.5 MB）</a></li><li style="margin-left:0.8rem"><a href="#06-网关5xx请求明细-gateway-access-5xx-log">06-网关5xx请求明细/gateway-access-5xx.log</a></li><li style="margin-left:0.0rem"><a href="#建议排查顺序-配合-优化实施指南">建议排查顺序（配合《优化实施指南》）</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-10-17</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">Redis</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-17-0125-【日志包…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610170125-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E7%BA%BF%E4%B8%8A%E5%8E%9F%E5%A7%8B%E9%94%99%E8%AF%AF%E6%97%A5%E5%BF%97%E5%8C%85%EF%BC%88%E9%98%85%E8%AF%BB%E6%8C%87%E5%BC%95%20%2B%20%E9%80%9F%E6%9F%A5%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>线上原始错误日志包（阅读指引 + 速查）。本文属于业务系统运维 / 游点涩，内容性质： 全部为服务器上的原始日志文件，未做删改 敏感值检查：已全量扫描 password / passwd / secret / token 等关键字， 未发现真实凭据 ；命中的全部是扫描器探测路径（如 /api/.htpasswd…</p>
+      <p>关键词：游点涩、Shell、Docker、Nginx、Redis、故障排查、业务系统运维、业务系统运维 / 游点涩、线上原始错误日志包（阅读指引 + 速查）、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-49b574b1f55b.html"><small>上一篇</small>【优化方案】后端 / 前端 / 数据库流量优化实施指南（逐步可执行）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5e3aaca84e42.html"><small>下一篇</small>Redis 原始数据包 · 分析结论（2026-10-17 01：30~01：36 北京时间）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f4c2c708517d.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
