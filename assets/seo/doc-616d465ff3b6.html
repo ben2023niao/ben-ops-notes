@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【问题排查】albwhite.txt / albwhitesecret.txt 缺失导致新游戏回调被拒（线上 + 测试环境已修复）（2026-10-18 · f3b6）｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="【问题排查】albwhite.txt / albwhitesecret.txt 缺失导致新游戏回调被拒（线上 + 测试环境已修复）。本文属于业务系统运维 / 游点涩，反馈：番子反馈「正式服 alb_white.txt / alb_white_secret.txt 最新一些游戏的游戏配置都没了」，测试环境同样问题…">
+  <meta name="keywords" content="游点涩，Shell，Python，Docker，监控告警，自动化，安全运维，故障排查，业务系统运维，业务系统运维 / 游点涩，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-616d465ff3b6.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-616d465ff3b6.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610181515-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91albwhite.txt%20-%20albwhitesecret.txt%20%E7%BC%BA%E5%A4%B1%E5%AF%BC%E8%87%B4%E6%96%B0%E6%B8%B8%E6%88%8F%E5%9B%9E%E8%B0%83%E8%A2%AB%E6%8B%92%EF%BC%88%E7%BA%BF%E4%B8%8A%20%2B%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E5%B7%B2%E4%BF%AE%E5%A4%8D%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【问题排查】albwhite.txt / albwhitesecret.txt 缺失导致新游戏回调被拒（线上 + 测试环境已修复）（2026-10-18 · f3b6）">
+  <meta property="og:description" content="【问题排查】albwhite.txt / albwhitesecret.txt 缺失导致新游戏回调被拒（线上 + 测试环境已修复）。本文属于业务系统运维 / 游点涩，反馈：番子反馈「正式服 alb_white.txt / alb_white_secret.txt 最新一些游戏的游戏配置都没了」，测试环境同样问题…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-616d465ff3b6.html">
+  <meta property="article:published_time" content="2026-10-18T15:15:00+08:00">
+  <meta property="article:modified_time" content="2026-10-18 15:15">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【问题排查】albwhite.txt / albwhitesecret.txt 缺失导致新游戏回调被拒（线上 + 测试环境已修复）（2026-10-18 · f3b6）">
+  <meta name="twitter:description" content="【问题排查】albwhite.txt / albwhitesecret.txt 缺失导致新游戏回调被拒（线上 + 测试环境已修复）。本文属于业务系统运维 / 游点涩，反馈：番子反馈「正式服 alb_white.txt / alb_white_secret.txt 最新一些游戏的游戏配置都没了」，测试环境同样问题…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-616d465ff3b6.html#article","headline":"【问题排查】albwhite.txt / albwhitesecret.txt 缺失导致新游戏回调被拒（线上 + 测试环境已修复）（2026-10-18 · f3b6）","description":"【问题排查】albwhite.txt / albwhitesecret.txt 缺失导致新游戏回调被拒（线上 + 测试环境已修复）。本文属于业务系统运维 / 游点涩，反馈：番子反馈「正式服 alb_white.txt / alb_white_secret.txt 最新一些游戏的游戏配置都没了」，测试环境同样问题…","datePublished":"2026-10-18T15:15:00+08:00","dateModified":"2026-10-18 15:15","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Shell","Python","Docker","监控告警","自动化","安全运维","故障排查","业务系统运维","业务系统运维 / 游点涩","php"],"wordCount":1995,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-616d465ff3b6.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-616d465ff3b6.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【问题排查】albwhite.txt / albwhitesecret.txt 缺失导致新游戏回调被拒（线上 + 测试环境已修复）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-616d465ff3b6.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>【问题排查】albwhite.txt / albwhitesecret.txt 缺失导致新游戏回调被拒（线上 + 测试环境已修复）（2026-10-18 · f3b6）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>【问题排查】albwhite.txt / albwhitesecret.txt 缺失导致新游戏回调被拒（线上 + 测试环境已修复）（2026-10-18 · f3b6）</h1>
+      <p class="lede">【问题排查】albwhite.txt / albwhitesecret.txt 缺失导致新游戏回调被拒（线上 + 测试环境已修复）。本文属于业务系统运维 / 游点涩，反馈：番子反馈「正式服 alb_white.txt / alb_white_secret.txt 最新一些游戏的游戏配置都没了」，测试环境同样问题…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-18T15:15:00+08:00">发布于 2026-10-18</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,995 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-18-1515-【问题排查】alb_white 白名单缺失导致游戏回调被拒（线上+测试环境已修复）.md</code></p>
+<p>整理日期：2026-10-18 15:15｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>时间：2026-10-18 15:05 ~ 15:20（北京时间）</li>
+<li>反馈：番子反馈「正式服 alb_white.txt / alb_white_secret.txt 最新一些游戏的游戏配置都没了」，测试环境同样问题</li>
+<li>结论：<strong>配置仓库里的文件是全的，但容器里跑的是镜像构建时 COPY 进去的旧副本</strong>（线上 9-23 版本、测试环境同源），新平台主机不在其中 → 回调被拒</li>
+</ul>
+<h2 id="一-现象与证据">一、现象与证据</h2>
+<h3 id="错误日志-线上-runtime-app-logs-error-2026-10-18-log">错误日志（线上 <code>runtime/app-logs/error-2026-10-18.log</code>）</h3>
+<pre><code>10-18 全天（修复前）：check_host_sign_failed 约 8.9 万条
+  step：decrypt_host_sign_empty 60,676 条 / host_not_in_whitelist 37,419 条
+  platform TOP：xjzx 37,419、xiaochou 23,200、xmbl 15,009、slzwl 7,505
+
+15:14 分（修复前最后一分钟）：154 条
+15:15 起：0 条（已恢复）
+</code></pre>
+<p>典型报错（注意 <code>hosts_count</code>）：</p>
+<pre><code class="language-json">{"type":"check_host_sign_failed","step":"host_not_in_whitelist",
+ "platform":"xiaochou","host":"www.dsrasfasd324gsd32fas.com","hosts_count":25}
+</code></pre>
+<p>而修复后容器内实际有 <strong>34 条主机</strong>（<code>grep -v '^#'</code> 计数）——说明运行中的 PHP 读到的仍是旧文件（25 条）。</p>
+<h3 id="三处文件版本对比-修复前">三处文件版本对比（修复前）</h3>
+<table>
+<thead>
+<tr>
+<th>环境</th>
+<th>配置仓库（权威）</th>
+<th>app 源码目录</th>
+<th>容器（web/cron）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>线上</td>
+<td><code>alb_white.txt</code> <strong>69 行</strong>（md5 17830c89）</td>
+<td>37 行（2f12c2e4，9-23）</td>
+<td>37 行（2f12c2e4）</td>
+</tr>
+<tr>
+<td>线上</td>
+<td><code>alb_white_secret.txt</code> <strong>60 行</strong>（ee465eea）</td>
+<td>36 行（4e9bf4d2，6-8/9-7）</td>
+<td>36 行</td>
+</tr>
+<tr>
+<td>测试 15.152.247.196</td>
+<td><code>alb_white.txt</code> <strong>81 行</strong>（b6e416e5）</td>
+<td>37 行（2f12c2e4）</td>
+<td>37 行</td>
+</tr>
+<tr>
+<td>测试 15.152.247.196</td>
+<td><code>alb_white_secret.txt</code> <strong>46 行</strong>（22644a26）</td>
+<td>26 行（68c67118）</td>
+<td>26 行</td>
+</tr>
+</tbody>
+</table>
+<h2 id="二-根因">二、根因</h2>
+<p>这两个文件的生命周期有三段，<strong>只有第一段是自动的</strong>：</p>
+<pre><code>① 配置仓库 config-main/app-local-files/*  →（配置发布 sync_config_repo）→ ② /opt/docker-youdianse-php/cicd-web/runtime/app-local-files/*（宿主机暂存）
+③ 容器内 /var/www/html/youdianse-php/alb_white*.txt
+</code></pre>
+<ul>
+<li>第 ③ 段<strong>不是 bind mount</strong>（<code>docker inspect</code> 里只有 .env / php ini / 日志目录四个挂载），而是靠发布流程里的 <code>docker cp</code> 写入。</li>
+<li>镜像本身 <code>COPY ${APP_SOURCE_DIR}/</code> 会把 <strong>app 源码目录里的旧副本</strong>打进镜像；容器重建后先是旧文件，只有发布流程执行到 <code>docker cp</code> 才会被覆盖成新文件。</li>
+<li>本次线上容器是 10-17 03:00 由 <code>main-e5c9883a200a</code> 重建的，重建后拿到的就是 app 源码目录里 <strong>9-23 的 37 行版本</strong>，之后没有再把配置仓库那份 cp 进去 → 新增平台全部缺失。</li>
+<li>另外 <code>cicd-web/core.py:backup_existing_protected_app_local_files()</code> 的判断是「app 源码目录里的文件与暂存不同 → 视为 dirty → 用 app 源码覆盖暂存」，所以<strong>源码目录里的旧副本会反向污染配置</strong>，必须保持两者一致。</li>
+</ul>
+<h2 id="三-处置-已完成-线上-测试">三、处置（已完成，线上 + 测试）</h2>
+<ol>
+<li>以配置仓库为准，写回 app 源码目录（保证后续构建/发布不会再用旧副本）</li>
+<li>用 <code>docker cp</code> 写入运行中的 web + cron 容器（立即生效，无需重启）</li>
+<li>修权限 <code>root:www-data 0640</code>（PHP-FPM 以 www-data 运行）</li>
+<li>三方一致性校验</li>
+</ol>
+<h3 id="修复结果">修复结果</h3>
+<table>
+<thead>
+<tr>
+<th>环境</th>
+<th>alb_white.txt</th>
+<th>alb_white_secret.txt</th>
+<th>校验</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>线上</td>
+<td>69 行（17830c89）</td>
+<td>60 行（ee465eea）</td>
+<td>配置仓库 = 源目录 = web = cron ✅</td>
+</tr>
+<tr>
+<td>测试</td>
+<td>81 行（b6e416e5）</td>
+<td>46 行（22646a26）</td>
+<td>配置仓库 = 源目录 = web = cron ✅</td>
+</tr>
+</tbody>
+</table>
+<h3 id="恢复的平台-线上-alb_white-txt-段头差异">恢复的平台（线上，<code>alb_white.txt</code> 段头差异）</h3>
+<pre><code>小丑、开炮 线上测试服、开炮 线上生产服、时空之契、星姬调教工坊、星梦伴侣 Ai、
+桃色西遊、深蓝终末录、绯色魂环、艳姬征服、血姬战线
+</code></pre>
+<h3 id="效果">效果</h3>
+<ul>
+<li>线上：<code>check_host_sign_failed</code> 15:14 的 154 条/分 → <strong>15:15 起 0 条</strong></li>
+<li>测试：最后一 条 15:13:56，之后无新增</li>
+</ul>
+<h2 id="四-防复发">四、防复发</h2>
+<ol>
+<li><strong>发布流程</strong>：发布/配置同步后必须把 <code>app-local-files</code> 里的受保护文件 <code>docker cp</code> 进容器（当前缺这一步），或在容器重建后补跑一次。</li>
+<li><strong>一致性巡检</strong>：新增脚本 <code>ops/production/scripts/check-app-local-files.sh</code>，发布前后各跑一次：</li>
+</ol>
+<pre><code class="language-bash">sudo bash ops/production/scripts/check-app-local-files.sh     # 0=三处一致；1=不一致并给出修复命令
+</code></pre>
+<ol start="3">
+<li><strong>源码目录不要手改</strong>这两个文件：以配置仓库为唯一来源；源码目录由脚本同步，避免反向污染暂存。</li>
+<li><strong>可选的彻底方案</strong>：把 <code>app-local-files</code> 目录整体挂载进容器（注意不能单文件 bind mount——配置同步用 rename 原子写，会导致容器看到旧 inode），或让应用从固定路径读取挂载目录。</li>
+</ol>
+<hr/>
+<h2 id="五-彻底修复-把检查做进-CICD-发布-2026-10-18-15-20-已上线">五、彻底修复：把检查做进 CICD 发布（2026-10-18 15:20 已上线）</h2>
+<h3 id="5-1-定位到的真正污染点">5.1 定位到的真正污染点</h3>
+<p>翻 CICD 代码发现发布流程里有一个反向覆盖：</p>
+<pre><code class="language-python"># cicd-web/core.py  backup_existing_protected_app_local_files()
+if name in dirty_names:
+    shutil.copy2(app_source, local_source)   # ← 用「业务源码目录」的旧副本覆盖「服务器本地源」
+</code></pre>
+<p>而「服务器本地源」正是配置仓库同步出来的权威副本。也就是说：只要业务源码目录里的 <code>alb_white.txt</code> 是旧的且被判定为 dirty，发布就会把权威副本改成旧的，随后 <code>docker cp</code> 进容器的自然是旧白名单。</p>
+<p>同时还有个隐藏 bug：<code>git_status_path()</code> 用固定偏移 <code>line[3:]</code> 解析 <code>git status --porcelain</code> 输出，而 <code>run_cmd</code> 会 strip 掉行首空格 → <strong>dirty 永远检测为空</strong>，逻辑时灵时不灵。</p>
+<h3 id="5-2-三层修复-均已上线">5.2 三层修复（均已上线）</h3>
+<p><strong>第 1 层：阻断污染源</strong></p>
+<ul>
+<li><code>git_status_path()</code> 改为正则剥离状态位，脏文件检测恢复正常</li>
+<li><code>backup_existing_protected_app_local_files()</code>：本地源（配置仓库）为唯一权威</li>
+<li>业务目录与本地源不一致时：把业务目录版本<strong>留档</strong>到 <code>cicd-web/runtime/app-local-file-backups/&lt;name&gt;.appdir-dirty.&lt;时间戳&gt;</code>，并打印 <code>WARN</code></li>
+<li>然后用本地源覆盖业务目录（保证后续 <code>git checkout</code> 前后内容一致）</li>
+<li><strong>不再</strong>把业务目录版本回写本地源</li>
+</ul>
+<p><strong>第 2 层：发布后强制校验（不一致即判发布失败）</strong></p>
+<ul>
+<li>新增 <code>verify_protected_app_local_files_in_containers()</code>：对每个受保护文件计算源文件 <code>sha256</code>，再 <code>docker exec sha256sum</code> 取容器内值比对</li>
+<li>接入两处：<code>run_deploy()</code>（正常发布，<code>up_services</code> 之后）与 <code>sync_runtime_config_no_build()</code>（运行配置同步，force-recreate 之后）</li>
+<li>不一致 → 抛 <code>DeployError</code>，发布状态不会再显示 SUCCESS</li>
+</ul>
+<p><strong>第 3 层：可巡检</strong></p>
+<ul>
+<li>新增 CLI：<code>cicd-web.py check-app-local</code> → 输出 <code>本地配置文件校验：PASS / FAIL</code>，退出码 0/1</li>
+<li>同一份逻辑也可用于 cron 巡检（监控机定时跑即可）</li>
+</ul>
+<h3 id="5-3-实测记录-线上">5.3 实测记录（线上）</h3>
+<pre><code># 只读校验
+$ python3 cicd-web.py check-app-local
+本地配置文件校验通过：youdianse-main-php-web / alb_white.txt（d17081a1fd96）
+本地配置文件校验通过：youdianse-main-php-cron / alb_white.txt（d17081a1fd96）
+本地配置文件校验通过：youdianse-main-php-web / alb_white_secret.txt（9121f8801afe）
+本地配置文件校验通过：youdianse-main-php-cron / alb_white_secret.txt（9121f8801afe）
+本地配置文件校验：PASS
+
+# 污染防护验证（故意往业务源码目录追加一行）
+dirty = ['alb_white.txt']
+WARN 业务目录中的 alb_white.txt 与服务器本地源不一致；已留档 alb_white.txt.appdir-dirty.20261018-152053，以服务器本地源（配置仓库）为准，不再回写本地源
+→ 权威副本 md5 保持不变（17830c89），业务目录已按权威副本恢复
+</code></pre>
+<h3 id="5-4-部署与回滚">5.4 部署与回滚</h3>
+<pre><code class="language-bash"># 已执行
+sudo cp -a /opt/docker-youdianse-php/cicd-web/core.py /opt/docker-youdianse-php/cicd-web/core.py.bak.20261018-151954-applocal
+sudo cp -a /opt/docker-youdianse-php/cicd-web/cli.py  /opt/docker-youdianse-php/cicd-web/cli.py.bak.20261018-151954-applocal
+# 替换 core.py / cli.py 后
+sudo systemctl restart cicd-web.service
+
+# 回滚
+sudo cp -a /opt/docker-youdianse-php/cicd-web/core.py.bak.20261018-151954-applocal /opt/docker-youdianse-php/cicd-web/core.py
+sudo cp -a /opt/docker-youdianse-php/cicd-web/cli.py.bak.20261018-151954-applocal  /opt/docker-youdianse-php/cicd-web/cli.py
+sudo systemctl restart cicd-web.service
+</code></pre>
+<h3 id="5-5-仍然建议-长期-需应用配合">5.5 仍然建议（长期，需应用配合）</h3>
+<p>把 <code>app-local-files</code> <strong>目录</strong>挂载进容器（例如 <code>/var/www/html/youdianse-php/config-data</code>），应用改为从该目录读取，镜像内用软链指向；这样连 <code>docker cp</code> 都不再需要，重建容器也不会丢。注意不要做单文件 bind mount（配置同步用 rename 原子写，容器会一直看到旧 inode）。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-现象与证据">一、现象与证据</a></li><li style="margin-left:0.8rem"><a href="#错误日志-线上-runtime-app-logs-error-2026-10-18-log">错误日志（线上 runtime/app-logs/error-2026-10-18.log ）</a></li><li style="margin-left:0.8rem"><a href="#三处文件版本对比-修复前">三处文件版本对比（修复前）</a></li><li style="margin-left:0.0rem"><a href="#二-根因">二、根因</a></li><li style="margin-left:0.0rem"><a href="#三-处置-已完成-线上-测试">三、处置（已完成，线上 + 测试）</a></li><li style="margin-left:0.8rem"><a href="#修复结果">修复结果</a></li><li style="margin-left:0.8rem"><a href="#恢复的平台-线上-alb_white-txt-段头差异">恢复的平台（线上， alb_white.txt 段头差异）</a></li><li style="margin-left:0.8rem"><a href="#效果">效果</a></li><li style="margin-left:0.0rem"><a href="#四-防复发">四、防复发</a></li><li style="margin-left:0.0rem"><a href="#五-彻底修复-把检查做进-CICD-发布-2026-10-18-15-20-已上线">五、彻底修复：把检查做进 CICD 发布（2026-10-18 15:20 已上线）</a></li><li style="margin-left:0.8rem"><a href="#5-1-定位到的真正污染点">5.1 定位到的真正污染点</a></li><li style="margin-left:0.8rem"><a href="#5-2-三层修复-均已上线">5.2 三层修复（均已上线）</a></li><li style="margin-left:0.8rem"><a href="#5-3-实测记录-线上">5.3 实测记录（线上）</a></li><li style="margin-left:0.8rem"><a href="#5-4-部署与回滚">5.4 部署与回滚</a></li><li style="margin-left:0.8rem"><a href="#5-5-仍然建议-长期-需应用配合">5.5 仍然建议（长期，需应用配合）</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-10-18</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">监控告警</span><span class="tag">自动化</span><span class="tag">安全运维</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-18-1515-【问题排…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610181515-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91albwhite.txt%20-%20albwhitesecret.txt%20%E7%BC%BA%E5%A4%B1%E5%AF%BC%E8%87%B4%E6%96%B0%E6%B8%B8%E6%88%8F%E5%9B%9E%E8%B0%83%E8%A2%AB%E6%8B%92%EF%BC%88%E7%BA%BF%E4%B8%8A%20%2B%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E5%B7%B2%E4%BF%AE%E5%A4%8D%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【问题排查】albwhite.txt / albwhitesecret.txt 缺失导致新游戏回调被拒（线上 + 测试环境已修复）。本文属于业务系统运维 / 游点涩，反馈：番子反馈「正式服 alb_white.txt / alb_white_secret.txt 最新一些游戏的游戏配置都没了」，测试环境同样问题…</p>
+      <p>关键词：游点涩、Shell、Python、Docker、监控告警、自动化、安全运维、故障排查、业务系统运维、业务系统运维 / 游点涩、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e8fb240fd737.html"><small>上一篇</small>【问题排查】albwhite.txt / albwhitesecret.txt 缺失导致新游戏回调被拒（线上 + 测试环境已修复）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ac7f0a8c044c.html"><small>下一篇</small>【取证】albwhite 白名单事故：登录来源与修改来源（多机日志 + 镜像取证）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-616d465ff3b6.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

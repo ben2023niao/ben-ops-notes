@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【取证】albwhite 白名单事故：登录来源与修改来源（多机日志 + 镜像取证）（2026-10-18 · 5222）｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="【取证】albwhite 白名单事故：登录来源与修改来源（多机日志 + 镜像取证）。本文属于业务系统运维 / 游点涩，数据源：各机 sshd 登录日志（auth.log*）、 sudo 命令审计（auth.log 中 COMMAND= ）、 ~/.bash_history 、镜像内容、git 提交历史、CICD…">
+  <meta name="keywords" content="游点涩，Linux，Shell，Docker，监控告警，自动化，安全运维，故障排查，业务系统运维，业务系统运维 / 游点涩，【取证】albwhite 白名单事故：登录来源与修改来源（多机日志 + 镜像取证），php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-238582805222.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-238582805222.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610181545-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E3%80%90%E5%8F%96%E8%AF%81%E3%80%91albwhite%20%E7%99%BD%E5%90%8D%E5%8D%95%E4%BA%8B%E6%95%85%EF%BC%9A%E7%99%BB%E5%BD%95%E6%9D%A5%E6%BA%90%E4%B8%8E%E4%BF%AE%E6%94%B9%E6%9D%A5%E6%BA%90%EF%BC%88%E5%A4%9A%E6%9C%BA%E6%97%A5%E5%BF%97%20%2B%20%E9%95%9C%E5%83%8F%E5%8F%96%E8%AF%81%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【取证】albwhite 白名单事故：登录来源与修改来源（多机日志 + 镜像取证）（2026-10-18 · 5222）">
+  <meta property="og:description" content="【取证】albwhite 白名单事故：登录来源与修改来源（多机日志 + 镜像取证）。本文属于业务系统运维 / 游点涩，数据源：各机 sshd 登录日志（auth.log*）、 sudo 命令审计（auth.log 中 COMMAND= ）、 ~/.bash_history 、镜像内容、git 提交历史、CICD…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-238582805222.html">
+  <meta property="article:published_time" content="2026-10-18T15:45:00+08:00">
+  <meta property="article:modified_time" content="2026-10-18 15:45">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【取证】albwhite 白名单事故：登录来源与修改来源（多机日志 + 镜像取证）（2026-10-18 · 5222）">
+  <meta name="twitter:description" content="【取证】albwhite 白名单事故：登录来源与修改来源（多机日志 + 镜像取证）。本文属于业务系统运维 / 游点涩，数据源：各机 sshd 登录日志（auth.log*）、 sudo 命令审计（auth.log 中 COMMAND= ）、 ~/.bash_history 、镜像内容、git 提交历史、CICD…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-238582805222.html#article","headline":"【取证】albwhite 白名单事故：登录来源与修改来源（多机日志 + 镜像取证）（2026-10-18 · 5222）","description":"【取证】albwhite 白名单事故：登录来源与修改来源（多机日志 + 镜像取证）。本文属于业务系统运维 / 游点涩，数据源：各机 sshd 登录日志（auth.log*）、 sudo 命令审计（auth.log 中 COMMAND= ）、 ~/.bash_history 、镜像内容、git 提交历史、CICD…","datePublished":"2026-10-18T15:45:00+08:00","dateModified":"2026-10-18 15:45","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Linux","Shell","Docker","监控告警","自动化","安全运维","故障排查","业务系统运维","业务系统运维 / 游点涩","【取证】albwhite 白名单事故：登录来源与修改来源（多机日志 + 镜像取证）","php"],"wordCount":2319,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-238582805222.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-238582805222.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【取证】albwhite 白名单事故：登录来源与修改来源（多机日志 + 镜像取证）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-238582805222.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>【取证】albwhite 白名单事故：登录来源与修改来源（多机日志 + 镜像取证）（2026-10-18 · 5222）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>【取证】albwhite 白名单事故：登录来源与修改来源（多机日志 + 镜像取证）（2026-10-18 · 5222）</h1>
+      <p class="lede">【取证】albwhite 白名单事故：登录来源与修改来源（多机日志 + 镜像取证）。本文属于业务系统运维 / 游点涩，数据源：各机 sshd 登录日志（auth.log*）、 sudo 命令审计（auth.log 中 COMMAND= ）、 ~/.bash_history 、镜像内容、git 提交历史、CICD…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-18T15:45:00+08:00">发布于 2026-10-18</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,319 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-18-1545-【取证】alb_white 事故登录与修改来源（多机日志+镜像取证）.md</code></p>
+<p>整理日期：2026-10-18 15:45｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>取证时间：2026-10-18 15:25 ~ 15:45（北京时间）</li>
+<li>范围：后端 16.209.16.108、网关 16.208.38.88、监控机 52.79.252.255、定时任务机 16.208.32.40</li>
+<li>数据源：各机 <code>sshd</code> 登录日志（auth.log*）、<code>sudo</code> 命令审计（auth.log 中 <code>COMMAND=</code>）、<code>~/.bash_history</code>、镜像内容、git 提交历史、CICD 产物</li>
+<li>结论：<strong>没有开发或外部人员登录线上修改白名单</strong>；问题由「镜像烘焙了旧副本 + 容器重建后未同步权威文件」的流程缺陷造成，叠加运维手工 <code>docker cp</code> 用错了来源（源码目录旧副本）。</li>
+</ul>
+<h2 id="一-登录来源统计-2026-10-16-10-18">一、登录来源统计（2026-10-16 ~ 10-18）</h2>
+<h3 id="1-1-后端-16-209-16-108">1.1 后端 16.209.16.108</h3>
+<table>
+<thead>
+<tr>
+<th>来源 IP</th>
+<th style="text-align: right;">次数</th>
+<th>性质</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>52.79.252.255</td>
+<td style="text-align: right;">23,591</td>
+<td>我们的监控机（CC 守卫 / 巡检自动化）</td>
+</tr>
+<tr>
+<td>16.208.32.40</td>
+<td style="text-align: right;">5,416</td>
+<td>线上定时任务机（<code>ip-172-31-20-69</code>，跑 <code>docker exec … shell.php Crontab …</code>、<code>docker stats</code> 巡检）</td>
+</tr>
+<tr>
+<td>112.207.100.18</td>
+<td style="text-align: right;">142</td>
+<td>运维本机公网 IP（内部文档 2026-08-18 已记录为「本机真实公网 IP」）</td>
+</tr>
+<tr>
+<td>（空/本地）</td>
+<td style="text-align: right;">7</td>
+<td>PAM 内部记录</td>
+</tr>
+</tbody>
+</table>
+<h3 id="1-2-网关-16-208-38-88">1.2 网关 16.208.38.88</h3>
+<table>
+<thead>
+<tr>
+<th>来源 IP</th>
+<th style="text-align: right;">次数</th>
+<th>性质</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>52.79.252.255</td>
+<td style="text-align: right;">44,000</td>
+<td>监控机</td>
+</tr>
+<tr>
+<td>16.209.16.108</td>
+<td style="text-align: right;">670</td>
+<td>后端机（自动化调用）</td>
+</tr>
+<tr>
+<td>112.207.100.18</td>
+<td style="text-align: right;">37</td>
+<td>运维本机</td>
+</tr>
+</tbody>
+</table>
+<h3 id="1-3-监控机-52-79-252-255">1.3 监控机 52.79.252.255</h3>
+<table>
+<thead>
+<tr>
+<th>来源 IP</th>
+<th style="text-align: right;">次数</th>
+<th>性质</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>112.207.100.18</td>
+<td style="text-align: right;">171</td>
+<td>运维本机</td>
+</tr>
+</tbody>
+</table>
+<h3 id="1-4-定时任务机-16-208-32-40">1.4 定时任务机 16.208.32.40</h3>
+<table>
+<thead>
+<tr>
+<th>来源 IP</th>
+<th style="text-align: right;">次数</th>
+<th>性质</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>112.207.100.18</td>
+<td style="text-align: right;">3</td>
+<td>运维本机</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>补充：<code>112.112.210.164</code> 只在 <strong>10-15</strong> 出现 8 次（事故窗口之外），与本次无关。
+<strong>没有任何其它 IP</strong> 出现在上述四台机器的成功登录记录里 —— 即没有开发或外部人员登录线上。
+堡垒机：仓库里只有 <code>data/scripts/堡垒机/.benbot.json</code> 入口，没有 JumpServer 审计查询脚本或凭据；本次用各机 sshd/sudo/history 做了等价取证。如堡垒机有会话录像，建议按 <code>10-17 02:00~03:00</code> 回放复核一次。</p>
+</blockquote>
+<h2 id="二-人工操作痕迹-shell-历史">二、人工操作痕迹（shell 历史）</h2>
+<h3 id="2-1-root-历史-文件-mtime-2026-10-16-15-28">2.1 root 历史（文件 mtime 2026-10-16 15:28）</h3>
+<pre><code class="language-bash">sudo docker exec youdianse-main-php-web chgrp www-data /var/www/html/youdianse-php/alb_white.txt ...
+sudo docker cp /opt/docker-youdianse-php/src/youdianse-php/alb_white.txt       youdianse-main-php-cron:/var/www/html/youdianse-php/alb_white.txt
+sudo docker cp /opt/docker-youdianse-php/src/youdianse-php/alb_white_secret.txt youdianse-main-php-cron:/var/www/html/youdianse-php/alb_white_secret.txt
+</code></pre>
+<p>→ <strong>手工把「源码目录」的副本 cp 进了 cron 容器</strong>，而源码目录那份正是 9-23 的旧版本（37 行）。这是「用错来源」的直接痕迹。</p>
+<h3 id="2-2-ubuntu-历史-文件-mtime-2026-10-17-02-33">2.2 ubuntu 历史（文件 mtime 2026-10-17 02:33）</h3>
+<pre><code class="language-bash">sudo echo "tsxy=pord****" &gt;&gt; alb_white_secret.txt     # 值已脱敏
+cat alb_white_secret.txt
+</code></pre>
+<p>→ 手工往本地 <code>alb_white_secret.txt</code> 追加平台密钥（<code>tsxy</code>），属于正常补配置动作；该键目前已在配置仓库与容器中（21 个平台键）。</p>
+<h3 id="2-3-没有找到的证据">2.3 没有找到的证据</h3>
+<ul>
+<li>10-13 ~ 10-18 没有 <code>vi/vim/nano/tee/install/sed -i</code> 直接改写线上 <code>alb_white.txt</code> 的 sudo 记录（除本次修复）。</li>
+<li>没有开发者账号（非 ubuntu/root）登录记录。</li>
+</ul>
+<h2 id="三-事故时间线-关键">三、事故时间线（关键）</h2>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>事件</th>
+<th>证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10-13 21:14</td>
+<td>配置仓库写入最新 alb_white（69 行），CICD 同步到宿主机暂存</td>
+<td><code>config-repo.last_ref</code>、文件 mtime</td>
+</tr>
+<tr>
+<td>10-16 15:28</td>
+<td>运维手工 <code>docker cp</code> 源码目录旧副本 → cron 容器</td>
+<td>root <code>.bash_history</code></td>
+</tr>
+<tr>
+<td><strong>10-17 02:04:23</strong></td>
+<td><strong>新镜像 <code>main-e5c9883a200a</code> 构建完成</strong>（同时配置同步写入 env/白名单暂存）</td>
+<td><code>docker image inspect Created</code>、镜像层时间、<code>env/.env.prod</code> mtime 02:04</td>
+</tr>
+<tr>
+<td>10-17 02:33</td>
+<td>手工追加 <code>tsxy</code> 密钥</td>
+<td>ubuntu <code>.bash_history</code></td>
+</tr>
+<tr>
+<td><strong>10-17 03:00:02</strong></td>
+<td><strong>容器重建</strong>（Created/StartedAt）</td>
+<td><code>docker inspect</code></td>
+</tr>
+<tr>
+<td>10-17 15:00 起</td>
+<td>新对接游戏上线，回调 host 不在白名单 → 登录失败</td>
+<td>番子反馈 + 15:xx 起 <code>host_not_in_whitelist</code> 激增</td>
+</tr>
+<tr>
+<td>10-18 15:12~15:15</td>
+<td>运维以配置仓库为准同步源目录 + web/cron 容器</td>
+<td>本次处置</td>
+</tr>
+<tr>
+<td>10-18 15:15 起</td>
+<td><code>check_host_sign_failed</code> 归零</td>
+<td>错误日志按分钟统计</td>
+</tr>
+</tbody>
+</table>
+<h2 id="四-决定性证据-镜像里装的就是旧白名单">四、决定性证据：镜像里装的就是旧白名单</h2>
+<pre><code>docker run --rm --entrypoint sh youdianse-php:main-e5c9883a200a -c '...'
+  alb_white.txt : 29 条主机 / 37 行   md5 2f12c2e4…（旧）
+  alb_white_secret.txt : 13 条 / 36 行（旧）
+</code></pre>
+<p>对比权威版本：<code>alb_white.txt</code> 69 行 / 34 条主机、<code>secret</code> 60 行 / 21 个平台键。</p>
+<p>也就是说：<strong>只要从这个镜像重建容器，白名单就会回到 9-23 的旧版</strong>；除非发布流程在容器起来后把配置仓库那份 <code>docker cp</code> 进去（本次没有发生）。</p>
+<h2 id="五-结论与建议">五、结论与建议</h2>
+<h3 id="5-1-结论">5.1 结论</h3>
+<ol>
+<li><strong>不是授权安全测试、不是开发登录改动</strong>：四台机器近三天只有监控机、定时任务机、运维本机三类来源。</li>
+<li>直接原因是<strong>镜像烘焙旧副本</strong>（源码目录那份 9-23 版本被打进镜像），容器重建后没有再用配置仓库的权威文件覆盖。</li>
+<li>加重因素是<strong>运维手工 <code>docker cp</code> 时用了源码目录（旧）而不是配置仓库（新）</strong>。</li>
+<li>15:00 起新游戏上线才暴露，是因为新平台的 host 不在旧名单里。</li>
+</ol>
+<h3 id="5-2-已做的防复发">5.2 已做的防复发</h3>
+<ul>
+<li>CICD 发布流程已加<strong>强制校验</strong>：<code>sync → verify sha256</code>，不一致直接判发布失败（<code>0a6af01</code>）</li>
+<li>新增 <code>cicd-web.py check-app-local</code>（PASS/FAIL），可挂 cron</li>
+<li>新增 <code>ops/production/scripts/check-app-local-files.sh</code> 三方一致性巡检</li>
+<li>修复 <code>git_status_path</code> 脏检测失效、以及「业务目录反向覆盖本地源」的逻辑</li>
+</ul>
+<h3 id="5-3-权限与流程建议-回应-只给研发查看权限">5.3 权限与流程建议（回应「只给研发查看权限」）</h3>
+<ol>
+<li><strong>研发不再给线上 SSH</strong>：需要日志就走日志系统/机器人拉取（当前已具备 S3 归档 + 机器人取日志能力）</li>
+<li>运维侧也尽量禁止手工 <code>docker cp</code> 白名单：统一走配置仓库 + CICD</li>
+<li>白名单只允许在配置仓库改，服务器上禁止 <code>vi/echo &gt;&gt;</code></li>
+<li>长期：把 <code>app-local-files</code> 目录挂载进容器（不要单文件 bind mount），彻底摆脱「镜像烘焙 + docker cp」</li>
+</ol>
+<hr/>
+<h2 id="六-追到具体会话-是哪次登录-从哪台机器-几点做的">六、追到具体会话：是哪次登录、从哪台机器、几点做的</h2>
+<h3 id="6-1-两条人工会话-都在后端-16-209-16-108-的-wtmp-里">6.1 两条人工会话（都在后端 16.209.16.108 的 wtmp 里）</h3>
+<table>
+<thead>
+<tr>
+<th>会话</th>
+<th>起止（北京时间）</th>
+<th>来源 IP</th>
+<th>终端</th>
+<th>与历史文件的对齐</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>2026-10-16 15:11:44 → <strong>15:28:53</strong></td>
+<td><strong>16.208.32.40</strong></td>
+<td>pts/0</td>
+<td><code>/root/.bash_history</code> 写入时间 <strong>2026-10-16 15:28:53</strong>，完全一致</td>
+</tr>
+<tr>
+<td>B</td>
+<td>2026-10-17 01:00:05 → <strong>02:33:03</strong></td>
+<td><strong>16.208.32.40</strong></td>
+<td>pts/0</td>
+<td><code>/home/ubuntu/.bash_history</code> 写入时间 <strong>02:33</strong>，完全一致</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-2-会话-A-里做了什么-root-历史-1239-1252-行-按时间顺序">6.2 会话 A 里做了什么（root 历史 1239~1252 行，按时间顺序）</h3>
+<pre><code class="language-bash">mv .alb_white_secret.txt.swp /tmp          # vim 异常退出的交换文件
+vim alb_white_secret.txt                   # 手工编辑
+sudo cp -p /opt/docker-youdianse-php/src/youdianse-php/alb_white.txt         …/app-local-file-backups/
+sudo cp -p /opt/docker-youdianse-php/src/youdianse-php/alb_white_secret.txt  …/app-local-file-backups/
+sudo docker cp /opt/docker-youdianse-php/src/youdianse-php/alb_white.txt        youdianse-main-php-web:/var/www/html/youdianse-php/alb_white.txt
+sudo docker cp /opt/docker-youdianse-php/src/youdianse-php/alb_white_secret.txt youdianse-main-php-web:/var/www/html/youdianse-php/alb_white_secret.txt
+sudo docker exec youdianse-main-php-web chgrp www-data … &amp;&amp; chmod 0640 …
+sudo docker cp …/src/…/alb_white.txt        youdianse-main-php-cron:/var/www/html/youdianse-php/alb_white.txt
+sudo docker cp …/src/…/alb_white_secret.txt youdianse-main-php-cron:/var/www/html/youdianse-php/alb_white_secret.txt
+sudo docker exec youdianse-main-php-cron chmod 0640 …
+sudo grep -q '43.198.102.162' …/src/…/alb_white.txt &amp;&amp; echo 'alb_white host ok'
+sudo grep -q '^yjzf='         …/src/…/alb_white_secret.txt &amp;&amp; echo 'alb_white_secret host ok'
+</code></pre>
+<p>→ 就是这次操作把<strong>源码目录（9-23 的旧副本）</strong>推进了 web 与 cron 容器，属于「用错来源」。</p>
+<h3 id="6-3-会话-B-里做了什么-ubuntu-历史">6.3 会话 B 里做了什么（ubuntu 历史）</h3>
+<pre><code class="language-bash">sudo echo "tsxy=pord****" &gt;&gt; alb_white_secret.txt   # 值已脱敏
+cat alb_white_secret.txt
+docker exec … find / -name "alb_white*.txt"         # 核对文件位置
+docker exec … awk '$1=="slzwl" …' alb_white_secret.txt
+docker exec … cat alb_white.txt / alb_white_secret.txt
+</code></pre>
+<h3 id="6-4-来源机器-16-208-32-40-是什么">6.4 来源机器 16.208.32.40 是什么</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主机名</td>
+<td><code>ip-172-31-20-69</code>（AWS EC2 ap-northeast-3）</td>
+</tr>
+<tr>
+<td>角色</td>
+<td>线上定时任务机（<code>cron.youdianse-main.xyz</code> 回源），同时也被当跳板使用</td>
+</tr>
+<tr>
+<td>时区</td>
+<td>UTC（日志时间需 +8 换算成北京时间）</td>
+</tr>
+<tr>
+<td>近 10 天登录来源</td>
+<td><strong>112.207.100.18 × 5</strong>（运维本机公网 IP）、16.209.16.108 × 1、16.208.32.40 × 2（自身/回环）</td>
+</tr>
+<tr>
+<td>是否会 SSH 到后端</td>
+<td>有：<code>~/.bash_history</code> 里存在 <code>ssh root@16.209.16.108</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-5-归因链与一处审计盲区">6.5 归因链与一处审计盲区</h3>
+<pre><code>运维本机 112.207.100.18  →  跳板机 16.208.32.40 (ip-172-31-20-69)  →  后端 16.209.16.108
+                                                          ├─ 10-16 15:11~15:28  手工 vim + docker cp（用 src 旧副本）
+                                                          └─ 10-17 01:00~02:33  追加 tsxy 密钥
+</code></pre>
+<p><strong>审计盲区</strong>：后端 sshd 对来自 16.208.32.40 的连接统一使用同一把公钥
+<code>SHA256:z2NQHKo2a8ujuR74v0izJHdlq/sChmvpup009nEO3vE</code>，而这把钥匙同时被定时任务使用（近两天 14,036 次），
+因此<strong>无法用密钥指纹区分「人工操作」与「定时任务」</strong>。人工会话只能靠 wtmp 的交互式 TTY 记录 + history 写入时间对齐来识别。</p>
+<p>建议：</p>
+<ol>
+<li>跳板机/后端为人工操作使用<strong>独立密钥或独立账号</strong>，与自动化密钥分离</li>
+<li>跳板机开启会话审计（堡垒机录像或 <code>script</code>/<code>auditd</code>），保留 30 天以上</li>
+<li>后端启用 <code>auditd</code> 监控 <code>/opt/docker-youdianse-php/{src,config-repo,cicd-web/runtime}/**/alb_white*.txt</code> 的写入</li>
+<li>禁止在服务器上直接 <code>vim</code> 白名单，统一走配置仓库 + CICD（发布已加强制校验）</li>
+</ol>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-登录来源统计-2026-10-16-10-18">一、登录来源统计（2026-10-16 ~ 10-18）</a></li><li style="margin-left:0.8rem"><a href="#1-1-后端-16-209-16-108">1.1 后端 16.209.16.108</a></li><li style="margin-left:0.8rem"><a href="#1-2-网关-16-208-38-88">1.2 网关 16.208.38.88</a></li><li style="margin-left:0.8rem"><a href="#1-3-监控机-52-79-252-255">1.3 监控机 52.79.252.255</a></li><li style="margin-left:0.8rem"><a href="#1-4-定时任务机-16-208-32-40">1.4 定时任务机 16.208.32.40</a></li><li style="margin-left:0.0rem"><a href="#二-人工操作痕迹-shell-历史">二、人工操作痕迹（shell 历史）</a></li><li style="margin-left:0.8rem"><a href="#2-1-root-历史-文件-mtime-2026-10-16-15-28">2.1 root 历史（文件 mtime 2026-10-16 15:28）</a></li><li style="margin-left:0.8rem"><a href="#2-2-ubuntu-历史-文件-mtime-2026-10-17-02-33">2.2 ubuntu 历史（文件 mtime 2026-10-17 02:33）</a></li><li style="margin-left:0.8rem"><a href="#2-3-没有找到的证据">2.3 没有找到的证据</a></li><li style="margin-left:0.0rem"><a href="#三-事故时间线-关键">三、事故时间线（关键）</a></li><li style="margin-left:0.0rem"><a href="#四-决定性证据-镜像里装的就是旧白名单">四、决定性证据：镜像里装的就是旧白名单</a></li><li style="margin-left:0.0rem"><a href="#五-结论与建议">五、结论与建议</a></li><li style="margin-left:0.8rem"><a href="#5-1-结论">5.1 结论</a></li><li style="margin-left:0.8rem"><a href="#5-2-已做的防复发">5.2 已做的防复发</a></li><li style="margin-left:0.8rem"><a href="#5-3-权限与流程建议-回应-只给研发查看权限">5.3 权限与流程建议（回应「只给研发查看权限」）</a></li><li style="margin-left:0.0rem"><a href="#六-追到具体会话-是哪次登录-从哪台机器-几点做的">六、追到具体会话：是哪次登录、从哪台机器、几点做的</a></li><li style="margin-left:0.8rem"><a href="#6-1-两条人工会话-都在后端-16-209-16-108-的-wtmp-里">6.1 两条人工会话（都在后端 16.209.16.108 的 wtmp 里）</a></li><li style="margin-left:0.8rem"><a href="#6-2-会话-A-里做了什么-root-历史-1239-1252-行-按时间顺序">6.2 会话 A 里做了什么（root 历史 1239~1252 行，按时间顺序）</a></li><li style="margin-left:0.8rem"><a href="#6-3-会话-B-里做了什么-ubuntu-历史">6.3 会话 B 里做了什么（ubuntu 历史）</a></li><li style="margin-left:0.8rem"><a href="#6-4-来源机器-16-208-32-40-是什么">6.4 来源机器 16.208.32.40 是什么</a></li><li style="margin-left:0.8rem"><a href="#6-5-归因链与一处审计盲区">6.5 归因链与一处审计盲区</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-10-18</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">监控告警</span><span class="tag">自动化</span><span class="tag">安全运维</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-18-1545-【取证】…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610181545-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E3%80%90%E5%8F%96%E8%AF%81%E3%80%91albwhite%20%E7%99%BD%E5%90%8D%E5%8D%95%E4%BA%8B%E6%95%85%EF%BC%9A%E7%99%BB%E5%BD%95%E6%9D%A5%E6%BA%90%E4%B8%8E%E4%BF%AE%E6%94%B9%E6%9D%A5%E6%BA%90%EF%BC%88%E5%A4%9A%E6%9C%BA%E6%97%A5%E5%BF%97%20%2B%20%E9%95%9C%E5%83%8F%E5%8F%96%E8%AF%81%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【取证】albwhite 白名单事故：登录来源与修改来源（多机日志 + 镜像取证）。本文属于业务系统运维 / 游点涩，数据源：各机 sshd 登录日志（auth.log*）、 sudo 命令审计（auth.log 中 COMMAND= ）、 ~/.bash_history 、镜像内容、git 提交历史、CICD…</p>
+      <p>关键词：游点涩、Linux、Shell、Docker、监控告警、自动化、安全运维、故障排查、业务系统运维、业务系统运维 / 游点涩、【取证】albwhite 白名单事故：登录来源与修改来源（多机日志 + 镜像取证）、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ac7f0a8c044c.html"><small>上一篇</small>【取证】albwhite 白名单事故：登录来源与修改来源（多机日志 + 镜像取证）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-717201d59c8c.html"><small>下一篇</small>Workbench 工程化与 GitLab 部署</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-238582805222.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
