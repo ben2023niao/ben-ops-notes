@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Token 与 AI 接入｜基础设施与自动化 / BKL UAT｜BEN.OPS</title>
+  <meta name="description" content="Token 与 AI 接入。本文属于基础设施与自动化 / BKL UAT，不要用 echo $KEY 。直接发一个最小请求： 返回模型列表或权限错误，说明 Key 能被识别。 很多服务都兼容 OpenAI 的 /v1/chat/completions ： 只要插件支持 “OpenAI Compatible”，就可…">
+  <meta name="keywords" content="BKL UAT，Linux，Shell，Python，自动化，安全运维，故障排查，源码与配置，基础设施与自动化，基础设施与自动化 / BKL UAT，Token 与 AI 接入，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-36873d6bbacf.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-36873d6bbacf.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610192033-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BLinux-Token%20%E4%B8%8E%20AI%20%E6%8E%A5%E5%85%A5.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Token 与 AI 接入">
+  <meta property="og:description" content="Token 与 AI 接入。本文属于基础设施与自动化 / BKL UAT，不要用 echo $KEY 。直接发一个最小请求： 返回模型列表或权限错误，说明 Key 能被识别。 很多服务都兼容 OpenAI 的 /v1/chat/completions ： 只要插件支持 “OpenAI Compatible”，就可…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-36873d6bbacf.html">
+  <meta property="article:published_time" content="2026-10-19T20:33:45+08:00">
+  <meta property="article:modified_time" content="2026-10-19 20:33">
+  <meta property="article:section" content="基础设施与自动化 / BKL UAT">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Token 与 AI 接入">
+  <meta name="twitter:description" content="Token 与 AI 接入。本文属于基础设施与自动化 / BKL UAT，不要用 echo $KEY 。直接发一个最小请求： 返回模型列表或权限错误，说明 Key 能被识别。 很多服务都兼容 OpenAI 的 /v1/chat/completions ： 只要插件支持 “OpenAI Compatible”，就可…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-36873d6bbacf.html#article","headline":"Token 与 AI 接入","description":"Token 与 AI 接入。本文属于基础设施与自动化 / BKL UAT，不要用 echo $KEY 。直接发一个最小请求： 返回模型列表或权限错误，说明 Key 能被识别。 很多服务都兼容 OpenAI 的 /v1/chat/completions ： 只要插件支持 “OpenAI Compatible”，就可…","datePublished":"2026-10-19T20:33:45+08:00","dateModified":"2026-10-19 20:33","inLanguage":"zh-CN","articleSection":["基础设施与自动化","BKL UAT"],"keywords":["BKL UAT","Linux","Shell","Python","自动化","安全运维","故障排查","源码与配置","基础设施与自动化","基础设施与自动化 / BKL UAT","Token 与 AI 接入","devops"],"wordCount":1477,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-36873d6bbacf.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-36873d6bbacf.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"基础设施与自动化 / BKL UAT","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Token 与 AI 接入","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-36873d6bbacf.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>基础设施与自动化 / BKL UAT</span> › <span>Token 与 AI 接入</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">基础设施与自动化 / BKL UAT</div>
+      <h1>Token 与 AI 接入</h1>
+      <p class="lede">Token 与 AI 接入。本文属于基础设施与自动化 / BKL UAT，不要用 echo $KEY 。直接发一个最小请求： 返回模型列表或权限错误，说明 Key 能被识别。 很多服务都兼容 OpenAI 的 /v1/chat/completions ： 只要插件支持 “OpenAI Compatible”，就可…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-19T20:33:45+08:00">发布于 2026-10-19</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,477 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/ops/devops/devops-bkl/workbench-kit-通用AI工作台/docs/06-Token与AI接入.md</code></p>
+<p>整理日期：2026-10-19 20:33｜日期依据：文件创建/修改时间</p>
+</blockquote>
+<h2 id="1-先分清三类-Token">1. 先分清三类 Token</h2>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>用途</th>
+<th>典型变量</th>
+<th>权限</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI API Key</td>
+<td>调模型</td>
+<td><code>OPENAI_API_KEY</code>、<code>DEEPSEEK_API_KEY</code></td>
+<td>按量计费，泄露会被盗刷</td>
+</tr>
+<tr>
+<td>Telegram Bot Token</td>
+<td>发通知</td>
+<td><code>TELEGRAM_API_TOKEN</code></td>
+<td>可控制机器人，泄露可被冒用</td>
+</tr>
+<tr>
+<td>GitLab PAT</td>
+<td>拉代码 / CI / API</td>
+<td><code>GITLAB_TOKEN</code></td>
+<td>按 scope，泄露可改仓库</td>
+</tr>
+</tbody>
+</table>
+<p>三类都不要提交到 Git。</p>
+<h2 id="2-存放原则">2. 存放原则</h2>
+<pre><code class="language-text">优先级：系统环境变量 &gt; 本地 .env（已 gitignore）&gt; 密码管理器
+禁止：代码默认值、README、群消息、截图、提交历史
+</code></pre>
+<p>推荐目录：</p>
+<pre><code class="language-text">~/.config/workbench/ai.env          个人 AI Key
+&lt;project&gt;/workbench/notify.env      项目通知配置（已 gitignore）
+</code></pre>
+<p>权限：</p>
+<pre><code class="language-bash">chmod 600 ~/.config/workbench/ai.env
+chmod 600 workbench/notify.env
+</code></pre>
+<h2 id="3-AI-API-Key">3. AI API Key</h2>
+<h3 id="3-1-常见变量">3.1 常见变量</h3>
+<pre><code class="language-bash">export [敏感内容已脱敏]
+export OPENAI_BASE_URL="https://api.openai.com/v1"
+
+export [敏感内容已脱敏]
+export DEEPSEEK_BASE_URL="https://api.deepseek.com"
+
+export [敏感内容已脱敏]
+</code></pre>
+<p>本地模型（Ollama）通常不需要 Key：</p>
+<pre><code class="language-bash">export OLLAMA_BASE_URL="http://203.0.113.1:11434"
+</code></pre>
+<h3 id="3-2-加载方式">3.2 加载方式</h3>
+<p>临时：</p>
+<pre><code class="language-bash">set -a
+source ~/.config/workbench/ai.env
+set +a
+</code></pre>
+<p>每次开终端自动加载（zsh）：</p>
+<pre><code class="language-bash"># ~/.zshrc
+[ -f "$HOME/.config/workbench/ai.env" ] &amp;&amp; set -a &amp;&amp; source "$HOME/.config/workbench/ai.env" &amp;&amp; set +a
+</code></pre>
+<h3 id="3-3-验证-Key">3.3 验证 Key</h3>
+<p>不要用 <code>echo $KEY</code>。直接发一个最小请求：</p>
+<pre><code class="language-bash">curl -sS https://api.openai.com/v1/models \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  | head -c 300
+</code></pre>
+<p>返回模型列表或权限错误，说明 Key 能被识别。</p>
+<p>DeepSeek（OpenAI 兼容）：</p>
+<pre><code class="language-bash">curl -sS https://api.deepseek.com/models \
+  -H "Authorization: Bearer $DEEPSEEK_API_KEY" \
+  | head -c 300
+</code></pre>
+<h3 id="3-4-OpenAI-兼容服务">3.4 OpenAI 兼容服务</h3>
+<p>很多服务都兼容 OpenAI 的 <code>/v1/chat/completions</code>：</p>
+<table>
+<thead>
+<tr>
+<th>服务</th>
+<th>Base URL 示例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenAI</td>
+<td><code>https://api.openai.com/v1</code></td>
+<td>官方</td>
+</tr>
+<tr>
+<td>DeepSeek</td>
+<td><code>https://api.deepseek.com</code></td>
+<td>性价比高</td>
+</tr>
+<tr>
+<td>Ollama</td>
+<td><code>http://203.0.113.1:11434/v1</code></td>
+<td>本地</td>
+</tr>
+<tr>
+<td>vLLM</td>
+<td><code>http://内网:8000/v1</code></td>
+<td>自建</td>
+</tr>
+<tr>
+<td>LM Studio</td>
+<td><code>http://203.0.113.1:1234/v1</code></td>
+<td>本地桌面</td>
+</tr>
+</tbody>
+</table>
+<p>只要插件支持 “OpenAI Compatible”，就可以填 Base URL + Key + Model。</p>
+<h2 id="4-VS-Code-里怎么接">4. VS Code 里怎么接</h2>
+<h3 id="4-1-GitHub-Copilot">4.1 GitHub Copilot</h3>
+<ul>
+<li>安装 <code>github.copilot</code>、<code>github.copilot-chat</code></li>
+<li>登录 GitHub 账号</li>
+<li>不需要自己填 API Key</li>
+<li>企业版由组织统一管理</li>
+</ul>
+<h3 id="4-2-Continue">4.2 Continue</h3>
+<ol>
+<li>安装 <code>continue.continue</code></li>
+<li>打开 Continue 侧边栏 → Settings</li>
+<li>选 Provider：
+   - OpenAI
+   - Anthropic
+   - OpenAI Compatible（DeepSeek / vLLM / Ollama）
+   - Ollama</li>
+<li>填 Base URL、Model、API Key</li>
+<li>Key 放插件密钥存储或引用环境变量</li>
+</ol>
+<p>示例思路（字段名以插件当前版本为准）：</p>
+<pre><code class="language-yaml">models:
+  - name: deepseek-chat
+    provider: openai
+    apiBase: https://api.deepseek.com
+    敏感凭据：[已脱敏]
+    model: deepseek-chat
+</code></pre>
+<p>如果插件不认环境变量语法，就在设置页填 Key，并把配置文件加入 <code>.gitignore</code>。</p>
+<h3 id="4-3-Cline">4.3 Cline</h3>
+<ol>
+<li>安装 Cline</li>
+<li>选 API Provider：OpenAI Compatible</li>
+<li>Base URL：例如 <code>https://api.deepseek.com</code></li>
+<li>API Key：填对应 Key</li>
+<li>Model：填服务商提供的模型名</li>
+</ol>
+<p>Cline 能自动改文件、跑命令。第一次用建议：</p>
+<ul>
+<li>开新分支</li>
+<li>先让它输出 plan</li>
+<li>每一步看 diff</li>
+<li>高风险命令人工确认</li>
+</ul>
+<h3 id="4-4-Codex">4.4 Codex</h3>
+<p>两种常见方式：</p>
+<ol>
+<li>账号登录（按你使用的 Codex 客户端提示）</li>
+<li>环境变量 <code>OPENAI_API_KEY</code></li>
+</ol>
+<p>在项目根目录放 <code>AGENTS.md</code>，Codex 会按规则读取。</p>
+<h3 id="4-5-本地模型">4.5 本地模型</h3>
+<p>Ollama：</p>
+<pre><code class="language-bash">ollama serve
+ollama pull qwen2.5-coder
+</code></pre>
+<p>插件里选 Ollama，Base URL <code>http://203.0.113.1:11434</code>，Model <code>qwen2.5-coder</code>。</p>
+<p>优点：不花钱、数据不出内网。
+缺点：复杂任务能力取决于模型和机器。</p>
+<h2 id="5-Telegram-机器人">5. Telegram 机器人</h2>
+<h3 id="5-1-创建机器人">5.1 创建机器人</h3>
+<ol>
+<li>Telegram 搜 <code>@BotFather</code></li>
+<li><code>/newbot</code></li>
+<li>填名称和用户名</li>
+<li>保存 token（只保存到密码管理器或 <code>notify.env</code>）</li>
+</ol>
+<h3 id="5-2-拉进群">5.2 拉进群</h3>
+<ol>
+<li>把机器人拉进目标群</li>
+<li>给机器人发消息权限</li>
+<li>在群里发一条消息</li>
+<li>获取 chat_id：</li>
+</ol>
+<pre><code class="language-bash">curl -sS "https://api.telegram.org/bot$TELEGRAM_API_TOKEN/getUpdates" \
+  | python3 -m json.tool | grep -E '"id"|"title"|"type"'
+</code></pre>
+<p>群 chat_id 通常是负数，supergroup 以 <code>-100</code> 开头。</p>
+<h3 id="5-3-配置">5.3 配置</h3>
+<pre><code class="language-bash">cp workbench/notify.env.example workbench/notify.env
+chmod 600 workbench/notify.env
+</code></pre>
+<pre><code class="language-dotenv">[敏感内容已脱敏] token&gt;
+TELEGRAM_CHAT_ID=&lt;chat id&gt;
+</code></pre>
+<h3 id="5-4-验证">5.4 验证</h3>
+<pre><code class="language-bash">python3 workbench/scripts/notify.py --verify-chat
+python3 workbench/scripts/notify.py --title "测试" --text "通知链路正常"
+</code></pre>
+<h3 id="5-5-通知规范">5.5 通知规范</h3>
+<ul>
+<li>每步一次，不刷屏</li>
+<li>标题固定：<code>【项目名｜任务名】步骤 N ...</code></li>
+<li>不发密码、token、连接串、完整 URL 签名</li>
+<li>发失败要记录，不能假装成功</li>
+</ul>
+<h2 id="6-GitLab-Token">6. GitLab Token</h2>
+<h3 id="6-1-创建-PAT">6.1 创建 PAT</h3>
+<p>GitLab → 用户设置 → Access Tokens：</p>
+<ul>
+<li>Name：<code>workbench-local</code></li>
+<li>Expiration：30 天或 90 天</li>
+<li>Scopes：</li>
+<li><code>read_repository</code>：只拉代码</li>
+<li><code>write_repository</code>：要推送</li>
+<li><code>api</code>：要调 API / CI</li>
+</ul>
+<p>最小权限原则：只给当前任务需要的 scope。</p>
+<h3 id="6-2-本地使用">6.2 本地使用</h3>
+<p>不要把 token 写进 remote URL。用 credential helper：</p>
+<pre><code class="language-bash">git config --global credential.helper osxkeychain   # macOS
+# 或
+git config --global credential.helper store         # Linux，注意文件权限
+</code></pre>
+<p>第一次 push 输入用户名和 PAT，之后由系统保存。</p>
+<h3 id="6-3-GitLab-CI">6.3 GitLab CI</h3>
+<p>在项目 Settings → CI/CD → Variables：</p>
+<ul>
+<li>Key：<code>GITLAB_TOKEN</code></li>
+<li>Value：PAT</li>
+<li>Masked：是</li>
+<li>Protected：是（只给受保护分支）</li>
+</ul>
+<p>流水线里用 <code>$GITLAB_TOKEN</code>，不要写进 <code>.gitlab-ci.yml</code>。</p>
+<h2 id="7-密钥管理进阶">7. 密钥管理进阶</h2>
+<h3 id="7-1-direnv">7.1 direnv</h3>
+<p>项目目录放 <code>.envrc</code>（加入 <code>.gitignore</code>）：</p>
+<pre><code class="language-bash">export [敏感内容已脱敏]
+</code></pre>
+<p>进入目录自动加载，离开自动卸载。</p>
+<h3 id="7-2-密码管理器-CLI">7.2 密码管理器 CLI</h3>
+<p>1Password：</p>
+<pre><code class="language-bash">export [敏感内容已脱敏]
+</code></pre>
+<p>Bitwarden：</p>
+<pre><code class="language-bash">export [敏感内容已脱敏]
+</code></pre>
+<h3 id="7-3-轮换">7.3 轮换</h3>
+<ul>
+<li>AI Key：怀疑泄露立即在服务商后台吊销</li>
+<li>Telegram：BotFather <code>/revoke</code></li>
+<li>GitLab：Access Tokens 页面 Revoke</li>
+<li>轮换后更新本地 <code>notify.env</code> / CI 变量</li>
+</ul>
+<h2 id="8-常见错误">8. 常见错误</h2>
+<table>
+<thead>
+<tr>
+<th>现象</th>
+<th>原因</th>
+<th>处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>401 Unauthorized</td>
+<td>Key 错、过期、带空格</td>
+<td>重新复制，检查环境变量</td>
+</tr>
+<tr>
+<td>403 Forbidden</td>
+<td>权限不足 / 地区限制</td>
+<td>检查 scope、账号、网络</td>
+</tr>
+<tr>
+<td>429 Too Many Requests</td>
+<td>限流 / 余额不足</td>
+<td>降频、换 Key、看账单</td>
+</tr>
+<tr>
+<td>chat not found</td>
+<td>chat_id 错 / 机器人不在群</td>
+<td>重新 getUpdates，拉机器人进群</td>
+</tr>
+<tr>
+<td>通知 400</td>
+<td>消息太长 / HTML 不合法</td>
+<td>截断、去掉特殊标签</td>
+</tr>
+<tr>
+<td>Git push 403</td>
+<td>PAT 无 <code>write_repository</code></td>
+<td>重新建 token</td>
+</tr>
+<tr>
+<td>Git push 要求密码</td>
+<td>用了 PAT 但没走 credential helper</td>
+<td>配置 helper，用户名填 GitLab 用户名</td>
+</tr>
+</tbody>
+</table>
+<h2 id="9-安全检查清单">9. 安全检查清单</h2>
+<ul>
+<li>[ ] <code>git status</code> 没有 <code>.env</code>、<code>notify.env</code>、密钥、证书</li>
+<li>[ ] <code>.gitignore</code> 包含 <code>.env</code>、<code>notify.env</code>、<code>*.pem</code>、<code>*.key</code></li>
+<li>[ ] 代码里没有硬编码 token</li>
+<li>[ ] 通知内容不含秘密</li>
+<li>[ ] CI 变量是 Masked + Protected</li>
+<li>[ ] PAT 有过期时间</li>
+<li>[ ] 离职 / 换人后立即轮换</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#1-先分清三类-Token">1. 先分清三类 Token</a></li><li style="margin-left:0.0rem"><a href="#2-存放原则">2. 存放原则</a></li><li style="margin-left:0.0rem"><a href="#3-AI-API-Key">3. AI API Key</a></li><li style="margin-left:0.8rem"><a href="#3-1-常见变量">3.1 常见变量</a></li><li style="margin-left:0.8rem"><a href="#3-2-加载方式">3.2 加载方式</a></li><li style="margin-left:0.8rem"><a href="#3-3-验证-Key">3.3 验证 Key</a></li><li style="margin-left:0.8rem"><a href="#3-4-OpenAI-兼容服务">3.4 OpenAI 兼容服务</a></li><li style="margin-left:0.0rem"><a href="#4-VS-Code-里怎么接">4. VS Code 里怎么接</a></li><li style="margin-left:0.8rem"><a href="#4-1-GitHub-Copilot">4.1 GitHub Copilot</a></li><li style="margin-left:0.8rem"><a href="#4-2-Continue">4.2 Continue</a></li><li style="margin-left:0.8rem"><a href="#4-3-Cline">4.3 Cline</a></li><li style="margin-left:0.8rem"><a href="#4-4-Codex">4.4 Codex</a></li><li style="margin-left:0.8rem"><a href="#4-5-本地模型">4.5 本地模型</a></li><li style="margin-left:0.0rem"><a href="#5-Telegram-机器人">5. Telegram 机器人</a></li><li style="margin-left:0.8rem"><a href="#5-1-创建机器人">5.1 创建机器人</a></li><li style="margin-left:0.8rem"><a href="#5-2-拉进群">5.2 拉进群</a></li><li style="margin-left:0.8rem"><a href="#5-3-配置">5.3 配置</a></li><li style="margin-left:0.8rem"><a href="#5-4-验证">5.4 验证</a></li><li style="margin-left:0.8rem"><a href="#5-5-通知规范">5.5 通知规范</a></li><li style="margin-left:0.0rem"><a href="#6-GitLab-Token">6. GitLab Token</a></li><li style="margin-left:0.8rem"><a href="#6-1-创建-PAT">6.1 创建 PAT</a></li><li style="margin-left:0.8rem"><a href="#6-2-本地使用">6.2 本地使用</a></li><li style="margin-left:0.8rem"><a href="#6-3-GitLab-CI">6.3 GitLab CI</a></li><li style="margin-left:0.0rem"><a href="#7-密钥管理进阶">7. 密钥管理进阶</a></li><li style="margin-left:0.8rem"><a href="#7-1-direnv">7.1 direnv</a></li><li style="margin-left:0.8rem"><a href="#7-2-密码管理器-CLI">7.2 密码管理器 CLI</a></li><li style="margin-left:0.8rem"><a href="#7-3-轮换">7.3 轮换</a></li><li style="margin-left:0.0rem"><a href="#8-常见错误">8. 常见错误</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：基础设施与自动化 / BKL UAT</li>
+          <li>日期：2026-10-19</li>
+          <li>标签：<span class="tag">BKL UAT</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">自动化</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/ops/devops/devops-bkl/workbench-kit-通用AI工作台/docs/06-Token与AI接入.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610192033-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BLinux-Token%20%E4%B8%8E%20AI%20%E6%8E%A5%E5%85%A5.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Token 与 AI 接入。本文属于基础设施与自动化 / BKL UAT，不要用 echo $KEY 。直接发一个最小请求： 返回模型列表或权限错误，说明 Key 能被识别。 很多服务都兼容 OpenAI 的 /v1/chat/completions ： 只要插件支持 “OpenAI Compatible”，就可…</p>
+      <p>关键词：BKL UAT、Linux、Shell、Python、自动化、安全运维、故障排查、源码与配置、基础设施与自动化、基础设施与自动化 / BKL UAT、Token 与 AI 接入、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-82ddc365cfaf.html"><small>上一篇</small>VS Code 插件与配置</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-68b3b52ac360.html"><small>下一篇</small>团队落地与改造</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-36873d6bbacf.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

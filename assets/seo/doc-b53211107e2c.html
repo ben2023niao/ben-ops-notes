@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【分析】接口响应数据量排行榜（/api/v1 与 SDK 两侧）｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="【分析】接口响应数据量排行榜（/api/v1 与 SDK 两侧）。本文属于业务系统运维 / 游点涩，目的：回答「哪些接口返回的数据变大了」，给出可定位到接口的排行榜 数据来源与口径见每节标题（ 两侧口径不同，不能混用 ） /api/v1/modules/home 是绝对大头 ：平均 251.5 KB/次 ，当天…">
+  <meta name="keywords" content="游点涩，Docker，Nginx，Redis，监控告警，故障排查，业务系统运维，业务系统运维 / 游点涩，【分析】接口响应数据量排行榜（/api/v1 与 SDK 两侧），php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b53211107e2c.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b53211107e2c.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610191620-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BDocker%2BNginx-%E3%80%90%E5%88%86%E6%9E%90%E3%80%91%E6%8E%A5%E5%8F%A3%E5%93%8D%E5%BA%94%E6%95%B0%E6%8D%AE%E9%87%8F%E6%8E%92%E8%A1%8C%E6%A6%9C%EF%BC%88-api-v1%20%E4%B8%8E%20SDK%20%E4%B8%A4%E4%BE%A7%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【分析】接口响应数据量排行榜（/api/v1 与 SDK 两侧）">
+  <meta property="og:description" content="【分析】接口响应数据量排行榜（/api/v1 与 SDK 两侧）。本文属于业务系统运维 / 游点涩，目的：回答「哪些接口返回的数据变大了」，给出可定位到接口的排行榜 数据来源与口径见每节标题（ 两侧口径不同，不能混用 ） /api/v1/modules/home 是绝对大头 ：平均 251.5 KB/次 ，当天…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b53211107e2c.html">
+  <meta property="article:published_time" content="2026-10-19T16:20:00+08:00">
+  <meta property="article:modified_time" content="2026-10-19 16:20">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【分析】接口响应数据量排行榜（/api/v1 与 SDK 两侧）">
+  <meta name="twitter:description" content="【分析】接口响应数据量排行榜（/api/v1 与 SDK 两侧）。本文属于业务系统运维 / 游点涩，目的：回答「哪些接口返回的数据变大了」，给出可定位到接口的排行榜 数据来源与口径见每节标题（ 两侧口径不同，不能混用 ） /api/v1/modules/home 是绝对大头 ：平均 251.5 KB/次 ，当天…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b53211107e2c.html#article","headline":"【分析】接口响应数据量排行榜（/api/v1 与 SDK 两侧）","description":"【分析】接口响应数据量排行榜（/api/v1 与 SDK 两侧）。本文属于业务系统运维 / 游点涩，目的：回答「哪些接口返回的数据变大了」，给出可定位到接口的排行榜 数据来源与口径见每节标题（ 两侧口径不同，不能混用 ） /api/v1/modules/home 是绝对大头 ：平均 251.5 KB/次 ，当天…","datePublished":"2026-10-19T16:20:00+08:00","dateModified":"2026-10-19 16:20","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Docker","Nginx","Redis","监控告警","故障排查","业务系统运维","业务系统运维 / 游点涩","【分析】接口响应数据量排行榜（/api/v1 与 SDK 两侧）","php"],"wordCount":1271,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b53211107e2c.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b53211107e2c.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【分析】接口响应数据量排行榜（/api/v1 与 SDK 两侧）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b53211107e2c.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>【分析】接口响应数据量排行榜（/api/v1 与 SDK 两侧）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>【分析】接口响应数据量排行榜（/api/v1 与 SDK 两侧）</h1>
+      <p class="lede">【分析】接口响应数据量排行榜（/api/v1 与 SDK 两侧）。本文属于业务系统运维 / 游点涩，目的：回答「哪些接口返回的数据变大了」，给出可定位到接口的排行榜 数据来源与口径见每节标题（ 两侧口径不同，不能混用 ） /api/v1/modules/home 是绝对大头 ：平均 251.5 KB/次 ，当天…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-19T16:20:00+08:00">发布于 2026-10-19</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,271 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-19-1620-【分析】接口响应数据量排行榜（/api-v1 与 SDK 两侧）.md</code></p>
+<p>整理日期：2026-10-19 16:20｜日期依据：正文日期</p>
+</blockquote>
+<ul>
+<li>时间：2026-10-19 16:20（北京时间）</li>
+<li>目的：回答「哪些接口返回的数据变大了」，给出可定位到接口的排行榜</li>
+<li>数据来源与口径见每节标题（<strong>两侧口径不同，不能混用</strong>）</li>
+</ul>
+<hr/>
+<h2 id="一-结论先说">一、结论先说</h2>
+<ol>
+<li><strong><code>/api/v1/modules/home</code> 是绝对大头</strong>：平均 <strong>251.5 KB/次</strong>，当天 56.7 万次调用，合计 <strong>136 GB</strong>，占 <code>/api/v1</code> 全部响应量的 <strong>82.5%</strong>。</li>
+<li><strong><code>/api/v1/game/detail</code> 第二</strong>：平均 106.5 KB/次，18.4 万次，合计 19 GB，占 11.4%。</li>
+<li>两者合计占 <code>/api/v1</code> 响应量的 <strong>93.8%</strong>。</li>
+<li><strong>SDK 侧不是「响应变大」，而是「调用量变大」</strong>：同小时对比，<code>/api/sdk/system/info</code> 调用 7,452 → 36,183（<strong>4.86 倍</strong>），平均响应 6.3 KB 基本不变；只有 <code>/api/sdk/game/more</code> 从 56 KB 涨到 62 KB（+11%）。</li>
+</ol>
+<blockquote>
+<p>更正上一版说法：10-17 的 <code>api_response</code> 行数是 10-16 的 4.3 倍，那是<strong>调用量</strong>增长，不是单条响应变大。真正「单条大」的接口在 <code>/api/v1</code> 侧（modules/home、game/detail），而 <code>api_response</code> 日志<strong>不记录 <code>/api/v1</code></strong>（实测 0 行）。</p>
+</blockquote>
+<hr/>
+<h2 id="二-api-v1-接口响应大小排行">二、/api/v1 接口响应大小排行</h2>
+<p>数据：<strong>2026-10-19 当天</strong> nginx access 全量（调用次数 ≥ 200），按平均响应大小排序</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">排名</th>
+<th>接口</th>
+<th style="text-align: right;">调用次数</th>
+<th style="text-align: right;">平均大小</th>
+<th style="text-align: right;">合计</th>
+<th style="text-align: right;">占 /api/v1 响应量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td><code>/api/v1/modules/home</code></td>
+<td style="text-align: right;">567,558</td>
+<td style="text-align: right;"><strong>251.5 KB</strong></td>
+<td style="text-align: right;"><strong>139,375 MB</strong></td>
+<td style="text-align: right;"><strong>82.47%</strong></td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td><code>/api/v1/game/detail</code></td>
+<td style="text-align: right;">184,490</td>
+<td style="text-align: right;">106.5 KB</td>
+<td style="text-align: right;">19,186 MB</td>
+<td style="text-align: right;">11.35%</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td><code>/api/v1/community/hotFeed</code></td>
+<td style="text-align: right;">3,909</td>
+<td style="text-align: right;">81.4 KB</td>
+<td style="text-align: right;">311 MB</td>
+<td style="text-align: right;">0.18%</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td><code>/api/v1/community/tagDetail</code></td>
+<td style="text-align: right;">1,030</td>
+<td style="text-align: right;">79.3 KB</td>
+<td style="text-align: right;">80 MB</td>
+<td style="text-align: right;">0.05%</td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td><code>/api/v1/game/lists</code></td>
+<td style="text-align: right;">36,810</td>
+<td style="text-align: right;">46.6 KB</td>
+<td style="text-align: right;">1,676 MB</td>
+<td style="text-align: right;">0.99%</td>
+</tr>
+<tr>
+<td style="text-align: right;">6</td>
+<td><code>/api/v1/community/gameDetail</code></td>
+<td style="text-align: right;">7,808</td>
+<td style="text-align: right;">41.1 KB</td>
+<td style="text-align: right;">314 MB</td>
+<td style="text-align: right;">0.19%</td>
+</tr>
+<tr>
+<td style="text-align: right;">7</td>
+<td><code>/api/v1/modules/getModule</code></td>
+<td style="text-align: right;">3,002</td>
+<td style="text-align: right;">38.9 KB</td>
+<td style="text-align: right;">114 MB</td>
+<td style="text-align: right;">0.07%</td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td><code>/api/v1/Post/getPostDetail</code></td>
+<td style="text-align: right;">83,860</td>
+<td style="text-align: right;">23.1 KB</td>
+<td style="text-align: right;">1,895 MB</td>
+<td style="text-align: right;">1.12%</td>
+</tr>
+<tr>
+<td style="text-align: right;">9</td>
+<td><code>/api/v1/Article/getArticleDetail</code></td>
+<td style="text-align: right;">20,530</td>
+<td style="text-align: right;">18.0 KB</td>
+<td style="text-align: right;">361 MB</td>
+<td style="text-align: right;">0.21%</td>
+</tr>
+<tr>
+<td style="text-align: right;">10</td>
+<td><code>/api/v1/pointMall/index</code></td>
+<td style="text-align: right;">20,901</td>
+<td style="text-align: right;">15.1 KB</td>
+<td style="text-align: right;">309 MB</td>
+<td style="text-align: right;">0.18%</td>
+</tr>
+<tr>
+<td style="text-align: right;">—</td>
+<td><strong>/api/v1 合计</strong></td>
+<td style="text-align: right;"><strong>3,674,630</strong></td>
+<td style="text-align: right;"><strong>47.1 KB</strong></td>
+<td style="text-align: right;"><strong>165 GB</strong></td>
+<td style="text-align: right;">100%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>可定位点</strong>：只要把 <code>modules/home</code> 的单次响应从 251 KB 降下来（拆分首屏/非首屏、字段裁剪、分页、缓存），就能直接影响 82% 的响应体积。</p>
+<hr/>
+<h2 id="三-SDK-接口响应排行-同小时-10-16-vs-10-17-22-00-23-00">三、SDK 接口响应排行（同小时 10-16 vs 10-17 22:00-23:00）</h2>
+<p>数据：<code>api_response</code> 日志（只含 <code>/api/sdk/*</code> 与 <code>/customer/*</code>），按 10-17 总响应字节排序</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">排名</th>
+<th>接口</th>
+<th style="text-align: right;">10-16 调用</th>
+<th style="text-align: right;">10-17 调用</th>
+<th style="text-align: right;">调用倍数</th>
+<th style="text-align: right;">10-16 合计</th>
+<th style="text-align: right;">10-17 合计</th>
+<th>平均大小 16→17</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td><code>/api/sdk/system/info</code></td>
+<td style="text-align: right;">7,452</td>
+<td style="text-align: right;">36,183</td>
+<td style="text-align: right;"><strong>4.86×</strong></td>
+<td style="text-align: right;">45.5 MB</td>
+<td style="text-align: right;"><strong>221.2 MB</strong></td>
+<td>6.3 → 6.3 KB（不变）</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td><code>/api/sdk/game/more</code></td>
+<td style="text-align: right;">58</td>
+<td style="text-align: right;">284</td>
+<td style="text-align: right;">4.90×</td>
+<td style="text-align: right;">3.2 MB</td>
+<td style="text-align: right;">17.2 MB</td>
+<td>56.0 → <strong>62.0 KB（+11%）</strong></td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td><code>/api/sdk/UserProduct/getProductList</code></td>
+<td style="text-align: right;">347</td>
+<td style="text-align: right;">1,222</td>
+<td style="text-align: right;">3.52×</td>
+<td style="text-align: right;">1.4 MB</td>
+<td style="text-align: right;">4.8 MB</td>
+<td>4.0 → 4.0 KB</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td><code>/api/sdk/user/validateToken</code></td>
+<td style="text-align: right;">4,881</td>
+<td style="text-align: right;">20,970</td>
+<td style="text-align: right;">4.30×</td>
+<td style="text-align: right;">0.9 MB</td>
+<td style="text-align: right;">4.0 MB</td>
+<td>0.2 → 0.2 KB</td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td><code>/customer/user/queryTestAccounts</code></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">121</td>
+<td style="text-align: right;"><strong>新增</strong></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.5 MB</td>
+<td>— → 29.9 KB</td>
+</tr>
+<tr>
+<td style="text-align: right;">6</td>
+<td><code>/api/sdk/system/gameTrack</code></td>
+<td style="text-align: right;">3,354</td>
+<td style="text-align: right;">13,181</td>
+<td style="text-align: right;">3.93×</td>
+<td style="text-align: right;">0.6 MB</td>
+<td style="text-align: right;">2.5 MB</td>
+<td>0.2 → 0.2 KB</td>
+</tr>
+<tr>
+<td style="text-align: right;">7</td>
+<td><code>/api/sdk/Login/username</code></td>
+<td style="text-align: right;">519</td>
+<td style="text-align: right;">2,157</td>
+<td style="text-align: right;">4.16×</td>
+<td style="text-align: right;">0.4 MB</td>
+<td style="text-align: right;">1.8 MB</td>
+<td>0.9 → 0.9 KB</td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td><code>/api/sdk/Game/more</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">10.0×</td>
+<td style="text-align: right;">0.1 MB</td>
+<td style="text-align: right;">1.2 MB</td>
+<td>56.0 → 62.0 KB</td>
+</tr>
+<tr>
+<td style="text-align: right;">9</td>
+<td><code>/api/sdk/vipGrowth/getMemberInfo</code></td>
+<td style="text-align: right;">289</td>
+<td style="text-align: right;">1,370</td>
+<td style="text-align: right;">4.74×</td>
+<td style="text-align: right;">0.3 MB</td>
+<td style="text-align: right;">1.2 MB</td>
+<td>0.9 → 0.9 KB</td>
+</tr>
+<tr>
+<td style="text-align: right;">10</td>
+<td><code>/customer/other/checkTokenV2</code></td>
+<td style="text-align: right;">1,274</td>
+<td style="text-align: right;">3,292</td>
+<td style="text-align: right;">2.58×</td>
+<td style="text-align: right;">0.4 MB</td>
+<td style="text-align: right;">1.1 MB</td>
+<td>0.3 → 0.3 KB</td>
+</tr>
+</tbody>
+</table>
+<p><strong>结论</strong>：SDK 侧所有接口调用量整体涨 <strong>3.5~5 倍</strong>，单条响应大小基本不变。要查的是「为什么 SDK 调用量涨 5 倍」——新游戏接入、客户端轮询/重试、还是某个渠道刷量。</p>
+<hr/>
+<h2 id="四-给开发的排查建议-按优先级">四、给开发的排查建议（按优先级）</h2>
+<ol>
+<li><strong><code>/api/v1/modules/home</code></strong>（251 KB × 56.7 万次/天 = 136 GB）
+   - 看这个接口一次返回了哪些模块；能否拆分「首屏必需」与「非首屏懒加载」
+   - 字段裁剪：列表项只返回卡片需要的字段
+   - 首页模块数据加缓存（Redis 已有能力），避免每次实时拼装大 JSON</li>
+<li><strong><code>/api/v1/game/detail</code></strong>（106 KB × 18.4 万次 = 19 GB）
+   - 详情页是否把大量关联数据（评论/攻略/礼包）一次性返回；改为分页/按需</li>
+<li><strong>SDK 调用量 5 倍</strong>：核对 10-17 是否有新游戏/新渠道接入；检查客户端是否有轮询、失败重试放大</li>
+<li><strong>新增的 <code>/customer/user/queryTestAccounts</code></strong>：确认是否测试账号查询被放到了生产高频调用</li>
+<li>服务端加「响应体大小」监控：按接口统计 p50/p95 大小，超阈值告警（这次问题就是靠日志人工发现的）</li>
+</ol>
+<h2 id="五-口径与限制">五、口径与限制</h2>
+<ul>
+<li><code>/api/v1</code> 排行来自 <strong>10-19 当天</strong> nginx access（本地只保留当天；10-16/10-17 的 access 已归档 S3 且对象名不含日期）</li>
+<li>SDK 排行来自 <code>api_response</code> 同小时对比（10-16 22:00-23:00 vs 10-17 22:00-23:00）</li>
+<li><code>api_response</code> 实测只记录 <code>/api/sdk/*</code>（85,413 行）与 <code>/customer/*</code>（3,413 行），<strong><code>/api/v1</code> 为 0 行</strong>，所以两侧必须分开看</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-结论先说">一、结论先说</a></li><li style="margin-left:0.0rem"><a href="#二-api-v1-接口响应大小排行">二、/api/v1 接口响应大小排行</a></li><li style="margin-left:0.0rem"><a href="#三-SDK-接口响应排行-同小时-10-16-vs-10-17-22-00-23-00">三、SDK 接口响应排行（同小时 10-16 vs 10-17 22:00-23:00）</a></li><li style="margin-left:0.0rem"><a href="#四-给开发的排查建议-按优先级">四、给开发的排查建议（按优先级）</a></li><li style="margin-left:0.0rem"><a href="#五-口径与限制">五、口径与限制</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-10-19</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">Redis</span><span class="tag">监控告警</span><span class="tag">故障排查</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-19-1620-【分析】…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610191620-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BDocker%2BNginx-%E3%80%90%E5%88%86%E6%9E%90%E3%80%91%E6%8E%A5%E5%8F%A3%E5%93%8D%E5%BA%94%E6%95%B0%E6%8D%AE%E9%87%8F%E6%8E%92%E8%A1%8C%E6%A6%9C%EF%BC%88-api-v1%20%E4%B8%8E%20SDK%20%E4%B8%A4%E4%BE%A7%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【分析】接口响应数据量排行榜（/api/v1 与 SDK 两侧）。本文属于业务系统运维 / 游点涩，目的：回答「哪些接口返回的数据变大了」，给出可定位到接口的排行榜 数据来源与口径见每节标题（ 两侧口径不同，不能混用 ） /api/v1/modules/home 是绝对大头 ：平均 251.5 KB/次 ，当天…</p>
+      <p>关键词：游点涩、Docker、Nginx、Redis、监控告警、故障排查、业务系统运维、业务系统运维 / 游点涩、【分析】接口响应数据量排行榜（/api/v1 与 SDK 两侧）、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-de90e0148e4a.html"><small>上一篇</small>【取证】正常日 vs 异常日 原始日志对比包（同为 22：00-23：00）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-62a9900e13f3.html"><small>下一篇</small>【优化】Beszel 监控告警中文化（阈值/状态/SMART 文案与公网链接）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b53211107e2c.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
