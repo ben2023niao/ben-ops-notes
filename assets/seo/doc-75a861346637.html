@@ -1,0 +1,905 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>游点涩正式/测试环境配置与服务器 hosts 盘点｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="游点涩正式/测试环境配置与服务器 hosts 盘点。本文属于业务系统运维 / 游点涩，本清单用于开发和管理后台设计统一配置管理，回答三个问题： 哪些适合迁入业务管理后台，哪些应继续留在基础设施层。 web/cron 容器由 compose extra_hosts 注入： /opt/docker-youdianse…">
+  <meta name="keywords" content="游点涩，Linux，Docker，Nginx，Redis，监控告警，自动化，CDN，业务系统运维，业务系统运维 / 游点涩，游点涩正式/测试环境配置与服务器 hosts 盘点，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-75a861346637.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-75a861346637.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610211600-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BDocker-%E6%B8%B8%E7%82%B9%E6%B6%A9%E6%AD%A3%E5%BC%8F-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%20hosts%20%E7%9B%98%E7%82%B9.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="游点涩正式/测试环境配置与服务器 hosts 盘点">
+  <meta property="og:description" content="游点涩正式/测试环境配置与服务器 hosts 盘点。本文属于业务系统运维 / 游点涩，本清单用于开发和管理后台设计统一配置管理，回答三个问题： 哪些适合迁入业务管理后台，哪些应继续留在基础设施层。 web/cron 容器由 compose extra_hosts 注入： /opt/docker-youdianse…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-75a861346637.html">
+  <meta property="article:published_time" content="2026-10-21T16:00:00+08:00">
+  <meta property="article:modified_time" content="2026-10-21 16:00">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="游点涩正式/测试环境配置与服务器 hosts 盘点">
+  <meta name="twitter:description" content="游点涩正式/测试环境配置与服务器 hosts 盘点。本文属于业务系统运维 / 游点涩，本清单用于开发和管理后台设计统一配置管理，回答三个问题： 哪些适合迁入业务管理后台，哪些应继续留在基础设施层。 web/cron 容器由 compose extra_hosts 注入： /opt/docker-youdianse…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-75a861346637.html#article","headline":"游点涩正式/测试环境配置与服务器 hosts 盘点","description":"游点涩正式/测试环境配置与服务器 hosts 盘点。本文属于业务系统运维 / 游点涩，本清单用于开发和管理后台设计统一配置管理，回答三个问题： 哪些适合迁入业务管理后台，哪些应继续留在基础设施层。 web/cron 容器由 compose extra_hosts 注入： /opt/docker-youdianse…","datePublished":"2026-10-21T16:00:00+08:00","dateModified":"2026-10-21 16:00","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Linux","Docker","Nginx","Redis","监控告警","自动化","CDN","业务系统运维","业务系统运维 / 游点涩","游点涩正式/测试环境配置与服务器 hosts 盘点","php"],"wordCount":3038,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-75a861346637.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-75a861346637.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"游点涩正式/测试环境配置与服务器 hosts 盘点","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-75a861346637.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>游点涩正式/测试环境配置与服务器 hosts 盘点</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>游点涩正式/测试环境配置与服务器 hosts 盘点</h1>
+      <p class="lede">游点涩正式/测试环境配置与服务器 hosts 盘点。本文属于业务系统运维 / 游点涩，本清单用于开发和管理后台设计统一配置管理，回答三个问题： 哪些适合迁入业务管理后台，哪些应继续留在基础设施层。 web/cron 容器由 compose extra_hosts 注入： /opt/docker-youdianse…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-21T16:00:00+08:00">发布于 2026-10-21</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">3,038 字</span>
+        <span class="badge">9 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-21-1600-【配置清单】游点涩正式测试环境配置与服务器hosts及环境变量盘点.md</code></p>
+<p>整理日期：2026-10-21 16:00｜日期依据：文件名日期</p>
+</blockquote>
+<h2 id="一-目的">一、目的</h2>
+<p>本清单用于开发和管理后台设计统一配置管理，回答三个问题：</p>
+<ol>
+<li>当前配置散落在哪里；</li>
+<li>每项配置由谁读取、何时生效；</li>
+<li>哪些适合迁入业务管理后台，哪些应继续留在基础设施层。</li>
+</ol>
+<p>本文只列路径、变量名和配置类型，不记录密码、Token、私钥及敏感值。</p>
+<h2 id="二-盘点范围">二、盘点范围</h2>
+<table>
+<thead>
+<tr>
+<th>环境</th>
+<th>角色</th>
+<th>公网 IP</th>
+<th>内网 IP</th>
+<th>主要职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>正式</td>
+<td>后端</td>
+<td><code>16.209.16.108</code></td>
+<td><code>203.0.113.1</code></td>
+<td>PHP-FPM、php-cron、后端 Nginx、CICD</td>
+</tr>
+<tr>
+<td>测试</td>
+<td>后端</td>
+<td><code>15.152.247.196</code></td>
+<td>由容器运行环境自动注入</td>
+<td>测试 PHP-FPM、php-cron、测试 CICD</td>
+</tr>
+<tr>
+<td>正式</td>
+<td>统一网关</td>
+<td><code>16.208.38.88</code></td>
+<td><code>203.0.113.1</code></td>
+<td>H5/PC 路由、证书、限流、UA 规则</td>
+</tr>
+<tr>
+<td>正式</td>
+<td>宝塔源站</td>
+<td><code>16.208.5.147</code></td>
+<td><code>203.0.113.1</code></td>
+<td>公网 HTTPS、vhost、前后端反向代理</td>
+</tr>
+<tr>
+<td>正式</td>
+<td>前端静态资源/SSR</td>
+<td><code>13.208.101.121</code></td>
+<td><code>203.0.113.1</code></td>
+<td>H5 Nuxt SSR、Beszel Agent</td>
+</tr>
+</tbody>
+</table>
+<p>数据库服务通过以下逻辑名称访问：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>地址</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>server.db1.com</code></td>
+<td><code>203.0.113.1</code></td>
+<td>Mongo 主库</td>
+</tr>
+<tr>
+<td><code>server.db2.com</code></td>
+<td><code>203.0.113.1</code>、<code>203.0.113.1</code></td>
+<td>Mongo 从库兼容名称</td>
+</tr>
+<tr>
+<td><code>server.db2a.com</code></td>
+<td><code>203.0.113.1</code></td>
+<td>Mongo 从库 01</td>
+</tr>
+<tr>
+<td><code>server.db2b.com</code></td>
+<td><code>203.0.113.1</code></td>
+<td>Mongo 从库 02</td>
+</tr>
+<tr>
+<td>Redis</td>
+<td><code>203.0.113.1:6379</code></td>
+<td>Session/缓存</td>
+</tr>
+</tbody>
+</table>
+<h2 id="三-服务器-etc-hosts">三、服务器 <code>/etc/hosts</code></h2>
+<h3 id="3-1-正式后端-16-209-16-108">3.1 正式后端 <code>16.209.16.108</code></h3>
+<p>宿主机：</p>
+<pre><code class="language-text">203.0.113.1 localhost
+154.95.24.45 package.18game.local
+</code></pre>
+<p>web/cron 容器由 compose <code>extra_hosts</code> 注入：</p>
+<pre><code class="language-text">203.0.113.1 server.db1.com
+203.0.113.1  server.db2.com
+203.0.113.1 server.db2.com
+203.0.113.1  server.db2a.com
+203.0.113.1 server.db2b.com
+</code></pre>
+<p>配置位置：</p>
+<ul>
+<li><code>/opt/docker-youdianse-php/docker-compose.yml</code></li>
+<li>YAML anchor：<code>x-youdianse-db-hosts</code></li>
+</ul>
+<h3 id="3-2-测试后端-15-152-247-196">3.2 测试后端 <code>15.152.247.196</code></h3>
+<p>宿主机：</p>
+<pre><code class="language-text">203.0.113.1 localhost localhost4 localhost4.localdomain4
+::1 localhost6 localhost6.localdomain6
+</code></pre>
+<p>当前测试 web/cron 容器没有额外 <code>extra_hosts</code>。如果后续测试 <code>.env</code> 使用逻辑域名而不是 IP，必须同步增加 <code>extra_hosts</code>。</p>
+<h3 id="3-3-网关-16-208-38-88">3.3 网关 <code>16.208.38.88</code></h3>
+<p>宿主机：</p>
+<pre><code class="language-text">203.0.113.1 localhost
+::1 ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+ff02::3 ip6-allhosts
+</code></pre>
+<p>H5/PC SSR 使用容器网络地址：</p>
+<pre><code class="language-text">H5 SSR: 203.0.113.1:3003
+PC SSR: 203.0.113.1:3004
+宝塔 API 上游: 203.0.113.1:443
+</code></pre>
+<p>这些地址目前直接写在 Nginx 配置中，不在 <code>/etc/hosts</code>。</p>
+<h3 id="3-4-宝塔源站-16-208-5-147">3.4 宝塔源站 <code>16.208.5.147</code></h3>
+<p>宿主机只有默认 localhost/IPv6 解析，没有业务内网域名映射。</p>
+<p>业务路由通过 Nginx 配置中的固定 IP：</p>
+<pre><code class="language-text">H5 前端: 203.0.113.1:3003
+PHP 后端: 203.0.113.1:8088
+CICD: 203.0.113.1:18090
+</code></pre>
+<h3 id="3-5-前端-13-208-101-121">3.5 前端 <code>13.208.101.121</code></h3>
+<p>宿主机只有默认 localhost/IPv6 解析。</p>
+<p>H5 容器运行在：</p>
+<pre><code class="language-text">0.0.0.0:3003 -&gt; container:3003
+</code></pre>
+<h2 id="四-正式-测试后端配置位置">四、正式/测试后端配置位置</h2>
+<h3 id="4-1-正式后端">4.1 正式后端</h3>
+<table>
+<thead>
+<tr>
+<th>配置</th>
+<th>宿主机位置</th>
+<th>容器位置</th>
+<th>权限</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>业务运行配置</td>
+<td><code>/opt/docker-youdianse-php/env/.env.prod</code></td>
+<td><code>/var/www/html/youdianse-php/.env</code></td>
+<td><code>root:root 0644</code>，只读挂载</td>
+</tr>
+<tr>
+<td>Docker/运行时编排</td>
+<td><code>/opt/docker-youdianse-php/docker-compose.yml</code></td>
+<td>Compose 配置</td>
+<td><code>root:root 0644</code></td>
+</tr>
+<tr>
+<td>后端 Nginx 站点</td>
+<td><code>/opt/docker-youdianse-php/nginx/default.conf</code></td>
+<td><code>/etc/nginx/conf.d/default.conf</code></td>
+<td>只读挂载</td>
+</tr>
+<tr>
+<td>后端 Nginx 主配置</td>
+<td><code>/opt/docker-youdianse-php/nginx/main.conf</code></td>
+<td><code>/etc/nginx/nginx.conf</code></td>
+<td>只读挂载</td>
+</tr>
+<tr>
+<td>PHP 配置</td>
+<td><code>/opt/docker-youdianse-php/php/dev.ini</code></td>
+<td><code>/usr/local/etc/php/conf.d/dev.ini</code></td>
+<td>只读挂载</td>
+</tr>
+<tr>
+<td>PHP-FPM pool</td>
+<td><code>/opt/docker-youdianse-php/php/fpm-pool.conf</code></td>
+<td><code>/usr/local/etc/php-fpm.d/www.conf</code></td>
+<td>只读挂载</td>
+</tr>
+<tr>
+<td>PHP-FPM 日志配置</td>
+<td><code>/opt/docker-youdianse-php/php/fpm-logging.conf</code></td>
+<td><code>/usr/local/etc/php-fpm.d/zz-youdianse-logging.conf</code></td>
+<td>只读挂载</td>
+</tr>
+<tr>
+<td>白名单</td>
+<td><code>/opt/docker-youdianse-php/cicd-web/runtime/app-local-files/alb_white.txt</code></td>
+<td><code>/var/www/html/youdianse-php/alb_white.txt</code></td>
+<td><code>root:www-data 0640</code>，只读挂载</td>
+</tr>
+<tr>
+<td>平台私钥</td>
+<td><code>/opt/docker-youdianse-php/cicd-web/runtime/app-local-files/alb_white_secret.txt</code></td>
+<td><code>/var/www/html/youdianse-php/alb_white_secret.txt</code></td>
+<td><code>root:www-data 0640</code>，只读挂载</td>
+</tr>
+<tr>
+<td>CICD 页面配置</td>
+<td><code>/opt/docker-youdianse-php/cicd-web/config/settings.json</code></td>
+<td>CICD 进程</td>
+<td><code>root:root 0644</code></td>
+</tr>
+<tr>
+<td>CICD 运行密钥</td>
+<td><code>/opt/docker-youdianse-php/cicd-web/runtime/secrets.env</code></td>
+<td>CICD 进程</td>
+<td><code>root:root 0600</code></td>
+</tr>
+<tr>
+<td>独立配置仓库</td>
+<td><code>/opt/docker-youdianse-php/config-repo</code></td>
+<td>CICD 使用</td>
+<td>Git 工作区</td>
+</tr>
+<tr>
+<td>业务代码</td>
+<td><code>/opt/docker-youdianse-php/src/youdianse-php</code></td>
+<td>web/cron 镜像构建源</td>
+<td>Git 工作区</td>
+</tr>
+<tr>
+<td>应用日志</td>
+<td><code>/opt/docker-youdianse-php/runtime/app-logs</code></td>
+<td><code>/var/www/html/youdianse-php/runtime/logs</code></td>
+<td>可写挂载</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-2-测试后端">4.2 测试后端</h3>
+<table>
+<thead>
+<tr>
+<th>配置</th>
+<th>宿主机位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>业务运行配置</td>
+<td><code>/opt/docker-youdianse-php/env/.env.dev</code></td>
+</tr>
+<tr>
+<td>Docker/运行时编排</td>
+<td><code>/opt/docker-youdianse-php/docker-compose.yml</code></td>
+</tr>
+<tr>
+<td>后端 Nginx</td>
+<td><code>/opt/docker-youdianse-php/nginx/default.conf</code></td>
+</tr>
+<tr>
+<td>PHP 配置</td>
+<td><code>/opt/docker-youdianse-php/php/dev.ini</code></td>
+</tr>
+<tr>
+<td>PHP-FPM 日志配置</td>
+<td><code>/opt/docker-youdianse-php/php/fpm-logging.conf</code></td>
+</tr>
+<tr>
+<td>白名单</td>
+<td><code>/opt/docker-youdianse-php/cicd-web/runtime/app-local-files/alb_white.txt</code></td>
+</tr>
+<tr>
+<td>平台私钥</td>
+<td><code>/opt/docker-youdianse-php/cicd-web/runtime/app-local-files/alb_white_secret.txt</code></td>
+</tr>
+<tr>
+<td>CICD 页面配置</td>
+<td><code>/opt/docker-youdianse-php/cicd-web/config/settings.json</code></td>
+</tr>
+<tr>
+<td>CICD 运行密钥</td>
+<td><code>/opt/docker-youdianse-php/cicd-web/runtime/secrets.env</code></td>
+</tr>
+<tr>
+<td>独立配置仓库</td>
+<td><code>/opt/docker-youdianse-php/config-repo</code></td>
+</tr>
+</tbody>
+</table>
+<p>测试白名单和平台私钥同样使用只读 bind mount。</p>
+<h2 id="五-网关配置位置">五、网关配置位置</h2>
+<p>目录：<code>/etc/nginx/conf.d/</code></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>10-youdianse-prod-maps.conf</code></td>
+<td>域名、设备、H5/PC 分流 map、upstream、限流、UA/地区判断</td>
+</tr>
+<tr>
+<td><code>20-youdianse-prod-unified.conf</code></td>
+<td>H5/PC 统一 server、API 反代、SSR 反代、证书选择</td>
+</tr>
+<tr>
+<td><code>abuse-blocklist.conf</code></td>
+<td>自动维护的恶意来源黑名单</td>
+</tr>
+</tbody>
+</table>
+<p>关键硬编码：</p>
+<ul>
+<li>H5 SSR：<code>203.0.113.1:3003</code></li>
+<li>PC SSR：<code>203.0.113.1:3004</code></li>
+<li>宝塔 API 上游：<code>203.0.113.1:443</code></li>
+<li>后端静态资源：<code>d391me9s8n5j5s.cloudfront.net</code></li>
+</ul>
+<p>证书：<code>/etc/letsencrypt/live/&lt;域名&gt;/fullchain.pem</code> 与 <code>privkey.pem</code></p>
+<p>PM2 配置在容器内：</p>
+<pre><code class="language-text">/app/ecosystem.config.cjs
+</code></pre>
+<p>PM2 环境变量名：</p>
+<pre><code class="language-text">BRANCH
+DISPLAY_NAME
+NODE_ENV
+HOST
+PORT
+SHORT_ID
+NODE_OPTIONS
+</code></pre>
+<h2 id="六-宝塔源站配置位置">六、宝塔源站配置位置</h2>
+<h3 id="6-1-Nginx-vhost">6.1 Nginx vhost</h3>
+<p>目录：<code>/www/server/panel/vhost/nginx/</code></p>
+<p>重点文件：</p>
+<pre><code class="language-text">new.youdianse.com.conf
+h5.youdianse-main.xyz.conf
+h5.youdianse.com.conf
+admin.youdianse-main.xyz.conf
+cicd.youdianse-main.xyz.conf
+18h.game.conf
+kf.youdianse-main.xyz.conf
+extension/new.youdianse.com/00-youdianse-fixed-reverse-proxy.conf
+</code></pre>
+<p>扩展配置目录：</p>
+<pre><code class="language-text">/www/server/panel/vhost/nginx/extension/&lt;域名&gt;/
+</code></pre>
+<h3 id="6-2-面板数据库">6.2 面板数据库</h3>
+<pre><code class="language-text">/www/server/panel/data/default.db
+</code></pre>
+<p>保存站点、域名、端口等宝塔元数据。面板保存时可能重写 vhost，因此长期真值不应只放在这个数据库。</p>
+<h3 id="6-3-Nginx-全局配置">6.3 Nginx 全局配置</h3>
+<pre><code class="language-text">/www/server/nginx/conf/nginx.conf
+/www/server/nginx/conf/proxy.conf
+/www/server/panel/vhost/nginx/0.site_total_log_format.conf
+</code></pre>
+<h3 id="6-4-证书">6.4 证书</h3>
+<pre><code class="language-text">/www/server/panel/vhost/cert/&lt;域名&gt;/fullchain.pem
+/www/server/panel/vhost/cert/&lt;域名&gt;/privkey.pem
+</code></pre>
+<h2 id="七-前端服务器配置位置">七、前端服务器配置位置</h2>
+<p>H5 容器内的 PM2 配置：</p>
+<pre><code class="language-text">/app/ecosystem.config.cjs
+</code></pre>
+<p>PM2 变量：</p>
+<pre><code class="language-text">PORT=3003
+HOST=0.0.0.0
+NODE_OPTIONS=--expose-gc --max-old-space-size=1024
+</code></pre>
+<p>镜像内构建变量：</p>
+<pre><code class="language-text">BRANCH
+DISPLAY_NAME
+NODE_ENV
+NODE_VERSION
+SHORT_ID
+YARN_VERSION
+</code></pre>
+<p>注意：目前服务器上的 PM2 配置仍是 <code>max_memory_restart: 500M</code>；网关侧有运行时守卫，但不能替代前端源码仓库中的正式配置修复。</p>
+<h2 id="八-正式-env-prod-配置分组">八、正式 <code>.env.prod</code> 配置分组</h2>
+<h3 id="8-1-应用与会话">8.1 应用与会话</h3>
+<pre><code class="language-text">[app]
+name
+env
+timezone
+headico
+check_admin_ip
+single_point_login
+
+[session]
+adapter
+
+[session.Files]
+lifetime
+prefix
+uniqueId
+
+[session.Redis]
+host
+port
+persistent
+lifetime
+prefix
+index
+uniqueId
+</code></pre>
+<h3 id="8-2-Mongo-Redis-Queue-Cache">8.2 Mongo / Redis / Queue / Cache</h3>
+<pre><code class="language-text">[database.mongodb.default]
+host
+port
+dbname
+username
+password
+
+[database.mongodb.channel]
+host
+port
+dbname
+username
+password
+
+[database.mongodb.slave1]
+host
+port
+dbname
+username
+password
+
+[database.mongodb.slave2]
+host
+port
+dbname
+username
+password
+
+[redis]
+host
+port
+index
+prefix
+
+[queue]
+channel
+index
+
+[cache]
+adapter
+lifetime
+host
+port
+index
+prefix
+</code></pre>
+<h3 id="8-3-模块-搜索-消息">8.3 模块、搜索、消息</h3>
+<pre><code class="language-text">[modules]
+Backend
+Api
+Channel
+Customer
+ApiV1
+Sdk
+
+[elastic]
+host
+prefix
+
+[rabbitmq]
+host
+port
+user
+password
+vhost
+</code></pre>
+<h3 id="8-4-Telegram-回调-第三方">8.4 Telegram / 回调 / 第三方</h3>
+<pre><code class="language-text">[telegram]
+bot_token
+hook_token
+tg_webhook
+
+[tg]
+TG_TOKEN
+TG_WEBHOOK
+TG_HOOK_TOKEN
+
+[channel]
+api_url
+secret_key
+
+[other_kf]
+kf_key
+kf_appid
+kf_api_url
+ips
+
+[host_check]
+check_url
+
+[lsj_ai]
+media_url
+media_key
+media_appid
+app_name
+
+[pay.callback]
+urls
+
+[cloudflare]
+site_key
+secret_key
+
+[trtc]
+enabled
+sdk_app_id
+secret_key
+admin_identifier
+audit_name
+api_host
+
+[te_sdk]
+app_id
+log_path
+</code></pre>
+<h3 id="8-5-AWS-CDN-加密">8.5 AWS / CDN / 加密</h3>
+<pre><code class="language-text">[aws]
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+AWS_DEFAULT_REGION
+AWS_BUCKET
+AWS_DOMAIN
+AWS_DOMAIN_ENCRYPT_KEY
+AWS_DISTRIBUTION_ID
+AWS_CDN_ACCESS_KEY
+AWS_CDN_KEY_ID
+AWS_CDN_REGION
+
+[cdn]
+tencent
+kingshan
+aws
+
+[cdn.aws.gp]
+domain
+keyId
+keyPath
+
+[cdn.aws.18game]
+domain
+origin_domain
+backend_cdn_domain
+keyId
+keyPath
+channel_s3_domain
+
+[aes.pass]
+pass_key
+
+[check_white_token_ip]
+ips
+</code></pre>
+<h3 id="8-6-动态-CDN-分组">8.6 动态 CDN 分组</h3>
+<p>正式配置还包含多个：</p>
+<pre><code class="language-text">[cdn.tencent.&lt;业务域名&gt;]
+[cdn.aliyun.&lt;业务域名&gt;]
+[cdn.jixing.&lt;业务域名&gt;]
+[cdn.maoyun.&lt;业务域名&gt;]
+</code></pre>
+<p>每个分组通常包含：</p>
+<pre><code class="language-text">domain
+key
+</code></pre>
+<p>部分腾讯云视频分组还包含：</p>
+<pre><code class="language-text">path_prefix
+ttl
+token_param
+time_param
+key_file
+</code></pre>
+<p>这类动态分组不建议继续扩展成大量独立 section，迁移配置中心时应改为“CDN 配置表 + 业务标识”。</p>
+<h2 id="九-测试-env-dev-差异">九、测试 <code>.env.dev</code> 差异</h2>
+<p>测试配置包含正式环境对应的绝大多数分组，并额外存在：</p>
+<pre><code class="language-text">[modules]
+Pc
+
+[lsj_ai]
+open_url
+open_app_id
+open_app_secret
+
+[cdn.tencent._default]
+path_prefix
+ttl
+token_param
+time_param
+key
+key_file
+
+[own_drama]
+url
+api_key
+
+[te_sdk]
+server_url
+</code></pre>
+<p>测试环境当前没有任何容器 <code>extra_hosts</code>，说明测试 <code>.env</code> 的数据库连接依赖目前配置中的实际值或网络解析，不能与正式环境假设混用。</p>
+<h2 id="十-CICD-运行配置">十、CICD 运行配置</h2>
+<h3 id="10-1-正式-CICD">10.1 正式 CICD</h3>
+<p><code>secrets.env</code> 变量名：</p>
+<pre><code class="language-text">TG_CHAT_IDS
+</code></pre>
+<p>配置文件和运行密钥：</p>
+<pre><code class="language-text">/opt/docker-youdianse-php/cicd-web/config/settings.json
+/opt/docker-youdianse-php/cicd-web/runtime/secrets.env
+</code></pre>
+<h3 id="10-2-测试-CICD">10.2 测试 CICD</h3>
+<p><code>secrets.env</code> 变量名：</p>
+<pre><code class="language-text">TG_BOT_TOKEN
+TG_CHAT_ID
+TG_EXTRA_CHAT_IDS
+TG_PUBLISH_CHAT_IDS
+YOUDIANSE_HEALTH_TG_CHAT_ID
+YOUDIANSE_PUBLISH_PASSWORD
+YOUDIANSE_WEBHOOK_TOKEN
+</code></pre>
+<h2 id="十一-当前配置分散的核心问题">十一、当前配置分散的核心问题</h2>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>典型位置</th>
+<th>风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>业务配置在 INI 文件</td>
+<td><code>env/.env.prod</code>、<code>env/.env.dev</code></td>
+<td>无审计、无灰度、无法在线回滚</td>
+</tr>
+<tr>
+<td>平台白名单在 TXT</td>
+<td><code>config-repo/app-local-files/*.txt</code></td>
+<td>格式弱、容易重复/漏项，前后环境不同步</td>
+</tr>
+<tr>
+<td>容器网络主机名在 Compose</td>
+<td><code>docker-compose.yml</code></td>
+<td>env 改了但 hosts 没改会直接报错</td>
+</tr>
+<tr>
+<td>路由写死在 Nginx</td>
+<td>网关 <code>10/20-*.conf</code>、宝塔 vhost</td>
+<td>新增域名要改多处，容易一处漏</td>
+</tr>
+<tr>
+<td>SSR PM2 参数在镜像内</td>
+<td><code>/app/ecosystem.config.cjs</code></td>
+<td>运行时修改后重建镜像会回退</td>
+</tr>
+<tr>
+<td>密钥散落</td>
+<td><code>.env</code>、<code>secrets.env</code>、PM2、Nginx</td>
+<td>轮换困难、权限边界不统一</td>
+</tr>
+<tr>
+<td>测试/正式结构不一致</td>
+<td>正式有 <code>extra_hosts</code>，测试没有</td>
+<td>发布验证结果不可直接复用</td>
+</tr>
+</tbody>
+</table>
+<h2 id="十二-建议的统一配置分层">十二、建议的统一配置分层</h2>
+<p>不建议把所有配置塞进同一个后台页面。应按权限和生效方式分三层：</p>
+<h3 id="12-1-业务配置中心">12.1 业务配置中心</h3>
+<p>建议进入业务管理后台或 Nacos：</p>
+<ul>
+<li>Mongo/Redis/队列/Cache；</li>
+<li>CDN/支付/第三方/Telegram；</li>
+<li>功能开关、超时、限流阈值；</li>
+<li>白名单和平台映射。</li>
+</ul>
+<p>必须具备：</p>
+<ul>
+<li>正式/测试 namespace 隔离；</li>
+<li>变更历史、操作人、前后值 diff；</li>
+<li>灰度发布、版本回滚；</li>
+<li>发布前格式校验；</li>
+<li>敏感字段加密；</li>
+<li>API 供 PHP/H5/PC/SDK 统一读取；</li>
+<li>客户端本地缓存和配置中心故障兜底。</li>
+</ul>
+<h3 id="12-2-基础设施配置">12.2 基础设施配置</h3>
+<p>继续留在 Git/部署系统：</p>
+<ul>
+<li>Docker Compose；</li>
+<li>Nginx；</li>
+<li>PHP-FPM/Sysctl；</li>
+<li>证书路径；</li>
+<li>容器镜像、端口、启动参数。</li>
+</ul>
+<p>这些配置不适合在线热改，必须经过语法检查、灰度 reload 和回滚。</p>
+<h3 id="12-3-密钥中心">12.3 密钥中心</h3>
+<p>独立存放：</p>
+<ul>
+<li>数据库密码；</li>
+<li>AWS/腾讯云密钥；</li>
+<li>Telegram Token；</li>
+<li>平台私钥；</li>
+<li>SSH/TLS 私钥；</li>
+<li>支付密钥。</li>
+</ul>
+<p>业务后台只引用密钥 ID，不直接展示明文。</p>
+<h2 id="十三-推荐迁移顺序">十三、推荐迁移顺序</h2>
+<h3 id="第一阶段-建立总台账">第一阶段：建立总台账</h3>
+<ul>
+<li>把本文件作为初始清单；</li>
+<li>每项配置标记 owner、环境、消费端、敏感级别；</li>
+<li>删除无人使用的历史 section 和 CDN 分组。</li>
+</ul>
+<h3 id="第二阶段-业务配置只保留一个来源">第二阶段：业务配置只保留一个来源</h3>
+<ul>
+<li>业务管理后台维护结构化配置；</li>
+<li>由后台生成 <code>.env</code> 快照给尚未改造的 PHP；</li>
+<li>同时提供配置 API 给已改造模块；</li>
+<li>配置文件仍保留版本号和回滚能力。</li>
+</ul>
+<h3 id="第三阶段-代码接入">第三阶段：代码接入</h3>
+<ul>
+<li>PHP 启动时加载不可变快照；</li>
+<li>动态配置通过 SDK/API 获取；</li>
+<li>读取失败回退最后一次成功快照；</li>
+<li>禁止业务代码读取 <code>/etc/hosts</code> 参与业务开关。</li>
+</ul>
+<h3 id="第四阶段-基础设施收敛">第四阶段：基础设施收敛</h3>
+<ul>
+<li>新增域名只录一次，由配置生成网关和宝塔路由；</li>
+<li>service registry/DNS 替代手工 hosts；</li>
+<li>PM2 参数进入前端源码仓库；</li>
+<li>Nginx 配置全部版本化。</li>
+</ul>
+<h2 id="十四-结论">十四、结论</h2>
+<p>当前问题的根源不是单个 TXT，而是业务配置、基础设施配置和密钥没有边界：</p>
+<ul>
+<li>一部分在 <code>.env</code>；</li>
+<li>一部分在 Compose hosts；</li>
+<li>一部分在 TXT；</li>
+<li>一部分在 Nginx；</li>
+<li>一部分在 PM2；</li>
+<li>一部分在宝塔数据库和证书目录。</li>
+</ul>
+<p>正确目标不是一个“大而全后台”，而是：</p>
+<pre><code class="language-text">业务配置 → 配置中心/管理后台
+基础设施 → Git + CI/CD
+密钥 → 独立密钥中心
+服务地址 → DNS/服务发现
+</code></pre>
+<p>这样才能做到统一管理、可审计、可回滚，并避免配置修改和容器重建互相踩踏。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-目的">一、目的</a></li><li style="margin-left:0.0rem"><a href="#二-盘点范围">二、盘点范围</a></li><li style="margin-left:0.0rem"><a href="#三-服务器-etc-hosts">三、服务器 /etc/hosts</a></li><li style="margin-left:0.8rem"><a href="#3-1-正式后端-16-209-16-108">3.1 正式后端 16.209.16.108</a></li><li style="margin-left:0.8rem"><a href="#3-2-测试后端-15-152-247-196">3.2 测试后端 15.152.247.196</a></li><li style="margin-left:0.8rem"><a href="#3-3-网关-16-208-38-88">3.3 网关 16.208.38.88</a></li><li style="margin-left:0.8rem"><a href="#3-4-宝塔源站-16-208-5-147">3.4 宝塔源站 16.208.5.147</a></li><li style="margin-left:0.8rem"><a href="#3-5-前端-13-208-101-121">3.5 前端 13.208.101.121</a></li><li style="margin-left:0.0rem"><a href="#四-正式-测试后端配置位置">四、正式/测试后端配置位置</a></li><li style="margin-left:0.8rem"><a href="#4-1-正式后端">4.1 正式后端</a></li><li style="margin-left:0.8rem"><a href="#4-2-测试后端">4.2 测试后端</a></li><li style="margin-left:0.0rem"><a href="#五-网关配置位置">五、网关配置位置</a></li><li style="margin-left:0.0rem"><a href="#六-宝塔源站配置位置">六、宝塔源站配置位置</a></li><li style="margin-left:0.8rem"><a href="#6-1-Nginx-vhost">6.1 Nginx vhost</a></li><li style="margin-left:0.8rem"><a href="#6-2-面板数据库">6.2 面板数据库</a></li><li style="margin-left:0.8rem"><a href="#6-3-Nginx-全局配置">6.3 Nginx 全局配置</a></li><li style="margin-left:0.8rem"><a href="#6-4-证书">6.4 证书</a></li><li style="margin-left:0.0rem"><a href="#七-前端服务器配置位置">七、前端服务器配置位置</a></li><li style="margin-left:0.0rem"><a href="#八-正式-env-prod-配置分组">八、正式 .env.prod 配置分组</a></li><li style="margin-left:0.8rem"><a href="#8-1-应用与会话">8.1 应用与会话</a></li><li style="margin-left:0.8rem"><a href="#8-2-Mongo-Redis-Queue-Cache">8.2 Mongo / Redis / Queue / Cache</a></li><li style="margin-left:0.8rem"><a href="#8-3-模块-搜索-消息">8.3 模块、搜索、消息</a></li><li style="margin-left:0.8rem"><a href="#8-4-Telegram-回调-第三方">8.4 Telegram / 回调 / 第三方</a></li><li style="margin-left:0.8rem"><a href="#8-5-AWS-CDN-加密">8.5 AWS / CDN / 加密</a></li><li style="margin-left:0.8rem"><a href="#8-6-动态-CDN-分组">8.6 动态 CDN 分组</a></li><li style="margin-left:0.0rem"><a href="#九-测试-env-dev-差异">九、测试 .env.dev 差异</a></li><li style="margin-left:0.0rem"><a href="#十-CICD-运行配置">十、CICD 运行配置</a></li><li style="margin-left:0.8rem"><a href="#10-1-正式-CICD">10.1 正式 CICD</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-10-21</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Linux</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">Redis</span><span class="tag">监控告警</span><span class="tag">自动化</span><span class="tag">CDN</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-21-1600-【配置清…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610211600-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BDocker-%E6%B8%B8%E7%82%B9%E6%B6%A9%E6%AD%A3%E5%BC%8F-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%20hosts%20%E7%9B%98%E7%82%B9.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>游点涩正式/测试环境配置与服务器 hosts 盘点。本文属于业务系统运维 / 游点涩，本清单用于开发和管理后台设计统一配置管理，回答三个问题： 哪些适合迁入业务管理后台，哪些应继续留在基础设施层。 web/cron 容器由 compose extra_hosts 注入： /opt/docker-youdianse…</p>
+      <p>关键词：游点涩、Linux、Docker、Nginx、Redis、监控告警、自动化、CDN、业务系统运维、业务系统运维 / 游点涩、游点涩正式/测试环境配置与服务器 hosts 盘点、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aab40f131cb6.html"><small>上一篇</small>客服工单 #3648</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-bd26549cd2ab.html"><small>下一篇</small>域名配置同步到 03 打包机记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-75a861346637.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
