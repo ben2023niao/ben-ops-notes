@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>18game 网关 CC 误报与 Meta 高频爬虫处置（2026-10-23 · 4fcc）｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="18game 网关 CC 误报与 Meta 高频爬虫处置。本文属于业务系统运维 / 游点涩，结论：本次没有 抗压能力测试/SYN Flood；明确授权安全测试是已拦截的登录撞库。持续高负载主要来自真实业务流量、 H5/PC SSR 调用和 Meta 高频爬虫。 原告警只要 1 分钟负载超过固定值 15 就标记“疑…">
+  <meta name="keywords" content="游点涩，Shell，Python，Docker，Nginx，监控告警，自动化，CDN，业务系统运维，业务系统运维 / 游点涩，18game 网关 CC 误报与 Meta 高频爬虫处置，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-523fd9674fcc.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-523fd9674fcc.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610232355-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-18game%20%E7%BD%91%E5%85%B3%20CC%20%E8%AF%AF%E6%8A%A5%E4%B8%8E%20Meta%20%E9%AB%98%E9%A2%91%E7%88%AC%E8%99%AB%E5%A4%84%E7%BD%AE.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="18game 网关 CC 误报与 Meta 高频爬虫处置（2026-10-23 · 4fcc）">
+  <meta property="og:description" content="18game 网关 CC 误报与 Meta 高频爬虫处置。本文属于业务系统运维 / 游点涩，结论：本次没有 抗压能力测试/SYN Flood；明确授权安全测试是已拦截的登录撞库。持续高负载主要来自真实业务流量、 H5/PC SSR 调用和 Meta 高频爬虫。 原告警只要 1 分钟负载超过固定值 15 就标记“疑…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-523fd9674fcc.html">
+  <meta property="article:published_time" content="2026-10-23T23:55:00+08:00">
+  <meta property="article:modified_time" content="2026-10-23 23:55">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="18game 网关 CC 误报与 Meta 高频爬虫处置（2026-10-23 · 4fcc）">
+  <meta name="twitter:description" content="18game 网关 CC 误报与 Meta 高频爬虫处置。本文属于业务系统运维 / 游点涩，结论：本次没有 抗压能力测试/SYN Flood；明确授权安全测试是已拦截的登录撞库。持续高负载主要来自真实业务流量、 H5/PC SSR 调用和 Meta 高频爬虫。 原告警只要 1 分钟负载超过固定值 15 就标记“疑…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-523fd9674fcc.html#article","headline":"18game 网关 CC 误报与 Meta 高频爬虫处置（2026-10-23 · 4fcc）","description":"18game 网关 CC 误报与 Meta 高频爬虫处置。本文属于业务系统运维 / 游点涩，结论：本次没有 抗压能力测试/SYN Flood；明确授权安全测试是已拦截的登录撞库。持续高负载主要来自真实业务流量、 H5/PC SSR 调用和 Meta 高频爬虫。 原告警只要 1 分钟负载超过固定值 15 就标记“疑…","datePublished":"2026-10-23T23:55:00+08:00","dateModified":"2026-10-23 23:55","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Shell","Python","Docker","Nginx","监控告警","自动化","CDN","业务系统运维","业务系统运维 / 游点涩","18game 网关 CC 误报与 Meta 高频爬虫处置","php"],"wordCount":1721,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-523fd9674fcc.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-523fd9674fcc.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"18game 网关 CC 误报与 Meta 高频爬虫处置","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-523fd9674fcc.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>18game 网关 CC 误报与 Meta 高频爬虫处置（2026-10-23 · 4fcc）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>18game 网关 CC 误报与 Meta 高频爬虫处置（2026-10-23 · 4fcc）</h1>
+      <p class="lede">18game 网关 CC 误报与 Meta 高频爬虫处置。本文属于业务系统运维 / 游点涩，结论：本次没有 抗压能力测试/SYN Flood；明确授权安全测试是已拦截的登录撞库。持续高负载主要来自真实业务流量、 H5/PC SSR 调用和 Meta 高频爬虫。 原告警只要 1 分钟负载超过固定值 15 就标记“疑…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-23T23:55:00+08:00">发布于 2026-10-23</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,721 字</span>
+        <span class="badge">5 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-23-2355-【安全事件】18game网关CC误报与Meta爬虫高频抓取处置.md</code></p>
+<p>整理日期：2026-10-23 23:55｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>时间：2026-10-23（北京时间）</li>
+<li>环境：游点涩/18game 线上</li>
+<li>网关：16.208.38.88</li>
+<li>结论：本次没有 抗压能力测试/SYN Flood；明确授权安全测试是已拦截的登录撞库。持续高负载主要来自真实业务流量、
+  H5/PC SSR 调用和 Meta 高频爬虫。</li>
+</ul>
+<h2 id="一-告警为什么看起来像授权安全测试">一、告警为什么看起来像授权安全测试</h2>
+<p>原告警只要 1 分钟负载超过固定值 15 就标记“疑似 CC/抗压能力测试”。本次 8 核网关 load 在 13–19 之间波动，
+但现场指标不支持 抗压能力测试：</p>
+<ul>
+<li>established 约 1,300–2,400，远低于 40,000 阈值；</li>
+<li>SYN_RECV 仅个位数至数十，远低于 3,000 阈值；</li>
+<li>首页 <code>GET /</code> 约 1–4 req/s，远低于 100 req/s 阈值；</li>
+<li>nginx worker 连接错误为 0，内存约 130–160MB；</li>
+<li>全站请求约 1,000–1,200 req/s，HTTP 200 占 98% 以上。</li>
+</ul>
+<p>高负载由 H5 SSR（约 300%–400% CPU）、PC SSR 和大量 API 请求共同造成。把“主机负载高”
+直接写成“CC/抗压能力测试”会造成错误定性，也会把 CloudFront 边缘节点误列为授权安全测试源。</p>
+<h2 id="二-明确授权安全测试-登录撞库扫描">二、明确授权安全测试：登录撞库扫描</h2>
+<h3 id="黑客画像">黑客画像</h3>
+<ul>
+<li>来源：<code>3.1.244.240</code></li>
+<li>网络：美国 Amazon AWS，AS16509，BGP 段 <code>3.0.0.0/15</code></li>
+<li>UA：<code>python-requests/2.32.5</code>，POST 时伪装 Chrome UA</li>
+<li>行为：自动化脚本，HEAD 探测和 POST 撞库混合</li>
+<li>频率：15:30–15:47 UTC 共 2,694 次，约 2.6 req/s</li>
+<li>结果：全部 HTTP 444，没有进入业务应用</li>
+</ul>
+<h3 id="授权安全测试目标">授权安全测试目标</h3>
+<table>
+<thead>
+<tr>
+<th>接口</th>
+<th style="text-align: right;">请求数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/api/v1/LoginNew/account</code></td>
+<td style="text-align: right;">973</td>
+</tr>
+<tr>
+<td><code>/api/v1/Login/email</code></td>
+<td style="text-align: right;">578</td>
+</tr>
+<tr>
+<td><code>/api/v1/Login/username</code></td>
+<td style="text-align: right;">573</td>
+</tr>
+<tr>
+<td><code>/api/v1/Login/account</code></td>
+<td style="text-align: right;">570</td>
+</tr>
+</tbody>
+</table>
+<p>其余 Python 脚本来源共 1,775 次，全部 444。线上后端 <code>api_request-2026-10-23.log</code> 中未找到
+<code>3.1.244.240</code>，说明请求在网关层已被阻断，没有到达 PHP/MongoDB。</p>
+<h2 id="三-异常爬虫-Meta-External-Agent">三、异常爬虫：Meta External Agent</h2>
+<h3 id="识别结果">识别结果</h3>
+<ul>
+<li>UA：<code>meta-externalagent/1.1</code></li>
+<li>来源：Meta 自有 IPv6 <code>2a03:2880::/32</code></li>
+<li>样本客户端 IP：当前日志 1,127 个</li>
+<li>行为：持续约 94 req/s，约 85% 为 POST；伪装 Chrome/Edge/Firefox UA 前缀</li>
+<li>路径：<code>exposureCollect/report</code>、<code>User/getUserPostList</code>、<code>Tracking/recordPageVisit</code>、
+  <code>configDict/getConfigDict</code>、<code>Lang/list</code>、<code>Community/config</code>、<code>User/getCommunityInfo</code></li>
+</ul>
+<p>这不是普通搜索引擎的页面/站点地图抓取。它会执行页面脚本并连带请求大量 API、埋点和社区数据。
+来源和 UA 指向真实 Meta 网络，不是随机代理池伪造；问题在于抓取强度和资源消耗不可接受。</p>
+<h3 id="历史分时-日志归档计数">历史分时（日志归档计数）</h3>
+<table>
+<thead>
+<tr>
+<th>时间窗口</th>
+<th style="text-align: right;">Meta 请求数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10-22 14:30–16:00</td>
+<td style="text-align: right;">51,924</td>
+</tr>
+<tr>
+<td>10-22 16:00–17:45</td>
+<td style="text-align: right;">48,580</td>
+</tr>
+<tr>
+<td>10-22 17:45–21:30</td>
+<td style="text-align: right;">502,072</td>
+</tr>
+<tr>
+<td>10-22 21:30–10-23 00:00</td>
+<td style="text-align: right;">798,028</td>
+</tr>
+<tr>
+<td>10-23 00:00–03:00</td>
+<td style="text-align: right;">1,406,966（峰值）</td>
+</tr>
+<tr>
+<td>10-23 03:00–05:30</td>
+<td style="text-align: right;">1,241,960</td>
+</tr>
+<tr>
+<td>10-23 05:30–07:45</td>
+<td style="text-align: right;">919,897</td>
+</tr>
+<tr>
+<td>10-23 07:45–09:45</td>
+<td style="text-align: right;">800,122</td>
+</tr>
+<tr>
+<td>10-23 09:45–11:30</td>
+<td style="text-align: right;">611,940</td>
+</tr>
+<tr>
+<td>10-23 11:30–13:00</td>
+<td style="text-align: right;">489,196</td>
+</tr>
+<tr>
+<td>10-23 13:00–14:30</td>
+<td style="text-align: right;">474,840</td>
+</tr>
+<tr>
+<td>10-23 14:30–15:30</td>
+<td style="text-align: right;">342,426</td>
+</tr>
+</tbody>
+</table>
+<h2 id="四-如何区分真实搜索引擎和恶意爬虫">四、如何区分真实搜索引擎和恶意爬虫</h2>
+<p>UA 只是声明，不能作为唯一身份依据。生产判定至少结合以下维度：</p>
+<ol>
+<li><strong>官方 IP 段</strong>：Googlebot、Bingbot、Applebot、Meta 都有自己的发布网段；</li>
+<li><strong>DNS 一致性</strong>：反查主机名必须落在官方域名，且正向解析回原 IP；</li>
+<li><strong>robots/sitemap 行为</strong>：是否读取规则、是否只抓页面、是否遵守频控；</li>
+<li><strong>请求范围</strong>：只抓页面还是大量调用 API、埋点、社区和用户资料接口；</li>
+<li><strong>请求节奏</strong>：单 ASN/网段/IP 的 QPS、并发、持续时间和峰谷；</li>
+<li><strong>业务成本</strong>：是否触发 SSR、数据库查询或不必要的写接口。</li>
+</ol>
+<p>判定口径：</p>
+<ul>
+<li>UA 官方 + IP 官方 + FCrDNS 一致 + 行为正常 → 已验证搜索引擎；</li>
+<li>UA 官方但 IP 不在官方段 → 伪造/冒充，直接拦截；</li>
+<li>UA/IP 均为官方但速率和路径明显超限 → 真实爬虫的失控/不受欢迎抓取，单独限流或阻断；</li>
+<li>UA 普通浏览器但来源、节奏、路径呈现自动化特征 → 按恶意机器人处置。</li>
+</ul>
+<h2 id="五-本次修复">五、本次修复</h2>
+<h3 id="守卫与告警">守卫与告警</h3>
+<ul>
+<li>只有网络阈值命中才标记 CC/抗压能力测试；单纯主机负载改标“主机高负载”；</li>
+<li>负载阈值改为 <code>max(20, CPU核数×3.0)</code>，8 核机器为 24；</li>
+<li>新增全站 QPS 阈值 3,000；</li>
+<li>来源 IP 统一取 XFF 首跳，并排除 AWS 官方 CloudFront 段；</li>
+<li>修复 access/error 日志轮转造成的负 QPS；</li>
+<li>established 对端字段从本地端改为远端；GET / 候选源改为真实客户端。</li>
+</ul>
+<h3 id="网关限流">网关限流</h3>
+<ul>
+<li><code>perip_ssr</code> 从 <code>$binary_remote_addr</code>（CloudFront 边缘）改为 XFF 首跳真实客户端；</li>
+<li>单真实客户端 SSR 并发从 50 调整为 200，避免正常 H5 首屏并行加载被误限；</li>
+<li>配置备份后通过 <code>nginx -t</code>，网关受控重启加载。</li>
+</ul>
+<h3 id="爬虫策略">爬虫策略</h3>
+<ul>
+<li><code>meta-externalagent</code> 返回 403；</li>
+<li><code>facebookexternalhit</code> 链接预览保持 200；</li>
+<li>Googlebot、Bingbot、Applebot 和普通浏览器不受影响。</li>
+</ul>
+<h2 id="六-验证结果">六、验证结果</h2>
+<ul>
+<li><code>nginx -t</code>：通过；</li>
+<li>正常浏览器访问 <code>www.youdianse.com</code>、<code>h5.18h.game</code>：200；</li>
+<li>Googlebot UA：200；</li>
+<li><code>facebookexternalhit</code>：200；</li>
+<li><code>meta-externalagent</code>：403（CloudFront 和源站直连均验证）；</li>
+<li>限流修复后 20 秒采样新增 <code>perip_ssr</code> 错误：0；</li>
+<li>30 秒采样全站 QPS：约 1,170 → 约 1,005；</li>
+<li>线上后端 API：约 314 QPS；</li>
+<li>网关 load：约 19 → 约 16；</li>
+<li>H5/PC 容器运行正常，内存充足。</li>
+</ul>
+<h2 id="七-剩余风险与后续动作">七、剩余风险与后续动作</h2>
+<ol>
+<li>当前约 1,000 QPS 的剩余流量主要来自正常 H5/PC、移动 App 和 Meta 之外的客户端，已是容量问题，
+   不应继续用“授权安全测试”方式处理。</li>
+<li>前端应把埋点合并上报，减少 <code>exposureCollect/report</code>、<code>tracking/record</code>、
+   <code>Tracking/recordPageVisit</code> 的单用户高频调用。</li>
+<li>~~CloudFront/源站应继续优化 <code>_nuxt</code> 和静态图片缓存，避免重复回源 Nuxt SSR。~~
+   已于 2026-10-24 增加网关本地只读代理缓存，整机 CPU 从接近 100% 降至约 45%。</li>
+<li>后续接入 Googlebot/Bingbot/Applebot 官方 IP 清单与 FCrDNS 校验，形成统一的“已验证爬虫白名单”。</li>
+<li>若业务峰值长期超过当前 8 核网关容量，应按监控数据扩容或拆分 H5/PC SSR 节点。</li>
+</ol>
+<h2 id="八-代码与配置">八、代码与配置</h2>
+<ul>
+<li><code>18game_devops/devops/scripts/cc_guard/attack_alert.py</code></li>
+<li><code>18game_devops/devops/scripts/cc_guard/youdianse_cc_guard.py</code></li>
+<li><code>18game_devops/devops/python/ben-bot/data/scripts/线上环境-游点涩-新前端配置/nginx/10-youdianse-prod-maps.conf</code></li>
+<li><code>18game_devops/devops/python/ben-bot/data/scripts/线上环境-游点涩-新前端配置/nginx/20-youdianse-prod-unified.conf</code></li>
+</ul>
+<p>线上备份：</p>
+<ul>
+<li><code>10-youdianse-prod-maps.conf.bak.ssr-xff-20261023-154240</code></li>
+<li><code>10-youdianse-prod-maps.conf.bak.meta-crawler-20261023-155104</code></li>
+<li><code>20-youdianse-prod-unified.conf.bak.ssr-conn200-20261023-154610</code></li>
+<li><code>20-youdianse-prod-unified.conf.bak.meta-crawler-20261023-155104</code></li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-告警为什么看起来像授权安全测试">一、告警为什么看起来像授权安全测试</a></li><li style="margin-left:0.0rem"><a href="#二-明确授权安全测试-登录撞库扫描">二、明确授权安全测试：登录撞库扫描</a></li><li style="margin-left:0.8rem"><a href="#黑客画像">黑客画像</a></li><li style="margin-left:0.8rem"><a href="#授权安全测试目标">授权安全测试目标</a></li><li style="margin-left:0.0rem"><a href="#三-异常爬虫-Meta-External-Agent">三、异常爬虫：Meta External Agent</a></li><li style="margin-left:0.8rem"><a href="#识别结果">识别结果</a></li><li style="margin-left:0.8rem"><a href="#历史分时-日志归档计数">历史分时（日志归档计数）</a></li><li style="margin-left:0.0rem"><a href="#四-如何区分真实搜索引擎和恶意爬虫">四、如何区分真实搜索引擎和恶意爬虫</a></li><li style="margin-left:0.0rem"><a href="#五-本次修复">五、本次修复</a></li><li style="margin-left:0.8rem"><a href="#守卫与告警">守卫与告警</a></li><li style="margin-left:0.8rem"><a href="#网关限流">网关限流</a></li><li style="margin-left:0.8rem"><a href="#爬虫策略">爬虫策略</a></li><li style="margin-left:0.0rem"><a href="#六-验证结果">六、验证结果</a></li><li style="margin-left:0.0rem"><a href="#七-剩余风险与后续动作">七、剩余风险与后续动作</a></li><li style="margin-left:0.0rem"><a href="#八-代码与配置">八、代码与配置</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-10-23</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">监控告警</span><span class="tag">自动化</span><span class="tag">CDN</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-23-2355-【安全事…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610232355-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-18game%20%E7%BD%91%E5%85%B3%20CC%20%E8%AF%AF%E6%8A%A5%E4%B8%8E%20Meta%20%E9%AB%98%E9%A2%91%E7%88%AC%E8%99%AB%E5%A4%84%E7%BD%AE.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>18game 网关 CC 误报与 Meta 高频爬虫处置。本文属于业务系统运维 / 游点涩，结论：本次没有 抗压能力测试/SYN Flood；明确授权安全测试是已拦截的登录撞库。持续高负载主要来自真实业务流量、 H5/PC SSR 调用和 Meta 高频爬虫。 原告警只要 1 分钟负载超过固定值 15 就标记“疑…</p>
+      <p>关键词：游点涩、Shell、Python、Docker、Nginx、监控告警、自动化、CDN、业务系统运维、业务系统运维 / 游点涩、18game 网关 CC 误报与 Meta 高频爬虫处置、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5b3018182f82.html"><small>上一篇</small>18game 网关 CC 误报与 Meta 高频爬虫处置</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ce968787e964.html"><small>下一篇</small>磁盘写满清理</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-523fd9674fcc.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
