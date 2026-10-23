@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>前端发布自动失效网关静态缓存｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="前端发布自动失效网关静态缓存。本文属于业务系统运维 / 游点涩，时间：2026-10-24（Asia/Manila） 目标：前端在通常的 14:00–22:00 发布后，用户不能继续拿到旧静态资源 结论：新 H5、新 PC 发布成功后自动轮换源站静态缓存； _nuxt 保留 immutable， 同名图片的源站/…">
+  <meta name="keywords" content="游点涩，Docker，Nginx，自动化，CDN，故障排查，数据库恢复，源码与配置，业务系统运维，业务系统运维 / 游点涩，前端发布自动失效网关静态缓存，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c9f2598aa519.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c9f2598aa519.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610240030-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BDocker%2BNginx-%E5%89%8D%E7%AB%AF%E5%8F%91%E5%B8%83%E8%87%AA%E5%8A%A8%E5%A4%B1%E6%95%88%E7%BD%91%E5%85%B3%E9%9D%99%E6%80%81%E7%BC%93%E5%AD%98.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="前端发布自动失效网关静态缓存">
+  <meta property="og:description" content="前端发布自动失效网关静态缓存。本文属于业务系统运维 / 游点涩，时间：2026-10-24（Asia/Manila） 目标：前端在通常的 14:00–22:00 发布后，用户不能继续拿到旧静态资源 结论：新 H5、新 PC 发布成功后自动轮换源站静态缓存； _nuxt 保留 immutable， 同名图片的源站/…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c9f2598aa519.html">
+  <meta property="article:published_time" content="2026-10-24T00:30:00+08:00">
+  <meta property="article:modified_time" content="2026-10-24 00:30">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="前端发布自动失效网关静态缓存">
+  <meta name="twitter:description" content="前端发布自动失效网关静态缓存。本文属于业务系统运维 / 游点涩，时间：2026-10-24（Asia/Manila） 目标：前端在通常的 14:00–22:00 发布后，用户不能继续拿到旧静态资源 结论：新 H5、新 PC 发布成功后自动轮换源站静态缓存； _nuxt 保留 immutable， 同名图片的源站/…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c9f2598aa519.html#article","headline":"前端发布自动失效网关静态缓存","description":"前端发布自动失效网关静态缓存。本文属于业务系统运维 / 游点涩，时间：2026-10-24（Asia/Manila） 目标：前端在通常的 14:00–22:00 发布后，用户不能继续拿到旧静态资源 结论：新 H5、新 PC 发布成功后自动轮换源站静态缓存； _nuxt 保留 immutable， 同名图片的源站/…","datePublished":"2026-10-24T00:30:00+08:00","dateModified":"2026-10-24 00:30","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Docker","Nginx","自动化","CDN","故障排查","数据库恢复","源码与配置","业务系统运维","业务系统运维 / 游点涩","前端发布自动失效网关静态缓存","php"],"wordCount":728,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c9f2598aa519.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c9f2598aa519.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"前端发布自动失效网关静态缓存","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c9f2598aa519.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>前端发布自动失效网关静态缓存</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>前端发布自动失效网关静态缓存</h1>
+      <p class="lede">前端发布自动失效网关静态缓存。本文属于业务系统运维 / 游点涩，时间：2026-10-24（Asia/Manila） 目标：前端在通常的 14:00–22:00 发布后，用户不能继续拿到旧静态资源 结论：新 H5、新 PC 发布成功后自动轮换源站静态缓存； _nuxt 保留 immutable， 同名图片的源站/…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-24T00:30:00+08:00">发布于 2026-10-24</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">728 字</span>
+        <span class="badge">3 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-24-0030-【配置优化】前端发布自动失效网关静态缓存.md</code></p>
+<p>整理日期：2026-10-24 00:30｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>时间：2026-10-24（Asia/Manila）</li>
+<li>环境：游点涩/18game 线上</li>
+<li>目标：前端在通常的 14:00–22:00 发布后，用户不能继续拿到旧静态资源</li>
+<li>结论：新 H5、新 PC 发布成功后自动轮换源站静态缓存；<code>_nuxt</code> 保留 immutable，
+  同名图片的源站/CloudFront TTL 缩短到 10 分钟。</li>
+</ul>
+<h2 id="一-缓存策略">一、缓存策略</h2>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>原策略</th>
+<th>新策略</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/_nuxt/*</code></td>
+<td>7 天</td>
+<td>7 天 + immutable</td>
+<td>构建文件名带内容哈希，新页面引用新文件名</td>
+</tr>
+<tr>
+<td><code>/images/*</code></td>
+<td>1 天</td>
+<td>10 分钟</td>
+<td>同名图片可能被前端更新覆盖，必须限制旧图时间</td>
+</tr>
+<tr>
+<td>页面/API</td>
+<td>不缓存</td>
+<td>不缓存</td>
+<td>保持动态请求实时性</td>
+</tr>
+</tbody>
+</table>
+<p><code>/_nuxt</code> 的 7 天 TTL 不会阻塞新版本：新前端构建的 HTML 会引用新的 hash 文件名。
+为防止极端情况下同名文件被复用，前端发版成功后仍会清空源站整个静态缓存目录。</p>
+<h2 id="二-发布联动">二、发布联动</h2>
+<p><code>线上环境-游点涩-新h5-发版</code> 与 <code>线上环境-游点涩-新pc-发版</code> 已在共用发布引擎中接入：</p>
+<ol>
+<li>远程镜像构建成功；</li>
+<li>新容器启动并完成 <code>run.sh</code>；</li>
+<li>获取发布锁，避免 H5/PC 并发发布同时改缓存；</li>
+<li>将 <code>/var/cache/nginx/youdianse_static</code> 整体归档；</li>
+<li>新建空缓存目录；</li>
+<li>执行 <code>nginx -t</code>；</li>
+<li>重启 Nginx，确保所有 worker 使用新缓存目录；</li>
+<li>清理两天前的历史缓存归档。</li>
+</ol>
+<p>旧缓存归档路径：</p>
+<p><code>/var/cache/nginx/youdianse_static_releases/cache-&lt;时间&gt;-&lt;项目&gt;-&lt;commit&gt;</code></p>
+<p>归档保留 2 天，用于快速回滚。</p>
+<h2 id="三-异常保护">三、异常保护</h2>
+<ul>
+<li>缓存路径只允许位于 <code>/var/cache/nginx/</code>；</li>
+<li>H5/PC 发布通过 <code>/tmp/youdianse-static-cache.lock</code> 串行化；</li>
+<li>轮换后先执行 <code>nginx -t</code>，失败时恢复旧目录并拒绝继续；</li>
+<li>发布失败不会清理缓存；</li>
+<li>旧缓存清理仅作用于 <code>youdianse_static_releases/cache-*</code>，不触碰当前缓存目录。</li>
+</ul>
+<h2 id="四-验证">四、验证</h2>
+<ul>
+<li>新 H5 / 新 PC 入口 <code>--help</code> 均正常；</li>
+<li>生产入口环境变量验证：缓存清理已启用，路径为 <code>/var/cache/nginx/youdianse_static</code>；</li>
+<li>三次真实轮换演练均成功；</li>
+<li>Nginx 重启后保持 active；</li>
+<li>页面 www/h5 返回 200；</li>
+<li><code>_nuxt</code>：<code>MISS → HIT</code>，<code>Cache-Control: public, max-age=604800, immutable</code>；</li>
+<li><code>/images</code>：<code>MISS → HIT</code>，<code>Cache-Control: max-age=600</code>；</li>
+<li>CloudFront 对外响应同步返回新 TTL；</li>
+<li>旧缓存归档存在，当前缓存目录重新预热。</li>
+</ul>
+<h2 id="五-操作说明">五、操作说明</h2>
+<p>正常发布不需要人工清缓存，直接使用现有新 H5 / 新 PC 发布按钮。</p>
+<p>如需临时停用自动清理，可设置：</p>
+<pre><code class="language-text">YOUDIANSE_H5_TEST_GATEWAY_STATIC_CACHE_PURGE_ENABLED=0
+YOUDIANSE_PC_TEST_GATEWAY_STATIC_CACHE_PURGE_ENABLED=0
+</code></pre>
+<p>不建议停用。若清理步骤失败，发布会标记失败并保留旧容器/缓存现场，由运维排查后再重试。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-缓存策略">一、缓存策略</a></li><li style="margin-left:0.0rem"><a href="#二-发布联动">二、发布联动</a></li><li style="margin-left:0.0rem"><a href="#三-异常保护">三、异常保护</a></li><li style="margin-left:0.0rem"><a href="#四-验证">四、验证</a></li><li style="margin-left:0.0rem"><a href="#五-操作说明">五、操作说明</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-10-24</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">自动化</span><span class="tag">CDN</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-24-0030-【配置优…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610240030-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BDocker%2BNginx-%E5%89%8D%E7%AB%AF%E5%8F%91%E5%B8%83%E8%87%AA%E5%8A%A8%E5%A4%B1%E6%95%88%E7%BD%91%E5%85%B3%E9%9D%99%E6%80%81%E7%BC%93%E5%AD%98.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>前端发布自动失效网关静态缓存。本文属于业务系统运维 / 游点涩，时间：2026-10-24（Asia/Manila） 目标：前端在通常的 14:00–22:00 发布后，用户不能继续拿到旧静态资源 结论：新 H5、新 PC 发布成功后自动轮换源站静态缓存； _nuxt 保留 immutable， 同名图片的源站/…</p>
+      <p>关键词：游点涩、Docker、Nginx、自动化、CDN、故障排查、数据库恢复、源码与配置、业务系统运维、业务系统运维 / 游点涩、前端发布自动失效网关静态缓存、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b3ffd5dfd4f9.html"><small>上一篇</small>18game 网关高负载复核与静态资源缓存降载</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2f57bc0d61a5.html"><small>下一篇</small>Beszel 监控数据巡检与针对性维护</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c9f2598aa519.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
