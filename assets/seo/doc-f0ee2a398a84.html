@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Beszel 全机队巡检、磁盘清理与 PM2 内存阈值修复｜业务系统运维 / 游点涩｜BEN.OPS</title>
+  <meta name="description" content="Beszel 全机队巡检、磁盘清理与 PM2 内存阈值修复。本文属于业务系统运维 / 游点涩，时间：2026-10-26（Asia/Manila） Beszel： beszel-zh:v0.18.7 代码提交： 18game_devops/b88d7ee 结论：完成全机队趋势与异常分析；监控机、网关、后端共释放约…">
+  <meta name="keywords" content="游点涩，Linux，Shell，Python，Docker，Nginx，监控告警，自动化，业务系统运维，业务系统运维 / 游点涩，Beszel 全机队巡检、磁盘清理与 PM2 内存阈值修复，php">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f0ee2a398a84.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f0ee2a398a84.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610260000-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-Beszel%20%E5%85%A8%E6%9C%BA%E9%98%9F%E5%B7%A1%E6%A3%80%E3%80%81%E7%A3%81%E7%9B%98%E6%B8%85%E7%90%86%E4%B8%8E%20PM2%20%E5%86%85%E5%AD%98%E9%98%88%E5%80%BC%E4%BF%AE%E5%A4%8D.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Beszel 全机队巡检、磁盘清理与 PM2 内存阈值修复">
+  <meta property="og:description" content="Beszel 全机队巡检、磁盘清理与 PM2 内存阈值修复。本文属于业务系统运维 / 游点涩，时间：2026-10-26（Asia/Manila） Beszel： beszel-zh:v0.18.7 代码提交： 18game_devops/b88d7ee 结论：完成全机队趋势与异常分析；监控机、网关、后端共释放约…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f0ee2a398a84.html">
+  <meta property="article:published_time" content="2026-10-26T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-10-26 00:00">
+  <meta property="article:section" content="业务系统运维 / 游点涩">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Beszel 全机队巡检、磁盘清理与 PM2 内存阈值修复">
+  <meta name="twitter:description" content="Beszel 全机队巡检、磁盘清理与 PM2 内存阈值修复。本文属于业务系统运维 / 游点涩，时间：2026-10-26（Asia/Manila） Beszel： beszel-zh:v0.18.7 代码提交： 18game_devops/b88d7ee 结论：完成全机队趋势与异常分析；监控机、网关、后端共释放约…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f0ee2a398a84.html#article","headline":"Beszel 全机队巡检、磁盘清理与 PM2 内存阈值修复","description":"Beszel 全机队巡检、磁盘清理与 PM2 内存阈值修复。本文属于业务系统运维 / 游点涩，时间：2026-10-26（Asia/Manila） Beszel： beszel-zh:v0.18.7 代码提交： 18game_devops/b88d7ee 结论：完成全机队趋势与异常分析；监控机、网关、后端共释放约…","datePublished":"2026-10-26T00:00:00+08:00","dateModified":"2026-10-26 00:00","inLanguage":"zh-CN","articleSection":["业务系统运维","游点涩"],"keywords":["游点涩","Linux","Shell","Python","Docker","Nginx","监控告警","自动化","业务系统运维","业务系统运维 / 游点涩","Beszel 全机队巡检、磁盘清理与 PM2 内存阈值修复","php"],"wordCount":1771,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f0ee2a398a84.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f0ee2a398a84.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"业务系统运维 / 游点涩","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Beszel 全机队巡检、磁盘清理与 PM2 内存阈值修复","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f0ee2a398a84.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>业务系统运维 / 游点涩</span> › <span>Beszel 全机队巡检、磁盘清理与 PM2 内存阈值修复</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">业务系统运维 / 游点涩</div>
+      <h1>Beszel 全机队巡检、磁盘清理与 PM2 内存阈值修复</h1>
+      <p class="lede">Beszel 全机队巡检、磁盘清理与 PM2 内存阈值修复。本文属于业务系统运维 / 游点涩，时间：2026-10-26（Asia/Manila） Beszel： beszel-zh:v0.18.7 代码提交： 18game_devops/b88d7ee 结论：完成全机队趋势与异常分析；监控机、网关、后端共释放约…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-26T00:00:00+08:00">发布于 2026-10-26</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,771 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-26-【监控维护】Beszel全机队巡检磁盘清理与PM2内存阈值修复.md</code></p>
+<p>整理日期：2026-10-26 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<ul>
+<li>时间：2026-10-26（Asia/Manila）</li>
+<li>环境：游点涩/18game 线上与测试</li>
+<li>监控中心：<code>52.79.252.255:8090</code></li>
+<li>Beszel：<code>beszel-zh:v0.18.7</code></li>
+<li>代码提交：<code>18game_devops/b88d7ee</code></li>
+<li>结论：完成全机队趋势与异常分析；监控机、网关、后端共释放约 8GB；补齐 5 台主机 55 条告警规则；H5/PC PM2 重启阈值由 500MB 修正为 1GB，短时回归无新增重启</li>
+</ul>
+<h2 id="一-变更前基线">一、变更前基线</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>18game_devops/main</code></td>
+<td><code>01aa89c</code>，与 <code>origin/main</code> 一致，工作区 clean</td>
+</tr>
+<tr>
+<td><code>docker-youdianse-php/main</code></td>
+<td><code>e4e28ca</code>，与 <code>origin/main</code> 一致，工作区 clean</td>
+</tr>
+<tr>
+<td>Beszel 容器</td>
+<td>已运行 7 天，health 200</td>
+</tr>
+<tr>
+<td>监控对象</td>
+<td>26 台 up、1 台明确 paused</td>
+</tr>
+<tr>
+<td>触发中告警</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>浏览器会话不可用，本次通过 Beszel 所在服务器的 PocketBase SQLite 只读数据、HTTP health 和目标主机 SSH 交叉验证。未修改 Beszel 登录凭据。</p>
+<h2 id="二-当前机队快照">二、当前机队快照</h2>
+<h3 id="高-CPU-load">高 CPU/load</h3>
+<table>
+<thead>
+<tr>
+<th>主机</th>
+<th style="text-align: right;">CPU</th>
+<th style="text-align: right;">内存</th>
+<th style="text-align: right;">磁盘</th>
+<th style="text-align: right;">load1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>游点涩-预发布</td>
+<td style="text-align: right;">50.97%</td>
+<td style="text-align: right;">51.35%</td>
+<td style="text-align: right;">1.88%</td>
+<td style="text-align: right;">20.19</td>
+</tr>
+<tr>
+<td>游点涩-网关</td>
+<td style="text-align: right;">31–36%</td>
+<td style="text-align: right;">44–46%</td>
+<td style="text-align: right;">35.6%</td>
+<td style="text-align: right;">2.3–3.3</td>
+</tr>
+<tr>
+<td>游点涩-测试后端</td>
+<td style="text-align: right;">29.51%</td>
+<td style="text-align: right;">40.66%</td>
+<td style="text-align: right;">16.22%</td>
+<td style="text-align: right;">1.16</td>
+</tr>
+<tr>
+<td>游点涩-数据库主库</td>
+<td style="text-align: right;">20.61%</td>
+<td style="text-align: right;">51.66%</td>
+<td style="text-align: right;">32.78%</td>
+<td style="text-align: right;">3.47</td>
+</tr>
+</tbody>
+</table>
+<h3 id="高磁盘-内存">高磁盘/内存</h3>
+<table>
+<thead>
+<tr>
+<th>主机</th>
+<th>指标</th>
+<th style="text-align: right;">当前值</th>
+<th style="text-align: right;">阈值</th>
+<th>判断</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>msb-Mongo文件</td>
+<td>磁盘</td>
+<td style="text-align: right;">67.81%</td>
+<td style="text-align: right;">72%</td>
+<td>近 7 天稳定，未增长</td>
+</tr>
+<tr>
+<td>18game-打包机</td>
+<td>磁盘</td>
+<td style="text-align: right;">57.8%</td>
+<td style="text-align: right;">60%</td>
+<td>近 7 天缓慢增加</td>
+</tr>
+<tr>
+<td>游点涩-测试H5</td>
+<td>磁盘</td>
+<td style="text-align: right;">57.31%</td>
+<td style="text-align: right;">64%</td>
+<td>近 7 天稳定</td>
+</tr>
+<tr>
+<td>msb-MongoDB</td>
+<td>内存</td>
+<td style="text-align: right;">80.12%</td>
+<td style="text-align: right;">81%</td>
+<td>7 天由 73% 缓升到 80% 后趋稳</td>
+</tr>
+<tr>
+<td>18game-TG机器人</td>
+<td>内存</td>
+<td style="text-align: right;">21%</td>
+<td style="text-align: right;">新增 82%</td>
+<td>正常</td>
+</tr>
+</tbody>
+</table>
+<h2 id="三-7-天趋势与异常分析">三、7 天趋势与异常分析</h2>
+<p>基于 <code>system_stats/480m</code> 计算 7 天 p95，基于 <code>120m</code> 复核阶跃：</p>
+<table>
+<thead>
+<tr>
+<th>主机</th>
+<th style="text-align: right;">p95 CPU</th>
+<th style="text-align: right;">p95 load1</th>
+<th style="text-align: right;">最大 CPU</th>
+<th style="text-align: right;">最大 load1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>预发布</td>
+<td style="text-align: right;">46.14%</td>
+<td style="text-align: right;">18.42</td>
+<td style="text-align: right;">50.99%</td>
+<td style="text-align: right;">20.38</td>
+</tr>
+<tr>
+<td>网关</td>
+<td style="text-align: right;">43.34%</td>
+<td style="text-align: right;">5.34</td>
+<td style="text-align: right;">58.20%</td>
+<td style="text-align: right;">7.95</td>
+</tr>
+<tr>
+<td>测试后端</td>
+<td style="text-align: right;">33.85%</td>
+<td style="text-align: right;">1.78</td>
+<td style="text-align: right;">33.99%</td>
+<td style="text-align: right;">1.78</td>
+</tr>
+<tr>
+<td>数据库主库</td>
+<td style="text-align: right;">29.33%</td>
+<td style="text-align: right;">4.81</td>
+<td style="text-align: right;">31.57%</td>
+<td style="text-align: right;">5.22</td>
+</tr>
+<tr>
+<td>后端 PHP</td>
+<td style="text-align: right;">14.26%</td>
+<td style="text-align: right;">2.24</td>
+<td style="text-align: right;">14.95%</td>
+<td style="text-align: right;">2.35</td>
+</tr>
+</tbody>
+</table>
+<h3 id="预发布异常阶跃">预发布异常阶跃</h3>
+<p><code>138.252.248.139</code> 的 CPU/load 在 10-26 发生明显阶跃：</p>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th style="text-align: right;">CPU</th>
+<th style="text-align: right;">load1</th>
+<th style="text-align: right;">内存</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10-25 21:30 UTC</td>
+<td style="text-align: right;">0.89%</td>
+<td style="text-align: right;">0.33</td>
+<td style="text-align: right;">43.49%</td>
+</tr>
+<tr>
+<td>10-25 23:30 UTC</td>
+<td style="text-align: right;">31.59%</td>
+<td style="text-align: right;">12.54</td>
+<td style="text-align: right;">48.00%</td>
+</tr>
+<tr>
+<td>10-26 01:30 UTC</td>
+<td style="text-align: right;">50.99%</td>
+<td style="text-align: right;">20.39</td>
+<td style="text-align: right;">50.75%</td>
+</tr>
+<tr>
+<td>10-26 13:30 UTC</td>
+<td style="text-align: right;">50.97%</td>
+<td style="text-align: right;">20.37</td>
+<td style="text-align: right;">51.37%</td>
+</tr>
+</tbody>
+</table>
+<p>换算为 Asia/Manila，异常发生在 10-26 早上约 07:30–09:30，之后长时间几乎完全不变。高度疑似固定满载进程、构建/扫描任务或监控口径异常，不像自然业务波动。</p>
+<p>当前 <code>root@138.252.248.139:38927</code> 拒绝现有密钥，Beszel 中也无可读容器统计，因此无法安全定位 PID。禁止在未确认进程前直接重启。</p>
+<h2 id="四-告警配置缺口修复">四、告警配置缺口修复</h2>
+<p>发现以下 5 台 up 主机虽然正常上报数据，但 <code>alerts</code> 规则为 0：</p>
+<ul>
+<li><code>18game-TG机器人-191.40.41.155</code></li>
+<li><code>18game-定时任务机-Spug调度-16.208.32.40</code></li>
+<li><code>游点涩-测试环境-dpanel-38.92.8.151</code></li>
+<li><code>游点涩-预发布环境-PC/H5-138.252.248.139</code></li>
+<li><code>短剧-测试服-业务-45.135.237.47</code></li>
+</ul>
+<p>这也是预发布持续高 CPU/load 未告警的直接原因。</p>
+<p>本次为每台补齐 11 条规则，共 55 条：</p>
+<ul>
+<li>CPU：60%</li>
+<li>磁盘：60%</li>
+<li>带宽：33</li>
+<li>普通主机内存：70–85%</li>
+<li>普通主机 load1/5/15：10</li>
+<li>预发布 20 核 load1/5/15：20</li>
+<li>包含在线状态、GPU、温度、电池等标准项</li>
+</ul>
+<p>数据库备份：</p>
+<pre><code class="language-text">/root/codex-backup/beszel-alerts-20261026-140012/data.db
+SHA256: 316b9e15f7097a108cba7a105eeb2501f5de738b08402be7db4a92cc2f7e6c91
+</code></pre>
+<p>修复后：</p>
+<ul>
+<li><code>PRAGMA integrity_check</code>：ok</li>
+<li>5 台均为 11 条规则</li>
+<li>Beszel 重启加载配置后 health 200</li>
+<li>预发布 LoadAvg1/5/15 已实际触发</li>
+<li>其他新增规则无即时误报</li>
+</ul>
+<h2 id="五-磁盘垃圾清理">五、磁盘垃圾清理</h2>
+<p>只清理悬空镜像、未使用 build cache、旧 journal、包缓存和超过保留期的轮转日志；未删除运行容器、数据卷、业务持久化日志或当前镜像。</p>
+<table>
+<thead>
+<tr>
+<th>主机</th>
+<th style="text-align: right;">清理前</th>
+<th style="text-align: right;">清理后</th>
+<th>主要结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>监控机 52.79.252.255</td>
+<td style="text-align: right;">45%</td>
+<td style="text-align: right;">42%</td>
+<td>约释放 1.5GB；journal 473MB→236MB</td>
+</tr>
+<tr>
+<td>网关 16.208.38.88</td>
+<td style="text-align: right;">36%</td>
+<td style="text-align: right;">28%</td>
+<td>约释放 4GB；journal 4.0GB→2.3GB</td>
+</tr>
+<tr>
+<td>后端 16.209.16.108</td>
+<td style="text-align: right;">46%</td>
+<td style="text-align: right;">41%</td>
+<td>约释放 2.4GB；build cache 1.71GB→0</td>
+</tr>
+</tbody>
+</table>
+<p>合计约释放 8GB。</p>
+<p>清理后验证：</p>
+<ul>
+<li>监控机 7 个容器全部 Up，Beszel/ben-bot 正常</li>
+<li>网关 Nginx active，<code>nginx -t</code> 通过，H5/PC 8/8 worker online</li>
+<li>后端 web/nginx/cron/logbus/beszel-agent 全部 Up</li>
+<li>公网 www/h5/pc 全部 200</li>
+<li><code>/api/v1/system/info</code> POST：200</li>
+<li><code>server.db1/db2a/db2b</code> 在容器内解析正常</li>
+</ul>
+<h2 id="六-PM2-内存阈值修复">六、PM2 内存阈值修复</h2>
+<p>虽然历史文档记录 H5/PC 已调整为 1GB，实际 ecosystem 仍为：</p>
+<pre><code class="language-text">max_memory_restart: '500M'
+</code></pre>
+<p>日志显示：</p>
+<ul>
+<li>H5 worker 在 591–760MB 被重启</li>
+<li>PC worker 在 524–633MB 被重启</li>
+<li>PC 持续出现 <code>@popperjs/core</code> 缺失</li>
+</ul>
+<p>worker 自动重启会关闭已有连接，是 keepalive 参数调整后仍出现 upstream 104 的放大器。</p>
+<h3 id="线上修正">线上修正</h3>
+<ul>
+<li>H5/PC <code>max_memory_restart</code>：500MB→1GB</li>
+<li>PM2 滚动 reload</li>
+<li>H5 8/8、PC 8/8 online</li>
+<li>所有 worker 生效值：1,073,741,824 字节</li>
+</ul>
+<h3 id="2-分钟回归">2 分钟回归</h3>
+<table>
+<thead>
+<tr>
+<th>容器</th>
+<th style="text-align: right;">起始重启计数</th>
+<th style="text-align: right;">结束重启计数</th>
+<th style="text-align: right;">新增</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H5</td>
+<td style="text-align: right;">14,508</td>
+<td style="text-align: right;">14,508</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>PC</td>
+<td style="text-align: right;">13,186</td>
+<td style="text-align: right;">13,186</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p>所有 worker 持续运行超过 200 秒。网关自 13:50 后 3003/3004 upstream 104 新增为 0。</p>
+<h3 id="发布固化">发布固化</h3>
+<p>已修改：</p>
+<ul>
+<li><code>devops/python/ben-bot/data/scripts/测试环境-游点涩-h5-发版/remote_youdianse_h5_deploy.py</code></li>
+<li><code>devops/python/ben-bot/tests/test_http_keepalive.py</code></li>
+<li>ben-bot 版本升级为 <code>v1.0.9</code></li>
+</ul>
+<p>后续前端发布会自动把 PM2 单 worker 阈值设为 1GB。</p>
+<h2 id="七-剩余阻塞">七、剩余阻塞</h2>
+<ol>
+<li>预发布机现有 SSH 密钥被拒绝，需补可用凭据或堡垒机会话，才能定位固定 CPU/load 进程。</li>
+<li>打包机、msb Mongo 文件、msb Mongo、测试 H5、SPJ 三台目前无可用 SSH，不能直接清理或检查进程内存组成。</li>
+<li>msb-MongoDB 内存 7 天从约 73% 升到 80% 后趋稳，阈值 81% 暂不调整，需在获得 SSH 后确认 WiredTiger 缓存和进程构成。</li>
+<li>PC 容器仍偶发 <code>@popperjs/core</code> 缺失，需前端重新构建包含依赖的镜像。</li>
+<li>API 上游 <code>203.0.113.1:443</code> 仍存在偶发 prematurely closed，与本次前端 3003/3004 重启链独立。</li>
+</ol>
+<h2 id="八-备份与回滚">八、备份与回滚</h2>
+<h3 id="Beszel-告警数据库">Beszel 告警数据库</h3>
+<pre><code class="language-text">/root/codex-backup/beszel-alerts-20261026-140012/data.db
+</code></pre>
+<h3 id="PM2-配置">PM2 配置</h3>
+<pre><code class="language-text">/root/codex-backup/pm2-memory-20261026-135729/
+</code></pre>
+<h3 id="ben-bot-发布模板">ben-bot 发布模板</h3>
+<pre><code class="language-text">/root/codex-backup/benbot-pm2mem-20261026-135819/benbot-app-scripts.tar.gz
+SHA256: 3969b6fa4804a02671c2929b1294e5c325f44d3aa28125e3ca11146b25ccddae
+</code></pre>
+<h2 id="九-通知记录">九、通知记录</h2>
+<ul>
+<li>步骤 1：<code>124294</code></li>
+<li>步骤 2：<code>124295</code></li>
+<li>步骤 3：<code>124296</code></li>
+<li>步骤 4：<code>124297</code></li>
+<li>步骤 5：<code>124298</code></li>
+<li>步骤 6：<code>124299</code></li>
+<li>步骤 7：<code>124334</code></li>
+<li>步骤 8：<code>124336</code></li>
+<li>步骤 9：<code>124340</code></li>
+<li>步骤 10：<code>124341</code></li>
+</ul>
+<h2 id="十-结论">十、结论</h2>
+<ul>
+<li>高磁盘主机中，可访问的三台已完成安全清理。</li>
+<li>5 台无告警规则的主机已补齐并实测触发。</li>
+<li>PM2 频繁内存重启已在运行时和未来发布模板中修正。</li>
+<li>预发布高 CPU/load 已被新告警捕获，但根因定位仍受 SSH 凭据阻塞。</li>
+<li>不可访问主机的分析和清理需要在补齐凭据后继续。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-变更前基线">一、变更前基线</a></li><li style="margin-left:0.0rem"><a href="#二-当前机队快照">二、当前机队快照</a></li><li style="margin-left:0.8rem"><a href="#高-CPU-load">高 CPU/load</a></li><li style="margin-left:0.8rem"><a href="#高磁盘-内存">高磁盘/内存</a></li><li style="margin-left:0.0rem"><a href="#三-7-天趋势与异常分析">三、7 天趋势与异常分析</a></li><li style="margin-left:0.8rem"><a href="#预发布异常阶跃">预发布异常阶跃</a></li><li style="margin-left:0.0rem"><a href="#四-告警配置缺口修复">四、告警配置缺口修复</a></li><li style="margin-left:0.0rem"><a href="#五-磁盘垃圾清理">五、磁盘垃圾清理</a></li><li style="margin-left:0.0rem"><a href="#六-PM2-内存阈值修复">六、PM2 内存阈值修复</a></li><li style="margin-left:0.8rem"><a href="#线上修正">线上修正</a></li><li style="margin-left:0.8rem"><a href="#2-分钟回归">2 分钟回归</a></li><li style="margin-left:0.8rem"><a href="#发布固化">发布固化</a></li><li style="margin-left:0.0rem"><a href="#七-剩余阻塞">七、剩余阻塞</a></li><li style="margin-left:0.0rem"><a href="#八-备份与回滚">八、备份与回滚</a></li><li style="margin-left:0.8rem"><a href="#Beszel-告警数据库">Beszel 告警数据库</a></li><li style="margin-left:0.8rem"><a href="#PM2-配置">PM2 配置</a></li><li style="margin-left:0.8rem"><a href="#ben-bot-发布模板">ben-bot 发布模板</a></li><li style="margin-left:0.0rem"><a href="#九-通知记录">九、通知记录</a></li><li style="margin-left:0.0rem"><a href="#十-结论">十、结论</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：业务系统运维 / 游点涩</li>
+          <li>日期：2026-10-26</li>
+          <li>标签：<span class="tag">游点涩</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">监控告警</span><span class="tag">自动化</span></li>
+          <li><span>来源：~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-26-【监控维护】Bes…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610260000-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-Beszel%20%E5%85%A8%E6%9C%BA%E9%98%9F%E5%B7%A1%E6%A3%80%E3%80%81%E7%A3%81%E7%9B%98%E6%B8%85%E7%90%86%E4%B8%8E%20PM2%20%E5%86%85%E5%AD%98%E9%98%88%E5%80%BC%E4%BF%AE%E5%A4%8D.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Beszel 全机队巡检、磁盘清理与 PM2 内存阈值修复。本文属于业务系统运维 / 游点涩，时间：2026-10-26（Asia/Manila） Beszel： beszel-zh:v0.18.7 代码提交： 18game_devops/b88d7ee 结论：完成全机队趋势与异常分析；监控机、网关、后端共释放约…</p>
+      <p>关键词：游点涩、Linux、Shell、Python、Docker、Nginx、监控告警、自动化、业务系统运维、业务系统运维 / 游点涩、Beszel 全机队巡检、磁盘清理与 PM2 内存阈值修复、php</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cf8ad33cec1e.html"><small>上一篇</small>2026-10-26 周报生成记录（2026-10-19 ~ 2026-10-26）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ddd8f6156412.html"><small>下一篇</small>Beszel 日巡检与维护（2026-10-26）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-f0ee2a398a84.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
