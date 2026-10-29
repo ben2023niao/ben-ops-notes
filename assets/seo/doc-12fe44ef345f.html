@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Beszel 告警处置与日志清理（2026-10-30）｜基础设施与自动化 / BKL UAT｜BEN.OPS</title>
+  <meta name="description" content="Beszel 告警处置与日志清理（2026-10-30）。本文属于基础设施与自动化 / BKL UAT，日期：2026-10-30 执行人：Ben（运维） 范围：Beszel 中全部 7 台系统、Swarm 容器与 xxl-job 日志 登录 Beszel 后逐台读取全部 7 台系统的当前指标。初始快照如下： 7…">
+  <meta name="keywords" content="BKL UAT，Linux，Shell，Docker，监控告警，安全运维，故障排查，数据库恢复，基础设施与自动化，基础设施与自动化 / BKL UAT，Beszel 告警处置与日志清理（2026-10-30），devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-12fe44ef345f.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-12fe44ef345f.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610300000-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BLinux-Beszel%20%E5%91%8A%E8%AD%A6%E5%A4%84%E7%BD%AE%E4%B8%8E%E6%97%A5%E5%BF%97%E6%B8%85%E7%90%86%EF%BC%882026-10-30%EF%BC%89.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Beszel 告警处置与日志清理（2026-10-30）">
+  <meta property="og:description" content="Beszel 告警处置与日志清理（2026-10-30）。本文属于基础设施与自动化 / BKL UAT，日期：2026-10-30 执行人：Ben（运维） 范围：Beszel 中全部 7 台系统、Swarm 容器与 xxl-job 日志 登录 Beszel 后逐台读取全部 7 台系统的当前指标。初始快照如下： 7…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-12fe44ef345f.html">
+  <meta property="article:published_time" content="2026-10-30T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-10-30 00:00">
+  <meta property="article:section" content="基础设施与自动化 / BKL UAT">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Beszel 告警处置与日志清理（2026-10-30）">
+  <meta name="twitter:description" content="Beszel 告警处置与日志清理（2026-10-30）。本文属于基础设施与自动化 / BKL UAT，日期：2026-10-30 执行人：Ben（运维） 范围：Beszel 中全部 7 台系统、Swarm 容器与 xxl-job 日志 登录 Beszel 后逐台读取全部 7 台系统的当前指标。初始快照如下： 7…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-12fe44ef345f.html#article","headline":"Beszel 告警处置与日志清理（2026-10-30）","description":"Beszel 告警处置与日志清理（2026-10-30）。本文属于基础设施与自动化 / BKL UAT，日期：2026-10-30 执行人：Ben（运维） 范围：Beszel 中全部 7 台系统、Swarm 容器与 xxl-job 日志 登录 Beszel 后逐台读取全部 7 台系统的当前指标。初始快照如下： 7…","datePublished":"2026-10-30T00:00:00+08:00","dateModified":"2026-10-30 00:00","inLanguage":"zh-CN","articleSection":["基础设施与自动化","BKL UAT"],"keywords":["BKL UAT","Linux","Shell","Docker","监控告警","安全运维","故障排查","数据库恢复","基础设施与自动化","基础设施与自动化 / BKL UAT","Beszel 告警处置与日志清理（2026-10-30）","devops"],"wordCount":1307,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-12fe44ef345f.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-12fe44ef345f.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"基础设施与自动化 / BKL UAT","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Beszel 告警处置与日志清理（2026-10-30）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-12fe44ef345f.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>基础设施与自动化 / BKL UAT</span> › <span>Beszel 告警处置与日志清理（2026-10-30）</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">基础设施与自动化 / BKL UAT</div>
+      <h1>Beszel 告警处置与日志清理（2026-10-30）</h1>
+      <p class="lede">Beszel 告警处置与日志清理（2026-10-30）。本文属于基础设施与自动化 / BKL UAT，日期：2026-10-30 执行人：Ben（运维） 范围：Beszel 中全部 7 台系统、Swarm 容器与 xxl-job 日志 登录 Beszel 后逐台读取全部 7 台系统的当前指标。初始快照如下： 7…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-30T00:00:00+08:00">发布于 2026-10-30</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,307 字</span>
+        <span class="badge">4 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/ops/devops/devops-bkl/doc/2026年10月30日-Beszel告警处置与日志清理/2026年10月30日-Beszel告警处置与日志清理.md</code></p>
+<p>整理日期：2026-10-30 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>日期：2026-10-30
+执行人：Ben（运维）
+范围：Beszel 中全部 7 台系统、Swarm 容器与 xxl-job 日志</p>
+<h2 id="告警与初始状态">告警与初始状态</h2>
+<p>Beszel 收到以下告警：</p>
+<pre><code class="language-text">UAT-worker01-43.249.251.13 disk usage 超过阈值
+Usage of root 过去 10 分钟的平均值为 80.03%
+</code></pre>
+<p>登录 Beszel 后逐台读取全部 7 台系统的当前指标。初始快照如下：</p>
+<table>
+<thead>
+<tr>
+<th>系统</th>
+<th style="text-align: right;">CPU</th>
+<th style="text-align: right;">内存</th>
+<th style="text-align: right;">磁盘</th>
+<th style="text-align: right;">网络</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UAT-worker01-43.249.251.13</td>
+<td style="text-align: right;">15.4%</td>
+<td style="text-align: right;">56.4%</td>
+<td style="text-align: right;">80.3%</td>
+<td style="text-align: right;">430.1 KB/s</td>
+</tr>
+<tr>
+<td>UAT-worker02-43.249.251.14</td>
+<td style="text-align: right;">15.9%</td>
+<td style="text-align: right;">58.4%</td>
+<td style="text-align: right;">78.7%</td>
+<td style="text-align: right;">424.1 KB/s</td>
+</tr>
+<tr>
+<td>UAT-manager-43.249.251.12</td>
+<td style="text-align: right;">1.85%</td>
+<td style="text-align: right;">9.15%</td>
+<td style="text-align: right;">56.7%</td>
+<td style="text-align: right;">651.9 KB/s</td>
+</tr>
+<tr>
+<td>UAT-middleware-43.249.251.11</td>
+<td style="text-align: right;">20.0%</td>
+<td style="text-align: right;">47.6%</td>
+<td style="text-align: right;">55.3%</td>
+<td style="text-align: right;">294.6 KB/s</td>
+</tr>
+<tr>
+<td>UAT-堡垒机-43.249.251.15</td>
+<td style="text-align: right;">31.3%</td>
+<td style="text-align: right;">64.2%</td>
+<td style="text-align: right;">24.1%</td>
+<td style="text-align: right;">1.46 KB/s</td>
+</tr>
+<tr>
+<td>TEST-SRS-韩国-103.57.202.91</td>
+<td style="text-align: right;">2.88%</td>
+<td style="text-align: right;">69.9%</td>
+<td style="text-align: right;">19.3%</td>
+<td style="text-align: right;">36.26 KB/s</td>
+</tr>
+<tr>
+<td>TEST-SRS-新加坡-206.131.201.11</td>
+<td style="text-align: right;">0.56%</td>
+<td style="text-align: right;">6.69%</td>
+<td style="text-align: right;">12.4%</td>
+<td style="text-align: right;">3.30 KB/s</td>
+</tr>
+</tbody>
+</table>
+<p>7 台系统均为 <code>up</code>。只有 worker01 的磁盘告警处于 triggered；worker02 磁盘为 78.7%，也接近 80% 阈值。</p>
+<h2 id="定位">定位</h2>
+<p>通过堡垒机内网登录 worker01，只读核对根分区、目录占用和 Docker 数据：</p>
+<ul>
+<li>根分区：98G，已用 75G，剩余 19G，81%。</li>
+<li><code>/data/logs/xxl-job</code>：41G。</li>
+<li><code>pay-scheduler</code>：25G。</li>
+<li><code>game-scheduler</code>：16G。</li>
+<li>系统其他大目录：<code>/var</code> 24G、<code>/usr</code> 3G。</li>
+<li>Docker 活跃镜像和容器不是本次磁盘告警的主要原因。</li>
+</ul>
+<p>worker02 同时检查到根分区 74G/98G（79%），同一目录 <code>/data/logs/xxl-job</code> 占 41G。</p>
+<h3 id="根因">根因</h3>
+<p>xxl-job 每天约产生 14～15G 日志。现有清理任务在每天 03:15 执行，保留今天和昨天；在午夜到 03:15 之间，上上个自然日的日志仍会保留，叠加当天日志后达到约 41G，因而会先触发 80% 磁盘告警。</p>
+<p>本次没有删除业务数据、Docker 镜像、容器或卷，只清理超过保留期限的 xxl-job 执行日志。</p>
+<h2 id="处置">处置</h2>
+<p>两台机器均使用已有 <code>/opt/xxl-job-cleanup/cleanup_logs.sh 2</code> 保留策略，删除 2026-10-28 及更早日期目录，保留 2026-10-29、2026-10-30 和 <code>gluesource</code>。</p>
+<table>
+<thead>
+<tr>
+<th>系统</th>
+<th>处理前根盘</th>
+<th>处理后根盘</th>
+<th style="text-align: right;">xxl-job 处理前</th>
+<th style="text-align: right;">xxl-job 处理后</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UAT-worker01</td>
+<td>75G/98G，81%</td>
+<td>44G/98G，47%</td>
+<td style="text-align: right;">41G</td>
+<td style="text-align: right;">8.9G</td>
+</tr>
+<tr>
+<td>UAT-worker02</td>
+<td>74G/98G，79%</td>
+<td>42G/98G，45%</td>
+<td style="text-align: right;">41G</td>
+<td style="text-align: right;">8.7G</td>
+</tr>
+</tbody>
+</table>
+<p>同时把两台机器的清理任务从每天 <code>03:15</code> 前移到 <code>00:10</code>，让日志在跨日后尽快回落到“今天+昨天”。变更前配置已备份为 <code>/etc/cron.d/xxl-job-log-cleanup.bak-20261030</code>，<code>cron</code> 服务均为 active。</p>
+<p>worker01 处理完成后立即在 <code>BKLUAT ALARM</code> 群发送处置结果；worker02 完成预防性处理后再次发送结果。</p>
+<h2 id="最终验证">最终验证</h2>
+<p>Beszel API 与页面复核：</p>
+<table>
+<thead>
+<tr>
+<th>系统</th>
+<th style="text-align: right;">CPU</th>
+<th style="text-align: right;">内存</th>
+<th style="text-align: right;">磁盘</th>
+<th>Load1/5/15</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UAT-manager</td>
+<td style="text-align: right;">1.65%</td>
+<td style="text-align: right;">9.35%</td>
+<td style="text-align: right;">56.72%</td>
+<td>0.33/0.17/0.11</td>
+<td>up</td>
+</tr>
+<tr>
+<td>UAT-middleware</td>
+<td style="text-align: right;">19.91%</td>
+<td style="text-align: right;">47.65%</td>
+<td style="text-align: right;">55.37%</td>
+<td>1.50/1.67/1.85</td>
+<td>up</td>
+</tr>
+<tr>
+<td>UAT-worker01</td>
+<td style="text-align: right;">14.82%</td>
+<td style="text-align: right;">56.46%</td>
+<td style="text-align: right;">46.99%</td>
+<td>1.27/1.41/1.46</td>
+<td>up</td>
+</tr>
+<tr>
+<td>UAT-worker02</td>
+<td style="text-align: right;">13.28%</td>
+<td style="text-align: right;">58.41%</td>
+<td style="text-align: right;">44.60%</td>
+<td>1.85/1.61/1.54</td>
+<td>up</td>
+</tr>
+<tr>
+<td>UAT-堡垒机</td>
+<td style="text-align: right;">30.84%</td>
+<td style="text-align: right;">64.43%</td>
+<td style="text-align: right;">24.07%</td>
+<td>1.23/1.26/1.26</td>
+<td>up</td>
+</tr>
+<tr>
+<td>TEST-SRS-韩国</td>
+<td style="text-align: right;">3.61%</td>
+<td style="text-align: right;">69.95%</td>
+<td style="text-align: right;">19.26%</td>
+<td>0.29/0.50/0.70</td>
+<td>up</td>
+</tr>
+<tr>
+<td>TEST-SRS-新加坡</td>
+<td style="text-align: right;">0.45%</td>
+<td style="text-align: right;">6.70%</td>
+<td style="text-align: right;">12.38%</td>
+<td>0.00/0.00/0.00</td>
+<td>up</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>7 台系统全部 <code>up</code>。</li>
+<li>当前 triggered 告警为 0；worker01 磁盘告警已恢复。</li>
+<li>监控中 83 个容器全部为 <code>Up</code>。</li>
+<li>24 个业务服务的 48 个 Swarm 任务均为 <code>Up</code>，即每个业务服务 2/2。</li>
+<li>58 个容器有健康检查且状态为 Healthy；25 个容器未配置健康检查。没有 unhealthy 容器。</li>
+<li>两台 worker 的 xxl-job 均只保留今天和昨天。</li>
+<li>两台 worker 的自动清理时间均为每天 <code>00:10</code>，脚本语法检查通过，<code>cron</code> 服务为 active。</li>
+</ul>
+<h2 id="遗留事项">遗留事项</h2>
+<ul>
+<li>Beszel 的 S.M.A.R.T. 页面当前无设备数据，<code>smart_devices</code> 集合为 0。现有部署说明已注明虚拟机 virtio 磁盘可能不暴露 SMART，后续需结合硬件/虚拟化平台确认。</li>
+<li>Beszel 的 Network Monitors 集合当前为 0；专线质量仍由 worker 定时脚本和每日 Telegram 汇总独立采集，不作为本次异常。</li>
+<li>已将 xxl-job 清理从 03:15 前移到每日 00:10，缩短午夜后的日志叠加窗口，避免在例行清理前触发磁盘告警。</li>
+<li>开发侧仍需检查 xxl-job 任务频率、失败重试和 <code>logretentiondays</code>，从源头降低每天 14～15G 的日志量。</li>
+</ul>
+<h2 id="变更与访问记录">变更与访问记录</h2>
+<ul>
+<li>老 Mac 的 SSH 密钥、SSH 配置、Chrome 登录数据库、登录钥匙串、Docker 登录配置和 Codex 登录配置已复制到新 Mac 的独立私密目录。</li>
+<li>复制目录不对应仓库内文件，不进入 Git；文件权限按私密凭据保存，SSH 密钥指纹已核对一致。</li>
+<li>本文不记录密码、Token、私钥正文或 Cookie 内容。</li>
+</ul>
+<h2 id="提交">提交</h2>
+<ul>
+<li>本轮巡检文档、Workbench 状态和日志清理建议统一提交到本地 Git。</li>
+<li>具体 commit 见仓库 HEAD 和群内提交结果通知。</li>
+</ul>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#告警与初始状态">告警与初始状态</a></li><li style="margin-left:0.0rem"><a href="#定位">定位</a></li><li style="margin-left:0.8rem"><a href="#根因">根因</a></li><li style="margin-left:0.0rem"><a href="#处置">处置</a></li><li style="margin-left:0.0rem"><a href="#最终验证">最终验证</a></li><li style="margin-left:0.0rem"><a href="#遗留事项">遗留事项</a></li><li style="margin-left:0.0rem"><a href="#变更与访问记录">变更与访问记录</a></li><li style="margin-left:0.0rem"><a href="#提交">提交</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：基础设施与自动化 / BKL UAT</li>
+          <li>日期：2026-10-30</li>
+          <li>标签：<span class="tag">BKL UAT</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">监控告警</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span></li>
+          <li><span>来源：~/Projects/work/ops/devops/devops-bkl/doc/2026年10月30日-Beszel告警处置与日志清理/2026年10月30日-Beszel告…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610300000-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BLinux-Beszel%20%E5%91%8A%E8%AD%A6%E5%A4%84%E7%BD%AE%E4%B8%8E%E6%97%A5%E5%BF%97%E6%B8%85%E7%90%86%EF%BC%882026-10-30%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Beszel 告警处置与日志清理（2026-10-30）。本文属于基础设施与自动化 / BKL UAT，日期：2026-10-30 执行人：Ben（运维） 范围：Beszel 中全部 7 台系统、Swarm 容器与 xxl-job 日志 登录 Beszel 后逐台读取全部 7 台系统的当前指标。初始快照如下： 7…</p>
+      <p>关键词：BKL UAT、Linux、Shell、Docker、监控告警、安全运维、故障排查、数据库恢复、基础设施与自动化、基础设施与自动化 / BKL UAT、Beszel 告警处置与日志清理（2026-10-30）、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-291f5281c8e8.html"><small>上一篇</small>【修复+优化】发布页批量发布多 IP 循环与终端退出修复记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8e0dd04340b8.html"><small>下一篇</small>【运维】TADA 六前缀 Worker 缓存版本升级记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-12fe44ef345f.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
