@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Codex 当前模型说明与 MacBook 本地 AI 部署笔记｜基础设施与自动化 / BKL UAT｜BEN.OPS</title>
+  <meta name="description" content="Codex 当前模型说明与 MacBook 本地 AI 部署笔记。本文属于基础设施与自动化 / BKL UAT，日期：2026-10-31 设备：MacBook Air（Apple M5，24GB 统一内存） 用途：说明当前工作 AI 的实际模型与运行方式，并提供可在本机实施的离线/本地模型部署步骤。 当前 Co…">
+  <meta name="keywords" content="BKL UAT，Shell，Python，Docker，安全运维，故障排查，源码与配置，基础设施与自动化，基础设施与自动化 / BKL UAT，Codex 当前模型说明与 MacBook 本地 AI 部署笔记，devops">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a7184b43a8eb.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a7184b43a8eb.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610310000-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BShell-Codex%20%E5%BD%93%E5%89%8D%E6%A8%A1%E5%9E%8B%E8%AF%B4%E6%98%8E%E4%B8%8E%20MacBook%20%E6%9C%AC%E5%9C%B0%20AI%20%E9%83%A8%E7%BD%B2%E7%AC%94%E8%AE%B0.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="Codex 当前模型说明与 MacBook 本地 AI 部署笔记">
+  <meta property="og:description" content="Codex 当前模型说明与 MacBook 本地 AI 部署笔记。本文属于基础设施与自动化 / BKL UAT，日期：2026-10-31 设备：MacBook Air（Apple M5，24GB 统一内存） 用途：说明当前工作 AI 的实际模型与运行方式，并提供可在本机实施的离线/本地模型部署步骤。 当前 Co…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a7184b43a8eb.html">
+  <meta property="article:published_time" content="2026-10-31T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-10-31 00:00">
+  <meta property="article:section" content="基础设施与自动化 / BKL UAT">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Codex 当前模型说明与 MacBook 本地 AI 部署笔记">
+  <meta name="twitter:description" content="Codex 当前模型说明与 MacBook 本地 AI 部署笔记。本文属于基础设施与自动化 / BKL UAT，日期：2026-10-31 设备：MacBook Air（Apple M5，24GB 统一内存） 用途：说明当前工作 AI 的实际模型与运行方式，并提供可在本机实施的离线/本地模型部署步骤。 当前 Co…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a7184b43a8eb.html#article","headline":"Codex 当前模型说明与 MacBook 本地 AI 部署笔记","description":"Codex 当前模型说明与 MacBook 本地 AI 部署笔记。本文属于基础设施与自动化 / BKL UAT，日期：2026-10-31 设备：MacBook Air（Apple M5，24GB 统一内存） 用途：说明当前工作 AI 的实际模型与运行方式，并提供可在本机实施的离线/本地模型部署步骤。 当前 Co…","datePublished":"2026-10-31T00:00:00+08:00","dateModified":"2026-10-31 00:00","inLanguage":"zh-CN","articleSection":["基础设施与自动化","BKL UAT"],"keywords":["BKL UAT","Shell","Python","Docker","安全运维","故障排查","源码与配置","基础设施与自动化","基础设施与自动化 / BKL UAT","Codex 当前模型说明与 MacBook 本地 AI 部署笔记","devops"],"wordCount":2334,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a7184b43a8eb.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a7184b43a8eb.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"基础设施与自动化 / BKL UAT","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"Codex 当前模型说明与 MacBook 本地 AI 部署笔记","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a7184b43a8eb.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>基础设施与自动化 / BKL UAT</span> › <span>Codex 当前模型说明与 MacBook 本地 AI 部署笔记</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">基础设施与自动化 / BKL UAT</div>
+      <h1>Codex 当前模型说明与 MacBook 本地 AI 部署笔记</h1>
+      <p class="lede">Codex 当前模型说明与 MacBook 本地 AI 部署笔记。本文属于基础设施与自动化 / BKL UAT，日期：2026-10-31 设备：MacBook Air（Apple M5，24GB 统一内存） 用途：说明当前工作 AI 的实际模型与运行方式，并提供可在本机实施的离线/本地模型部署步骤。 当前 Co…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-10-31T00:00:00+08:00">发布于 2026-10-31</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,334 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/ops/devops/devops-bkl/doc/2026年10月31日-Codex模型说明与Mac本地AI部署/2026年10月31日-Codex模型说明与Mac本地AI部署.md</code></p>
+<p>整理日期：2026-10-31 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>日期：2026-10-31
+设备：MacBook Air（Apple M5，24GB 统一内存）
+用途：说明当前工作 AI 的实际模型与运行方式，并提供可在本机实施的离线/本地模型部署步骤。</p>
+<h2 id="结论">结论</h2>
+<p>当前 Codex 工作会话不是在本机离线推理。根据本机 <code>~/.codex/config.toml</code>、<code>~/.codex/models.json</code>、当前会话记录和 <code>codex doctor</code> 的输出：</p>
+<ul>
+<li>客户端：Codex CLI <code>0.164.0-alpha.11.1</code>，由 VS Code ChatGPT/Codex 扩展提供；ChatGPT 桌面应用版本为 <code>26.1021.31345</code>。</li>
+<li>模型名称：<code>DeepSeek-Flash</code>。</li>
+<li>模型标识：<code>deepseek-flash</code>。</li>
+<li>模型提供方：自定义 provider <code>deepseek</code>。</li>
+<li>接口：<code>https://api.deepseek.com/</code>，协议为 OpenAI 兼容的 <code>responses</code>。</li>
+<li>推理强度：<code>high</code>。</li>
+<li>模型目录最大上下文：<code>1,048,576</code> tokens。</li>
+<li>当前会话有效上下文：<code>996,147</code> tokens，约为最大窗口的 95%。</li>
+<li>输入能力：文本、图片。</li>
+<li>其他能力：并行工具调用；模型目录给出的可用推理级别为 <code>low</code>、<code>high</code>、<code>max</code>。</li>
+<li>当前配置关闭了 Codex 内置 web search。</li>
+<li>当前 provider 不要求 OpenAI 登录，使用 API Key 方式认证。</li>
+</ul>
+<p>这里的“当前工作 AI”指本机 Codex 配置实际调用的模型，不代表本机已经下载或运行了该模型的权重。DeepSeek-Flash 的推理仍通过远端 API 完成。</p>
+<h2 id="官方模型背景">官方模型背景</h2>
+<p>截至 2026-10-31，OpenAI 官方模型页列出的 Work/Codex 推荐模型包括：</p>
+<ul>
+<li><strong>Astra</strong>：面向最复杂、需要持续推理与判断的端到端工作。</li>
+<li><strong>GPT-6.1 Sol</strong>：接近 Astra，适合长期、重复的代码/应用/文档工作，默认上下文 500,000 tokens。</li>
+<li><strong>GPT-6.1 Terra</strong>：速度更快，适合日常写作、图像理解、电脑操作。</li>
+<li><strong>GPT-6 Luna</strong>：适合高吞吐、边界清晰、可重复的提取、转换和聚焦编码任务。</li>
+</ul>
+<p>官方模型页：<a href="https://learn.chatgpt.com/docs/models" rel="noopener noreferrer">Models | ChatGPT Learn</a></p>
+<p>OpenAI 官方当前说明 Codex 可以使用本地 Ollama 或 LM Studio，通过 <code>--oss</code> 和 <code>--local-provider</code> 选择；未启用 <code>--oss</code> 时，当前配置会继续使用上面的远端 DeepSeek provider。</p>
+<h2 id="本机现状">本机现状</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>当前值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>机型</td>
+<td>MacBook Air（Mac17,4）</td>
+</tr>
+<tr>
+<td>芯片</td>
+<td>Apple M5</td>
+</tr>
+<tr>
+<td>CPU</td>
+<td>10 核：4 个性能核 + 6 个能效核</td>
+</tr>
+<tr>
+<td>架构</td>
+<td>arm64</td>
+</tr>
+<tr>
+<td>统一内存</td>
+<td>24GB</td>
+</tr>
+<tr>
+<td>系统</td>
+<td>macOS 26.6（25G72）</td>
+</tr>
+<tr>
+<td>根盘可用空间</td>
+<td>约 772GB</td>
+</tr>
+<tr>
+<td>Python</td>
+<td><code>/usr/bin/python3</code> 可用</td>
+</tr>
+<tr>
+<td>Homebrew</td>
+<td>未安装</td>
+</tr>
+<tr>
+<td>Ollama</td>
+<td>未安装</td>
+</tr>
+<tr>
+<td>LM Studio</td>
+<td>未安装</td>
+</tr>
+<tr>
+<td>当前 Codex 模型</td>
+<td><code>deepseek-flash</code>，远端 API</td>
+</tr>
+</tbody>
+</table>
+<p>因此当前状态是“Codex 工作流已可运行，但本地模型推理尚未部署”。</p>
+<h2 id="方案选择">方案选择</h2>
+<h3 id="推荐-Ollama-gpt-oss-20b">推荐：Ollama + gpt-oss:20b</h3>
+<p>OpenAI 官方本地运行指南说明：</p>
+<ul>
+<li><code>gpt-oss-20b</code> 适合至少 16GB VRAM 或统一内存的消费级设备，并明确适合 Apple Silicon。</li>
+<li><code>gpt-oss-120b</code> 建议至少 60GB VRAM/统一内存，不适合这台 24GB MacBook Air。</li>
+<li>两个模型默认使用 MXFP4 量化。</li>
+</ul>
+<p>本机 24GB 统一内存满足 <code>gpt-oss:20b</code> 的最低建议，但实际可用内存还要扣除 macOS、浏览器、VS Code、Docker 等进程，建议首次运行时关闭高内存应用。</p>
+<p>官方指南：<a href="https://developers.openai.com/cookbook/articles/gpt-oss/run-locally-ollama" rel="noopener noreferrer">How to run gpt-oss locally with Ollama</a></p>
+<h3 id="备选-LM-Studio">备选：LM Studio</h3>
+<p>如果更偏好图形界面和模型管理，可使用 LM Studio。安装后下载兼容模型、加载模型，并在 Developer/Local Server 页面启动 OpenAI 兼容服务。Codex 通过内置的 <code>lmstudio</code> 本地 provider 接入。</p>
+<h2 id="Ollama-部署步骤">Ollama 部署步骤</h2>
+<h3 id="1-安装-Ollama">1. 安装 Ollama</h3>
+<p>从 Ollama 官方 macOS 安装包安装，放入 <code>/Applications</code>。本文不使用未经验证的第三方脚本或镜像。</p>
+<p>安装后打开终端验证：</p>
+<pre><code class="language-bash">ollama --version
+</code></pre>
+<p>如果终端暂时找不到命令，先重新打开终端；不要重复安装多个版本。</p>
+<h3 id="2-下载适合本机的模型">2. 下载适合本机的模型</h3>
+<pre><code class="language-bash">ollama pull gpt-oss:20b
+</code></pre>
+<p>下载完成后确认：</p>
+<pre><code class="language-bash">ollama list
+</code></pre>
+<p>预期能看到模型标识 <code>gpt-oss:20b</code>。不要拉取 <code>gpt-oss:120b</code>，24GB 统一内存不足以舒适运行。</p>
+<h3 id="3-先验证独立运行">3. 先验证独立运行</h3>
+<pre><code class="language-bash">ollama run gpt-oss:20b
+</code></pre>
+<p>输入一个简单问题，确认能正常生成。可用 <code>/bye</code> 或 <code>Ctrl+D</code> 退出。此步只验证 Ollama，不涉及 Codex。</p>
+<h3 id="4-验证本地-API">4. 验证本地 API</h3>
+<p>Ollama 通常监听 <code>203.0.113.1:11434</code>：</p>
+<pre><code class="language-bash">curl -fsS http://203.0.113.1:11434/api/tags
+</code></pre>
+<p>只要能返回模型列表，就说明本地 API 可用。不要把 11434 端口暴露到公网或不受信任的局域网。</p>
+<h3 id="5-用-Codex-接入-Ollama">5. 用 Codex 接入 Ollama</h3>
+<p>官方 Codex CLI 原生支持：</p>
+<pre><code class="language-bash">codex --oss --local-provider ollama -m gpt-oss:20b
+</code></pre>
+<p>首次运行可执行：</p>
+<pre><code class="language-bash">codex doctor
+</code></pre>
+<p>再让本地模型做一次无副作用测试：</p>
+<pre><code class="language-bash">codex --oss --local-provider ollama -m gpt-oss:20b \
+  "只回复 READY，不要修改文件。"
+</code></pre>
+<p>如果成功返回 <code>READY</code>，说明 Codex → 本地 Ollama → gpt-oss 链路已打通。</p>
+<h3 id="6-可选-建立独立本地-profile">6. 可选：建立独立本地 profile</h3>
+<p>不要把本地配置直接写入当前全局 <code>~/.codex/config.toml</code>，避免覆盖正在使用的 DeepSeek 配置。可创建独立文件：</p>
+<pre><code class="language-text">~/.codex/local-ollama.config.toml
+</code></pre>
+<p>示例见本文目录下的 <code>附件/local-ollama.config.toml</code>。</p>
+<p>启动：</p>
+<pre><code class="language-bash">codex --profile local-ollama --oss --local-provider ollama
+</code></pre>
+<p>用完直接退出；不带 <code>--oss</code> 的下一次 Codex 启动仍使用原来的远端 DeepSeek 配置。</p>
+<h2 id="LM-Studio-备选步骤">LM Studio 备选步骤</h2>
+<ol>
+<li>安装并打开 LM Studio。</li>
+<li>在模型搜索中下载适合 24GB 内存、4-bit/MXFP4 量化的模型。</li>
+<li>加载模型，在 Developer 页启动本地服务器，默认端口通常是 <code>1234</code>。</li>
+<li>查询模型 ID：</li>
+</ol>
+<pre><code class="language-bash">curl -fsS http://203.0.113.1:1234/v1/models
+</code></pre>
+<ol start="5">
+<li>使用返回的模型标识启动 Codex：</li>
+</ol>
+<pre><code class="language-bash">codex --oss --local-provider lmstudio -m "&lt;模型标识&gt;"
+</code></pre>
+<p>示例 profile 见 <code>附件/local-lmstudio.config.toml</code>。</p>
+<h2 id="自定义本地网关">自定义本地网关</h2>
+<p>如果使用 vLLM、LiteLLM、Hugging Face Responses 代理或其他本地网关，需要遵守 Codex 的当前协议要求：</p>
+<ul>
+<li>自定义 provider 必须提供 Responses API 兼容接口。</li>
+<li>官方说明当前 Codex 不支持仅 Chat Completions 的 <code>wire_api = "chat"</code>。</li>
+<li>内置 provider ID <code>openai</code>、<code>ollama</code>、<code>lmstudio</code> 不能作为自定义 provider ID 重复定义。</li>
+</ul>
+<p>基本结构：</p>
+<pre><code class="language-toml">model = "&lt;本地模型标识&gt;"
+model_provider = "local_proxy"
+
+[model_providers.local_proxy]
+name = "Local Responses Proxy"
+base_url = "http://203.0.113.1:8000/v1"
+wire_api = "responses"
+</code></pre>
+<p>如果网关需要鉴权，应通过环境变量名或凭据命令提供，不要把真实 Token 写入仓库或配置示例。</p>
+<p>官方配置页：<a href="https://learn.chatgpt.com/docs/config-file/config-advanced#custom-model-providers" rel="noopener noreferrer">Advanced Configuration</a></p>
+<h2 id="24GB-MacBook-性能建议">24GB MacBook 性能建议</h2>
+<ul>
+<li>优先 <code>gpt-oss:20b</code> 的 MXFP4 版本；这是本机最接近官方建议、同时具备代码与工具调用能力的选择。</li>
+<li>首次运行前关闭不必要的 Chrome 标签、Docker Desktop、视频会议和大项目索引。</li>
+<li>不要同时运行本地模型和多个大型容器；统一内存会和系统、编辑器、Docker 竞争。</li>
+<li>本地推理比远端 API 更受功耗、温度和模型加载时间影响；首次加载慢属于正常现象。</li>
+<li>上下文越长，KV Cache 占用和生成延迟越高。长仓库任务先用较短的上下文范围定位文件，再逐步扩大。</li>
+<li>若系统明显卡顿、模型被系统终止或频繁转用 swap，立即降低模型规模或减少上下文。</li>
+<li>磁盘空间目前充足，但仍应为模型、系统更新和本地快照保留数十 GB 空间。</li>
+</ul>
+<h2 id="安全与回滚">安全与回滚</h2>
+<h3 id="安全基线">安全基线</h3>
+<ul>
+<li>Ollama/LM Studio 只监听本机回环地址，不对公网开放。</li>
+<li>本地模型不代表结果自动可信；代码修改仍要运行测试、检查 diff。</li>
+<li>使用 <code>workspace-write</code> 和 <code>on-request</code>，不要为日常开发默认开启无沙箱、无审批模式。</li>
+<li>不把 API Token、Cookie、私钥或 <code>.env</code> 原文放入文档、聊天、模型上下文或 Git。</li>
+<li>当前 DeepSeek provider 使用 API Key；凭据不要随配置样例分发。建议后续改为环境变量或系统钥匙串注入。</li>
+<li>当前 <code>web_search=disabled</code>；本地模型默认不会联网。确需联网时单独明确开启并复核数据外发范围。</li>
+</ul>
+<h3 id="回滚">回滚</h3>
+<p>本地部署使用独立 profile 和 <code>--oss</code> 参数，不影响现有全局配置。需要回到当前工作模型时：</p>
+<ul>
+<li>不传 <code>--oss</code>；</li>
+<li>不选择 <code>local-ollama</code> / <code>local-lmstudio</code> profile；</li>
+<li>执行 <code>codex doctor</code>，确认模型重新显示为 <code>deepseek-flash · deepseek</code>。</li>
+</ul>
+<p>如需回收模型空间，可先执行 <code>ollama list</code> 确认模型名，再按 Ollama 官方方式删除对应本地模型；不要在未确认模型目录的情况下批量删除。</p>
+<h2 id="验收清单">验收清单</h2>
+<ul>
+<li><code>ollama --version</code> 正常。</li>
+<li><code>ollama list</code> 显示 <code>gpt-oss:20b</code>。</li>
+<li><code>curl -fsS http://203.0.113.1:11434/api/tags</code> 返回模型列表。</li>
+<li><code>codex doctor</code> 无 fatal 项。</li>
+<li><code>codex --oss --local-provider ollama -m gpt-oss:20b "只回复 READY"</code> 返回 <code>READY</code>。</li>
+<li>不传 <code>--oss</code> 时，<code>codex doctor</code> 仍显示当前远端模型 <code>deepseek-flash</code>。</li>
+<li>本地服务端口未暴露到公网。</li>
+</ul>
+<h2 id="发现的本机配置问题">发现的本机配置问题</h2>
+<ul>
+<li><code>codex doctor</code> 提示 <code>preferred_auth_method</code> 已被当前版本忽略，可从 <code>~/.codex/config.toml</code> 删除该旧字段。</li>
+<li><code>codex doctor</code> 提示 <code>node_repl</code> 的 MCP 环境变量在非交互诊断中缺失；这只影响该次 MCP 诊断，不等于 Codex 主流程故障。</li>
+<li>当前模型使用自定义 provider，不需要 OpenAI 登录；不要误把 DeepSeek API Key 当成 OpenAI Key。</li>
+</ul>
+<h2 id="官方资料来源">官方资料来源</h2>
+<ul>
+<li><a href="https://learn.chatgpt.com/docs/models" rel="noopener noreferrer">Codex Models</a></li>
+<li><a href="https://learn.chatgpt.com/docs/codex/cli" rel="noopener noreferrer">Codex CLI</a></li>
+<li><a href="https://learn.chatgpt.com/docs/config-file/config-advanced#custom-model-providers" rel="noopener noreferrer">Advanced Configuration / Custom model providers</a></li>
+<li><a href="https://developers.openai.com/cookbook/articles/gpt-oss/run-locally-ollama" rel="noopener noreferrer">How to run gpt-oss locally with Ollama</a></li>
+</ul>
+<p>以上官方页面读取日期：2026-10-31。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#结论">结论</a></li><li style="margin-left:0.0rem"><a href="#官方模型背景">官方模型背景</a></li><li style="margin-left:0.0rem"><a href="#本机现状">本机现状</a></li><li style="margin-left:0.0rem"><a href="#方案选择">方案选择</a></li><li style="margin-left:0.8rem"><a href="#推荐-Ollama-gpt-oss-20b">推荐：Ollama + gpt-oss:20b</a></li><li style="margin-left:0.8rem"><a href="#备选-LM-Studio">备选：LM Studio</a></li><li style="margin-left:0.0rem"><a href="#Ollama-部署步骤">Ollama 部署步骤</a></li><li style="margin-left:0.8rem"><a href="#1-安装-Ollama">1. 安装 Ollama</a></li><li style="margin-left:0.8rem"><a href="#2-下载适合本机的模型">2. 下载适合本机的模型</a></li><li style="margin-left:0.8rem"><a href="#3-先验证独立运行">3. 先验证独立运行</a></li><li style="margin-left:0.8rem"><a href="#4-验证本地-API">4. 验证本地 API</a></li><li style="margin-left:0.8rem"><a href="#5-用-Codex-接入-Ollama">5. 用 Codex 接入 Ollama</a></li><li style="margin-left:0.8rem"><a href="#6-可选-建立独立本地-profile">6. 可选：建立独立本地 profile</a></li><li style="margin-left:0.0rem"><a href="#LM-Studio-备选步骤">LM Studio 备选步骤</a></li><li style="margin-left:0.0rem"><a href="#自定义本地网关">自定义本地网关</a></li><li style="margin-left:0.0rem"><a href="#24GB-MacBook-性能建议">24GB MacBook 性能建议</a></li><li style="margin-left:0.0rem"><a href="#安全与回滚">安全与回滚</a></li><li style="margin-left:0.8rem"><a href="#安全基线">安全基线</a></li><li style="margin-left:0.8rem"><a href="#回滚">回滚</a></li><li style="margin-left:0.0rem"><a href="#验收清单">验收清单</a></li><li style="margin-left:0.0rem"><a href="#发现的本机配置问题">发现的本机配置问题</a></li><li style="margin-left:0.0rem"><a href="#官方资料来源">官方资料来源</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：基础设施与自动化 / BKL UAT</li>
+          <li>日期：2026-10-31</li>
+          <li>标签：<span class="tag">BKL UAT</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
+          <li><span>来源：~/Projects/work/ops/devops/devops-bkl/doc/2026年10月31日-Codex模型说明与Mac本地AI部署/2026年10月31日-Cod…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610310000-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BShell-Codex%20%E5%BD%93%E5%89%8D%E6%A8%A1%E5%9E%8B%E8%AF%B4%E6%98%8E%E4%B8%8E%20MacBook%20%E6%9C%AC%E5%9C%B0%20AI%20%E9%83%A8%E7%BD%B2%E7%AC%94%E8%AE%B0.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>Codex 当前模型说明与 MacBook 本地 AI 部署笔记。本文属于基础设施与自动化 / BKL UAT，日期：2026-10-31 设备：MacBook Air（Apple M5，24GB 统一内存） 用途：说明当前工作 AI 的实际模型与运行方式，并提供可在本机实施的离线/本地模型部署步骤。 当前 Co…</p>
+      <p>关键词：BKL UAT、Shell、Python、Docker、安全运维、故障排查、源码与配置、基础设施与自动化、基础设施与自动化 / BKL UAT、Codex 当前模型说明与 MacBook 本地 AI 部署笔记、devops</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1f4c95faffae.html"><small>上一篇</small>Beszel 全量巡检与堡垒机 CPU 处置（2026-10-31）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e69f86595516.html"><small>下一篇</small>业务依赖版本基线与漏洞巡检（2026-10-31）</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a7184b43a8eb.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
