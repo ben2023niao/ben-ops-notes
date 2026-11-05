@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>【排查】香港项目腾讯云 EdgeOne 域名与文档全量核对记录｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
+  <meta name="description" content="【排查】香港项目腾讯云 EdgeOne 域名与文档全量核对记录。本文属于历史运维与项目交付 / 巴西主站，执行范围：本地 Git、当前 Mac 上的独立 pgserver/cn 工作区、老 Mac 导入目录，以及腾讯云 EdgeOne 只读 API。 腾讯云账号密码、SecretId、SecretKey、SSH…">
+  <meta name="keywords" content="巴西主站，Linux，Shell，Docker，Nginx，CDN，DNS，安全运维，历史运维与项目交付，历史运维与项目交付 / 巴西主站，【排查】香港项目腾讯云 EdgeOne 域名与文档全量核对记录">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a0101b2e59f7.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a0101b2e59f7.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202611062205-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E6%8E%92%E6%9F%A5%E3%80%91%E9%A6%99%E6%B8%AF%E9%A1%B9%E7%9B%AE%E8%85%BE%E8%AE%AF%E4%BA%91%20EdgeOne%20%E5%9F%9F%E5%90%8D%E4%B8%8E%E6%96%87%E6%A1%A3%E5%85%A8%E9%87%8F%E6%A0%B8%E5%AF%B9%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="【排查】香港项目腾讯云 EdgeOne 域名与文档全量核对记录">
+  <meta property="og:description" content="【排查】香港项目腾讯云 EdgeOne 域名与文档全量核对记录。本文属于历史运维与项目交付 / 巴西主站，执行范围：本地 Git、当前 Mac 上的独立 pgserver/cn 工作区、老 Mac 导入目录，以及腾讯云 EdgeOne 只读 API。 腾讯云账号密码、SecretId、SecretKey、SSH…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a0101b2e59f7.html">
+  <meta property="article:published_time" content="2026-11-06T22:05:00+08:00">
+  <meta property="article:modified_time" content="2026-11-06 22:05">
+  <meta property="article:section" content="历史运维与项目交付 / 巴西主站">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【排查】香港项目腾讯云 EdgeOne 域名与文档全量核对记录">
+  <meta name="twitter:description" content="【排查】香港项目腾讯云 EdgeOne 域名与文档全量核对记录。本文属于历史运维与项目交付 / 巴西主站，执行范围：本地 Git、当前 Mac 上的独立 pgserver/cn 工作区、老 Mac 导入目录，以及腾讯云 EdgeOne 只读 API。 腾讯云账号密码、SecretId、SecretKey、SSH…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a0101b2e59f7.html#article","headline":"【排查】香港项目腾讯云 EdgeOne 域名与文档全量核对记录","description":"【排查】香港项目腾讯云 EdgeOne 域名与文档全量核对记录。本文属于历史运维与项目交付 / 巴西主站，执行范围：本地 Git、当前 Mac 上的独立 pgserver/cn 工作区、老 Mac 导入目录，以及腾讯云 EdgeOne 只读 API。 腾讯云账号密码、SecretId、SecretKey、SSH…","datePublished":"2026-11-06T22:05:00+08:00","dateModified":"2026-11-06 22:05","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Linux","Shell","Docker","Nginx","CDN","DNS","安全运维","历史运维与项目交付","历史运维与项目交付 / 巴西主站","【排查】香港项目腾讯云 EdgeOne 域名与文档全量核对记录"],"wordCount":2823,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a0101b2e59f7.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a0101b2e59f7.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【排查】香港项目腾讯云 EdgeOne 域名与文档全量核对记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a0101b2e59f7.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 巴西主站</span> › <span>【排查】香港项目腾讯云 EdgeOne 域名与文档全量核对记录</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
+      <h1>【排查】香港项目腾讯云 EdgeOne 域名与文档全量核对记录</h1>
+      <p class="lede">【排查】香港项目腾讯云 EdgeOne 域名与文档全量核对记录。本文属于历史运维与项目交付 / 巴西主站，执行范围：本地 Git、当前 Mac 上的独立 pgserver/cn 工作区、老 Mac 导入目录，以及腾讯云 EdgeOne 只读 API。 腾讯云账号密码、SecretId、SecretKey、SSH…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-11-06T22:05:00+08:00">发布于 2026-11-06</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,823 字</span>
+        <span class="badge">9 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-11-06-2205-【排查】香港项目腾讯云EdgeOne域名与文档全量核对记录.md</code></p>
+<p>整理日期：2026-11-06 22:05｜日期依据：文件名日期</p>
+</blockquote>
+<p>更新时间：2026-11-06 22:05（Asia/Manila）</p>
+<p>执行范围：本地 Git、当前 Mac 上的独立 <code>pgserver/cn</code> 工作区、老 Mac 导入目录，以及腾讯云 EdgeOne 只读 API。</p>
+<h2 id="一-请求与边界">一、请求与边界</h2>
+<pre><code class="language-text">1. 查找 cn 分支香港项目的全部文档，确认是否包含腾讯云 CDN / EdgeOne 内容；
+2. 在老 Mac 留下的数据中继续查找；
+3. 核对 p3w9n5.shop、k8x2v9.shop、m4q7z1.shop、r2v8k4.shop 的实际归属；
+4. 本轮不通知群；
+5. 只读审计，不修改服务器、DNS、EdgeOne 配置或业务数据。
+</code></pre>
+<p>腾讯云账号密码、SecretId、SecretKey、SSH 密码、GitLab 凭据均未写入本文件或仓库。</p>
+<h2 id="二-开始前-Git-基线">二、开始前 Git 基线</h2>
+<p>主仓库：</p>
+<pre><code class="language-text">目录：/Users/ben/Projects/work/game/pgserver/master
+本地 master：2ddae49f
+origin/master：a72f41fb
+origin/ben：9f59b4f3
+origin/cn：5c3b3de6
+工作区：干净
+本地 master：领先 origin/master 17 个提交
+</code></pre>
+<p>当前 Mac 上另有一份独立的 <code>cn</code> 工作区：</p>
+<pre><code class="language-text">目录：/Users/ben/Projects/work/game/pgserver/cn
+本地 cn：1fbe688f
+origin/cn：5c3b3de6
+工作区：干净
+本地 cn：领先 origin/cn 142 个提交
+</code></pre>
+<p>结论：远程 <code>origin/cn</code> 停在 2026-08-12，不能代表当前香港运维历史。只搜索远程分支会漏掉 2026-09-29 以后的全部腾讯 EdgeOne 记录。</p>
+<h2 id="三-腾讯云实际资源">三、腾讯云实际资源</h2>
+<p>通过腾讯云官方只读 API 核对，国际站账号下：</p>
+<pre><code class="language-text">CDN DescribeDomains：0 个域名
+EdgeOne DescribeZones：4 个站点
+已启用：3 个
+初始化但未启用：1 个
+</code></pre>
+<p>站点与加速域名：</p>
+<table>
+<thead>
+<tr>
+<th>站点</th>
+<th>Zone ID</th>
+<th>当前用途</th>
+<th style="text-align: right;">加速域名数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>m4q7z1.shop</code></td>
+<td><code>zone-3vm5evyb78ic</code></td>
+<td>香港游戏主入口</td>
+<td style="text-align: right;">22</td>
+</tr>
+<tr>
+<td><code>k8x2v9.shop</code></td>
+<td><code>zone-3vm7ccg417yf</code></td>
+<td>香港游戏备用入口</td>
+<td style="text-align: right;">22</td>
+</tr>
+<tr>
+<td><code>p3w9n5.shop</code></td>
+<td><code>zone-3vm7chzbxkcb</code></td>
+<td>香港商户 / socket 入口</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td><code>r2v8k4.shop</code></td>
+<td><code>zone-3vm7cf444lhw</code></td>
+<td>初始化，无加速域名，未承载业务</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p>合计 46 个有效加速域名，全部是 HTTP/80 回源，源站统一为：</p>
+<pre><code class="language-text">公网：34.150.1.185
+内网：203.0.113.1
+机器：dbqp-hongkong-nginx-standby-01
+</code></pre>
+<h3 id="3-1-游戏域名结构">3.1 游戏域名结构</h3>
+<p><code>m4q7z1.shop</code> 与 <code>k8x2v9.shop</code> 各 22 个：</p>
+<pre><code class="language-text">动态 8 个：
+  pg-games
+  api
+  jili-games
+  pp-games
+  ppk-games
+  panda-games
+  playson-games
+  g759-games
+
+静态 14 个：
+  pg-static
+  pg3-static
+  pg4-static
+  pg5-static
+  pg6-static
+  pg7-static
+  pp-static
+  ppk-static
+  panda-static
+  playson-static
+  g759-static
+  jili-static
+  jili-static1
+  jili-static2
+</code></pre>
+<p>动态域名经香港 standby Nginx 转发到香港 01/02 后端容器；静态域名经同一 Nginx 回源 AWS 大阪 S3 桶。</p>
+<h3 id="3-2-商户域名结构">3.2 商户域名结构</h3>
+<p><code>p3w9n5.shop</code> 的 2 个加速域名：</p>
+<pre><code class="language-text">p3w9n5.shop
+socket.p3w9n5.shop
+</code></pre>
+<p>两者回源香港 standby Nginx，再转发 <code>platform-api:9090</code>，对应旧 Cloudflare 渠道的 <code>hk-socket.com</code> / <code>socket.hk-socket.com</code>。</p>
+<h2 id="四-当前公网验收">四、当前公网验收</h2>
+<p>DNS 已解析到腾讯 EdgeOne 节点，8 个抽样地址全部 HTTP 200：</p>
+<table>
+<thead>
+<tr>
+<th>地址</th>
+<th>结果</th>
+<th>远端节点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>https://p3w9n5.shop/healthz</code></td>
+<td>200</td>
+<td><code>43.159.98.75</code></td>
+</tr>
+<tr>
+<td><code>https://socket.p3w9n5.shop/healthz</code></td>
+<td>200</td>
+<td><code>43.159.99.79</code></td>
+</tr>
+<tr>
+<td><code>https://pg-games.m4q7z1.shop/health</code></td>
+<td>200</td>
+<td><code>43.159.99.79</code></td>
+</tr>
+<tr>
+<td><code>https://pg-static.m4q7z1.shop/health.json</code></td>
+<td>200</td>
+<td><code>43.159.98.75</code></td>
+</tr>
+<tr>
+<td><code>https://jili-games.m4q7z1.shop/health</code></td>
+<td>200</td>
+<td><code>43.159.98.75</code></td>
+</tr>
+<tr>
+<td><code>https://pg-games.k8x2v9.shop/health</code></td>
+<td>200</td>
+<td><code>43.159.99.79</code></td>
+</tr>
+<tr>
+<td><code>https://pg-static.k8x2v9.shop/health.json</code></td>
+<td>200</td>
+<td><code>43.159.99.79</code></td>
+</tr>
+<tr>
+<td><code>https://jili-games.k8x2v9.shop/health</code></td>
+<td>200</td>
+<td><code>43.159.98.75</code></td>
+</tr>
+</tbody>
+</table>
+<p>静态健康文件响应头已出现 EdgeOne 缓存命中：</p>
+<pre><code class="language-text">server: nginx/1.18.0 (Ubuntu)
+content-type: application/json
+eo-cache-status: HIT
+eo-log-uuid: &lt;每请求唯一值&gt;
+</code></pre>
+<h2 id="五-cn-工作区文档核对">五、cn 工作区文档核对</h2>
+<p>当前 <code>cn</code> HEAD 共有 99 份 Markdown/TXT：</p>
+<pre><code class="language-text">全部文档：99
+明确命中腾讯云 / EdgeOne / 三个香港域名的文档：35
+其中事件文档：29
+其中工作台文档：5
+其中 EdgeOne 备份说明：1
+全仓库命中上述关键词的受版本控制文件：76
+</code></pre>
+<p>命中关键词包括：</p>
+<pre><code class="language-text">腾讯云 / 腾讯 CDN / Tencent Cloud / EdgeOne
+m4q7z1.shop / k8x2v9.shop / p3w9n5.shop
+</code></pre>
+<h3 id="5-1-时间线结论">5.1 时间线结论</h3>
+<pre><code class="language-text">2026-09-29：确定香港大陆加速采用多家 CDN、免备案优先；
+            腾讯国际站 EdgeOne 作为渠道 A。
+2026-09-30：完成 standby 回源、m4q7z1.shop 建站、22 个二级域名、
+            动态不缓存 / 静态缓存 7 天 / JILI WebSocket / 22 个 CNAME。
+2026-10-02：完成 k8x2v9.shop 22 个加速域名并切换香港 01/02；
+            完成 p3w9n5.shop 商户入口；
+            香港 01/02 的域名文件写入 m4q7z1 / k8x2v9 / p3w9n5。
+2026-10-05：修复 JILI / PP 静态资源、CORS、Worker 路径对齐和启动页兜底。
+2026-10-08：修复 EdgeOne HTTP 回源导致 X-Forwarded-Proto=http、
+            目录跳转被写成 HTTP 导致的 JILI / PP 故障。
+2026-10-14：记录香港 PP 静态资源 EdgeOne 缓存清理。
+</code></pre>
+<h3 id="5-2-关键文档">5.2 关键文档</h3>
+<pre><code class="language-text">docker/doc/2026-09-29-1808-【架构改造】香港项目大陆加速多CDN渠道免备案优先沟通口径与前置条件.md
+docker/doc/2026-09-30-1129-【架构改造】EdgeOne接入香港standby入口回源填写指南.md
+docker/doc/2026-09-30-1145-【架构改造】香港项目接入腾讯云EdgeOne架构方案（动态+S3静态）.md
+docker/doc/2026-09-30-1300-【架构改造】EdgeOne站点m4q7z1全部二级域名接入（动态+静态走nginx）.md
+docker/doc/2026-09-30-1650-【架构改造】香港后端域名配置切换到m4q7z1（腾讯CDN）.md
+docker/doc/2026-10-02-1446-【架构改造】EdgeOne站点k8x2v9接入与香港后端域名切换.md
+docker/doc/2026-10-02-1500-【架构改造】p3w9n5商户域名接入与香港0102三域名生效.md
+docker/doc/2026-10-08-1425-【故障处理】腾讯EdgeOne回源HTTP导致X-Forwarded-Proto为http（JILI进不去）修复.md
+docker/doc/2026-10-14-1050-【运维记录】香港PP静态资源CDN缓存清理记录.md
+</code></pre>
+<h2 id="六-全部-35-份命中文档">六、全部 35 份命中文档</h2>
+<pre><code class="language-text">docker/deploy/hongkong/cdn-backup/edgeone/README.md
+docker/doc/2026-09-29-1808-【架构改造】香港项目大陆加速多CDN渠道免备案优先沟通口径与前置条件.md
+docker/doc/2026-09-30-1129-【架构改造】EdgeOne接入香港standby入口回源填写指南.md
+docker/doc/2026-09-30-1145-【架构改造】香港项目接入腾讯云EdgeOne架构方案（动态+S3静态）.md
+docker/doc/2026-09-30-1147-【运维记录】腾讯云API密钥（子用户）创建与AI调用规范.md
+docker/doc/2026-09-30-1205-【架构改造】EdgeOne测试站点m4q7z1shop建站与规则引擎API实践.md
+docker/doc/2026-09-30-1216-【架构改造】EdgeOne新增3个测试站点与套餐配额限制.md
+docker/doc/2026-09-30-1225-【运维记录】EdgeOne全托管给AI的能力边界与落地方案.md
+docker/doc/2026-09-30-1300-【架构改造】EdgeOne站点m4q7z1全部二级域名接入（动态+静态走nginx）.md
+docker/doc/2026-09-30-1340-【运维记录】m4q7z1.shop国内测速链接与源站测速文件.md
+docker/doc/2026-09-30-1650-【架构改造】香港后端域名配置切换到m4q7z1（腾讯CDN）.md
+docker/doc/2026-10-02-1446-【架构改造】EdgeOne站点k8x2v9接入与香港后端域名切换.md
+docker/doc/2026-10-02-1500-【架构改造】p3w9n5商户域名接入与香港0102三域名生效.md
+docker/doc/2026-10-02-1610-【运维记录】EdgeOne三站点规则中文标注与站点标签方案.md
+docker/doc/2026-10-02-1615-【故障处理】香港0102配置被同步覆盖与一键恢复防复发.md
+docker/doc/2026-10-02-1630-【架构改造】香港nginx的JILI-TADA静态本地化与index-js修复.md
+docker/doc/2026-10-05-1110-【架构改造】香港nginx补齐巴西Worker静态规则（PP进不去修复）.md
+docker/doc/2026-10-05-1210-【优化+故障处理】香港同步脚本优化复核与jili崩溃修复.md
+docker/doc/2026-10-05-1230-【架构改造】香港nginx的jili静态改为走自己的大阪桶（对齐香港Worker）.md
+docker/doc/2026-10-05-1250-【网络调整】香港动态域名CORS兜底（网关错误也带CORS头）.md
+docker/doc/2026-10-05-1310-【运维】跨域职责划分-动态归开发静态归运维（撤销动态CORS兜底）.md
+docker/doc/2026-10-05-1320-【故障处理】香港JILI游戏资源403定位与TADA前缀兜底修复.md
+docker/doc/2026-10-05-1330-【架构改造】香港jili-games游戏启动页nginx兜底（后端无路由回JILI静态桶）.md
+docker/doc/2026-10-05-1335-【故障处理】香港JILI动态域名兜底响应补CORS与cdn-cgi静默.md
+docker/doc/2026-10-05-1345-【运维】撤销动态域名兜底CORS-重申动态归开发静态归运维.md
+docker/doc/2026-10-05-1400-【架构改造】香港JILI静态域名按Worker路径映射并补intro-astarte处理.md
+docker/doc/2026-10-08-1425-【故障处理】腾讯EdgeOne回源HTTP导致X-Forwarded-Proto为http（JILI进不去）修复.md
+docker/doc/2026-10-08-1440-【故障处理】大厅拉起JILI失败-静态域名根探活403与v2-v5分组404修复.md
+docker/doc/2026-10-08-1450-【故障处理】静态域名目录跳转被写成http-absolute_redirect-off修复.md
+docker/doc/2026-10-14-1050-【运维记录】香港PP静态资源CDN缓存清理记录.md
+docker/workbench/ACTIVE_TASKS.md
+docker/workbench/CURRENT_STATE.md
+docker/workbench/CURRENT_TASK.md
+docker/workbench/MACHINE_ACCESS_MATRIX.md
+docker/workbench/PROJECT_RUNTIME_CHAINS.md
+</code></pre>
+<h2 id="七-老-Mac-与其他历史副本">七、老 Mac 与其他历史副本</h2>
+<p>老 Mac 导入目录：</p>
+<pre><code class="language-text">/Users/ben/Private/from-oldmac-20261030
+Markdown/TXT：0
+腾讯云 / EdgeOne 文档命中：0
+</code></pre>
+<p>但该目录的 SSH <code>known_hosts</code> 保留了 <code>34.150.1.185</code> 的连接指纹，说明老 Mac 确实连接过香港 standby 入口；相关说明文档没有随老 Mac 导入。</p>
+<p>另一个 PGServer 旧归档：</p>
+<pre><code class="language-text">/Users/ben/Projects/work/game/archive/pgserver-backup-20260715
+腾讯云文档命中：0
+</code></pre>
+<p>Mac 上的 <code>18game_devops</code> 确有另一套腾讯 COS / EdgeOne 历史文档，但域名是 <code>hbabaxb.cn</code>、<code>zkifae.cn</code> 等，不属于 DBQP 香港项目，不能混入本次香港资产清单。</p>
+<h2 id="八-安全检查">八、安全检查</h2>
+<pre><code class="language-text">1. 提供的完整腾讯云 SecretId / SecretKey 在主仓库、cn 工作区、老 Mac 导入目录中均未命中；
+2. cn 文档只记录凭据路径、权限建议和脱敏示例，未发现本轮提供密钥的完整明文；
+3. 历史文档明确要求主账号密钥只用于临时操作，长期应使用仅含 EdgeOne/TEO 权限的子用户；
+4. 本轮只调用 DescribeDomains、DescribeZones、DescribeAccelerationDomains 等只读 API；
+5. 未创建、修改、删除任何腾讯云资源；
+6. 未修改服务器、Nginx、DNS、容器或业务数据；
+7. 按要求未发送群通知。
+8. 本轮对话出现过腾讯云主账号 SecretKey；按历史文档的安全规范，应尽快轮换，
+   并改用仅授予 QcloudTEOFullAccess 的子用户密钥。
+9. 本机独立 cn 仓库的 old-gitlab remote 配置仍内嵌旧凭据；
+   本轮未输出凭据值。建议轮换该凭据并改用 Git credential helper/SSH key。
+</code></pre>
+<h2 id="九-结论">九、结论</h2>
+<pre><code class="language-text">香港项目确实有腾讯云 EdgeOne/CDN 内容，而且不是零散提及，
+是一套已上线并运行的正式游戏与商户加速入口：
+
+m4q7z1.shop + k8x2v9.shop -&gt; 香港游戏动态/静态双入口
+p3w9n5.shop               -&gt; 香港商户/socket 入口
+34.150.1.185              -&gt; 三站的统一 Nginx 回源
+
+当前 3 个站点、46 个加速域名均在线，抽样动态与静态端点全部 200，
+静态资源返回 eo-cache-status: HIT。
+
+r2v8k4.shop 只是早期创建的空站点，当前无加速域名、无业务用途。
+</code></pre>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-请求与边界">一、请求与边界</a></li><li style="margin-left:0.0rem"><a href="#二-开始前-Git-基线">二、开始前 Git 基线</a></li><li style="margin-left:0.0rem"><a href="#三-腾讯云实际资源">三、腾讯云实际资源</a></li><li style="margin-left:0.8rem"><a href="#3-1-游戏域名结构">3.1 游戏域名结构</a></li><li style="margin-left:0.8rem"><a href="#3-2-商户域名结构">3.2 商户域名结构</a></li><li style="margin-left:0.0rem"><a href="#四-当前公网验收">四、当前公网验收</a></li><li style="margin-left:0.0rem"><a href="#五-cn-工作区文档核对">五、cn 工作区文档核对</a></li><li style="margin-left:0.8rem"><a href="#5-1-时间线结论">5.1 时间线结论</a></li><li style="margin-left:0.8rem"><a href="#5-2-关键文档">5.2 关键文档</a></li><li style="margin-left:0.0rem"><a href="#六-全部-35-份命中文档">六、全部 35 份命中文档</a></li><li style="margin-left:0.0rem"><a href="#七-老-Mac-与其他历史副本">七、老 Mac 与其他历史副本</a></li><li style="margin-left:0.0rem"><a href="#八-安全检查">八、安全检查</a></li><li style="margin-left:0.0rem"><a href="#九-结论">九、结论</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 巴西主站</li>
+          <li>日期：2026-11-06</li>
+          <li>标签：<span class="tag">巴西主站</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">CDN</span><span class="tag">DNS</span><span class="tag">安全运维</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-11-06-2205-【排查】香港项目腾讯云EdgeOne域名与文档…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202611062205-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E6%8E%92%E6%9F%A5%E3%80%91%E9%A6%99%E6%B8%AF%E9%A1%B9%E7%9B%AE%E8%85%BE%E8%AE%AF%E4%BA%91%20EdgeOne%20%E5%9F%9F%E5%90%8D%E4%B8%8E%E6%96%87%E6%A1%A3%E5%85%A8%E9%87%8F%E6%A0%B8%E5%AF%B9%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>【排查】香港项目腾讯云 EdgeOne 域名与文档全量核对记录。本文属于历史运维与项目交付 / 巴西主站，执行范围：本地 Git、当前 Mac 上的独立 pgserver/cn 工作区、老 Mac 导入目录，以及腾讯云 EdgeOne 只读 API。 腾讯云账号密码、SecretId、SecretKey、SSH…</p>
+      <p>关键词：巴西主站、Linux、Shell、Docker、Nginx、CDN、DNS、安全运维、历史运维与项目交付、历史运维与项目交付 / 巴西主站、【排查】香港项目腾讯云 EdgeOne 域名与文档全量核对记录</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c72a2508e6aa.html"><small>上一篇</small>【日志导出】TADA 游戏 76 账号 738833 巴西原始日志导出与分析记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0beae11b7a39.html"><small>下一篇</small>【核对】香港腾讯云 EdgeOne 历史接入与本机凭据归档记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a0101b2e59f7.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
