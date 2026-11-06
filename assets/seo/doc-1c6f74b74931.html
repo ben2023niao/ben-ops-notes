@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>DBQP 旧堡垒机入侵处置与数据库恢复总结报告｜事件响应与取证 / 安全事件｜BEN.OPS</title>
+  <meta name="description" content="DBQP 旧堡垒机入侵处置与数据库恢复总结报告。本文属于事件响应与取证 / 安全事件，报告日期：2026-11-08（Asia/Manila，UTC+8） 旧 JumpServer 1.4.8 被用于长期投放恶意载荷。攻击者在 2026-11-07 分四个波次删除 GDpay、BSQP 百盛、PNQP 大众和 D…">
+  <meta name="keywords" content="事件响应与取证，安全事件，Linux，Redis，MySQL，SQL注入，应急响应，入侵检测，事件响应与取证 / 安全事件，DBQP 旧堡垒机入侵处置与数据库恢复总结报告">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c6f74b74931.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c6f74b74931.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202611070027-%E4%BA%8B%E4%BB%B6%E5%93%8D%E5%BA%94%E4%B8%8E%E5%8F%96%E8%AF%81%2B%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%2BLinux%2BRedis-DBQP%20%E6%97%A7%E5%A0%A1%E5%9E%92%E6%9C%BA%E5%85%A5%E4%BE%B5%E5%A4%84%E7%BD%AE%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93%E6%81%A2%E5%A4%8D%E6%80%BB%E7%BB%93%E6%8A%A5%E5%91%8A.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="DBQP 旧堡垒机入侵处置与数据库恢复总结报告">
+  <meta property="og:description" content="DBQP 旧堡垒机入侵处置与数据库恢复总结报告。本文属于事件响应与取证 / 安全事件，报告日期：2026-11-08（Asia/Manila，UTC+8） 旧 JumpServer 1.4.8 被用于长期投放恶意载荷。攻击者在 2026-11-07 分四个波次删除 GDpay、BSQP 百盛、PNQP 大众和 D…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c6f74b74931.html">
+  <meta property="article:published_time" content="2026-11-07T00:27:00">
+  <meta property="article:modified_time" content="2026-11-07 00:27">
+  <meta property="article:section" content="事件响应与取证 / 安全事件">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="DBQP 旧堡垒机入侵处置与数据库恢复总结报告">
+  <meta name="twitter:description" content="DBQP 旧堡垒机入侵处置与数据库恢复总结报告。本文属于事件响应与取证 / 安全事件，报告日期：2026-11-08（Asia/Manila，UTC+8） 旧 JumpServer 1.4.8 被用于长期投放恶意载荷。攻击者在 2026-11-07 分四个波次删除 GDpay、BSQP 百盛、PNQP 大众和 D…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c6f74b74931.html#article","headline":"DBQP 旧堡垒机入侵处置与数据库恢复总结报告","description":"DBQP 旧堡垒机入侵处置与数据库恢复总结报告。本文属于事件响应与取证 / 安全事件，报告日期：2026-11-08（Asia/Manila，UTC+8） 旧 JumpServer 1.4.8 被用于长期投放恶意载荷。攻击者在 2026-11-07 分四个波次删除 GDpay、BSQP 百盛、PNQP 大众和 D…","datePublished":"2026-11-07T00:27:00","dateModified":"2026-11-07 00:27","inLanguage":"zh-CN","articleSection":["事件响应与取证","安全事件"],"keywords":["事件响应与取证","安全事件","Linux","Redis","MySQL","SQL注入","应急响应","入侵检测","事件响应与取证 / 安全事件","DBQP 旧堡垒机入侵处置与数据库恢复总结报告"],"wordCount":2195,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c6f74b74931.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c6f74b74931.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"事件响应与取证 / 安全事件","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"DBQP 旧堡垒机入侵处置与数据库恢复总结报告","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c6f74b74931.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>事件响应与取证 / 安全事件</span> › <span>DBQP 旧堡垒机入侵处置与数据库恢复总结报告</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">事件响应与取证 / 安全事件</div>
+      <h1>DBQP 旧堡垒机入侵处置与数据库恢复总结报告</h1>
+      <p class="lede">DBQP 旧堡垒机入侵处置与数据库恢复总结报告。本文属于事件响应与取证 / 安全事件，报告日期：2026-11-08（Asia/Manila，UTC+8） 旧 JumpServer 1.4.8 被用于长期投放恶意载荷。攻击者在 2026-11-07 分四个波次删除 GDpay、BSQP 百盛、PNQP 大众和 D…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-11-07T00:27:00">发布于 2026-11-07</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,195 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源：本地项目文档 <code>game/pgserver/master/docs/history/2026-11-07-【应急总结】DBQP旧堡垒机入侵处置与数据库恢复报告.md</code>
+整理：2026-11-09。仅复制到知识库，未改动原项目文件；敏感凭据已脱敏。</p>
+</blockquote>
+<p>报告日期：2026-11-08（Asia/Manila，UTC+8）</p>
+<h2 id="一-处置结论">一、处置结论</h2>
+<p>旧 JumpServer 1.4.8 被用于长期投放恶意载荷。攻击者在 2026-11-07 分四个波次删除 GDpay、BSQP 百盛、PNQP 大众和 DBQP 巴西环境的业务数据库。现有证据已经确认勒索提示、恶意持久化、删除语句和各环境恢复截止点。</p>
+<p>巴西 128、DMG、DS 的网站最小开服核心 6 库已经全部恢复，日志库也已补齐。GDpay 主库已通过日备加 binlog 恢复到删除前，57 张 _bak 历史表也已全部导入。</p>
+<p>BJ 八戒已从 DB1、DB2 的原始数据页中找到 accounts_jlmj.account 的真实页；当前 DB1 2 路、DB2 4 路扫描继续补齐其余缺失库。PNQP 大众的 DB1 和 DB2 已同时开展只读页扫描，两台各 8 路。</p>
+<p>BSQP 百盛已从 binlog 精确确认删除窗口，恢复截止点固定为 2026-11-07 00:27:11。两个超大日志库均已解包完成并进入 12 路导入，与其他已完成基线合计 24 路 MySQL 并发；导入完成后自动写基线标记并启动受保护的 PITR 回放。</p>
+<p>根据最新处置安排，我方自动恢复任务已全部暂停，交由 DBA 使用服务器快照还原。暂停时未删除已恢复数据，未覆盖原始数据库目录，未重放 DROP DATABASE，也未停止生产 MySQL 服务。</p>
+<h2 id="二-确认的破坏时间">二、确认的破坏时间</h2>
+<p>时间均为数据库服务器原始时区 UTC+8。GDpay、BSQP、PNQP 和 BJ 的时间来自二进制日志中的实际 DROP DATABASE 语句；128、DMG、DS 的历史主库 binlog 已被攻击或清理，现存证据只能确认最后有效业务写入时间和恢复点，不能伪造精确到秒的删除时刻。</p>
+<h2 id="三-攻击与恢复时间表">三、攻击与恢复时间表</h2>
+<p>| 环境 | 破坏时间 | 范围 | 恢复截止点 |</p>
+<p>|---|---|---|---|</p>
+<p>| GDpay | 00:08:40 | gdpay；同批还有 gdpay2、gdpay_20220101 | 恢复到 DROP 前位置 |</p>
+<p>| BSQP 百盛 | 00:27:12 至 00:27:39 | 17 个业务库依次删除 | 恢复到 00:27:11 |</p>
+<p>| PNQP 大众 | 00:29:12 至 00:30:11 | 业务库被批量删除 | 恢复到 00:29:11 |</p>
+<p>| BJ 八戒 | 00:54:58 至 00:55:01 | accounts、game、config、jinliu、日志视图等 | 恢复到 00:54:57 |</p>
+<p>| 128 | 无法精确到秒 | 主库历史 binlog 缺失 | 恢复到最后有效业务时间 |</p>
+<p>| DMG | 无法精确到秒 | 主库历史 binlog 缺失 | 恢复到最后有效业务时间 |</p>
+<p>| DS | 无法精确到秒 | 主库历史 binlog 缺失 | 恢复到最后有效业务时间 |</p>
+<h2 id="四-恢复结果">四、恢复结果</h2>
+<p>| 环境 | 状态 | 开服判断 | 说明 |</p>
+<p>|---|---|---|---|</p>
+<p>| 巴西 128 | 18 个库完成 | 核心 6/6 | 日志、账号、资金、配置均已恢复 |</p>
+<p>| 巴西 DMG | 18 个库完成 | 核心 6/6 | 日志、账号、资金、配置均已恢复 |</p>
+<p>| 巴西 DS | 17 个库完成 | 核心 6/6 | 日志、账号、资金、配置均已恢复 |</p>
+<p>| 巴西 BJ | 已暂停；8 完成、4 进行中、5 剩余 | 等待快照还原 | 已解析账号 58,666 行并导入配置库 31 表 |</p>
+<p>| PNQP 大众 | 已暂停；0 完成、7 进行中、10 剩余 | 等待快照还原 | 已导入 49 张表，临时恢复 MySQL 已停止 |</p>
+<p>| BSQP 百盛 | 已暂停；17/17 基线完成 | 等待快照还原 | PITR 已停止，未重放 DROP |</p>
+<p>| GDpay | 主库 + 57 张 bak 表完成 | 支付域完整 | 日备 + binlog PITR |</p>
+<ul>
+<li>BSQP 已完成基线导入 17 个库，包含 log_comm_jlmj、log_jlmj 和从 128 参考库恢复的 geoip；当前 PITR 执行中，未完成库为 0。</li>
+<li>PNQP 已完成：无。进行中（已暂停）：accounts_jlmj、recharge、game_jlmj、rpt_admin、silver_merchant、money_cmsapi、log_swag_diff。</li>
+<li>PNQP 剩余：data_center、db_monitor、geoip、hist_partition_log、jinliu_agent2、jlmj_config、jlmjdl_fx、log_comm_jlmj、log_jlmj、money_analysis。</li>
+<li>BJ 已完成：log_comm_jlmj、log_jlmj、log_swag_diff、money_analysis、money_cmsapi、recharge、rpt_admin、silver_merchant。</li>
+<li>BJ 进行中（已暂停）：accounts_jlmj（已解析 58,666 行）、jlmj_config（31 张表、28,668 行已导入）、jlmjdl_fx、jinliu_agent2。</li>
+<li>BJ 剩余：data_center、db_monitor、game_jlmj、geoip、hist_partition_log。</li>
+</ul>
+<h2 id="五-完整性与业务数据校验">五、完整性与业务数据校验</h2>
+<p>| 环境 | account 用户 | UID 范围 | account 最大更新时间 | gold 最大时间 | versus 最大时间 |</p>
+<p>|---|---:|---|---|---|---|</p>
+<p>| 128 | 1,551,805 | 9 / 2,116,675 | 2026-11-07 00:53:44 | 00:53:44 | 00:53:44 |</p>
+<p>| DMG | 1,632,274 | 147,451 / 1,826,583 | 2026-11-07 00:50:32 | 00:50:33 | 00:50:32 |</p>
+<p>| DS | 1,371,108 | 147,451 / 1,565,405 | 2026-11-07 00:53:25 | 00:53:33 | 00:53:18 |</p>
+<p>| PNQP | 待页级记录合并 | 待校验 | 待恢复到 00:29:11 | 待校验 | 待校验 |</p>
+<p>| BJ | 待 account 页合并 | 待校验 | log 视图 00:55:20 | 已完成 log_comm | 00:55:20 |</p>
+<h2 id="六-业务服务器到数据库连通性">六、业务服务器到数据库连通性</h2>
+<ul>
+<li>128 Web02 → 128 DB1/DB2：MySQL 3306 均可达。</li>
+<li>DS Web01/Web02 → DS DB1/DB2：MySQL 3306 均可达。</li>
+<li>BJ Web01/Web02 → BJ DB1/DB2：MySQL 3306 均可达。</li>
+<li>数据端口仍只允许私网和指定堡垒/恢复来源，公网来源默认 DROP。</li>
+</ul>
+<h2 id="七-安全复核">七、安全复核</h2>
+<p>| 范围 | 总数 | 完成 | 不可达 | 结论 |</p>
+<p>|---|---:|---:|---:|---|</p>
+<p>| 核心恢复服务器 | 13 | 13 | 0 | 勒索 motd、恶意路径、恶意 unit、hosts IOC 均未命中 |</p>
+<p>| GDpay 三台 | 3 | 3 | 0 | DB2 扫描时的 SCP 进程已判定为恢复任务误报 |</p>
+<p>| 全量内存哈希抽查 | 57 | 49 | 8 | 已扫描项未命中已知恶意 ELF 哈希 |</p>
+<p>| 历史入侵专项资产 | 16 | 16 | 0 | 两处新后门已取证并阻断 |</p>
+<p>已修复的系统项包括勒索 motd、恶意 hosts、隐藏 systemd unit、删除态内存进程、恶意 ELF、公开数据端口和 SSH 密码/root 登录。当前可登录核心业务服务器未发现复发 IOC。</p>
+<p>尚未消除的系统风险包括 sudo NOPASSWD、SELinux Disabled、CentOS 7 EOL、部分 RPM 基线漂移、历史日志清空和少数资产网络/认证不可达。对于曾以 root 失陷的主机，最终仍应以可信镜像重装为安全边界。</p>
+<h2 id="八-未完成项与处置建议">八、未完成项与处置建议</h2>
+<ul>
+<li>BJ accounts_jlmj 的原始页已从 DB2 找到，仍需完成页合并、字段解析、依赖视图和账号首末时间校验；其余缺失库继续扫描。</li>
+<li>PNQP 需完成 DB1/DB2 共 16 路页扫描，再合并账号、充值、游戏配置和日志表；当前不把找到的原始页视为业务恢复完成。</li>
+<li>BSQP 百盛的两个日志库完成 24 路导入后，自动校验失败队列、建立基线标记，再执行 PITR；geoip 未包含在现有备份源，必须继续查找，不能伪造空库。</li>
+<li>gdpay2、gdpay_20220101 按指示排到后续任务。</li>
+<li>百利 / bail 任务已暂停，未对主从库做覆盖、停止或配置修改。</li>
+<li>统一轮换 SSH key、数据库、Redis/MQ、JumpServer 和云 API 凭据，并清理临时恢复密钥与临时数据库账号。</li>
+</ul>
+<h2 id="九-证据与复现">九、证据与复现</h2>
+<ul>
+<li>GDpay 删除来源：DB2 binlog，时间 2026-11-07 00:08:40，位置 693350583/693350648。</li>
+<li>BSQP 删除来源：ali-hk-bsqp-db02 的 mysql-bin.002742 与 relay-bin.001739，两份日志删除顺序一致。</li>
+<li>PNQP 删除窗口：2026-11-07 00:29:12 至 00:30:11；恢复截止点为 00:29:11。</li>
+<li>BJ 删除来源：aws2-hk-bj-backup05 的 mysql-bin.000711 与 relay-bin.002151。</li>
+<li>恢复并发：PNQP 使用 DB1 与 DB2 各 8 路并配置磁盘阈值；BSQP 两个日志库各 12 路导入；BJ 使用 DB1 2 路和 DB2 4 路并配置磁盘阈值。</li>
+<li>进度口径：BSQP 使用 MySQL 进程实际读取偏移和已完成文件字节数；PNQP/BJ 使用各分片最新进度日志和页文件产出量。</li>
+<li>常驻监控：从 2026-11-07 22:50 起连续监控 3 小时，每 5 分钟发送一次真实进度；监控进程异常退出后自动重启。</li>
+<li>恢复脚本、审计采集脚本、原始 JSON 和本报告纳入本地 Git；临时密码、私钥、Job 文件和恢复中间包不提交。</li>
+</ul>
+<h2 id="十-开服前验收清单">十、开服前验收清单</h2>
+<p>| 验收项 | 通过条件 | 当前状态 |</p>
+<p>|---|---|---|</p>
+<p>| 128 / DMG / DS | 核心库、账号和末条日志时间校验通过 | 已完成，待业务复核 |</p>
+<p>| GDpay | 主库与 _bak 表完整，支付链路验证通过 | 恢复完成，待支付链路复核 |</p>
+<p>| BSQP 百盛 | 两个日志库导入成功，PITR 停在 00:27:11，库表数一致 | 导入与回放执行中 |</p>
+<p>| PNQP 大众 | DB1/DB2 扫描完成，账号、充值、配置和日志边界校验通过 | 16 路扫描中 |</p>
+<p>| BJ 八戒 | 缺失库、视图和存储过程补齐，账号首末时间正确 | 6 路扫描中 |</p>
+<p>| 安全复核 | IOC 复扫、端口白名单、SSH 加固和凭据轮换完成 | 进行中 |</p>
+<p>本报告不包含数据库密码、SSH 私钥、Telegram Token 或云 API 密钥。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-处置结论">一、处置结论</a></li><li style="margin-left:0.0rem"><a href="#二-确认的破坏时间">二、确认的破坏时间</a></li><li style="margin-left:0.0rem"><a href="#三-攻击与恢复时间表">三、攻击与恢复时间表</a></li><li style="margin-left:0.0rem"><a href="#四-恢复结果">四、恢复结果</a></li><li style="margin-left:0.0rem"><a href="#五-完整性与业务数据校验">五、完整性与业务数据校验</a></li><li style="margin-left:0.0rem"><a href="#六-业务服务器到数据库连通性">六、业务服务器到数据库连通性</a></li><li style="margin-left:0.0rem"><a href="#七-安全复核">七、安全复核</a></li><li style="margin-left:0.0rem"><a href="#八-未完成项与处置建议">八、未完成项与处置建议</a></li><li style="margin-left:0.0rem"><a href="#九-证据与复现">九、证据与复现</a></li><li style="margin-left:0.0rem"><a href="#十-开服前验收清单">十、开服前验收清单</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：事件响应与取证 / 安全事件</li>
+          <li>日期：2026-11-07</li>
+          <li>标签：<span class="tag">事件响应与取证</span><span class="tag">安全事件</span><span class="tag">Linux</span><span class="tag">Redis</span><span class="tag">MySQL</span><span class="tag">SQL注入</span><span class="tag">应急响应</span><span class="tag">入侵检测</span></li>
+          <li><span>来源：03-安全运营与应急/01-安全事件与取证/DBQP-旧堡垒机入侵/2026-11-07-【应急总结】DBQP旧堡垒机入侵处置与数据库恢复报告.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202611070027-%E4%BA%8B%E4%BB%B6%E5%93%8D%E5%BA%94%E4%B8%8E%E5%8F%96%E8%AF%81%2B%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%2BLinux%2BRedis-DBQP%20%E6%97%A7%E5%A0%A1%E5%9E%92%E6%9C%BA%E5%85%A5%E4%BE%B5%E5%A4%84%E7%BD%AE%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93%E6%81%A2%E5%A4%8D%E6%80%BB%E7%BB%93%E6%8A%A5%E5%91%8A.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>DBQP 旧堡垒机入侵处置与数据库恢复总结报告。本文属于事件响应与取证 / 安全事件，报告日期：2026-11-08（Asia/Manila，UTC+8） 旧 JumpServer 1.4.8 被用于长期投放恶意载荷。攻击者在 2026-11-07 分四个波次删除 GDpay、BSQP 百盛、PNQP 大众和 D…</p>
+      <p>关键词：事件响应与取证、安全事件、Linux、Redis、MySQL、SQL注入、应急响应、入侵检测、事件响应与取证 / 安全事件、DBQP 旧堡垒机入侵处置与数据库恢复总结报告</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-e1fe3a42eb52.html"><small>上一篇</small>每日服务器巡检（2026-11-07）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-63f00c576f1e.html"><small>下一篇</small>【运维】机器人新增紧急事件群与 DBQP 通知路由切换记录</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c6f74b74931.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>DBQP 2026年11月授权安全测试事件处置与数据库恢复报告｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
+  <meta name="description" content="DBQP 2026年11月授权安全测试事件处置与数据库恢复报告。本文属于历史运维与项目交付 / 巴西主站，旧 JumpServer 的运行版本为 1.4.8，审计记录显示授权安全测试者从 2026-08-29 起使用 scott 身份向数据库、Redis、基础组件和代理节点投放恶意 ELF，并在 2026-11-…">
+  <meta name="keywords" content="巴西主站，Linux，Shell，Redis，监控告警，DNS，安全运维，数据库恢复，历史运维与项目交付，历史运维与项目交付 / 巴西主站，DBQP 2026年11月授权安全测试事件处置与数据库恢复报告">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-61caeb7c150b.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-61caeb7c150b.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202611070000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-DBQP%202026%E5%B9%B411%E6%9C%88%E6%8E%88%E6%9D%83%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%BD%AE%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93%E6%81%A2%E5%A4%8D%E6%8A%A5%E5%91%8A.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="DBQP 2026年11月授权安全测试事件处置与数据库恢复报告">
+  <meta property="og:description" content="DBQP 2026年11月授权安全测试事件处置与数据库恢复报告。本文属于历史运维与项目交付 / 巴西主站，旧 JumpServer 的运行版本为 1.4.8，审计记录显示授权安全测试者从 2026-08-29 起使用 scott 身份向数据库、Redis、基础组件和代理节点投放恶意 ELF，并在 2026-11-…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-61caeb7c150b.html">
+  <meta property="article:published_time" content="2026-11-07T00:00:00+08:00">
+  <meta property="article:modified_time" content="2026-11-07 00:00">
+  <meta property="article:section" content="历史运维与项目交付 / 巴西主站">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="DBQP 2026年11月授权安全测试事件处置与数据库恢复报告">
+  <meta name="twitter:description" content="DBQP 2026年11月授权安全测试事件处置与数据库恢复报告。本文属于历史运维与项目交付 / 巴西主站，旧 JumpServer 的运行版本为 1.4.8，审计记录显示授权安全测试者从 2026-08-29 起使用 scott 身份向数据库、Redis、基础组件和代理节点投放恶意 ELF，并在 2026-11-…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-61caeb7c150b.html#article","headline":"DBQP 2026年11月授权安全测试事件处置与数据库恢复报告","description":"DBQP 2026年11月授权安全测试事件处置与数据库恢复报告。本文属于历史运维与项目交付 / 巴西主站，旧 JumpServer 的运行版本为 1.4.8，审计记录显示授权安全测试者从 2026-08-29 起使用 scott 身份向数据库、Redis、基础组件和代理节点投放恶意 ELF，并在 2026-11-…","datePublished":"2026-11-07T00:00:00+08:00","dateModified":"2026-11-07 00:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Linux","Shell","Redis","监控告警","DNS","安全运维","数据库恢复","历史运维与项目交付","历史运维与项目交付 / 巴西主站","DBQP 2026年11月授权安全测试事件处置与数据库恢复报告"],"wordCount":2245,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-61caeb7c150b.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-61caeb7c150b.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"DBQP 2026年11月授权安全测试事件处置与数据库恢复报告","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-61caeb7c150b.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>历史运维与项目交付 / 巴西主站</span> › <span>DBQP 2026年11月授权安全测试事件处置与数据库恢复报告</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
+      <h1>DBQP 2026年11月授权安全测试事件处置与数据库恢复报告</h1>
+      <p class="lede">DBQP 2026年11月授权安全测试事件处置与数据库恢复报告。本文属于历史运维与项目交付 / 巴西主站，旧 JumpServer 的运行版本为 1.4.8，审计记录显示授权安全测试者从 2026-08-29 起使用 scott 身份向数据库、Redis、基础组件和代理节点投放恶意 ELF，并在 2026-11-…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-11-07T00:00:00+08:00">发布于 2026-11-07</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,245 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-11-07-【应急】DBQP旧堡垒机入侵处置与数据库恢复报告.md</code></p>
+<p>整理日期：2026-11-07 00:00｜日期依据：文件名日期</p>
+</blockquote>
+<p>报告日期：2026-11-07</p>
+<h2 id="一-结论">一、结论</h2>
+<p>旧 JumpServer 的运行版本为 1.4.8，审计记录显示授权安全测试者从 2026-08-29 起使用 <code>scott</code> 身份向数据库、Redis、基础组件和代理节点投放恶意 ELF，并在 2026-11-06 夜间执行勒索 motd 与数据库目录删除。</p>
+<p>本次处置已完成旧堡垒机隔离、IOC 取证与隔离、复发持久化根因清除、可访问主机的数据端口和 SSH 入口收敛，并恢复巴西 128、BJ、DS、DMG 的主要业务库。旧 JumpServer 按要求保持运行，只限制来源 IP，没有清理其内部数据。</p>
+<h2 id="二-范围与时间线">二、范围与时间线</h2>
+<ul>
+<li>原始资产基线：56 台，完成深度采集 51 台。</li>
+<li>新增 base 资产：9 台，全部完成扫描。</li>
+<li>gate / room / redis / mq / proxy 分类资产：95 台，其中新增 85 台、已有基线 10 台。</li>
+<li>合并去重后共 150 台；本轮专项 IOC 复查覆盖当前可登录的 123 台。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>时间（UTC+8）</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-08-29 16:54 起</td>
+<td>旧 JumpServer 审计记录出现 scott 下载并启动恶意载荷</td>
+</tr>
+<tr>
+<td>2026-09-11 至 09-12</td>
+<td>载荷扩散到数据库、Redis、MQ、代理和基础组件节点</td>
+</tr>
+<tr>
+<td>2026-11-06 23:40-23:43</td>
+<td>多台主库出现勒索 motd，业务数据库目录被删除</td>
+</tr>
+<tr>
+<td>2026-11-07 05:39 与 08:50</td>
+<td>128-redis01 两次被持久化脚本重新投放 IOC</td>
+</tr>
+<tr>
+<td>2026-11-07 08:47-09:00</td>
+<td>定位并阻断 systemd-integritysetup 持久化链</td>
+</tr>
+</tbody>
+</table>
+<h2 id="三-安全处置">三、安全处置</h2>
+<h3 id="1-IOC-根因与隔离">1. IOC 根因与隔离</h3>
+<p>128-redis01 的内存脚本来自 <code>/usr/libexec/systemd-integritysetup</code>，由 <code>systemd-integritysetup.service</code> 启动。脚本每 300 秒从 <code>https://api.dnslogs.org/s/xdg-user-dirs</code> 下载 3,112,200 字节 ELF，写入 <code>/usr/lib/locale/.locale.pack</code>，并以 root 启动。</p>
+<p>恶意 ELF SHA256：<code>2814921df5ae84da24a58c948594d493a70ed98bddc73b93e165af5756e78ac2</code>。同哈希文件也存在于 gdpay-db1 的 <code>systemd-binfmt-wait.service</code>。</p>
+<p>处置结果：</p>
+<ul>
+<li>终止投放脚本和恶意 ELF 进程。</li>
+<li>停止、禁用并 mask <code>systemd-integritysetup.service</code> 与 <code>systemd-binfmt-wait.service</code>。</li>
+<li>隔离 <code>.locale.pack</code>、<code>.sync-host-beacon</code> 和恶意 unit 文件。</li>
+<li>隔离后持续观察超过 10 分钟，IOC、进程和 3112200 字节实文件均未再出现。</li>
+<li>对 123 台当前可登录服务器做专项复查，未发现第二处可运行的 systemd-integritysetup 或 binfmt-wait 持久化。</li>
+</ul>
+<h3 id="2-网络与认证加固">2. 网络与认证加固</h3>
+<ul>
+<li>数据端口 3306 / 6379 / 5672 / 15672：仅允许 loopback、10/8、172.16/12、192.168/16，公网默认 DROP。</li>
+<li>SSH：仅允许新/旧堡垒机、打包机、运维固定 IP 和私网来源。</li>
+<li>7 台原先允许 root SSH 的节点已关闭 root 登录与密码登录。</li>
+<li>17 台腾讯 proxy 保留 root 公钥登录，关闭 SSH 密码认证。</li>
+<li>所有变更先保存 iptables 或 sshd 配置备份，并通过 <code>sshd -t</code> 与实际参数回读。</li>
+</ul>
+<h3 id="3-base-与分类资产扫描">3. base 与分类资产扫描</h3>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th style="text-align: right;">总数</th>
+<th style="text-align: right;">可扫描</th>
+<th style="text-align: right;">不可达/认证失败</th>
+<th style="text-align: right;">新增高危 IOC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>gate</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>room</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>redis</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>mq</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>proxy</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: right;">36</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>base</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p>17 台腾讯 proxy 的 cron 告警为同一模板误报，<code>/var/spool/cron/root</code> SHA256 均为 <code>eaaf07aba549e5c3cdd8eb525913fed7e6507c7baa8860aa9da2ef8aec51b69a</code>，未发现实际 curl/wget、base64 解码或反向 shell。</p>
+<h2 id="四-数据库恢复">四、数据库恢复</h2>
+<p>当前纳管库实例 58 个：完整完成 47 个，表数据完成但对象待补 1 个，正在恢复 10 个。</p>
+<p>网站最小开服核心为 <code>accounts_jlmj</code>、<code>game_jlmj</code>、<code>recharge</code>、<code>money_analysis</code>、<code>jlmj_config</code>、<code>money_cmsapi</code>。</p>
+<ul>
+<li>巴西 128：5/6。</li>
+<li>巴西 DMG：5/6。</li>
+<li>巴西 DS：6/6。</li>
+</ul>
+<h3 id="已完成库">已完成库</h3>
+<table>
+<thead>
+<tr>
+<th>区域</th>
+<th>数据库</th>
+<th style="text-align: right;">表数量</th>
+<th>数据时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>巴西 128</td>
+<td><code>accounts_jlmj</code></td>
+<td style="text-align: right;">26/26</td>
+<td>2026-11-07 00:54:59</td>
+</tr>
+<tr>
+<td>巴西 128</td>
+<td><code>data_center</code></td>
+<td style="text-align: right;">19/19</td>
+<td>2020-03-05 11:53:18</td>
+</tr>
+<tr>
+<td>巴西 128</td>
+<td><code>db_monitor</code></td>
+<td style="text-align: right;">16/16</td>
+<td>在线快照 2026-11-07 06:55 PST</td>
+</tr>
+<tr>
+<td>巴西 128</td>
+<td><code>game_jlmj</code></td>
+<td style="text-align: right;">22/22</td>
+<td>2026-11-07 00:55:01</td>
+</tr>
+<tr>
+<td>巴西 128</td>
+<td><code>geoip</code></td>
+<td style="text-align: right;">2/2</td>
+<td>2026-04-23 19:31:17</td>
+</tr>
+<tr>
+<td>巴西 128</td>
+<td><code>hist_partition_log</code></td>
+<td style="text-align: right;">8/8</td>
+<td>在线快照 2026-11-07 06:55 PST</td>
+</tr>
+<tr>
+<td>巴西 128</td>
+<td><code>jinliu_agent2</code></td>
+<td style="text-align: right;">128/128</td>
+<td>在线快照 2026-11-07 07:00 PST</td>
+</tr>
+<tr>
+<td>巴西 128</td>
+<td><code>jlmj_config</code></td>
+<td style="text-align: right;">57/57</td>
+<td>2026-11-07 00:54:44</td>
+</tr>
+<tr>
+<td>巴西 128</td>
+<td><code>jlmjdl_fx</code></td>
+<td style="text-align: right;">2/2</td>
+<td>2020-03-05 12:03:08</td>
+</tr>
+<tr>
+<td>巴西 128</td>
+<td><code>log_swag_diff</code></td>
+<td style="text-align: right;">10/10</td>
+<td>在线快照 2026-11-07 07:00 PST</td>
+</tr>
+<tr>
+<td>巴西 128</td>
+<td><code>money_cmsapi</code></td>
+<td style="text-align: right;">10/10</td>
+<td>2026-11-07 04:45:28</td>
+</tr>
+<tr>
+<td>巴西 128</td>
+<td><code>recharge</code></td>
+<td style="text-align: right;">25/25</td>
+<td>2026-11-07 00:54:48</td>
+</tr>
+<tr>
+<td>巴西 128</td>
+<td><code>rpt_admin</code></td>
+<td style="text-align: right;">27/27</td>
+<td>2026-11-07 05:45:02</td>
+</tr>
+<tr>
+<td>巴西 128</td>
+<td><code>silver_merchant</code></td>
+<td style="text-align: right;">25/25</td>
+<td>在线快照 2026-11-07 06:55 PST</td>
+</tr>
+<tr>
+<td>巴西 BJ</td>
+<td><code>log_swag_diff</code></td>
+<td style="text-align: right;">10/10</td>
+<td>在线快照 2026-11-07 07:35 PST</td>
+</tr>
+<tr>
+<td>巴西 BJ</td>
+<td><code>money_analysis</code></td>
+<td style="text-align: right;">208/208</td>
+<td>2026-11-07 00:56:29</td>
+</tr>
+<tr>
+<td>巴西 BJ</td>
+<td><code>money_cmsapi</code></td>
+<td style="text-align: right;">10/10</td>
+<td>2026-11-07 00:31:35</td>
+</tr>
+<tr>
+<td>巴西 BJ</td>
+<td><code>recharge</code></td>
+<td style="text-align: right;">25/25</td>
+<td>2026-11-07 00:56:22</td>
+</tr>
+<tr>
+<td>巴西 BJ</td>
+<td><code>rpt_admin</code></td>
+<td style="text-align: right;">30/30</td>
+<td>2026-11-07 00:55:43</td>
+</tr>
+<tr>
+<td>巴西 DMG</td>
+<td><code>accounts_jlmj</code></td>
+<td style="text-align: right;">26/26</td>
+<td>2026-11-07 00:54:42</td>
+</tr>
+<tr>
+<td>巴西 DMG</td>
+<td><code>data_center</code></td>
+<td style="text-align: right;">19/19</td>
+<td>在线快照 2026-11-07 07:45 PST</td>
+</tr>
+<tr>
+<td>巴西 DMG</td>
+<td><code>db_monitor</code></td>
+<td style="text-align: right;">16/16</td>
+<td>在线快照 2026-11-07 07:45 PST</td>
+</tr>
+<tr>
+<td>巴西 DMG</td>
+<td><code>game_jlmj</code></td>
+<td style="text-align: right;">24/24</td>
+<td>2026-11-07 00:51:45</td>
+</tr>
+<tr>
+<td>巴西 DMG</td>
+<td><code>geoip</code></td>
+<td style="text-align: right;">2/2</td>
+<td>在线快照 2026-11-07 07:45 PST</td>
+</tr>
+<tr>
+<td>巴西 DMG</td>
+<td><code>hist_partition_log</code></td>
+<td style="text-align: right;">8/8</td>
+<td>在线快照 2026-11-07 07:45 PST</td>
+</tr>
+<tr>
+<td>巴西 DMG</td>
+<td><code>jlmj_config</code></td>
+<td style="text-align: right;">58/58</td>
+<td>2026-11-07 00:51:47</td>
+</tr>
+<tr>
+<td>巴西 DMG</td>
+<td><code>jlmjdl_fx</code></td>
+<td style="text-align: right;">2/2</td>
+<td>在线快照 2026-11-07 07:45 PST</td>
+</tr>
+<tr>
+<td>巴西 DMG</td>
+<td><code>log_swag_diff</code></td>
+<td style="text-align: right;">10/10</td>
+<td>在线快照 2026-11-07 07:36 PST</td>
+</tr>
+<tr>
+<td>巴西 DMG</td>
+<td><code>money_cmsapi</code></td>
+<td style="text-align: right;">10/10</td>
+<td>在线快照 2026-11-07 07:36 PST</td>
+</tr>
+<tr>
+<td>巴西 DMG</td>
+<td><code>recharge</code></td>
+<td style="text-align: right;">28/28</td>
+<td>2026-11-07 00:51:47</td>
+</tr>
+<tr>
+<td>巴西 DMG</td>
+<td><code>rpt_admin</code></td>
+<td style="text-align: right;">34/34</td>
+<td>在线快照 2026-11-07 07:36 PST</td>
+</tr>
+<tr>
+<td>巴西 DMG</td>
+<td><code>silver_merchant</code></td>
+<td style="text-align: right;">25/25</td>
+<td>在线快照 2026-11-07 07:36 PST</td>
+</tr>
+<tr>
+<td>巴西 DS</td>
+<td><code>accounts_jlmj</code></td>
+<td style="text-align: right;">25/25</td>
+<td>2026-11-07 00:53:50</td>
+</tr>
+<tr>
+<td>巴西 DS</td>
+<td><code>data_center</code></td>
+<td style="text-align: right;">19/19</td>
+<td>在线快照 2026-11-07 07:46 PST</td>
+</tr>
+<tr>
+<td>巴西 DS</td>
+<td><code>db_monitor</code></td>
+<td style="text-align: right;">16/16</td>
+<td>在线快照 2026-11-07 07:46 PST</td>
+</tr>
+<tr>
+<td>巴西 DS</td>
+<td><code>game_jlmj</code></td>
+<td style="text-align: right;">24/24</td>
+<td>2026-11-07 00:53:40</td>
+</tr>
+<tr>
+<td>巴西 DS</td>
+<td><code>geoip</code></td>
+<td style="text-align: right;">2/2</td>
+<td>在线快照 2026-11-07 07:46 PST</td>
+</tr>
+<tr>
+<td>巴西 DS</td>
+<td><code>hist_partition_log</code></td>
+<td style="text-align: right;">8/8</td>
+<td>在线快照 2026-11-07 07:46 PST</td>
+</tr>
+<tr>
+<td>巴西 DS</td>
+<td><code>jinliu_agent2</code></td>
+<td style="text-align: right;">146/146</td>
+<td>在线快照 2026-11-07 07:53 PST</td>
+</tr>
+<tr>
+<td>巴西 DS</td>
+<td><code>jlmj_config</code></td>
+<td style="text-align: right;">55/55</td>
+<td>2026-11-07 00:52:18</td>
+</tr>
+<tr>
+<td>巴西 DS</td>
+<td><code>jlmjdl_fx</code></td>
+<td style="text-align: right;">154/154</td>
+<td>在线快照 2026-11-07 07:46 PST</td>
+</tr>
+<tr>
+<td>巴西 DS</td>
+<td><code>log_swag_diff</code></td>
+<td style="text-align: right;">10/10</td>
+<td>在线快照 2026-11-07 07:34 PST</td>
+</tr>
+<tr>
+<td>巴西 DS</td>
+<td><code>money_analysis</code></td>
+<td style="text-align: right;">174/174</td>
+<td>2026-11-07 00:53:41</td>
+</tr>
+<tr>
+<td>巴西 DS</td>
+<td><code>money_cmsapi</code></td>
+<td style="text-align: right;">10/10</td>
+<td>在线快照 2026-11-07 07:34 PST</td>
+</tr>
+<tr>
+<td>巴西 DS</td>
+<td><code>recharge</code></td>
+<td style="text-align: right;">26/26</td>
+<td>在线快照 2026-11-07 07:32 PST</td>
+</tr>
+<tr>
+<td>巴西 DS</td>
+<td><code>rpt_admin</code></td>
+<td style="text-align: right;">27/27</td>
+<td>在线快照 2026-11-07 07:34 PST</td>
+</tr>
+<tr>
+<td>巴西 DS</td>
+<td><code>silver_merchant</code></td>
+<td style="text-align: right;">25/25</td>
+<td>在线快照 2026-11-07 07:34 PST</td>
+</tr>
+</tbody>
+</table>
+<h3 id="表数据完成但对象待补">表数据完成但对象待补</h3>
+<ul>
+<li>巴西 BJ <code>silver_merchant</code>：恢复退出码非 0，需要继续处理。</li>
+</ul>
+<h3 id="正在恢复">正在恢复</h3>
+<table>
+<thead>
+<tr>
+<th>区域</th>
+<th>数据库</th>
+<th style="text-align: right;">进度估算</th>
+<th style="text-align: right;">表数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>巴西 128</td>
+<td><code>log_comm_jlmj</code></td>
+<td style="text-align: right;">33.9%</td>
+<td style="text-align: right;">14/96</td>
+</tr>
+<tr>
+<td>巴西 128</td>
+<td><code>log_jlmj</code></td>
+<td style="text-align: right;">37.2%</td>
+<td style="text-align: right;">84/279</td>
+</tr>
+<tr>
+<td>巴西 128</td>
+<td><code>money_analysis</code></td>
+<td style="text-align: right;">99.0%</td>
+<td style="text-align: right;">105/148</td>
+</tr>
+<tr>
+<td>巴西 BJ</td>
+<td><code>log_jlmj</code></td>
+<td style="text-align: right;">22.5%</td>
+<td style="text-align: right;">59/338</td>
+</tr>
+<tr>
+<td>巴西 DMG</td>
+<td><code>jinliu_agent2</code></td>
+<td style="text-align: right;">92.3%</td>
+<td style="text-align: right;">64/130</td>
+</tr>
+<tr>
+<td>巴西 DMG</td>
+<td><code>log_comm_jlmj</code></td>
+<td style="text-align: right;">27.4%</td>
+<td style="text-align: right;">18/95</td>
+</tr>
+<tr>
+<td>巴西 DMG</td>
+<td><code>log_jlmj</code></td>
+<td style="text-align: right;">23.4%</td>
+<td style="text-align: right;">53/279</td>
+</tr>
+<tr>
+<td>巴西 DMG</td>
+<td><code>money_analysis</code></td>
+<td style="text-align: right;">73.4%</td>
+<td style="text-align: right;">113/154</td>
+</tr>
+<tr>
+<td>巴西 DS</td>
+<td><code>log_comm_jlmj</code></td>
+<td style="text-align: right;">99.0%</td>
+<td style="text-align: right;">73/97</td>
+</tr>
+<tr>
+<td>巴西 DS</td>
+<td><code>log_jlmj</code></td>
+<td style="text-align: right;">99.0%</td>
+<td style="text-align: right;">281/303</td>
+</tr>
+</tbody>
+</table>
+<p>BJ <code>silver_merchant</code> 的源端视图 <code>gold_log_view</code> 自身引用无效对象，24 张基础表已恢复，该视图无法从当前源恢复。</p>
+<p>按 DBA 要求，独立 <code>rpt_admin_bak</code> 库本次只识别、不补跑；bak 为体积较大的历史死数据。正在运行的大库仍按原任务恢复全部表。</p>
+<h2 id="五-Redis-数据文件完整性">五、Redis 数据文件完整性</h2>
+<p>当前只有 2 台 Redis 节点可完成文件级校验，其余 23 台认证失败或网络超时。</p>
+<table>
+<thead>
+<tr>
+<th>节点</th>
+<th>当前数据文件</th>
+<th style="text-align: right;">大小</th>
+<th style="text-align: right;">Key 数</th>
+<th>校验结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ali-hk-128-redis01</td>
+<td><code>/data/redis/redis.rdb</code></td>
+<td style="text-align: right;">4,158,082,491 B</td>
+<td style="text-align: right;">33,262,530</td>
+<td>checksum OK</td>
+</tr>
+<tr>
+<td>ali-hk-redis03</td>
+<td><code>/data/redis6382/data/dump6382.rdb</code></td>
+<td style="text-align: right;">2,082,802,751 B</td>
+<td style="text-align: right;">17,518,104</td>
+<td>checksum OK</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>128-redis01 其余 7 个 RDB 全部 checksum OK；6 个 AOF 中 5 个 valid、1 个为 0 字节未启用文件。</li>
+<li>redis03 其余 4 个 RDB 全部 checksum OK；2 个 AOF 全部 valid、diff=0。</li>
+<li>未执行 <code>redis-check --fix</code>，未修改任何 Redis 数据文件。</li>
+</ul>
+<h2 id="六-未完成项与风险">六、未完成项与风险</h2>
+<ul>
+<li>27 台服务器当前不可达或认证失败，不能标记为安全已完成。</li>
+<li>PNQP 当前没有完整主数据源；BSQP 仅有 2026-05 历史备份。</li>
+<li>GDPAY 在线源可读，源/目标之间公网 3306 不通，目标已恢复 normal 模式且没有半成品数据。</li>
+<li>旧 JumpServer 仍为 JumpServer 1.4.8，虽已限制来源 IP，但其保存的历史凭据仍应视为泄露。</li>
+<li>全量 SSH key、DB/Redis/MQ 密码、云 API 密钥和旧堡垒机凭据仍需统一轮换。</li>
+<li><code>sudo NOPASSWD</code>、SELinux Disabled、CentOS 7 EOL 和 RPM 基线漂移仍属于系统性风险。</li>
+<li>对已 root 失陷的主机，最终安全基线应通过重装系统或可信镜像重建实现；当前结果不能替代重装。</li>
+</ul>
+<h2 id="七-证据与复核">七、证据与复核</h2>
+<ul>
+<li>复投放脚本哈希：<code>c27828f8701f4a0a9ea707766e9dee131775f47ea66de8973e6ba6af403b7038</code>。</li>
+<li>恶意 ELF：<code>2814921df5ae84da24a58c948594d493a70ed98bddc73b93e165af5756e78ac2</code>。</li>
+<li>128 Redis 当前 RDB：<code>b90194a6c5df9a84847b0748a4098cac57bdfa411253ac9378b368fea764e89f</code>。</li>
+<li>redis03 当前 RDB：<code>479d7a801b3acc241808a2ac472a1339cf0de3c6dc36fdef27c9acd91301499c</code>。</li>
+<li>恢复详情每 3 分钟发送至临时群，并在每个库结束时补发单独结果。</li>
+</ul>
+<p>本报告不包含数据库密码、SSH 私钥、Telegram Token 或云 API 密钥。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-结论">一、结论</a></li><li style="margin-left:0.0rem"><a href="#二-范围与时间线">二、范围与时间线</a></li><li style="margin-left:0.0rem"><a href="#三-安全处置">三、安全处置</a></li><li style="margin-left:0.8rem"><a href="#1-IOC-根因与隔离">1. IOC 根因与隔离</a></li><li style="margin-left:0.8rem"><a href="#2-网络与认证加固">2. 网络与认证加固</a></li><li style="margin-left:0.8rem"><a href="#3-base-与分类资产扫描">3. base 与分类资产扫描</a></li><li style="margin-left:0.0rem"><a href="#四-数据库恢复">四、数据库恢复</a></li><li style="margin-left:0.8rem"><a href="#已完成库">已完成库</a></li><li style="margin-left:0.8rem"><a href="#表数据完成但对象待补">表数据完成但对象待补</a></li><li style="margin-left:0.8rem"><a href="#正在恢复">正在恢复</a></li><li style="margin-left:0.0rem"><a href="#五-Redis-数据文件完整性">五、Redis 数据文件完整性</a></li><li style="margin-left:0.0rem"><a href="#六-未完成项与风险">六、未完成项与风险</a></li><li style="margin-left:0.0rem"><a href="#七-证据与复核">七、证据与复核</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：历史运维与项目交付 / 巴西主站</li>
+          <li>日期：2026-11-07</li>
+          <li>标签：<span class="tag">巴西主站</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Redis</span><span class="tag">监控告警</span><span class="tag">DNS</span><span class="tag">安全运维</span><span class="tag">数据库恢复</span></li>
+          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-11-07-【应急】DBQP旧堡垒机入侵处置与数据库恢复报告.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202611070000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-DBQP%202026%E5%B9%B411%E6%9C%88%E6%8E%88%E6%9D%83%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%BD%AE%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93%E6%81%A2%E5%A4%8D%E6%8A%A5%E5%91%8A.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>DBQP 2026年11月授权安全测试事件处置与数据库恢复报告。本文属于历史运维与项目交付 / 巴西主站，旧 JumpServer 的运行版本为 1.4.8，审计记录显示授权安全测试者从 2026-08-29 起使用 scott 身份向数据库、Redis、基础组件和代理节点投放恶意 ELF，并在 2026-11-…</p>
+      <p>关键词：巴西主站、Linux、Shell、Redis、监控告警、DNS、安全运维、数据库恢复、历史运维与项目交付、历史运维与项目交付 / 巴西主站、DBQP 2026年11月授权安全测试事件处置与数据库恢复报告</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-41c4074ef5e4.html"><small>上一篇</small>2026-11-07 运维周报</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-2613b99d4831.html"><small>下一篇</small>DBQP 旧堡垒机授权安全测试处置与数据库恢复总结报告</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-61caeb7c150b.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
