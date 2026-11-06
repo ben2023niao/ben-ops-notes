@@ -1,0 +1,204 @@
+---
+id: "doc-63f00c576f1e"
+title: "【运维】机器人新增紧急事件群与 DBQP 通知路由切换记录"
+date: "2026-11-07T01:34:00+08:00"
+dateSource: "文件名日期"
+categories: ["历史运维与项目交付", "巴西主站"]
+tags: ["巴西主站", "Linux", "Shell", "Python", "Nginx", "监控告警", "自动化", "CDN"]
+source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-11-07-0134-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%96%B0%E5%A2%9E%E7%B4%A7%E6%80%A5%E4%BA%8B%E4%BB%B6%E7%BE%A4%E4%B8%8EDBQP%E9%80%9A%E7%9F%A5%E8%B7%AF%E7%94%B1%E5%88%87%E6%8D%A2%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-11-07-0134-【运维】机器人新增紧急事件群与DBQP通知路由切换记录.md"
+sourceSha256: "1fedcf00fd9f63cf2f0e9739be38fd4f25ec64486cf4488a5178c9d2a066695f"
+sourceSystem: "project-doc"
+---
+
+# 【运维】机器人新增紧急事件群与 DBQP 通知路由切换记录
+
+> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-11-07-0134-【运维】机器人新增紧急事件群与DBQP通知路由切换记录.md`
+
+> 整理日期：2026-11-07 01:34｜日期依据：文件名日期
+
+更新时间：2026-11-07 01:34（Asia/Manila）
+
+## 一、请求
+
+```text
+机器人已加入：临时群🍊🍎紧急事件
+后续全部 DBQP 操作通知发送到该群。
+按标准流程：
+汇总文档 → 汇总及文档发群 → 提交本地 Git → 提交结果发群。
+```
+
+## 二、开始前基线
+
+主仓库：
+
+```text
+路径：/Users/ben/Projects/work/game/pgserver/master
+本地 master：28b43a8d
+origin/master：a72f41fb
+origin/ben：9f59b4f3
+工作区：干净
+本地 master 领先 origin/master 20 个提交
+```
+
+独立香港仓库：
+
+```text
+路径：/Users/ben/Projects/work/game/pgserver/cn
+本地 cn：1fbe688f
+origin/cn：5c3b3de6
+工作区：干净
+本地 cn 领先 origin/cn 142 个提交
+```
+
+## 三、群识别
+
+通过 Telegram Bot `getUpdates` 只读核对：
+
+```text
+标题：临时群🍊🍎紧急事件
+chat_id：-5247199745
+类型：group
+```
+
+同时保留原有群用途：
+
+```text
+监控报警群 -1004456082456：继续接收服务器、容器和监控告警。
+临时群🍊🍎紧急事件 -5247199745：接收 DBQP 人工运维与发布台操作通知。
+```
+
+## 四、通知路由修改
+
+### 4.1 命令行运维通知
+
+修改：
+
+```text
+scripts/dbqp_notify.py
+```
+
+选择顺序更新为：
+
+```text
+--chat-id 显式覆盖
+→ DBQP_OPERATIONS_CHAT_ID
+→ BEN_BOT_MONITOR_CHAT_ID（兼容回退）
+→ DBQP_MONITOR_CHAT_ID（兼容回退）
+```
+
+宝塔运行时配置新增：
+
+```text
+/opt/benbot-runtime.env
+DBQP_OPERATIONS_CHAT_ID=-5247199745
+```
+
+备份：
+
+```text
+/opt/benbot-runtime.env.bak-20261107-013256
+```
+
+### 4.2 运维发布台通知
+
+`dbqp-ops-console` 的通知目标 Secret 从原监控群切换为新群：
+
+```text
+/opt/dbqp-ops-console/secrets/telegram_chat_ids
+内容：-5247199745
+owner：10001:10001
+mode：0400
+```
+
+备份：
+
+```text
+/opt/dbqp-ops-console/backups/telegram_chat_ids.before-20261107-013303
+```
+
+Secret 在每次发送时动态读取，因此无需重启控制台容器。
+
+## 五、验证
+
+### 5.1 默认群校验
+
+```text
+python3 scripts/dbqp_notify.py --check
+群配置正常：临时群🍊🍎紧急事件（-5247199745）
+```
+
+### 5.2 新群实际发送
+
+```text
+dbqp_notify.py 运维通知路由测试：message_id 8001
+运维发布台 /api/notify 路由测试：message_ids [8002]
+```
+
+两条消息均已在“临时群🍊🍎紧急事件”确认。
+
+### 5.3 监控群隔离
+
+```text
+BEN_BOT_MONITOR_CHAT_ID 未修改。
+服务器监控、容器健康、重启告警仍发送原监控报警群。
+```
+
+## 六、影响范围
+
+```text
+1. 仅切换 DBQP 人工运维和发布台通知目标；
+2. 未修改业务服务器、游戏容器、Nginx、DNS、CDN 或业务配置；
+3. 未重启 dbqp-ops-console；
+4. 未重启任何游戏业务容器；
+5. 未修改监控报警群配置。
+```
+
+## 七、提交前安全检查附带修复
+
+敏感信息扫描发现 `scripts/sync_game_results_data.py` 仍把服务器密码作为
+代码默认值。该问题不是本次通知路由修改引入，但不能在提交时继续保留：
+
+```text
+1. 删除脚本内明文密码默认值；
+2. 改为必须从 GAME_RESULTS_SYNC_PASSWORD 或
+   GAME_RESULTS_SYNC_PASSWORD_FILE 读取；
+3. 所有 sshpass 调用改为 sshpass -e，密码仅通过进程环境传递；
+4. 未修改宝塔现有 shell 定时任务，未触发结果集同步。
+```
+
+## 八、回滚
+
+命令行运维通知：
+
+```bash
+cp -a /opt/benbot-runtime.env.bak-20261107-013256 /opt/benbot-runtime.env
+```
+
+运维发布台通知：
+
+```bash
+cp -a /opt/dbqp-ops-console/backups/telegram_chat_ids.before-20261107-013303 \
+  /opt/dbqp-ops-console/secrets/telegram_chat_ids
+chown 10001:10001 /opt/dbqp-ops-console/secrets/telegram_chat_ids
+chmod 400 /opt/dbqp-ops-console/secrets/telegram_chat_ids
+```
+
+代码回滚：
+
+```text
+回退 scripts/dbqp_notify.py 中对 DBQP_OPERATIONS_CHAT_ID 的优先读取。
+同时恢复 sync_game_results_data.py 旧版本。
+```
+
+## 九、群通知
+
+```text
+新群路由测试：message_id 8001
+发布台路由测试：message_id 8002
+汇总：message_id 8003
+文档：message_id 8004
+安全补充：message_id 8005
+更新版文档：message_id 8006
+提交结果：发送后补录
+```
