@@ -862,6 +862,7 @@
     const related = (doc.relatedIds || []).map((id) => byId.get(id)).filter(Boolean);
     const backlinks = (doc.backlinks || []).map((id) => byId.get(id)).filter(Boolean);
     const originals = (doc.originals || []).map((file) => `<a href="${esc(file.href)}">${esc(file.label)}</a>`).join(" · ");
+    const canEmbedSource = /^https:\/\/(?:ji-shu-jian-li|xn--6o0a585a)\.gitbook\.io\/.*\.html(?:[?#].*)?$/.test(doc.sourceUrl || "");
     const categoryDocs = DATA.documents.filter((item) => item.categoryId === doc.categoryId).sort((a, b) => a.dateTime.localeCompare(b.dateTime));
     const index = categoryDocs.findIndex((item) => item.id === doc.id);
     const previous = index > 0 ? categoryDocs[index - 1] : null;
@@ -872,17 +873,21 @@
         <div class="doc-kicker">分类：${esc(doc.categoryLabel)} / ${esc(doc.kind)}</div>
         <h1>${esc(doc.title)}</h1>
         <div class="meta-bar"><span>发布：${esc(doc.dateDisplay || doc.dateOnly)}</span><span>·</span><span>${fmt(doc.wordCount)} 字</span><span>·</span><span>阅读：${esc(doc.readingTime || 1)} 分钟</span><span>·</span><span>难度：${esc(doc.difficulty || "ENGINEERING")}</span><span>·</span><span>作者：<a class="author-link" href="https://t.me/Ben_Bird" target="_blank" rel="noopener">@Ben_Bird</a></span>
-          <span class="doc-actions"><button class="small-button" id="favorite-doc">${isFavorite ? "★ 已收藏" : "☆ 收藏"}</button><button class="small-button" id="share-doc">分享</button><a class="small-button" href="${esc(doc.mdHref)}">打开 Markdown</a><span class="small-button">Markdown 渲染</span></span>
+          <span class="doc-actions"><button class="small-button" id="favorite-doc">${isFavorite ? "★ 已收藏" : "☆ 收藏"}</button><button class="small-button" id="share-doc">分享</button>${canEmbedSource ? '<button class="small-button" id="source-embed-toggle" aria-expanded="false">内嵌原网页</button>' : ""}<a class="small-button" href="${esc(doc.mdHref)}">打开 Markdown</a><span class="small-button">Markdown 渲染</span></span>
         </div>
         <div class="tag-cloud">${doc.tags.map((tag) => `<button class="tag-chip" data-inline-tag="${esc(tag)}">#${esc(tag)}</button>`).join("")}</div>
       </header>
       <div class="doc-content" id="doc-content">${markdownToHtml(doc.markdownBody, doc.title)}</div>
+      ${canEmbedSource ? `<section class="source-embed-shell" id="source-embed-shell" hidden>
+        <div class="source-embed-head"><span>原始 HTML 页面</span><a href="${esc(doc.sourceUrl)}" target="_blank" rel="noopener noreferrer">新窗口打开</a></div>
+        <iframe id="source-embed-frame" title="${esc(doc.title)} 原始网页" loading="lazy" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
+      </section>` : ""}
       <nav class="article-pager">${previous ? `<button data-pager="${esc(previous.id)}"><span>← 上一篇</span><strong>${esc(previous.title)}</strong></button>` : "<span></span>"}${next ? `<button data-pager="${esc(next.id)}"><span>下一篇 →</span><strong>${esc(next.title)}</strong></button>` : ""}</nav>
       ${(related.length || backlinks.length) ? `<section class="relation-grid">
         <div class="relation-box"><h3>相关文档</h3><ul>${related.map((item) => `<li><button data-rel="${esc(item.id)}">${esc(item.title)}</button></li>`).join("") || "<li>暂无</li>"}</ul></div>
         <div class="relation-box"><h3>反向链接</h3><ul>${backlinks.map((item) => `<li><button data-rel="${esc(item.id)}">${esc(item.title)}</button></li>`).join("") || "<li>暂无</li>"}</ul></div>
       </section>` : ""}
-      <p class="source-note">原始位置：${esc(doc.sourcePath)} · ${esc(doc.dateSource)}${originals ? `<br>原始附件：${originals}` : ""}</p>
+      <p class="source-note">原始位置：<a href="${esc(doc.sourceUrl || doc.sourcePath)}" target="_blank" rel="noopener noreferrer">${esc(doc.sourceUrl || doc.sourcePath)}</a> · ${esc(doc.dateSource)}${originals ? `<br>原始附件：${originals}` : ""}</p>
     </article>`;
     const content = document.getElementById("doc-content");
     decorateContent(content);
@@ -908,6 +913,19 @@
         }
       } catch (_) {}
     });
+    const sourceEmbedToggle = document.getElementById("source-embed-toggle");
+    if (sourceEmbedToggle) {
+      sourceEmbedToggle.addEventListener("click", () => {
+        const shell = document.getElementById("source-embed-shell");
+        const frame = document.getElementById("source-embed-frame");
+        const open = shell.hidden;
+        if (open && !frame.src) frame.src = doc.sourceUrl;
+        shell.hidden = !open;
+        sourceEmbedToggle.setAttribute("aria-expanded", String(open));
+        sourceEmbedToggle.textContent = open ? "收起原网页" : "内嵌原网页";
+        if (open) shell.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
     rightPanelBody.innerHTML = `
       <section class="side-panel"><div class="toc-head">本文目录</div><nav class="article-toc">${headings.map((heading) => `<a class="level-${heading.level}" href="#${esc(heading.id)}">${esc(heading.text)}</a>`).join("") || '<span class="source-note">本文没有分级标题</span>'}</nav></section>
       <section class="side-panel"><div class="toc-head">文章信息</div><div class="status-list"><div><span>作者</span><b><a class="author-link" href="https://t.me/Ben_Bird" target="_blank" rel="noopener">@Ben_Bird</a></b></div><div><span>阅读时长</span><b>${esc(doc.readingTime || 1)} 分钟</b></div><div><span>难度</span><b>${esc(doc.difficulty || "N/A")}</b></div><div><span>更新</span><b>${esc(doc.dateOnly)}</b></div></div></section>
