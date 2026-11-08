@@ -3,7 +3,7 @@ id: "doc-44eb736fe400"
 title: "政府网站 曝光台 授权安全测试链路风险验证 thinkphp框架 https：//zfwzgl.www.gov.cn"
 date: "2024-09-25T12:20:54+08:00"
 dateSource: "GitBook 站点更新时间"
-categories: ["技术履历与演练复盘", "安全竞赛复盘"]
+categories: ["技术履历与演练复盘", "基础设施与自动化"]
 tags: ["安全演练"]
 source: "https://ji-shu-jian-li.gitbook.io/ben_bird/zheng-fu-wang-zhan-bao-guang-tai-ru-qin-jie-chi-thinkphp-kuang-jia-httpszfwzgl.www.gov.cn.md"
 ---
@@ -12,21 +12,16 @@ source: "https://ji-shu-jian-li.gitbook.io/ben_bird/zheng-fu-wang-zhan-bao-guang
 
 > 原文：[政府网站 曝光台 授权安全测试链路风险验证 thinkphp框架 https：//zfwzgl.www.gov.cn](https://ji-shu-jian-li.gitbook.io/ben_bird/zheng-fu-wang-zhan-bao-guang-tai-ru-qin-jie-chi-thinkphp-kuang-jia-httpszfwzgl.www.gov.cn.md)
 
-## 归档性质
+> 归档性质：比赛结束后的授权安全演练复盘；正文中的凭据和联系信息已脱敏，图片保留比赛复盘原帖。
 
-比赛结束后的授权安全演练复盘。公开版仅保留主题与工程经验，目标名称、业务数据、凭据和可直接复用的操作步骤已移除。
+![Telegram 原图](../media/249ec68aea3f75c7d0.jpg)
 
-## 演练主题
+![Telegram 原图](../media/f508d95654522e77ce.bin)
 
-政府网站 曝光台 授权安全测试链路风险验证 thinkphp框架 https：//zfwzgl.www.gov.cn
+![Telegram 原图](../media/06f40afeb8c58340dd.jpg)
 
-## 公开说明
+![Telegram 原图](../media/f508d95654522e77ce.bin)
 
-本记录来自已授权安全竞赛/演练，公开版用于展示安全测试思路、风险识别能力和复盘方法。原文中的具体目标、后台截图、账号信息、手机号码、访问命令和数据内容不进入公开仓库。
+![Telegram 原图](../media/a065c28c7f9fe96dc0.jpg)
 
-## 可复用经验
-
-- 先明确授权范围、时间窗口和禁止操作，再进行验证。
-- 记录验证假设、证据链和风险等级，避免只保留结果截图。
-- 测试结束后完成清理、复测、修复建议和回归验证。
-- 对敏感数据只记录脱敏后的字段类型与影响结论。
+![Telegram 原图](../media/f508d95654522e77ce.bin)

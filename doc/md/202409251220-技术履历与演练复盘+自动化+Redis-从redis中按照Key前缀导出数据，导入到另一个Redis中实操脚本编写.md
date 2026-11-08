@@ -12,22 +12,22 @@ source: "https://ji-shu-jian-li.gitbook.io/ben_bird/cong-redis-zhong-an-zhao-key
 
 > 原文：[从redis中按照Key前缀导出数据，导入到另一个Redis中实操脚本编写](https://ji-shu-jian-li.gitbook.io/ben_bird/cong-redis-zhong-an-zhao-key-qian-zhui-dao-chu-shu-ju-dao-ru-dao-ling-yi-ge-redis-zhong-shi-cao-jiao.md)
 
-> 归档性质：比赛结束后的授权安全演练复盘；敏感目标、凭据和截图已脱敏。
+> 归档性质：比赛结束后的授权安全演练复盘；正文中的凭据和联系信息已脱敏，图片保留比赛复盘原帖。
 
-[原始媒体链接已归档]
+![Telegram 原图](../media/83398aff72e45c1e4b.jpg)
 
-[原始媒体链接已归档]
+![Telegram 原图](../media/83398aff72e45c1e4b.jpg)
 
-[原始媒体链接已归档]
+![Telegram 原图](../media/83398aff72e45c1e4b.jpg)
 
-[原始媒体链接已归档]
+![Telegram 原图](../media/83398aff72e45c1e4b.jpg)
 
-[原始媒体链接已归档]
+![Telegram 原图](../media/83398aff72e45c1e4b.jpg)
 
-[原始媒体链接已归档]
+![Telegram 原图](../media/83398aff72e45c1e4b.jpg)
 
-[原始媒体链接已归档]
+![Telegram 原图](../media/83398aff72e45c1e4b.jpg)
 
-[原始媒体链接已归档]
+![Telegram 原图](../media/83398aff72e45c1e4b.jpg)
 
-[原始媒体链接已归档]
+![Telegram 原图](../media/83398aff72e45c1e4b.jpg)

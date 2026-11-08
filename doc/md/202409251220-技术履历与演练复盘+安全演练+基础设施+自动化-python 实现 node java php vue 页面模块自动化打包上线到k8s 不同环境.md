@@ -12,7 +12,7 @@ source: "https://ji-shu-jian-li.gitbook.io/ben_bird/python-shi-xian-node-java-ph
 
 > 原文：[python 实现 node java php vue 页面模块自动化打包上线到k8s 不同环境](https://ji-shu-jian-li.gitbook.io/ben_bird/python-shi-xian-node-java-php-vue-ye-mian-mo-kuai-zi-dong-hua-da-bao-shang-xian-dao-k8s-bu-tong-huan.md)
 
-> 归档性质：比赛结束后的授权安全演练复盘；敏感目标、凭据和截图已脱敏。
+> 归档性质：比赛结束后的授权安全演练复盘；正文中的凭据和联系信息已脱敏，图片保留比赛复盘原帖。
 
 ![本地缓存图片](../media/ea81ec449eb11a519d.jpg)
 

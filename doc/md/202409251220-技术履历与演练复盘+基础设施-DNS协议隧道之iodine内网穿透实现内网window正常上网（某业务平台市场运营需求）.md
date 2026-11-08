@@ -3,7 +3,7 @@ id: "doc-a4d50840e2f6"
 title: "DNS协议隧道之iodine内网穿透实现内网window正常上网（某业务平台市场运营需求）"
 date: "2024-09-25T12:20:54+08:00"
 dateSource: "GitBook 站点更新时间"
-categories: ["技术履历与演练复盘", "安全竞赛复盘"]
+categories: ["技术履历与演练复盘", "基础设施与自动化"]
 tags: ["基础设施"]
 source: "https://ji-shu-jian-li.gitbook.io/ben_bird/dns-xie-yi-sui-dao-zhi-iodine-nei-wang-chuan-tou-shi-xian-nei-wang-window-zheng-chang-shang-wang-ag.md"
 ---
@@ -12,21 +12,30 @@ source: "https://ji-shu-jian-li.gitbook.io/ben_bird/dns-xie-yi-sui-dao-zhi-iodin
 
 > 原文：[DNS协议隧道之iodine内网穿透实现内网window正常上网（某业务平台市场运营需求）](https://ji-shu-jian-li.gitbook.io/ben_bird/dns-xie-yi-sui-dao-zhi-iodine-nei-wang-chuan-tou-shi-xian-nei-wang-window-zheng-chang-shang-wang-ag.md)
 
-## 归档性质
+> 归档性质：比赛结束后的授权安全演练复盘；正文中的凭据和联系信息已脱敏，图片保留比赛复盘原帖。
 
-比赛结束后的授权安全演练复盘。公开版仅保留主题与工程经验，目标名称、业务数据、凭据和可直接复用的操作步骤已移除。
+![Telegram 原图](../media/53f8ee5028218c9532.jpg)
 
-## 演练主题
+![Telegram 原图](../media/83398aff72e45c1e4b.jpg)
 
-DNS协议隧道之iodine内网穿透实现内网window正常上网（某业务平台市场运营需求）
+![Telegram 原图](../media/c5b869810fa5fb0c92.jpg)
 
-## 公开说明
+![Telegram 原图](../media/83398aff72e45c1e4b.jpg)
 
-本记录来自已授权安全竞赛/演练，公开版用于展示安全测试思路、风险识别能力和复盘方法。原文中的具体目标、后台截图、账号信息、手机号码、访问命令和数据内容不进入公开仓库。
+![Telegram 原图](../media/83398aff72e45c1e4b.jpg)
 
-## 可复用经验
+![Telegram 原图](../media/6a045a2a975e1b1e50.jpg)
 
-- 先明确授权范围、时间窗口和禁止操作，再进行验证。
-- 记录验证假设、证据链和风险等级，避免只保留结果截图。
-- 测试结束后完成清理、复测、修复建议和回归验证。
-- 对敏感数据只记录脱敏后的字段类型与影响结论。
+![Telegram 原图](../media/83398aff72e45c1e4b.jpg)
+
+![Telegram 原图](../media/1bacb27da9123b0c10.jpg)
+
+![Telegram 原图](../media/83398aff72e45c1e4b.jpg)
+
+![Telegram 原图](../media/f4bcedd2af5ca24986.jpg)
+
+![Telegram 原图](../media/83398aff72e45c1e4b.jpg)
+
+![Telegram 原图](../media/965957aa1dfc1f8d92.jpg)
+
+![Telegram 原图](../media/83398aff72e45c1e4b.jpg)
