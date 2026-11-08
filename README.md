@@ -25,3 +25,9 @@
 
 - Markdown：1134
 - 正文媒体：1703
+<!-- MONTHLY_ENGINEERING_LOG -->
+## 月度真实工程摘要
+
+按实际 Git 提交日期和文档来源日期生成，不做随机回溯或补造提交。
+
+- [查看完整月度工程索引](docs/monthly/README.md)
