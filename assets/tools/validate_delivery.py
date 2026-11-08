@@ -72,7 +72,7 @@ def main() -> int:
             if Path(item["href"]).parent.as_posix() != "assets/originals/documents":
                 missing.append(f"invalid original location: {item['href']}")
     roots = sorted(path.name for path in root.iterdir())
-    if roots != ["assets", "doc", "index.html"]:
+    if roots != ["assets", "doc", "index.html", "robots.txt"]:
         missing.append(f"invalid root entries: {roots}")
     doc_roots = sorted(path.name for path in (root / "doc").iterdir())
     if doc_roots != ["md", "media"]:
