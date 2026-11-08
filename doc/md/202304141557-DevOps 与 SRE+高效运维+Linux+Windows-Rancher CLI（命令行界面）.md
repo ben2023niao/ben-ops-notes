@@ -29,7 +29,7 @@ Rancher 提供了 Windows、Mac 和 Linux 的 Rancher CLI 二进制文件下载�
 在使用 Rancher CLI 控制 Rancher Server 之前，必须使用 API Bearer Token 进行身份验证。使用以下命令登录(用您的信息替换`<BEARER_TOKEN>`和`<SERVER_URL>`)：
 
 ```html
-$ ./rancher login https://<SERVER_URL> --token <BEARER_TOKEN>
+$ ./rancher login https://<SERVER_URL> --token [已脱敏]
 ```
 
 如果您的 Rancher Server 使用的是自签名证书，则 Rancher CLI 会询问您是否继续连接。

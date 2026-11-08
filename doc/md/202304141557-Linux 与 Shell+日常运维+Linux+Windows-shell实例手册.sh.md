@@ -189,10 +189,10 @@ shell实例手册
  }
  svn{
  --force # 强制覆盖
- /usr/bin/svn --username user --password passwd co $Code ${SvnPath}src/ # 检出整个项目
- /usr/bin/svn --username user --password passwd up $Code ${SvnPath}src/ # 更新项目
- /usr/bin/svn --username user --password passwd export $Code$File ${SvnPath}src/$File # 导出个别文件
- /usr/bin/svn --username user --password passwd export -r 版本号 svn路径 本地路径 --force # 导出指定版本
+ /usr/bin/svn --username user --password [已脱敏] co $Code ${SvnPath}src/ # 检出整个项目
+ /usr/bin/svn --username user --password [已脱敏] up $Code ${SvnPath}src/ # 更新项目
+ /usr/bin/svn --username user --password [已脱敏] export $Code$File ${SvnPath}src/$File # 导出个别文件
+ /usr/bin/svn --username user --password [已脱敏] export -r 版本号 svn路径 本地路径 --force # 导出指定版本
  }
  git{
  git clone git@203.0.113.1:gittest.git ./gittest/ # 克隆项目到指定目录
@@ -2850,7 +2850,7 @@ delimiter
  --inputmenu # 提供一个可供用户编辑的菜单（可编辑的菜单框）
  --menu # 显示一个列表供用户选择(菜单框)
  --msgbox(message) # 显示一条消息,并要求用户选择一个确定按钮(消息框)
- --password # 密码框，显示一个输入框，它隐藏文本
+ --password [已脱敏] 密码框，显示一个输入框，它隐藏文本
  --pause # 显示一个表格用来显示一个指定的暂停期的状态
  --radiolist # 提供一个菜单项目组，但是只有一个项目，可以选择(单选框)
  --tailbox # 在一个滚动窗口文件中使用tail命令来显示文本

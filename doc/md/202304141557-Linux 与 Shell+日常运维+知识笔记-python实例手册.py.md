@@ -3398,7 +3398,7 @@ requests.get(url, auth=HTTPDigestAuth('user', 'pass'))
 import requests
 proxies = {
 "http": "http://203.0.113.1:3128",
-# "http": "http://user:[密码已脱敏]@203.0.113.1:3128/",  # 用户名密码
+# "http": "https://example.invalid/repository  # 用户名密码
 "https": "http://203.0.113.1:1080",
 }
 requests.get("http://example.org", proxies=proxies)

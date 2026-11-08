@@ -1,0 +1,32 @@
+---
+id: "doc-e32e7b0391a7"
+title: "某企业（sql+越权）全部员工等信息泄漏DBA权限已命令执行风险验证 授权安全测试 root"
+date: "2024-09-25T12:20:54+08:00"
+dateSource: "GitBook 站点更新时间"
+categories: ["技术履历与演练复盘", "安全竞赛复盘"]
+tags: ["安全演练", "自动化", "Linux"]
+source: "https://ji-shu-jian-li.gitbook.io/ben_bird/gui-zhou-mao-tai-sql+-yue-quan-quan-bu-yuan-gong-deng-xin-xi-xie-lou-dba-quan-xian-yi-getshell-na-xi.md"
+---
+
+# 某企业（sql+越权）全部员工等信息泄漏DBA权限已命令执行风险验证 授权安全测试 root
+
+> 原文：[某企业（sql+越权）全部员工等信息泄漏DBA权限已命令执行风险验证 授权安全测试 root](https://ji-shu-jian-li.gitbook.io/ben_bird/gui-zhou-mao-tai-sql+-yue-quan-quan-bu-yuan-gong-deng-xin-xi-xie-lou-dba-quan-xian-yi-getshell-na-xi.md)
+
+## 归档性质
+
+比赛结束后的授权安全演练复盘。公开版仅保留主题与工程经验，目标名称、业务数据、凭据和可直接复用的操作步骤已移除。
+
+## 演练主题
+
+某企业（sql+越权）全部员工等信息泄漏DBA权限已命令执行风险验证 授权安全测试 root
+
+## 公开说明
+
+本记录来自已授权安全竞赛/演练，公开版用于展示安全测试思路、风险识别能力和复盘方法。原文中的具体目标、后台截图、账号信息、手机号码、访问命令和数据内容不进入公开仓库。
+
+## 可复用经验
+
+- 先明确授权范围、时间窗口和禁止操作，再进行验证。
+- 记录验证假设、证据链和风险等级，避免只保留结果截图。
+- 测试结束后完成清理、复测、修复建议和回归验证。
+- 对敏感数据只记录脱敏后的字段类型与影响结论。

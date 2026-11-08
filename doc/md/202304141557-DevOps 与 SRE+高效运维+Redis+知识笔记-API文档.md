@@ -71,7 +71,7 @@ source: "03-安全运营与应急/07-工作运维离线知识库/11-高效运维
 - 使用示例1
 
 ```bash
-curl "https://demo.spug.dev/api/apis/config/?apiKey=[已脱敏]"
+curl "https://demo.spug.dev/api/apis/config/?敏感凭据：[已脱敏]
 ```
 
 输出如下
@@ -92,7 +92,7 @@ redis_password = 123456
 - 使用示例2
 
 ```bash
-curl "https://demo.spug.dev/api/apis/config/?apiKey=[已脱敏]"
+curl "https://demo.spug.dev/api/apis/config/?敏感凭据：[已脱敏]
 ```
 
 输出如下

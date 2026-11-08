@@ -75,7 +75,7 @@ url 即我们平时所说的链接，通过它可以找到唯一的资源，格�
 此外还有 rewrite，比如 /path/2015/a(a : 1--100)/b(b: 10--20) 对应后端的cgi 可能是 /path/c.cgi?p=a&q=b；一些 MVC 框架的 cgi 可能需要根据某个参数的值选择不同的逻辑分支，比如 a.cgi?_path=/gdata/6/data&id=5，映射到一个类；还有一种是参数直接跟在uri后面的，如 http://aa.qq.com/m/index/nav/type=bus&cond=3 ， 可以理解为 /m/{module}/{action}/{query_list}，
 module 和 action 可以不断对请求进行路由，逐级分发到不同的模块，最终query_list是使用常规的webserver解析方式。
 
-桌面应用程序也通过HTTP协议跟Web服务器交互， 桌面应用程序一般不会使用cookie, 而是把 "用户名+冒号+密码"用BASE64 编码的字符串放在http request 中的header Authorization 中发送给服务端， 这种方式叫HTTP基本认证(Basic Authentication)，在浏览器里可以用 ```http://username:[密码已脱敏]@url``` 这种方式直接略过这个基本认证，对于某些漏洞来说，这也是个绕过姿势。
+桌面应用程序也通过HTTP协议跟Web服务器交互， 桌面应用程序一般不会使用cookie, 而是把 "用户名+冒号+密码"用BASE64 编码的字符串放在http request 中的header Authorization 中发送给服务端， 这种方式叫HTTP基本认证(Basic Authentication)，在浏览器里可以用 ```https://example.invalid/repository 这种方式直接略过这个基本认证，对于某些漏洞来说，这也是个绕过姿势。
 这里涉及到了HTTP 状态码 401 与 403的不同之处。401 表示没有认证，而403 表示没有授权，认证的目的是为了认出用户是谁，而授权的目的是为了决定用户能够做什么。
 401 的限制一般可以在某个目录下的 .htaccess 文件(apache)写上
 

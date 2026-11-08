@@ -33,7 +33,7 @@ nohup ./startup.sh > /dev/null &
 
 #### 新建常规发布申请 git clone 错误
 
-`Spug` 无法提供交互式的输入账户密码登录git仓库的能力，如果是公开的仓库 `http/https/ssh` 任何一种协议都可以，但如果是私有仓库推荐使用 `ssh` 协议配置密钥来访问。`http/https` 协议则需要在带上用户名和密码，例如 `<https://yourname:[密码已脱敏]@gitee.com/openspug/spug.git>` 如果账户名中包含了 `@` 符号，则需要替换成 `%40`。特别要注意的是，如果你是通过docker方式部署的则需要确保在容器内可以访问仓库，而不是在宿主机上。
+`Spug` 无法提供交互式的输入账户密码登录git仓库的能力，如果是公开的仓库 `http/https/ssh` 任何一种协议都可以，但如果是私有仓库推荐使用 `ssh` 协议配置密钥来访问。`http/https` 协议则需要在带上用户名和密码，例如 `<https://example.invalid/repository 如果账户名中包含了 `@` 符号，则需要替换成 `%40`。特别要注意的是，如果你是通过docker方式部署的则需要确保在容器内可以访问仓库，而不是在宿主机上。
 
 #### 主机 Console 或执行发布页面无内容
 
