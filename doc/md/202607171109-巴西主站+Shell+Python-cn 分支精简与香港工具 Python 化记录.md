@@ -5,15 +5,17 @@ date: "2026-07-17T11:09:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Python", "Docker", "Nginx", "自动化", "CDN", "DNS"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/hongkong/cn/2026-07-17-1109-%E3%80%90%E6%9E%B6%E6%9E%84%E6%94%B9%E9%80%A0%E3%80%91cn%E5%88%86%E6%94%AF%E7%B2%BE%E7%AE%80%E4%B8%8E%E9%A6%99%E6%B8%AF%E5%B7%A5%E5%85%B7Python%E5%8C%96%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/hongkong/cn/2026-07-17-1109-【架构改造】cn分支精简与香港工具Python化记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/hongkong/cn/2026-07-17-1109-%E3%80%90%E6%9E%B6%E6%9E%84%E6%94%B9%E9%80%A0%E3%80%91cn%E5%88%86%E6%94%AF%E7%B2%BE%E7%AE%80%E4%B8%8E%E9%A6%99%E6%B8%AF%E5%B7%A5%E5%85%B7Python%E5%8C%96%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/hongkong/cn/2026-07-17-1109-【架构改造】cn分支精简与香港工具Python化记录.md"
 sourceSha256: "a467691e1fe96d63b5659d81ec8eec5ba0d95263c0b00de6cef6484420f8b6c2"
 sourceSystem: "project-doc"
 ---
 
 # cn 分支精简与香港工具 Python 化记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/hongkong/cn/2026-07-17-1109-【架构改造】cn分支精简与香港工具Python化记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/hongkong/cn/2026-07-17-1109-【架构改造】cn分支精简与香港工具Python化记录.md`
 
 > 整理日期：2026-07-17 11:09｜日期依据：文件名日期
 
@@ -53,7 +55,7 @@ validate_cloudfront_static.py
 香港服务器继续保留原无扩展名命令，调用方不用改变。2026-07-17 已将 `/usr/local/bin` 对应 9 个命令替换为 Python，替换前备份：
 
 ```text
-/root/dbqp-python-migration-backups/20260717T110904Z
+/root/bizops-python-migration-backups/20260717T110904Z
 ```
 
 备份目录包含原文件和 `SHA256SUMS`。如需回滚，可从该目录把对应命令复制回 `/usr/local/bin`，恢复权限后重新执行只读验证。

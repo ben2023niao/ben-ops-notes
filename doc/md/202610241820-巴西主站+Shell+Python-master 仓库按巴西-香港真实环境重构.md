@@ -5,15 +5,17 @@ date: "2026-10-24T18:20:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Python", "Docker", "Nginx", "监控告警", "自动化", "CDN"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-10-24-1820-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91master%E4%BB%93%E5%BA%93%E6%8C%89%E5%B7%B4%E8%A5%BF%E9%A6%99%E6%B8%AF%E7%9C%9F%E5%AE%9E%E7%8E%AF%E5%A2%83%E9%87%8D%E6%9E%84.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-10-24-1820-【运维】master仓库按巴西香港真实环境重构.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-10-24-1820-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91master%E4%BB%93%E5%BA%93%E6%8C%89%E5%B7%B4%E8%A5%BF%E9%A6%99%E6%B8%AF%E7%9C%9F%E5%AE%9E%E7%8E%AF%E5%A2%83%E9%87%8D%E6%9E%84.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-10-24-1820-【运维】master仓库按巴西香港真实环境重构.md"
 sourceSha256: "874f9c9950fe489616c68192f41aec211818190a857d05585a961e67251ba703"
 sourceSystem: "project-doc"
 ---
 
 # master 仓库按巴西/香港真实环境重构
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-10-24-1820-【运维】master仓库按巴西香港真实环境重构.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-10-24-1820-【运维】master仓库按巴西香港真实环境重构.md`
 
 > 整理日期：2026-10-24 18:20｜日期依据：文件名日期
 
@@ -48,7 +50,7 @@ origin/cn：5c3b3de6a5beef52aa9c8f152366e9650503610f
 01/02：/data/server-runtime
 03：/data/pgserver
 03 香港配置源：/data/server-runtime-hk
-03 registry：203.0.113.1:5000
+03 registry：192.0.2.1:5000
 ```
 
 03 是代码打包与镜像分发机，不是普通业务发布目标。
@@ -57,19 +59,19 @@ origin/cn：5c3b3de6a5beef52aa9c8f152366e9650503610f
 
 ```text
 01/02：/data/server-runtime
-Nginx：/etc/nginx/sites-available/dbqp-hongkong.conf
-Nginx snippets：/etc/nginx/snippets/dbqp-hongkong-*.conf
-镜像来源：34.39.180.82:5000
+Nginx：/etc/nginx/sites-available/bizops-hongkong.conf
+Nginx snippets：/etc/nginx/snippets/bizops-hongkong-*.conf
+镜像来源：192.0.2.20:5000
 ```
 
 ### 厂商差异
 
 ```text
-巴西：api pg tada tada_ws ppk pp playson panda g759
-香港：api pg jili tada_ws ppk pp playson panda g759
+巴西：api pg vendor_a vendor_a_ws ppk pp vendor_c vendor_d g759
+香港：api pg vendor_b vendor_a_ws ppk pp vendor_c vendor_d g759
 ```
 
-香港没有 TADA HTTP 主服务；JILI 复用 TADA 镜像。
+香港没有 vendor_a HTTP 主服务；vendor_b 复用 vendor_a 镜像。
 
 ## 新目录结构
 
@@ -127,9 +129,9 @@ Cloudflare / AWS / CloudFront / S3 工具与说明 12 个
 
 - 活跃核心静态域名使用 `m4q7z1.shop`、`k8x2v9.shop`；
 - 存在 `hkcloudplay06.com`、`hkcloudplay07.com` 扩展配置；
-- JILI 增加 `jili-static3-aws` 至 `jili-static5-aws`；
+- vendor_b 增加 `vendor_b-static3-aws` 至 `vendor_b-static5-aws`；
 - PG 增加 `pg6-static`、`pg7-static`；
-- 线上有 `fc.json`、`jdb.json`、`tada.json` 配置，但不代表对应业务已全部启用。
+- 线上有 `fc.json`、`jdb.json`、`vendor_a.json` 配置，但不代表对应业务已全部启用。
 
 差异详见 `infrastructure/hongkong/domains/DIFF.md`。
 
@@ -142,7 +144,7 @@ SHA256：
 d3c90b51d3cde911d7c9ac7c1c17b745a0ad84375725092abc88a1986cd4f265
 
 宝塔备份：
-/root/dbqp-cf-backups/20261024-094228-worker-manual
+/root/bizops-cf-backups/20261024-094228-worker-manual
 
 仓库备份：
 scripts/worker-js-cdn-代码备份/【线上在用】worker.js

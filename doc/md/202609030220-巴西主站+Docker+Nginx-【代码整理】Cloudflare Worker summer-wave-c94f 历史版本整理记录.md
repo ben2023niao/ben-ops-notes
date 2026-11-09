@@ -5,20 +5,22 @@ date: "2026-09-03T02:20:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Docker", "Nginx", "CDN"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-09-03-0220-%E3%80%90%E4%BB%A3%E7%A0%81%E6%95%B4%E7%90%86%E3%80%91summer-wave-c94f-Worker%E5%8E%86%E5%8F%B2%E7%89%88%E6%9C%AC%E6%95%B4%E7%90%86%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-09-03-0220-【代码整理】summer-wave-c94f-Worker历史版本整理记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-09-03-0220-%E3%80%90%E4%BB%A3%E7%A0%81%E6%95%B4%E7%90%86%E3%80%91summer-wave-c94f-Worker%E5%8E%86%E5%8F%B2%E7%89%88%E6%9C%AC%E6%95%B4%E7%90%86%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-09-03-0220-【代码整理】summer-wave-c94f-Worker历史版本整理记录.md"
 sourceSha256: "66d604b0e4fd26a635ecc7a9df623d1b002956e04c785fb7519e85799ed87e3f"
 sourceSystem: "project-doc"
 ---
 
 # 【代码整理】Cloudflare Worker summer-wave-c94f 历史版本整理记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-09-03-0220-【代码整理】summer-wave-c94f-Worker历史版本整理记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-03-0220-【代码整理】summer-wave-c94f-Worker历史版本整理记录.md`
 
 > 整理日期：2026-09-03 02:20｜日期依据：文件名日期
 
 时间：2026-09-03 02:20-02:30（Asia/Manila）
-项目：DBQP / PGServer master（静态 CDN 链路 Worker）
+项目：某业务公司 / PGServer master（静态 CDN 链路 Worker）
 状态：✅ 整理完成并已发群 + 本地提交；⚠️ 附发现“线上 v16 ≠ 仓库 V4”，
 待用户确认是否回滚
 
@@ -35,7 +37,7 @@ Ben(C++) 问：这个 worker 原本是什么功能？最早用它干嘛？代码
 
 ```text
 summer-wave-c94f = “静态子域 → GCS 桶直出”的边缘代理 Worker：
-静态域名（pg-static.xxx / tada-statics.xxx 等）经 CF 黄云进入 Worker，
+静态域名（pg-static.xxx / vendor_a-statics.xxx 等）经 CF 黄云进入 Worker，
 Worker 改写 Host 为对应 GCS 桶域名后直出，替代宝塔 nginx 中转；
 api/*-games 等动态域名不在映射表，原样 passthrough，不受影响。
 最早形态：2026-08-31 07:00 评估文档里的草案 static-gcs-proxy（V0）。

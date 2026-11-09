@@ -5,19 +5,21 @@ date: "2026-07-17T17:00:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Linux", "Shell", "Docker", "Nginx", "CDN", "DNS", "安全运维"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/hongkong/cn/2026-07-17-1700-%E3%80%90%E7%BD%91%E7%BB%9C%E8%B0%83%E6%95%B4%E3%80%91%E9%A6%99%E6%B8%AFAWS-CloudFront%E7%81%B0%E5%BA%A6%E5%88%87%E6%8D%A2%E4%B8%8E%E5%9B%9E%E6%BB%9A%E9%AA%8C%E8%AF%81%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/hongkong/cn/2026-07-17-1700-【网络调整】香港AWS-CloudFront灰度切换与回滚验证记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/hongkong/cn/2026-07-17-1700-%E3%80%90%E7%BD%91%E7%BB%9C%E8%B0%83%E6%95%B4%E3%80%91%E9%A6%99%E6%B8%AFAWS-CloudFront%E7%81%B0%E5%BA%A6%E5%88%87%E6%8D%A2%E4%B8%8E%E5%9B%9E%E6%BB%9A%E9%AA%8C%E8%AF%81%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/hongkong/cn/2026-07-17-1700-【网络调整】香港AWS-CloudFront灰度切换与回滚验证记录.md"
 sourceSha256: "87878aa7b9f189f007960fc850343e01545af205e28d84df0712d7fa8178ef71"
 sourceSystem: "project-doc"
 ---
 
 # 香港 AWS CloudFront 灰度切换与回滚验证记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/hongkong/cn/2026-07-17-1700-【网络调整】香港AWS-CloudFront灰度切换与回滚验证记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/hongkong/cn/2026-07-17-1700-【网络调整】香港AWS-CloudFront灰度切换与回滚验证记录.md`
 
 > 整理日期：2026-07-17 17:00｜日期依据：文件名日期
 
-> 后续范围更新：同日稍后 `cn` 收口为 PG、PP、PPK、PANDA、JILI + platform-api。当前状态为静态 50、动态游戏 25、核心/API 8；TADA、PLAYSON、Socket 已下线。完整变更见 `2026-07-17-1900-【架构改造+网络调整】香港CN五厂商收口与JILI-AWS接入完整记录.md`。下文保留首次灰度过程，供审计和回滚参考。
+> 后续范围更新：同日稍后 `cn` 收口为 PG、PP、PPK、PANDA、vendor_b + platform-api。当前状态为静态 50、动态游戏 25、核心/API 8；vendor_a、vendor_c、Socket 已下线。完整变更见 `2026-07-17-1900-【架构改造+网络调整】香港CN五厂商收口与vendor_b-AWS接入完整记录.md`。下文保留首次灰度过程，供审计和回滚参考。
 
 ## 执行结果
 
@@ -48,13 +50,13 @@ pg-static
 pg3-static
 pg4-static
 pg5-static
-tada-statics
-tada-statics1
-tada-statics2
+vendor_a-statics
+vendor_a-statics1
+vendor_a-statics2
 pp-static
 ppk-static
-playson-static
-panda-static
+vendor_c-static
+vendor_d-static
 ```
 
 以下动态游戏前缀均已覆盖 `hkcloudplay01.com` 至 `hkcloudplay05.com`：
@@ -63,7 +65,7 @@ panda-static
 pg-games
 pp-games
 ppk-games
-panda-games
+vendor_d-games
 ```
 
 已切换的核心/API 域名：
@@ -75,7 +77,7 @@ verify.hkplaycore.com
 pg-api.hkplaycore.com
 pp-api.hkplaycore.com
 ppk-api.hkplaycore.com
-panda-api.hkplaycore.com
+vendor_d-api.hkplaycore.com
 socket.hkplaycore.com
 ```
 
@@ -84,21 +86,21 @@ socket.hkplaycore.com
 下列 12 个动态域名没有创建精确 CloudFront CNAME，仍由原通配记录处理：
 
 ```text
-tada-api.hkplaycore.com
-tada-games.hkcloudplay01.com ～ tada-games.hkcloudplay05.com
+vendor_a-api.hkplaycore.com
+vendor_a-games.hkcloudplay01.com ～ vendor_a-games.hkcloudplay05.com
 
-playson-api.hkplaycore.com
-playson-games.hkcloudplay01.com ～ playson-games.hkcloudplay05.com
+vendor_c-api.hkplaycore.com
+vendor_c-games.hkcloudplay01.com ～ vendor_c-games.hkcloudplay05.com
 ```
 
-原因：TADA 当前源站链路返回 `502`，PLAYSON 当前源站链路返回 `503`。强制走 CloudFront 时结果一致，因此没有把源站故障扩大到新 DNS。待后端恢复后，必须先强制解析验证，再单独灰度切换。
+原因：vendor_a 当前源站链路返回 `502`，vendor_c 当前源站链路返回 `503`。强制走 CloudFront 时结果一致，因此没有把源站故障扩大到新 DNS。待后端恢复后，必须先强制解析验证，再单独灰度切换。
 
 ## 灰度批次与备份
 
 每次写 DNS 前，脚本都会把原记录保存到香港 Nginx 服务器的 root-only 目录：
 
 ```text
-/root/dbqp-cloudflare-dns-backups/<UTC时间戳>/
+/root/bizops-cloudflare-dns-backups/<UTC时间戳>/
 ```
 
 本次批次：
@@ -109,9 +111,9 @@ playson-games.hkcloudplay01.com ～ playson-games.hkcloudplay05.com
 | `20260717T085517Z` | 回滚演练后重新应用首个 PG 静态记录 |
 | `20260717T085909Z` | PG 静态域名扩至 5 个 Zone |
 | `20260717T090018Z` | PG3、PG4、PG5 静态域名 |
-| `20260717T090211Z` | TADA 三组静态域名 |
+| `20260717T090211Z` | vendor_a 三组静态域名 |
 | `20260717T090330Z` | PP、PPK 静态域名 |
-| `20260717T090501Z` | PLAYSON、PANDA 静态域名 |
+| `20260717T090501Z` | vendor_c、PANDA 静态域名 |
 | `20260717T090842Z` | PG 游戏域名 |
 | `20260717T090849Z` | PG API 域名 |
 | `20260717T090954Z` | PP、PPK、PANDA 游戏域名 |
@@ -130,9 +132,9 @@ playson-games.hkcloudplay01.com ～ playson-games.hkcloudplay05.com
 按批回滚命令：
 
 ```bash
-ssh root@34.92.13.108
+ssh root@192.0.2.14
 /usr/local/bin/cloudflare-aws-cutover rollback \
-  /root/dbqp-cloudflare-dns-backups/<UTC时间戳>
+  /root/bizops-cloudflare-dns-backups/<UTC时间戳>
 ```
 
 回滚后应检查 DNS、HTTP 和业务页面，不要删除原通配记录或备份目录。
@@ -170,7 +172,7 @@ docker/deploy/hongkong/cloudflare_aws_cutover.py
 /usr/local/bin/cloudflare-aws-cutover status pg-static pg-games
 
 # 查看核心/API 精确记录
-/usr/local/bin/cloudflare-aws-cutover status-core api verify jili-api
+/usr/local/bin/cloudflare-aws-cutover status-core api verify vendor_b-api
 
 # 按前缀切换 5 个 Zone
 /usr/local/bin/cloudflare-aws-cutover apply pg-static
@@ -180,10 +182,10 @@ ONLY_ZONE=hkcloudplay01.com \
   /usr/local/bin/cloudflare-aws-cutover apply pg-static
 
 # 核心/API 域名切换
-/usr/local/bin/cloudflare-aws-cutover apply-core api verify jili-api
+/usr/local/bin/cloudflare-aws-cutover apply-core api verify vendor_b-api
 
 # 安全下线精确记录，操作前自动备份，可用 rollback 恢复
-/usr/local/bin/cloudflare-aws-cutover remove tada-statics playson-static
+/usr/local/bin/cloudflare-aws-cutover remove vendor_a-statics vendor_c-static
 /usr/local/bin/cloudflare-aws-cutover remove-core socket
 ```
 
@@ -196,7 +198,7 @@ ONLY_ZONE=hkcloudplay01.com \
 | `2704` | 首个 PG 静态域名灰度、实际回滚演练及速度对比 |
 | `2705` | PG Static 5/5 |
 | `2706` | PG3、PG4、PG5 Static 15/15 |
-| `2707` | TADA Static 15/15 |
+| `2707` | vendor_a Static 15/15 |
 | `2708` | PP/PPK Static 与 PP 特殊规则 |
 | `2709` | 55 个静态域名全部完成 |
 | `2710` | PG 动态域名 6/6 |
@@ -207,5 +209,5 @@ ONLY_ZONE=hkcloudplay01.com \
 
 - 从真实中国大陆网络测试首包、完整加载、进入游戏和 WebSocket 稳定性。
 - 观察 CloudFront 4xx/5xx、流量和费用，再决定是否长期保留全部分配。
-- TADA/PLAYSON 后端恢复后先验证源站，再单独灰度，不与其他厂商一起切。
+- vendor_a/vendor_c 后端恢复后先验证源站，再单独灰度，不与其他厂商一起切。
 - 静态资源更新后继续从 GCS 增量同步到香港 S3；确认迁移稳定前不删除 GCS 源数据。

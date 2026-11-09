@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>【方案】中央运维容器设计与安全边界（2026-10-29 · 69d7）｜安全与堡垒机 / 访问控制｜BEN.OPS</title>
-  <meta name="description" content="【方案】中央运维容器设计与安全边界。本文属于安全与堡垒机 / 访问控制，状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中央运维控制台。 WebSocket 实时返回 stdout/stderr、阶段状态和退出码。 巴西发布固定 0…">
-  <meta name="keywords" content="安全与堡垒机，访问控制，DNS，Docker，Nginx，SQL注入，权限管理，备份恢复，安全与堡垒机 / 访问控制，【方案】中央运维容器设计与安全边界">
+  <meta name="description" content="【方案】中央运维容器设计与安全边界。本文属于安全与堡垒机 / 访问控制，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中央运维…">
+  <meta name="keywords" content="安全与堡垒机，访问控制，DNS，Docker，Nginx，SQL注入，权限管理，备份恢复，安全与堡垒机 / 访问控制，【方案】中央运维容器设计与安全边界，一、目标，二、非目标，三、总体架构，四、技术选型">
   <meta name="author" content="BEN">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
   <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
@@ -22,16 +22,16 @@
   <meta property="og:locale" content="zh_CN">
   <meta property="og:site_name" content="BEN.OPS 工程笔记">
   <meta property="og:title" content="【方案】中央运维容器设计与安全边界（2026-10-29 · 69d7）">
-  <meta property="og:description" content="【方案】中央运维容器设计与安全边界。本文属于安全与堡垒机 / 访问控制，状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中央运维控制台。 WebSocket 实时返回 stdout/stderr、阶段状态和退出码。 巴西发布固定 0…">
+  <meta property="og:description" content="【方案】中央运维容器设计与安全边界。本文属于安全与堡垒机 / 访问控制，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中央运维…">
   <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-714d1bb069d7.html">
-  <meta property="article:published_time" content="2026-10-29T16:16:00">
+  <meta property="article:published_time" content="2026-10-29T16:16:00+08:00">
   <meta property="article:modified_time" content="2026-10-29 16:16">
   <meta property="article:section" content="安全与堡垒机 / 访问控制">
   <meta property="article:author" content="https://t.me/Ben_Bird">
   
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="【方案】中央运维容器设计与安全边界（2026-10-29 · 69d7）">
-  <meta name="twitter:description" content="【方案】中央运维容器设计与安全边界。本文属于安全与堡垒机 / 访问控制，状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中央运维控制台。 WebSocket 实时返回 stdout/stderr、阶段状态和退出码。 巴西发布固定 0…">
+  <meta name="twitter:description" content="【方案】中央运维容器设计与安全边界。本文属于安全与堡垒机 / 访问控制，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中央运维…">
   
   <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
 --line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
@@ -75,7 +75,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 @media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
 .meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
 @media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-714d1bb069d7.html#article","headline":"【方案】中央运维容器设计与安全边界（2026-10-29 · 69d7）","description":"【方案】中央运维容器设计与安全边界。本文属于安全与堡垒机 / 访问控制，状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中央运维控制台。 WebSocket 实时返回 stdout/stderr、阶段状态和退出码。 巴西发布固定 0…","datePublished":"2026-10-29T16:16:00","dateModified":"2026-10-29 16:16","inLanguage":"zh-CN","articleSection":["安全与堡垒机","访问控制"],"keywords":["安全与堡垒机","访问控制","DNS","Docker","Nginx","SQL注入","权限管理","备份恢复","安全与堡垒机 / 访问控制","【方案】中央运维容器设计与安全边界"],"wordCount":2174,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-714d1bb069d7.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-714d1bb069d7.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 访问控制","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【方案】中央运维容器设计与安全边界","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-714d1bb069d7.html"}]}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-714d1bb069d7.html#article","headline":"【方案】中央运维容器设计与安全边界（2026-10-29 · 69d7）","description":"【方案】中央运维容器设计与安全边界。本文属于安全与堡垒机 / 访问控制，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中央运维…","datePublished":"2026-10-29T16:16:00+08:00","dateModified":"2026-10-29 16:16","inLanguage":"zh-CN","articleSection":["安全与堡垒机","访问控制"],"keywords":["安全与堡垒机","访问控制","DNS","Docker","Nginx","SQL注入","权限管理","备份恢复","安全与堡垒机 / 访问控制","【方案】中央运维容器设计与安全边界","一、目标","二、非目标","三、总体架构","四、技术选型"],"wordCount":1919,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-714d1bb069d7.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-714d1bb069d7.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 访问控制","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【方案】中央运维容器设计与安全边界","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-714d1bb069d7.html"}]}]}</script>
 </head>
 <body>
   <header class="topbar"><div class="shell">
@@ -94,18 +94,19 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
     <header class="hero">
       <div class="eyebrow">安全与堡垒机 / 访问控制</div>
       <h1>【方案】中央运维容器设计与安全边界（2026-10-29 · 69d7）</h1>
-      <p class="lede">【方案】中央运维容器设计与安全边界。本文属于安全与堡垒机 / 访问控制，状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中央运维控制台。 WebSocket 实时返回 stdout/stderr、阶段状态和退出码。 巴西发布固定 0…</p>
+      <p class="lede">【方案】中央运维容器设计与安全边界。本文属于安全与堡垒机 / 访问控制，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中央运维…</p>
       <div class="meta">
-        <time class="badge" datetime="2026-10-29T16:16:00">发布于 2026-10-29</time>
+        <time class="badge" datetime="2026-10-29T16:16:00+08:00">发布于 2026-10-29</time>
         <span class="badge">作者 BEN</span>
-        <span class="badge">2,174 字</span>
-        <span class="badge">7 分钟阅读</span>
+        <span class="badge">1,919 字</span>
+        <span class="badge">6 分钟阅读</span>
       </div>
     </header>
     <div class="layout">
       <article class="article" itemscope itemtype="https://schema.org/TechArticle">
         
 <blockquote>
+<p>公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。</p>
 <p>来源：本地项目文档 <code>game/pgserver/master/docs/history/2026-10-29-1616-【方案】中央运维容器设计与安全边界.md</code>
 整理：2026-11-09。仅复制到知识库，未改动原项目文件；敏感凭据已脱敏。</p>
 </blockquote>
@@ -140,7 +141,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 访问层（Cloudflare Access 或内网/VPN）
   │
   ▼
-dbqp-ops-console（巴西 03）
+bizops-ops-console（巴西 03）
   ├── Web UI / 发布页
   ├── FastAPI
   ├── WebSocket 日志流
@@ -302,7 +303,7 @@ exit_code
 <li>环境变量和 Secret 文件加入 <code>.gitignore</code>。</li>
 </ul>
 <h2 id="十一-容器运行配置">十一、容器运行配置</h2>
-<pre><code class="language-text">name: dbqp-ops-console
+<pre><code class="language-text">name: bizops-ops-console
 host: 巴西 03
 restart: unless-stopped
 cpu: 1
@@ -315,7 +316,7 @@ docker_socket: 不挂载
 healthcheck: GET /api/health
 </code></pre>
 <p>目录：</p>
-<pre><code class="language-text">/opt/dbqp-ops-console/
+<pre><code class="language-text">/opt/bizops-ops-console/
 ├── compose.yml
 ├── app/
 ├── static/
@@ -397,7 +398,7 @@ POST /api/rollback
           <li>分类：安全与堡垒机 / 访问控制</li>
           <li>日期：2026-10-29</li>
           <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">访问控制</span><span class="tag">DNS</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">SQL注入</span><span class="tag">权限管理</span><span class="tag">备份恢复</span></li>
-          <li><span>来源：03-安全运营与应急/03-安全配置与访问控制/DBQP-权限与审计/2026-10-29-1616-【方案】中央运维容器设计与安全边界.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610291616-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%2BDNS%2BDocker-%E3%80%90%E6%96%B9%E6%A1%88%E3%80%91%E4%B8%AD%E5%A4%AE%E8%BF%90%E7%BB%B4%E5%AE%B9%E5%99%A8%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%89%E5%85%A8%E8%BE%B9%E7%95%8C.md" type="text/markdown">查看 Markdown 原文</a></li>
+          <li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610291616-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%2BDNS%2BDocker-%E3%80%90%E6%96%B9%E6%A1%88%E3%80%91%E4%B8%AD%E5%A4%AE%E8%BF%90%E7%BB%B4%E5%AE%B9%E5%99%A8%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%89%E5%85%A8%E8%BE%B9%E7%95%8C.md" type="text/markdown">查看 Markdown 原文</a></li>
         </ul></div>
         <div class="aside-box"><h2>作者</h2>
           <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
@@ -407,8 +408,8 @@ POST /api/rollback
     </div>
     <section class="seo-summary" aria-labelledby="seo-summary-title">
       <h2 id="seo-summary-title">文章摘要</h2>
-      <p>【方案】中央运维容器设计与安全边界。本文属于安全与堡垒机 / 访问控制，状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中央运维控制台。 WebSocket 实时返回 stdout/stderr、阶段状态和退出码。 巴西发布固定 0…</p>
-      <p>关键词：安全与堡垒机、访问控制、DNS、Docker、Nginx、SQL注入、权限管理、备份恢复、安全与堡垒机 / 访问控制、【方案】中央运维容器设计与安全边界</p>
+      <p>【方案】中央运维容器设计与安全边界。本文属于安全与堡垒机 / 访问控制，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中央运维…</p>
+      <p>关键词：安全与堡垒机、访问控制、DNS、Docker、Nginx、SQL注入、权限管理、备份恢复、安全与堡垒机 / 访问控制、【方案】中央运维容器设计与安全边界、一、目标、二、非目标、三、总体架构、四、技术选型</p>
     </section>
     <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-54e834147a76.html"><small>上一篇</small>【优化】发布页命令默认折叠记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b2d1c342cd20.html"><small>下一篇</small>【方案】中央运维容器设计与安全边界</a></nav>
   </main>

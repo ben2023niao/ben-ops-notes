@@ -5,20 +5,22 @@ date: "2026-08-30T00:30:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Nginx", "CDN", "安全运维", "故障排查", "数据库恢复", "源码与配置"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-08-30-0030-%E3%80%90%E8%B5%84%E6%BA%90%E4%BC%98%E5%8C%96%E3%80%91PNG%E8%BD%ACWebP%E6%89%B9%E9%87%8F%E8%BD%AC%E6%8D%A2%E4%B8%8E%E5%90%8C%E6%AD%A5%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-08-30-0030-【资源优化】PNG转WebP批量转换与同步记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-08-30-0030-%E3%80%90%E8%B5%84%E6%BA%90%E4%BC%98%E5%8C%96%E3%80%91PNG%E8%BD%ACWebP%E6%89%B9%E9%87%8F%E8%BD%AC%E6%8D%A2%E4%B8%8E%E5%90%8C%E6%AD%A5%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-08-30-0030-【资源优化】PNG转WebP批量转换与同步记录.md"
 sourceSha256: "fa60564dd02dc1e1bf9f1d59ae3c591c23e7470956c31a183a2ad45d87f392ef"
 sourceSystem: "project-doc"
 ---
 
 # 【资源优化】PNG → WebP 批量转换与同步记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-08-30-0030-【资源优化】PNG转WebP批量转换与同步记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-08-30-0030-【资源优化】PNG转WebP批量转换与同步记录.md`
 
 > 整理日期：2026-08-30 00:30｜日期依据：文件名日期
 
 时间：2026-08-30 00:30（Asia/Manila）
-项目：DBQP / PGServer master
+项目：某业务公司 / PGServer master
 执行人：Codex（本地工作区 + 宝塔 + GCS）
 
 ## 一、背景
@@ -32,7 +34,7 @@ PNG 字节直接替换为 WebP（保持 .png 文件名，URL 不变），桶对�
 
 ```text
 /www/backup/static-png-20260829.tar          6.0G（主 7 目录 38400 张 PNG + 清单）
-/www/backup/static-png-special-20260829.tar  1.6G（pg3/4/5、tada-statics1/2 特殊目录）
+/www/backup/static-png-special-20260829.tar  1.6G（pg3/4/5、vendor_a-statics1/2 特殊目录）
 还原：解 tar 覆盖源目录 → 重新 gcs sync
 ```
 
@@ -107,7 +109,7 @@ JSON：生产 90447 个 JSON，全量引用审计过慢，降级为专项审计�
 
 ```text
 源站对象：字节=WebP（Content-Length 11130 等），Content-Type=image/webp
-抽样：tada-statics-sa / pp-static-sa / g759-static 全部通过
+抽样：vendor_a-statics-sa / pp-static-sa / g759-static 全部通过
 cron：/www/server/cron/gcs_static_sync 尾部追加 /opt/webp_setmeta_only.sh
       （近 1 天新增 webp 对象自动 PATCH 类型，备份 .bak-20260830）
 ```
@@ -133,11 +135,11 @@ cron：/www/server/cron/gcs_static_sync 尾部追加 /opt/webp_setmeta_only.sh
 （1h TTL 未过期），已清空两机源站缓存目录（缓存可重建，安全）并 reload。
 
 ```text
-3 套 zone（xqv9m8 / tada-cdn-2026 / cdn-tokyo-dbqp）：
+3 套 zone（xqv9m8 / vendor_a-cdn-2026 / cdn-tokyo-bizops）：
   图片：content-type image/webp，11130B vs 原 20067B（省 45%）
   大图：43500B vs 原 82942B（省 48%）
   真实 URL 无参数同样出 webp；cf MISS→HIT 正常
-游戏页/资源 smoke：pg4-static/126、g759 游戏页、panda 游戏页 全 200
+游戏页/资源 smoke：pg4-static/126、g759 游戏页、vendor_d 游戏页 全 200
 ```
 
 结论：源站主动转换（省 50%）+ CF Polish 边缘压缩（40-50%）双保险；

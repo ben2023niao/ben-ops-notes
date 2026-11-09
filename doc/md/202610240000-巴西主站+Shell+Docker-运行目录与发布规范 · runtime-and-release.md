@@ -5,15 +5,17 @@ date: "2026-10-24T00:00:00+08:00"
 dateSource: "正文日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Docker", "自动化", "CDN", "数据库恢复", "源码与配置"]
-source: "project-file:///Private/from-oldmac-20261109/Users/ben/Projects/work/game/pgserver/master/docs/guides/runtime-and-release.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/guides/runtime-and-release.md"
+source: "project-file:///Private/from-oldmac-20261109/Users/operator/Projects/ops/private-notes/master/docs/guides/runtime-and-release.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/guides/runtime-and-release.md"
 sourceSha256: "b7270b0704f181e46dd2b5ab083eb414b230d8c50fd0f3095a0f7e6417643bed"
 sourceSystem: "project-doc"
 ---
 
 # 运行目录与发布规范 · runtime-and-release
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/guides/runtime-and-release.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/guides/runtime-and-release.md`
 
 > 整理日期：2026-10-24 00:00｜日期依据：正文日期
 
@@ -24,7 +26,7 @@ sourceSystem: "project-doc"
 ### 代码打包机 03
 
 ```text
-主机：34.39.180.82 / 203.0.113.1
+主机：192.0.2.20 / 192.0.2.1
 目录：/data/pgserver
 ```
 
@@ -64,7 +66,7 @@ sourceSystem: "project-doc"
 
 ```text
 目录：/data/server-runtime
-镜像仓库：34.39.180.82:5000
+镜像仓库：192.0.2.20:5000
 ```
 
 发布顺序：
@@ -76,7 +78,7 @@ sourceSystem: "project-doc"
 验证 02
 ```
 
-香港不启动 TADA HTTP 主服务，只启动 TADA WS2。
+香港不启动 vendor_a HTTP 主服务，只启动 vendor_a WS2。
 
 ## 校验
 

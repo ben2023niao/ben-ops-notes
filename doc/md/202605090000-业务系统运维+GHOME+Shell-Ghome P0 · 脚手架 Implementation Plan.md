@@ -5,13 +5,15 @@ date: "2026-05-09T00:00:00+08:00"
 dateSource: "文件名日期"
 categories: ["业务系统运维", "GHOME"]
 tags: ["GHOME", "Shell", "Docker", "源码与配置"]
-source: "project-file:///Private/from-oldmac-20261109/Users/ben/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p0-scaffolding.md"
+source: "project-file:///Private/from-oldmac-20261109/Users/operator/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p0-scaffolding.md"
 sourcePath: "~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p0-scaffolding.md"
 sourceSha256: "c5ef9f361cf8331d8d3877b8edad33c4cb20acb6b7140455ed635d0d8f1e2ae8"
 sourceSystem: "project-doc"
 ---
 
 # Ghome P0 · 脚手架 Implementation Plan
+
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
 > 来源文件：`~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p0-scaffolding.md`
 
@@ -200,7 +202,7 @@ P0 · 脚手架 — 两个空白 Next.js app + Postgres 容器 + CI。
 
 ```bash
 git add .gitignore .nvmrc .npmrc README.md
-git commit -m "chore: initialize repo metadata (gitignore, nvmrc, npmrc, README)"
+git commit -m "chore: initialize repo mevendor_ata (gitignore, nvmrc, npmrc, README)"
 ```
 
 Expected: 单 commit 创建 4 个文件,无 hooks(尚未配置 husky)。
@@ -473,10 +475,10 @@ DATABASE_URL=postgres://ghome:ghome@localhost:5432/ghome
 - [ ] **Step 7: 写 `apps/web/app/layout.tsx`**
 
 ```tsx
-import type { Metadata } from "next";
+import type { Mevendor_ata } from "next";
 import "./globals.css";
 
-export const metadata: Metadata = {
+export const mevendor_ata: Mevendor_ata = {
   title: "Ghome",
   description: "LGBTQ+ 数字生活总入口",
 };
@@ -653,10 +655,10 @@ DATABASE_URL=postgres://ghome:ghome@localhost:5432/ghome
 - [ ] **Step 7: 写 `apps/admin/app/layout.tsx`**
 
 ```tsx
-import type { Metadata } from "next";
+import type { Mevendor_ata } from "next";
 import "./globals.css";
 
-export const metadata: Metadata = {
+export const mevendor_ata: Mevendor_ata = {
   title: "Ghome Admin",
   description: "Ghome 运营管理端",
   robots: { index: false, follow: false },

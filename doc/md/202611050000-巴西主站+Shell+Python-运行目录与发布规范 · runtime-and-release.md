@@ -5,15 +5,17 @@ date: "2026-11-05T00:00:00+08:00"
 dateSource: "正文日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Python", "Docker", "Nginx", "自动化", "CDN", "安全运维"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/guides/runtime-and-release.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/guides/runtime-and-release.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/guides/runtime-and-release.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/guides/runtime-and-release.md"
 sourceSha256: "cdb767ca354d5695fc5c66f9b7173cad216b08c40bfdfd1950fada01794beffd"
 sourceSystem: "project-doc"
 ---
 
 # 运行目录与发布规范 · runtime-and-release
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/guides/runtime-and-release.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/guides/runtime-and-release.md`
 
 > 整理日期：2026-11-05 00:00｜日期依据：正文日期
 
@@ -24,7 +26,7 @@ sourceSystem: "project-doc"
 ### 代码打包机 03
 
 ```text
-主机：34.39.180.82 / 203.0.113.1
+主机：192.0.2.20 / 192.0.2.1
 目录：/data/pgserver
 ```
 
@@ -63,7 +65,7 @@ sourceSystem: "project-doc"
 
 巴西和香港的 `server_configs` / `version.json` 必须分别从 `version-bx`、
 `version-zh` 同步。构建脚本逐文件校验来源与目标，并输出
-`BRAZIL_RUNTIME_METADATA_OK`、`HONGKONG_RUNTIME_METADATA_OK` 和
+`BRAZIL_RUNTIME_MEvendor_aTA_OK`、`HONGKONG_RUNTIME_MEvendor_aTA_OK` 和
 `SHARE_SO_BOTH_ENVS_OK`。
 
 香港 `/data/server-runtime-hk/conf/configs-api.py` 是独立专源，构建合并绝不
@@ -101,7 +103,7 @@ sourceSystem: "project-doc"
 
 ```text
 目录：/data/server-runtime
-镜像仓库：34.39.180.82:5000
+镜像仓库：192.0.2.20:5000
 ```
 
 发布顺序：
@@ -113,8 +115,8 @@ sourceSystem: "project-doc"
 验证 02
 ```
 
-香港从 2026-11-03 起同时运行 TADA HTTP（9096）和 TADA WS2（8765）。
-两者使用同一个 TADA 镜像；发布 TADA 时仍按 01 验证后 02 的顺序操作。
+香港从 2026-11-03 起同时运行 vendor_a HTTP（9096）和 vendor_a WS2（8765）。
+两者使用同一个 vendor_a 镜像；发布 vendor_a 时仍按 01 验证后 02 的顺序操作。
 
 ## 校验
 

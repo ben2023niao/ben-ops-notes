@@ -13,6 +13,8 @@ sourceSystem: "project-doc"
 
 # 【备份】AWS CloudFront d3hmby9nizcg7v.cloudfront.net 配置导出
 
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
 > 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-21-2328-【备份】AWS CloudFront d3hmby9nizcg7v配置导出.md`
 
 > 整理日期：2026-10-21 23:28｜日期依据：文件名日期
@@ -87,7 +89,7 @@ ops/production/cdn-backups/2026-10-21-d3hmby9nizcg7v-E1VM53PCL7TTU8/
 | --- | --- | --- |
 | `get-distribution-response.json` | `GetDistribution` 完整原始响应，包含 `DistributionConfig` | `d2e3523dad89cbcf572aa215ae512d1509f1dc11f11f9298d6cf27174afa1f87` |
 | `distribution-config.json` | 单独抽出的 `DistributionConfig` | `48d6b73335bdd4ca150453f954c556e6710ae0097e5c59be22399a270eba4e16` |
-| `export-metadata.json` | AWS 账号、Distribution ID、导出时间、权限结果 | `61ab3955fe0fb6a568cce366dcfd91c15fca19e8f14097ed754b99c00bf4f13e` |
+| `export-mevendor_ata.json` | AWS 账号、Distribution ID、导出时间、权限结果 | `61ab3955fe0fb6a568cce366dcfd91c15fca19e8f14097ed754b99c00bf4f13e` |
 | `README.md` | 备份目录说明及权限边界 | `058e09279f5ffe1928f8a3c0ecb133872ca3c6b9d6e3ed2693af8237922da7be` |
 
 压缩包：

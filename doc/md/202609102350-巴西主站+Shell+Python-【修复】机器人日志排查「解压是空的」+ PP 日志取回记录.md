@@ -5,20 +5,22 @@ date: "2026-09-10T23:50:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Python", "Docker", "故障排查", "源码与配置"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-09-10-2350-%E3%80%90%E4%BF%AE%E5%A4%8D%E3%80%91%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%97%A5%E5%BF%97%E6%8E%92%E6%9F%A5%E8%A6%86%E7%9B%96%E5%8C%BA%E9%97%B4%2BPP%E6%97%A5%E5%BF%97%E5%8F%96%E5%9B%9E%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-09-10-2350-【修复】机器人日志排查覆盖区间+PP日志取回记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-09-10-2350-%E3%80%90%E4%BF%AE%E5%A4%8D%E3%80%91%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%97%A5%E5%BF%97%E6%8E%92%E6%9F%A5%E8%A6%86%E7%9B%96%E5%8C%BA%E9%97%B4%2BPP%E6%97%A5%E5%BF%97%E5%8F%96%E5%9B%9E%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-09-10-2350-【修复】机器人日志排查覆盖区间+PP日志取回记录.md"
 sourceSha256: "529d5299788eaffa5006377fdcbd8af771c99276bfc43173f2b925f9248467e9"
 sourceSystem: "project-doc"
 ---
 
 # 【修复】机器人日志排查「解压是空的」+ PP 日志取回记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-09-10-2350-【修复】机器人日志排查覆盖区间+PP日志取回记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-10-2350-【修复】机器人日志排查覆盖区间+PP日志取回记录.md`
 
 > 整理日期：2026-09-10 23:50｜日期依据：文件名日期
 
 时间：2026-09-10 23:50（Asia/Manila）
-项目：DBQP / PGServer master
+项目：某业务公司 / PGServer master
 结果：✅ 定位并修复机器人日志列表的「小时标签 ≠ 文件实际覆盖区间」缺陷；
 ✅ PP 2026-09-10 00:17:12.798 ±10 分钟日志已打包发群
 
@@ -78,7 +80,7 @@ FETCHED pp.log-20260910-000412.gz: 48950 bytes   （不再是小尾巴）
 ```
 
 部署：`/opt/pgserver/docker/ben-bot/data/scripts/日志排查/action.py` 已更新并
-`docker restart dbqp-ben-bot`；重启后验证新标签生效。
+`docker restart bizops-ben-bot`；重启后验证新标签生效。
 
 用法：找某时刻的日志，点覆盖区间包含该时刻的那一项。
 例如 00:17 → `2026-09-10 01:00 (09-10 00:08~09-10 01:00) 107.4KB`。
@@ -90,9 +92,9 @@ FETCHED pp.log-20260910-000412.gz: 48950 bytes   （不再是小尾巴）
 「上一次轮转 ~ S」）。
 
 ```bash
-python3 /opt/dbqp-scripts/game_log_time_window.py --vendor pp \
+python3 /opt/bizops-scripts/game_log_time_window.py --vendor pp \
     --ts "2026-09-10 00:17:12.798" --minutes 10 \
-    --hosts 203.0.113.1,203.0.113.1 --outdir /root/tada-zips/pplog
+    --hosts 192.0.2.1,192.0.2.1 --outdir /root/vendor_a-zips/pplog
 ```
 
 结果：

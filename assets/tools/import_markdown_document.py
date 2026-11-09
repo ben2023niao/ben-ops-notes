@@ -197,7 +197,9 @@ def build_description(metadata: dict[str, object], body: str) -> str:
     return (paragraphs[0] if paragraphs else str(metadata.get("title", "")))[:260]
 
 
-def import_document(markdown_path: Path) -> dict[str, object]:
+def import_document(
+    markdown_path: Path, *, allow_new_category: bool = False
+) -> dict[str, object]:
     metadata, body = split_frontmatter(markdown_path.read_text(encoding="utf-8"))
     relative = markdown_path.resolve().relative_to(ROOT).as_posix()
     title = str(metadata["title"])
@@ -230,7 +232,12 @@ def import_document(markdown_path: Path) -> dict[str, object]:
     category_href = tuple(category_path)
     category = by_path.get(category_href)
     if category is None:
-        raise ValueError(f"Unknown category path: {category_path}")
+        if not allow_new_category:
+            raise ValueError(f"Unknown category path: {category_path}")
+        category = {
+            "id": "category-"
+            + hashlib.sha256("/".join(category_path).encode()).hexdigest()[:10]
+        }
 
     candidates: list[tuple[int, str]] = []
     for item in category_catalog_docs:

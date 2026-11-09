@@ -5,21 +5,23 @@ date: "2026-11-06T22:11:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Linux", "Nginx", "CDN", "DNS", "安全运维", "故障排查", "源码与配置"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-11-06-2211-%E3%80%90%E6%A0%B8%E5%AF%B9%E3%80%91%E9%A6%99%E6%B8%AF%E8%85%BE%E8%AE%AF%E4%BA%91EdgeOne%E5%8E%86%E5%8F%B2%E6%8E%A5%E5%85%A5%E4%B8%8E%E6%9C%AC%E6%9C%BA%E5%87%AD%E6%8D%AE%E5%BD%92%E6%A1%A3%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-11-06-2211-【核对】香港腾讯云EdgeOne历史接入与本机凭据归档记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-11-06-2211-%E3%80%90%E6%A0%B8%E5%AF%B9%E3%80%91%E9%A6%99%E6%B8%AF%E8%85%BE%E8%AE%AF%E4%BA%91EdgeOne%E5%8E%86%E5%8F%B2%E6%8E%A5%E5%85%A5%E4%B8%8E%E6%9C%AC%E6%9C%BA%E5%87%AD%E6%8D%AE%E5%BD%92%E6%A1%A3%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-11-06-2211-【核对】香港腾讯云EdgeOne历史接入与本机凭据归档记录.md"
 sourceSha256: "cbc545fafefcb718e3f4f255e205bd5c7bcc65595238afd9838bafb26a10f4b3"
 sourceSystem: "project-doc"
 ---
 
 # 【核对】香港腾讯云 EdgeOne 历史接入与本机凭据归档记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-11-06-2211-【核对】香港腾讯云EdgeOne历史接入与本机凭据归档记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-11-06-2211-【核对】香港腾讯云EdgeOne历史接入与本机凭据归档记录.md`
 
 > 整理日期：2026-11-06 22:11｜日期依据：文件名日期
 
 更新时间：2026-11-06 22:11（Asia/Manila）
 
-执行范围：DBQP 主仓库、独立 `cn` 工作区、香港线上域名快照、EdgeOne 只读 API、DNS 与 HTTP 健康检查。
+执行范围：某业务公司 主仓库、独立 `cn` 工作区、香港线上域名快照、EdgeOne 只读 API、DNS 与 HTTP 健康检查。
 
 ## 一、请求
 
@@ -37,7 +39,7 @@ sourceSystem: "project-doc"
 主仓库：
 
 ```text
-路径：/Users/ben/Projects/work/game/pgserver/master
+路径：/Users/operator/Projects/ops/private-notes/master
 本地 master：0b5af47f
 origin/master：a72f41fb
 origin/ben：9f59b4f3
@@ -48,7 +50,7 @@ origin/ben：9f59b4f3
 独立香港仓库：
 
 ```text
-路径：/Users/ben/Projects/work/game/pgserver/cn
+路径：/Users/operator/Projects/ops/private-notes/cn
 本地 cn：1fbe688f
 origin/cn：5c3b3de6
 工作区：干净
@@ -108,28 +110,28 @@ EdgeOne DescribeZones：4 个站点
 三个正式站点共 46 个加速域名，全部回源：
 
 ```text
-34.150.1.185:80 HTTP
+192.0.2.37:80 HTTP
 ```
 
 对应机器：
 
 ```text
-dbqp-hongkong-nginx-standby-01
-公网：34.150.1.185
-内网：203.0.113.1
+bizops-hongkong-nginx-standby-01
+公网：192.0.2.37
+内网：192.0.2.1
 ```
 
 游戏站点结构：
 
 ```text
 动态 8 个：
-pg-games / api / jili-games / pp-games /
-ppk-games / panda-games / playson-games / g759-games
+pg-games / api / vendor_b-games / pp-games /
+ppk-games / vendor_d-games / vendor_c-games / g759-games
 
 静态 14 个：
 pg-static / pg3-static / pg4-static / pg5-static / pg6-static / pg7-static /
-pp-static / ppk-static / panda-static / playson-static / g759-static /
-jili-static / jili-static1 / jili-static2
+pp-static / ppk-static / vendor_d-static / vendor_c-static / g759-static /
+vendor_b-static / vendor_b-static1 / vendor_b-static2
 ```
 
 商户站点结构：
@@ -148,10 +150,10 @@ https://p3w9n5.shop/healthz                 200
 https://socket.p3w9n5.shop/healthz          200
 https://pg-games.m4q7z1.shop/health         200
 https://pg-static.m4q7z1.shop/health.json   200
-https://jili-games.m4q7z1.shop/health       200
+https://vendor_b-games.m4q7z1.shop/health       200
 https://pg-games.k8x2v9.shop/health         200
 https://pg-static.k8x2v9.shop/health.json   200
-https://jili-games.k8x2v9.shop/health       200
+https://vendor_b-games.k8x2v9.shop/health       200
 ```
 
 静态资源抽样返回：
@@ -170,7 +172,7 @@ eo-cache-status: HIT
 当前状态：
 1. m4q7z1.shop、k8x2v9.shop、p3w9n5.shop 三个站点全部 active；
 2. 46 个正式加速域名全部 online；
-3. 三站统一回源香港 standby Nginx 34.150.1.185:80；
+3. 三站统一回源香港 standby Nginx 192.0.2.37:80；
 4. 动态、静态、商户抽样均正常，静态命中 EdgeOne 缓存；
 5. r2v8k4.shop 仅为空站点，不建议贸然投入使用。
 
@@ -184,7 +186,7 @@ eo-cache-status: HIT
 API 凭据：
 
 ```text
-Keychain service：dbqp-tencent-edgeone-api
+Keychain service：bizops-tencent-edgeone-api
 Keychain account：[邮箱已脱敏]
 内容：account_id、username、secret_id、secret_key、region 的 JSON
 region：ap-singapore
@@ -193,14 +195,14 @@ region：ap-singapore
 控制台登录密码：
 
 ```text
-Keychain service：dbqp-tencent-edgeone-console
+Keychain service：bizops-tencent-edgeone-console
 Keychain account：[邮箱已脱敏]
 ```
 
 本机索引：
 
 ```text
-/Users/ben/.config/tencentcloud/dbqp-edgeone.md
+/Users/operator/.config/tencentcloud/bizops-edgeone.md
 权限：600
 ```
 

@@ -5,20 +5,22 @@ date: "2026-10-20T18:29:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Docker", "监控告警", "自动化", "故障排查", "数据库恢复", "源码与配置"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-10-20-1829-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91%E5%85%A8%E9%83%A8%E5%AE%B9%E5%99%A8nofile%E8%BD%AF%E9%99%90%E5%88%B6%E4%BC%98%E5%8C%96%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-10-20-1829-【运维】全部容器nofile软限制优化记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-10-20-1829-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91%E5%85%A8%E9%83%A8%E5%AE%B9%E5%99%A8nofile%E8%BD%AF%E9%99%90%E5%88%B6%E4%BC%98%E5%8C%96%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-10-20-1829-【运维】全部容器nofile软限制优化记录.md"
 sourceSha256: "fda93a20418b6d165f804aaf826e8ca456d845247640c8c32d9c145422d57242"
 sourceSystem: "project-doc"
 ---
 
 # 全部容器 nofile 软限制优化记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-10-20-1829-【运维】全部容器nofile软限制优化记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-10-20-1829-【运维】全部容器nofile软限制优化记录.md`
 
 > 整理日期：2026-10-20 18:29｜日期依据：文件名日期
 
 时间：2026-10-20 18:29（北京）｜2026-10-20 07:29（巴西圣保罗）
-起因：TADA 容器 soft `nofile` 只有 1024，worker 常驻 1023 个 fd，
+起因：vendor_a 容器 soft `nofile` 只有 1024，worker 常驻 1023 个 fd，
       持续报 `[Errno 24] Too many open files`，玩家偶发卡加载。
 
 ## 一、永久修复：发布脚本统一加 --ulimit
@@ -36,11 +38,11 @@ sourceSystem: "project-doc"
 
 | 机器 | 文件 |
 | --- | --- |
-| 巴西 01 `203.0.113.1` | `/data/server-runtime/start.sh` |
-| 巴西 02 `203.0.113.1` | `/data/server-runtime/start.sh` |
-| 巴西 03 `203.0.113.1` | `/data/server-runtime/start.sh` |
-| 香港 01 `203.0.113.1` | `/data/server-runtime/start.sh`、`/data/start.sh` |
-| 香港 02 `203.0.113.1` | `/data/server-runtime/start.sh`、`/data/start.sh` |
+| 巴西 01 `192.0.2.1` | `/data/server-runtime/start.sh` |
+| 巴西 02 `192.0.2.1` | `/data/server-runtime/start.sh` |
+| 巴西 03 `192.0.2.1` | `/data/server-runtime/start.sh` |
+| 香港 01 `192.0.2.1` | `/data/server-runtime/start.sh`、`/data/start.sh` |
+| 香港 02 `192.0.2.1` | `/data/server-runtime/start.sh`、`/data/start.sh` |
 
 每份改前都备份为 `start.sh.bak-<时间戳>`，并用 `bash -n` 做了语法检查。
 补丁脚本：`docker/scripts/patch_start_sh_nofile.py`（幂等，已含 `--ulimit` 会跳过）。
@@ -67,11 +69,11 @@ done
 | 巴西 03 | 73 | 0 |
 | 香港 01 | 65 | 0 |
 | 香港 02 | 65 | 0 |
-| 香港禅道 `34.96.128.22` | 20 | 0 |
+| 香港禅道 `192.0.2.12` | 20 | 0 |
 | 合计 | 355 | 0 |
 
-香港入口 `34.92.13.108` 只有 beszel-agent 一个容器，原本就是 `524287/524288`，
-不需要调整；香港两台游戏后端（`34.92.83.132` / `34.150.91.228`）在上一轮已经
+香港入口 `192.0.2.14` 只有 beszel-agent 一个容器，原本就是 `524287/524288`，
+不需要调整；香港两台游戏后端（`192.0.2.16` / `192.0.2.17`）在上一轮已经
 和巴西一起改完（各 65 个进程），发布脚本两个入口都已带 `--ulimit`。
 
 ## 三、验证
@@ -88,7 +90,7 @@ done | awk '{print $2}' | sort | uniq -c
 
 五台结果都是 `65535 524288`，没有低于 65535 的容器进程。
 
-TADA 专项：
+vendor_a 专项：
 
 - prod-01 worker 当前 1023 个 fd，上限已从 1024 提升到 65535；
 - prod-02 worker 当前 1021 个 fd，同样 65535。
@@ -96,8 +98,8 @@ TADA 专项：
 
 ## 四、仍需开发根治
 
-提升上限只是止血：TADA 的 fd 仍在 1000+ 高位，说明句柄还在泄漏。
-报错集中在 `/app/tada/data/<game>/GameInfoAck.json`，请开发确认是否
+提升上限只是止血：vendor_a 的 fd 仍在 1000+ 高位，说明句柄还在泄漏。
+报错集中在 `/app/vendor_a/data/<game>/GameInfoAck.json`，请开发确认是否
 每次请求打开后没有 `close()`（建议用 with / try-finally 或缓存文件句柄）。
 
 ## 五、回滚

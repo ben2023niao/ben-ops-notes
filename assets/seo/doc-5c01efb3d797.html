@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <title>2026-10-05 香港 JILI 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理｜历史运维与项目交付 / 香港 CN｜BEN.OPS</title>
-  <meta name="description" content="2026-10-05 香港 JILI 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理 来源文件： ~/Projects/work/game/pgserver/cn/docker/doc/2026-10-05-1400-【架构改造】香港JILI静态域名按Worker路径">
-  <meta name="keywords" content="香港 CN，Docker，Nginx，CDN，数据库恢复，源码与配置，历史运维与项目交付，历史运维与项目交付 / 香港 CN">
+  <title>2026-10-05 香港 vendor_b 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理｜历史运维与项目交付 / 香港 CN｜BEN.OPS</title>
+  <meta name="description" content="2026-10-05 香港 vendor_b 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理。本文属于历史运维与项目交付 / 香港 CN，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。">
+  <meta name="keywords" content="香港 CN，Docker，Nginx，CDN，数据库恢复，源码与配置，历史运维与项目交付，历史运维与项目交付 / 香港 CN，一、需求，二、分析（先核实，再动手），三、备份（改动前），四、实现，五、验证（standby 源站 + 经 EdgeOne 公网，均实测），六、影响面与回滚">
   <meta name="author" content="BEN">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
   <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
@@ -14,15 +14,15 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c01efb3d797.html">
   <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c01efb3d797.html">
-  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610051400-%E9%A6%99%E6%B8%AF%20CN%2BDocker%2BNginx-2026-10-05%20%E9%A6%99%E6%B8%AF%20JILI%20%E9%9D%99%E6%80%81%E5%9F%9F%E5%90%8D%EF%BC%9A%E6%8C%89%20Worker%20%E8%B7%AF%E5%BE%84%E6%98%A0%E5%B0%84%20%2B%20%E8%A1%A5%20intro-astarte%20%E5%A4%84%E7%90%86.md">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610051400-%E9%A6%99%E6%B8%AF%20CN%2BDocker%2BNginx-2026-10-05%20%E9%A6%99%E6%B8%AF%20vendor_b%20%E9%9D%99%E6%80%81%E5%9F%9F%E5%90%8D%EF%BC%9A%E6%8C%89%20Worker%20%E8%B7%AF%E5%BE%84%E6%98%A0%E5%B0%84%20%2B%20%E8%A1%A5%20intro-astarte%20%E5%A4%84%E7%90%86.md">
   <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
   <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
   <link rel="author" href="https://t.me/Ben_Bird">
   <meta property="og:type" content="article">
   <meta property="og:locale" content="zh_CN">
   <meta property="og:site_name" content="BEN.OPS 工程笔记">
-  <meta property="og:title" content="2026-10-05 香港 JILI 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理">
-  <meta property="og:description" content="2026-10-05 香港 JILI 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理 来源文件： ~/Projects/work/game/pgserver/cn/docker/doc/2026-10-05-1400-【架构改造】香港JILI静态域名按Worker路径">
+  <meta property="og:title" content="2026-10-05 香港 vendor_b 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理">
+  <meta property="og:description" content="2026-10-05 香港 vendor_b 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理。本文属于历史运维与项目交付 / 香港 CN，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。">
   <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c01efb3d797.html">
   <meta property="article:published_time" content="2026-10-05T14:00:00+08:00">
   <meta property="article:modified_time" content="2026-10-05 14:00">
@@ -30,8 +30,8 @@
   <meta property="article:author" content="https://t.me/Ben_Bird">
   
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="2026-10-05 香港 JILI 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理">
-  <meta name="twitter:description" content="2026-10-05 香港 JILI 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理 来源文件： ~/Projects/work/game/pgserver/cn/docker/doc/2026-10-05-1400-【架构改造】香港JILI静态域名按Worker路径">
+  <meta name="twitter:title" content="2026-10-05 香港 vendor_b 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理">
+  <meta name="twitter:description" content="2026-10-05 香港 vendor_b 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理。本文属于历史运维与项目交付 / 香港 CN，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。">
   
   <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
 --line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
@@ -75,7 +75,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 @media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
 .meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
 @media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c01efb3d797.html#article","headline":"2026-10-05 香港 JILI 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理","description":"2026-10-05 香港 JILI 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理 来源文件： ~/Projects/work/game/pgserver/cn/docker/doc/2026-10-05-1400-【架构改造】香港JILI静态域名按Worker路径","datePublished":"2026-10-05T14:00:00+08:00","dateModified":"2026-10-05 14:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","香港 CN"],"keywords":["香港 CN","Docker","Nginx","CDN","数据库恢复","源码与配置","历史运维与项目交付","历史运维与项目交付 / 香港 CN"],"wordCount":1549,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c01efb3d797.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c01efb3d797.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 香港 CN","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-10-05 香港 JILI 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c01efb3d797.html"}]}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c01efb3d797.html#article","headline":"2026-10-05 香港 vendor_b 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理","description":"2026-10-05 香港 vendor_b 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理。本文属于历史运维与项目交付 / 香港 CN，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。","datePublished":"2026-10-05T14:00:00+08:00","dateModified":"2026-10-05 14:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","香港 CN"],"keywords":["香港 CN","Docker","Nginx","CDN","数据库恢复","源码与配置","历史运维与项目交付","历史运维与项目交付 / 香港 CN","一、需求","二、分析（先核实，再动手）","三、备份（改动前）","四、实现","五、验证（standby 源站 + 经 EdgeOne 公网，均实测）","六、影响面与回滚"],"wordCount":278,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c01efb3d797.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c01efb3d797.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 香港 CN","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-10-05 香港 vendor_b 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-5c01efb3d797.html"}]}]}</script>
 </head>
 <body>
   <header class="topbar"><div class="shell">
@@ -89,59 +89,60 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
   <main class="shell">
     <nav class="crumbs" aria-label="面包屑">
       <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
-      › <span>历史运维与项目交付 / 香港 CN</span> › <span>2026-10-05 香港 JILI 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理</span>
+      › <span>历史运维与项目交付 / 香港 CN</span> › <span>2026-10-05 香港 vendor_b 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理</span>
     </nav>
     <header class="hero">
       <div class="eyebrow">历史运维与项目交付 / 香港 CN</div>
-      <h1>2026-10-05 香港 JILI 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理</h1>
-      <p class="lede">2026-10-05 香港 JILI 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理 来源文件： ~/Projects/work/game/pgserver/cn/docker/doc/2026-10-05-1400-【架构改造】香港JILI静态域名按Worker路径</p>
+      <h1>2026-10-05 香港 vendor_b 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理</h1>
+      <p class="lede">2026-10-05 香港 vendor_b 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理。本文属于历史运维与项目交付 / 香港 CN，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。</p>
       <div class="meta">
         <time class="badge" datetime="2026-10-05T14:00:00+08:00">发布于 2026-10-05</time>
         <span class="badge">作者 BEN</span>
-        <span class="badge">1,549 字</span>
-        <span class="badge">5 分钟阅读</span>
+        <span class="badge">278 字</span>
+        <span class="badge">1 分钟阅读</span>
       </div>
     </header>
     <div class="layout">
       <article class="article" itemscope itemtype="https://schema.org/TechArticle">
         
 <blockquote>
-<p>来源文件：<code>~/Projects/work/game/pgserver/cn/docker/doc/2026-10-05-1400-【架构改造】香港JILI静态域名按Worker路径映射并补intro-astarte处理.md</code></p>
+<p>公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。</p>
+<p>来源文件：<code>~/Projects/ops/private-notes/cn/docker/doc/2026-10-05-1400-【架构改造】香港vendor_b静态域名按Worker路径映射并补intro-astarte处理.md</code></p>
 <p>整理日期：2026-10-05 14:00｜日期依据：文件名日期</p>
 </blockquote>
 <h2 id="一-需求">一、需求</h2>
-<pre><code class="language-text">开发（C++）先贴了老 JILI 静态 nginx 的两段 server 配置：
-  jili-test.bxgjnet.com   -&gt; root /data/static/jilistatic;  index index.html ...
-  jili-test1.bxgjnet.com  -&gt; root /data/static/jilistatic1; + intro 图片/intro 帮助页/.js MIME/astarte versions.json/404.png
+<pre><code class="language-text">开发（C++）先贴了老 vendor_b 静态 nginx 的两段 server 配置：
+  vendor_b-test.bxgjnet.com   -&gt; root /data/static/vendor_bstatic;  index index.html ...
+  vendor_b-test1.bxgjnet.com  -&gt; root /data/static/vendor_bstatic1; + intro 图片/intro 帮助页/.js MIME/astarte versions.json/404.png
 运维口径（用户 2026-10-05 明确）：**不要照抄老配置的本地目录，静态资源路径映射参考香港的 Cloudflare Worker**。
 本轮要求：每步发群通知 → 备份 nginx → 改造 → 验证 → 文档 → 本地提交（不推送）。
 </code></pre>
 <h2 id="二-分析-先核实-再动手">二、分析（先核实，再动手）</h2>
 <pre><code class="language-text">1) 香港 Worker 的映射（docker/deploy/hongkong/hk_static_worker.js 的 PREFIX_MAP）：
-     jili-static  -&gt; https://dbqp-s3-jili-static.s3.ap-northeast-3.amazonaws.com
-     jili-static1 -&gt; https://dbqp-s3-jili-static1.s3.ap-northeast-3.amazonaws.com
-     jili-static2 -&gt; 无映射（Worker 直接放行）
+     vendor_b-static  -&gt; https://bizops-s3-vendor_b-static.s3.ap-northeast-3.amazonaws.com
+     vendor_b-static1 -&gt; https://bizops-s3-vendor_b-static1.s3.ap-northeast-3.amazonaws.com
+     vendor_b-static2 -&gt; 无映射（Worker 直接放行）
    即「一个厂家一个桶」，对象直接放在桶根；Worker 另外还做：OPTIONS 204、
    目录 302 -&gt; index.html、.js 强制 MIME、customizations.info 空 200、CORS。
 2) 现网核实（改造前）：
-     jili-static.m4q7z1.shop/ifff/index.html  = 200 / 34,238B（JILI 自己的桶）
-     jili-static1.m4q7z1.shop/lj500/index.html= 200 / 97,383B
+     vendor_b-static.m4q7z1.shop/ifff/index.html  = 200 / 34,238B（vendor_b 自己的桶）
+     vendor_b-static1.m4q7z1.shop/lj500/index.html= 200 / 97,383B
      /lj500/ 目录 = 302、OPTIONS = 204（通用静态块已按 Worker 口径做过）
-   结论：**映射部分已经基本对齐**，缺的是老配置里 JILI 专属的三条路径处理。
+   结论：**映射部分已经基本对齐**，缺的是老配置里 vendor_b 专属的三条路径处理。
 3) 缺口（改造前实测都是 403）：
      /zh-CN/intro?game=664        -&gt; 403（但桶里确实有 lj500/intro/zh-CN.html = 200 / 13,473B）
-     /astarte/3.6/web-mobile/assets/versions.json（jili-static1）已 200，但没有 Vary: Referer
+     /astarte/3.6/web-mobile/assets/versions.json（vendor_b-static1）已 200，但没有 Vary: Referer
      /static/images/intro/...     老配置有路径规整规则，当前没有
 4) 老配置里 ① 的 code 来自 `map $arg_game $intro_code` 整表（游戏 id -&gt; 目录名），
    开发没有给全表；本轮改成按 **Referer** 推导（游戏页地址形如 /lj500/index.html，
    第一个路径段就是目录名），不用维护整表，也不需要额外映射。
 </code></pre>
 <h2 id="三-备份-改动前">三、备份（改动前）</h2>
-<pre><code class="language-text">standby 34.150.1.185（承载 m4q7z1 / k8x2v9 / 06 / 07）：
-  /etc/nginx/sites-available/dbqp-hk-standby.conf.bak-20261005-0454-jili2
+<pre><code class="language-text">standby 192.0.2.37（承载 m4q7z1 / k8x2v9 / 06 / 07）：
+  /etc/nginx/sites-available/bizops-hk-standby.conf.bak-20261005-0454-vendor_b2
   /tmp/nginx-etc-20261005-0454.tgz
-入口机 34.92.13.108：
-  /etc/nginx/sites-available/dbqp-hongkong.conf.bak-20261005-0454-jili2
+入口机 192.0.2.14：
+  /etc/nginx/sites-available/bizops-hongkong.conf.bak-20261005-0454-vendor_b2
   /tmp/nginx-etc-20261005-0454.tgz
 入仓（docker/deploy/hongkong/nginx-backup/）：
   nginx-standby-etc-nginx-20261005-0454.tgz
@@ -151,17 +152,17 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 </code></pre>
 <h2 id="四-实现">四、实现</h2>
 <pre><code class="language-text">新增两个片段（standby 的 /etc/nginx/snippets/）：
-  dbqp-hk-standby-s3-origin.conf   —— 按 server_name 命名捕获的前缀回源 dbqp-s3-&lt;前缀&gt;（大阪）
-  dbqp-hk-standby-jili-static.conf —— JILI 静态 server 块共用内容
+  bizops-hk-standby-s3-origin.conf   —— 按 server_name 命名捕获的前缀回源 bizops-s3-&lt;前缀&gt;（大阪）
+  bizops-hk-standby-vendor_b-static.conf —— vendor_b 静态 server 块共用内容
 nginx-standby.conf 改动：
-  ① 新增 map $http_referer $dbqp_jili_intro_code（正则取 Referer 第一个路径段；
+  ① 新增 map $http_referer $bizops_vendor_b_intro_code（正则取 Referer 第一个路径段；
      匹配不到落到占位目录 ___noref___，必然 403 → 最后统一转 404）
   ② 新增两个 server 块（放在通用静态块之前，正则 server_name 先匹配先赢）：
-       ~^(?&lt;dbqp_static_prefix&gt;jili-static1?)\.(m4q7z1|k8x2v9)\.shop$
-       ~^(?&lt;dbqp_static_prefix&gt;jili-static1?)\.hkcloudplay0[67]\.com$
-  ③ 06/07 的通用静态兜底块 server_name 里去掉 jili-static|jili-static1
-     （交给新块；jili-static2 维持原状，Worker 也没有它的映射）
-JILI 静态块内容（= Worker 行为 + 老配置的三条处理）：
+       ~^(?&lt;bizops_static_prefix&gt;vendor_b-static1?)\.(m4q7z1|k8x2v9)\.shop$
+       ~^(?&lt;bizops_static_prefix&gt;vendor_b-static1?)\.hkcloudplay0[67]\.com$
+  ③ 06/07 的通用静态兜底块 server_name 里去掉 vendor_b-static|vendor_b-static1
+     （交给新块；vendor_b-static2 维持原状，Worker 也没有它的映射）
+vendor_b 静态块内容（= Worker 行为 + 老配置的三条处理）：
   · 目录 302 -&gt; index.html、OPTIONS 204、.js MIME、customizations.info 空 200、CORS *
   · ① /&lt;lang&gt;/intro?game=&lt;id&gt; -&gt; /&lt;code&gt;/intro/&lt;lang&gt;.html
        语言逐级回退：请求语言 -&gt; zh-CN -&gt; en-US -&gt; pt-BR，四跳都没有 -&gt; 404
@@ -170,7 +171,7 @@ JILI 静态块内容（= Worker 行为 + 老配置的三条处理）：
   · intro 相关响应统一 Cache-Control: no-store
 </code></pre>
 <pre><code class="language-text">踩坑记录：
-1) 第一版用 `if ($dbqp_jili_intro_code = "") { return 404; }`，实测没 Referer 时仍返回 403 ——
+1) 第一版用 `if ($bizops_vendor_b_intro_code = "") { return 404; }`，实测没 Referer 时仍返回 403 ——
    原因不是 if 没生效，而是 **return 404 又被同一 location 的 error_page 404 抓走**，
    落进兜底链、最后一跳把 S3 的 403 原样返回。改成「占位目录 + 最后一跳 404」后干净了。
 2) EdgeOne / CF 的缓存键**不含 Referer**：第一版给 intro 成功响应加了 max-age=604800，
@@ -188,11 +189,11 @@ JILI 静态块内容（= Worker 行为 + 老配置的三条处理）：
 </thead>
 <tbody>
 <tr>
-<td><code>jili-static1.m4q7z1.shop/lj500/index.html</code></td>
-<td>200 / 97,383B（jili-static1 桶）</td>
+<td><code>vendor_b-static1.m4q7z1.shop/lj500/index.html</code></td>
+<td>200 / 97,383B（vendor_b-static1 桶）</td>
 </tr>
 <tr>
-<td><code>jili-static.m4q7z1.shop/ifff/index.html</code>、<code>jili-static.k8x2v9.shop/ifff/index.html</code></td>
+<td><code>vendor_b-static.m4q7z1.shop/ifff/index.html</code>、<code>vendor_b-static.k8x2v9.shop/ifff/index.html</code></td>
 <td>200 / 34,238B</td>
 </tr>
 <tr>
@@ -228,15 +229,15 @@ JILI 静态块内容（= Worker 行为 + 老配置的三条处理）：
 <td>200 / 0B</td>
 </tr>
 <tr>
-<td>其它厂家静态（pg-static / pp-static / panda-static）同名路径</td>
+<td>其它厂家静态（pg-static / pp-static / vendor_d-static）同名路径</td>
 <td>403，<strong>行为未变</strong></td>
 </tr>
 <tr>
-<td>动态：<code>jili-games.m4q7z1.shop/health</code>、<code>k8x2v9/health</code>、<code>/lj500/index.html</code></td>
+<td>动态：<code>vendor_b-games.m4q7z1.shop/health</code>、<code>k8x2v9/health</code>、<code>/lj500/index.html</code></td>
 <td>200（无回归）</td>
 </tr>
 <tr>
-<td>06/07 兜底块（Host 直连本机）：<code>jili-static1.hkcloudplay07.com/lj500/index.html</code></td>
+<td>06/07 兜底块（Host 直连本机）：<code>vendor_b-static1.hkcloudplay07.com/lj500/index.html</code></td>
 <td>200 / 97,383B</td>
 </tr>
 </tbody>
@@ -244,23 +245,23 @@ JILI 静态块内容（= Worker 行为 + 老配置的三条处理）：
 <pre><code class="language-text">nginx -t 通过后才 reload；reload 后 systemctl is-active nginx = active。
 </code></pre>
 <h2 id="六-影响面与回滚">六、影响面与回滚</h2>
-<pre><code class="language-text">影响面：只影响 jili-static / jili-static1 两个前缀（m4q7z1 / k8x2v9 / 06 / 07 四套域名），
+<pre><code class="language-text">影响面：只影响 vendor_b-static / vendor_b-static1 两个前缀（m4q7z1 / k8x2v9 / 06 / 07 四套域名），
         其它厂家静态域名、动态域名、WebSocket 均未改动；
-        jili-static2 未纳入本块（Worker 也没有映射），保持原状。
+        vendor_b-static2 未纳入本块（Worker 也没有映射），保持原状。
 回滚（standby）：
-  cp /etc/nginx/sites-available/dbqp-hk-standby.conf.bak-20261005-0454-jili2 \
-     /etc/nginx/sites-available/dbqp-hk-standby.conf &amp;&amp; nginx -t &amp;&amp; systemctl reload nginx
-  （片段文件留着不影响；如需彻底还原再删 /etc/nginx/snippets/dbqp-hk-standby-s3-origin.conf、
-    dbqp-hk-standby-jili-static.conf）
+  cp /etc/nginx/sites-available/bizops-hk-standby.conf.bak-20261005-0454-vendor_b2 \
+     /etc/nginx/sites-available/bizops-hk-standby.conf &amp;&amp; nginx -t &amp;&amp; systemctl reload nginx
+  （片段文件留着不影响；如需彻底还原再删 /etc/nginx/snippets/bizops-hk-standby-s3-origin.conf、
+    bizops-hk-standby-vendor_b-static.conf）
 </code></pre>
 <h2 id="七-关联">七、关联</h2>
-<pre><code class="language-text">docker/deploy/hongkong/nginx-standby.conf（新增 map + 两个 JILI 静态 server 块）
-docker/deploy/hongkong/nginx-standby-jili-static.conf（JILI 静态块共用内容）
+<pre><code class="language-text">docker/deploy/hongkong/nginx-standby.conf（新增 map + 两个 vendor_b 静态 server 块）
+docker/deploy/hongkong/nginx-standby-vendor_b-static.conf（vendor_b 静态块共用内容）
 docker/deploy/hongkong/nginx-standby-s3-origin.conf（按前缀回源大阪桶）
 docker/deploy/hongkong/hk_static_worker.js（路径映射的唯一口径来源）
 docker/deploy/hongkong/nginx-backup/nginx-{standby,entry}-etc-nginx-20261005-0454.tgz
-docker/doc/2026-10-05-1230-【架构改造】香港nginx的jili静态改为走自己的大阪桶（对齐香港Worker）.md
-docker/doc/2026-10-05-1330-【架构改造】香港jili-games游戏启动页nginx兜底（后端无路由回JILI静态桶）.md
+docker/doc/2026-10-05-1230-【架构改造】香港nginx的vendor_b静态改为走自己的大阪桶（对齐香港Worker）.md
+docker/doc/2026-10-05-1330-【架构改造】香港vendor_b-games游戏启动页nginx兜底（后端无路由回vendor_b静态桶）.md
 </code></pre>
       </article>
       <aside class="aside">
@@ -269,7 +270,7 @@ docker/doc/2026-10-05-1330-【架构改造】香港jili-games游戏启动页ngin
           <li>分类：历史运维与项目交付 / 香港 CN</li>
           <li>日期：2026-10-05</li>
           <li>标签：<span class="tag">香港 CN</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">CDN</span><span class="tag">数据库恢复</span><span class="tag">源码与配置</span></li>
-          <li><span>来源：~/Projects/work/game/pgserver/cn/docker/doc/2026-10-05-1400-【架构改造】香港JILI静态域名按Worker路径映射并补…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610051400-%E9%A6%99%E6%B8%AF%20CN%2BDocker%2BNginx-2026-10-05%20%E9%A6%99%E6%B8%AF%20JILI%20%E9%9D%99%E6%80%81%E5%9F%9F%E5%90%8D%EF%BC%9A%E6%8C%89%20Worker%20%E8%B7%AF%E5%BE%84%E6%98%A0%E5%B0%84%20%2B%20%E8%A1%A5%20intro-astarte%20%E5%A4%84%E7%90%86.md" type="text/markdown">查看 Markdown 原文</a></li>
+          <li><span>来源：~/Projects/ops/private-notes/cn/docker/doc/2026-10-05-1400-【架构改造】香港vendor_b静态域名按Worker路径映…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610051400-%E9%A6%99%E6%B8%AF%20CN%2BDocker%2BNginx-2026-10-05%20%E9%A6%99%E6%B8%AF%20vendor_b%20%E9%9D%99%E6%80%81%E5%9F%9F%E5%90%8D%EF%BC%9A%E6%8C%89%20Worker%20%E8%B7%AF%E5%BE%84%E6%98%A0%E5%B0%84%20%2B%20%E8%A1%A5%20intro-astarte%20%E5%A4%84%E7%90%86.md" type="text/markdown">查看 Markdown 原文</a></li>
         </ul></div>
         <div class="aside-box"><h2>作者</h2>
           <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
@@ -279,8 +280,8 @@ docker/doc/2026-10-05-1330-【架构改造】香港jili-games游戏启动页ngin
     </div>
     <section class="seo-summary" aria-labelledby="seo-summary-title">
       <h2 id="seo-summary-title">文章摘要</h2>
-      <p>2026-10-05 香港 JILI 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理 来源文件： ~/Projects/work/game/pgserver/cn/docker/doc/2026-10-05-1400-【架构改造】香港JILI静态域名按Worker路径</p>
-      <p>关键词：香港 CN、Docker、Nginx、CDN、数据库恢复、源码与配置、历史运维与项目交付、历史运维与项目交付 / 香港 CN</p>
+      <p>2026-10-05 香港 vendor_b 静态域名：按 Worker 路径映射 + 补 intro/astarte 处理。本文属于历史运维与项目交付 / 香港 CN，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。</p>
+      <p>关键词：香港 CN、Docker、Nginx、CDN、数据库恢复、源码与配置、历史运维与项目交付、历史运维与项目交付 / 香港 CN、一、需求、二、分析（先核实，再动手）、三、备份（改动前）、四、实现、五、验证（standby 源站 + 经 EdgeOne 公网，均实测）、六、影响面与回滚</p>
     </section>
     <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-22b5c6c3f96c.html"><small>上一篇</small>2026-10-05 撤销动态域名兜底 CORS（重申：动态归开发、静态归运维）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-a5c08425363a.html"><small>下一篇</small>【问题排查】线上环境-游点涩-新h5-发版失败：corepack 自动拉取最新版 pnpm 12.x 与 corepack 0.34 不兼容</a></nav>
   </main>

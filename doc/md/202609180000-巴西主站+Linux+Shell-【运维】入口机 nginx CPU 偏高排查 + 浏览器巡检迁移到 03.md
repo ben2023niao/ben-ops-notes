@@ -5,20 +5,22 @@ date: "2026-09-18T00:00:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Linux", "Shell", "Python", "Docker", "Nginx", "监控告警", "自动化"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-09-18-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91%E5%85%A5%E5%8F%A3%E6%9C%BAnginx-CPU%E5%81%8F%E9%AB%98%E6%8E%92%E6%9F%A5-%E6%B5%8F%E8%A7%88%E5%99%A8%E5%B7%A1%E6%A3%80%E8%BF%81%E7%A7%BB%E5%88%B003.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-09-18-【运维】入口机nginx-CPU偏高排查-浏览器巡检迁移到03.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-09-18-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91%E5%85%A5%E5%8F%A3%E6%9C%BAnginx-CPU%E5%81%8F%E9%AB%98%E6%8E%92%E6%9F%A5-%E6%B5%8F%E8%A7%88%E5%99%A8%E5%B7%A1%E6%A3%80%E8%BF%81%E7%A7%BB%E5%88%B003.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-09-18-【运维】入口机nginx-CPU偏高排查-浏览器巡检迁移到03.md"
 sourceSha256: "cadd7eb1f43b4569cfe857639645174cf7e3e8ea1bd9b2554e6af19b5fa5c2a4"
 sourceSystem: "project-doc"
 ---
 
 # 【运维】入口机 nginx CPU 偏高排查 + 浏览器巡检迁移到 03
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-09-18-【运维】入口机nginx-CPU偏高排查-浏览器巡检迁移到03.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-18-【运维】入口机nginx-CPU偏高排查-浏览器巡检迁移到03.md`
 
 > 整理日期：2026-09-18 00:00｜日期依据：文件名日期
 
 时间：2026-09-18
-对象机器：`dbqp-saopaulo-nginx-standby-01`（34.151.249.53 / 203.0.113.1）——**线上真正入口**，非常重要
+对象机器：`bizops-saopaulo-nginx-standby-01`（192.0.2.13 / 192.0.2.1）——**线上真正入口**，非常重要
 告警现象：beszel 反复报 CPU 高于阈值（1 分钟均值 84.13% / 74.58% / 82.99% / 75.33%）
 结论：**入口机上每小时错峰跑的 Playwright 浏览器巡检（game_availability_monitor）吃 CPU**；
 　　　已把 7 条浏览器巡检迁到 03，入口机 CPU 回落到平均 0.2%。
@@ -51,7 +53,7 @@ sourceSystem: "project-doc"
 
 | 时间（UTC） | 当时跑的巡检 | 采到的 CPU | TOP 进程 |
 | --- | --- | --- | --- |
-| 10:40:09 ~ 10:40:14 | panda（:40 分） | **42% ~ 43%** | chrome-headless |
+| 10:40:09 ~ 10:40:14 | vendor_d（:40 分） | **42% ~ 43%** | chrome-headless |
 | 10:48:07 ~ 10:48:17 | g759（:48 分） | **35% → 71% → 89%** | chrome-headless |
 
 ```text
@@ -65,7 +67,7 @@ sourceSystem: "project-doc"
 ### 思路
 
 ```text
-浏览器巡检属于"重活"，不该跑在流量入口机上；03（dbqp-saopaulo-sanic-prod-03）是空闲机器，
+浏览器巡检属于"重活"，不该跑在流量入口机上；03（bizops-saopaulo-sanic-prod-03）是空闲机器，
 已有 docker，把巡检放进容器跑，既不占入口机 CPU，也不污染 03 的系统环境。
 入口机只保留轻量检查（container_health / entry_health / pg67_games_watch）。
 ```
@@ -73,15 +75,15 @@ sourceSystem: "project-doc"
 ### 03 上的落地结构
 
 ```text
-/opt/dbqp-scripts/game-monitor/
+/opt/bizops-scripts/game-monitor/
 ├── docker/scripts/game_availability_monitor.py     # 从入口机拷贝的最新版（8308B）
-├── docker/scripts/post_deploy_browser_smoke.py     # 最新版（202202B，ROOT_DIR = /opt/dbqp-scripts/game-monitor）
+├── docker/scripts/post_deploy_browser_smoke.py     # 最新版（202202B，ROOT_DIR = /opt/bizops-scripts/game-monitor）
 ├── docker/scripts/pg67_games_watch.py              # 备用（当前仍在入口机跑，未迁）
-└── run_game_monitor.sh                             # 执行包装：在 dbqp-browser-test 容器里跑单个厂家
+└── run_game_monitor.sh                             # 执行包装：在 bizops-browser-test 容器里跑单个厂家
 
-镜像：dbqp-browser-test:latest（在 03 上用 /opt/dbqp-browser-test/Dockerfile 重建，自带 Playwright+Chromium）
-状态：/var/tmp/dbqp-game-availability-<vendor>.json（已从入口机同步过来，保证告警计数连续）
-日志：/var/log/dbqp-game-availability.log、/var/log/dbqp-game-availability-cron.log
+镜像：bizops-browser-test:latest（在 03 上用 /opt/bizops-browser-test/Dockerfile 重建，自带 Playwright+Chromium）
+状态：/var/tmp/bizops-game-availability-<vendor>.json（已从入口机同步过来，保证告警计数连续）
+日志：/var/log/bizops-game-availability.log、/var/log/bizops-game-availability-cron.log
 凭据：--env-file /opt/benbot-runtime.env（TG token 等）
 ```
 
@@ -89,11 +91,11 @@ sourceSystem: "project-doc"
 
 ```bash
 docker run --rm --network host --shm-size=1g \
-  -v /opt/dbqp-scripts/game-monitor:/opt/dbqp-scripts/game-monitor \
+  -v /opt/bizops-scripts/game-monitor:/opt/bizops-scripts/game-monitor \
   -v /var/tmp:/var/tmp -v /var/log:/var/log \
   --env-file /opt/benbot-runtime.env \
-  --entrypoint python3 dbqp-browser-test:latest \
-  /opt/dbqp-scripts/game-monitor/docker/scripts/game_availability_monitor.py --vendor "$VENDOR"
+  --entrypoint python3 bizops-browser-test:latest \
+  /opt/bizops-scripts/game-monitor/docker/scripts/game_availability_monitor.py --vendor "$VENDOR"
 ```
 
 ### crontab 变更
@@ -101,8 +103,8 @@ docker run --rm --network host --shm-size=1g \
 ```text
 入口机：7 条 game_availability_monitor 全部注释（前缀 #MOVED-TO-03-20260918(rollback: remove prefix) ）
         保留：container_health_monitor、entry_health_monitor、pg67_games_watch、disk_cleanup
-03    ：新增 7 条，时间与原来完全一致（:00 pg / :08 tada / :16 pp / :24 popok /
-        :32 playson / :40 panda / :48 g759），调用 /opt/dbqp-scripts/game-monitor/run_game_monitor.sh
+03    ：新增 7 条，时间与原来完全一致（:00 pg / :08 vendor_a / :16 pp / :24 popok /
+        :32 vendor_c / :40 vendor_d / :48 g759），调用 /opt/bizops-scripts/game-monitor/run_game_monitor.sh
 备份  ：入口机 /root/crontab.bak-20260918-1050-before-move-browser-monitor-to-03
         03    /root/crontab.bak-2026-09-18-1050-before-add-browser-monitor
 ```
@@ -112,10 +114,10 @@ docker run --rm --network host --shm-size=1g \
 ```text
 ① 03 接管成功
    11:00:01 start vendor=pg   → 11:00:22 end  rc=0   「pg: OK fails=0 oks=14 alerted=False」
-   11:08:01 start vendor=tada → 11:08:24 end  rc=0   「tada: OK fails=0 oks=12 alerted=False」
+   11:08:01 start vendor=vendor_a → 11:08:24 end  rc=0   「vendor_a: OK fails=0 oks=12 alerted=False」
 
 ② 入口机不再跑浏览器巡检
-   /var/log/dbqp-game-availability.log 里 11:00 之后新增条目 = 0
+   /var/log/bizops-game-availability.log 里 11:00 之后新增条目 = 0
 
 ③ 入口机 CPU 明显回落
    迁移前：42% / 43% / 71% / 89%（浏览器巡检时）
@@ -130,7 +132,7 @@ docker run --rm --network host --shm-size=1g \
 
 影响：RSS=0、CPU=0 ——【不占 CPU 也不占内存】，只是占进程表项；
       不是这次 CPU 告警的原因（告警是 cron 浏览器巡检造成的，已迁移）。
-清理：✅ 已于 2026-09-18 12:29 UTC 执行 docker restart dbqp-ben-bot-standby，
+清理：✅ 已于 2026-09-18 12:29 UTC 执行 docker restart bizops-ben-bot-standby，
       僵尸 84 -> 0，无 chrome/chromium 残留，容器恢复正常（Up），启动通知正常发出。
       根治仍建议在机器人代码里给浏览器子进程加 wait（避免再次堆积）。
 ```
@@ -139,21 +141,21 @@ docker run --rm --network host --shm-size=1g \
 
 ```bash
 # 清理前
-ssh root@34.151.249.53 'ps -eo stat | grep -c "^Z"'      # 84
-ssh root@34.151.249.53 'docker inspect dbqp-ben-bot-standby \
-  --format "{{.Config.Image}} {{.HostConfig.RestartPolicy.Name}}"'   # dbqp-ben-bot:latest / unless-stopped
+ssh root@192.0.2.13 'ps -eo stat | grep -c "^Z"'      # 84
+ssh root@192.0.2.13 'docker inspect bizops-ben-bot-standby \
+  --format "{{.Config.Image}} {{.HostConfig.RestartPolicy.Name}}"'   # bizops-ben-bot:latest / unless-stopped
 
 # 执行清理（重启容器 → 旧进程全部销毁，僵尸随之消失）
-ssh root@34.151.249.53 'docker restart dbqp-ben-bot-standby'
+ssh root@192.0.2.13 'docker restart bizops-ben-bot-standby'
 
 # 清理后
-ssh root@34.151.249.53 'ps -eo stat | grep -c "^Z"'      # 0
-ssh root@34.151.249.53 'docker ps --filter name=dbqp-ben-bot-standby --format "{{.Status}}"'  # Up
+ssh root@192.0.2.13 'ps -eo stat | grep -c "^Z"'      # 0
+ssh root@192.0.2.13 'docker ps --filter name=bizops-ben-bot-standby --format "{{.Status}}"'  # Up
 ```
 
 ```text
-为什么可以直接重启：这台机器上的 dbqp-ben-bot-standby 是【备用】机器人实例，
-线上主实例在宝塔（dbqp-ben-bot）。重启期间备用实例短暂不可用，主实例照常服务，
+为什么可以直接重启：这台机器上的 bizops-ben-bot-standby 是【备用】机器人实例，
+线上主实例在宝塔（bizops-ben-bot）。重启期间备用实例短暂不可用，主实例照常服务，
 重启后备用实例自动恢复 polling（Entrypoint 里 BEN_BOT_POLL=1 时 exec python /app/app/bot.py）。
 本次重启后日志显示正常：机器人启动通知已发送到监控群。
 ```

@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>【修复】机器人日志排查「解压是空的」+ PP 日志取回记录｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
-  <meta name="description" content="【修复】机器人日志排查「解压是空的」+ PP 日志取回记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-10 23:50（Asia/Manila） 项目：DBQP / PGServer master 结果：✅ 定位并修复机器人日志列表的「小时标签 ≠ 文件实际覆盖区间」缺陷； ✅ PP 202…">
-  <meta name="keywords" content="巴西主站，Shell，Python，Docker，故障排查，源码与配置，历史运维与项目交付，历史运维与项目交付 / 巴西主站，【修复】机器人日志排查「解压是空的」+ PP 日志取回记录">
+  <meta name="description" content="【修复】机器人日志排查「解压是空的」+ PP 日志取回记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-10 23:50（Asia/Manila） 项目：某业务公司 / PGServer m…">
+  <meta name="keywords" content="巴西主站，Shell，Python，Docker，故障排查，源码与配置，历史运维与项目交付，历史运维与项目交付 / 巴西主站，【修复】机器人日志排查「解压是空的」+ PP 日志取回记录，一、需求，二、先排除取数链路（完整复现机器人代码），三、真因：小时标签 ≠ 实际覆盖区间，四、修复，五、PP 日志取回（手工补齐）">
   <meta name="author" content="BEN">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
   <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
@@ -22,7 +22,7 @@
   <meta property="og:locale" content="zh_CN">
   <meta property="og:site_name" content="BEN.OPS 工程笔记">
   <meta property="og:title" content="【修复】机器人日志排查「解压是空的」+ PP 日志取回记录">
-  <meta property="og:description" content="【修复】机器人日志排查「解压是空的」+ PP 日志取回记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-10 23:50（Asia/Manila） 项目：DBQP / PGServer master 结果：✅ 定位并修复机器人日志列表的「小时标签 ≠ 文件实际覆盖区间」缺陷； ✅ PP 202…">
+  <meta property="og:description" content="【修复】机器人日志排查「解压是空的」+ PP 日志取回记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-10 23:50（Asia/Manila） 项目：某业务公司 / PGServer m…">
   <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-620ddfa1f06a.html">
   <meta property="article:published_time" content="2026-09-10T23:50:00+08:00">
   <meta property="article:modified_time" content="2026-09-10 23:50">
@@ -31,7 +31,7 @@
   
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="【修复】机器人日志排查「解压是空的」+ PP 日志取回记录">
-  <meta name="twitter:description" content="【修复】机器人日志排查「解压是空的」+ PP 日志取回记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-10 23:50（Asia/Manila） 项目：DBQP / PGServer master 结果：✅ 定位并修复机器人日志列表的「小时标签 ≠ 文件实际覆盖区间」缺陷； ✅ PP 202…">
+  <meta name="twitter:description" content="【修复】机器人日志排查「解压是空的」+ PP 日志取回记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-10 23:50（Asia/Manila） 项目：某业务公司 / PGServer m…">
   
   <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
 --line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
@@ -75,7 +75,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 @media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
 .meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
 @media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-620ddfa1f06a.html#article","headline":"【修复】机器人日志排查「解压是空的」+ PP 日志取回记录","description":"【修复】机器人日志排查「解压是空的」+ PP 日志取回记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-10 23:50（Asia/Manila） 项目：DBQP / PGServer master 结果：✅ 定位并修复机器人日志列表的「小时标签 ≠ 文件实际覆盖区间」缺陷； ✅ PP 202…","datePublished":"2026-09-10T23:50:00+08:00","dateModified":"2026-09-10 23:50","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","Python","Docker","故障排查","源码与配置","历史运维与项目交付","历史运维与项目交付 / 巴西主站","【修复】机器人日志排查「解压是空的」+ PP 日志取回记录"],"wordCount":1008,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-620ddfa1f06a.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-620ddfa1f06a.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【修复】机器人日志排查「解压是空的」+ PP 日志取回记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-620ddfa1f06a.html"}]}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-620ddfa1f06a.html#article","headline":"【修复】机器人日志排查「解压是空的」+ PP 日志取回记录","description":"【修复】机器人日志排查「解压是空的」+ PP 日志取回记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-10 23:50（Asia/Manila） 项目：某业务公司 / PGServer m…","datePublished":"2026-09-10T23:50:00+08:00","dateModified":"2026-09-10 23:50","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","Python","Docker","故障排查","源码与配置","历史运维与项目交付","历史运维与项目交付 / 巴西主站","【修复】机器人日志排查「解压是空的」+ PP 日志取回记录","一、需求","二、先排除取数链路（完整复现机器人代码）","三、真因：小时标签 ≠ 实际覆盖区间","四、修复","五、PP 日志取回（手工补齐）"],"wordCount":558,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-620ddfa1f06a.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-620ddfa1f06a.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【修复】机器人日志排查「解压是空的」+ PP 日志取回记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-620ddfa1f06a.html"}]}]}</script>
 </head>
 <body>
   <header class="topbar"><div class="shell">
@@ -94,23 +94,24 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
     <header class="hero">
       <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
       <h1>【修复】机器人日志排查「解压是空的」+ PP 日志取回记录</h1>
-      <p class="lede">【修复】机器人日志排查「解压是空的」+ PP 日志取回记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-10 23:50（Asia/Manila） 项目：DBQP / PGServer master 结果：✅ 定位并修复机器人日志列表的「小时标签 ≠ 文件实际覆盖区间」缺陷； ✅ PP 202…</p>
+      <p class="lede">【修复】机器人日志排查「解压是空的」+ PP 日志取回记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-10 23:50（Asia/Manila） 项目：某业务公司 / PGServer m…</p>
       <div class="meta">
         <time class="badge" datetime="2026-09-10T23:50:00+08:00">发布于 2026-09-10</time>
         <span class="badge">作者 BEN</span>
-        <span class="badge">1,008 字</span>
-        <span class="badge">3 分钟阅读</span>
+        <span class="badge">558 字</span>
+        <span class="badge">2 分钟阅读</span>
       </div>
     </header>
     <div class="layout">
       <article class="article" itemscope itemtype="https://schema.org/TechArticle">
         
 <blockquote>
-<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-09-10-2350-【修复】机器人日志排查覆盖区间+PP日志取回记录.md</code></p>
+<p>公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。</p>
+<p>来源文件：<code>~/Projects/ops/private-notes/master/docs/history/2026-09-10-2350-【修复】机器人日志排查覆盖区间+PP日志取回记录.md</code></p>
 <p>整理日期：2026-09-10 23:50｜日期依据：文件名日期</p>
 </blockquote>
 <p>时间：2026-09-10 23:50（Asia/Manila）
-项目：DBQP / PGServer master
+项目：某业务公司 / PGServer master
 结果：✅ 定位并修复机器人日志列表的「小时标签 ≠ 文件实际覆盖区间」缺陷；
 ✅ PP 2026-09-10 00:17:12.798 ±10 分钟日志已打包发群</p>
 <h2 id="一-需求">一、需求</h2>
@@ -150,16 +151,16 @@ pp.log-20260910-010041.gz 覆盖 00:08:41  ~ 01:00:41     9474 行   &lt;- 00:17
 FETCHED pp.log-20260910-000412.gz: 48950 bytes   （不再是小尾巴）
 </code></pre>
 <p>部署：<code>/opt/pgserver/docker/ben-bot/data/scripts/日志排查/action.py</code> 已更新并
-<code>docker restart dbqp-ben-bot</code>；重启后验证新标签生效。</p>
+<code>docker restart bizops-ben-bot</code>；重启后验证新标签生效。</p>
 <p>用法：找某时刻的日志，点覆盖区间包含该时刻的那一项。
 例如 00:17 → <code>2026-09-10 01:00 (09-10 00:08~09-10 01:00) 107.4KB</code>。</p>
 <h2 id="五-PP-日志取回-手工补齐">五、PP 日志取回（手工补齐）</h2>
 <p>新增 <code>docker/scripts/game_log_time_window.py</code>：按<strong>时间窗口</strong>（而不是行窗口）
 从后端轮转 gz 里取日志，文件选择规则与上文一致（S 时刻文件覆盖
 「上一次轮转 ~ S」）。</p>
-<pre><code class="language-bash">python3 /opt/dbqp-scripts/game_log_time_window.py --vendor pp \
+<pre><code class="language-bash">python3 /opt/bizops-scripts/game_log_time_window.py --vendor pp \
     --ts "2026-09-10 00:17:12.798" --minutes 10 \
-    --hosts 203.0.113.1,203.0.113.1 --outdir /root/tada-zips/pplog
+    --hosts 192.0.2.1,192.0.2.1 --outdir /root/vendor_a-zips/pplog
 </code></pre>
 <p>结果：</p>
 <pre><code class="language-text">prod-01: 用到 2 个轮转文件（00:08:41、01:00:41），5773 行
@@ -184,7 +185,7 @@ docker/scripts/check_pp_rotation_coverage.sh 列出每份轮转文件的实际�
           <li>分类：历史运维与项目交付 / 巴西主站</li>
           <li>日期：2026-09-10</li>
           <li>标签：<span class="tag">巴西主站</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
-          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-09-10-2350-【修复】机器人日志排查覆盖区间+PP日志取回记…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609102350-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-%E3%80%90%E4%BF%AE%E5%A4%8D%E3%80%91%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%97%A5%E5%BF%97%E6%8E%92%E6%9F%A5%E3%80%8C%E8%A7%A3%E5%8E%8B%E6%98%AF%E7%A9%BA%E7%9A%84%E3%80%8D%2B%20PP%20%E6%97%A5%E5%BF%97%E5%8F%96%E5%9B%9E%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+          <li><span>来源：~/Projects/ops/private-notes/master/docs/history/2026-09-10-2350-【修复】机器人日志排查覆盖区间+PP日志取回记录…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609102350-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-%E3%80%90%E4%BF%AE%E5%A4%8D%E3%80%91%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%97%A5%E5%BF%97%E6%8E%92%E6%9F%A5%E3%80%8C%E8%A7%A3%E5%8E%8B%E6%98%AF%E7%A9%BA%E7%9A%84%E3%80%8D%2B%20PP%20%E6%97%A5%E5%BF%97%E5%8F%96%E5%9B%9E%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
         </ul></div>
         <div class="aside-box"><h2>作者</h2>
           <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
@@ -194,8 +195,8 @@ docker/scripts/check_pp_rotation_coverage.sh 列出每份轮转文件的实际�
     </div>
     <section class="seo-summary" aria-labelledby="seo-summary-title">
       <h2 id="seo-summary-title">文章摘要</h2>
-      <p>【修复】机器人日志排查「解压是空的」+ PP 日志取回记录。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-10 23:50（Asia/Manila） 项目：DBQP / PGServer master 结果：✅ 定位并修复机器人日志列表的「小时标签 ≠ 文件实际覆盖区间」缺陷； ✅ PP 202…</p>
-      <p>关键词：巴西主站、Shell、Python、Docker、故障排查、源码与配置、历史运维与项目交付、历史运维与项目交付 / 巴西主站、【修复】机器人日志排查「解压是空的」+ PP 日志取回记录</p>
+      <p>【修复】机器人日志排查「解压是空的」+ PP 日志取回记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-10 23:50（Asia/Manila） 项目：某业务公司 / PGServer m…</p>
+      <p>关键词：巴西主站、Shell、Python、Docker、故障排查、源码与配置、历史运维与项目交付、历史运维与项目交付 / 巴西主站、【修复】机器人日志排查「解压是空的」+ PP 日志取回记录、一、需求、二、先排除取数链路（完整复现机器人代码）、三、真因：小时标签 ≠ 实际覆盖区间、四、修复、五、PP 日志取回（手工补齐）</p>
     </section>
     <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-c156727f1b7e.html"><small>上一篇</small>Coin of Lightning</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b7e0becda5ac.html"><small>下一篇</small>【方案】前端代码迁移 AWS S3：桶与厂家目录对照</a></nav>
   </main>

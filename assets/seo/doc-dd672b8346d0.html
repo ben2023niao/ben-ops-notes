@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
-  <meta name="description" content="【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器。本文属于历史运维与项目交付 / 巴西主站，三台现在的项目目录都在 /data 下（ /data/pgserver 、 /data/server-runtime ）， /opt 下的老结果集已不再被任何容器挂载。 入口机 /opt/pgser…">
-  <meta name="keywords" content="巴西主站，Linux，Shell，Python，Docker，Nginx，监控告警，自动化，历史运维与项目交付，历史运维与项目交付 / 巴西主站，【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器">
+  <meta name="description" content="【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 三台现在的项目目录都在 /data 下（ /data/pgserver 、 /data/ser…">
+  <meta name="keywords" content="巴西主站，Linux，Shell，Python，Docker，Nginx，监控告警，自动化，历史运维与项目交付，历史运维与项目交付 / 巴西主站，【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器，一、磁盘清理前后对比，二、清理了什么，1. 01 / 02 / 03 三台的旧容器与旧镜像">
   <meta name="author" content="BEN">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
   <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
@@ -22,7 +22,7 @@
   <meta property="og:locale" content="zh_CN">
   <meta property="og:site_name" content="BEN.OPS 工程笔记">
   <meta property="og:title" content="【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器">
-  <meta property="og:description" content="【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器。本文属于历史运维与项目交付 / 巴西主站，三台现在的项目目录都在 /data 下（ /data/pgserver 、 /data/server-runtime ）， /opt 下的老结果集已不再被任何容器挂载。 入口机 /opt/pgser…">
+  <meta property="og:description" content="【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 三台现在的项目目录都在 /data 下（ /data/pgserver 、 /data/ser…">
   <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dd672b8346d0.html">
   <meta property="article:published_time" content="2026-09-19T17:40:00+08:00">
   <meta property="article:modified_time" content="2026-09-19 17:40">
@@ -31,7 +31,7 @@
   
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器">
-  <meta name="twitter:description" content="【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器。本文属于历史运维与项目交付 / 巴西主站，三台现在的项目目录都在 /data 下（ /data/pgserver 、 /data/server-runtime ）， /opt 下的老结果集已不再被任何容器挂载。 入口机 /opt/pgser…">
+  <meta name="twitter:description" content="【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 三台现在的项目目录都在 /data 下（ /data/pgserver 、 /data/ser…">
   
   <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
 --line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
@@ -75,7 +75,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 @media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
 .meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
 @media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dd672b8346d0.html#article","headline":"【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器","description":"【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器。本文属于历史运维与项目交付 / 巴西主站，三台现在的项目目录都在 /data 下（ /data/pgserver 、 /data/server-runtime ）， /opt 下的老结果集已不再被任何容器挂载。 入口机 /opt/pgser…","datePublished":"2026-09-19T17:40:00+08:00","dateModified":"2026-09-19 17:40","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Linux","Shell","Python","Docker","Nginx","监控告警","自动化","历史运维与项目交付","历史运维与项目交付 / 巴西主站","【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器"],"wordCount":2354,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dd672b8346d0.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dd672b8346d0.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dd672b8346d0.html"}]}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dd672b8346d0.html#article","headline":"【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器","description":"【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 三台现在的项目目录都在 /data 下（ /data/pgserver 、 /data/ser…","datePublished":"2026-09-19T17:40:00+08:00","dateModified":"2026-09-19 17:40","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Linux","Shell","Python","Docker","Nginx","监控告警","自动化","历史运维与项目交付","历史运维与项目交付 / 巴西主站","【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器","一、磁盘清理前后对比","二、清理了什么","1. 01 / 02 / 03 三台的旧容器与旧镜像"],"wordCount":894,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dd672b8346d0.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dd672b8346d0.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dd672b8346d0.html"}]}]}</script>
 </head>
 <body>
   <header class="topbar"><div class="shell">
@@ -94,26 +94,27 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
     <header class="hero">
       <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
       <h1>【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器</h1>
-      <p class="lede">【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器。本文属于历史运维与项目交付 / 巴西主站，三台现在的项目目录都在 /data 下（ /data/pgserver 、 /data/server-runtime ）， /opt 下的老结果集已不再被任何容器挂载。 入口机 /opt/pgser…</p>
+      <p class="lede">【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 三台现在的项目目录都在 /data 下（ /data/pgserver 、 /data/ser…</p>
       <div class="meta">
         <time class="badge" datetime="2026-09-19T17:40:00+08:00">发布于 2026-09-19</time>
         <span class="badge">作者 BEN</span>
-        <span class="badge">2,354 字</span>
-        <span class="badge">7 分钟阅读</span>
+        <span class="badge">894 字</span>
+        <span class="badge">3 分钟阅读</span>
       </div>
     </header>
     <div class="layout">
       <article class="article" itemscope itemtype="https://schema.org/TechArticle">
         
 <blockquote>
-<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-09-19-1740-【优化】01-02-03磁盘清理与容器监控适配新容器记录.md</code></p>
+<p>公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。</p>
+<p>来源文件：<code>~/Projects/ops/private-notes/master/docs/history/2026-09-19-1740-【优化】01-02-03磁盘清理与容器监控适配新容器记录.md</code></p>
 <p>整理日期：2026-09-19 17:40｜日期依据：文件名日期</p>
 </blockquote>
 <p>时间：2026-09-19（北京时间 17:40 / UTC 09:40）
-对象机器：后台 01 <code>203.0.113.1</code>、后台 02 <code>203.0.113.1</code>、压测 03 <code>203.0.113.1</code>、
-　　　　　备用入口机 <code>34.151.249.53</code>（203.0.113.1）、宝塔 <code>35.247.205.6</code>（203.0.113.1）
+对象机器：后台 01 <code>192.0.2.1</code>、后台 02 <code>192.0.2.1</code>、压测 03 <code>192.0.2.1</code>、
+　　　　　备用入口机 <code>192.0.2.13</code>（192.0.2.1）、宝塔 <code>192.0.2.8</code>（192.0.2.1）
 触发原因：01/02/03 磁盘使用率连续告警（&gt;70%，01 一度 95.3%）；同时清理旧容器后，
-　　　　　容器监控还在按旧容器名报警（<code>容器缺失：dbqp-pg-release-01</code> …），需要改成监控新容器。
+　　　　　容器监控还在按旧容器名报警（<code>容器缺失：bizops-pg-release-01</code> …），需要改成监控新容器。
 结果：三台各释放 190G~440G 不等；容器监控改为监控 <code>/data</code> 下的 <code>game-service-*-prod</code>，
 　　　并且新增「滚动发版宽限」避免误报；已实测 dry-run 与真实定时任务均为 0 报警。
 <strong>本轮未通知飞机群。</strong> 全程未影响线上用户（改的都是监控脚本与磁盘，未动 nginx 与后端进程）。</p>
@@ -130,31 +131,31 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 </thead>
 <tbody>
 <tr>
-<td>01 <code>203.0.113.1</code></td>
+<td>01 <code>192.0.2.1</code></td>
 <td>96%（可用 23G）</td>
 <td><strong>34%</strong>（可用 320G）</td>
 <td>约 440G</td>
 </tr>
 <tr>
-<td>02 <code>203.0.113.1</code></td>
+<td>02 <code>192.0.2.1</code></td>
 <td>80%（可用 98G）</td>
 <td><strong>29%</strong>（可用 345G）</td>
 <td>约 245G</td>
 </tr>
 <tr>
-<td>03 <code>203.0.113.1</code></td>
+<td>03 <code>192.0.2.1</code></td>
 <td>83%（可用 86G）</td>
 <td><strong>43%</strong>（可用 280G）</td>
 <td>约 190G</td>
 </tr>
 <tr>
-<td>备用入口机 <code>34.151.249.53</code></td>
+<td>备用入口机 <code>192.0.2.13</code></td>
 <td>—</td>
 <td>7%（可用 181G）</td>
 <td>无（见第四节，不能删）</td>
 </tr>
 <tr>
-<td>宝塔 <code>35.247.205.6</code></td>
+<td>宝塔 <code>192.0.2.8</code></td>
 <td>—</td>
 <td>46%（可用 265G）</td>
 <td>无（见第四节，不能删）</td>
@@ -164,11 +165,11 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 <p>三台系统盘都是 484G。</p>
 <h2 id="二-清理了什么">二、清理了什么</h2>
 <h3 id="1-01-02-03-三台的旧容器与旧镜像">1. 01 / 02 / 03 三台的旧容器与旧镜像</h3>
-<pre><code class="language-text">01：删除 8 个已停止的旧容器 dbqp-&lt;厂家&gt;-release-01（26.3G）
-    删除被替代的镜像 panda/pp/api 的 20260916-ben-cb8f2c55（约 3.6G）
+<pre><code class="language-text">01：删除 8 个已停止的旧容器 bizops-&lt;厂家&gt;-release-01（26.3G）
+    删除被替代的镜像 vendor_d/pp/api 的 20260916-ben-cb8f2c55（约 3.6G）
     镜像总量 52.85G -&gt; 15.39G
 02：删除旧容器 + 被替代镜像 + pgserver:master-1516f8dd（5.84G）
-03：删除 pgserver:master-1516f8dd（5.85G）+ dbqp-browser-test（2.4G，随后已重建并推送到本地私服）
+03：删除 pgserver:master-1516f8dd（5.85G）+ bizops-browser-test（2.4G，随后已重建并推送到本地私服）
 </code></pre>
 <h3 id="2-01-02-03-三台的老结果集-opt-game_results_datas">2. 01 / 02 / 03 三台的老结果集 <code>/opt/game_results_datas</code></h3>
 <pre><code class="language-text">01：253G
@@ -189,13 +190,13 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 <h2 id="四-为什么入口机和宝塔的-opt-pgserver-没有删-重要">四、为什么入口机和宝塔的 <code>/opt/pgserver</code> <strong>没有删</strong>（重要）</h2>
 <p>入口机 <code>/opt/pgserver</code> 1.5G、宝塔 <code>/opt/pgserver</code> 1.8G 都<strong>不能删</strong>，因为机器人容器
 把整个目录 bind mount 进去了（不是缓存，是运行依赖）：</p>
-<pre><code class="language-text">入口机 容器 dbqp-ben-bot-standby：
+<pre><code class="language-text">入口机 容器 bizops-ben-bot-standby：
   /opt/pgserver                      -&gt; /workspace/pgserver            (rw)
   /opt/pgserver/docker/ben-bot/data/upload  -&gt; /app/data/upload          (rw)
   /opt/pgserver/docker/ben-bot/data/scripts -&gt; /app/data/scripts        (rw)
   /opt/pgserver/docker/ben-bot/app/benbot/{home,help_center,plugin_registry}.py -&gt; /app/app/benbot/... (ro)
 
-宝塔 容器 dbqp-ben-bot：同样挂载以上全部路径
+宝塔 容器 bizops-ben-bot：同样挂载以上全部路径
 </code></pre>
 <p><code>fuser -m /opt/pgserver</code> 在入口机上能看到大量进程在占用该目录，佐证它是活依赖。
 所以本轮只在三台后台清理 <code>/opt</code>，入口机与宝塔的 <code>/opt/pgserver</code> 原样保留。</p>
@@ -204,9 +205,9 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 <p>2026-09-18~19 三台的发布容器已经从「按机器号命名」换成「按厂家统一命名」，
 但监控脚本 <code>docker/scripts/container_health_monitor.py</code> 还按旧名字找容器，
 于是每 2 分钟报一次假警（用户收到的就是这一类）：</p>
-<pre><code class="language-text">【DBQP 容器监控｜报警】时间：2026-09-19 17:04:01
-- 容器缺失：dbqp-pg-release-01（203.0.113.1）
-- 容器缺失：dbqp-tada-release-01（203.0.113.1）
+<pre><code class="language-text">【某业务公司 容器监控｜报警】时间：2026-09-19 17:04:01
+- 容器缺失：bizops-pg-release-01（192.0.2.1）
+- 容器缺失：bizops-vendor_a-release-01（192.0.2.1）
 …
 </code></pre>
 <h3 id="2-新旧容器命名对照-01-02-03-三台已统一-不再带机器号">2. 新旧容器命名对照（01/02/03 三台已统一，不再带机器号）</h3>
@@ -221,42 +222,42 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 <tbody>
 <tr>
 <td>PG</td>
-<td><code>dbqp-pg-release-*</code></td>
+<td><code>bizops-pg-release-*</code></td>
 <td><code>game-service-pg-prod</code></td>
 </tr>
 <tr>
-<td>TADA 接口</td>
-<td><code>dbqp-tada-release-*</code></td>
-<td><code>game-service-tada-prod</code></td>
+<td>vendor_a 接口</td>
+<td><code>bizops-vendor_a-release-*</code></td>
+<td><code>game-service-vendor_a-prod</code></td>
 </tr>
 <tr>
-<td>TADA 实时 WS2</td>
-<td>同 <code>dbqp-tada-release-*</code></td>
-<td><code>game-service-tada_ws-prod</code>（01/03）／<code>game-service-tada-ws-prod</code>（02）</td>
+<td>vendor_a 实时 WS2</td>
+<td>同 <code>bizops-vendor_a-release-*</code></td>
+<td><code>game-service-vendor_a_ws-prod</code>（01/03）／<code>game-service-vendor_a-ws-prod</code>（02）</td>
 </tr>
 <tr>
 <td>PP</td>
-<td><code>dbqp-pp-release-*</code></td>
+<td><code>bizops-pp-release-*</code></td>
 <td><code>game-service-pp-prod</code></td>
 </tr>
 <tr>
 <td>PPK / POPOK</td>
-<td><code>dbqp-popok-release-*</code></td>
+<td><code>bizops-popok-release-*</code></td>
 <td><code>game-service-ppk-prod</code></td>
 </tr>
 <tr>
 <td>PlaySon</td>
-<td><code>dbqp-playson-release-*</code></td>
-<td><code>game-service-playson-prod</code></td>
+<td><code>bizops-vendor_c-release-*</code></td>
+<td><code>game-service-vendor_c-prod</code></td>
 </tr>
 <tr>
-<td>Panda</td>
-<td><code>dbqp-panda-release-*</code></td>
-<td><code>game-service-panda-prod</code></td>
+<td>vendor_d</td>
+<td><code>bizops-vendor_d-release-*</code></td>
+<td><code>game-service-vendor_d-prod</code></td>
 </tr>
 <tr>
 <td>platform-api</td>
-<td><code>dbqp-platform-api-release-*</code></td>
+<td><code>bizops-platform-api-release-*</code></td>
 <td><code>game-service-api-prod</code></td>
 </tr>
 <tr>
@@ -270,53 +271,53 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 <h3 id="3-脚本改动">3. 脚本改动</h3>
 <p>文件：<code>docker/scripts/container_health_monitor.py</code>（同时部署到入口机
 <code>/opt/pgserver/docker/scripts/container_health_monitor.py</code>，由 crontab 每 2 分钟调用）</p>
-<pre><code class="language-text">① 期望容器清单换成 game-service-*-prod（含新增的 g759 与 TADA WS2）；
-   TADA WS2 用「候选名列表」，下划线/连字符两种写法都算正常。
+<pre><code class="language-text">① 期望容器清单换成 game-service-*-prod（含新增的 g759 与 vendor_a WS2）；
+   vendor_a WS2 用「候选名列表」，下划线/连字符两种写法都算正常。
 ② 每台后端可以有各自的「已知缺口」（BACKEND_MISSING_OK）：
-   03 备用机当前没有 game-service-tada-prod，列进去不再误报（其它 8 个照常监控）。
+   03 备用机当前没有 game-service-vendor_a-prod，列进去不再误报（其它 8 个照常监控）。
 ③ 容器缺失从「一次采样就报警」改为「连续 MISS_THRESHOLD 次（默认 3 次 ≈ 6 分钟）才报警」：
    开发滚动发版时容器会 stop/rm/run，中间 1~2 分钟查不到是正常的，老版本会立刻误报。
    恢复时如果之前报过警，会补一条「容器恢复」通知；宽限期内自己恢复的则静默。
 ④ --dry-run 不再写状态文件：老版本 dry-run 也会 save_state()，
    跑一次 dry-run 就把「缺失」写进状态，导致后面真正的报警被吞掉（本次实际踩到）。
-⑤ 自动清理状态文件里的历史遗留键（例如 `203.0.113.1:dbqp-pg-release-01`），避免状态越滚越大。
+⑤ 自动清理状态文件里的历史遗留键（例如 `192.0.2.1:bizops-pg-release-01`），避免状态越滚越大。
 </code></pre>
-<p>新增可调环境变量：<code>DBQP_CONTAINER_MISS_THRESHOLD</code>（默认 3，即约 6 分钟）。</p>
+<p>新增可调环境变量：<code>某业务公司_CONTAINER_MISS_THRESHOLD</code>（默认 3，即约 6 分钟）。</p>
 <h3 id="4-验证-本次实测">4. 验证（本次实测）</h3>
 <pre><code class="language-text">① 语法检查：python3 -m py_compile 通过。
 ② 部署一致性：本地与入口机 md5 一致 d03bb9a684625926ea3c2fba2dd1cc9b。
 ③ dry-run：`[dry-run] 期望容器 29 个 | alerts=0 recovers=0`，且不再生成状态文件。
-   29 = 01(10 个) + 02(10 个) + 03(9 个，少 TADA 主服务)。
+   29 = 01(10 个) + 02(10 个) + 03(9 个，少 vendor_a 主服务)。
 ④ 真实跑一次：`OK 2026-09-19 17:29:59 期望容器 29 个全部正常`。
 ⑤ 定时任务：17:30:01 那一次 cron 也已经打到
-   `OK 2026-09-19 17:30:01 期望容器 29 个全部正常`（/var/log/dbqp-container-health.log）。
+   `OK 2026-09-19 17:30:01 期望容器 29 个全部正常`（/var/log/bizops-container-health.log）。
 ⑥ 逻辑回归（本地假数据，不动线上）：
    · 容器消失 1 次 → 静默；第 2 次 → 静默；第 3 次 → 报警；容器回来 → 发「容器恢复」。
-   · 03 缺 tada 主服务 → 不报警；历史遗留键 `dbqp-pg-release-01` → 自动被清掉。
+   · 03 缺 vendor_a 主服务 → 不报警；历史遗留键 `bizops-pg-release-01` → 自动被清掉。
    · 报警正文示例：
-     「- 容器缺失：game-service-g759-prod（203.0.113.1 / 01）连续 3 次采样（约 6 分钟）未找到，
+     「- 容器缺失：game-service-g759-prod（192.0.2.1 / 01）连续 3 次采样（约 6 分钟）未找到，
         候选名：game-service-g759-prod」
 </code></pre>
 <h3 id="5-当前三台容器实况-2026-09-19-实测">5. 当前三台容器实况（2026-09-19 实测）</h3>
-<pre><code class="language-text">01 203.0.113.1 ：api / g759 / panda / pg / playson / pp / ppk / tada / tada_ws  —— 9 个齐全
-02 203.0.113.1 ：api / g759 / panda / pg / playson / pp / ppk / tada / tada-ws  —— 9 个齐全
-03 203.0.113.1：api / g759 / panda / pg / playson / pp / ppk / tada_ws          —— 8 个，缺 tada 主服务
+<pre><code class="language-text">01 192.0.2.1 ：api / g759 / vendor_d / pg / vendor_c / pp / ppk / vendor_a / vendor_a_ws  —— 9 个齐全
+02 192.0.2.1 ：api / g759 / vendor_d / pg / vendor_c / pp / ppk / vendor_a / vendor_a-ws  —— 9 个齐全
+03 192.0.2.1：api / g759 / vendor_d / pg / vendor_c / pp / ppk / vendor_a_ws          —— 8 个，缺 vendor_a 主服务
 </code></pre>
 <h2 id="六-遗留问题-需要开发确认-未处理">六、遗留问题（需要开发确认，未处理）</h2>
-<p><strong>03 备用机缺 TADA 主服务 <code>game-service-tada-prod</code>（9096）。</strong></p>
-<pre><code class="language-text">证据：03 上 `docker ps -a` 只有 game-service-tada_ws-prod，没有 game-service-tada-prod；
+<p><strong>03 备用机缺 vendor_a 主服务 <code>game-service-vendor_a-prod</code>（9096）。</strong></p>
+<pre><code class="language-text">证据：03 上 `docker ps -a` 只有 game-service-vendor_a_ws-prod，没有 game-service-vendor_a-prod；
       `ss -ltnp` 在 03 上也看不到 9096 端口；03 的容器都是 2026-09-18 08:19 那次
-      `sh start.sh all` 起的（start.sh 的 ALL_VENDORS 里是有 tada 的），但 tada 不在。
+      `sh start.sh all` 起的（start.sh 的 ALL_VENDORS 里是有 vendor_a 的），但 vendor_a 不在。
 影响：03 目前是备用机，nginx 三台 vendor upstream 的 03 都是 down，**不影响线上用户**；
-      但 03 真要顶上来时，TADA 游戏会在 03 上没有后端。
+      但 03 真要顶上来时，vendor_a 游戏会在 03 上没有后端。
 补起来的命令（开发/运维在 03 上执行，需要先确认版本号）：
       cd /data/server-runtime
-      sh start.sh tada &lt;版本号&gt;          # 版本号照 01/02 上 tada 容器用的镜像 tag
+      sh start.sh vendor_a &lt;版本号&gt;          # 版本号照 01/02 上 vendor_a 容器用的镜像 tag
 补起来之后，记得把 container_health_monitor.py 里 BACKEND_MISSING_OK 的
-"203.0.113.1": {"game-service-tada-prod"} 那一行删掉（或改成空集合）。
+"192.0.2.1": {"game-service-vendor_a-prod"} 那一行删掉（或改成空集合）。
 </code></pre>
 <h2 id="七-回滚方法">七、回滚方法</h2>
-<pre><code class="language-text">容器监控脚本（入口机 34.151.249.53）：
+<pre><code class="language-text">容器监控脚本（入口机 192.0.2.13）：
   # 回到「新容器名但无宽限」的中间版本
   cp -a /opt/pgserver/docker/scripts/container_health_monitor.py.bak-20260919-172925-before-data-container-optimize \
         /opt/pgserver/docker/scripts/container_health_monitor.py
@@ -325,9 +326,9 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
         /opt/pgserver/docker/scripts/container_health_monitor.py
 
 监控状态文件（入口机）：
-  /var/tmp/dbqp-container-health.json.bak-20260919-092950   # 本次重置前的状态（含历史键与一次误报）
-  /var/tmp/dbqp-container-health.json.bak-20260919-090829   # 更早一次备份
-  回滚后直接覆盖回 /var/tmp/dbqp-container-health.json 即可；删掉该文件则会重新建立基线。
+  /var/tmp/bizops-container-health.json.bak-20260919-092950   # 本次重置前的状态（含历史键与一次误报）
+  /var/tmp/bizops-container-health.json.bak-20260919-090829   # 更早一次备份
+  回滚后直接覆盖回 /var/tmp/bizops-container-health.json 即可；删掉该文件则会重新建立基线。
 </code></pre>
 <h2 id="八-明确没做的事">八、明确没做的事</h2>
 <pre><code class="language-text">· 没有动 nginx（入口机与宝塔的 00.vendor-upstreams.conf 保持 01+02 双活、03 down）。
@@ -339,7 +340,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 <h2 id="九-相关文件">九、相关文件</h2>
 <pre><code class="language-text">docker/scripts/container_health_monitor.py                        # 监控脚本（本次改造）
 docker/scripts/cleanup_server_disk.sh                             # 服务器磁盘清理脚本（白名单式）
-docker/scripts/disk_cleanup.sh                                    # 常驻磁盘清理（已部署三台 /opt/dbqp-scripts）
+docker/scripts/disk_cleanup.sh                                    # 常驻磁盘清理（已部署三台 /opt/bizops-scripts）
 docker/workbench/PROJECT_RUNTIME_CHAINS.md                        # 已同步新的容器命名与端口
 docker/workbench/CURRENT_STATE.md                                 # 已同步新的容器命名
 </code></pre>
@@ -350,7 +351,7 @@ docker/workbench/CURRENT_STATE.md                                 # 已同步新
           <li>分类：历史运维与项目交付 / 巴西主站</li>
           <li>日期：2026-09-19</li>
           <li>标签：<span class="tag">巴西主站</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">监控告警</span><span class="tag">自动化</span></li>
-          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-09-19-1740-【优化】01-02-03磁盘清理与容器监控适配…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609191740-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%9101-02-03%20%E7%A3%81%E7%9B%98%E6%B8%85%E7%90%86%20%2B%20%E5%AE%B9%E5%99%A8%E7%9B%91%E6%8E%A7%E9%80%82%E9%85%8D%20-data%20%E6%96%B0%E5%AE%B9%E5%99%A8.md" type="text/markdown">查看 Markdown 原文</a></li>
+          <li><span>来源：~/Projects/ops/private-notes/master/docs/history/2026-09-19-1740-【优化】01-02-03磁盘清理与容器监控适配新…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609191740-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%9101-02-03%20%E7%A3%81%E7%9B%98%E6%B8%85%E7%90%86%20%2B%20%E5%AE%B9%E5%99%A8%E7%9B%91%E6%8E%A7%E9%80%82%E9%85%8D%20-data%20%E6%96%B0%E5%AE%B9%E5%99%A8.md" type="text/markdown">查看 Markdown 原文</a></li>
         </ul></div>
         <div class="aside-box"><h2>作者</h2>
           <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
@@ -360,8 +361,8 @@ docker/workbench/CURRENT_STATE.md                                 # 已同步新
     </div>
     <section class="seo-summary" aria-labelledby="seo-summary-title">
       <h2 id="seo-summary-title">文章摘要</h2>
-      <p>【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器。本文属于历史运维与项目交付 / 巴西主站，三台现在的项目目录都在 /data 下（ /data/pgserver 、 /data/server-runtime ）， /opt 下的老结果集已不再被任何容器挂载。 入口机 /opt/pgser…</p>
-      <p>关键词：巴西主站、Linux、Shell、Python、Docker、Nginx、监控告警、自动化、历史运维与项目交付、历史运维与项目交付 / 巴西主站、【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器</p>
+      <p>【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 三台现在的项目目录都在 /data 下（ /data/pgserver 、 /data/ser…</p>
+      <p>关键词：巴西主站、Linux、Shell、Python、Docker、Nginx、监控告警、自动化、历史运维与项目交付、历史运维与项目交付 / 巴西主站、【优化】01-02-03 磁盘清理 + 容器监控适配 /data 新容器、一、磁盘清理前后对比、二、清理了什么、1. 01 / 02 / 03 三台的旧容器与旧镜像</p>
     </section>
     <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b32c61820cb8.html"><small>上一篇</small>【运维】全厂家后端流量切换 01 / 02 / 03 操作手册（含本次切换到 02 记录）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ee7456a93b21.html"><small>下一篇</small>2026-09-22 周报生成记录（第 38 周 0915-0922）</a></nav>
   </main>

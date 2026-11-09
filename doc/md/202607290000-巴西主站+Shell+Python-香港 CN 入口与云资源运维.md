@@ -5,15 +5,17 @@ date: "2026-07-29T00:00:00+08:00"
 dateSource: "正文日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Python", "Docker", "Nginx", "自动化", "CDN", "DNS"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/hongkong/cn/README-cn-branch.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/hongkong/cn/README-cn-branch.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/hongkong/cn/README-cn-branch.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/hongkong/cn/README-cn-branch.md"
 sourceSha256: "5134a1cc66596efb019a82189f268512509a097deed555694afe2bff203906b5"
 sourceSystem: "project-doc"
 ---
 
 # 香港 CN 入口与云资源运维
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/hongkong/cn/README-cn-branch.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/hongkong/cn/README-cn-branch.md`
 
 > 整理日期：2026-07-29 00:00｜日期依据：正文日期
 
@@ -24,7 +26,7 @@ sourceSystem: "project-doc"
 ```text
 docker/
 ├── ci/check.py                  Python 与目录边界检查
-├── conf/domains/                PG、PP、PPK、Panda、JILI、Playson 域名池
+├── conf/domains/                PG、PP、PPK、vendor_d、vendor_b、Playson 域名池
 ├── deploy/hongkong/             Nginx、AWS、CloudFront、S3、Cloudflare 工具
 ├── doc/                         香港当前架构、验证和回滚记录
 ├── workbench/                   新会话轻量工作台和跨工具交接模板
@@ -34,13 +36,13 @@ docker/
 动态链路：
 
 ```text
-CloudFront -> 香港 Nginx 34.92.13.108 -> 18.163.34.9 / 43.198.52.147
+CloudFront -> 香港 Nginx 192.0.2.14 -> 192.0.2.18 / 192.0.2.19
 ```
 
 静态链路：
 
 ```text
-CloudFront -> 香港私有 S3 dbqp-h5-hk-517506432530 (ap-east-1)
+CloudFront -> 香港私有 S3 bizops-h5-hk-517506432530 (ap-east-1)
 ```
 
 ## 当前厂商与端口
@@ -49,14 +51,14 @@ CloudFront -> 香港私有 S3 dbqp-h5-hk-517506432530 (ap-east-1)
 | --- | ---: |
 | platform-api | 9090 |
 | PG | 9091 |
-| JILI | 9093 |
+| vendor_b | 9093 |
 | PP | 9099 |
 | PPK | 9098 |
-| Panda | 9018 |
+| vendor_d | 9018 |
 | Playson | 9020 |
 | G759 | 9019 |
 
-当前不提供 TADA 动态服务、JDB 和 Socket。JILI 的动态服务使用 9093，`jili-static*` 对外域名直接读取 TADA 的共享前端资源。Playson 静态域名已接入香港 S3/CloudFront；Playson 动态域名已完成入口配置，业务可用性依赖外部后端 9020 服务监听。G759 静态域名已接入香港 S3/CloudFront（源为 gitlab client 仓库 G759static）；G759 动态域名已完成入口配置，业务可用性依赖外部后端 9019 服务监听。
+当前不提供 vendor_a 动态服务、JDB 和 Socket。vendor_b 的动态服务使用 9093，`vendor_b-static*` 对外域名直接读取 vendor_a 的共享前端资源。Playson 静态域名已接入香港 S3/CloudFront；Playson 动态域名已完成入口配置，业务可用性依赖外部后端 9020 服务监听。G759 静态域名已接入香港 S3/CloudFront（源为 gitlab client 仓库 G759static）；G759 动态域名已完成入口配置，业务可用性依赖外部后端 9019 服务监听。
 
 ## Python 工具
 
@@ -77,7 +79,7 @@ CloudFront -> 香港私有 S3 dbqp-h5-hk-517506432530 (ap-east-1)
 
 ```bash
 cf-api GET /user/tokens/verify
-ONLY_ZONE=hkcloudplay01.com cloudflare-aws-cutover status jili-static
+ONLY_ZONE=hkcloudplay01.com cloudflare-aws-cutover status vendor_b-static
 validate-cloudfront-static
 ```
 
@@ -134,11 +136,11 @@ YYYY-MM-DD-HHMM-【运维记录】长期总览或规范名称.md
 ## 关键文档
 
 - `docker/workbench/START_HERE.md`
-- `docker/doc/2026-07-29-1300-【运维记录】DBQP运维AI交接总览.md`
+- `docker/doc/2026-07-29-1300-【运维记录】某业务公司运维AI交接总览.md`
 - `docker/doc/2026-07-29-1310-【运维记录】文档分类命名规范.md`
-- `docker/doc/2026-07-29-1926-【补静态资源】香港Panda客户端资源同步验证记录.md`
+- `docker/doc/2026-07-29-1926-【补静态资源】香港vendor_d客户端资源同步验证记录.md`
 - `docker/doc/2026-07-17-2000-【优化】香港CN五厂商前端可用域名清单.md`
-- `docker/doc/2026-07-17-1900-【架构改造+网络调整】香港CN五厂商收口与JILI-AWS接入完整记录.md`
+- `docker/doc/2026-07-17-1900-【架构改造+网络调整】香港CN五厂商收口与vendor_b-AWS接入完整记录.md`
 - `docker/doc/2026-07-17-1500-【架构改造】香港AWS-S3与CloudFront迁移搭建记录.md`
 - `docker/doc/2026-07-17-1700-【网络调整】香港AWS-CloudFront灰度切换与回滚验证记录.md`
 - `docker/线上服务器信息/README.md`

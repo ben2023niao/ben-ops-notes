@@ -5,30 +5,32 @@ date: "2026-10-20T09:10:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Linux", "Shell", "Python", "Go", "Docker", "Nginx", "监控告警"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-10-20-0910-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91Beszel%E5%91%8A%E8%AD%A6%E6%B1%89%E5%8C%96%E4%B8%8A%E7%BA%BF%E4%B8%8E%E6%97%A5%E5%BF%97%E4%BF%9D%E7%95%99%E6%9C%9F%E8%B0%83%E6%95%B4.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-10-20-0910-【运维】Beszel告警汉化上线与日志保留期调整.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-10-20-0910-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91Beszel%E5%91%8A%E8%AD%A6%E6%B1%89%E5%8C%96%E4%B8%8A%E7%BA%BF%E4%B8%8E%E6%97%A5%E5%BF%97%E4%BF%9D%E7%95%99%E6%9C%9F%E8%B0%83%E6%95%B4.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-10-20-0910-【运维】Beszel告警汉化上线与日志保留期调整.md"
 sourceSha256: "70cb49f5e63b5527b05eefa65fba54f1ecf867a3619bf8642c4aa36a5a417079"
 sourceSystem: "project-doc"
 ---
 
 # Beszel 告警汉化上线与日志保留期调整
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-10-20-0910-【运维】Beszel告警汉化上线与日志保留期调整.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-10-20-0910-【运维】Beszel告警汉化上线与日志保留期调整.md`
 
 > 整理日期：2026-10-20 09:10｜日期依据：文件名日期
 
 时间：2026-10-20 09:10（北京）｜2026-10-19 22:10（巴西圣保罗）
-范围：东京监控机 `34.146.121.225`；巴西 01/02、香港 01/02 后端
+范围：东京监控机 `192.0.2.15`；巴西 01/02、香港 01/02 后端
 
 ## 一、Beszel 告警汉化（已上线）
 
 ### 1.1 线上版本与接入方式
 
-- Hub：`http://34.146.121.225:8090/`，容器名 `beszel`，数据卷 `beszel_data`。
+- Hub：`http://192.0.2.15:8090/`，容器名 `beszel`，数据卷 `beszel_data`。
 - 线上版本：**v0.18.7**（`henrygd/beszel`，2026-10-20 之前是英文原版）。
 - 访问方式：东京 22 端口没有系统 sshd，2222 是 **GitLab 容器**的 SSH（只认 GitLab 账号的 key），
   所以常规 SSH 进不去；本次走 GCP 串口控制台用 root 密码登录。
-  `gcloud compute connect-to-serial-port dbqp-tokyo-gitlab-cicd-01 --zone=asia-northeast1-a --port=1`
+  `gcloud compute connect-to-serial-port bizops-tokyo-gitlab-cicd-01 --zone=asia-northeast1-a --port=1`
 
 ### 1.2 改了哪些文案
 
@@ -54,7 +56,7 @@ sourceSystem: "project-doc"
 ### 1.3 顺手修掉的问题
 
 - `APP_URL` 原来是 `http://localhost:8090`，告警里的链接点不开；已改为
-  `http://34.146.121.225:8090`。
+  `http://192.0.2.15:8090`。
 - 磁盘正文原来只写 `root 使用率`，已改为 `磁盘 root 使用率`。
 
 ### 1.4 构建与部署
@@ -70,7 +72,7 @@ docker build -f Dockerfile.zh -t beszel-zh:0.18.7 .
 docker stop beszel && docker rm beszel
 docker run -d --name beszel --restart unless-stopped \
   -p 8090:8090 -v beszel_data:/beszel_data \
-  -e APP_URL=http://34.146.121.225:8090 \
+  -e APP_URL=http://192.0.2.15:8090 \
   beszel-zh:0.18.7
 ```
 
@@ -123,7 +125,7 @@ docker start beszel
 
 脚本：`docker/scripts/prune_game_logs.sh` → 各后端 `/usr/local/sbin/prune_game_logs.sh`
 定时：`10 9 * * *`（每天 09:10 本地时间）
-轮转：巴西两台 `maxage 7` 改为 `maxage 2`；香港两台没有 dbqp 轮转配置，靠每日清理兜底。
+轮转：巴西两台 `maxage 7` 改为 `maxage 2`；香港两台没有 bizops 轮转配置，靠每日清理兜底。
 
 清理结果（2026-10-20）：
 
@@ -138,7 +140,7 @@ docker start beszel
 
 ```bash
 # Hub 健康
-curl -s http://34.146.121.225:8090/api/health
+curl -s http://192.0.2.15:8090/api/health
 
 # 容器
 docker ps --filter name=^beszel$ --format '{{.Names}} {{.Status}} {{.Image}}'

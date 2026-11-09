@@ -5,13 +5,15 @@ date: "2026-05-09T00:00:00+08:00"
 dateSource: "文件名日期"
 categories: ["业务系统运维", "GHOME"]
 tags: ["GHOME", "Shell", "Docker", "源码与配置"]
-source: "project-file:///Private/from-oldmac-20261109/Users/ben/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p1-data-model-and-seed.md"
+source: "project-file:///Private/from-oldmac-20261109/Users/operator/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p1-data-model-and-seed.md"
 sourcePath: "~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p1-data-model-and-seed.md"
 sourceSha256: "5d0d97b6df983a61c3e35c99449e54e403b85777f6ce8aa1048ff48a2764d0e7"
 sourceSystem: "project-doc"
 ---
 
 # Ghome P1 · 数据模型 + Seed Implementation Plan
+
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
 > 来源文件：`~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p1-data-model-and-seed.md`
 
@@ -811,16 +813,16 @@ describe("validateForRedirect (sync, no IO)", () => {
 
   it.each([
     "https://localhost/",
-    "http://203.0.113.1:8080/",
-    "https://203.0.113.1/",
-    "http://203.0.113.1/",
-    "http://203.0.113.1/",
-    "https://203.0.113.1/",
-    "https://169.254.169.254/aws-metadata",
-    "http://0.0.0.0/",
+    "http://192.0.2.1:8080/",
+    "https://192.0.2.1/",
+    "http://192.0.2.1/",
+    "http://192.0.2.1/",
+    "https://192.0.2.1/",
+    "https://192.0.2.2/aws-mevendor_ata",
+    "http://192.0.2.3/",
     "https://[::1]/",
     "https://localhost.localdomain/",
-    "http://100.64.0.1/",  // CGNAT
+    "http://192.0.2.4/",  // CGNAT
   ])("rejects private/loopback/link-local literal: %s", (url) => {
     const r = validateForRedirect(url);
     expect(r.ok).toBe(false);
@@ -858,7 +860,7 @@ describe("validateForWrite (async, includes DNS)", () => {
   it("rejects public-looking host that resolves to private IP", async () => {
     // 这个测试用一个故意指向私有段的真实 hostname。如果 DNS 抗 mock 困难,
     // 可以接受跳过该用例并加 `it.skip`,在 README 里说明手工验证步骤。
-    // 备选 hostname:`localtest.me` → 203.0.113.1。
+    // 备选 hostname:`localtest.me` → 192.0.2.1。
     const r = await validateForWrite("https://localtest.me/");
     expect(r.ok).toBe(false);
     expect(r.reason).toMatch(/private|loopback|literal/i);
@@ -888,13 +890,13 @@ const ALLOWED_PROTOCOLS = new Set(["http:", "https:"]);
 const MAX_LEN = 2048;
 
 const PRIVATE_IPV4_LITERAL_PATTERNS = [
-  /^0\./,                                  // 0.0.0.0/8
-  /^10\./,                                 // 203.0.113.1/8
-  /^127\./,                                // 203.0.113.1/8 loopback
-  /^169\.254\./,                           // 169.254.0.0/16 link-local
-  /^172\.(1[6-9]|2[0-9]|3[0-1])\./,        // 203.0.113.1/12
-  /^192\.168\./,                           // 203.0.113.1/16
-  /^100\.(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-7])\./, // 100.64.0.0/10 CGNAT
+  /^0\./,                                  // 192.0.2.3/8
+  /^10\./,                                 // 192.0.2.1/8
+  /^127\./,                                // 192.0.2.1/8 loopback
+  /^169\.254\./,                           // 192.0.2.5/16 link-local
+  /^172\.(1[6-9]|2[0-9]|3[0-1])\./,        // 192.0.2.1/12
+  /^192\.168\./,                           // 192.0.2.1/16
+  /^100\.(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-7])\./, // 192.0.2.6/10 CGNAT
 ];
 
 const HOSTNAME_LITERAL_BLACKLIST = new Set([
@@ -1002,7 +1004,7 @@ export async function validateForWrite(url: string): Promise<ValidationResult> {
 pnpm --filter @ghome/db test
 ```
 
-Expected: 所有 url-policy 测试 pass。如果"`localtest.me` → 203.0.113.1"那个用例因 DNS 配置不一致失败,允许临时 `it.skip` 并在 task report 里注明。
+Expected: 所有 url-policy 测试 pass。如果"`localtest.me` → 192.0.2.1"那个用例因 DNS 配置不一致失败,允许临时 `it.skip` 并在 task report 里注明。
 
 - [ ] **Step 6: 提交**
 
@@ -2653,7 +2655,7 @@ Expected: 看到 P1 期间的 ~12 个 commit + tag。
 
 - **TDD 体现**:T5 严格 TDD(失败测试先行 → 实现 → 通过)。T9 db-constraints 测试在 seed 之后运行,验证 T3 SQL 实际生效。
 
-- **风险**:T5 的 `localtest.me → 203.0.113.1` 那条用例在某些 DNS 环境下可能不解析,允许 `it.skip`。其余无已知风险。
+- **风险**:T5 的 `localtest.me → 192.0.2.1` 那条用例在某些 DNS 环境下可能不解析,允许 `it.skip`。其余无已知风险。
 
 ---
 

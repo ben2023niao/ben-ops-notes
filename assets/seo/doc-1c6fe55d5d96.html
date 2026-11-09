@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
-  <meta name="description" content="【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册。本文属于历史运维与项目交付 / 巴西主站，适用： newgg2-0520 项目的厂家前端/客户端静态资源（Panda / TADA / PG / PP / PPK / PlaySon / G759）。 链路： AWS S3（大阪，开发上传）→ 巴西 GC…">
-  <meta name="keywords" content="巴西主站，Shell，Python，Docker，CDN，安全运维，故障排查，源码与配置，历史运维与项目交付，历史运维与项目交付 / 巴西主站，【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册">
+  <meta name="description" content="【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 适用： newgg2-0520 项目的厂家前端/客户端静态资源（vendor_d / vendor_a /…">
+  <meta name="keywords" content="巴西主站，Shell，Python，Docker，CDN，安全运维，故障排查，源码与配置，历史运维与项目交付，历史运维与项目交付 / 巴西主站，【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册，一、刷新某个厂家的 CDN 缓存（最常用），1. 先记住两条硬事实（2026-09-16 实测），2. 操作（在宝塔上执行，CF token 有 IP 白名单，必须在宝塔跑）">
   <meta name="author" content="BEN">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
   <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
@@ -22,7 +22,7 @@
   <meta property="og:locale" content="zh_CN">
   <meta property="og:site_name" content="BEN.OPS 工程笔记">
   <meta property="og:title" content="【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册">
-  <meta property="og:description" content="【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册。本文属于历史运维与项目交付 / 巴西主站，适用： newgg2-0520 项目的厂家前端/客户端静态资源（Panda / TADA / PG / PP / PPK / PlaySon / G759）。 链路： AWS S3（大阪，开发上传）→ 巴西 GC…">
+  <meta property="og:description" content="【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 适用： newgg2-0520 项目的厂家前端/客户端静态资源（vendor_d / vendor_a /…">
   <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c6fe55d5d96.html">
   <meta property="article:published_time" content="2026-09-16T00:00:00+08:00">
   <meta property="article:modified_time" content="2026-09-16 00:00">
@@ -31,7 +31,7 @@
   
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册">
-  <meta name="twitter:description" content="【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册。本文属于历史运维与项目交付 / 巴西主站，适用： newgg2-0520 项目的厂家前端/客户端静态资源（Panda / TADA / PG / PP / PPK / PlaySon / G759）。 链路： AWS S3（大阪，开发上传）→ 巴西 GC…">
+  <meta name="twitter:description" content="【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 适用： newgg2-0520 项目的厂家前端/客户端静态资源（vendor_d / vendor_a /…">
   
   <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
 --line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
@@ -75,7 +75,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 @media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
 .meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
 @media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c6fe55d5d96.html#article","headline":"【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册","description":"【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册。本文属于历史运维与项目交付 / 巴西主站，适用： newgg2-0520 项目的厂家前端/客户端静态资源（Panda / TADA / PG / PP / PPK / PlaySon / G759）。 链路： AWS S3（大阪，开发上传）→ 巴西 GC…","datePublished":"2026-09-16T00:00:00+08:00","dateModified":"2026-09-16 00:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","Python","Docker","CDN","安全运维","故障排查","源码与配置","历史运维与项目交付","历史运维与项目交付 / 巴西主站","【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册"],"wordCount":2888,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c6fe55d5d96.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c6fe55d5d96.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c6fe55d5d96.html"}]}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c6fe55d5d96.html#article","headline":"【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册","description":"【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 适用： newgg2-0520 项目的厂家前端/客户端静态资源（vendor_d / vendor_a /…","datePublished":"2026-09-16T00:00:00+08:00","dateModified":"2026-09-16 00:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","Python","Docker","CDN","安全运维","故障排查","源码与配置","历史运维与项目交付","历史运维与项目交付 / 巴西主站","【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册","一、刷新某个厂家的 CDN 缓存（最常用）","1. 先记住两条硬事实（2026-09-16 实测）","2. 操作（在宝塔上执行，CF token 有 IP 白名单，必须在宝塔跑）"],"wordCount":1425,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c6fe55d5d96.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c6fe55d5d96.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-1c6fe55d5d96.html"}]}]}</script>
 </head>
 <body>
   <header class="topbar"><div class="shell">
@@ -94,23 +94,24 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
     <header class="hero">
       <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
       <h1>【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册</h1>
-      <p class="lede">【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册。本文属于历史运维与项目交付 / 巴西主站，适用： newgg2-0520 项目的厂家前端/客户端静态资源（Panda / TADA / PG / PP / PPK / PlaySon / G759）。 链路： AWS S3（大阪，开发上传）→ 巴西 GC…</p>
+      <p class="lede">【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 适用： newgg2-0520 项目的厂家前端/客户端静态资源（vendor_d / vendor_a /…</p>
       <div class="meta">
         <time class="badge" datetime="2026-09-16T00:00:00+08:00">发布于 2026-09-16</time>
         <span class="badge">作者 BEN</span>
-        <span class="badge">2,888 字</span>
-        <span class="badge">9 分钟阅读</span>
+        <span class="badge">1,425 字</span>
+        <span class="badge">5 分钟阅读</span>
       </div>
     </header>
     <div class="layout">
       <article class="article" itemscope itemtype="https://schema.org/TechArticle">
         
 <blockquote>
-<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/【运维笔记】静态资源CDN刷新与GCS运维手册.md</code></p>
+<p>公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。</p>
+<p>来源文件：<code>~/Projects/ops/private-notes/master/docs/history/【运维笔记】静态资源CDN刷新与GCS运维手册.md</code></p>
 <p>整理日期：2026-09-16 00:00｜日期依据：正文日期</p>
 </blockquote>
-<p>适用：<code>newgg2-0520</code> 项目的厂家前端/客户端静态资源（Panda / TADA / PG / PP / PPK / PlaySon / G759）。
-链路：<code>AWS S3（大阪，开发上传）→ 巴西 GCS 桶（newgg2-dbqp-gcs-&lt;前缀&gt;）→ Cloudflare Worker → 静态域名</code>。
+<p>适用：<code>newgg2-0520</code> 项目的厂家前端/客户端静态资源（vendor_d / vendor_a / PG / PP / PPK / PlaySon / G759）。
+链路：<code>AWS S3（大阪，开发上传）→ 巴西 GCS 桶（newgg2-bizops-gcs-&lt;前缀&gt;）→ Cloudflare Worker → 静态域名</code>。
 本手册只讲"人工就能照着做"的操作，命令可以直接复制。</p>
 <hr/>
 <h2 id="一-刷新某个厂家的-CDN-缓存-最常用">一、刷新某个厂家的 CDN 缓存（最常用）</h2>
@@ -127,47 +128,47 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 会自动重新缓存，风险很低）。</p>
 <h3 id="2-操作-在宝塔上执行-CF-token-有-IP-白名单-必须在宝塔跑">2. 操作（在宝塔上执行，CF token 有 IP 白名单，必须在宝塔跑）</h3>
 <p><strong>最省事、最可靠：全部刷新（开发只改了一个图标也建议直接全刷）</strong></p>
-<pre><code class="language-bash">bash /opt/dbqp-scripts/cf_purge_zones.sh --all
+<pre><code class="language-bash">bash /opt/bizops-scripts/cf_purge_zones.sh --all
 # 期望输出：每个 zone 一行 OK，最后 PURGE_DONE ok=23 fail=0（2026-09-16 实测 23/23 OK）
 </code></pre>
 <p>全刷的影响：所有静态域名的边缘缓存被清一次，用户下次访问会回源 GCS 重新缓存；
 只是短暂回源流量，不会影响业务（我们已多次执行，无异常）。</p>
 <p><strong>想尽量只刷一个厂家（做不到"只刷单个文件"，见下面 1. 的两条硬事实）</strong></p>
-<pre><code class="language-bash"># 只刷 panda（自动挑出服务 panda-static.* 的 zone，实测 22 个 zone）
-bash /opt/dbqp-scripts/cf_purge_zones.sh --vendor panda
+<pre><code class="language-bash"># 只刷 vendor_d（自动挑出服务 vendor_d-static.* 的 zone，实测 22 个 zone）
+bash /opt/bizops-scripts/cf_purge_zones.sh --vendor vendor_d
 
 # 指定 zone
-bash /opt/dbqp-scripts/cf_purge_zones.sh --zones xqv9m8.icu,q7m9v8.icu
+bash /opt/bizops-scripts/cf_purge_zones.sh --zones xqv9m8.icu,q7m9v8.icu
 </code></pre>
 <p>看到 <code>PURGE_DONE ok=22 fail=0</code> 即成功（单个 zone 失败会打印 FAIL 原因）。</p>
 <h3 id="2-1-静态域名分布-复验时别用错-zone-否则会看到-520">2.1 静态域名分布（复验时别用错 zone，否则会看到 520）</h3>
 <pre><code class="language-text">所有厂家的静态域名都分布在下面这些 zone（共 23 个，每个厂家都有 &lt;前缀&gt;-static.&lt;zone&gt;）：
-  xqv9m8.icu              tada-cdn-2026.icu       tada-cdn-game.icu
-  tada-host-2026.icu      tada-host-game.icu      tada-cf-2026.cyou
-  tada-cf-game.cyou       cdn-tokyo-dbqp.icu      cdn-tokyo-dbqp.cyou
-  cdn-manila-dbqp.icu     cdn-manila-dbqp.cyou    q7m9v8.icu
+  xqv9m8.icu              vendor_a-cdn-2026.icu       vendor_a-cdn-game.icu
+  vendor_a-host-2026.icu      vendor_a-host-game.icu      vendor_a-cf-2026.cyou
+  vendor_a-cf-game.cyou       cdn-tokyo-bizops.icu      cdn-tokyo-bizops.cyou
+  cdn-manila-bizops.icu     cdn-manila-bizops.cyou    q7m9v8.icu
   qv9m8.icu               7m9v8.icu               6qv8m.icu
   6xv8q.cyou              7v8k3.cyou              8m7xv.cyou
   m6xv8q.cyou             m7v8k3.cyou             p8m7xv.cyou
   t6qv8m.icu              d1b2q3p.cfd
 
 已知例外（不是故障，别误判）：
-  · q7m9v8.icu 只服务 pg/pp/ppk/panda 等，不服务 tada-*；
-    访问 https://tada-statics4.q7m9v8.icu/... 会返回 520 —— 这是既有的域名配置差异。
+  · q7m9v8.icu 只服务 pg/pp/ppk/vendor_d 等，不服务 vendor_a-*；
+    访问 https://vendor_a-statics4.q7m9v8.icu/... 会返回 520 —— 这是既有的域名配置差异。
   · d1b2q3p.cfd 的静态子域未生效（也返回 520）。
 复验时请用「厂家自己的域名」，例如：
-  panda-static.* / tada-statics4.xqv9m8.icu / pg-static.q7m9v8.icu / pp-static.q7m9v8.icu
+  vendor_d-static.* / vendor_a-statics4.xqv9m8.icu / pg-static.q7m9v8.icu / pp-static.q7m9v8.icu
 </code></pre>
 <h3 id="3-立刻验证-应看到-cf-cache-MISS-且-200">3. 立刻验证（应看到 <code>cf-cache=MISS</code> 且 <code>200</code>）</h3>
 <pre><code class="language-bash">UA='Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X)'
-curl -s -o /dev/null -D - -A "$UA" https://panda-static.xqv9m8.icu/health.json \
+curl -s -o /dev/null -D - -A "$UA" https://vendor_d-static.xqv9m8.icu/health.json \
   | grep -iE 'HTTP/|cf-cache-status'
 # 期望：HTTP/2 200  +  cf-cache-status: MISS（MISS = 已经回源，缓存已生效）
 </code></pre>
 <p>再抽几个真实资源（把 <code>&lt;游戏目录&gt;</code> 换成实际目录，例如 <code>aquarius-fortune-wheel</code>）：</p>
 <pre><code class="language-bash">for p in &lt;游戏目录&gt;/index.html &lt;游戏目录&gt;/health.json; do
   printf "%-50s " "$p"
-  curl -s -o /dev/null -D - -A "$UA" "https://panda-static.xqv9m8.icu/$p" \
+  curl -s -o /dev/null -D - -A "$UA" "https://vendor_d-static.xqv9m8.icu/$p" \
     | awk 'BEGIN{IGNORECASE=1}/^HTTP/{s=$2}/^cf-cache-status/{c=$2}END{gsub(/\r/,"",c);print s, c}'
 done
 </code></pre>
@@ -176,27 +177,27 @@ done
 <h3 id="1-先比对-GCS-与-AWS-S3-看差异-零数据搬运">1. 先比对 GCS 与 AWS S3，看差异（零数据搬运）</h3>
 <pre><code class="language-bash"># 在 03 上（容器里有 GCS/S3 SDK 与凭据）
 docker run --rm --network host \
-  -v /opt/dbqp-scripts:/opt/dbqp-scripts:ro \
-  -v /root/dbqp-h5-download.env:/creds/aws.env:ro \
-  --entrypoint python3 dbqp-resource-sync:latest \
-  /opt/dbqp-scripts/gcs_s3_diff.py --prefix panda-static --out /tmp/panda_diff.txt
+  -v /opt/bizops-scripts:/opt/bizops-scripts:ro \
+  -v /root/bizops-h5-download.env:/creds/aws.env:ro \
+  --entrypoint python3 bizops-resource-sync:latest \
+  /opt/bizops-scripts/gcs_s3_diff.py --prefix vendor_d-static --out /tmp/vendor_d_diff.txt
 </code></pre>
-<p>输出四类：GCS 缺失 / 大小不符 / 内容不符 / GCS 独有，并把需要处理的 key 写到 <code>/tmp/panda_diff.txt</code>。</p>
+<p>输出四类：GCS 缺失 / 大小不符 / 内容不符 / GCS 独有，并把需要处理的 key 写到 <code>/tmp/vendor_d_diff.txt</code>。</p>
 <blockquote>
 <p>⚠️ 不要用 GCS 对象的 <code>updated</code> 时间判断谁新谁旧：做过桶迁移（服务端 rewrite）后，
-全量对象的时间都会被刷成迁移当天，看不出真实改动（2026-09-16 实测 panda 全部 91092 个对象
+全量对象的时间都会被刷成迁移当天，看不出真实改动（2026-09-16 实测 vendor_d 全部 91092 个对象
 时间都是迁移那天）。</p>
 </blockquote>
 <h3 id="2-需要把-S3-的缺失文件补到-GCS">2. 需要把 S3 的缺失文件补到 GCS</h3>
 <pre><code class="language-bash"># 只补"GCS 完全没有"的文件（安全，不覆盖内容不一致的）
 docker run --rm --network host \
-  -v /opt/dbqp-scripts/gcs-br:/opt/dbqp-scripts:ro \
-  -v /root/dbqp-h5-download.env:/creds/aws.env:ro \
-  --entrypoint python3 dbqp-resource-sync:latest \
-  /opt/dbqp-scripts/s3_gcs_sdk_sync.py --prefix panda-static --apply --only-missing --skip-cdn
+  -v /opt/bizops-scripts/gcs-br:/opt/bizops-scripts:ro \
+  -v /root/bizops-h5-download.env:/creds/aws.env:ro \
+  --entrypoint python3 bizops-resource-sync:latest \
+  /opt/bizops-scripts/s3_gcs_sdk_sync.py --prefix vendor_d-static --apply --only-missing --skip-cdn
 
 # 全量同步（会把 S3 版本覆盖到 GCS，慎用：可能回退开发直传 GCS 的新版本）
-... --prefix panda-static --apply
+... --prefix vendor_d-static --apply
 </code></pre>
 <p>补完/同步完，<strong>必须再刷一次 CDN</strong>（见第一节），否则线上还是旧内容。</p>
 <hr/>
@@ -204,15 +205,15 @@ docker run --rm --network host \
 <p>事故回顾：迁移时新建的 GCS 桶默认私有，缺 <code>allUsers:objectViewer</code>，
 Worker 匿名回源拿到 403，又被 <code>cacheEverything</code> 缓存 7 天 → 玩家"进不去游戏"。</p>
 <pre><code class="language-bash"># 1) 桶必须公开读
-for p in panda-static tada-statics4; do
-  gcloud storage buckets add-iam-policy-binding gs://newgg2-dbqp-gcs-$p \
+for p in vendor_d-static vendor_a-statics4; do
+  gcloud storage buckets add-iam-policy-binding gs://newgg2-bizops-gcs-$p \
     --member=allUsers --role=roles/storage.objectViewer &gt;/dev/null 2&gt;&amp;1
-  code=$(curl -s -o /dev/null -w '%{http_code}' "https://newgg2-dbqp-gcs-$p.storage.googleapis.com/health.json")
+  code=$(curl -s -o /dev/null -w '%{http_code}' "https://newgg2-bizops-gcs-$p.storage.googleapis.com/health.json")
   printf "%-34s 匿名直读 health=%s\n" "$p" "$code"   # 期望 200
 done
 
 # 2) 走 CDN 再验一次（期望 200；cf-cache 是 MISS 还是 HIT 都无所谓）
-curl -s -o /dev/null -w '%{http_code}\n' https://panda-static.xqv9m8.icu/health.json
+curl -s -o /dev/null -w '%{http_code}\n' https://vendor_d-static.xqv9m8.icu/health.json
 </code></pre>
 <hr/>
 <h2 id="四-人工验收-点开就能进游戏的链接怎么来">四、人工验收：点开就能进游戏的链接怎么来</h2>
@@ -220,8 +221,8 @@ curl -s -o /dev/null -w '%{http_code}\n' https://panda-static.xqv9m8.icu/health.
 <ol>
 <li><strong>面板直接点</strong>（最简单）：<code>https://ff789p3.com/#/dashboard/game</code> 登录后点卡片。</li>
 <li><strong>深链签发</strong>（可以指定任意 gameID，绕过面板列表限制）：
-   <code>https://ff789p3.com/#/game/play?id=1&amp;gameId=1&amp;gameVenueId=90&amp;thirdId=&lt;gameID&gt;&amp;categoryId=-1&amp;status=Enable&amp;name=TADA+Slot</code>
-   （TADA 用 <code>gameVenueId=90</code>；PG 用 <code>85</code>）</li>
+   <code>https://ff789p3.com/#/game/play?id=1&amp;gameId=1&amp;gameVenueId=90&amp;thirdId=&lt;gameID&gt;&amp;categoryId=-1&amp;status=Enable&amp;name=vendor_a+Slot</code>
+   （vendor_a 用 <code>gameVenueId=90</code>；PG 用 <code>85</code>）</li>
 <li><strong>批量签发脚本</strong>：<code>docker/scripts/mint_game_urls.py</code>（跑在 03 的浏览器容器里），
    把要测的 gameID 写进脚本里的 <code>GAMES</code> 即可，输出每条 URL。</li>
 </ol>
@@ -263,15 +264,15 @@ curl -s -o /dev/null -w '%{http_code}\n' https://panda-static.xqv9m8.icu/health.
 </tr>
 <tr>
 <td>03 上的运行副本</td>
-<td><code>/opt/dbqp-scripts/</code>、<code>/opt/dbqp-scripts/gcs-br/</code></td>
+<td><code>/opt/bizops-scripts/</code>、<code>/opt/bizops-scripts/gcs-br/</code></td>
 </tr>
 <tr>
 <td>日志</td>
-<td><code>/var/log/dbqp-br/</code>（每厂家一个日志 + state/*.json）</td>
+<td><code>/var/log/bizops-br/</code>（每厂家一个日志 + state/*.json）</td>
 </tr>
 <tr>
 <td>浏览器测试镜像</td>
-<td>03 上 <code>dbqp-browser-test:latest</code>（不在时用 <code>/opt/dbqp-browser-test/Dockerfile</code> 重建）</td>
+<td>03 上 <code>bizops-browser-test:latest</code>（不在时用 <code>/opt/bizops-browser-test/Dockerfile</code> 重建）</td>
 </tr>
 </tbody>
 </table>
@@ -293,27 +294,27 @@ curl -s -o /dev/null -w '%{http_code}\n' https://panda-static.xqv9m8.icu/health.
 <hr/>
 <h2 id="七-最短处置流程-照着做">七、最短处置流程（照着做）</h2>
 <pre><code class="language-text">【开发改了某个图标/某个文件】
-1. 在宝塔刷缓存：      bash /opt/dbqp-scripts/cf_purge_zones.sh --all
+1. 在宝塔刷缓存：      bash /opt/bizops-scripts/cf_purge_zones.sh --all
                        期望 PURGE_DONE ok=23 fail=0
 2. 复验（用厂家自己的域名，不要用不服务它的 zone）：
    curl -s -o /dev/null -D - -A 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X)' \
-     https://panda-static.xqv9m8.icu/&lt;改动的文件路径&gt; | grep -iE 'HTTP/|cf-cache-status'
+     https://vendor_d-static.xqv9m8.icu/&lt;改动的文件路径&gt; | grep -iE 'HTTP/|cf-cache-status'
    期望 200 + cf-cache-status: MISS
 3. 让报问题的用户清一下浏览器缓存（Worker 给 200 打了 7 天浏览器缓存），或换隐私窗口再试。
 4. 若怀疑"文件根本没传上来"：在 03 跑 gcs_s3_diff.py 比对，再决定是否补文件（补完要再刷一次）。
 </code></pre>
-<p>记录：2026-09-16 开发更新 panda 的一个图标后，按上面第 1、2 步执行，
+<p>记录：2026-09-16 开发更新 vendor_d 的一个图标后，按上面第 1、2 步执行，
 23/23 zone 刷新成功；全厂家 × 4 个 zone 共 32 条抽检里 30 条 200/MISS，
-另外 2 条是 q7m9v8.icu 不服务 tada-*（既有配置差异，与本次刷新无关）。</p>
+另外 2 条是 q7m9v8.icu 不服务 vendor_a-*（既有配置差异，与本次刷新无关）。</p>
 <hr/>
-<h2 id="八-为什么-gcloud-storage-rsync-在-panda-这种桶上非常慢-2026-09-16-实测">八、为什么 <code>gcloud storage rsync</code> 在 panda 这种桶上非常慢（2026-09-16 实测）</h2>
+<h2 id="八-为什么-gcloud-storage-rsync-在-vendor_d-这种桶上非常慢-2026-09-16-实测">八、为什么 <code>gcloud storage rsync</code> 在 vendor_d 这种桶上非常慢（2026-09-16 实测）</h2>
 <p>开发常跑的命令：</p>
-<pre><code class="language-bash">gcloud storage rsync -r panda gs://newgg2-dbqp-gcs-panda-static/ \
+<pre><code class="language-bash">gcloud storage rsync -r vendor_d gs://newgg2-bizops-gcs-vendor_d-static/ \
   --delete-unmatched-destination-objects --exclude=".*health\.json$" --dry-run
 </code></pre>
 <p>它慢的原因（按影响从大到小）：</p>
 <pre><code class="language-text">1) rsync 必须把【源和目标全量枚举后逐个比较】。
-   panda 桶有 91092 个对象，本地 panda 目录约 3 万个文件。
+   vendor_d 桶有 91092 个对象，本地 vendor_d 目录约 3 万个文件。
    实测：只列举目标桶带元数据(name+size+md5) = 5.9 秒（巴西本机）；
         用 `gcloud storage ls` 列举同样数量 = 17 秒。
 2) --delete-unmatched-destination-objects 是最大的放大器：
@@ -325,33 +326,33 @@ curl -s -o /dev/null -w '%{http_code}\n' https://panda-static.xqv9m8.icu/health.
    （约 25~50ms/文件）。按 3 万个本地文件 + 9.1 万个目标对象估算，
    巴西本机也要几十分钟；开发从本地电脑跑（到 GCS 的往返延迟高得多）就会到小时级。
 5) 判"是否需要同步"要看修改时间；GCS 对象没有本地意义的 mtime
-   （panda 全量对象的 updated 都是迁移那天 2026-09-14 11:48），
+   （vendor_d 全量对象的 updated 都是迁移那天 2026-09-14 11:48），
    于是退化成"逐个算哈希比较"，等于把本地每个文件都完整读一遍。
 6) --exclude 只在枚举之后生效，不会减少枚举/判定的开销。
 </code></pre>
-<p>⚠️ 顺带提醒：<code>--delete-unmatched-destination-objects</code> 对 panda 是<strong>危险参数</strong>——
+<p>⚠️ 顺带提醒：<code>--delete-unmatched-destination-objects</code> 对 vendor_d 是<strong>危险参数</strong>——
 本地目录是"部分镜像"（约 3 万），桶里有 9.1 万，真跑（去掉 --dry-run）会删掉约 6 万个对象。</p>
 <p><strong>更快、更安全的做法（推荐给开发）</strong></p>
 <pre><code class="language-text">a) 先做"元数据比对"找出差异，不要用 rsync 全量比较：
-   docker/scripts/gcs_s3_diff.py（panda 全量比对约 40 秒，零数据搬运）
+   docker/scripts/gcs_s3_diff.py（vendor_d 全量比对约 40 秒，零数据搬运）
    → 得到"需要上传/需要删除"的 key 清单
 b) 只传清单里的文件：
-   gcloud storage cp -I &lt;changed_keys.txt&gt; gs://newgg2-dbqp-gcs-panda-static/
+   gcloud storage cp -I &lt;changed_keys.txt&gt; gs://newgg2-bizops-gcs-vendor_d-static/
    （用 -n/--no-clobber 或先 --dry-run 确认）
 c) 要"镜像"就放到离桶近的机器上跑（例如 03，圣保罗同区），
    不要在本地电脑对 9 万对象的桶做全量 rsync；
 d) 源其实是 AWS S3 时，直接跑 SDK 同步（不落本地磁盘）：
-   docker/scripts/s3_gcs_sdk_sync.py --prefix panda-static --apply --only-missing
-e) 更新完记得刷 CDN：bash /opt/dbqp-scripts/cf_purge_zones.sh --all
+   docker/scripts/s3_gcs_sdk_sync.py --prefix vendor_d-static --apply --only-missing
+e) 更新完记得刷 CDN：bash /opt/bizops-scripts/cf_purge_zones.sh --all
 </code></pre>
       </article>
       <aside class="aside">
-        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-刷新某个厂家的-CDN-缓存-最常用">一、刷新某个厂家的 CDN 缓存（最常用）</a></li><li style="margin-left:0.8rem"><a href="#1-先记住两条硬事实-2026-09-16-实测">1. 先记住两条硬事实（2026-09-16 实测）</a></li><li style="margin-left:0.8rem"><a href="#2-操作-在宝塔上执行-CF-token-有-IP-白名单-必须在宝塔跑">2. 操作（在宝塔上执行，CF token 有 IP 白名单，必须在宝塔跑）</a></li><li style="margin-left:0.8rem"><a href="#2-1-静态域名分布-复验时别用错-zone-否则会看到-520">2.1 静态域名分布（复验时别用错 zone，否则会看到 520）</a></li><li style="margin-left:0.8rem"><a href="#3-立刻验证-应看到-cf-cache-MISS-且-200">3. 立刻验证（应看到 cf-cache=MISS 且 200 ）</a></li><li style="margin-left:0.0rem"><a href="#二-怀疑-开发更新了资源但线上还是旧的-404-时怎么查">二、怀疑&quot;开发更新了资源但线上还是旧的/404&quot;时怎么查</a></li><li style="margin-left:0.8rem"><a href="#1-先比对-GCS-与-AWS-S3-看差异-零数据搬运">1. 先比对 GCS 与 AWS S3，看差异（零数据搬运）</a></li><li style="margin-left:0.8rem"><a href="#2-需要把-S3-的缺失文件补到-GCS">2. 需要把 S3 的缺失文件补到 GCS</a></li><li style="margin-left:0.0rem"><a href="#三-每次动完桶之后的固定自检-防止-2026-09-14-那种事故">三、每次动完桶之后的固定自检（防止 2026-09-14 那种事故）</a></li><li style="margin-left:0.0rem"><a href="#四-人工验收-点开就能进游戏的链接怎么来">四、人工验收：点开就能进游戏的链接怎么来</a></li><li style="margin-left:0.0rem"><a href="#五-常用地址与脚本索引">五、常用地址与脚本索引</a></li><li style="margin-left:0.0rem"><a href="#六-常见坑-都踩过">六、常见坑（都踩过）</a></li><li style="margin-left:0.0rem"><a href="#七-最短处置流程-照着做">七、最短处置流程（照着做）</a></li><li style="margin-left:0.0rem"><a href="#八-为什么-gcloud-storage-rsync-在-panda-这种桶上非常慢-2026-09-16-实测">八、为什么 gcloud storage rsync 在 panda 这种桶上非常慢（2026-09-16 实测）</a></li></ol></aside>
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-刷新某个厂家的-CDN-缓存-最常用">一、刷新某个厂家的 CDN 缓存（最常用）</a></li><li style="margin-left:0.8rem"><a href="#1-先记住两条硬事实-2026-09-16-实测">1. 先记住两条硬事实（2026-09-16 实测）</a></li><li style="margin-left:0.8rem"><a href="#2-操作-在宝塔上执行-CF-token-有-IP-白名单-必须在宝塔跑">2. 操作（在宝塔上执行，CF token 有 IP 白名单，必须在宝塔跑）</a></li><li style="margin-left:0.8rem"><a href="#2-1-静态域名分布-复验时别用错-zone-否则会看到-520">2.1 静态域名分布（复验时别用错 zone，否则会看到 520）</a></li><li style="margin-left:0.8rem"><a href="#3-立刻验证-应看到-cf-cache-MISS-且-200">3. 立刻验证（应看到 cf-cache=MISS 且 200 ）</a></li><li style="margin-left:0.0rem"><a href="#二-怀疑-开发更新了资源但线上还是旧的-404-时怎么查">二、怀疑&quot;开发更新了资源但线上还是旧的/404&quot;时怎么查</a></li><li style="margin-left:0.8rem"><a href="#1-先比对-GCS-与-AWS-S3-看差异-零数据搬运">1. 先比对 GCS 与 AWS S3，看差异（零数据搬运）</a></li><li style="margin-left:0.8rem"><a href="#2-需要把-S3-的缺失文件补到-GCS">2. 需要把 S3 的缺失文件补到 GCS</a></li><li style="margin-left:0.0rem"><a href="#三-每次动完桶之后的固定自检-防止-2026-09-14-那种事故">三、每次动完桶之后的固定自检（防止 2026-09-14 那种事故）</a></li><li style="margin-left:0.0rem"><a href="#四-人工验收-点开就能进游戏的链接怎么来">四、人工验收：点开就能进游戏的链接怎么来</a></li><li style="margin-left:0.0rem"><a href="#五-常用地址与脚本索引">五、常用地址与脚本索引</a></li><li style="margin-left:0.0rem"><a href="#六-常见坑-都踩过">六、常见坑（都踩过）</a></li><li style="margin-left:0.0rem"><a href="#七-最短处置流程-照着做">七、最短处置流程（照着做）</a></li><li style="margin-left:0.0rem"><a href="#八-为什么-gcloud-storage-rsync-在-vendor_d-这种桶上非常慢-2026-09-16-实测">八、为什么 gcloud storage rsync 在 vendor_d 这种桶上非常慢（2026-09-16 实测）</a></li></ol></aside>
         <div class="aside-box"><h2>文章信息</h2><ul>
           <li>分类：历史运维与项目交付 / 巴西主站</li>
           <li>日期：2026-09-16</li>
           <li>标签：<span class="tag">巴西主站</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">CDN</span><span class="tag">安全运维</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
-          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/【运维笔记】静态资源CDN刷新与GCS运维手册.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609160000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-%E3%80%90%E8%BF%90%E7%BB%B4%E7%AC%94%E8%AE%B0%E3%80%91%E5%89%8D%E7%AB%AF%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20CDN%20%E5%88%B7%E6%96%B0%E4%B8%8E%20GCS%20%E8%BF%90%E7%BB%B4%E6%89%8B%E5%86%8C.md" type="text/markdown">查看 Markdown 原文</a></li>
+          <li><span>来源：~/Projects/ops/private-notes/master/docs/history/【运维笔记】静态资源CDN刷新与GCS运维手册.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609160000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-%E3%80%90%E8%BF%90%E7%BB%B4%E7%AC%94%E8%AE%B0%E3%80%91%E5%89%8D%E7%AB%AF%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20CDN%20%E5%88%B7%E6%96%B0%E4%B8%8E%20GCS%20%E8%BF%90%E7%BB%B4%E6%89%8B%E5%86%8C.md" type="text/markdown">查看 Markdown 原文</a></li>
         </ul></div>
         <div class="aside-box"><h2>作者</h2>
           <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
@@ -361,10 +362,10 @@ e) 更新完记得刷 CDN：bash /opt/dbqp-scripts/cf_purge_zones.sh --all
     </div>
     <section class="seo-summary" aria-labelledby="seo-summary-title">
       <h2 id="seo-summary-title">文章摘要</h2>
-      <p>【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册。本文属于历史运维与项目交付 / 巴西主站，适用： newgg2-0520 项目的厂家前端/客户端静态资源（Panda / TADA / PG / PP / PPK / PlaySon / G759）。 链路： AWS S3（大阪，开发上传）→ 巴西 GC…</p>
-      <p>关键词：巴西主站、Shell、Python、Docker、CDN、安全运维、故障排查、源码与配置、历史运维与项目交付、历史运维与项目交付 / 巴西主站、【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册</p>
+      <p>【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 适用： newgg2-0520 项目的厂家前端/客户端静态资源（vendor_d / vendor_a /…</p>
+      <p>关键词：巴西主站、Shell、Python、Docker、CDN、安全运维、故障排查、源码与配置、历史运维与项目交付、历史运维与项目交付 / 巴西主站、【运维笔记】前端静态资源 CDN 刷新与 GCS 运维手册、一、刷新某个厂家的 CDN 缓存（最常用）、1. 先记住两条硬事实（2026-09-16 实测）、2. 操作（在宝塔上执行，CF token 有 IP 白名单，必须在宝塔跑）</p>
     </section>
-    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8c823041e319.html"><small>上一篇</small>TADA 部分游戏加载不出来：排查记录与可人工打开的链接清单</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-638124df7083.html"><small>下一篇</small>看自己出口国家（loc 不是 BR/SG/HK/AE 就会被 Worker 国家白名单 403）</a></nav>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8c823041e319.html"><small>上一篇</small>vendor_a 部分游戏加载不出来：排查记录与可人工打开的链接清单</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-638124df7083.html"><small>下一篇</small>看自己出口国家（loc 不是 BR/SG/HK/AE 就会被 Worker 国家白名单 403）</a></nav>
   </main>
   <footer><div class="shell">
     <span>© 2026 BEN.OPS</span>

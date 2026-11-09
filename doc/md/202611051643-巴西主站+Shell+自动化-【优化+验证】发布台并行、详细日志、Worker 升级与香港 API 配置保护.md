@@ -5,21 +5,23 @@ date: "2026-11-05T16:43:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "自动化", "CDN", "安全运维", "故障排查", "数据库恢复", "源码与配置"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-11-05-1643-%E3%80%90%E4%BC%98%E5%8C%96%2B%E9%AA%8C%E8%AF%81%E3%80%91%E5%8F%91%E5%B8%83%E5%8F%B0%E5%B9%B6%E8%A1%8C%E6%97%A5%E5%BF%97Worker%E5%8D%87%E7%BA%A7%E4%B8%8E%E9%A6%99%E6%B8%AFAPI%E9%85%8D%E7%BD%AE%E4%BF%9D%E6%8A%A4.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-11-05-1643-【优化+验证】发布台并行日志Worker升级与香港API配置保护.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-11-05-1643-%E3%80%90%E4%BC%98%E5%8C%96%2B%E9%AA%8C%E8%AF%81%E3%80%91%E5%8F%91%E5%B8%83%E5%8F%B0%E5%B9%B6%E8%A1%8C%E6%97%A5%E5%BF%97Worker%E5%8D%87%E7%BA%A7%E4%B8%8E%E9%A6%99%E6%B8%AFAPI%E9%85%8D%E7%BD%AE%E4%BF%9D%E6%8A%A4.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-11-05-1643-【优化+验证】发布台并行日志Worker升级与香港API配置保护.md"
 sourceSha256: "dbaf227a2767870051001eb3e6d53822110d682b9e316c495d1a9e582a5aae7b"
 sourceSystem: "project-doc"
 ---
 
 # 【优化+验证】发布台并行、详细日志、Worker 升级与香港 API 配置保护
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-11-05-1643-【优化+验证】发布台并行日志Worker升级与香港API配置保护.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-11-05-1643-【优化+验证】发布台并行日志Worker升级与香港API配置保护.md`
 
 > 整理日期：2026-11-05 16:43｜日期依据：文件名日期
 
 更新时间：2026-11-05 16:43（Asia/Manila）
 
-执行范围：`dbqp-ops-console`、Cloudflare Worker `summer-wave-c94f`、香港
+执行范围：`bizops-ops-console`、Cloudflare Worker `summer-wave-c94f`、香港
 01/02 配置保护、03 打包源。
 
 ## 一、结论
@@ -50,9 +52,9 @@ origin/ben：e1af715a
 
 | 需求 | 状态 | 证据 |
 | --- | --- | --- |
-| 巴西/香港厂家差异 | PASS | 巴西 9 个业务容器，香港 10 个业务容器；香港额外包含 TADA HTTP 9096 |
-| 03 巴西/香港 start.sh、stop.sh 独立 | PASS | 巴西与香港发布分别使用 `/data/server-runtime` 和 `/data/server-runtime-hk`；香港 01/02 已补 TADA |
-| 业务节点全停后才同步结果集 | PASS | 香港两次任务在 TADA 残留时中止，均为 `running=1`；修复后先输出 `BUSINESS_CONTAINERS_STOPPED=0` 才 rsync |
+| 巴西/香港厂家差异 | PASS | 巴西 9 个业务容器，香港 10 个业务容器；香港额外包含 vendor_a HTTP 9096 |
+| 03 巴西/香港 start.sh、stop.sh 独立 | PASS | 巴西与香港发布分别使用 `/data/server-runtime` 和 `/data/server-runtime-hk`；香港 01/02 已补 vendor_a |
+| 业务节点全停后才同步结果集 | PASS | 香港两次任务在 vendor_a 残留时中止，均为 `running=1`；修复后先输出 `BUSINESS_CONTAINERS_STOPPED=0` 才 rsync |
 | 03 最新结果集同步到巴西/香港 | PASS | 巴西 4 台、香港 2 台均完成同步；香港两台各 xfr#27 / 2,146,760,704 bytes |
 | 一键准备更新 03 结果集 | PASS | 一键准备已包含 `sh sync_results.sh all` 和 `RESULT_SET_SYNC_OK` 检查 |
 | share.so 巴西/香港统一 | PASS | 两地均为 `2a325437638df875c6cb316cff3c72af` |
@@ -63,7 +65,7 @@ origin/ben：e1af715a
 | 巴西/香港并行 | PASS | 测试任务 `dbf85d00e00641c8` 与 `a327e5b3d1714ffa` 同时 running；同区域第二个任务返回 409 |
 | 默认小时版本号 | PASS | 页面当前默认 `2026110516-ben`；日期改为 11-04 后自动变为 `2026110416-ben` |
 | 每次操作详细日志 | PASS | 审计保存点击、输入、命令、前后快照；任务导出包含 job、全部 SSE 事件和前后 60 秒审计 |
-| Worker 线上备份 | PASS | `/root/dbqp-cf-backups/20261105-081252-summer-wave-c94f` |
+| Worker 线上备份 | PASS | `/root/bizops-cf-backups/20261105-081252-summer-wave-c94f` |
 | Worker 最新/历史查看 | PASS | 页面展开后加载 1 个最新版本和 16 个历史版本；API 内容 SHA256 与线上一致 |
 
 ## 四、香港 configs-api.py 保护
@@ -108,9 +110,9 @@ MD5/SHA256 以本机备份为准
 
 ```text
 pg-static / pg3-static / pg4-static / pg5-static / pg6-static / pg7-static：v1
-tada-statics / 1 / 2 / 3 / 4 / 5：v2
+vendor_a-statics / 1 / 2 / 3 / 4 / 5：v2
 pp-static：v10
-ppk-static / playson-static / panda-static：v1
+ppk-static / vendor_c-static / vendor_d-static：v1
 g759-static：v3
 ```
 
@@ -123,8 +125,8 @@ g759-static：v3
 ```text
 pg-static / pg3 / pg4 / pg5：200 MISS → 200 HIT
 pg6 / pg7：200 HIT（此前已有新键预热）；唯一查询参数复测均为 MISS → HIT
-tada-statics / 1 / 2 / 3 / 4 / 5：200 MISS → 200 HIT
-pp-static / ppk-static / playson-static / panda-static / g759-static：200 MISS → 200 HIT
+vendor_a-statics / 1 / 2 / 3 / 4 / 5：200 MISS → 200 HIT
+pp-static / ppk-static / vendor_c-static / vendor_d-static / g759-static：200 MISS → 200 HIT
 ```
 
 ### 5.3 页面查看
@@ -170,10 +172,10 @@ GET /api/jobs/{job_id}/export
 ## 七、控制台部署验证
 
 ```text
-镜像：dbqp-ops-console:20261105-r5
+镜像：bizops-ops-console:20261105-r5
 镜像 ID：sha256:f3ea28d50b165feb3e089b6e73617510e9c166fae1a8e4c35c59d8439ab80c1f
 状态：running / healthy
-入口：http://35.247.205.6:8787
+入口：http://192.0.2.8:8787
 ```
 
 生产 API：
@@ -204,7 +206,7 @@ Worker 最新/历史展开：通过
 控制台：无运行中的发布任务
 ```
 
-HK01 TADA 首启仍有 1 次历史 Sanic worker 启动超时，当前稳定；后续可单独
+HK01 vendor_a 首启仍有 1 次历史 Sanic worker 启动超时，当前稳定；后续可单独
 评估 `SANIC_WORKER_ACK_TIMEOUT=120`。
 
 ## 九、群通知

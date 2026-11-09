@@ -12,6 +12,8 @@ sourceHtmlSha256: "b78e6e73da587883ecb6a10db304b2807914dd21f925a6356c4a69ba2b80e
 
 # github渗透测试工具库
 
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
 > 原文：[github渗透测试工具库](https://xn--6o0a585a.gitbook.io/devops/an-quan/github-shen-tou-ce-shi-gong-ju-ku.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2021-12-29 11:02｜日期依据：GitBook 页面更新时间
@@ -223,7 +225,7 @@ Powershell tools合集：
 [https://github.com/clymb3r/PowerShell](https://link.zhihu.com/?target=https%3A//github.com/clymb3r/PowerShell)
 
 powershell的mimikittenz:
-[https://github.com/putterpanda/mimikittenz](https://link.zhihu.com/?target=https%3A//github.com/putterpanda/mimikittenz)
+[https://github.com/puttervendor_d/mimikittenz](https://link.zhihu.com/?target=https%3A//github.com/puttervendor_d/mimikittenz)
 
 域渗透教程:
 [https://github.com/l3m0n/pentest_study](https://link.zhihu.com/?target=https%3A//github.com/l3m0n/pentest_study)

@@ -5,22 +5,24 @@ date: "2026-10-14T10:35:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Docker", "CDN", "DNS", "故障排查", "数据库恢复", "源码与配置"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-10-14-1035-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91%E5%B7%B4%E8%A5%BF%E7%BA%BF%E4%B8%8APP%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90CDN%E7%BC%93%E5%AD%98%E5%88%B7%E6%96%B0%E8%AE%B0%E5%BD%95%28%E5%90%AB%E5%88%86%E5%8C%BA%E6%9F%A5%E8%AF%A2%E6%BC%8F%E5%88%B7bug%E4%BF%AE%E5%A4%8D%29.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-10-14-1035-【运维】巴西线上PP静态资源CDN缓存刷新记录(含分区查询漏刷bug修复).md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-10-14-1035-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91%E5%B7%B4%E8%A5%BF%E7%BA%BF%E4%B8%8APP%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90CDN%E7%BC%93%E5%AD%98%E5%88%B7%E6%96%B0%E8%AE%B0%E5%BD%95%28%E5%90%AB%E5%88%86%E5%8C%BA%E6%9F%A5%E8%AF%A2%E6%BC%8F%E5%88%B7bug%E4%BF%AE%E5%A4%8D%29.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-10-14-1035-【运维】巴西线上PP静态资源CDN缓存刷新记录(含分区查询漏刷bug修复).md"
 sourceSha256: "937c693f721f525fbecce665b141351bb2c2a392fae3608e557563c90f2942bb"
 sourceSystem: "project-doc"
 ---
 
 # 【运维】巴西线上 PP 静态资源 CDN 缓存刷新（含 zone 查询漏刷 bug 修复）
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-10-14-1035-【运维】巴西线上PP静态资源CDN缓存刷新记录(含分区查询漏刷bug修复).md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-10-14-1035-【运维】巴西线上PP静态资源CDN缓存刷新记录(含分区查询漏刷bug修复).md`
 
 > 整理日期：2026-10-14 10:35｜日期依据：文件名日期
 
 时间：2026-10-14 10:35（北京）/ 02:35（UTC）
 需求：「清理一下巴西线上 pp 的静态资源缓存」，本轮**不通知飞机群**。
 对象：`pp-static.*`（21 个根域名 + d1b2q3p.cfd 不在服务列表）走 Cloudflare → Worker → GCS
-　　　`newgg2-dbqp-gcs-pp-static`（圣保罗桶）。
+　　　`newgg2-bizops-gcs-pp-static`（圣保罗桶）。
 
 ---
 
@@ -57,7 +59,7 @@ sourceSystem: "project-doc"
 原因：旧脚本用列表接口取 zone id：
         GET /client/v4/zones?per_page=50
       但本账户 zone 总数 > 50，接口只返回第一页 → xqv9m8.icu、
-      tada-host-2026.icu、tada-host-game.icu 三个 zone 不在第一页，直接被漏掉。
+      vendor_a-host-2026.icu、vendor_a-host-game.icu 三个 zone 不在第一页，直接被漏掉。
       （其中 xqv9m8.icu 是最主要的根域名，漏刷影响最大。）
 
 修复（docker/scripts/cf_purge_zones.sh）：改为**按名字逐个精确查**：
@@ -76,7 +78,7 @@ sourceSystem: "project-doc"
 基线（刷新前）：GET https://pp-static.xqv9m8.icu/gs2c/common/game-history-client/0.28720e9b.min.js
   第 1 次 MISS → 第 2/3 次 HIT（确认该 zone 原本有缓存，验证有意义）
 
-刷新：bash /opt/dbqp-scripts/cf_purge_zones.sh --vendor pp   （耗时 26s，ok=22 fail=0）
+刷新：bash /opt/bizops-scripts/cf_purge_zones.sh --vendor pp   （耗时 26s，ok=22 fail=0）
 
 刷新后：
   · 22 个 zone 抽样：cf-cache-status=MISS + HTTP 200 + content-length 13311（与源一致）
@@ -89,11 +91,11 @@ sourceSystem: "project-doc"
 ## 五、运维手册
 
 ```bash
-# 刷新某个厂家的静态缓存（在宝塔上跑，CF token 在 /root/dbqp-cf-dns.env，有 IP 白名单）
-bash /opt/dbqp-scripts/cf_purge_zones.sh --vendor pp
-bash /opt/dbqp-scripts/cf_purge_zones.sh --vendor panda
-bash /opt/dbqp-scripts/cf_purge_zones.sh --zones xqv9m8.icu,q7m9v8.icu      # 指定 zone
-bash /opt/dbqp-scripts/cf_purge_zones.sh --all                            # 全部静态 zone
+# 刷新某个厂家的静态缓存（在宝塔上跑，CF token 在 /root/bizops-cf-dns.env，有 IP 白名单）
+bash /opt/bizops-scripts/cf_purge_zones.sh --vendor pp
+bash /opt/bizops-scripts/cf_purge_zones.sh --vendor vendor_d
+bash /opt/bizops-scripts/cf_purge_zones.sh --zones xqv9m8.icu,q7m9v8.icu      # 指定 zone
+bash /opt/bizops-scripts/cf_purge_zones.sh --all                            # 全部静态 zone
 
 # 验证（换一个你这次没请求过的对象，避免误判）
 curl -s -o /dev/null -D - "https://pp-static.xqv9m8.icu/favicon.ico" | grep -iE "^HTTP/|cf-cache-status"
@@ -106,7 +108,7 @@ curl -s -o /dev/null -D - "https://pp-static.xqv9m8.icu/favicon.ico" | grep -iE 
 
 ```text
 docker/scripts/cf_purge_zones.sh          # 本次修复（zone 按名字精确查）
-/opt/dbqp-scripts/cf_purge_zones.sh       # 宝塔部署副本（旧版已备份 .bak-20261014-103225-before-zone-lookup-fix）
+/opt/bizops-scripts/cf_purge_zones.sh       # 宝塔部署副本（旧版已备份 .bak-20261014-103225-before-zone-lookup-fix）
 docker/doc/2026-09-10-0949-…CDN缓存清理与Worker缓存盐记录.md   # 同类操作历史记录
 docker/doc/2026-09-14-1400-…GCS单桶化与Worker变更全记录.md      # 静态链路（Worker + GCS）现状
 ```

@@ -5,15 +5,17 @@ date: "2026-10-02T16:10:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "香港 CN"]
 tags: ["香港 CN", "Python", "Docker", "Nginx", "CDN", "DNS", "安全运维", "源码与配置"]
-source: "project-file:///Projects/work/game/pgserver/cn/docker/doc/2026-10-02-1610-%E3%80%90%E8%BF%90%E7%BB%B4%E8%AE%B0%E5%BD%95%E3%80%91EdgeOne%E4%B8%89%E7%AB%99%E7%82%B9%E8%A7%84%E5%88%99%E4%B8%AD%E6%96%87%E6%A0%87%E6%B3%A8%E4%B8%8E%E7%AB%99%E7%82%B9%E6%A0%87%E7%AD%BE%E6%96%B9%E6%A1%88.md"
-sourcePath: "~/Projects/work/game/pgserver/cn/docker/doc/2026-10-02-1610-【运维记录】EdgeOne三站点规则中文标注与站点标签方案.md"
+source: "project-file:///Projects/ops/private-notes/cn/docker/doc/2026-10-02-1610-%E3%80%90%E8%BF%90%E7%BB%B4%E8%AE%B0%E5%BD%95%E3%80%91EdgeOne%E4%B8%89%E7%AB%99%E7%82%B9%E8%A7%84%E5%88%99%E4%B8%AD%E6%96%87%E6%A0%87%E6%B3%A8%E4%B8%8E%E7%AB%99%E7%82%B9%E6%A0%87%E7%AD%BE%E6%96%B9%E6%A1%88.md"
+sourcePath: "~/Projects/ops/private-notes/cn/docker/doc/2026-10-02-1610-【运维记录】EdgeOne三站点规则中文标注与站点标签方案.md"
 sourceSha256: "302e8cc4ac584740dee2d0c9cfa50fa420c0228400ea788595f846871597f5c0"
 sourceSystem: "project-doc"
 ---
 
 # 2026-10-02 EdgeOne 三个站点规则中文标注 + 站点标签方案
 
-> 来源文件：`~/Projects/work/game/pgserver/cn/docker/doc/2026-10-02-1610-【运维记录】EdgeOne三站点规则中文标注与站点标签方案.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-10-02-1610-【运维记录】EdgeOne三站点规则中文标注与站点标签方案.md`
 
 > 整理日期：2026-10-02 16:10｜日期依据：文件名日期
 
@@ -50,10 +52,10 @@ sourceSystem: "project-doc"
 改后控制台里看到的规则名（每个游戏站点 25 条）：
   游戏静态域名·节点缓存7天（14个静态前缀）      备注写明 14 个前缀、缓存 7 天、回源香港 nginx → 大阪桶
   游戏动态接口·不缓存（8个动态子域）            备注写明 8 个动态域名、回源香港后端容器
-  JILI游戏WebSocket·长连接（jili-games）       备注写明 /lifeservice/ws2 与 /ws2、超时 120 秒
+  vendor_b游戏WebSocket·长连接（vendor_b-games）       备注写明 /lifeservice/ws2 与 /ws2、超时 120 秒
   回源Host·PG主站静态资源（pg-static）          备注写明「pg-static.<域>：静态资源域名，回源 Host 固定为该域名」
   回源Host·PG游戏接口（pg-games）              同上，动态接口
-  …（PG3~PG7 / PP / PPK / Panda / Playson / G759 / JILI 静态与动态共 22 条，命名规律一致）
+  …（PG3~PG7 / PP / PPK / vendor_d / Playson / G759 / vendor_b 静态与动态共 22 条，命名规律一致）
 
 商户站点 p3w9n5.shop（3 条）：
   商户域名·不缓存（根域 + socket）              备注写明 p3w9n5.shop 与 socket.p3w9n5.shop、回源 platform-api 9090、
@@ -64,7 +66,7 @@ sourceSystem: "project-doc"
 回归验证（改中文标注后链路无变化）：
   http://pg-games.m4q7z1.shop/health         -> 200
   http://pg-static.m4q7z1.shop/health.json   -> 200
-  http://jili-games.m4q7z1.shop/health       -> 200
+  http://vendor_b-games.m4q7z1.shop/health       -> 200
   http://pg-games.k8x2v9.shop/health         -> 200（--resolve 到 EdgeOne 节点）
   http://socket.p3w9n5.shop/healthz          -> 200（--resolve 到 EdgeOne 节点）
 ```

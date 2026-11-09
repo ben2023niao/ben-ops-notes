@@ -5,15 +5,17 @@ date: "2026-09-12T19:30:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Linux", "Shell", "Python", "Docker", "CDN", "安全运维", "故障排查"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-09-12-1930-%E3%80%90%E6%9E%B6%E6%9E%84%2B%E8%B8%A9%E5%9D%91%E3%80%91%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%B5%84%E6%BA%90%E5%90%8C%E6%AD%A5S3%E5%88%B0GCS%E7%9A%84SDK%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%85%A8%E9%83%A8%E5%9D%91%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-09-12-1930-【架构+踩坑】客户端资源同步S3到GCS的SDK实现与全部坑记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-09-12-1930-%E3%80%90%E6%9E%B6%E6%9E%84%2B%E8%B8%A9%E5%9D%91%E3%80%91%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%B5%84%E6%BA%90%E5%90%8C%E6%AD%A5S3%E5%88%B0GCS%E7%9A%84SDK%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%85%A8%E9%83%A8%E5%9D%91%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-09-12-1930-【架构+踩坑】客户端资源同步S3到GCS的SDK实现与全部坑记录.md"
 sourceSha256: "5f7c2292d3c3aca876574ebedca36553e66d1d08494b65ec4dee2893eb719aed"
 sourceSystem: "project-doc"
 ---
 
 # 【架构+踩坑】客户端资源同步 S3→GCS 的 SDK 实现与全部坑记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-09-12-1930-【架构+踩坑】客户端资源同步S3到GCS的SDK实现与全部坑记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-12-1930-【架构+踩坑】客户端资源同步S3到GCS的SDK实现与全部坑记录.md`
 
 > 整理日期：2026-09-12 19:30｜日期依据：文件名日期
 
@@ -23,18 +25,18 @@ sourceSystem: "project-doc"
 
 > **先读这一句**：客户端资源同步的**唯一正确实现**是
 > `docker/scripts/s3_gcs_sdk_sync.py`（boto3 ↔ google-cloud-storage SDK 直连），
-> 跑在**后端 03 的容器** `dbqp-resource-sync` 里。
+> 跑在**后端 03 的容器** `bizops-resource-sync` 里。
 > 本文档列出的都是**已经踩过的坑**，照抄旧写法会重犯。
 
 ## 一、当前架构（2026-09-12 起）
 
 ```text
-前端开发 --上传--> s3://dbqp-s3-<prefix>/（AWS 大阪 ap-northeast-3，私有+版本控制）
+前端开发 --上传--> s3://bizops-s3-<prefix>/（AWS 大阪 ap-northeast-3，私有+版本控制）
                         |
                         |  运维/机器人触发同步（后端 03 的容器，SDK 直连）
                         v
-   gs://newgg2-dbqp-gcs-<prefix>-sa/  （项目 newgg2-0520，巴西）
-   gs://newgg2-dbqp-gcs-<prefix>/     （项目 newgg2-0520，香港镜像）
+   gs://newgg2-bizops-gcs-<prefix>-sa/  （项目 newgg2-0520，巴西）
+   gs://newgg2-bizops-gcs-<prefix>/     （项目 newgg2-0520，香港镜像）
                         |
                         v
    Cloudflare Worker summer-wave-c94f（静态代理）→ 静态域名 CDN → 玩家
@@ -44,9 +46,9 @@ sourceSystem: "project-doc"
 
 | 项目 | 现状 |
 | --- | --- |
-| 桶名前缀 | **`newgg2-`**（资源 09-11 迁到 newgg2-0520；旧的 `dbqp-gcs-*` 桶已删除） |
-| 执行机 | **后端 03**（203.0.113.1，8C31G）；**宝塔只做管理，不再中转同步** |
-| 执行形态 | **容器** `dbqp-resource-sync`（不污染宿主机环境，便于迁移） |
+| 桶名前缀 | **`newgg2-`**（资源 09-11 迁到 newgg2-0520；旧的 `bizops-gcs-*` 桶已删除） |
+| 执行机 | **后端 03**（192.0.2.1，8C31G）；**宝塔只做管理，不再中转同步** |
+| 执行形态 | **容器** `bizops-resource-sync`（不污染宿主机环境，便于迁移） |
 | 同步引擎 | **SDK 直连**（boto3 + google-cloud-storage），不是 aws/gsutil 命令行 |
 | 校验方式 | **两边元数据接口比对**（零数据搬运） |
 | 触发入口 | 机器人主页「静态资源同步S3到GCS」按钮，仅 @benb6879 / @Ben_Bird 可执行 |
@@ -55,7 +57,7 @@ sourceSystem: "project-doc"
 
 ```text
 docker/scripts/s3_gcs_sdk_sync.py        ★ 同步主引擎（SDK 直连）
-    --prefix tada-statics4,tada-statics5 --apply --jobs 32   # 执行
+    --prefix vendor_a-statics4,vendor_a-statics5 --apply --jobs 32   # 执行
     --prefix X --verify-only                                 # 只校验（零数据搬运）
     --prefix X --cdn-only                                    # 只做 health.json + CDN 收尾
 docker/scripts/s3_to_gcs_client_sync.py  旧 CLI 版（aws+gsutil）——慢，仅作兜底
@@ -73,9 +75,9 @@ docker/scripts/s3_to_gcs_static_sync.sh  旧入口，现已改为薄封装（内
 现象：上传全部失败，但脚本汇总里看起来"完成"；GCS 里资源仍是旧版本 → 玩家进不去。
 报错：400 POST .../uploadType=multipart
   "Content-Type specified in the upload (text/plain) does not match
-   Content-Type specified in metadata (image/jpeg)"
+   Content-Type specified in mevendor_ata (image/jpeg)"
 原因：blob.upload_from_string(data) 默认以上传头 text/plain 走 multipart，
-      与我们在 metadata 里写的 image/jpeg 冲突 → GCS 直接拒绝。
+      与我们在 mevendor_ata 里写的 image/jpeg 冲突 → GCS 直接拒绝。
 正确：显式传 content_type
       blob.upload_from_string(data, content_type=ctype)
       blob.upload_from_file(fh, rewind=True, content_type=ctype)
@@ -91,7 +93,7 @@ gsutil 每次启动要加载整套 Python 运行时：约 0.5-1s CPU、约 200MB
 小文件多只会把这个开销放大（大文件能被传输时间摊薄）。
 现场证据：一台机同时 130 个 aws/gsutil 进程，单个 aws 进程 90% CPU。
 新实现：一个进程 + 线程池，对象在内存/临时文件里直接搬运。
-实测：tada-statics5 待传 2767 个对象，260s 完成（CLI 版按 0.5 对象/s 需 1 小时+）。
+实测：vendor_a-statics5 待传 2767 个对象，260s 完成（CLI 版按 0.5 对象/s 需 1 小时+）。
 ```
 
 ### ★3 GCS 写权限是 VM scopes 决定的，不是 IAM
@@ -191,14 +193,14 @@ health.json 是运维探针探活用的固定返回值；前端同步后偶尔�
 
 ```text
 1) 同步（后端 03，容器内）
-   docker run -d --name dbqp-resource-sync --network host \
-     -v /root/dbqp-h5-download.env:/creds/aws.env:ro \
-     -v /root/dbqp-notify.env:/creds/notify.env:ro \
-     dbqp-resource-sync:latest \
-     --prefix tada-statics4,tada-statics5 --apply --jobs 32 --interval 60
+   docker run -d --name bizops-resource-sync --network host \
+     -v /root/bizops-h5-download.env:/creds/aws.env:ro \
+     -v /root/bizops-notify.env:/creds/notify.env:ro \
+     bizops-resource-sync:latest \
+     --prefix vendor_a-statics4,vendor_a-statics5 --apply --jobs 32 --interval 60
 
 2) 必须复核（零数据搬运，45-62s）
-   ... dbqp-resource-sync:latest --prefix <同上> --verify-only
+   ... bizops-resource-sync:latest --prefix <同上> --verify-only
    判定标准：缺失 0 / 大小不符 0 / 内容不符 0（分片 ETag 例外单独看）
 
 3) 收尾
@@ -213,7 +215,7 @@ health.json 是运维探针探活用的固定返回值；前端同步后偶尔�
 
 | 文档 | 已过时/错误的内容 | 现状 |
 | --- | --- | --- |
-| `docker/线上服务器信息/frontend-reflow-s3-to-gcs.md` | 「在宝塔上中转」「gsutil 只认 GCS/aws 只认 S3，所以必须中转」「桶名 dbqp-gcs-*」 | 已加更正横幅：执行机=03 容器、SDK 直连、桶名 newgg2-* |
+| `docker/线上服务器信息/frontend-reflow-s3-to-gcs.md` | 「在宝塔上中转」「gsutil 只认 GCS/aws 只认 S3，所以必须中转」「桶名 bizops-gcs-*」 | 已加更正横幅：执行机=03 容器、SDK 直连、桶名 newgg2-* |
 | `docker/workbench/PROJECT_RUNTIME_CHAINS.md` | 「静态更新源 = client.git → GCS 双区」 | 已更正：git 同步已停用，现为 S3 → GCS |
 | `docker/scripts/s3_to_gcs_static_sync.sh` | 每个对象下载两次（巴西一次、香港一次） | 已改为薄封装，统一走 SDK/CLI 脚本 |
 | 本文档 | — | 以上所有坑的唯一权威记录 |

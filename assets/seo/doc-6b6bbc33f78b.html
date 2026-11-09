@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>2026-07-04 后端磁盘清理与 PG65 启动问题排查｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
-  <meta name="description" content="2026-07-04 后端磁盘清理与 PG65 启动问题排查。本文属于历史运维与项目交付 / 巴西主站，2026-07-04 测试反馈：PG 麻将胡了（PG65 / Mahjong Ways）仍然进不了游戏，浏览器 Network 里看到： 同一轮运维要求：后端 2 台服务器发布前先检查磁盘，不够时清理历史 Do…">
-  <meta name="keywords" content="巴西主站，Shell，Python，Docker，Nginx，MySQL，自动化，CDN，历史运维与项目交付，历史运维与项目交付 / 巴西主站，2026-07-04 后端磁盘清理与 PG65 启动问题排查">
+  <meta name="description" content="2026-07-04 后端磁盘清理与 PG65 启动问题排查。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 2026-07-04 测试反馈：PG 麻将胡了（PG65 / Mahjong Ways）仍然进不了游戏，浏…">
+  <meta name="keywords" content="巴西主站，Shell，Python，Docker，Nginx，MySQL，自动化，CDN，历史运维与项目交付，历史运维与项目交付 / 巴西主站，2026-07-04 后端磁盘清理与 PG65 启动问题排查，背景，后端磁盘清理执行结果，已固化到 docker/deploy 的策略">
   <meta name="author" content="BEN">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
   <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
@@ -22,7 +22,7 @@
   <meta property="og:locale" content="zh_CN">
   <meta property="og:site_name" content="BEN.OPS 工程笔记">
   <meta property="og:title" content="2026-07-04 后端磁盘清理与 PG65 启动问题排查">
-  <meta property="og:description" content="2026-07-04 后端磁盘清理与 PG65 启动问题排查。本文属于历史运维与项目交付 / 巴西主站，2026-07-04 测试反馈：PG 麻将胡了（PG65 / Mahjong Ways）仍然进不了游戏，浏览器 Network 里看到： 同一轮运维要求：后端 2 台服务器发布前先检查磁盘，不够时清理历史 Do…">
+  <meta property="og:description" content="2026-07-04 后端磁盘清理与 PG65 启动问题排查。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 2026-07-04 测试反馈：PG 麻将胡了（PG65 / Mahjong Ways）仍然进不了游戏，浏…">
   <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6b6bbc33f78b.html">
   <meta property="article:published_time" content="2026-07-04T00:00:00+08:00">
   <meta property="article:modified_time" content="2026-07-04 00:00">
@@ -31,7 +31,7 @@
   
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="2026-07-04 后端磁盘清理与 PG65 启动问题排查">
-  <meta name="twitter:description" content="2026-07-04 后端磁盘清理与 PG65 启动问题排查。本文属于历史运维与项目交付 / 巴西主站，2026-07-04 测试反馈：PG 麻将胡了（PG65 / Mahjong Ways）仍然进不了游戏，浏览器 Network 里看到： 同一轮运维要求：后端 2 台服务器发布前先检查磁盘，不够时清理历史 Do…">
+  <meta name="twitter:description" content="2026-07-04 后端磁盘清理与 PG65 启动问题排查。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 2026-07-04 测试反馈：PG 麻将胡了（PG65 / Mahjong Ways）仍然进不了游戏，浏…">
   
   <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
 --line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
@@ -75,7 +75,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 @media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
 .meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
 @media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6b6bbc33f78b.html#article","headline":"2026-07-04 后端磁盘清理与 PG65 启动问题排查","description":"2026-07-04 后端磁盘清理与 PG65 启动问题排查。本文属于历史运维与项目交付 / 巴西主站，2026-07-04 测试反馈：PG 麻将胡了（PG65 / Mahjong Ways）仍然进不了游戏，浏览器 Network 里看到： 同一轮运维要求：后端 2 台服务器发布前先检查磁盘，不够时清理历史 Do…","datePublished":"2026-07-04T00:00:00+08:00","dateModified":"2026-07-04 00:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","Python","Docker","Nginx","MySQL","自动化","CDN","历史运维与项目交付","历史运维与项目交付 / 巴西主站","2026-07-04 后端磁盘清理与 PG65 启动问题排查"],"wordCount":2019,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6b6bbc33f78b.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6b6bbc33f78b.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-07-04 后端磁盘清理与 PG65 启动问题排查","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6b6bbc33f78b.html"}]}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6b6bbc33f78b.html#article","headline":"2026-07-04 后端磁盘清理与 PG65 启动问题排查","description":"2026-07-04 后端磁盘清理与 PG65 启动问题排查。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 2026-07-04 测试反馈：PG 麻将胡了（PG65 / Mahjong Ways）仍然进不了游戏，浏…","datePublished":"2026-07-04T00:00:00+08:00","dateModified":"2026-07-04 00:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","Python","Docker","Nginx","MySQL","自动化","CDN","历史运维与项目交付","历史运维与项目交付 / 巴西主站","2026-07-04 后端磁盘清理与 PG65 启动问题排查","背景","后端磁盘清理执行结果","已固化到 docker/deploy 的策略"],"wordCount":1100,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6b6bbc33f78b.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6b6bbc33f78b.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-07-04 后端磁盘清理与 PG65 启动问题排查","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-6b6bbc33f78b.html"}]}]}</script>
 </head>
 <body>
   <header class="topbar"><div class="shell">
@@ -94,19 +94,20 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
     <header class="hero">
       <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
       <h1>2026-07-04 后端磁盘清理与 PG65 启动问题排查</h1>
-      <p class="lede">2026-07-04 后端磁盘清理与 PG65 启动问题排查。本文属于历史运维与项目交付 / 巴西主站，2026-07-04 测试反馈：PG 麻将胡了（PG65 / Mahjong Ways）仍然进不了游戏，浏览器 Network 里看到： 同一轮运维要求：后端 2 台服务器发布前先检查磁盘，不够时清理历史 Do…</p>
+      <p class="lede">2026-07-04 后端磁盘清理与 PG65 启动问题排查。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 2026-07-04 测试反馈：PG 麻将胡了（PG65 / Mahjong Ways）仍然进不了游戏，浏…</p>
       <div class="meta">
         <time class="badge" datetime="2026-07-04T00:00:00+08:00">发布于 2026-07-04</time>
         <span class="badge">作者 BEN</span>
-        <span class="badge">2,019 字</span>
-        <span class="badge">6 分钟阅读</span>
+        <span class="badge">1,100 字</span>
+        <span class="badge">4 分钟阅读</span>
       </div>
     </header>
     <div class="layout">
       <article class="article" itemscope itemtype="https://schema.org/TechArticle">
         
 <blockquote>
-<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-07-04-【优化+修复Bug】后端磁盘清理与PG65启动问题排查.md</code></p>
+<p>公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。</p>
+<p>来源文件：<code>~/Projects/ops/private-notes/master/docs/history/2026-07-04-【优化+修复Bug】后端磁盘清理与PG65启动问题排查.md</code></p>
 <p>整理日期：2026-07-04 00:00｜日期依据：文件名日期</p>
 </blockquote>
 <h2 id="背景">背景</h2>
@@ -117,8 +118,8 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 <p>注意：本次排查不要在文档或群里贴用户 JWT、ticket、cookie、商户 secret、用户账号明细。日志里如果出现这些内容，只做脱敏摘要。</p>
 <h2 id="后端磁盘清理执行结果">后端磁盘清理执行结果</h2>
 <p>目标机器：</p>
-<pre><code class="language-text">dbqp-saopaulo-sanic-prod-01 / 34.39.183.154 / 203.0.113.1
-dbqp-saopaulo-sanic-prod-02 / 34.95.230.202 / 203.0.113.1
+<pre><code class="language-text">bizops-saopaulo-sanic-prod-01 / 192.0.2.10 / 192.0.2.1
+bizops-saopaulo-sanic-prod-02 / 192.0.2.11 / 192.0.2.1
 </code></pre>
 <p>清理前：</p>
 <pre><code class="language-text">01: / 484G, Used 352G, Avail 133G, Use 73%
@@ -153,13 +154,13 @@ docker builder prune -f --filter until=168h
     master-288fa1e, master-442378e, master-6bfbc70, master-84202c0
 </code></pre>
 <p>清理后容器复核：</p>
-<pre><code class="language-text">dbqp-pg-release-01/02           pgserver:master-6bfbc70 Up
-dbqp-tada-release-01/02         pgserver:master-6bfbc70 Up
-dbqp-panda-release-01/02        pgserver:master-6bfbc70 Up
-dbqp-playson-release-01/02      pgserver:master-6bfbc70 Up
-dbqp-popok-release-01/02        pgserver:master-6bfbc70 Up
-dbqp-pp-release-01/02           pgserver:master-288fa1e Up
-dbqp-platform-api-release-01/02 pgserver:master-442378e Up
+<pre><code class="language-text">bizops-pg-release-01/02           pgserver:master-6bfbc70 Up
+bizops-vendor_a-release-01/02         pgserver:master-6bfbc70 Up
+bizops-vendor_d-release-01/02        pgserver:master-6bfbc70 Up
+bizops-vendor_c-release-01/02      pgserver:master-6bfbc70 Up
+bizops-popok-release-01/02        pgserver:master-6bfbc70 Up
+bizops-pp-release-01/02           pgserver:master-288fa1e Up
+bizops-platform-api-release-01/02 pgserver:master-442378e Up
 </code></pre>
 <h2 id="已固化到-docker-deploy-的策略">已固化到 docker/deploy 的策略</h2>
 <p>本次把发布前清理策略固化到：</p>
@@ -347,7 +348,7 @@ POST    https://api.xqv9m8.icu/api/report/timing -&gt; 204
           <li>分类：历史运维与项目交付 / 巴西主站</li>
           <li>日期：2026-07-04</li>
           <li>标签：<span class="tag">巴西主站</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">MySQL</span><span class="tag">自动化</span><span class="tag">CDN</span></li>
-          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-07-04-【优化+修复Bug】后端磁盘清理与PG65启动问题排查.…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607040000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-2026-07-04%20%E5%90%8E%E7%AB%AF%E7%A3%81%E7%9B%98%E6%B8%85%E7%90%86%E4%B8%8E%20PG65%20%E5%90%AF%E5%8A%A8%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5.md" type="text/markdown">查看 Markdown 原文</a></li>
+          <li><span>来源：~/Projects/ops/private-notes/master/docs/history/2026-07-04-【优化+修复Bug】后端磁盘清理与PG65启动问题排查.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607040000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-2026-07-04%20%E5%90%8E%E7%AB%AF%E7%A3%81%E7%9B%98%E6%B8%85%E7%90%86%E4%B8%8E%20PG65%20%E5%90%AF%E5%8A%A8%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5.md" type="text/markdown">查看 Markdown 原文</a></li>
         </ul></div>
         <div class="aside-box"><h2>作者</h2>
           <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
@@ -357,10 +358,10 @@ POST    https://api.xqv9m8.icu/api/report/timing -&gt; 204
     </div>
     <section class="seo-summary" aria-labelledby="seo-summary-title">
       <h2 id="seo-summary-title">文章摘要</h2>
-      <p>2026-07-04 后端磁盘清理与 PG65 启动问题排查。本文属于历史运维与项目交付 / 巴西主站，2026-07-04 测试反馈：PG 麻将胡了（PG65 / Mahjong Ways）仍然进不了游戏，浏览器 Network 里看到： 同一轮运维要求：后端 2 台服务器发布前先检查磁盘，不够时清理历史 Do…</p>
-      <p>关键词：巴西主站、Shell、Python、Docker、Nginx、MySQL、自动化、CDN、历史运维与项目交付、历史运维与项目交付 / 巴西主站、2026-07-04 后端磁盘清理与 PG65 启动问题排查</p>
+      <p>2026-07-04 后端磁盘清理与 PG65 启动问题排查。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 2026-07-04 测试反馈：PG 麻将胡了（PG65 / Mahjong Ways）仍然进不了游戏，浏…</p>
+      <p>关键词：巴西主站、Shell、Python、Docker、Nginx、MySQL、自动化、CDN、历史运维与项目交付、历史运维与项目交付 / 巴西主站、2026-07-04 后端磁盘清理与 PG65 启动问题排查、背景、后端磁盘清理执行结果、已固化到 docker/deploy 的策略</p>
     </section>
-    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dc1a7bc760ce.html"><small>上一篇</small>2026-07-04 PG 接口跨域与 API 反代修复说明</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7ab2ceb0ddad.html"><small>下一篇</small>DBQP Docker 运维 AI 交接总览 · DBQP运维AI交接总览</a></nav>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-dc1a7bc760ce.html"><small>上一篇</small>2026-07-04 PG 接口跨域与 API 反代修复说明</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-7ab2ceb0ddad.html"><small>下一篇</small>某业务公司 Docker 运维 AI 交接总览 · 某业务公司运维AI交接总览</a></nav>
   </main>
   <footer><div class="shell">
     <span>© 2026 BEN.OPS</span>

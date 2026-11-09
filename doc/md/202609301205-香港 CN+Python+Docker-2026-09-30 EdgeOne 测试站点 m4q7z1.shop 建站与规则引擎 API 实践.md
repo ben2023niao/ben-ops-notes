@@ -5,15 +5,17 @@ date: "2026-09-30T12:05:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "香港 CN"]
 tags: ["香港 CN", "Python", "Docker", "CDN", "DNS", "安全运维", "源码与配置"]
-source: "project-file:///Projects/work/game/pgserver/cn/docker/doc/2026-09-30-1205-%E3%80%90%E6%9E%B6%E6%9E%84%E6%94%B9%E9%80%A0%E3%80%91EdgeOne%E6%B5%8B%E8%AF%95%E7%AB%99%E7%82%B9m4q7z1shop%E5%BB%BA%E7%AB%99%E4%B8%8E%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EAPI%E5%AE%9E%E8%B7%B5.md"
-sourcePath: "~/Projects/work/game/pgserver/cn/docker/doc/2026-09-30-1205-【架构改造】EdgeOne测试站点m4q7z1shop建站与规则引擎API实践.md"
+source: "project-file:///Projects/ops/private-notes/cn/docker/doc/2026-09-30-1205-%E3%80%90%E6%9E%B6%E6%9E%84%E6%94%B9%E9%80%A0%E3%80%91EdgeOne%E6%B5%8B%E8%AF%95%E7%AB%99%E7%82%B9m4q7z1shop%E5%BB%BA%E7%AB%99%E4%B8%8E%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8EAPI%E5%AE%9E%E8%B7%B5.md"
+sourcePath: "~/Projects/ops/private-notes/cn/docker/doc/2026-09-30-1205-【架构改造】EdgeOne测试站点m4q7z1shop建站与规则引擎API实践.md"
 sourceSha256: "38bb46a952b2bad65ec4aa4edeccc94f365a10efc346a3e04d809827a38fbe0e"
 sourceSystem: "project-doc"
 ---
 
 # 2026-09-30 EdgeOne 测试站点 m4q7z1.shop 建站与规则引擎 API 实践
 
-> 来源文件：`~/Projects/work/game/pgserver/cn/docker/doc/2026-09-30-1205-【架构改造】EdgeOne测试站点m4q7z1shop建站与规则引擎API实践.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-09-30-1205-【架构改造】EdgeOne测试站点m4q7z1shop建站与规则引擎API实践.md`
 
 > 整理日期：2026-09-30 12:05｜日期依据：文件名日期
 
@@ -23,7 +25,7 @@ sourceSystem: "project-doc"
 目标：用腾讯云 EdgeOne（国际版）建一个测试站点，验证「动态回源香港 standby + 静态回源 AWS S3 大阪」
       两条链路，作为多 CDN 渠道 A 的 Phase 0。
 
-已完成（全部通过 API 执行，操作机器 = 香港 standby 34.150.1.185）：
+已完成（全部通过 API 执行，操作机器 = 香港 standby 192.0.2.37）：
   1. 只读确认凭据可用：DescribeZones -> 1 个站点
   2. 新建 2 个加速域名：dyn.m4q7z1.shop（动态）、static.m4q7z1.shop（静态）
   3. 新建 2 条规则引擎规则：动态改回源 Host + 不缓存；静态 7 天边缘缓存
@@ -59,9 +61,9 @@ sourceSystem: "project-doc"
 
 加速域名：
   dyn.m4q7z1.shop     CNAME dyn.m4q7z1.shop.eo.dnse3.com
-      源站 34.150.1.185（IP_DOMAIN）｜ OriginProtocol=HTTP ｜ HttpOriginPort=80
+      源站 192.0.2.37（IP_DOMAIN）｜ OriginProtocol=HTTP ｜ HttpOriginPort=80
   static.m4q7z1.shop  CNAME static.m4q7z1.shop.eo.dnse3.com
-      源站 dbqp-s3-pg-static.s3.ap-northeast-3.amazonaws.com（IP_DOMAIN，先用域名型）｜ HTTPS 443
+      源站 bizops-s3-pg-static.s3.ap-northeast-3.amazonaws.com（IP_DOMAIN，先用域名型）｜ HTTPS 443
 
 规则引擎（CreateL7AccRules，RuleIds rule-3vm6y99k8liv / rule-3vm6y99ka03b）：
   dyn-hostheader-nocache：
@@ -72,7 +74,7 @@ sourceSystem: "project-doc"
       Actions   = Cache{CustomTime on, CacheTime=604800, IgnoreCacheControl=on}
 
 DNS（站点内记录）：
-  *.m4q7z1.shop   A      34.150.1.185                          enable   ← 手动加的直连测试记录
+  *.m4q7z1.shop   A      192.0.2.37                          enable   ← 手动加的直连测试记录
   dyn.m4q7z1.shop CNAME  dyn.m4q7z1.shop.eo.dnse3.com          enable   ← 原为 disable，本轮启用
   static.m4q7z1.shop CNAME static.m4q7z1.shop.eo.dnse3.com     enable   ← 原为 disable，本轮启用
 ```
@@ -103,10 +105,10 @@ DNS（站点内记录）：
 ```text
 密钥可用性：DescribeZones 返回 200（TotalCount=1）
 CNAME 校验：CheckCnameStatus -> dyn / static 均 Status=active
-DNS 现状（权威 NS ns1.teodns.com 直查）：dyn/static 仍返回 34.150.1.185
+DNS 现状（权威 NS ns1.teodns.com 直查）：dyn/static 仍返回 192.0.2.37
   —— 因为站点仍在 provisioning，CNAME 尚未生效；等站点 Status 变为 active 后再复核。
 待生效后要做的验证：
-  · dig dyn.m4q7z1.shop 应返回 EdgeOne 节点 IP（不再是 34.150.1.185）
+  · dig dyn.m4q7z1.shop 应返回 EdgeOne 节点 IP（不再是 192.0.2.37）
   · curl https://dyn.m4q7z1.shop/health 期望 200（回源 Host 已改写为 pg-games.hkcloudplay06.com）
   · curl https://static.m4q7z1.shop/<真实对象> 期望 200，二次请求命中边缘缓存
 ```

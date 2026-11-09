@@ -3,8 +3,8 @@ id: "doc-14f202fd9f6e"
 title: "文档总索引 · README"
 date: "2026-11-09T00:00:00+08:00"
 dateSource: "正文日期"
-categories: ["基础设施与自动化", "BKL UAT"]
-tags: ["BKL UAT", "Shell", "Python", "Docker", "监控告警", "自动化", "安全运维", "故障排查"]
+categories: ["基础设施与自动化", "UAT-A"]
+tags: ["UAT-A", "Shell", "Python", "Docker", "监控告警", "自动化", "安全运维", "故障排查"]
 source: "project-file:///Projects/work/ops/devops/devops-bkl/doc/README.md"
 sourcePath: "~/Projects/work/ops/devops/devops-bkl/doc/README.md"
 sourceSha256: "5ba924eea99aa04015664cbd8bca05627afda5fa9e6c8d09cf60cd68787cae3c"
@@ -12,6 +12,8 @@ sourceSystem: "project-doc"
 ---
 
 # 文档总索引 · README
+
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
 > 来源文件：`~/Projects/work/ops/devops/devops-bkl/doc/README.md`
 
@@ -58,7 +60,7 @@ doc/
 | 2026-10-22 | 专线告警标识优化 | `2026年10月22日-专线告警标识优化/` |
 | 2026-10-23 | 监控巡检与磁盘清理 | `2026年10月23日-监控巡检与磁盘清理/` |
 | 2026-10-23 | UAT部署资料摘要 | `2026年10月23日-UAT部署资料摘要/` |
-| 2026-10-23 | BKL UAT 运维手册 | `2026年10月23日-bkl运维手册/` |
+| 2026-10-23 | UAT-A 运维手册 | `2026年10月23日-bkl运维手册/` |
 | 2026-10-24 | 磁盘写满清理 | `2026年10月24日-磁盘写满清理/` |
 | 2026-10-25 | Beszel 巡检与维护 | `2026年10月25日-Beszel巡检与维护/` |
 | 2026-10-26 | Beszel 日巡检与维护 | `2026年10月26日-Beszel日巡检与维护/` |

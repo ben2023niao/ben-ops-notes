@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/07-监控技巧
 
 # 4 Zabbix监控K8S 创建脚本并修改脚本
 
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
 ## 1、创建目录和脚本
 
 - 在`zabbix-server`端创建
@@ -86,8 +88,8 @@ node_result = get_result("/api/v1/nodes")
 node_use_result = get_result("/apis/metrics.k8s.io/v1beta1/nodes")
 for j in node_use_result.get("items"):
 for i in node_result.get("items"):
-if i.get("metadata").get("name") == j.get("metadata").get("name"):
-data={"{#NAME}": i.get("metadata").get("name"),
+if i.get("mevendor_ata").get("name") == j.get("mevendor_ata").get("name"):
+data={"{#NAME}": i.get("mevendor_ata").get("name"),
 "{#STATUS}": ["status",i.get("status").get("conditions")[-1].get("type") if i.get("status").get("conditions")[-1].get("status") == "True" else "NotReady"],
 "{#IP}": ["ip",i.get("status").get("addresses")[0].get("address")],
 "{#KUBELET_VERSION}": ["version",i.get("status").get("nodeInfo").get("kubeletVersion")],
@@ -95,7 +97,7 @@ data={"{#NAME}": i.get("metadata").get("name"),
 "{#CPU}": ["cpu",i.get("status").get("capacity").get("cpu")],
 "{#MEMORY}": ["memory",Tranunit(i.get("status").get("capacity").get("memory"))],
 "{#LIMIT_STORAGE}": ["storage",Tranunit(i.get("status").get("capacity").get("ephemeral-storage"))],
-"{#RUNTIME}":["runtime",Trantime(i.get("metadata").get("creationTimestamp"))],
+"{#RUNTIME}":["runtime",Trantime(i.get("mevendor_ata").get("creationTimestamp"))],
 "{#USECPU}":["usecpu",Tranunit(j.get("usage").get("cpu"))],
 "{#USEMEMORY}":["usememory",Tranunit(j.get("usage").get("memory"))]
 }
@@ -107,7 +109,7 @@ get_healths = []
 health_result = get_result("/api/v1/componentstatuses")
 for i in health_result.get("items"):
 data = {}
-data = {"{#NAME}": i.get("metadata").get("name"),
+data = {"{#NAME}": i.get("mevendor_ata").get("name"),
 "{#STATUS}": ["status",i.get("conditions")[0].get("type")],
 "{#MESSAGE}":["message",i.get("conditions")[0].get("message")]
 }
@@ -118,8 +120,8 @@ def get_pod():
 get_pods = []
 pod_result = get_result("/api/v1/pods")
 for i in pod_result.get("items"):
-data = {"{#NAME}":i.get("metadata").get("name"),
-"{#RUNTIME}":["runtime",Trantime(i.get("metadata").get("creationTimestamp"))],
+data = {"{#NAME}":i.get("mevendor_ata").get("name"),
+"{#RUNTIME}":["runtime",Trantime(i.get("mevendor_ata").get("creationTimestamp"))],
 "{#STATUS}":["status",i.get("status").get("phase")],
 "{#RESTARTCOUNT}":["restartcount",i.get("status").get("containerStatuses")[0].get("restartCount")]
 }

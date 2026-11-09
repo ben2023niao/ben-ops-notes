@@ -5,20 +5,22 @@ date: "2026-08-29T20:30:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Docker", "Nginx", "CDN", "故障排查"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-08-29-2030-%E3%80%90%E6%95%85%E9%9A%9C%E4%BF%AE%E5%A4%8D%E3%80%91%E9%9D%99%E6%80%81%E5%9F%9FCORS%E9%87%8D%E5%A4%8D%E5%A4%B4%E5%AF%BC%E8%87%B4%E6%B8%B8%E6%88%8F%E5%8A%A0%E8%BD%BD%E5%A4%B1%E8%B4%A5%E4%B8%8E%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-08-29-2030-【故障修复】静态域CORS重复头导致游戏加载失败与修复记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-08-29-2030-%E3%80%90%E6%95%85%E9%9A%9C%E4%BF%AE%E5%A4%8D%E3%80%91%E9%9D%99%E6%80%81%E5%9F%9FCORS%E9%87%8D%E5%A4%8D%E5%A4%B4%E5%AF%BC%E8%87%B4%E6%B8%B8%E6%88%8F%E5%8A%A0%E8%BD%BD%E5%A4%B1%E8%B4%A5%E4%B8%8E%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-08-29-2030-【故障修复】静态域CORS重复头导致游戏加载失败与修复记录.md"
 sourceSha256: "e82a581d3f39e3d46e29bbb64bd65744f3cff8e52a90ebef67fabc10feffa012"
 sourceSystem: "project-doc"
 ---
 
 # 【故障修复】静态域 CORS 重复头导致游戏加载失败与修复记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-08-29-2030-【故障修复】静态域CORS重复头导致游戏加载失败与修复记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-08-29-2030-【故障修复】静态域CORS重复头导致游戏加载失败与修复记录.md`
 
 > 整理日期：2026-08-29 20:30｜日期依据：文件名日期
 
 时间：2026-08-29 20:30（Asia/Manila）
-项目：DBQP / PGServer master
+项目：某业务公司 / PGServer master
 执行人：Codex（本地工作区 + 宝塔/备用机 + 备用机浏览器）
 
 ## 一、故障现象

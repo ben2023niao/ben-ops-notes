@@ -5,29 +5,31 @@ date: "2026-09-24T16:50:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "香港 CN"]
 tags: ["香港 CN", "Linux", "Shell", "Docker", "监控告警", "安全运维", "故障排查", "源码与配置"]
-source: "project-file:///Projects/work/game/pgserver/cn/docker/doc/2026-09-24-1650-%E3%80%90%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%2B%E6%9E%B6%E6%9E%84%E6%94%B9%E9%80%A0%E3%80%91%E9%A6%99%E6%B8%AF%E5%90%8E%E7%AB%AF%E7%BB%93%E6%9E%9C%E9%9B%86server-runtime%E5%90%8C%E6%AD%A5%E4%B8%8E%E6%9D%83%E9%99%90%E8%87%AA%E6%84%88%E6%8E%A5%E5%85%A5%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/cn/docker/doc/2026-09-24-1650-【数据维护+架构改造】香港后端结果集server-runtime同步与权限自愈接入记录.md"
+source: "project-file:///Projects/ops/private-notes/cn/docker/doc/2026-09-24-1650-%E3%80%90%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%2B%E6%9E%B6%E6%9E%84%E6%94%B9%E9%80%A0%E3%80%91%E9%A6%99%E6%B8%AF%E5%90%8E%E7%AB%AF%E7%BB%93%E6%9E%9C%E9%9B%86server-runtime%E5%90%8C%E6%AD%A5%E4%B8%8E%E6%9D%83%E9%99%90%E8%87%AA%E6%84%88%E6%8E%A5%E5%85%A5%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/cn/docker/doc/2026-09-24-1650-【数据维护+架构改造】香港后端结果集server-runtime同步与权限自愈接入记录.md"
 sourceSha256: "342bcd906f8cae75c49228b6c903222a8a7416b279c74f57b7996cf1d6efaff7"
 sourceSystem: "project-doc"
 ---
 
 # 2026-09-24 香港后端 /data/server-runtime 同步与结果集权限自愈接入记录
 
-> 来源文件：`~/Projects/work/game/pgserver/cn/docker/doc/2026-09-24-1650-【数据维护+架构改造】香港后端结果集server-runtime同步与权限自愈接入记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-09-24-1650-【数据维护+架构改造】香港后端结果集server-runtime同步与权限自愈接入记录.md`
 
 > 整理日期：2026-09-24 16:50｜日期依据：文件名日期
 
 ## 一、任务
 
 ```text
-把巴西打包机 dbqp-saopaulo-sanic-prod-03 的 /data/server-runtime
+把巴西打包机 bizops-saopaulo-sanic-prod-03 的 /data/server-runtime
 同步到香港两台后端 /data/server-runtime：
-  先 dbqp-hongkong-sanic-prod-01（跨公网直连巴西）
-  再由 prod-01 走香港内网推送 dbqp-hongkong-sanic-prod-02
+  先 bizops-hongkong-sanic-prod-01（跨公网直连巴西）
+  再由 prod-01 走香港内网推送 bizops-hongkong-sanic-prod-02
 参考命令（用户提供）：
   rsync -avP --delete -e "ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=3" \
     --exclude 'logs' --exclude '*.db-shm' --exclude '*.db-wal' \
-    root@203.0.113.1:/data/server-runtime /data/
+    root@192.0.2.1:/data/server-runtime /data/
 额外要求：
   1) 同步过程挂后台一次性任务（本地离开也能继续），每 10 分钟把网速/进度条发飞机群
   2) 同步完成后参考巴西 01/02，加上定时任务监控结果集权限
@@ -42,8 +44,8 @@ git：本地 cn 领先 origin/cn 77，工作区干净
 数据源：巴西 prod-03 /data/server-runtime 实测 152.1 GiB（du -sb = 163,297,197,003）
   目录：version.json / stop.sh / server_configs / md5sum.txt / conf /
         game_result_datas / logs / share.so / xxxxxx.mmdb
-连通：香港 prod-01 -> 34.39.180.82:22（prod-03 公网）可达，同一 root 密码可登录
-  香港内网 prod-01(203.0.113.1) <-> prod-02(203.0.113.1) 已互通
+连通：香港 prod-01 -> 192.0.2.20:22（prod-03 公网）可达，同一 root 密码可登录
+  香港内网 prod-01(192.0.2.1) <-> prod-02(192.0.2.1) 已互通
 磁盘：香港两台 / 485G，剩余 482G，容纳 152G 结果集无压力
 权限目标（从巴西 prod-01 复刻）：game_result_datas 与 logs 需要 uid:gid = 1000:1000
   （容器内业务进程 appuser uid 1000 要写 SQLite 的 .db/-wal/-shm）
@@ -58,9 +60,9 @@ git：本地 cn 领先 origin/cn 77，工作区干净
 任务：systemd-run --unit=hk-runtime-sync --collect --no-block /bin/bash /root/hk-runtime-sync.sh
   一次性 unit，跑完自动 collect；与 SSH 会话解耦，本地下线不影响
 阶段：
-  STAGE1  prod-03(34.39.180.82) -> prod-01   rsync -a --partial --info=progress2 --stats
+  STAGE1  prod-03(192.0.2.20) -> prod-01   rsync -a --partial --info=progress2 --stats
           --exclude logs --exclude '*.db-shm' --exclude '*.db-wal' --delete
-  STAGE2  prod-01 -> prod-02(203.0.113.1)     同样的参数（走香港内网），仅当 STAGE1 rc=0
+  STAGE2  prod-01 -> prod-02(192.0.2.1)     同样的参数（走香港内网），仅当 STAGE1 rc=0
 日志：/root/hk-runtime-sync.log（上一轮日志归档为 .log.prev）
 凭据：/root/.rsync-pass（600，root；sshpass 使用，明文不入库）
 ```
@@ -71,7 +73,7 @@ git：本地 cn 领先 origin/cn 77，工作区干净
 ### 3.2 每 10 分钟进度上报（飞机群）
 
 ```text
-脚本：/opt/dbqp-scripts/notify_runtime_sync.py（仓库 docker/deploy/hongkong/notify_runtime_sync.py）
+脚本：/opt/bizops-scripts/notify_runtime_sync.py（仓库 docker/deploy/hongkong/notify_runtime_sync.py）
 定时：systemd 单元 hk-runtime-sync-notify.timer（OnBootSec=3min / OnUnitActiveSec=10min）
 凭据：/opt/benbot-runtime.env（从巴西 prod-01 复制，600；含 TG_BOT_TOKEN /
      BEN_BOT_MONITOR_CHAT_ID，明文不入库）
@@ -98,12 +100,12 @@ git：本地 cn 领先 origin/cn 77，工作区干净
 从巴西 prod-01 复刻到香港 prod-01 与 prod-02：
 
 ```text
-脚本：/opt/dbqp-scripts/fix_result_perms.sh（11,758 字节，与巴西一致）
-单元：/etc/systemd/system/dbqp-result-perms.{service,timer}
+脚本：/opt/bizops-scripts/fix_result_perms.sh（11,758 字节，与巴西一致）
+单元：/etc/systemd/system/bizops-result-perms.{service,timer}
   每 2 分钟检查一次（OnBootSec=2min / OnUnitActiveSec=2min）
 目标：/data/server-runtime/game_result_datas、/data/server-runtime/logs
   异常时 chown -R 1000:1000 + chmod -R u+rwX，并发飞机群告警（10 分钟限流）
-日志：/var/log/dbqp-result-perms.log
+日志：/var/log/bizops-result-perms.log
 ```
 
 为什么必须做：巴西 2026-09-24 线上事故就是 `rsync -a`（隐含 -o -g -p）把源端
@@ -124,7 +126,7 @@ git：本地 cn 领先 origin/cn 77，工作区干净
 
 ```text
 1) 标题加项目标识（只改香港两台，巴西保持原样）
-   香港：`【DBQP 香港项目｜结果集权限告警】@运维 @Ben_Bird @benb6879`
+   香港：`【某业务公司 香港项目｜结果集权限告警】@运维 @Ben_Bird @benb6879`
 2) 修 printf 参数个数 bug（这就是「空模板段」的根因）
    alert_text 在「修复后剩余 = 0」时不追加告警行，但 printf 仍多传了一个参数；
    bash 内置 printf 在参数多于占位符时会复用格式串再渲染一遍，于是群里多出一段空模板。
@@ -152,7 +154,7 @@ git：本地 cn 领先 origin/cn 77，工作区干净
 流程：
   1) 轮询等待主任务 hk-runtime-sync 结束（每 60s）
   2) STEP1  prod-03 → prod-01 二次 rsync（校验补漏，参数与主任务一致，含 --delete/--chown/排除项）
-  3) STEP2  prod-01 → prod-02 内网 rsync（203.0.113.1）
+  3) STEP2  prod-01 → prod-02 内网 rsync（192.0.2.1）
   4) CHECK1/CHECK2 用 `rsync -n -i --delete` 统计差异条目数
      （prod-03↔prod-01 / prod-01↔prod-02，0 表示完全一致）
   5) 完成后往监控报警群发一条「同步完成校验」：
@@ -164,7 +166,7 @@ git：本地 cn 领先 origin/cn 77，工作区干净
 ```text
 主任务 hk-runtime-sync：
   STAGE1 done rc=0 size=147G    （15:19:19Z，巴西 prod-03 -> prod-01 跨公网）
-  STAGE2 done rc=0              （15:30:56Z，prod-01 -> prod-02 香港内网 203.0.113.1）
+  STAGE2 done rc=0              （15:30:56Z，prod-01 -> prod-02 香港内网 192.0.2.1）
   SYNC END rc1=0 rc2=0
 收尾任务 hk-runtime-sync-finalize：
   STEP1（prod-03 -> prod-01 二次同步）rc=0
@@ -205,10 +207,10 @@ git：本地 cn 领先 origin/cn 77，工作区干净
 查询方法（任何人/任何 AI 都可用）：
 
 ```bash
-ssh root@34.92.83.132 'tail -c 500 /root/hk-runtime-sync.log | tr "\r" "\n" | tail -3'   # 最新进度行
-ssh root@34.92.83.132 'systemctl is-active hk-runtime-sync'                              # 是否还在跑
-ssh root@34.92.83.132 'grep -E "STAGE|SYNC END" /root/hk-runtime-sync.log | tail -5'      # 阶段状态
-ssh root@34.92.83.132 'tail -3 /var/log/dbqp-result-perms.log'                           # 权限自愈
+ssh root@192.0.2.16 'tail -c 500 /root/hk-runtime-sync.log | tr "\r" "\n" | tail -3'   # 最新进度行
+ssh root@192.0.2.16 'systemctl is-active hk-runtime-sync'                              # 是否还在跑
+ssh root@192.0.2.16 'grep -E "STAGE|SYNC END" /root/hk-runtime-sync.log | tail -5'      # 阶段状态
+ssh root@192.0.2.16 'tail -3 /var/log/bizops-result-perms.log'                           # 权限自愈
 ```
 
 ## 五、踩坑记录

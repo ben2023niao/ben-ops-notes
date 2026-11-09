@@ -5,20 +5,22 @@ date: "2026-09-02T20:18:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Python", "Docker", "监控告警", "自动化", "CDN", "安全运维"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-09-02-2018-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E5%8F%91%E5%B8%83%E5%90%8ECDN%E9%A2%84%E7%83%AD%E4%B8%8E20Zone%E7%BC%93%E5%AD%98%E9%9A%94%E7%A6%BB%E6%B2%BB%E7%90%86%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-09-02-2018-【优化】发布后CDN预热与20Zone缓存隔离治理实施记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-09-02-2018-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E5%8F%91%E5%B8%83%E5%90%8ECDN%E9%A2%84%E7%83%AD%E4%B8%8E20Zone%E7%BC%93%E5%AD%98%E9%9A%94%E7%A6%BB%E6%B2%BB%E7%90%86%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-09-02-2018-【优化】发布后CDN预热与20Zone缓存隔离治理实施记录.md"
 sourceSha256: "f2b5b245ab56cbc613e9b8a27d48090d6c3c5b5f5dc27fe19e9f9b4517078145"
 sourceSystem: "project-doc"
 ---
 
 # 【优化】发布后 CDN 预热与 20-Zone 缓存隔离治理实施记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-09-02-2018-【优化】发布后CDN预热与20Zone缓存隔离治理实施记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-02-2018-【优化】发布后CDN预热与20Zone缓存隔离治理实施记录.md`
 
 > 整理日期：2026-09-02 20:18｜日期依据：文件名日期
 
 时间：2026-09-02 20:18（Asia/Manila）
-项目：DBQP / PGServer master（巴西生产静态链路）
+项目：某业务公司 / PGServer master（巴西生产静态链路）
 状态：✅ 已实施并验证
 
 ## 一、背景与现象
@@ -31,7 +33,7 @@ sourceSystem: "project-doc"
 ```text
 浏览器 -> 静态域名 <prefix>.<zone>（每 prefix 20 个 zone）
        -> Cloudflare Worker summer-wave-c94f
-       -> 同一 GCS -sa 桶（dbqp-gcs-<prefix>-sa）
+       -> 同一 GCS -sa 桶（bizops-gcs-<prefix>-sa）
 ```
 
 `platform-api/conf/domains/*.json` 中每个厂家静态前缀的 `static_hosts` 均覆盖
@@ -69,7 +71,7 @@ sourceSystem: "project-doc"
 实测确认 CF 按 zone 分区后无跨 zone 收益，且会造成原缓存键空间整体作废，
 故完整还原线上 Worker：
   线上版本 sha256 fab1334dc40c8b695776041e0dfb70ce349aae9378180b6a336a6db1f86e2440
-  备份 /root/dbqp-cf-backups/20260902-prewarm/summer-wave-c94f.before-20260902.js
+  备份 /root/bizops-cf-backups/20260902-prewarm/summer-wave-c94f.before-20260902.js
   PUT 回滚时间 2026-09-02 20:16（modified 2026-09-02T12:16:24Z）
 ```
 
@@ -127,7 +129,7 @@ docker/deploy/README.md 新增“发布后 CDN 预热”章节：
 
 回归：
   静态 health.json：14 厂家 × 2 zone = 28/28，rcode=0
-  动态 /health：api/pg-games/tada-games 等 5/5，rcode=0
+  动态 /health：api/pg-games/vendor_a-games 等 5/5，rcode=0
   本地：python3 -m py_compile 通过；线上 Worker sha 与仓库一致。
 ```
 

@@ -5,20 +5,22 @@ date: "2026-09-02T20:57:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Python", "Docker", "自动化", "CDN", "故障排查", "数据库恢复"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-09-02-2057-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E5%85%A8%E9%87%8F%E5%8E%82%E5%AE%B6CDN%E9%A2%84%E7%83%AD%E4%B8%8E%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%8F%91%E5%B8%83%E9%A2%84%E7%83%AD%E6%8C%89%E9%92%AE%E4%B8%8A%E7%BA%BF%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-09-02-2057-【优化】全量厂家CDN预热与机器人发布预热按钮上线记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-09-02-2057-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E5%85%A8%E9%87%8F%E5%8E%82%E5%AE%B6CDN%E9%A2%84%E7%83%AD%E4%B8%8E%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%8F%91%E5%B8%83%E9%A2%84%E7%83%AD%E6%8C%89%E9%92%AE%E4%B8%8A%E7%BA%BF%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-09-02-2057-【优化】全量厂家CDN预热与机器人发布预热按钮上线记录.md"
 sourceSha256: "daa70ab2e474981da77fba8bbd2e7088597a3a177135dbe5e0985735c9e428eb"
 sourceSystem: "project-doc"
 ---
 
 # 【优化】全量厂家 CDN 预热与机器人发布预热按钮上线记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-09-02-2057-【优化】全量厂家CDN预热与机器人发布预热按钮上线记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-02-2057-【优化】全量厂家CDN预热与机器人发布预热按钮上线记录.md`
 
 > 整理日期：2026-09-02 20:57｜日期依据：文件名日期
 
 时间：2026-09-02 20:57（Asia/Manila）
-项目：DBQP / PGServer master（巴西生产静态链路 + ben-bot）
+项目：某业务公司 / PGServer master（巴西生产静态链路 + ben-bot）
 状态：✅ 全量预热完成 + 机器人按钮已上线
 
 ## 一、任务
@@ -32,8 +34,8 @@ sourceSystem: "project-doc"
 ## 二、全量预热执行与结果
 
 ```text
-范围：337 个游戏入口（pg 系列 136 / tada 83 / pp 1 / ppk 1 /
-playson 50 / panda 53 / g759 13）× 20 zone = 6,740 入口
+范围：337 个游戏入口（pg 系列 136 / vendor_a 83 / pp 1 / ppk 1 /
+vendor_c 50 / vendor_d 53 / g759 13）× 20 zone = 6,740 入口
 执行：宝塔 GRU 本机，32 并发；日志：
   /var/log/cdn_full_warm_20260902.log（第一轮入口）
   /var/log/cdn_full_warm_20260902_assets.log（第二轮入口+同源 JS/CSS）
@@ -42,7 +44,7 @@ playson 50 / panda 53 / g759 13）× 20 zone = 6,740 入口
 结果：
   第一轮入口：6740/6740 HTTP 200，68s；
   第二轮入口+页面同源 JS/CSS：ok=13140；瞬时 ERR 1560（高并发下大入口
-  超时，如 pg3/2040102、tada/bh 等）-> 低并发(12)重试 1560/1560 恢复；
+  超时，如 pg3/2040102、vendor_a/bh 等）-> 低并发(12)重试 1560/1560 恢复；
   根 health.json：14 前缀 × 20 zone = 280/280（1s）；
   回验：逐前缀抽样入口 HIT 28/28、health HIT 28/28（宝塔二次请求）。
 ```
@@ -65,9 +67,9 @@ storage.googleapis.com 绝对地址，导致第二轮前 assets 漏掉）；并�
 
 部署/运行规则：
   - 文件同步宝塔与备用机 /opt/pgserver；
-  - 活动轮询实例为备用机 dbqp-ben-bot-standby（poll），重建后主页已含
+  - 活动轮询实例为备用机 bizops-ben-bot-standby（poll），重建后主页已含
     “发布预热”并重新发送启动通知；
-  - 宝塔 dbqp-ben-bot 按 DEC-20260807-BENBOT-STANDBY 保持 idle（无轮询）；
+  - 宝塔 bizops-ben-bot 按 DEC-20260807-BENBOT-STANDBY 保持 idle（无轮询）；
   - docker-compose.yml 增加 BEN_BOT_POLL（默认 0=idle，1=接管轮询），
     防止同 token 双轮询。
 ```

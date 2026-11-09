@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>【优化】运维发布台并发打包、详细通知与手机端入口整合记录｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
-  <meta name="description" content="【优化】运维发布台并发打包、详细通知与手机端入口整合记录。本文属于历史运维与项目交付 / 巴西主站，执行范围：本地 master 、巴西宝塔 dbqp-ops-console 、03 原始打包脚本兼容性。 运维发布台已支持按厂家选择并按 2/3/4 路并发打包，默认 3 路。每个厂家仍调用 03 原有单厂家 bu…">
-  <meta name="keywords" content="巴西主站，Linux，Shell，Docker，自动化，安全运维，数据库恢复，源码与配置，历史运维与项目交付，历史运维与项目交付 / 巴西主站，【优化】运维发布台并发打包、详细通知与手机端入口整合记录">
+  <meta name="description" content="【优化】运维发布台并发打包、详细通知与手机端入口整合记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 执行范围：本地 master 、巴西宝塔 bizops-ops-console 、03 原始打包脚本兼容性。…">
+  <meta name="keywords" content="巴西主站，Linux，Shell，Docker，自动化，安全运维，数据库恢复，源码与配置，历史运维与项目交付，历史运维与项目交付 / 巴西主站，【优化】运维发布台并发打包、详细通知与手机端入口整合记录，一、结论，二、开始前基线，三、并发打包实现">
   <meta name="author" content="BEN">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
   <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
@@ -22,7 +22,7 @@
   <meta property="og:locale" content="zh_CN">
   <meta property="og:site_name" content="BEN.OPS 工程笔记">
   <meta property="og:title" content="【优化】运维发布台并发打包、详细通知与手机端入口整合记录">
-  <meta property="og:description" content="【优化】运维发布台并发打包、详细通知与手机端入口整合记录。本文属于历史运维与项目交付 / 巴西主站，执行范围：本地 master 、巴西宝塔 dbqp-ops-console 、03 原始打包脚本兼容性。 运维发布台已支持按厂家选择并按 2/3/4 路并发打包，默认 3 路。每个厂家仍调用 03 原有单厂家 bu…">
+  <meta property="og:description" content="【优化】运维发布台并发打包、详细通知与手机端入口整合记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 执行范围：本地 master 、巴西宝塔 bizops-ops-console 、03 原始打包脚本兼容性。…">
   <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d6301ea6df0d.html">
   <meta property="article:published_time" content="2026-11-02T17:08:00+08:00">
   <meta property="article:modified_time" content="2026-11-02 17:08">
@@ -31,7 +31,7 @@
   
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="【优化】运维发布台并发打包、详细通知与手机端入口整合记录">
-  <meta name="twitter:description" content="【优化】运维发布台并发打包、详细通知与手机端入口整合记录。本文属于历史运维与项目交付 / 巴西主站，执行范围：本地 master 、巴西宝塔 dbqp-ops-console 、03 原始打包脚本兼容性。 运维发布台已支持按厂家选择并按 2/3/4 路并发打包，默认 3 路。每个厂家仍调用 03 原有单厂家 bu…">
+  <meta name="twitter:description" content="【优化】运维发布台并发打包、详细通知与手机端入口整合记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 执行范围：本地 master 、巴西宝塔 bizops-ops-console 、03 原始打包脚本兼容性。…">
   
   <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
 --line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
@@ -75,7 +75,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 @media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
 .meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
 @media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d6301ea6df0d.html#article","headline":"【优化】运维发布台并发打包、详细通知与手机端入口整合记录","description":"【优化】运维发布台并发打包、详细通知与手机端入口整合记录。本文属于历史运维与项目交付 / 巴西主站，执行范围：本地 master 、巴西宝塔 dbqp-ops-console 、03 原始打包脚本兼容性。 运维发布台已支持按厂家选择并按 2/3/4 路并发打包，默认 3 路。每个厂家仍调用 03 原有单厂家 bu…","datePublished":"2026-11-02T17:08:00+08:00","dateModified":"2026-11-02 17:08","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Linux","Shell","Docker","自动化","安全运维","数据库恢复","源码与配置","历史运维与项目交付","历史运维与项目交付 / 巴西主站","【优化】运维发布台并发打包、详细通知与手机端入口整合记录"],"wordCount":1637,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d6301ea6df0d.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d6301ea6df0d.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【优化】运维发布台并发打包、详细通知与手机端入口整合记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d6301ea6df0d.html"}]}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d6301ea6df0d.html#article","headline":"【优化】运维发布台并发打包、详细通知与手机端入口整合记录","description":"【优化】运维发布台并发打包、详细通知与手机端入口整合记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 执行范围：本地 master 、巴西宝塔 bizops-ops-console 、03 原始打包脚本兼容性。…","datePublished":"2026-11-02T17:08:00+08:00","dateModified":"2026-11-02 17:08","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Linux","Shell","Docker","自动化","安全运维","数据库恢复","源码与配置","历史运维与项目交付","历史运维与项目交付 / 巴西主站","【优化】运维发布台并发打包、详细通知与手机端入口整合记录","一、结论","二、开始前基线","三、并发打包实现"],"wordCount":1227,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d6301ea6df0d.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d6301ea6df0d.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【优化】运维发布台并发打包、详细通知与手机端入口整合记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d6301ea6df0d.html"}]}]}</script>
 </head>
 <body>
   <header class="topbar"><div class="shell">
@@ -94,23 +94,24 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
     <header class="hero">
       <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
       <h1>【优化】运维发布台并发打包、详细通知与手机端入口整合记录</h1>
-      <p class="lede">【优化】运维发布台并发打包、详细通知与手机端入口整合记录。本文属于历史运维与项目交付 / 巴西主站，执行范围：本地 master 、巴西宝塔 dbqp-ops-console 、03 原始打包脚本兼容性。 运维发布台已支持按厂家选择并按 2/3/4 路并发打包，默认 3 路。每个厂家仍调用 03 原有单厂家 bu…</p>
+      <p class="lede">【优化】运维发布台并发打包、详细通知与手机端入口整合记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 执行范围：本地 master 、巴西宝塔 bizops-ops-console 、03 原始打包脚本兼容性。…</p>
       <div class="meta">
         <time class="badge" datetime="2026-11-02T17:08:00+08:00">发布于 2026-11-02</time>
         <span class="badge">作者 BEN</span>
-        <span class="badge">1,637 字</span>
-        <span class="badge">5 分钟阅读</span>
+        <span class="badge">1,227 字</span>
+        <span class="badge">4 分钟阅读</span>
       </div>
     </header>
     <div class="layout">
       <article class="article" itemscope itemtype="https://schema.org/TechArticle">
         
 <blockquote>
-<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-11-02-1708-【优化】运维发布台并发打包详细通知与手机端入口整合记录.md</code></p>
+<p>公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。</p>
+<p>来源文件：<code>~/Projects/ops/private-notes/master/docs/history/2026-11-02-1708-【优化】运维发布台并发打包详细通知与手机端入口整合记录.md</code></p>
 <p>整理日期：2026-11-02 17:08｜日期依据：文件名日期</p>
 </blockquote>
 <p>更新时间：2026-11-02 17:08（Asia/Manila）</p>
-<p>执行范围：本地 <code>master</code>、巴西宝塔 <code>dbqp-ops-console</code>、03 原始打包脚本兼容性。</p>
+<p>执行范围：本地 <code>master</code>、巴西宝塔 <code>bizops-ops-console</code>、03 原始打包脚本兼容性。</p>
 <h2 id="一-结论">一、结论</h2>
 <p>运维发布台已支持按厂家选择并按 2/3/4 路并发打包，默认 3 路。每个厂家仍调用
 03 原有单厂家 <code>build.sh</code>，但使用独立临时 runtime；全部成功后才一次性合并到
@@ -118,7 +119,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 <p>每个厂家完成后单独发送格式化群通知，包含完成序号、北京时间、版本、批次、
 镜像、源码、入口、专属配置、共享配置和日志路径。</p>
 <p>页面只保留一份源码：</p>
-<pre><code class="language-text">deliverables/dbqp-ops-console/web/运维发布页.html
+<pre><code class="language-text">deliverables/bizops-ops-console/web/运维发布页.html
 </code></pre>
 <p>仓库根目录最外层 <code>运维发布页.html</code> 和脱敏生成脚本已删除。新增 <code>运维.html</code>
 作为 VSCode 快捷登录入口。</p>
@@ -136,8 +137,8 @@ origin/ben：9748ad3224c60099fd7b6c0756b628ad10e59fc7
 <li>并发数可选 2、3、4，默认 3；</li>
 <li>实时展示每批分组，例如 4 并发时为：</li>
 </ul>
-<pre><code class="language-text">第 1 批：api / pg / tada / ppk
-第 2 批：pp / playson / panda / g759
+<pre><code class="language-text">第 1 批：api / pg / vendor_a / ppk
+第 2 批：pp / vendor_c / vendor_d / g759
 </code></pre>
 <ul>
 <li>“开始并发打包”按钮显示当前厂家数和并发数；</li>
@@ -148,8 +149,8 @@ origin/ben：9748ad3224c60099fd7b6c0756b628ad10e59fc7
 </ul>
 <h3 id="3-2-隔离策略">3.2 隔离策略</h3>
 <p>并发调用示例：</p>
-<pre><code class="language-bash">RUNTIME_DIR=/tmp/dbqp-build-&lt;tag&gt;/.runtime-&lt;vendor&gt;/br \
-RUNTIME_HK_DIR=/tmp/dbqp-build-&lt;tag&gt;/.runtime-&lt;vendor&gt;/hk \
+<pre><code class="language-bash">RUNTIME_DIR=/tmp/bizops-build-&lt;tag&gt;/.runtime-&lt;vendor&gt;/br \
+RUNTIME_HK_DIR=/tmp/bizops-build-&lt;tag&gt;/.runtime-&lt;vendor&gt;/hk \
   sh build.sh &lt;vendor&gt; &lt;tag&gt;
 </code></pre>
 <p>由于原 <code>build.sh</code> 已支持覆盖 <code>RUNTIME_DIR</code> 和 <code>RUNTIME_HK_DIR</code>，无需修改
@@ -157,7 +158,7 @@ RUNTIME_HK_DIR=/tmp/dbqp-build-&lt;tag&gt;/.runtime-&lt;vendor&gt;/hk \
 合并：</p>
 <ul>
 <li>选中的 <code>configs-&lt;vendor&gt;.py</code>；</li>
-<li>TADA 的 <code>configs-jili.py</code>；</li>
+<li>vendor_a 的 <code>configs-vendor_b.py</code>；</li>
 <li>巴西 / 香港 <code>domains</code>；</li>
 <li>巴西 <code>server_configs</code>、<code>version.json</code>；</li>
 <li>公共 <code>xxxxxx.mmdb</code>、<code>share.so</code>；</li>
@@ -178,20 +179,20 @@ RUNTIME_HK_DIR=/tmp/dbqp-build-&lt;tag&gt;/.runtime-&lt;vendor&gt;/hk \
 </ul>
 <p>原手工“粘贴输出检查”步骤已移除，页面根据实时执行结果自动完成步骤。</p>
 <h2 id="四-厂家通知格式">四、厂家通知格式</h2>
-<p>以 TADA 为例：</p>
-<pre><code class="language-text">【镜像打包】tada 完成（3/8）
+<p>以 vendor_a 为例：</p>
+<pre><code class="language-text">【镜像打包】vendor_a 完成（3/8）
 北京：2026-11-02 17:05:25
 版本：20261102-ben
-批次：api pg tada ppk · 本批 4 个厂家
-镜像：203.0.113.1:5000/game-service-tada:20261102-ben
-源码：tada/
-入口：tada.py
+批次：api pg vendor_a ppk · 本批 4 个厂家
+镜像：192.0.2.1:5000/game-service-vendor_a:20261102-ben
+源码：vendor_a/
+入口：vendor_a.py
 专属配置：
-• 巴西 / 香港：tada/configs.py → configs-tada.py
-• 巴西 / 香港：tada/configs_jili.py → configs-jili.py
+• 巴西 / 香港：vendor_a/configs.py → configs-vendor_a.py
+• 巴西 / 香港：vendor_a/configs_vendor_b.py → configs-vendor_b.py
 共享配置：domains / domains-hk、server_configs、version.json、
 xxxxxx.mmdb、share.so
-日志：/tmp/dbqp-build-20261102-ben/tada.log
+日志：/tmp/bizops-build-20261102-ben/vendor_a.log
 状态：镜像已构建并推送；全部厂家完成后统一合并 runtime 并自动校验
 </code></pre>
 <p>通知由后端识别 <code>BUILD_VENDOR_DONE=&lt;vendor&gt;</code> 后发送，避免并发日志互相覆盖。</p>
@@ -211,7 +212,7 @@ xxxxxx.mmdb、share.so
 <pre><code class="language-text">运维.html
 </code></pre>
 <p>打开后自动以单密码表单 POST 到：</p>
-<pre><code class="language-text">http://35.247.205.6:8787/login
+<pre><code class="language-text">http://192.0.2.8:8787/login
 </code></pre>
 <p>登录成功后直接进入运维发布台。服务端会话 Cookie 从 SameSite=Strict 调整为
 Lax，以支持从本机 VSCode 快捷页完成顶层 POST 登录；仍保持 HttpOnly。</p>
@@ -224,7 +225,7 @@ Lax，以支持从本机 VSCode 快捷页完成顶层 POST 登录；仍保持 Ht
 登录/页面/API：通过
 外网命令内层 bash -n：通过
 远程命令内层 bash -n：通过
-4 并发分组：api/pg/tada/ppk + pp/playson/panda/g759
+4 并发分组：api/pg/vendor_a/ppk + pp/vendor_c/vendor_d/g759
 手机 390x844：通过，无横向溢出
 折叠命令直接执行：通过
 失败时状态变红并停止：通过
@@ -234,7 +235,7 @@ SSE vendor running/done：通过
 <p>本地失败测试在 SSH 认证阶段即退出，没有在远端执行构建、停容器或修改 runtime。</p>
 <h3 id="7-2-快捷入口">7.2 快捷入口</h3>
 <p>从本机 HTTP 静态页打开 <code>运维.html</code> 后，自动提交单密码表单并成功到达：</p>
-<pre><code class="language-text">http://35.247.205.6:8787/
+<pre><code class="language-text">http://192.0.2.8:8787/
 </code></pre>
 <h3 id="7-3-线上">7.3 线上</h3>
 <pre><code class="language-text">健康检查：200
@@ -245,16 +246,16 @@ vendor SSE 事件：running / done 正常
 人工 p4 检查：已移除
 </code></pre>
 <p>最终部署：</p>
-<pre><code class="language-text">容器：dbqp-ops-console
-镜像：dbqp-ops-console:20261102
+<pre><code class="language-text">容器：bizops-ops-console
+镜像：bizops-ops-console:20261102
 镜像 ID：sha256:329a734fb7a87119e3014f67e6f7403f0d894f691b100ac66634bd2b72011b25
 状态：Up (healthy)
-入口：http://35.247.205.6:8787
+入口：http://192.0.2.8:8787
 </code></pre>
 <p>本次没有执行真实镜像构建、推送、业务容器停启或正式发布。</p>
 <h2 id="八-交付物">八、交付物</h2>
-<pre><code class="language-text">deliverables/dbqp-ops-console/
-deliverables/dbqp-ops-console-20261102.zip
+<pre><code class="language-text">deliverables/bizops-ops-console/
+deliverables/bizops-ops-console-20261102.zip
 ZIP SHA256：487fba0cfa791aa0562e4325c5db15b09a5d855d370588ca5b4ce68860fa3ef3
 </code></pre>
 <p>公开交付 ZIP 不包含：</p>
@@ -268,13 +269,13 @@ ZIP SHA256：487fba0cfa791aa0562e4325c5db15b09a5d855d370588ca5b4ce68860fa3ef3
 </ul>
 <h2 id="九-备份与回滚">九、备份与回滚</h2>
 <p>部署前代码备份：</p>
-<pre><code class="language-text">/opt/dbqp-ops-console/backups/code-before-20261102-170446.tar.gz
+<pre><code class="language-text">/opt/bizops-ops-console/backups/code-before-20261102-170446.tar.gz
 </code></pre>
 <p>回滚：</p>
-<pre><code class="language-bash">cd /opt/dbqp-ops-console
+<pre><code class="language-bash">cd /opt/bizops-ops-console
 tar -xzf backups/code-before-20261102-170446.tar.gz -C .
 docker compose -f deploy/docker-compose.yml up -d --build
-curl -fsS http://203.0.113.1:8788/api/health
+curl -fsS http://192.0.2.1:8788/api/health
 </code></pre>
 <p>回滚不删除 <code>data/</code>、<code>secrets/</code> 或业务服务器运行目录。</p>
 <h2 id="十-通知与-Git">十、通知与 Git</h2>
@@ -289,7 +290,7 @@ curl -fsS http://203.0.113.1:8788/api/health
           <li>分类：历史运维与项目交付 / 巴西主站</li>
           <li>日期：2026-11-02</li>
           <li>标签：<span class="tag">巴西主站</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">自动化</span><span class="tag">安全运维</span><span class="tag">数据库恢复</span><span class="tag">源码与配置</span></li>
-          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-11-02-1708-【优化】运维发布台并发打包详细通知与手机端入口…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202611021708-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E8%BF%90%E7%BB%B4%E5%8F%91%E5%B8%83%E5%8F%B0%E5%B9%B6%E5%8F%91%E6%89%93%E5%8C%85%E3%80%81%E8%AF%A6%E7%BB%86%E9%80%9A%E7%9F%A5%E4%B8%8E%E6%89%8B%E6%9C%BA%E7%AB%AF%E5%85%A5%E5%8F%A3%E6%95%B4%E5%90%88%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+          <li><span>来源：~/Projects/ops/private-notes/master/docs/history/2026-11-02-1708-【优化】运维发布台并发打包详细通知与手机端入口整…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202611021708-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E8%BF%90%E7%BB%B4%E5%8F%91%E5%B8%83%E5%8F%B0%E5%B9%B6%E5%8F%91%E6%89%93%E5%8C%85%E3%80%81%E8%AF%A6%E7%BB%86%E9%80%9A%E7%9F%A5%E4%B8%8E%E6%89%8B%E6%9C%BA%E7%AB%AF%E5%85%A5%E5%8F%A3%E6%95%B4%E5%90%88%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
         </ul></div>
         <div class="aside-box"><h2>作者</h2>
           <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
@@ -299,10 +300,10 @@ curl -fsS http://203.0.113.1:8788/api/health
     </div>
     <section class="seo-summary" aria-labelledby="seo-summary-title">
       <h2 id="seo-summary-title">文章摘要</h2>
-      <p>【优化】运维发布台并发打包、详细通知与手机端入口整合记录。本文属于历史运维与项目交付 / 巴西主站，执行范围：本地 master 、巴西宝塔 dbqp-ops-console 、03 原始打包脚本兼容性。 运维发布台已支持按厂家选择并按 2/3/4 路并发打包，默认 3 路。每个厂家仍调用 03 原有单厂家 bu…</p>
-      <p>关键词：巴西主站、Linux、Shell、Docker、自动化、安全运维、数据库恢复、源码与配置、历史运维与项目交付、历史运维与项目交付 / 巴西主站、【优化】运维发布台并发打包、详细通知与手机端入口整合记录</p>
+      <p>【优化】运维发布台并发打包、详细通知与手机端入口整合记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 执行范围：本地 master 、巴西宝塔 bizops-ops-console 、03 原始打包脚本兼容性。…</p>
+      <p>关键词：巴西主站、Linux、Shell、Docker、自动化、安全运维、数据库恢复、源码与配置、历史运维与项目交付、历史运维与项目交付 / 巴西主站、【优化】运维发布台并发打包、详细通知与手机端入口整合记录、一、结论、二、开始前基线、三、并发打包实现</p>
     </section>
-    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-665c627d73ec.html"><small>上一篇</small>【架构+优化】dbqp-ops-console 实时执行审计与结果集权限自愈部署记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-93d3acae0fa7.html"><small>下一篇</small>每日服务器巡检（2026-11-03）</a></nav>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-665c627d73ec.html"><small>上一篇</small>【架构+优化】bizops-ops-console 实时执行审计与结果集权限自愈部署记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-93d3acae0fa7.html"><small>下一篇</small>每日服务器巡检（2026-11-03）</a></nav>
   </main>
   <footer><div class="shell">
     <span>© 2026 BEN.OPS</span>

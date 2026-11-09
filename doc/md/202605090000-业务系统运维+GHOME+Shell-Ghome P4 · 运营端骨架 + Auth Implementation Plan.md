@@ -5,13 +5,15 @@ date: "2026-05-09T00:00:00+08:00"
 dateSource: "文件名日期"
 categories: ["业务系统运维", "GHOME"]
 tags: ["GHOME", "Shell", "Docker", "自动化", "源码与配置"]
-source: "project-file:///Private/from-oldmac-20261109/Users/ben/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p4-admin-auth.md"
+source: "project-file:///Private/from-oldmac-20261109/Users/operator/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p4-admin-auth.md"
 sourcePath: "~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p4-admin-auth.md"
 sourceSha256: "308d247b412134e7fb8f7caaaf7dcfc5514ee5407e68cd72c7de9276261d78ac"
 sourceSystem: "project-doc"
 ---
 
 # Ghome P4 · 运营端骨架 + Auth Implementation Plan
+
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
 > 来源文件：`~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p4-admin-auth.md`
 
@@ -155,12 +157,12 @@ DATABASE_URL=postgres://ghome:ghome@localhost:5432/ghome
 AUTH_TRUST_HOST=true
 AUTH_GITHUB_ID=dev-placeholder-id
 [敏感内容已脱敏]
-ADMIN_ALLOWED_GITHUB_LOGINS=tadacamp-code
+ADMIN_ALLOWED_GITHUB_LOGINS=vendor_acamp-code
 ```
 
 > 注:dev 的 GitHub OAuth credentials 是 placeholder。**真实测试登录时,需要 user 自己注册 GitHub OAuth App 并替换值**。本 plan 的端到端冒烟(T5)用 mock / unit test 覆盖,不依赖真实 GitHub。
 >
-> `tadacamp-code` 是工作区已知的 git user(根据 commit author);user 可以替换为自己的 GitHub username。
+> `vendor_acamp-code` 是工作区已知的 git user(根据 commit author);user 可以替换为自己的 GitHub username。
 
 **Step 4: 修改 `apps/admin/tsconfig.json`** — 加 paths:
 
@@ -643,7 +645,7 @@ git commit -m "feat(admin): add Auth.js route handler and middleware (whitelist 
 ## Task 4 — Dashboard page + 自定义登录页 + admin chrome
 
 **Files:**
-- Modify: `apps/admin/app/layout.tsx`(P0 占位 → 加 SessionProvider 与 metadata)
+- Modify: `apps/admin/app/layout.tsx`(P0 占位 → 加 SessionProvider 与 mevendor_ata)
 - Modify: `apps/admin/app/page.tsx`(P0 占位 → Dashboard 内容)
 - Create: `apps/admin/app/(auth)/signin/page.tsx`
 - Create: `apps/admin/components/AdminHeader.tsx`(用户头像 + 退出按钮)
@@ -799,10 +801,10 @@ export function AdminHeader({ user }: AdminHeaderProps) {
 **Step 4: 重写 `apps/admin/app/layout.tsx`**
 
 ```tsx
-import type { Metadata } from "next";
+import type { Mevendor_ata } from "next";
 import "./globals.css";
 
-export const metadata: Metadata = {
+export const mevendor_ata: Mevendor_ata = {
   title: "Ghome · Admin",
   description: "Ghome 运营管理端",
   robots: { index: false, follow: false },
@@ -986,7 +988,7 @@ export default async function SignInPage({
         >
           <button type="submit" className="signin-btn">
             <svg width={18} height={18} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-              <path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6a3.2 3.2 0 0 0-1.3-1.7c-1-.7.1-.7.1-.7a2.5 2.5 0 0 1 1.8 1.2 2.6 2.6 0 0 0 3.5 1 2.6 2.6 0 0 1 .8-1.6c-2.7-.3-5.5-1.3-5.5-5.9a4.6 4.6 0 0 1 1.2-3.2 4.3 4.3 0 0 1 .1-3.2s1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.5 1.1.5 2.4.1 3.2a4.6 4.6 0 0 1 1.2 3.2c0 4.6-2.8 5.6-5.5 5.9a2.9 2.9 0 0 1 .8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3z" />
+              <path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6a3.2 3.2 0 0 0-1.3-1.7c-1-.7.1-.7.1-.7a2.5 2.5 0 0 1 1.8 1.2 2.6 2.6 0 0 0 3.5 1 2.6 2.6 0 0 1 .8-1.6c-2.7-.3-5.5-1.3-5.5-5.9a4.6 4.6 0 0 1 1.2-3.2 4.3 4.3 0 0 1 .1-3.2s1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.5 1.1.5 2.4.1 3.2a4.6 4.6 0 0 1 1.2 3.2c0 4.6-2.8 5.6-5.5 5.9a2.9 2.9 0 0 1 .8 2.2v3.3c0 .192.0.2.7.6A12 12 0 0 0 12 .3z" />
             </svg>
             <span>使用 GitHub 登录</span>
           </button>

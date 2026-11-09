@@ -5,21 +5,23 @@ date: "2026-08-28T18:56:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Python", "Docker", "Nginx", "CDN", "DNS", "安全运维"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-08-28-1856-%E3%80%90%E6%B5%8B%E8%AF%95%E6%96%B9%E6%A1%88%E3%80%91docker%E6%B5%8F%E8%A7%88%E5%99%A8%E6%96%B9%E6%A1%88%E9%AA%8C%E8%AF%81%E4%B8%8ECFBrowserRendering%E8%AF%84%E4%BC%B0%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-08-28-1856-【测试方案】docker浏览器方案验证与CFBrowserRendering评估记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-08-28-1856-%E3%80%90%E6%B5%8B%E8%AF%95%E6%96%B9%E6%A1%88%E3%80%91docker%E6%B5%8F%E8%A7%88%E5%99%A8%E6%96%B9%E6%A1%88%E9%AA%8C%E8%AF%81%E4%B8%8ECFBrowserRendering%E8%AF%84%E4%BC%B0%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-08-28-1856-【测试方案】docker浏览器方案验证与CFBrowserRendering评估记录.md"
 sourceSha256: "3a89baddadb4aa74f747dacebb61c45ff9949b84319cd09a1080597f88f1298b"
 sourceSystem: "project-doc"
 ---
 
 # 【测试方案】docker 浏览器方案验证 + Cloudflare Browser Rendering 评估
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-08-28-1856-【测试方案】docker浏览器方案验证与CFBrowserRendering评估记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-08-28-1856-【测试方案】docker浏览器方案验证与CFBrowserRendering评估记录.md`
 
 > 整理日期：2026-08-28 18:56｜日期依据：文件名日期
 
 时间：2026-08-28 18:56（Asia/Manila）
-项目：DBQP / PGServer master
-执行人：Codex（本地工作区 + 备用机 34.151.249.53）
+项目：某业务公司 / PGServer master
+执行人：Codex（本地工作区 + 备用机 192.0.2.13）
 
 ## 一、背景
 
@@ -66,9 +68,9 @@ Fortune Tiger   12.6s    8.6s          ok=true
 本次视频标注：
 
 ```text
-域名：ind-h5.dbqpplus999.com/pgbronline/
+域名：ind-h5.bizopsplus999.com/pgbronline/
 账号/密码：11955336688 / 11955336688
-服务器：dbqp-saopaulo-nginx-standby-01 / 34.151.249.53
+服务器：bizops-saopaulo-nginx-standby-01 / 192.0.2.13
 ```
 
 两个 MP4 已通过 Telegram bot 发群（send: True）。

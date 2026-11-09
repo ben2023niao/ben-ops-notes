@@ -5,20 +5,22 @@ date: "2026-09-04T10:35:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Nginx", "CDN", "数据库恢复", "源码与配置"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-09-04-1035-%E3%80%90%E7%BD%91%E7%BB%9C%E8%B0%83%E6%95%B4%2B%E5%86%B3%E7%AD%96%E3%80%91%E5%8A%A8%E6%80%81%E5%9F%9F%E5%90%8D%E5%93%8D%E5%BA%94%E5%A4%B4CORS%E5%8F%AA%E7%94%B1%E5%90%8E%E7%AB%AF%E5%A4%84%E7%90%86%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-09-04-1035-【网络调整+决策】动态域名响应头CORS只由后端处理记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-09-04-1035-%E3%80%90%E7%BD%91%E7%BB%9C%E8%B0%83%E6%95%B4%2B%E5%86%B3%E7%AD%96%E3%80%91%E5%8A%A8%E6%80%81%E5%9F%9F%E5%90%8D%E5%93%8D%E5%BA%94%E5%A4%B4CORS%E5%8F%AA%E7%94%B1%E5%90%8E%E7%AB%AF%E5%A4%84%E7%90%86%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-09-04-1035-【网络调整+决策】动态域名响应头CORS只由后端处理记录.md"
 sourceSha256: "a4bddce22295c84324ccca8ea28646e20d3c55189629b717fe42dfdd3d2f3537"
 sourceSystem: "project-doc"
 ---
 
 # 【网络调整+决策】动态域名不做 CDN/nginx 响应头与 CORS，统一由后端处理
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-09-04-1035-【网络调整+决策】动态域名响应头CORS只由后端处理记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-04-1035-【网络调整+决策】动态域名响应头CORS只由后端处理记录.md`
 
 > 整理日期：2026-09-04 10:35｜日期依据：文件名日期
 
 时间：2026-09-04 10:35（Asia/Manila）
-项目：DBQP / PGServer master（CDN + nginx）
+项目：某业务公司 / PGServer master（CDN + nginx）
 状态：✅ 完成（CF 0 条动态规则；nginx 动态层 CORS 已清除并验证）
 
 ## 一、背景与决策
@@ -35,7 +37,7 @@ sourceSystem: "project-doc"
 扫描 22 个静态 zone 的 http_response_headers_transform 与
 http_request_cache_settings entrypoint：
 命中“动态域名”的规则 = 0；
-现有响应头/缓存规则表达式仅匹配 -static.* 与 tada-statics.*（静态域名）。
+现有响应头/缓存规则表达式仅匹配 -static.* 与 vendor_a-statics.*（静态域名）。
 ```
 
 ## 三、nginx 调整（备用机 + 宝塔）
@@ -56,7 +58,7 @@ http_request_cache_settings entrypoint：
 ## 四、线上验证
 
 ```text
-带 Origin 请求 api/pg-games/tada-games /health：
+带 Origin 请求 api/pg-games/vendor_a-games /health：
   - 不再出现 nginx “*”
   - 返回后端反射：Access-Control-Allow-Origin=<Origin>、
     Allow-Credentials=true、Allow-Headers=后端白名单

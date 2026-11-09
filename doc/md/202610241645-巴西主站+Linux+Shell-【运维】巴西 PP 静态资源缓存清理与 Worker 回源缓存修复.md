@@ -5,15 +5,17 @@ date: "2026-10-24T16:45:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Linux", "Shell", "Docker", "监控告警", "自动化", "CDN", "故障排查"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-10-24-1645-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91%E5%B7%B4%E8%A5%BFPP%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E7%BC%93%E5%AD%98%E6%B8%85%E7%90%86%E4%B8%8EWorker%E5%9B%9E%E6%BA%90%E7%BC%93%E5%AD%98%E4%BF%AE%E5%A4%8D.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-10-24-1645-【运维】巴西PP静态资源缓存清理与Worker回源缓存修复.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-10-24-1645-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91%E5%B7%B4%E8%A5%BFPP%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E7%BC%93%E5%AD%98%E6%B8%85%E7%90%86%E4%B8%8EWorker%E5%9B%9E%E6%BA%90%E7%BC%93%E5%AD%98%E4%BF%AE%E5%A4%8D.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-10-24-1645-【运维】巴西PP静态资源缓存清理与Worker回源缓存修复.md"
 sourceSha256: "31b6091977536a6511a69fb54b858feef6a69a957f1295595beda5b378823f25"
 sourceSystem: "project-doc"
 ---
 
 # 【运维】巴西 PP 静态资源缓存清理与 Worker 回源缓存修复
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-10-24-1645-【运维】巴西PP静态资源缓存清理与Worker回源缓存修复.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-10-24-1645-【运维】巴西PP静态资源缓存清理与Worker回源缓存修复.md`
 
 > 整理日期：2026-10-24 16:45｜日期依据：文件名日期
 
@@ -28,7 +30,7 @@ sourceSystem: "project-doc"
 项目：巴西
 厂家：PP
 公网主机名：pp-static.xqv9m8.icu
-GCS 桶：newgg2-dbqp-gcs-pp-static
+GCS 桶：newgg2-bizops-gcs-pp-static
 Cloudflare Worker：summer-wave-c94f
 Worker 缓存版本：运维清理时 pp-static v3 -> v6；随后开发在 09:42 UTC
 手工改为 `FACTORY_CONFIG`，线上最终以开发手工版为准。
@@ -52,7 +54,7 @@ URL 缓存。因此只做以下动作时仍会命中旧对象：
 最终修复是在 Worker 回源地址中追加：
 
 ```text
-__dbqp_cache_version=v6
+__bizops_cache_version=v6
 ```
 
 GCS 会忽略这个未知查询参数，但 Cloudflare 会把它算进子请求缓存键，从而真正强制回源。
@@ -62,7 +64,7 @@ GCS 会忽略这个未知查询参数，但 Cloudflare 会把它算进子请求�
 验证必须在巴西宝塔或巴西网络执行，否则 PP 的国家白名单可能返回 403。
 
 ```text
-出口：dbqp-saopaulo-game-results-data-bt / 35.247.205.6
+出口：bizops-saopaulo-game-results-data-bt / 192.0.2.8
 对象：/gs2c/common/game-history-client/0.28720e9b.min.js
 ```
 
@@ -103,7 +105,7 @@ content-length: 15086
 GCS 源站直连：
 
 ```text
-https://storage.googleapis.com/newgg2-dbqp-gcs-pp-static/gs2c/common/game-history-client/0.28720e9b.min.js
+https://storage.googleapis.com/newgg2-bizops-gcs-pp-static/gs2c/common/game-history-client/0.28720e9b.min.js
 HTTP 200 / content-length: 13311
 ```
 
@@ -117,7 +119,7 @@ HTTP 200 / content-length: 13311
 d3c90b51d3cde911d7c9ac7c1c17b745a0ad84375725092abc88a1986cd4f265
 
 宝塔：
-/root/dbqp-cf-backups/20261024-094228-worker-manual/
+/root/bizops-cf-backups/20261024-094228-worker-manual/
 
 仓库：
 scripts/worker-js-cdn-代码备份/【线上在用】worker.js
@@ -161,11 +163,11 @@ curl -sS -o /dev/null -D - -A "$UA" "$TEST_URL" \
 
 ```text
 最终上线前备份：
-/root/dbqp-cf-backups/20261024-091537-pp-v6/summer-wave-c94f.js
+/root/bizops-cf-backups/20261024-091537-pp-v6/summer-wave-c94f.js
 
 中间版本备份：
-/root/dbqp-cf-backups/20261024-083528-pp-v4/summer-wave-c94f.js
-/root/dbqp-cf-backups/20261024-083724-pp-v5/summer-wave-c94f.js
+/root/bizops-cf-backups/20261024-083528-pp-v4/summer-wave-c94f.js
+/root/bizops-cf-backups/20261024-083724-pp-v5/summer-wave-c94f.js
 ```
 
 回滚或再次部署时必须先从 Cloudflare API 拉取最新线上源码。开发会直接改 Worker，
@@ -204,12 +206,12 @@ docker/services/
 机器人几个月未使用，已同时移除：
 
 ```text
-宝塔：dbqp-ben-bot、旧 ben-bot 容器及两个机器人镜像
-备用入口机：dbqp-ben-bot-standby 容器及机器人镜像
-巴西 03：dbqp-resource-sync 停止容器及 1.72GB 镜像
+宝塔：bizops-ben-bot、旧 ben-bot 容器及两个机器人镜像
+备用入口机：bizops-ben-bot-standby 容器及机器人镜像
+巴西 03：bizops-resource-sync 停止容器及 1.72GB 镜像
 ```
 
-Telegram 通知没有随机器人一起下线：`docker/scripts/dbqp_notify.py` 改为通过 SSH 在
+Telegram 通知没有随机器人一起下线：`docker/scripts/bizops_notify.py` 改为通过 SSH 在
 宝塔宿主机读取 `/opt/benbot-runtime.env`，直接调用 Telegram API。机器人容器删除后，
 宿主机通知凭据和目标群 `监控报警群` 校验均通过。
 

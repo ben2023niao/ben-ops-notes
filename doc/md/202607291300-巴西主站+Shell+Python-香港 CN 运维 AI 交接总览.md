@@ -5,15 +5,17 @@ date: "2026-07-29T13:00:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Python", "Docker", "Nginx", "自动化", "CDN", "DNS"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/hongkong/cn/2026-07-29-1300-%E3%80%90%E8%BF%90%E7%BB%B4%E8%AE%B0%E5%BD%95%E3%80%91DBQP%E8%BF%90%E7%BB%B4AI%E4%BA%A4%E6%8E%A5%E6%80%BB%E8%A7%88.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/hongkong/cn/2026-07-29-1300-【运维记录】DBQP运维AI交接总览.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/hongkong/cn/2026-07-29-1300-%E3%80%90%E8%BF%90%E7%BB%B4%E8%AE%B0%E5%BD%95%E3%80%91某业务公司%E8%BF%90%E7%BB%B4AI%E4%BA%A4%E6%8E%A5%E6%80%BB%E8%A7%88.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/hongkong/cn/2026-07-29-1300-【运维记录】某业务公司运维AI交接总览.md"
 sourceSha256: "6ae5bc230d880932e3b8b1be9c434162ffba7e52ceb7a957a2a3d8f8bfcc2cc4"
 sourceSystem: "project-doc"
 ---
 
 # 香港 CN 运维 AI 交接总览
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/hongkong/cn/2026-07-29-1300-【运维记录】DBQP运维AI交接总览.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/hongkong/cn/2026-07-29-1300-【运维记录】某业务公司运维AI交接总览.md`
 
 > 整理日期：2026-07-29 13:00｜日期依据：文件名日期
 
@@ -26,7 +28,7 @@ sourceSystem: "project-doc"
 - 香港 Nginx 配置。
 - AWS ACM、S3、CloudFront。
 - Cloudflare DNS。
-- PG、PP、PPK、Panda、JILI 域名池。
+- PG、PP、PPK、vendor_d、vendor_b 域名池。
 - 验证、回滚和运维文档。
 
 不要在本分支恢复游戏后端代码、后端 Docker 镜像、服务发布脚本、ben-bot 或巴西宝塔快照。两台后端由其他团队维护，本分支只通过香港 Nginx 反向代理访问。
@@ -35,19 +37,19 @@ sourceSystem: "project-doc"
 
 | 角色 | 地址/资源 |
 | --- | --- |
-| 香港 Nginx | `34.92.13.108` |
-| 后端 01 | `18.163.34.9` |
-| 后端 02 | `43.198.52.147` |
+| 香港 Nginx | `192.0.2.14` |
+| 后端 01 | `192.0.2.18` |
+| 后端 02 | `192.0.2.19` |
 | AWS 区域 | `ap-east-1` |
-| 私有 S3 | `dbqp-h5-hk-517506432530` |
+| 私有 S3 | `bizops-h5-hk-517506432530` |
 | 动态 CloudFront | `E3QV4VIGTRVCVD` / `d1n4qfcp941cy6.cloudfront.net` |
-| CloudFront OAC | `dbqp-hk-static-oac` |
+| CloudFront OAC | `bizops-hk-static-oac` |
 
-动态端口：platform-api `9090`、PG `9091`、JILI `9093`、PP `9099`、PPK `9098`、Panda `9018`。
+动态端口：platform-api `9090`、PG `9091`、vendor_b `9093`、PP `9099`、PPK `9098`、vendor_d `9018`。
 
 PG 同时提供固定 API 域名 `api.hkcloudplay01.com` 至 `api.hkcloudplay05.com`，链路为 Cloudflare DNS-only CNAME -> 动态 CloudFront -> 香港 Nginx -> PG `9091`。
 
-JILI 保留 `jili-static*` 对外域名，但 CloudFront/S3 与 nginx 兜底均直接读取 TADA 的 `tada-statics*` 共享源资源；JILI 动态服务独立走 9093，TADA 9096 不启用。
+vendor_b 保留 `vendor_b-static*` 对外域名，但 CloudFront/S3 与 nginx 兜底均直接读取 vendor_a 的 `vendor_a-statics*` 共享源资源；vendor_b 动态服务独立走 9093，vendor_a 9096 不启用。
 
 ## 目录入口
 
@@ -55,9 +57,9 @@ JILI 保留 `jili-static*` 对外域名，但 CloudFront/S3 与 nginx 兜底均�
 - `docker/workbench/CURRENT_STATE.md`：当前已验证状态。
 - `docker/workbench/CURRENT_TASK.md`：当前任务和最后安全点。
 - `docker/workbench/handoff/`：给 Claude Code 或其他执行层的 context、plan、manifest、result 模板。
-- `docker/deploy/hongkong/nginx-dbqp.conf`：香港 Nginx 主配置。
-- `docker/deploy/hongkong/dbqp-hongkong-tls.conf`：TLS 公共配置。
-- `docker/deploy/hongkong/dbqp-hongkong-proxy.conf`：反代公共参数。
+- `docker/deploy/hongkong/nginx-bizops.conf`：香港 Nginx 主配置。
+- `docker/deploy/hongkong/bizops-hongkong-tls.conf`：TLS 公共配置。
+- `docker/deploy/hongkong/bizops-hongkong-proxy.conf`：反代公共参数。
 - `docker/deploy/hongkong/*.py`：AWS、CloudFront、S3、Cloudflare 工具。
 - `docker/conf/domains/*.json`：交给 platform-api 使用的香港域名池。
 - `docker/ci/check.py`：Python 编译和范围检查。
@@ -83,7 +85,7 @@ python3 docker/ci/check.py
 
 ```bash
 cf-api GET /user/tokens/verify
-ONLY_ZONE=hkcloudplay01.com cloudflare-aws-cutover status jili-static
+ONLY_ZONE=hkcloudplay01.com cloudflare-aws-cutover status vendor_b-static
 validate-cloudfront-static
 nginx -t
 ```
@@ -106,9 +108,9 @@ nginx -t
 ## 最近关键记录
 
 - `docker/workbench/START_HERE.md`
-- `2026-07-29-1926-【补静态资源】香港Panda客户端资源同步验证记录.md`
+- `2026-07-29-1926-【补静态资源】香港vendor_d客户端资源同步验证记录.md`
 - `2026-07-29-1238-【补静态资源】香港PG45与PP客户端资源同步验证记录.md`
-- `2026-07-17-1900-【架构改造+网络调整】香港CN五厂商收口与JILI-AWS接入完整记录.md`
+- `2026-07-17-1900-【架构改造+网络调整】香港CN五厂商收口与vendor_b-AWS接入完整记录.md`
 - `2026-07-17-1500-【架构改造】香港AWS-S3与CloudFront迁移搭建记录.md`
 - `2026-07-17-1700-【网络调整】香港AWS-CloudFront灰度切换与回滚验证记录.md`
 - `2026-07-17-1109-【架构改造】cn分支精简与香港工具Python化记录.md`

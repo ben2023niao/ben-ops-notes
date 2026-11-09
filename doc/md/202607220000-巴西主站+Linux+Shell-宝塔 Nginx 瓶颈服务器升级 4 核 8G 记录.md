@@ -5,21 +5,23 @@ date: "2026-07-22T00:00:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Linux", "Shell", "Docker", "Nginx", "故障排查", "数据库恢复", "源码与配置"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-07-22-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E5%AE%9D%E5%A1%94Nginx%E7%93%B6%E9%A2%88%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%8D%87%E7%BA%A74%E6%A0%B88G%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-07-22-【优化】宝塔Nginx瓶颈服务器升级4核8G记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-07-22-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E5%AE%9D%E5%A1%94Nginx%E7%93%B6%E9%A2%88%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%8D%87%E7%BA%A74%E6%A0%B88G%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-07-22-【优化】宝塔Nginx瓶颈服务器升级4核8G记录.md"
 sourceSha256: "3df54dafcec14b6cca0ff9b52c82b9eb339325bdfc081b8337135834d29e0737"
 sourceSystem: "project-doc"
 ---
 
 # 宝塔 Nginx 瓶颈服务器升级 4 核 8G 记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-07-22-【优化】宝塔Nginx瓶颈服务器升级4核8G记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-07-22-【优化】宝塔Nginx瓶颈服务器升级4核8G记录.md`
 
 > 整理日期：2026-07-22 00:00｜日期依据：文件名日期
 
 日期：2026-07-22
-范围：宝塔 / Nginx 入口服务器 `35.247.205.6`
-实例：`dbqp-saopaulo-game-results-data-bt`
+范围：宝塔 / Nginx 入口服务器 `192.0.2.8`
+实例：`bizops-saopaulo-game-results-data-bt`
 Zone：`southamerica-east1-a`
 
 ## 背景
@@ -35,10 +37,10 @@ Zone：`southamerica-east1-a`
 
 | 项目 | 值 |
 | --- | --- |
-| 公网 IP | `35.247.205.6` |
-| 内网 IP | `203.0.113.1` |
-| hostname | `dbqp-saopaulo-game-results-data-bt` |
-| GCP 实例名 | `dbqp-saopaulo-game-results-data-bt` |
+| 公网 IP | `192.0.2.8` |
+| 内网 IP | `192.0.2.1` |
+| hostname | `bizops-saopaulo-game-results-data-bt` |
+| GCP 实例名 | `bizops-saopaulo-game-results-data-bt` |
 | Zone | `southamerica-east1-a` |
 | 原规格 | `e2-medium` |
 | CPU | `2` |
@@ -125,7 +127,7 @@ baota-nginx-pre-upgrade-20260722-1805
 快照源盘：
 
 ```text
-dbqp-saopaulo-game-results-data-bt
+bizops-saopaulo-game-results-data-bt
 ```
 
 ## 升级操作
@@ -155,13 +157,13 @@ GCP 复核：
 
 ```text
 NAME                                MACHINE_TYPE      STATUS   NETWORK_IP  NAT_IP
-dbqp-saopaulo-game-results-data-bt  e2-custom-4-8192  RUNNING  203.0.113.1  35.247.205.6
+bizops-saopaulo-game-results-data-bt  e2-custom-4-8192  RUNNING  192.0.2.1  192.0.2.8
 ```
 
 系统复核：
 
 ```text
-hostname: dbqp-saopaulo-game-results-data-bt
+hostname: bizops-saopaulo-game-results-data-bt
 cpu=4
 Mem: 7.8Gi total, 6.8Gi available
 /dev/root 485G total, 257G used, 229G available, 53%
@@ -172,7 +174,7 @@ Mem: 7.8Gi total, 6.8Gi available
 ```text
 nginx: active
 bt: active
-dbqp-ben-bot: Up
+bizops-ben-bot: Up
 ```
 
 端口复核：
@@ -186,8 +188,8 @@ dbqp-ben-bot: Up
 外部连通性：
 
 ```text
-http://35.247.205.6/ -> HTTP/1.1 403 Forbidden
-35.247.205.6:30264 -> TCP succeeded
+http://192.0.2.8/ -> HTTP/1.1 403 Forbidden
+192.0.2.8:30264 -> TCP succeeded
 ```
 
 说明：

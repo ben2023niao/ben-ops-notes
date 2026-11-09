@@ -5,26 +5,28 @@ date: "2026-09-10T23:30:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Python", "Docker", "MySQL", "CDN", "故障排查", "数据库恢复"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-09-10-2330-%E3%80%90%E6%8E%92%E6%9F%A5%E3%80%91TADA623%E6%89%93%E4%B8%8D%E5%BC%80%E6%A0%B9%E5%9B%A0%E5%AE%9A%E4%BD%8D%2Bhtt%E8%B5%84%E6%BA%90%E9%83%A8%E7%BD%B2%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-09-10-2330-【排查】TADA623打不开根因定位+htt资源部署记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-09-10-2330-%E3%80%90%E6%8E%92%E6%9F%A5%E3%80%91vendor_a623%E6%89%93%E4%B8%8D%E5%BC%80%E6%A0%B9%E5%9B%A0%E5%AE%9A%E4%BD%8D%2Bhtt%E8%B5%84%E6%BA%90%E9%83%A8%E7%BD%B2%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-09-10-2330-【排查】vendor_a623打不开根因定位+htt资源部署记录.md"
 sourceSha256: "a50c935e783a0c45aa2a65cf314699d056a98f5b482d88ed412df742137158c6"
 sourceSystem: "project-doc"
 ---
 
 # Coin of Lightning
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-09-10-2330-【排查】TADA623打不开根因定位+htt资源部署记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-10-2330-【排查】vendor_a623打不开根因定位+htt资源部署记录.md`
 
 > 整理日期：2026-09-10 23:30｜日期依据：文件名日期
 
 时间：2026-09-10 23:30（Asia/Manila）
-项目：DBQP / PGServer master
+项目：某业务公司 / PGServer master
 结果：✅ htt 资源已补到 GCS 三路 + client.git；
 ❗真因确认不是静态资源，而是 `sso-login.api` 验签失败（后端商户密钥问题）
 
 ## 一、现象与初始判断修正
 
-623（闪电币 Coin of Lightning，目录 `col`，前缀 `tada-statics5`）点开一直加载不出来。
+623（闪电币 Coin of Lightning，目录 `col`，前缀 `vendor_a-statics5`）点开一直加载不出来。
 
 此前已做的静态覆盖（561 文件、checksum 全等、CDN 200）并未解决，说明卡点不在静态层。
 用真实浏览器（bot 容器 Chromium，`game_load_probe.py`）带 `ssoKey` 打开后确认：
@@ -33,8 +35,8 @@ sourceSystem: "project-doc"
 title: "Coin of Lightning"
 Success to load scene db://assets/Scene/MainGame.scene   （引擎/场景加载成功）
 request_failed: []                                        （静态资源 0 失败）
-404  https://tada-statics5.cdn-tokyo-dbqp.icu/col/htt/smallicon/setting.json
-500  https://tada-games.cdn-tokyo-dbqp.icu/sso-login.api
+404  https://vendor_a-statics5.cdn-tokyo-bizops.icu/col/htt/smallicon/setting.json
+500  https://vendor_a-games.cdn-tokyo-bizops.icu/sso-login.api
 ```
 
 ## 二、htt 资源部署（厂商补包）
@@ -47,26 +49,26 @@ htt/smallicon/lang/{en-US,hi-IN,id-ID,pt-BR,vi-VN,zh-CN}/strings.json
 ```
 
 目标路径：`<game>/htt/...`（与本游戏请求的 `/col/htt/smallicon/setting.json` 一致）。
-注意：全部 tada 游戏的 git 仓库里此前**都没有** `htt/` 目录，属新增目录。
+注意：全部 vendor_a 游戏的 git 仓库里此前**都没有** `htt/` 目录，属新增目录。
 
 ### 双写位置
 
 ```text
 GCS（7 个文件，全部到位）
-  gs://dbqp-gcs-tada-statics5-sa/col/htt/
-  gs://dbqp-gcs-tada-statics5/col/htt/
-  gs://dbqp-game-statics-gcs/tada-statics5/col/htt/
+  gs://bizops-gcs-vendor_a-statics5-sa/col/htt/
+  gs://bizops-gcs-vendor_a-statics5/col/htt/
+  gs://bizops-game-statics-gcs/vendor_a-statics5/col/htt/
 
 client.git
   e93428a04a -> 1c2aa9737a
-  "tada: add missing htt/smallicon resources for 623 (col)"
+  "vendor_a: add missing htt/smallicon resources for 623 (col)"
   新增 7 个文件，全部 A(新增)，0 修改 0 删除
 ```
 
 ### 验证
 
 ```text
-CDN  https://tada-statics5.cdn-tokyo-dbqp.icu/col/htt/smallicon/setting.json  -> 200
+CDN  https://vendor_a-statics5.cdn-tokyo-bizops.icu/col/htt/smallicon/setting.json  -> 200
      （部署前 404；内容为合法 JSON，含 CloseClick / CloseAutoChange /
        IgnoreEventNo / ApiIdToTitleName）
 浏览器重放 /col/  -> htt 的 404 消失，静态失败请求 0
@@ -79,13 +81,13 @@ CDN  https://tada-statics5.cdn-tokyo-dbqp.icu/col/htt/smallicon/setting.json  ->
 
 ```text
 GCS 删除（只删我们加的那一份）
-  gs://dbqp-gcs-tada-statics5-sa/col/htt/          7 -> 0
-  gs://dbqp-gcs-tada-statics5/col/htt/             7 -> 0
-  gs://dbqp-game-statics-gcs/tada-statics5/col/htt/ 7 -> 0
+  gs://bizops-gcs-vendor_a-statics5-sa/col/htt/          7 -> 0
+  gs://bizops-gcs-vendor_a-statics5/col/htt/             7 -> 0
+  gs://bizops-game-statics-gcs/vendor_a-statics5/col/htt/ 7 -> 0
 
 client.git 回滚（revert 提交，不改写历史）
-  1c2aa9737a -> e1223a93c2 "Revert tada: add missing htt/smallicon ..."
-  远端 tadastatic5/col/htt 文件数 = 0
+  1c2aa9737a -> e1223a93c2 "Revert vendor_a: add missing htt/smallicon ..."
+  远端 vendor_astatic5/col/htt 文件数 = 0
 
 col 生产静态未受影响：561 文件 + 1 目录别名 = 562 对象，CDN 200
 ```
@@ -109,35 +111,35 @@ Cache API 不受 zone purge 影响，只能用「缓存盐升级 + 重新部署 
   但 /accounts/{acct}/workers/scripts 的 GET/PUT 均 success
   -> 之前判断"令牌失效"不准确，user 级 verify 端点对这类令牌不适用
 
-备份：/root/dbqp-cf-backups/20260910-htt-purge/summer-wave-c94f.before.js
+备份：/root/bizops-cf-backups/20260910-htt-purge/summer-wave-c94f.before.js
       与本地版本逐行 diff：只差缓存盐，无其它改动
 
 部署：PUT /accounts/{acct}/workers/scripts/summer-wave-c94f
-      CACHE_SALT: v4-20260910-tada345 -> v5-20260910-tada-backfill
+      CACHE_SALT: v4-20260910-vendor_a345 -> v5-20260910-vendor_a-backfill
       modified_on=2026-09-10T09:13:28.650218Z，脚本 3276B -> 3304B
 
 验证：
   GET  /col/htt/smallicon/setting.json            -> 404（部署前因 Worker 缓存仍 200）
   GET  /col/htt/smallicon/lang/zh-CN/strings.json -> 404
   col 生产：index.html / config.d02cb.json / cocos-js/cc.af2c4.js / game.d02cb.zip -> 200
-  全前缀抽检：tada-statics/aa、tada1/lj、tada3/mp2、tada4/dad、tada5/c7d、
+  全前缀抽检：vendor_a-statics/aa、vendor_a1/lj、vendor_a3/mp2、vendor_a4/dad、vendor_a5/c7d、
               pp-static、pg-static -> 全部 200
   new_game_static_check.py -> 32/32 OK
   浏览器复验 /col/ -> 场景正常（MainGame.scene 144ms），静态 0 失败
 ```
 
-顺带完成：缓存盐升级即等于 **tada 全站 CDN 缓存整体刷新**（此前挂起的需求）。
+顺带完成：缓存盐升级即等于 **vendor_a 全站 CDN 缓存整体刷新**（此前挂起的需求）。
 
 ## 三、剩余卡点：sso-login.api 验签失败（后端）
 
 ```text
-HTTP 500  https://tada-games.cdn-tokyo-dbqp.icu/sso-login.api
+HTTP 500  https://vendor_a-games.cdn-tokyo-bizops.icu/sso-login.api
 
-prod-01 /opt/pgserver/logs/dbqp-tada-release-01/tada.log
+prod-01 /opt/pgserver/logs/bizops-vendor_a-release-01/vendor_a.log
   ERROR: Exception occurred while handling uri: sso-login.api
-    File "/app/tada/tada.py", line 2212, in sso_login
+    File "/app/vendor_a/vendor_a.py", line 2212, in sso_login
       user_info = await get_user_info_by_tkstr(token_str)
-    File "/app/tada/tada.py", line 960, in get_user_info_by_tkstr
+    File "/app/vendor_a/vendor_a.py", line 960, in get_user_info_by_tkstr
       raise ValueError(...)
   ValueError: check_jwt_token exception:invalid 敏感凭据：[已脱敏] verification failed
 ```
@@ -145,7 +147,7 @@ prod-01 /opt/pgserver/logs/dbqp-tada-release-01/tada.log
 定位线索：
 
 ```text
-platform-api/main.py            测试入口用 make_jwt_token("testtada","testtada", params)
+platform-api/main.py            测试入口用 make_jwt_token("testvendor_a","testvendor_a", params)
 platform-api/agent_apis.py:676  tkstr = jwt_encode.make_jwt_token(merchantId, secret, params)
 platform-api/agent_apis.py:248  merchant_info = await risk_merchant.get_merchant_from_mysql(app_key)
 share.so                        share.check_jwt_token / share_libs/jwt_encode.py
@@ -154,7 +156,7 @@ share.so                        share.check_jwt_token / share_libs/jwt_encode.py
 ```
 
 本次 ssoKey 的 `app_key = SHONBRLTESTMCH1790`（`plat_id=ONBRLTEST`，测试商户）。
-TADA 侧按该 app_key 取到的 secret 与签发方不一致（或该商户未登记）→ 验签失败。
+vendor_a 侧按该 app_key 取到的 secret 与签发方不一致（或该商户未登记）→ 验签失败。
 
 **注意**：`check_jwt_token` 的验签发生在过期校验之前，因此**过期 token 也报同一句
 `Signature verification failed`**，复测必须用新签发的 ssoKey。
@@ -185,8 +187,8 @@ docker/scripts/game_load_probe.py
 ### 问题 A：sso-login 验签失败（当前唯一阻塞）
 
 ```text
-现象 : https://tada-games.cdn-tokyo-dbqp.icu/sso-login.api -> 500
-后端 : tada.py:960 get_user_info_by_tkstr
+现象 : https://vendor_a-games.cdn-tokyo-bizops.icu/sso-login.api -> 500
+后端 : vendor_a.py:960 get_user_info_by_tkstr
        ValueError: check_jwt_token exception: invalid 敏感凭据：[已脱敏] verification failed
 
 要点 :
@@ -198,9 +200,9 @@ docker/scripts/game_load_probe.py
 
 修复建议 :
   1) 对齐商户 app_key=SHONBRLTESTMCH1790 的 mapimd5：
-     签发方签 ssoKey 用的 secret 必须等于 TADA 读取的 MySQL 商户表 mapimd5
-  2) 确认签发方与 TADA 读的是同一个库、同一行商户（警惕多环境串库）
-  3) 换用新被测商户时，需先在商户表登记并让 TADA 能读到
+     签发方签 ssoKey 用的 secret 必须等于 vendor_a 读取的 MySQL 商户表 mapimd5
+  2) 确认签发方与 vendor_a 读的是同一个库、同一行商户（警惕多环境串库）
+  3) 换用新被测商户时，需先在商户表登记并让 vendor_a 能读到
   4) 复测用新签发 ssoKey（有效期 10 分钟）
 ```
 

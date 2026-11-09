@@ -5,20 +5,22 @@ date: "2026-08-11T15:40:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Docker", "自动化", "安全运维", "源码与配置"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-08-11-1540-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91GitLab%E8%BF%81%E7%A7%BB%E5%85%A8%E9%9D%A2%E5%88%87%E6%8D%A2%E6%9C%AC%E5%9C%B0%E6%9C%8D%E5%8A%A1%E5%99%A8CI-CD%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-08-11-1540-【运维】GitLab迁移全面切换本地服务器CI-CD记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-08-11-1540-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91GitLab%E8%BF%81%E7%A7%BB%E5%85%A8%E9%9D%A2%E5%88%87%E6%8D%A2%E6%9C%AC%E5%9C%B0%E6%9C%8D%E5%8A%A1%E5%99%A8CI-CD%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-08-11-1540-【运维】GitLab迁移全面切换本地服务器CI-CD记录.md"
 sourceSha256: "c13c72226ad67719eeb899903d0a513035d6b972eee7f5aa14a613f000b94b3f"
 sourceSystem: "project-doc"
 ---
 
 # 2026-08-11 GitLab 迁移全面切换（本地 / 服务器 / CI-CD）记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-08-11-1540-【运维】GitLab迁移全面切换本地服务器CI-CD记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-08-11-1540-【运维】GitLab迁移全面切换本地服务器CI-CD记录.md`
 
 > 整理日期：2026-08-11 15:40｜日期依据：文件名日期
 
 时间：2026-08-11 15:40（Asia/Manila）
-项目：DBQP / PGServer master
+项目：某业务公司 / PGServer master
 范围：本地（VS Code）、服务器仓库、机器人 CI/CD 全面切换到新 GitLab
 执行人：Codex（本地工作区 + 宝塔/备用机）
 

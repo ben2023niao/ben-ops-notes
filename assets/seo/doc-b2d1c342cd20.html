@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>【方案】中央运维容器设计与安全边界（2026-10-29 · cd20）｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
-  <meta name="description" content="【方案】中央运维容器设计与安全边界。本文属于历史运维与项目交付 / 巴西主站，状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中央运维控制台。 WebSocket 实时返回 stdout/stderr、阶段状态和退出码。 巴西发布固…">
-  <meta name="keywords" content="巴西主站，Linux，Shell，Python，Docker，Nginx，监控告警，自动化，历史运维与项目交付，历史运维与项目交付 / 巴西主站，【方案】中央运维容器设计与安全边界">
+  <meta name="description" content="【方案】中央运维容器设计与安全边界。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中…">
+  <meta name="keywords" content="巴西主站，Linux，Shell，Python，Docker，Nginx，监控告警，自动化，历史运维与项目交付，历史运维与项目交付 / 巴西主站，【方案】中央运维容器设计与安全边界，一、目标，二、非目标，三、总体架构">
   <meta name="author" content="BEN">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
   <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
@@ -22,7 +22,7 @@
   <meta property="og:locale" content="zh_CN">
   <meta property="og:site_name" content="BEN.OPS 工程笔记">
   <meta property="og:title" content="【方案】中央运维容器设计与安全边界（2026-10-29 · cd20）">
-  <meta property="og:description" content="【方案】中央运维容器设计与安全边界。本文属于历史运维与项目交付 / 巴西主站，状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中央运维控制台。 WebSocket 实时返回 stdout/stderr、阶段状态和退出码。 巴西发布固…">
+  <meta property="og:description" content="【方案】中央运维容器设计与安全边界。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中…">
   <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b2d1c342cd20.html">
   <meta property="article:published_time" content="2026-10-29T16:16:00+08:00">
   <meta property="article:modified_time" content="2026-10-29 16:16">
@@ -31,7 +31,7 @@
   
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="【方案】中央运维容器设计与安全边界（2026-10-29 · cd20）">
-  <meta name="twitter:description" content="【方案】中央运维容器设计与安全边界。本文属于历史运维与项目交付 / 巴西主站，状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中央运维控制台。 WebSocket 实时返回 stdout/stderr、阶段状态和退出码。 巴西发布固…">
+  <meta name="twitter:description" content="【方案】中央运维容器设计与安全边界。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中…">
   
   <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
 --line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
@@ -75,7 +75,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 @media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
 .meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
 @media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b2d1c342cd20.html#article","headline":"【方案】中央运维容器设计与安全边界（2026-10-29 · cd20）","description":"【方案】中央运维容器设计与安全边界。本文属于历史运维与项目交付 / 巴西主站，状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中央运维控制台。 WebSocket 实时返回 stdout/stderr、阶段状态和退出码。 巴西发布固…","datePublished":"2026-10-29T16:16:00+08:00","dateModified":"2026-10-29 16:16","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Linux","Shell","Python","Docker","Nginx","监控告警","自动化","历史运维与项目交付","历史运维与项目交付 / 巴西主站","【方案】中央运维容器设计与安全边界"],"wordCount":2096,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b2d1c342cd20.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b2d1c342cd20.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【方案】中央运维容器设计与安全边界","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b2d1c342cd20.html"}]}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b2d1c342cd20.html#article","headline":"【方案】中央运维容器设计与安全边界（2026-10-29 · cd20）","description":"【方案】中央运维容器设计与安全边界。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中…","datePublished":"2026-10-29T16:16:00+08:00","dateModified":"2026-10-29 16:16","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Linux","Shell","Python","Docker","Nginx","监控告警","自动化","历史运维与项目交付","历史运维与项目交付 / 巴西主站","【方案】中央运维容器设计与安全边界","一、目标","二、非目标","三、总体架构"],"wordCount":1905,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b2d1c342cd20.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b2d1c342cd20.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【方案】中央运维容器设计与安全边界","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-b2d1c342cd20.html"}]}]}</script>
 </head>
 <body>
   <header class="topbar"><div class="shell">
@@ -94,11 +94,11 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
     <header class="hero">
       <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
       <h1>【方案】中央运维容器设计与安全边界（2026-10-29 · cd20）</h1>
-      <p class="lede">【方案】中央运维容器设计与安全边界。本文属于历史运维与项目交付 / 巴西主站，状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中央运维控制台。 WebSocket 实时返回 stdout/stderr、阶段状态和退出码。 巴西发布固…</p>
+      <p class="lede">【方案】中央运维容器设计与安全边界。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中…</p>
       <div class="meta">
         <time class="badge" datetime="2026-10-29T16:16:00+08:00">发布于 2026-10-29</time>
         <span class="badge">作者 BEN</span>
-        <span class="badge">2,096 字</span>
+        <span class="badge">1,905 字</span>
         <span class="badge">6 分钟阅读</span>
       </div>
     </header>
@@ -106,7 +106,8 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
       <article class="article" itemscope itemtype="https://schema.org/TechArticle">
         
 <blockquote>
-<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-10-29-1616-【方案】中央运维容器设计与安全边界.md</code></p>
+<p>公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。</p>
+<p>来源文件：<code>~/Projects/ops/private-notes/master/docs/history/2026-10-29-1616-【方案】中央运维容器设计与安全边界.md</code></p>
 <p>整理日期：2026-10-29 16:16｜日期依据：文件名日期</p>
 </blockquote>
 <p>更新时间：2026-10-29 16:16（Asia/Manila）</p>
@@ -140,7 +141,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 访问层（Cloudflare Access 或内网/VPN）
   │
   ▼
-dbqp-ops-console（巴西 03）
+bizops-ops-console（巴西 03）
   ├── Web UI / 发布页
   ├── FastAPI
   ├── WebSocket 日志流
@@ -381,7 +382,7 @@ exit_code
 <li>环境变量和 Secret 文件加入 <code>.gitignore</code>。</li>
 </ul>
 <h2 id="十一-容器运行配置">十一、容器运行配置</h2>
-<pre><code class="language-text">name: dbqp-ops-console
+<pre><code class="language-text">name: bizops-ops-console
 host: 巴西 03
 restart: unless-stopped
 cpu: 1
@@ -394,7 +395,7 @@ docker_socket: 不挂载
 healthcheck: GET /api/health
 </code></pre>
 <p>目录：</p>
-<pre><code class="language-text">/opt/dbqp-ops-console/
+<pre><code class="language-text">/opt/bizops-ops-console/
 ├── compose.yml
 ├── app/
 ├── static/
@@ -476,7 +477,7 @@ POST /api/rollback
           <li>分类：历史运维与项目交付 / 巴西主站</li>
           <li>日期：2026-10-29</li>
           <li>标签：<span class="tag">巴西主站</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">监控告警</span><span class="tag">自动化</span></li>
-          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-10-29-1616-【方案】中央运维容器设计与安全边界.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610291616-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E6%96%B9%E6%A1%88%E3%80%91%E4%B8%AD%E5%A4%AE%E8%BF%90%E7%BB%B4%E5%AE%B9%E5%99%A8%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%89%E5%85%A8%E8%BE%B9%E7%95%8C.md" type="text/markdown">查看 Markdown 原文</a></li>
+          <li><span>来源：~/Projects/ops/private-notes/master/docs/history/2026-10-29-1616-【方案】中央运维容器设计与安全边界.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202610291616-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E6%96%B9%E6%A1%88%E3%80%91%E4%B8%AD%E5%A4%AE%E8%BF%90%E7%BB%B4%E5%AE%B9%E5%99%A8%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%89%E5%85%A8%E8%BE%B9%E7%95%8C.md" type="text/markdown">查看 Markdown 原文</a></li>
         </ul></div>
         <div class="aside-box"><h2>作者</h2>
           <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
@@ -486,8 +487,8 @@ POST /api/rollback
     </div>
     <section class="seo-summary" aria-labelledby="seo-summary-title">
       <h2 id="seo-summary-title">文章摘要</h2>
-      <p>【方案】中央运维容器设计与安全边界。本文属于历史运维与项目交付 / 巴西主站，状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中央运维控制台。 WebSocket 实时返回 stdout/stderr、阶段状态和退出码。 巴西发布固…</p>
-      <p>关键词：巴西主站、Linux、Shell、Python、Docker、Nginx、监控告警、自动化、历史运维与项目交付、历史运维与项目交付 / 巴西主站、【方案】中央运维容器设计与安全边界</p>
+      <p>【方案】中央运维容器设计与安全边界。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 状态：设计方案完成，等待确认访问域名/鉴权方式后实施；尚未部署。 把当前静态运维发布页升级为可从网页选择步骤、执行并实时查看结果的中…</p>
+      <p>关键词：巴西主站、Linux、Shell、Python、Docker、Nginx、监控告警、自动化、历史运维与项目交付、历史运维与项目交付 / 巴西主站、【方案】中央运维容器设计与安全边界、一、目标、二、非目标、三、总体架构</p>
     </section>
     <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-714d1bb069d7.html"><small>上一篇</small>【方案】中央运维容器设计与安全边界</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-78bcf30f8d6e.html"><small>下一篇</small>部署指南</a></nav>
   </main>

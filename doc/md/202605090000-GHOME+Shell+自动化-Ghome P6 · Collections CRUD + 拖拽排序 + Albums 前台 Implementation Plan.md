@@ -5,7 +5,7 @@ date: "2026-05-09T00:00:00+08:00"
 dateSource: "文件名日期"
 categories: ["业务系统运维", "GHOME"]
 tags: ["GHOME", "Shell", "自动化", "DNS", "故障排查", "源码与配置"]
-source: "project-file:///Private/from-oldmac-20261109/Users/ben/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p6-collections-crud.md"
+source: "project-file:///Private/from-oldmac-20261109/Users/operator/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p6-collections-crud.md"
 sourcePath: "~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p6-collections-crud.md"
 sourceSha256: "daee369015474cb40d75cd2f596047a90230f8c2d6180e3c6afbfb2ac9780935"
 sourceSystem: "project-doc"
@@ -13,19 +13,21 @@ sourceSystem: "project-doc"
 
 # Ghome P6 · Collections CRUD + 拖拽排序 + Albums 前台 Implementation Plan
 
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
 > 来源文件：`~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p6-collections-crud.md`
 
 > 整理日期：2026-05-09 00:00｜日期依据：文件名日期
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 在 admin 落地 `collections`(spec §3.2 三合一:`topic / album / ranking`)的统一 CRUD,支持创建 / 编辑 metadata / 状态切换 / 软删除 / **拖拽排序成员** / **新增成员**(4 种 `ref_type`:`app / video / tag / external`)/ 删除成员。external item 创建时**自动建 redirects 行**(走 `validateForWrite` 异步 DNS + 字面值校验)。前台 `/albums` 与 `/album/:slug`(P2 占位 → 实际渲染)。完成后:
+**Goal:** 在 admin 落地 `collections`(spec §3.2 三合一:`topic / album / ranking`)的统一 CRUD,支持创建 / 编辑 mevendor_ata / 状态切换 / 软删除 / **拖拽排序成员** / **新增成员**(4 种 `ref_type`:`app / video / tag / external`)/ 删除成员。external item 创建时**自动建 redirects 行**(走 `validateForWrite` 异步 DNS + 字面值校验)。前台 `/albums` 与 `/album/:slug`(P2 占位 → 实际渲染)。完成后:
 - 在 admin 建一个新专辑(kind=album),挑 5 张卡(混 App/视频/外链)发布 → web `/albums` 列出该专辑,`/album/:slug` 渲染卡片网格
 - 改 `weekly-hot-videos` 的成员顺序 → `/rankings` 经 revalidate 同步更新
 
 **Architecture:**
 - **3 个 admin URL 段**(同一套 CRUD,kind discriminator):`/topics` / `/albums` / `/rankings`(create / list / edit)。每个 segment 对应一个 kind,内部复用 90% 代码
-- **server actions** 主路径(metadata save / status transition / softDelete)— 沿用 P5 pattern
+- **server actions** 主路径(mevendor_ata save / status transition / softDelete)— 沿用 P5 pattern
 - **collection_items 编辑用 client component `CollectionItemsEditor`**(因为需要 drag-drop + state + 4 种 picker)。内部子 server actions 用 form action 调用
 - **拖拽排序用 `@dnd-kit`**(社区当前推荐;React 19 友好)。提交时一次性 batch update positions in `prisma.$transaction`,利用 P1 的 `DEFERRABLE INITIALLY DEFERRED` UNIQUE 允许中间态冲突
 - **external item 创建**:server action 接收 `{ url, label }` → `validateForWrite(url)`(P3 用过的异步 DNS 校验)→ 通过则 `prisma.redirects.create({ targetUrl, ownerKind:'collection_item', disabled:false })` → 然后 `prisma.collectionItem.create({ ..., redirectId, externalLabel })`
@@ -53,7 +55,7 @@ apps/admin/
 │  │  ├─ topics/
 │  │  │  ├─ page.tsx                                  # T2:列表
 │  │  │  ├─ new/page.tsx                              # T3:新建表单
-│  │  │  └─ [id]/edit/page.tsx                        # T3:编辑(metadata + items)
+│  │  │  └─ [id]/edit/page.tsx                        # T3:编辑(mevendor_ata + items)
 │  │  ├─ albums/
 │  │  │  ├─ page.tsx                                  # T2
 │  │  │  ├─ new/page.tsx                              # T3
@@ -97,7 +99,7 @@ apps/web/
 - **拖拽排序提交方式**:用户拖完即时调用 `PATCH /api/collections/[id]/items` body `{ orderedIds: [id1, id2, ...] }`,server 用 `prisma.$transaction` 批量 update positions(用 P1 DEFERRABLE UNIQUE 兜底中间态冲突)
 - **add item 按钮 4 个**:`+ App` / `+ Video` / `+ Tag` / `+ External Link`
 - **external item URL 校验**:`validateForWrite(url)` 异步(2s DNS),失败返回错误 toast
-- **每次写操作都 audit_log + revalidate**:create / metadata-update / publish / archive / softDelete / item-add / item-remove / items-reorder
+- **每次写操作都 audit_log + revalidate**:create / mevendor_ata-update / publish / archive / softDelete / item-add / item-remove / items-reorder
 - **`/api/collections/[id]/items`** 与 P5 的 `/api/tags` 一样,middleware 会先拦截到 /signin(未登录),route 自身也 `auth()` 校验(defence-in-depth)
 - 提交风格:Conventional Commits;每 task 末尾 commit
 - 不做:audit log UI、定时发布、批量操作、collections 之间引用、ranking auto-recompute(自动按点击量重排序)
@@ -344,7 +346,7 @@ git commit -m "feat(admin): list pages for topics, albums, rankings with status 
 
 ---
 
-## Task 3 — Collection 创建/编辑 metadata + 状态切换 + 软删除(暂不含 items)
+## Task 3 — Collection 创建/编辑 mevendor_ata + 状态切换 + 软删除(暂不含 items)
 
 **Files:**
 - Create: `apps/admin/app/(admin)/topics/new/page.tsx`
@@ -443,10 +445,10 @@ export default async function NewTopicPage() {
 }
 ```
 
-**Step 2: 写 `apps/admin/app/(admin)/topics/[id]/edit/page.tsx`** — metadata 编辑(暂不含 items;T4 才在文末追加)
+**Step 2: 写 `apps/admin/app/(admin)/topics/[id]/edit/page.tsx`** — mevendor_ata 编辑(暂不含 items;T4 才在文末追加)
 
 照 P5 App edit page pattern,字段:title / description / coverKey / sortOrder。3 个 server actions:
-- `save(formData)`:update metadata + audit + revalidate
+- `save(formData)`:update mevendor_ata + audit + revalidate
 - `transition(formData)`:state machine + audit + revalidate(用 fresh fetch 防 stale closure,见 P5 final fix)
 - `softDelete()`:set deletedAt + status='archived' + audit + revalidate + redirect("/topics")
 
@@ -466,14 +468,14 @@ pnpm --filter @ghome/admin typecheck
 pnpm --filter @ghome/admin build
 
 git add "apps/admin/app/(admin)/topics/" "apps/admin/app/(admin)/albums/" "apps/admin/app/(admin)/rankings/"
-git commit -m "feat(admin): collection metadata create + edit pages (topics/albums/rankings) with status transitions"
+git commit -m "feat(admin): collection mevendor_ata create + edit pages (topics/albums/rankings) with status transitions"
 ```
 
 ## Tricky Bits (T3)
 
 1. **6 个文件复制**:虽然多但每个 50-100 行,内联清晰。**不抽公共组件**:server actions 内嵌 closures,`kind` 是 type-narrowed literal。
 2. **slug 不可改**(`disabled` + `readOnly`):防 SEO异常验证 + 链接断裂(同 P5 决定)
-3. **sortOrder**:P6 本 task 仅在 metadata form 改;web 端 listing 已经 `orderBy: sortOrder asc`
+3. **sortOrder**:P6 本 task 仅在 mevendor_ata form 改;web 端 listing 已经 `orderBy: sortOrder asc`
 4. **rankings 的 hot-tags 等 seed 出来 sortOrder 0..5 已设**(P1)
 5. **fresh fetch 模式**(同 P5 final fix):`transition` / `softDelete` 内 `findUniqueOrThrow` 拉新 status 再用
 6. **如果 git commit 被 permission rule 阻塞**:报 DONE_WITH_CONCERNS
@@ -484,7 +486,7 @@ git commit -m "feat(admin): collection metadata create + edit pages (topics/albu
 
 **Files:**
 - Create: `apps/admin/components/CollectionItemsEditor.tsx`(client,显示 + 拖拽 + 删除)
-- Modify: 3 个 `[id]/edit/page.tsx`(在 metadata form 之后追加 `<CollectionItemsEditor>`)
+- Modify: 3 个 `[id]/edit/page.tsx`(在 mevendor_ata form 之后追加 `<CollectionItemsEditor>`)
 
 ### 5 Steps
 
@@ -671,7 +673,7 @@ export function CollectionItemsEditor({
 }
 ```
 
-**Step 2: 修改 3 个 edit page** — 在 metadata form 后追加 items 编辑器
+**Step 2: 修改 3 个 edit page** — 在 mevendor_ata form 后追加 items 编辑器
 
 每个 edit page 在 EditForm 之后(状态切换 buttons 之前)加:
 
@@ -1490,7 +1492,7 @@ docker compose down 2>/dev/null || true
 
 P6 admin 编辑功能验证需要 user 在浏览器里:
 1. 注册 dev OAuth App(GitHub),把 Client ID/Secret 配进 `apps/admin/.env`
-2. `tadacamp-code` 加进 `ADMIN_ALLOWED_GITHUB_LOGINS`
+2. `vendor_acamp-code` 加进 `ADMIN_ALLOWED_GITHUB_LOGINS`
 3. 登录 `localhost:3100/signin` → 跳 GitHub OAuth → 回到 admin
 4. 在 admin /albums 页点 "+ 新建专辑",填 slug=`test-album` + title=`测试专辑` + sortOrder=0,创建 → 跳转到 edit page
 5. 在 items 编辑器 `+ App`、`+ Video`、`+ Tag`、`+ 外链(URL=https://www.example.com/test 或自己的 URL)`各加一项
@@ -1528,7 +1530,7 @@ Expected: 7 个 tag 全在(p0..p6)。log 显示 P6 期间 ~8 commits + tag。
 ## P6 完成判据(对应 spec §5 P6)
 
 - ✅ 3 个 admin URL 段(/topics、/albums、/rankings)各支持 list / new / edit
-- ✅ collection metadata create + edit + 状态机 + 软删除(同 P5 pattern,fresh fetch 防 stale)
+- ✅ collection mevendor_ata create + edit + 状态机 + 软删除(同 P5 pattern,fresh fetch 防 stale)
 - ✅ collection_items 拖拽排序(`@dnd-kit` + DEFERRABLE UNIQUE)
 - ✅ 添加成员 4 种 ref_type(app / video / tag / external)
 - ✅ external item 自动建 redirect(走 `validateForWrite` 异步 DNS 校验)

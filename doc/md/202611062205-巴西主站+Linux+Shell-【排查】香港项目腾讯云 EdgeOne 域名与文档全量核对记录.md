@@ -5,15 +5,17 @@ date: "2026-11-06T22:05:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Linux", "Shell", "Docker", "Nginx", "CDN", "DNS", "安全运维"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-11-06-2205-%E3%80%90%E6%8E%92%E6%9F%A5%E3%80%91%E9%A6%99%E6%B8%AF%E9%A1%B9%E7%9B%AE%E8%85%BE%E8%AE%AF%E4%BA%91EdgeOne%E5%9F%9F%E5%90%8D%E4%B8%8E%E6%96%87%E6%A1%A3%E5%85%A8%E9%87%8F%E6%A0%B8%E5%AF%B9%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-11-06-2205-【排查】香港项目腾讯云EdgeOne域名与文档全量核对记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-11-06-2205-%E3%80%90%E6%8E%92%E6%9F%A5%E3%80%91%E9%A6%99%E6%B8%AF%E9%A1%B9%E7%9B%AE%E8%85%BE%E8%AE%AF%E4%BA%91EdgeOne%E5%9F%9F%E5%90%8D%E4%B8%8E%E6%96%87%E6%A1%A3%E5%85%A8%E9%87%8F%E6%A0%B8%E5%AF%B9%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-11-06-2205-【排查】香港项目腾讯云EdgeOne域名与文档全量核对记录.md"
 sourceSha256: "d3e3c8a83b34a4c3a0423af7845a7f292a56b59428e7e66cf592309e2eddc19a"
 sourceSystem: "project-doc"
 ---
 
 # 【排查】香港项目腾讯云 EdgeOne 域名与文档全量核对记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-11-06-2205-【排查】香港项目腾讯云EdgeOne域名与文档全量核对记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-11-06-2205-【排查】香港项目腾讯云EdgeOne域名与文档全量核对记录.md`
 
 > 整理日期：2026-11-06 22:05｜日期依据：文件名日期
 
@@ -38,7 +40,7 @@ sourceSystem: "project-doc"
 主仓库：
 
 ```text
-目录：/Users/ben/Projects/work/game/pgserver/master
+目录：/Users/operator/Projects/ops/private-notes/master
 本地 master：2ddae49f
 origin/master：a72f41fb
 origin/ben：9f59b4f3
@@ -50,7 +52,7 @@ origin/cn：5c3b3de6
 当前 Mac 上另有一份独立的 `cn` 工作区：
 
 ```text
-目录：/Users/ben/Projects/work/game/pgserver/cn
+目录：/Users/operator/Projects/ops/private-notes/cn
 本地 cn：1fbe688f
 origin/cn：5c3b3de6
 工作区：干净
@@ -82,9 +84,9 @@ EdgeOne DescribeZones：4 个站点
 合计 46 个有效加速域名，全部是 HTTP/80 回源，源站统一为：
 
 ```text
-公网：34.150.1.185
-内网：203.0.113.1
-机器：dbqp-hongkong-nginx-standby-01
+公网：192.0.2.37
+内网：192.0.2.1
+机器：bizops-hongkong-nginx-standby-01
 ```
 
 ### 3.1 游戏域名结构
@@ -95,11 +97,11 @@ EdgeOne DescribeZones：4 个站点
 动态 8 个：
   pg-games
   api
-  jili-games
+  vendor_b-games
   pp-games
   ppk-games
-  panda-games
-  playson-games
+  vendor_d-games
+  vendor_c-games
   g759-games
 
 静态 14 个：
@@ -111,12 +113,12 @@ EdgeOne DescribeZones：4 个站点
   pg7-static
   pp-static
   ppk-static
-  panda-static
-  playson-static
+  vendor_d-static
+  vendor_c-static
   g759-static
-  jili-static
-  jili-static1
-  jili-static2
+  vendor_b-static
+  vendor_b-static1
+  vendor_b-static2
 ```
 
 动态域名经香港 standby Nginx 转发到香港 01/02 后端容器；静态域名经同一 Nginx 回源 AWS 大阪 S3 桶。
@@ -138,14 +140,14 @@ DNS 已解析到腾讯 EdgeOne 节点，8 个抽样地址全部 HTTP 200：
 
 | 地址 | 结果 | 远端节点 |
 | --- | --- | --- |
-| `https://p3w9n5.shop/healthz` | 200 | `43.159.98.75` |
-| `https://socket.p3w9n5.shop/healthz` | 200 | `43.159.99.79` |
-| `https://pg-games.m4q7z1.shop/health` | 200 | `43.159.99.79` |
-| `https://pg-static.m4q7z1.shop/health.json` | 200 | `43.159.98.75` |
-| `https://jili-games.m4q7z1.shop/health` | 200 | `43.159.98.75` |
-| `https://pg-games.k8x2v9.shop/health` | 200 | `43.159.99.79` |
-| `https://pg-static.k8x2v9.shop/health.json` | 200 | `43.159.99.79` |
-| `https://jili-games.k8x2v9.shop/health` | 200 | `43.159.98.75` |
+| `https://p3w9n5.shop/healthz` | 200 | `192.0.2.45` |
+| `https://socket.p3w9n5.shop/healthz` | 200 | `192.0.2.46` |
+| `https://pg-games.m4q7z1.shop/health` | 200 | `192.0.2.46` |
+| `https://pg-static.m4q7z1.shop/health.json` | 200 | `192.0.2.45` |
+| `https://vendor_b-games.m4q7z1.shop/health` | 200 | `192.0.2.45` |
+| `https://pg-games.k8x2v9.shop/health` | 200 | `192.0.2.46` |
+| `https://pg-static.k8x2v9.shop/health.json` | 200 | `192.0.2.46` |
+| `https://vendor_b-games.k8x2v9.shop/health` | 200 | `192.0.2.45` |
 
 静态健康文件响应头已出现 EdgeOne 缓存命中：
 
@@ -182,13 +184,13 @@ m4q7z1.shop / k8x2v9.shop / p3w9n5.shop
 2026-09-29：确定香港大陆加速采用多家 CDN、免备案优先；
             腾讯国际站 EdgeOne 作为渠道 A。
 2026-09-30：完成 standby 回源、m4q7z1.shop 建站、22 个二级域名、
-            动态不缓存 / 静态缓存 7 天 / JILI WebSocket / 22 个 CNAME。
+            动态不缓存 / 静态缓存 7 天 / vendor_b WebSocket / 22 个 CNAME。
 2026-10-02：完成 k8x2v9.shop 22 个加速域名并切换香港 01/02；
             完成 p3w9n5.shop 商户入口；
             香港 01/02 的域名文件写入 m4q7z1 / k8x2v9 / p3w9n5。
-2026-10-05：修复 JILI / PP 静态资源、CORS、Worker 路径对齐和启动页兜底。
+2026-10-05：修复 vendor_b / PP 静态资源、CORS、Worker 路径对齐和启动页兜底。
 2026-10-08：修复 EdgeOne HTTP 回源导致 X-Forwarded-Proto=http、
-            目录跳转被写成 HTTP 导致的 JILI / PP 故障。
+            目录跳转被写成 HTTP 导致的 vendor_b / PP 故障。
 2026-10-14：记录香港 PP 静态资源 EdgeOne 缓存清理。
 ```
 
@@ -202,7 +204,7 @@ docker/doc/2026-09-30-1300-【架构改造】EdgeOne站点m4q7z1全部二级域�
 docker/doc/2026-09-30-1650-【架构改造】香港后端域名配置切换到m4q7z1（腾讯CDN）.md
 docker/doc/2026-10-02-1446-【架构改造】EdgeOne站点k8x2v9接入与香港后端域名切换.md
 docker/doc/2026-10-02-1500-【架构改造】p3w9n5商户域名接入与香港0102三域名生效.md
-docker/doc/2026-10-08-1425-【故障处理】腾讯EdgeOne回源HTTP导致X-Forwarded-Proto为http（JILI进不去）修复.md
+docker/doc/2026-10-08-1425-【故障处理】腾讯EdgeOne回源HTTP导致X-Forwarded-Proto为http（vendor_b进不去）修复.md
 docker/doc/2026-10-14-1050-【运维记录】香港PP静态资源CDN缓存清理记录.md
 ```
 
@@ -224,19 +226,19 @@ docker/doc/2026-10-02-1446-【架构改造】EdgeOne站点k8x2v9接入与香港�
 docker/doc/2026-10-02-1500-【架构改造】p3w9n5商户域名接入与香港0102三域名生效.md
 docker/doc/2026-10-02-1610-【运维记录】EdgeOne三站点规则中文标注与站点标签方案.md
 docker/doc/2026-10-02-1615-【故障处理】香港0102配置被同步覆盖与一键恢复防复发.md
-docker/doc/2026-10-02-1630-【架构改造】香港nginx的JILI-TADA静态本地化与index-js修复.md
+docker/doc/2026-10-02-1630-【架构改造】香港nginx的vendor_b-vendor_a静态本地化与index-js修复.md
 docker/doc/2026-10-05-1110-【架构改造】香港nginx补齐巴西Worker静态规则（PP进不去修复）.md
-docker/doc/2026-10-05-1210-【优化+故障处理】香港同步脚本优化复核与jili崩溃修复.md
-docker/doc/2026-10-05-1230-【架构改造】香港nginx的jili静态改为走自己的大阪桶（对齐香港Worker）.md
+docker/doc/2026-10-05-1210-【优化+故障处理】香港同步脚本优化复核与vendor_b崩溃修复.md
+docker/doc/2026-10-05-1230-【架构改造】香港nginx的vendor_b静态改为走自己的大阪桶（对齐香港Worker）.md
 docker/doc/2026-10-05-1250-【网络调整】香港动态域名CORS兜底（网关错误也带CORS头）.md
 docker/doc/2026-10-05-1310-【运维】跨域职责划分-动态归开发静态归运维（撤销动态CORS兜底）.md
-docker/doc/2026-10-05-1320-【故障处理】香港JILI游戏资源403定位与TADA前缀兜底修复.md
-docker/doc/2026-10-05-1330-【架构改造】香港jili-games游戏启动页nginx兜底（后端无路由回JILI静态桶）.md
-docker/doc/2026-10-05-1335-【故障处理】香港JILI动态域名兜底响应补CORS与cdn-cgi静默.md
+docker/doc/2026-10-05-1320-【故障处理】香港vendor_b游戏资源403定位与vendor_a前缀兜底修复.md
+docker/doc/2026-10-05-1330-【架构改造】香港vendor_b-games游戏启动页nginx兜底（后端无路由回vendor_b静态桶）.md
+docker/doc/2026-10-05-1335-【故障处理】香港vendor_b动态域名兜底响应补CORS与cdn-cgi静默.md
 docker/doc/2026-10-05-1345-【运维】撤销动态域名兜底CORS-重申动态归开发静态归运维.md
-docker/doc/2026-10-05-1400-【架构改造】香港JILI静态域名按Worker路径映射并补intro-astarte处理.md
-docker/doc/2026-10-08-1425-【故障处理】腾讯EdgeOne回源HTTP导致X-Forwarded-Proto为http（JILI进不去）修复.md
-docker/doc/2026-10-08-1440-【故障处理】大厅拉起JILI失败-静态域名根探活403与v2-v5分组404修复.md
+docker/doc/2026-10-05-1400-【架构改造】香港vendor_b静态域名按Worker路径映射并补intro-astarte处理.md
+docker/doc/2026-10-08-1425-【故障处理】腾讯EdgeOne回源HTTP导致X-Forwarded-Proto为http（vendor_b进不去）修复.md
+docker/doc/2026-10-08-1440-【故障处理】大厅拉起vendor_b失败-静态域名根探活403与v2-v5分组404修复.md
 docker/doc/2026-10-08-1450-【故障处理】静态域名目录跳转被写成http-absolute_redirect-off修复.md
 docker/doc/2026-10-14-1050-【运维记录】香港PP静态资源CDN缓存清理记录.md
 docker/workbench/ACTIVE_TASKS.md
@@ -251,21 +253,21 @@ docker/workbench/PROJECT_RUNTIME_CHAINS.md
 老 Mac 导入目录：
 
 ```text
-/Users/ben/Private/from-oldmac-20261030
+/Users/operator/Private/from-oldmac-20261030
 Markdown/TXT：0
 腾讯云 / EdgeOne 文档命中：0
 ```
 
-但该目录的 SSH `known_hosts` 保留了 `34.150.1.185` 的连接指纹，说明老 Mac 确实连接过香港 standby 入口；相关说明文档没有随老 Mac 导入。
+但该目录的 SSH `known_hosts` 保留了 `192.0.2.37` 的连接指纹，说明老 Mac 确实连接过香港 standby 入口；相关说明文档没有随老 Mac 导入。
 
 另一个 PGServer 旧归档：
 
 ```text
-/Users/ben/Projects/work/game/archive/pgserver-backup-20260715
+/Users/operator/Projects/work/game/archive/pgserver-backup-20260715
 腾讯云文档命中：0
 ```
 
-Mac 上的 `18game_devops` 确有另一套腾讯 COS / EdgeOne 历史文档，但域名是 `hbabaxb.cn`、`zkifae.cn` 等，不属于 DBQP 香港项目，不能混入本次香港资产清单。
+Mac 上的 `18game_devops` 确有另一套腾讯 COS / EdgeOne 历史文档，但域名是 `hbabaxb.cn`、`zkifae.cn` 等，不属于 某业务公司 香港项目，不能混入本次香港资产清单。
 
 ## 八、安全检查
 
@@ -291,7 +293,7 @@ Mac 上的 `18game_devops` 确有另一套腾讯 COS / EdgeOne 历史文档，�
 
 m4q7z1.shop + k8x2v9.shop -> 香港游戏动态/静态双入口
 p3w9n5.shop               -> 香港商户/socket 入口
-34.150.1.185              -> 三站的统一 Nginx 回源
+192.0.2.37              -> 三站的统一 Nginx 回源
 
 当前 3 个站点、46 个加速域名均在线，抽样动态与静态端点全部 200，
 静态资源返回 eo-cache-status: HIT。

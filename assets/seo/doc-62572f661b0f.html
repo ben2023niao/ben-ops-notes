@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <title>【排查】TADA fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
-  <meta name="description" content="【排查】TADA fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-14 15:30（Asia/Manila） 提出人：Ben（开发） 执行人：Codex（运维） 状态：已定位到后端代码位置，待开发按协议修复 结果：…">
-  <meta name="keywords" content="巴西主站，Shell，CDN，故障排查，历史运维与项目交付，历史运维与项目交付 / 巴西主站">
+  <title>【排查】vendor_a fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
+  <meta name="description" content="【排查】vendor_a fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-14 15:30（Asia/Mani…">
+  <meta name="keywords" content="巴西主站，Shell，CDN，故障排查，历史运维与项目交付，历史运维与项目交付 / 巴西主站，一、现象，二、复现与实测结果，2.1 原样请求（开发提供），2.2 真实接口路径对比（同一台后端），2.3 静态与健康对照（全部正常），三、后端真实报错（vendor_a 容器日志，可直接定位），四、判断：客户端 protobuf 与后端定义不匹配，五、请开发这样处理（建议顺序）">
   <meta name="author" content="BEN">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
   <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
@@ -14,15 +14,15 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-62572f661b0f.html">
   <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-62572f661b0f.html">
-  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609141530-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BCDN-%E3%80%90%E6%8E%92%E6%9F%A5%E3%80%91TADA%20fg4%EF%BC%88gameID%20540%EF%BC%89%E8%AF%B7%E6%B1%82%20500%20%E2%80%94%E2%80%94%20%E5%90%8E%E7%AB%AF%20protobuf%20%E8%A7%A3%E6%9E%90%E5%A4%B1%E8%B4%A5.md">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609141530-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BCDN-%E3%80%90%E6%8E%92%E6%9F%A5%E3%80%91vendor_a%20fg4%EF%BC%88gameID%20540%EF%BC%89%E8%AF%B7%E6%B1%82%20500%20%E2%80%94%E2%80%94%20%E5%90%8E%E7%AB%AF%20protobuf%20%E8%A7%A3%E6%9E%90%E5%A4%B1%E8%B4%A5.md">
   <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
   <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
   <link rel="author" href="https://t.me/Ben_Bird">
   <meta property="og:type" content="article">
   <meta property="og:locale" content="zh_CN">
   <meta property="og:site_name" content="BEN.OPS 工程笔记">
-  <meta property="og:title" content="【排查】TADA fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败">
-  <meta property="og:description" content="【排查】TADA fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-14 15:30（Asia/Manila） 提出人：Ben（开发） 执行人：Codex（运维） 状态：已定位到后端代码位置，待开发按协议修复 结果：…">
+  <meta property="og:title" content="【排查】vendor_a fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败">
+  <meta property="og:description" content="【排查】vendor_a fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-14 15:30（Asia/Mani…">
   <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-62572f661b0f.html">
   <meta property="article:published_time" content="2026-09-14T15:30:00+08:00">
   <meta property="article:modified_time" content="2026-09-14 15:30">
@@ -30,8 +30,8 @@
   <meta property="article:author" content="https://t.me/Ben_Bird">
   
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="【排查】TADA fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败">
-  <meta name="twitter:description" content="【排查】TADA fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-14 15:30（Asia/Manila） 提出人：Ben（开发） 执行人：Codex（运维） 状态：已定位到后端代码位置，待开发按协议修复 结果：…">
+  <meta name="twitter:title" content="【排查】vendor_a fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败">
+  <meta name="twitter:description" content="【排查】vendor_a fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-14 15:30（Asia/Mani…">
   
   <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
 --line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
@@ -75,7 +75,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 @media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
 .meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
 @media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-62572f661b0f.html#article","headline":"【排查】TADA fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败","description":"【排查】TADA fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-14 15:30（Asia/Manila） 提出人：Ben（开发） 执行人：Codex（运维） 状态：已定位到后端代码位置，待开发按协议修复 结果：…","datePublished":"2026-09-14T15:30:00+08:00","dateModified":"2026-09-14 15:30","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","CDN","故障排查","历史运维与项目交付","历史运维与项目交付 / 巴西主站"],"wordCount":901,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-62572f661b0f.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-62572f661b0f.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【排查】TADA fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-62572f661b0f.html"}]}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-62572f661b0f.html#article","headline":"【排查】vendor_a fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败","description":"【排查】vendor_a fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-14 15:30（Asia/Mani…","datePublished":"2026-09-14T15:30:00+08:00","dateModified":"2026-09-14 15:30","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","CDN","故障排查","历史运维与项目交付","历史运维与项目交付 / 巴西主站","一、现象","二、复现与实测结果","2.1 原样请求（开发提供）","2.2 真实接口路径对比（同一台后端）","2.3 静态与健康对照（全部正常）","三、后端真实报错（vendor_a 容器日志，可直接定位）","四、判断：客户端 protobuf 与后端定义不匹配","五、请开发这样处理（建议顺序）"],"wordCount":364,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-62572f661b0f.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-62572f661b0f.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【排查】vendor_a fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-62572f661b0f.html"}]}]}</script>
 </head>
 <body>
   <header class="topbar"><div class="shell">
@@ -89,24 +89,25 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
   <main class="shell">
     <nav class="crumbs" aria-label="面包屑">
       <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
-      › <span>历史运维与项目交付 / 巴西主站</span> › <span>【排查】TADA fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败</span>
+      › <span>历史运维与项目交付 / 巴西主站</span> › <span>【排查】vendor_a fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败</span>
     </nav>
     <header class="hero">
       <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
-      <h1>【排查】TADA fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败</h1>
-      <p class="lede">【排查】TADA fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-14 15:30（Asia/Manila） 提出人：Ben（开发） 执行人：Codex（运维） 状态：已定位到后端代码位置，待开发按协议修复 结果：…</p>
+      <h1>【排查】vendor_a fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败</h1>
+      <p class="lede">【排查】vendor_a fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-14 15:30（Asia/Mani…</p>
       <div class="meta">
         <time class="badge" datetime="2026-09-14T15:30:00+08:00">发布于 2026-09-14</time>
         <span class="badge">作者 BEN</span>
-        <span class="badge">901 字</span>
-        <span class="badge">3 分钟阅读</span>
+        <span class="badge">364 字</span>
+        <span class="badge">2 分钟阅读</span>
       </div>
     </header>
     <div class="layout">
       <article class="article" itemscope itemtype="https://schema.org/TechArticle">
         
 <blockquote>
-<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-09-14-1530-【排查】TADA-fg4-540游戏请求-protobuf解析失败记录.md</code></p>
+<p>公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。</p>
+<p>来源文件：<code>~/Projects/ops/private-notes/master/docs/history/2026-09-14-1530-【排查】vendor_a-fg4-540游戏请求-protobuf解析失败记录.md</code></p>
 <p>整理日期：2026-09-14 15:30｜日期依据：文件名日期</p>
 </blockquote>
 <p>时间：2026-09-14 15:30（Asia/Manila）
@@ -119,12 +120,12 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 </code></pre>
 <h2 id="二-复现与实测结果">二、复现与实测结果</h2>
 <h3 id="2-1-原样请求-开发提供">2.1 原样请求（开发提供）</h3>
-<pre><code class="language-bash">curl --url 'https://tada-games.tada-cdn-2026.icu/fg4/' \
+<pre><code class="language-bash">curl --url 'https://vendor_a-games.vendor_a-cdn-2026.icu/fg4/' \
   -H 'accept: application/json, text/javascript, text/plain' \
-  -H 'origin: https://tada-statics1.xqv9m8.icu' \
-  -H 'referer: https://tada-statics1.xqv9m8.icu/' \
+  -H 'origin: https://vendor_a-statics1.xqv9m8.icu' \
+  -H 'referer: https://vendor_a-statics1.xqv9m8.icu/' \
   -H 'user-agent: Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) ...' \
-  -H 'x-front-page: https://tada-statics1.xqv9m8.icu/fg4/index.html?...&amp;gameID=540&amp;...'
+  -H 'x-front-page: https://vendor_a-statics1.xqv9m8.icu/fg4/index.html?...&amp;gameID=540&amp;...'
 </code></pre>
 <p>结果：<code>404 File Not Found</code>（14B / text/plain）——<code>/fg4/</code> 不是真实接口路径。</p>
 <h3 id="2-2-真实接口路径对比-同一台后端">2.2 真实接口路径对比（同一台后端）</h3>
@@ -161,23 +162,23 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 </table>
 <p>结论：<strong>动态域与后端连通正常</strong>（405 说明路由命中、处理链路在），不是 CDN/静态/网络问题。</p>
 <h3 id="2-3-静态与健康对照-全部正常">2.3 静态与健康对照（全部正常）</h3>
-<pre><code class="language-text">tada-statics1.xqv9m8.icu/fg4/           → 302 → /fg4/index.html 200（34182B）
-tada-games.tada-cdn-2026.icu/health     → 200
+<pre><code class="language-text">vendor_a-statics1.xqv9m8.icu/fg4/           → 302 → /fg4/index.html 200（34182B）
+vendor_a-games.vendor_a-cdn-2026.icu/health     → 200
 </code></pre>
-<h2 id="三-后端真实报错-TADA-容器日志-可直接定位">三、后端真实报错（TADA 容器日志，可直接定位）</h2>
+<h2 id="三-后端真实报错-vendor_a-容器日志-可直接定位">三、后端真实报错（vendor_a 容器日志，可直接定位）</h2>
 <pre><code class="language-text">Traceback (most recent call last):
   File "share_libs/miniapp.py", line 692, in async_inner
-  File "/app/tada/tada.py", line 3132, in common_req
+  File "/app/vendor_a/vendor_a.py", line 3132, in common_req
     else await getReq(
-  File "/app/tada/tada.py", line 856, in getReq
+  File "/app/vendor_a/vendor_a.py", line 856, in getReq
     raise RuntimeError(f"❌ 解析 Request 失败: {e}")
 RuntimeError: ❌ 解析 Request 失败: Error parsing message with type 'serverProto.Request'
 </code></pre>
 <p>关键点：</p>
-<pre><code class="language-text">· 出错位置：tada/tada.py 第 856 行 getReq()
-· 上层调用：tada/tada.py:3132 common_req → share_libs/miniapp.py:692 async_inner
+<pre><code class="language-text">· 出错位置：vendor_a/vendor_a.py 第 856 行 getReq()
+· 上层调用：vendor_a/vendor_a.py:3132 common_req → share_libs/miniapp.py:692 async_inner
 · 异常类型：protobuf 解析失败（Error parsing message with type 'serverProto.Request'）
-· 容器：dbqp-tada-release-01（后端 01，单机模式）；近 5 分钟同类错误 37 条
+· 容器：bizops-vendor_a-release-01（后端 01，单机模式）；近 5 分钟同类错误 37 条
 </code></pre>
 <h2 id="四-判断-客户端-protobuf-与后端定义不匹配">四、判断：客户端 protobuf 与后端定义不匹配</h2>
 <p><code>serverProto.Request</code> 是后端按 <code>serverProto</code> 编译出的 protobuf 消息，报 “Error parsing message” 通常意味着：</p>
@@ -187,8 +188,8 @@ RuntimeError: ❌ 解析 Request 失败: Error parsing message with type 'server
 3) 也可能是该游戏（540/fg4）走了一条后端还没支持的子协议
 </code></pre>
 <h2 id="五-请开发这样处理-建议顺序">五、请开发这样处理（建议顺序）</h2>
-<pre><code class="language-text">1) 用厂商最新 serverProto（.proto）重新生成后端解析代码，替换 tada 容器内相关模块，
-   重启 dbqp-tada-release-01 后复测 fg4
+<pre><code class="language-text">1) 用厂商最新 serverProto（.proto）重新生成后端解析代码，替换 vendor_a 容器内相关模块，
+   重启 bizops-vendor_a-release-01 后复测 fg4
 2) 若确认协议没变，则抓一条「真实失败请求原文」对照：
    浏览器 F12 → Network → 找到 POST /fg4/req 的失败请求 → Copy as cURL（含请求体）发运维
 3) 如需服务端抓原始请求体（十六进制）做对照，告知运维即可
@@ -197,19 +198,19 @@ RuntimeError: ❌ 解析 Request 失败: Error parsing message with type 'server
 <pre><code class="language-text">· 静态资源：fg4 的 index.html 与目录 URL 均 200（单桶化切换后已逐个验证）
 · CDN/Worker：同域其它游戏（c7d/lm）同样能命中后端（405），路由与回源正常
 · 网络/国家白名单：动态域不受静态 Worker 的国家白名单影响，health 200
-· 后端进程：TADA 容器运行中，其它 gameid 仍在正常结算
+· 后端进程：vendor_a 容器运行中，其它 gameid 仍在正常结算
 </code></pre>
 <h2 id="七-本地提交">七、本地提交</h2>
 <pre><code class="language-text">（提交号文末回写）
 </code></pre>
       </article>
       <aside class="aside">
-        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-现象">一、现象</a></li><li style="margin-left:0.0rem"><a href="#二-复现与实测结果">二、复现与实测结果</a></li><li style="margin-left:0.8rem"><a href="#2-1-原样请求-开发提供">2.1 原样请求（开发提供）</a></li><li style="margin-left:0.8rem"><a href="#2-2-真实接口路径对比-同一台后端">2.2 真实接口路径对比（同一台后端）</a></li><li style="margin-left:0.8rem"><a href="#2-3-静态与健康对照-全部正常">2.3 静态与健康对照（全部正常）</a></li><li style="margin-left:0.0rem"><a href="#三-后端真实报错-TADA-容器日志-可直接定位">三、后端真实报错（TADA 容器日志，可直接定位）</a></li><li style="margin-left:0.0rem"><a href="#四-判断-客户端-protobuf-与后端定义不匹配">四、判断：客户端 protobuf 与后端定义不匹配</a></li><li style="margin-left:0.0rem"><a href="#五-请开发这样处理-建议顺序">五、请开发这样处理（建议顺序）</a></li><li style="margin-left:0.0rem"><a href="#六-已排除的方向-避免重复排查">六、已排除的方向（避免重复排查）</a></li><li style="margin-left:0.0rem"><a href="#七-本地提交">七、本地提交</a></li></ol></aside>
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-现象">一、现象</a></li><li style="margin-left:0.0rem"><a href="#二-复现与实测结果">二、复现与实测结果</a></li><li style="margin-left:0.8rem"><a href="#2-1-原样请求-开发提供">2.1 原样请求（开发提供）</a></li><li style="margin-left:0.8rem"><a href="#2-2-真实接口路径对比-同一台后端">2.2 真实接口路径对比（同一台后端）</a></li><li style="margin-left:0.8rem"><a href="#2-3-静态与健康对照-全部正常">2.3 静态与健康对照（全部正常）</a></li><li style="margin-left:0.0rem"><a href="#三-后端真实报错-vendor_a-容器日志-可直接定位">三、后端真实报错（vendor_a 容器日志，可直接定位）</a></li><li style="margin-left:0.0rem"><a href="#四-判断-客户端-protobuf-与后端定义不匹配">四、判断：客户端 protobuf 与后端定义不匹配</a></li><li style="margin-left:0.0rem"><a href="#五-请开发这样处理-建议顺序">五、请开发这样处理（建议顺序）</a></li><li style="margin-left:0.0rem"><a href="#六-已排除的方向-避免重复排查">六、已排除的方向（避免重复排查）</a></li><li style="margin-left:0.0rem"><a href="#七-本地提交">七、本地提交</a></li></ol></aside>
         <div class="aside-box"><h2>文章信息</h2><ul>
           <li>分类：历史运维与项目交付 / 巴西主站</li>
           <li>日期：2026-09-14</li>
           <li>标签：<span class="tag">巴西主站</span><span class="tag">Shell</span><span class="tag">CDN</span><span class="tag">故障排查</span></li>
-          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-09-14-1530-【排查】TADA-fg4-540游戏请求-pr…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609141530-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BCDN-%E3%80%90%E6%8E%92%E6%9F%A5%E3%80%91TADA%20fg4%EF%BC%88gameID%20540%EF%BC%89%E8%AF%B7%E6%B1%82%20500%20%E2%80%94%E2%80%94%20%E5%90%8E%E7%AB%AF%20protobuf%20%E8%A7%A3%E6%9E%90%E5%A4%B1%E8%B4%A5.md" type="text/markdown">查看 Markdown 原文</a></li>
+          <li><span>来源：~/Projects/ops/private-notes/master/docs/history/2026-09-14-1530-【排查】vendor_a-fg4-540游戏请求…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609141530-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BCDN-%E3%80%90%E6%8E%92%E6%9F%A5%E3%80%91vendor_a%20fg4%EF%BC%88gameID%20540%EF%BC%89%E8%AF%B7%E6%B1%82%20500%20%E2%80%94%E2%80%94%20%E5%90%8E%E7%AB%AF%20protobuf%20%E8%A7%A3%E6%9E%90%E5%A4%B1%E8%B4%A5.md" type="text/markdown">查看 Markdown 原文</a></li>
         </ul></div>
         <div class="aside-box"><h2>作者</h2>
           <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
@@ -219,8 +220,8 @@ RuntimeError: ❌ 解析 Request 失败: Error parsing message with type 'server
     </div>
     <section class="seo-summary" aria-labelledby="seo-summary-title">
       <h2 id="seo-summary-title">文章摘要</h2>
-      <p>【排查】TADA fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-14 15:30（Asia/Manila） 提出人：Ben（开发） 执行人：Codex（运维） 状态：已定位到后端代码位置，待开发按协议修复 结果：…</p>
-      <p>关键词：巴西主站、Shell、CDN、故障排查、历史运维与项目交付、历史运维与项目交付 / 巴西主站</p>
+      <p>【排查】vendor_a fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-14 15:30（Asia/Mani…</p>
+      <p>关键词：巴西主站、Shell、CDN、故障排查、历史运维与项目交付、历史运维与项目交付 / 巴西主站、一、现象、二、复现与实测结果、2.1 原样请求（开发提供）、2.2 真实接口路径对比（同一台后端）、2.3 静态与健康对照（全部正常）、三、后端真实报错（vendor_a 容器日志，可直接定位）、四、判断：客户端 protobuf 与后端定义不匹配、五、请开发这样处理（建议顺序）</p>
     </section>
     <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-960d8112f305.html"><small>上一篇</small>【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9140d93a7eaf.html"><small>下一篇</small>【迁移】前端静态资源 GCS 日本(大阪) → 巴西(圣保罗) · 17 家并行迁移与全部踩坑记录</a></nav>
   </main>

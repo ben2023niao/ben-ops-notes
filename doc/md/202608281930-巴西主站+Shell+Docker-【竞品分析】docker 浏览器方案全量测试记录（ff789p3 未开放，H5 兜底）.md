@@ -5,21 +5,23 @@ date: "2026-08-28T19:30:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Docker", "Nginx", "故障排查"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-08-28-1930-%E3%80%90%E7%AB%9E%E5%93%81%E5%88%86%E6%9E%90%E3%80%91docker%E6%B5%8F%E8%A7%88%E5%99%A8%E5%85%A8%E9%87%8F%E6%B5%8B%E8%AF%95%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-08-28-1930-【竞品分析】docker浏览器全量测试记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-08-28-1930-%E3%80%90%E7%AB%9E%E5%93%81%E5%88%86%E6%9E%90%E3%80%91docker%E6%B5%8F%E8%A7%88%E5%99%A8%E5%85%A8%E9%87%8F%E6%B5%8B%E8%AF%95%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-08-28-1930-【竞品分析】docker浏览器全量测试记录.md"
 sourceSha256: "2f78ba1499241f492dd6c1a0a7b53b67102cc30768d62b14f62618694ee57da9"
 sourceSystem: "project-doc"
 ---
 
 # 【竞品分析】docker 浏览器方案全量测试记录（ff789p3 未开放，H5 兜底）
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-08-28-1930-【竞品分析】docker浏览器全量测试记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-08-28-1930-【竞品分析】docker浏览器全量测试记录.md`
 
 > 整理日期：2026-08-28 19:30｜日期依据：文件名日期
 
 时间：2026-08-28 19:30（Asia/Manila）
-项目：DBQP / PGServer master
-执行人：Codex（本地工作区 + 备用机 dbqp-saopaulo-nginx-standby-01 / 34.151.249.53）
+项目：某业务公司 / PGServer master
+执行人：Codex（本地工作区 + 备用机 bizops-saopaulo-nginx-standby-01 / 192.0.2.13）
 
 ## 一、任务与背景
 
@@ -27,7 +29,7 @@ sourceSystem: "project-doc"
 完成「登录 → 点击同游戏 → 点击继续 → 等游戏完整加载」的分阶段计时录屏对比：
 
 - 我方：ff789p3.com（接 API 包网）；若游戏未开，直测 7 个 H5 入口
-  （PG/TADA/PP/PPK/PLAYSON/PANDA/G759，`ind-h5.dbqpplus999.com/<厂家>bronline*`）；
+  （PG/vendor_a/PP/PPK/vendor_c/PANDA/G759，`ind-h5.bizopsplus999.com/<厂家>bronline*`）；
 - 竞品：m6kk678n.com；
 - 账号/密码：11955336688 / 11955336688。
 
@@ -55,10 +57,10 @@ sourceSystem: "project-doc"
 ```text
 厂家    画布出现    点继续→可玩   网络稳定    结果
 PG      12.3s      7.1s         23.8s      ok
-TADA    9.2s       9.7s         24.3s      ok
+vendor_a    9.2s       9.7s         24.3s      ok
 PP      8.3s       7.5s         20.5s      ok
 PPK     10.0s      7.0s         21.6s      ok
-PLAYSON 13.2s      3.0s         45.0s      ok
+vendor_c 13.2s      3.0s         45.0s      ok
 PANDA   8.8s       6.8s         20.2s      ok
 G759    8.2s       7.1s         20.1s      ok
 ```
@@ -101,6 +103,6 @@ Dragon Hatch     17.9s    19.4s    22.2s    7.0s        ✅
 
 ## 五、产物
 
-- 我方：`/tmp/dbqp-h5-20260828_1110/`（7 MP4 + PNG + results.json）
-- 竞品：`/tmp/dbqp-comp-20260828_1116/`（5 MP4 + PNG + results.json）
+- 我方：`/tmp/bizops-h5-20260828_1110/`（7 MP4 + PNG + results.json）
+- 竞品：`/tmp/bizops-comp-20260828_1116/`（5 MP4 + PNG + results.json）
 - 12 条视频已带水印（域名/账号/服务器/分阶段耗时/画面变化点）发飞机群。

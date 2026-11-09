@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <title>2026-09-25 香港 JILI 静态资源独立桶接入 + Worker 跨桶改造记录｜历史运维与项目交付 / 香港 CN｜BEN.OPS</title>
-  <meta name="description" content="2026-09-25 香港 JILI 静态资源独立桶接入 + Worker 跨桶改造记录。本文属于历史运维与项目交付 / 香港 CN，验证： curl -I https://dbqp-s3-jili-static.s3.ap-northeast-3.amazonaws.com/ = 403， 与现役 dbqp-s…">
-  <meta name="keywords" content="香港 CN，Shell，Python，Docker，Nginx，CDN，安全运维，数据库恢复，历史运维与项目交付，历史运维与项目交付 / 香港 CN，2026-09-25 香港 JILI 静态资源独立桶接入 + Worker 跨桶改造记录">
+  <title>2026-09-25 香港 vendor_b 静态资源独立桶接入 + Worker 跨桶改造记录｜历史运维与项目交付 / 香港 CN｜BEN.OPS</title>
+  <meta name="description" content="2026-09-25 香港 vendor_b 静态资源独立桶接入 + Worker 跨桶改造记录。本文属于历史运维与项目交付 / 香港 CN，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 验证： curl -I https://bizops-s3-vend…">
+  <meta name="keywords" content="香港 CN，Shell，Python，Docker，Nginx，CDN，安全运维，数据库恢复，历史运维与项目交付，历史运维与项目交付 / 香港 CN，2026-09-25 香港 vendor_b 静态资源独立桶接入 + Worker 跨桶改造记录，一、需求，二、桶与资源链路，三、Worker 改造（hk_static_worker.js，保持老写法）">
   <meta name="author" content="BEN">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
   <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
@@ -14,15 +14,15 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-536c2ca61e43.html">
   <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-536c2ca61e43.html">
-  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609251420-%E9%A6%99%E6%B8%AF%20CN%2BShell%2BPython-2026-09-25%20%E9%A6%99%E6%B8%AF%20JILI%20%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E7%8B%AC%E7%AB%8B%E6%A1%B6%E6%8E%A5%E5%85%A5%20%2B%20Worker%20%E8%B7%A8%E6%A1%B6%E6%94%B9%E9%80%A0%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609251420-%E9%A6%99%E6%B8%AF%20CN%2BShell%2BPython-2026-09-25%20%E9%A6%99%E6%B8%AF%20vendor_b%20%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E7%8B%AC%E7%AB%8B%E6%A1%B6%E6%8E%A5%E5%85%A5%20%2B%20Worker%20%E8%B7%A8%E6%A1%B6%E6%94%B9%E9%80%A0%E8%AE%B0%E5%BD%95.md">
   <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
   <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
   <link rel="author" href="https://t.me/Ben_Bird">
   <meta property="og:type" content="article">
   <meta property="og:locale" content="zh_CN">
   <meta property="og:site_name" content="BEN.OPS 工程笔记">
-  <meta property="og:title" content="2026-09-25 香港 JILI 静态资源独立桶接入 + Worker 跨桶改造记录">
-  <meta property="og:description" content="2026-09-25 香港 JILI 静态资源独立桶接入 + Worker 跨桶改造记录。本文属于历史运维与项目交付 / 香港 CN，验证： curl -I https://dbqp-s3-jili-static.s3.ap-northeast-3.amazonaws.com/ = 403， 与现役 dbqp-s…">
+  <meta property="og:title" content="2026-09-25 香港 vendor_b 静态资源独立桶接入 + Worker 跨桶改造记录">
+  <meta property="og:description" content="2026-09-25 香港 vendor_b 静态资源独立桶接入 + Worker 跨桶改造记录。本文属于历史运维与项目交付 / 香港 CN，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 验证： curl -I https://bizops-s3-vend…">
   <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-536c2ca61e43.html">
   <meta property="article:published_time" content="2026-09-25T14:20:00+08:00">
   <meta property="article:modified_time" content="2026-09-25 14:20">
@@ -30,8 +30,8 @@
   <meta property="article:author" content="https://t.me/Ben_Bird">
   
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="2026-09-25 香港 JILI 静态资源独立桶接入 + Worker 跨桶改造记录">
-  <meta name="twitter:description" content="2026-09-25 香港 JILI 静态资源独立桶接入 + Worker 跨桶改造记录。本文属于历史运维与项目交付 / 香港 CN，验证： curl -I https://dbqp-s3-jili-static.s3.ap-northeast-3.amazonaws.com/ = 403， 与现役 dbqp-s…">
+  <meta name="twitter:title" content="2026-09-25 香港 vendor_b 静态资源独立桶接入 + Worker 跨桶改造记录">
+  <meta name="twitter:description" content="2026-09-25 香港 vendor_b 静态资源独立桶接入 + Worker 跨桶改造记录。本文属于历史运维与项目交付 / 香港 CN，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 验证： curl -I https://bizops-s3-vend…">
   
   <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
 --line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
@@ -75,7 +75,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 @media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
 .meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
 @media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-536c2ca61e43.html#article","headline":"2026-09-25 香港 JILI 静态资源独立桶接入 + Worker 跨桶改造记录","description":"2026-09-25 香港 JILI 静态资源独立桶接入 + Worker 跨桶改造记录。本文属于历史运维与项目交付 / 香港 CN，验证： curl -I https://dbqp-s3-jili-static.s3.ap-northeast-3.amazonaws.com/ = 403， 与现役 dbqp-s…","datePublished":"2026-09-25T14:20:00+08:00","dateModified":"2026-09-25 14:20","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","香港 CN"],"keywords":["香港 CN","Shell","Python","Docker","Nginx","CDN","安全运维","数据库恢复","历史运维与项目交付","历史运维与项目交付 / 香港 CN","2026-09-25 香港 JILI 静态资源独立桶接入 + Worker 跨桶改造记录"],"wordCount":1962,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-536c2ca61e43.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-536c2ca61e43.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 香港 CN","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-09-25 香港 JILI 静态资源独立桶接入 + Worker 跨桶改造记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-536c2ca61e43.html"}]}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-536c2ca61e43.html#article","headline":"2026-09-25 香港 vendor_b 静态资源独立桶接入 + Worker 跨桶改造记录","description":"2026-09-25 香港 vendor_b 静态资源独立桶接入 + Worker 跨桶改造记录。本文属于历史运维与项目交付 / 香港 CN，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 验证： curl -I https://bizops-s3-vend…","datePublished":"2026-09-25T14:20:00+08:00","dateModified":"2026-09-25 14:20","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","香港 CN"],"keywords":["香港 CN","Shell","Python","Docker","Nginx","CDN","安全运维","数据库恢复","历史运维与项目交付","历史运维与项目交付 / 香港 CN","2026-09-25 香港 vendor_b 静态资源独立桶接入 + Worker 跨桶改造记录","一、需求","二、桶与资源链路","三、Worker 改造（hk_static_worker.js，保持老写法）"],"wordCount":710,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-536c2ca61e43.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-536c2ca61e43.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 香港 CN","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"2026-09-25 香港 vendor_b 静态资源独立桶接入 + Worker 跨桶改造记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-536c2ca61e43.html"}]}]}</script>
 </head>
 <body>
   <header class="topbar"><div class="shell">
@@ -89,80 +89,81 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
   <main class="shell">
     <nav class="crumbs" aria-label="面包屑">
       <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
-      › <span>历史运维与项目交付 / 香港 CN</span> › <span>2026-09-25 香港 JILI 静态资源独立桶接入 + Worker 跨桶改造记录</span>
+      › <span>历史运维与项目交付 / 香港 CN</span> › <span>2026-09-25 香港 vendor_b 静态资源独立桶接入 + Worker 跨桶改造记录</span>
     </nav>
     <header class="hero">
       <div class="eyebrow">历史运维与项目交付 / 香港 CN</div>
-      <h1>2026-09-25 香港 JILI 静态资源独立桶接入 + Worker 跨桶改造记录</h1>
-      <p class="lede">2026-09-25 香港 JILI 静态资源独立桶接入 + Worker 跨桶改造记录。本文属于历史运维与项目交付 / 香港 CN，验证： curl -I https://dbqp-s3-jili-static.s3.ap-northeast-3.amazonaws.com/ = 403， 与现役 dbqp-s…</p>
+      <h1>2026-09-25 香港 vendor_b 静态资源独立桶接入 + Worker 跨桶改造记录</h1>
+      <p class="lede">2026-09-25 香港 vendor_b 静态资源独立桶接入 + Worker 跨桶改造记录。本文属于历史运维与项目交付 / 香港 CN，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 验证： curl -I https://bizops-s3-vend…</p>
       <div class="meta">
         <time class="badge" datetime="2026-09-25T14:20:00+08:00">发布于 2026-09-25</time>
         <span class="badge">作者 BEN</span>
-        <span class="badge">1,962 字</span>
-        <span class="badge">6 分钟阅读</span>
+        <span class="badge">710 字</span>
+        <span class="badge">3 分钟阅读</span>
       </div>
     </header>
     <div class="layout">
       <article class="article" itemscope itemtype="https://schema.org/TechArticle">
         
 <blockquote>
-<p>来源文件：<code>~/Projects/work/game/pgserver/cn/docker/doc/2026-09-25-1420-【架构改造】香港JILI静态资源独立桶接入与Worker跨桶改造记录.md</code></p>
+<p>公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。</p>
+<p>来源文件：<code>~/Projects/ops/private-notes/cn/docker/doc/2026-09-25-1420-【架构改造】香港vendor_b静态资源独立桶接入与Worker跨桶改造记录.md</code></p>
 <p>整理日期：2026-09-25 14:20｜日期依据：文件名日期</p>
 </blockquote>
 <h2 id="一-需求">一、需求</h2>
-<pre><code class="language-text">用户：香港的 Worker 代码修改一下（附件给出 jili-static -&gt; tada-statics 的映射），
-     AWS 创建 dbqp-s3-jili-static / dbqp-s3-jili-static1，与其他桶同权限、对外；
-     JILI 不再复用 TADA 共享资源。
+<pre><code class="language-text">用户：香港的 Worker 代码修改一下（附件给出 vendor_b-static -&gt; vendor_a-statics 的映射），
+     AWS 创建 bizops-s3-vendor_b-static / bizops-s3-vendor_b-static1，与其他桶同权限、对外；
+     vendor_b 不再复用 vendor_a 共享资源。
 </code></pre>
 <h2 id="二-桶与资源链路">二、桶与资源链路</h2>
-<pre><code class="language-text">AWS S3（大阪 ap-northeast-3，开发侧上传，与其他 dbqp-s3-* 桶同权限/公开读）：
-  dbqp-s3-jili-static    2026-09-25 11:39 由用户手动创建（21 个桶）
-  dbqp-s3-jili-static1   2026-09-25 11:39 同上
+<pre><code class="language-text">AWS S3（大阪 ap-northeast-3，开发侧上传，与其他 bizops-s3-* 桶同权限/公开读）：
+  bizops-s3-vendor_b-static    2026-09-25 11:39 由用户手动创建（21 个桶）
+  bizops-s3-vendor_b-static1   2026-09-25 11:39 同上
 GCS（巴西，后端 SDK 同步的目标，用户已创建）：
-  newgg2-dbqp-gcs-jili-static / newgg2-dbqp-gcs-jili-static1
+  newgg2-bizops-gcs-vendor_b-static / newgg2-bizops-gcs-vendor_b-static1
 香港 Worker 回源：直接回 AWS S3 新桶（与其它前缀「香港用 S3」口径一致）
-对象 key 约定：直接放桶根（master 文档：前端上传 s3://dbqp-s3-&lt;prefix&gt;/&lt;路径&gt;），
+对象 key 约定：直接放桶根（master 文档：前端上传 s3://bizops-s3-&lt;prefix&gt;/&lt;路径&gt;），
   因此 Worker 拼 `https://&lt;新桶&gt;.s3.ap-northeast-3.amazonaws.com&lt;pathname&gt;`。
 </code></pre>
-<p>验证：<code>curl -I https://dbqp-s3-jili-static.s3.ap-northeast-3.amazonaws.com/</code> = 403，
-与现役 <code>dbqp-s3-pp-static</code> 行为一致（桶存在、未开放列目录）。</p>
+<p>验证：<code>curl -I https://bizops-s3-vendor_b-static.s3.ap-northeast-3.amazonaws.com/</code> = 403，
+与现役 <code>bizops-s3-pp-static</code> 行为一致（桶存在、未开放列目录）。</p>
 <h2 id="三-Worker-改造-hk_static_worker-js-保持老写法">三、Worker 改造（hk_static_worker.js，保持老写法）</h2>
-<p><strong>只动 3 处、共 11 增 7 删</strong>（用户要求「按照老写法来」「砍掉 jili-static2」）：</p>
+<p><strong>只动 3 处、共 11 增 7 删</strong>（用户要求「按照老写法来」「砍掉 vendor_b-static2」）：</p>
 <pre><code class="language-js">// ① PREFIX_MAP 仍是「前缀 -&gt; 值」的字符串写法（未改成对象结构）
 const PREFIX_MAP = new Map([
     ["pg-static", "pg-static"],
-    ...（pg3-pg7 / pp / ppk / panda / playson / g759 原样不动）
-    // JILI 独立桶（2026-09-25 起，大阪 ap-northeast-3）：值写完整回源地址
-    ["jili-static",  "https://dbqp-s3-jili-static.s3.ap-northeast-3.amazonaws.com"],
-    ["jili-static1", "https://dbqp-s3-jili-static1.s3.ap-northeast-3.amazonaws.com"],
+    ...（pg3-pg7 / pp / ppk / vendor_d / vendor_c / g759 原样不动）
+    // vendor_b 独立桶（2026-09-25 起，大阪 ap-northeast-3）：值写完整回源地址
+    ["vendor_b-static",  "https://bizops-s3-vendor_b-static.s3.ap-northeast-3.amazonaws.com"],
+    ["vendor_b-static1", "https://bizops-s3-vendor_b-static1.s3.ap-northeast-3.amazonaws.com"],
 ]);
 // ② 回源拼接：值是完整 URL 就直接拼；否则仍是「香港主桶 / 目录前缀」
 const target = s3Prefix.startsWith("http")
     ? `${s3Prefix}${url.pathname}${url.search}`
     : `${S3_ENDPOINT}/${s3Prefix}${url.pathname}${url.search}`;
-// ③ jili-static2 已按要求从映射表移除（不再由 Worker 代理，请求原样放行到源站）
+// ③ vendor_b-static2 已按要求从映射表移除（不再由 Worker 代理，请求原样放行到源站）
 </code></pre>
 <pre><code class="language-text">缓存盐同步升级：CACHE_SALT v1-20260924 -&gt; v2-20260925、HEALTH_CACHE_SALT h1 -&gt; h2，
-  原因：JILI 前缀名没变，不换盐会命中旧的 tada-statics 缓存内容。
+  原因：vendor_b 前缀名没变，不换盐会命中旧的 vendor_a-statics 缓存内容。
 </code></pre>
 <p>配套工具同步升级（避免解析不到新结构）：</p>
-<pre><code class="language-text">docker/ci/check.py                       按 { endpoint, prefix } 解析并校验 JILI 三前缀映射
-docker/ci/test_hk_static_worker.mjs      新增 jili-static/-static1 独立桶与 jili-static2 复用断言（31 项全通过）
+<pre><code class="language-text">docker/ci/check.py                       按 { endpoint, prefix } 解析并校验 vendor_b 三前缀映射
+docker/ci/test_hk_static_worker.mjs      新增 vendor_b-static/-static1 独立桶与 vendor_b-static2 复用断言（31 项全通过）
 docker/deploy/hongkong/deploy_static_worker.py  parse_prefix_map 兼容新结构（旧字符串格式仍兼容）
 </code></pre>
 <h2 id="四-部署与验证">四、部署与验证</h2>
 <pre><code class="language-bash"># 香港入口机
-python3 /root/dbqp-hk-worker/docker/deploy/hongkong/deploy_static_worker.py \
+python3 /root/bizops-hk-worker/docker/deploy/hongkong/deploy_static_worker.py \
     --account eaf1a5f4eb53c8cd384ce9088181b97c \
     --token-file /root/.config/cloudflare/workers-token \
     --zones hkcloudplay06.com,hkcloudplay07.com \
-    deploy --backup-dir /root/dbqp-hk-worker-backup/20260925-jili
+    deploy --backup-dir /root/bizops-hk-worker-backup/20260925-vendor_b
 # -&gt; deploy: http=200 success=True；旧版本已备份
 </code></pre>
-<p>线上源码复核（从 CF 拉取，只列 JILI 相关行）：</p>
-<pre><code class="language-text">["jili-static",  "https://dbqp-s3-jili-static.s3.ap-northeast-3.amazonaws.com"]
-["jili-static1", "https://dbqp-s3-jili-static1.s3.ap-northeast-3.amazonaws.com"]
-（无 jili-static2）
+<p>线上源码复核（从 CF 拉取，只列 vendor_b 相关行）：</p>
+<pre><code class="language-text">["vendor_b-static",  "https://bizops-s3-vendor_b-static.s3.ap-northeast-3.amazonaws.com"]
+["vendor_b-static1", "https://bizops-s3-vendor_b-static1.s3.ap-northeast-3.amazonaws.com"]
+（无 vendor_b-static2）
 </code></pre>
 <p>端到端验证：</p>
 <table>
@@ -180,46 +181,46 @@ python3 /root/dbqp-hk-worker/docker/deploy/hongkong/deploy_static_worker.py \
 <td>改造未影响既有前缀</td>
 </tr>
 <tr>
-<td><code>pg6-static...</code>、<code>pp-static...</code>、<code>panda-static...</code>、<code>g759-static...</code></td>
+<td><code>pg6-static...</code>、<code>pp-static...</code>、<code>vendor_d-static...</code>、<code>g759-static...</code></td>
 <td>200</td>
 <td>同上</td>
 </tr>
 <tr>
-<td><code>jili-static.hkcloudplay06.com/...</code></td>
+<td><code>vendor_b-static.hkcloudplay06.com/...</code></td>
 <td>403</td>
 <td>新桶尚无对象（等开发上传），Worker 已生效</td>
 </tr>
 <tr>
-<td><code>jili-static1.hkcloudplay06.com/...</code></td>
+<td><code>vendor_b-static1.hkcloudplay06.com/...</code></td>
 <td>403</td>
 <td>同上</td>
 </tr>
 <tr>
-<td><code>jili-static2.hkcloudplay06.com/...</code></td>
+<td><code>vendor_b-static2.hkcloudplay06.com/...</code></td>
 <td>403</td>
 <td>已移出 Worker，原样放行到源站（standby nginx 兜底）</td>
 </tr>
 </tbody>
 </table>
-<p>（响应头 <code>x-dbqp-worker: hk-static-proxy</code> 确认请求经过本 Worker。）</p>
+<p>（响应头 <code>x-bizops-worker: hk-static-proxy</code> 确认请求经过本 Worker。）</p>
 <h2 id="五-待办">五、待办</h2>
-<pre><code class="language-text">1. 开发上传前端代码到 dbqp-s3-jili-static / dbqp-s3-jili-static1 后，复测：
-   https://jili-static.hkcloudplay06.com/&lt;真实路径&gt; 应为 200（两个桶各抽一个文件）；
-2. jili-static2 已按要求移出 Worker（不再代理）。如需它也有源，再单独确认（建独立桶后加回一行映射即可）；
+<pre><code class="language-text">1. 开发上传前端代码到 bizops-s3-vendor_b-static / bizops-s3-vendor_b-static1 后，复测：
+   https://vendor_b-static.hkcloudplay06.com/&lt;真实路径&gt; 应为 200（两个桶各抽一个文件）；
+2. vendor_b-static2 已按要求移出 Worker（不再代理）。如需它也有源，再单独确认（建独立桶后加回一行映射即可）；
 3. 备份：本轮改了 Worker 与 CACHE_SALT，需要重跑 backup_cdn_config.py 更新 cdn-backup/。
 </code></pre>
 <h2 id="六-追加-巴西-GCS-侧两个桶补建-2026-09-25-15-10">六、追加：巴西 GCS 侧两个桶补建（2026-09-25 15:10）</h2>
-<p>用户先以为 GCS 侧已建，核对控制台后发现<strong>并不存在</strong>（GCS 列表 17 个桶里只有 panda/pg/pg3-pg7/
-playson/pp/ppk/tada-statics1-5/g759，没有 jili）。香港链路不依赖 GCS（Worker 直接回源 AWS S3），
-但巴西侧要读 JILI 前端资源就需要，因此补建：</p>
+<p>用户先以为 GCS 侧已建，核对控制台后发现<strong>并不存在</strong>（GCS 列表 17 个桶里只有 vendor_d/pg/pg3-pg7/
+vendor_c/pp/ppk/vendor_a-statics1-5/g759，没有 vendor_b）。香港链路不依赖 GCS（Worker 直接回源 AWS S3），
+但巴西侧要读 vendor_b 前端资源就需要，因此补建：</p>
 <pre><code class="language-bash"># ⚠️ 必须指定 --project=newgg2-0520（其它 newgg2-* 桶都属于这个项目）
-gcloud storage buckets create gs://newgg2-dbqp-gcs-jili-static \
+gcloud storage buckets create gs://newgg2-bizops-gcs-vendor_b-static \
     --project=newgg2-0520 --location=southamerica-east1 --default-storage-class=STANDARD
-gcloud storage buckets create gs://newgg2-dbqp-gcs-jili-static1 \
+gcloud storage buckets create gs://newgg2-bizops-gcs-vendor_b-static1 \
     --project=newgg2-0520 --location=southamerica-east1 --default-storage-class=STANDARD
-gcloud storage buckets add-iam-policy-binding gs://newgg2-dbqp-gcs-jili-static \
+gcloud storage buckets add-iam-policy-binding gs://newgg2-bizops-gcs-vendor_b-static \
     --member=allUsers --role=roles/storage.objectViewer
-gcloud storage buckets add-iam-policy-binding gs://newgg2-dbqp-gcs-jili-static1 \
+gcloud storage buckets add-iam-policy-binding gs://newgg2-bizops-gcs-vendor_b-static1 \
     --member=allUsers --role=roles/storage.objectViewer
 </code></pre>
 <p>过程中的一次返工（记录备查）：</p>
@@ -228,15 +229,15 @@ gcloud storage buckets add-iam-policy-binding gs://newgg2-dbqp-gcs-jili-static1 
   1) 确认两桶为空（gcloud storage ls -r 只有标题行）；
   2) 删除错项目下的两个空桶；
   3) 带 --project=newgg2-0520 重建 + 重新配公开读；
-  4) 复核 infra-alc-20260511 下已无 jili 桶。
+  4) 复核 infra-alc-20260511 下已无 vendor_b 桶。
 </code></pre>
 <p>最终验证（实测）：</p>
 <table>
 <thead>
 <tr>
 <th>检查</th>
-<th>newgg2-dbqp-gcs-jili-static</th>
-<th>newgg2-dbqp-gcs-jili-static1</th>
+<th>newgg2-bizops-gcs-vendor_b-static</th>
+<th>newgg2-bizops-gcs-vendor_b-static1</th>
 <th>现有桶对照（pg-static）</th>
 </tr>
 </thead>
@@ -269,25 +270,25 @@ gcloud storage buckets add-iam-policy-binding gs://newgg2-dbqp-gcs-jili-static1 
 </table>
 <h2 id="七-改造-全部前缀改为-一个厂家一个-S3-桶-2026-09-25-15-40">七、改造：全部前缀改为「一个厂家一个 S3 桶」（2026-09-25 15:40）</h2>
 <p>用户要求：Worker 映射统一改成「一个厂家一个 S3 地址」——所有静态前缀不再走香港主桶
-<code>dbqp-h5-hk-517506432530</code>，而是各自回源 AWS 大阪（ap-northeast-3）的同名桶。</p>
+<code>bizops-h5-hk-517506432530</code>，而是各自回源 AWS 大阪（ap-northeast-3）的同名桶。</p>
 <pre><code class="language-js">// hk_static_worker.js（老写法：值直接写完整回源地址）
 const PREFIX_MAP = new Map([
-    ["pg-static",      "https://dbqp-s3-pg-static.s3.ap-northeast-3.amazonaws.com"],
-    ["pg3-static",     "https://dbqp-s3-pg3-static.s3.ap-northeast-3.amazonaws.com"],
-    ["pg4-static",     "https://dbqp-s3-pg4-static.s3.ap-northeast-3.amazonaws.com"],
-    ["pg5-static",     "https://dbqp-s3-pg5-static.s3.ap-northeast-3.amazonaws.com"],
-    ["pg6-static",     "https://dbqp-s3-pg6-static.s3.ap-northeast-3.amazonaws.com"],
-    ["pg7-static",     "https://dbqp-s3-pg7-static.s3.ap-northeast-3.amazonaws.com"],
-    ["pp-static",      "https://dbqp-s3-pp-static.s3.ap-northeast-3.amazonaws.com"],
-    ["ppk-static",     "https://dbqp-s3-ppk-static.s3.ap-northeast-3.amazonaws.com"],
-    ["panda-static",   "https://dbqp-s3-panda-static.s3.ap-northeast-3.amazonaws.com"],
-    ["playson-static", "https://dbqp-s3-playson-static.s3.ap-northeast-3.amazonaws.com"],
-    ["g759-static",    "https://dbqp-s3-g759-static.s3.ap-northeast-3.amazonaws.com"],
-    ["jili-static",    "https://dbqp-s3-jili-static.s3.ap-northeast-3.amazonaws.com"],
-    ["jili-static1",   "https://dbqp-s3-jili-static1.s3.ap-northeast-3.amazonaws.com"],
+    ["pg-static",      "https://bizops-s3-pg-static.s3.ap-northeast-3.amazonaws.com"],
+    ["pg3-static",     "https://bizops-s3-pg3-static.s3.ap-northeast-3.amazonaws.com"],
+    ["pg4-static",     "https://bizops-s3-pg4-static.s3.ap-northeast-3.amazonaws.com"],
+    ["pg5-static",     "https://bizops-s3-pg5-static.s3.ap-northeast-3.amazonaws.com"],
+    ["pg6-static",     "https://bizops-s3-pg6-static.s3.ap-northeast-3.amazonaws.com"],
+    ["pg7-static",     "https://bizops-s3-pg7-static.s3.ap-northeast-3.amazonaws.com"],
+    ["pp-static",      "https://bizops-s3-pp-static.s3.ap-northeast-3.amazonaws.com"],
+    ["ppk-static",     "https://bizops-s3-ppk-static.s3.ap-northeast-3.amazonaws.com"],
+    ["vendor_d-static",   "https://bizops-s3-vendor_d-static.s3.ap-northeast-3.amazonaws.com"],
+    ["vendor_c-static", "https://bizops-s3-vendor_c-static.s3.ap-northeast-3.amazonaws.com"],
+    ["g759-static",    "https://bizops-s3-g759-static.s3.ap-northeast-3.amazonaws.com"],
+    ["vendor_b-static",    "https://bizops-s3-vendor_b-static.s3.ap-northeast-3.amazonaws.com"],
+    ["vendor_b-static1",   "https://bizops-s3-vendor_b-static1.s3.ap-northeast-3.amazonaws.com"],
 ]);
 </code></pre>
-<p><code>check.py</code> 已同步为「逐前缀校验必须等于 <code>https://dbqp-s3-&lt;前缀&gt;.s3.ap-northeast-3.amazonaws.com</code>」，
+<p><code>check.py</code> 已同步为「逐前缀校验必须等于 <code>https://bizops-s3-&lt;前缀&gt;.s3.ap-northeast-3.amazonaws.com</code>」，
 本地自检 31 项通过。</p>
 <h3 id="7-1-部署阻塞-这些-S3-桶目前是私有的">7.1 ⛔ 部署阻塞：这些 S3 桶目前是私有的</h3>
 <p><strong>未部署</strong>（避免线上静态资源全量 403）。实测对照：</p>
@@ -295,8 +296,8 @@ const PREFIX_MAP = new Map([
 <thead>
 <tr>
 <th>探测</th>
-<th>S3（dbqp-s3-pg-static）</th>
-<th>GCS（newgg2-dbqp-gcs-pg-static）</th>
+<th>S3（bizops-s3-pg-static）</th>
+<th>GCS（newgg2-bizops-gcs-pg-static）</th>
 </tr>
 </thead>
 <tbody>
@@ -330,7 +331,7 @@ S3 侧 403 的原因是这些桶<strong>没有配公开读</strong>（私有桶�
          "Effect": "Allow",
          "Principal": "*",
          "Action": "s3:GetObject",
-         "Resource": "arn:aws:s3:::dbqp-s3-pg-static/*"
+         "Resource": "arn:aws:s3:::bizops-s3-pg-static/*"
        }]
      }
 方式二：有 AK/SK 时批量执行（每个桶一条）：
@@ -339,7 +340,7 @@ S3 侧 403 的原因是这些桶<strong>没有配公开读</strong>（私有桶�
     BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false
   aws s3api put-bucket-policy --bucket &lt;桶&gt; --policy file://public-read.json
 </code></pre>
-<p>桶公开后我会：部署新 Worker → 逐前缀用真实文件复验（期望 200 + <code>x-dbqp-worker</code> + 二次 HIT）。</p>
+<p>桶公开后我会：部署新 Worker → 逐前缀用真实文件复验（期望 200 + <code>x-bizops-worker</code> + 二次 HIT）。</p>
 <h2 id="八-关联">八、关联</h2>
 <pre><code class="language-text">docker/deploy/hongkong/hk_static_worker.js                         Worker 源码（本次改造）
 docker/deploy/hongkong/deploy_static_worker.py                     部署/备份工具
@@ -354,7 +355,7 @@ docker/doc/2026-09-25-1000-【架构改造】香港商户socket域名hk-socket.c
           <li>分类：历史运维与项目交付 / 香港 CN</li>
           <li>日期：2026-09-25</li>
           <li>标签：<span class="tag">香港 CN</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">CDN</span><span class="tag">安全运维</span><span class="tag">数据库恢复</span></li>
-          <li><span>来源：~/Projects/work/game/pgserver/cn/docker/doc/2026-09-25-1420-【架构改造】香港JILI静态资源独立桶接入与Worker跨…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609251420-%E9%A6%99%E6%B8%AF%20CN%2BShell%2BPython-2026-09-25%20%E9%A6%99%E6%B8%AF%20JILI%20%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E7%8B%AC%E7%AB%8B%E6%A1%B6%E6%8E%A5%E5%85%A5%20%2B%20Worker%20%E8%B7%A8%E6%A1%B6%E6%94%B9%E9%80%A0%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+          <li><span>来源：~/Projects/ops/private-notes/cn/docker/doc/2026-09-25-1420-【架构改造】香港vendor_b静态资源独立桶接入与Work…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609251420-%E9%A6%99%E6%B8%AF%20CN%2BShell%2BPython-2026-09-25%20%E9%A6%99%E6%B8%AF%20vendor_b%20%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E7%8B%AC%E7%AB%8B%E6%A1%B6%E6%8E%A5%E5%85%A5%20%2B%20Worker%20%E8%B7%A8%E6%A1%B6%E6%94%B9%E9%80%A0%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
         </ul></div>
         <div class="aside-box"><h2>作者</h2>
           <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
@@ -364,8 +365,8 @@ docker/doc/2026-09-25-1000-【架构改造】香港商户socket域名hk-socket.c
     </div>
     <section class="seo-summary" aria-labelledby="seo-summary-title">
       <h2 id="seo-summary-title">文章摘要</h2>
-      <p>2026-09-25 香港 JILI 静态资源独立桶接入 + Worker 跨桶改造记录。本文属于历史运维与项目交付 / 香港 CN，验证： curl -I https://dbqp-s3-jili-static.s3.ap-northeast-3.amazonaws.com/ = 403， 与现役 dbqp-s…</p>
-      <p>关键词：香港 CN、Shell、Python、Docker、Nginx、CDN、安全运维、数据库恢复、历史运维与项目交付、历史运维与项目交付 / 香港 CN、2026-09-25 香港 JILI 静态资源独立桶接入 + Worker 跨桶改造记录</p>
+      <p>2026-09-25 香港 vendor_b 静态资源独立桶接入 + Worker 跨桶改造记录。本文属于历史运维与项目交付 / 香港 CN，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 验证： curl -I https://bizops-s3-vend…</p>
+      <p>关键词：香港 CN、Shell、Python、Docker、Nginx、CDN、安全运维、数据库恢复、历史运维与项目交付、历史运维与项目交付 / 香港 CN、2026-09-25 香港 vendor_b 静态资源独立桶接入 + Worker 跨桶改造记录、一、需求、二、桶与资源链路、三、Worker 改造（hk_static_worker.js，保持老写法）</p>
     </section>
     <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-91281e73c42a.html"><small>上一篇</small>2026-09-25 香港 g759 等厂商端口不可达：GCP 防火墙端口范围修复记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8e384dcf3bf7.html"><small>下一篇</small>2026-09-25 香港静态 Worker 并发部署冲突与恢复记录</a></nav>
   </main>

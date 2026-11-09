@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
-  <meta name="description" content="【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-14 14:00（Asia/Manila） 状态：✅ 切换完成并逐个验证（删旧桶进行中） 适用对象：所有后续要动「静态资源 / GCS…">
-  <meta name="keywords" content="巴西主站，Linux，Shell，Python，Docker，Nginx，CDN，安全运维，历史运维与项目交付，历史运维与项目交付 / 巴西主站">
+  <meta name="description" content="【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-14 14:00（Asia/Ma…">
+  <meta name="keywords" content="巴西主站，Linux，Shell，Python，Docker，Nginx，CDN，安全运维，历史运维与项目交付，历史运维与项目交付 / 巴西主站，一、最终架构（2026-09-14 起），二、GCS 单桶化（本次核心操作），2.1 变更前状态（09-14 盘点，只读），2.2 关键前置：先做并集合并（否则删桶会丢文件）">
   <meta name="author" content="BEN">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
   <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
@@ -22,7 +22,7 @@
   <meta property="og:locale" content="zh_CN">
   <meta property="og:site_name" content="BEN.OPS 工程笔记">
   <meta property="og:title" content="【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）">
-  <meta property="og:description" content="【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-14 14:00（Asia/Manila） 状态：✅ 切换完成并逐个验证（删旧桶进行中） 适用对象：所有后续要动「静态资源 / GCS…">
+  <meta property="og:description" content="【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-14 14:00（Asia/Ma…">
   <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-960d8112f305.html">
   <meta property="article:published_time" content="2026-09-14T14:00:00+08:00">
   <meta property="article:modified_time" content="2026-09-14 14:00">
@@ -31,7 +31,7 @@
   
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）">
-  <meta name="twitter:description" content="【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-14 14:00（Asia/Manila） 状态：✅ 切换完成并逐个验证（删旧桶进行中） 适用对象：所有后续要动「静态资源 / GCS…">
+  <meta name="twitter:description" content="【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-14 14:00（Asia/Ma…">
   
   <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
 --line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
@@ -75,7 +75,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 @media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
 .meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
 @media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-960d8112f305.html#article","headline":"【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）","description":"【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-14 14:00（Asia/Manila） 状态：✅ 切换完成并逐个验证（删旧桶进行中） 适用对象：所有后续要动「静态资源 / GCS…","datePublished":"2026-09-14T14:00:00+08:00","dateModified":"2026-09-14 14:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Linux","Shell","Python","Docker","Nginx","CDN","安全运维","历史运维与项目交付","历史运维与项目交付 / 巴西主站"],"wordCount":2295,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-960d8112f305.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-960d8112f305.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-960d8112f305.html"}]}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-960d8112f305.html#article","headline":"【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）","description":"【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-14 14:00（Asia/Ma…","datePublished":"2026-09-14T14:00:00+08:00","dateModified":"2026-09-14 14:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Linux","Shell","Python","Docker","Nginx","CDN","安全运维","历史运维与项目交付","历史运维与项目交付 / 巴西主站","一、最终架构（2026-09-14 起）","二、GCS 单桶化（本次核心操作）","2.1 变更前状态（09-14 盘点，只读）","2.2 关键前置：先做并集合并（否则删桶会丢文件）"],"wordCount":953,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-960d8112f305.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-960d8112f305.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-960d8112f305.html"}]}]}</script>
 </head>
 <body>
   <header class="topbar"><div class="shell">
@@ -94,19 +94,20 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
     <header class="hero">
       <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
       <h1>【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）</h1>
-      <p class="lede">【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-14 14:00（Asia/Manila） 状态：✅ 切换完成并逐个验证（删旧桶进行中） 适用对象：所有后续要动「静态资源 / GCS…</p>
+      <p class="lede">【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-14 14:00（Asia/Ma…</p>
       <div class="meta">
         <time class="badge" datetime="2026-09-14T14:00:00+08:00">发布于 2026-09-14</time>
         <span class="badge">作者 BEN</span>
-        <span class="badge">2,295 字</span>
-        <span class="badge">7 分钟阅读</span>
+        <span class="badge">953 字</span>
+        <span class="badge">3 分钟阅读</span>
       </div>
     </header>
     <div class="layout">
       <article class="article" itemscope itemtype="https://schema.org/TechArticle">
         
 <blockquote>
-<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-09-14-1400-【架构+运维】客户端静态资源GCS单桶化与Worker变更全记录.md</code></p>
+<p>公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。</p>
+<p>来源文件：<code>~/Projects/ops/private-notes/master/docs/history/2026-09-14-1400-【架构+运维】客户端静态资源GCS单桶化与Worker变更全记录.md</code></p>
 <p>整理日期：2026-09-14 14:00｜日期依据：文件名日期</p>
 </blockquote>
 <p>时间：2026-09-14 14:00（Asia/Manila）
@@ -118,10 +119,10 @@ Cloudflare 静态代理 Worker 的 <code>BUCKET_MAP</code> 已全部指向单桶
 Worker 每次改动都在 <code>docker/scripts/worker-js-cdn-代码备份/</code> 留档。</p>
 </blockquote>
 <h2 id="一-最终架构-2026-09-14-起">一、最终架构（2026-09-14 起）</h2>
-<pre><code class="language-text">前端开发 → AWS S3 s3://dbqp-s3-&lt;前缀&gt;/（大阪）
-              │  同步（容器 dbqp-resource-sync，跑在后端 03，SDK 直连）
+<pre><code class="language-text">前端开发 → AWS S3 s3://bizops-s3-&lt;前缀&gt;/（大阪）
+              │  同步（容器 bizops-resource-sync，跑在后端 03，SDK 直连）
               ▼
-   GCS 单桶 gs://newgg2-dbqp-gcs-&lt;前缀&gt;/   ← 巴西/香港都写这一个桶（不再有 -sa / -asia）
+   GCS 单桶 gs://newgg2-bizops-gcs-&lt;前缀&gt;/   ← 巴西/香港都写这一个桶（不再有 -sa / -asia）
               │
               ▼
    Cloudflare Worker summer-wave-c94f（静态代理：BUCKET_MAP 全是无后缀单桶）
@@ -132,8 +133,8 @@ Worker 每次改动都在 <code>docker/scripts/worker-js-cdn-代码备份/</code
 <h2 id="二-GCS-单桶化-本次核心操作">二、GCS 单桶化（本次核心操作）</h2>
 <h3 id="2-1-变更前状态-09-14-盘点-只读">2.1 变更前状态（09-14 盘点，只读）</h3>
 <pre><code class="language-text">共 34 个桶 / 17 套前缀，每套 2 个桶（不是 3 个）：
-  16 套：newgg2-dbqp-gcs-&lt;前缀&gt;-sa（巴西，Worker 实际回源） + newgg2-dbqp-gcs-&lt;前缀&gt;（旧镜像）
-  g759：newgg2-dbqp-gcs-g759-static + …-asia（没有 -sa）
+  16 套：newgg2-bizops-gcs-&lt;前缀&gt;-sa（巴西，Worker 实际回源） + newgg2-bizops-gcs-&lt;前缀&gt;（旧镜像）
+  g759：newgg2-bizops-gcs-g759-static + …-asia（没有 -sa）
 </code></pre>
 <h3 id="2-2-关键前置-先做并集合并-否则删桶会丢文件">2.2 关键前置：先做并集合并（否则删桶会丢文件）</h3>
 <p>盘点发现少数桶有<strong>单边独有文件</strong>，直接删会丢：</p>
@@ -154,19 +155,19 @@ Worker 每次改动都在 <code>docker/scripts/worker-js-cdn-代码备份/</code
 <td>无后缀桶独有 10 个</td>
 </tr>
 <tr>
-<td>tada-statics5</td>
+<td>vendor_a-statics5</td>
 <td>23069</td>
 <td>23097</td>
 <td>无后缀桶独有 29 个</td>
 </tr>
 <tr>
-<td>tada-statics3 / 4</td>
+<td>vendor_a-statics3 / 4</td>
 <td>21066 / 11038</td>
 <td>21065 / 11037</td>
 <td>-sa 各多 1 个</td>
 </tr>
 <tr>
-<td>panda / pg6</td>
+<td>vendor_d / pg6</td>
 <td>—</td>
 <td>—</td>
 <td>各需补 1 个</td>
@@ -175,26 +176,26 @@ Worker 每次改动都在 <code>docker/scripts/worker-js-cdn-代码备份/</code
 </table>
 <p>处理：用服务端 rewrite（<code>/rewriteTo</code>，不经过运维机器带宽）把缺的对象补进无后缀桶，
 使<strong>无后缀桶成为 -sa 的超集</strong>。合并结果：</p>
-<pre><code class="language-text">panda +1 ｜ pg6 +1 ｜ playson +1 ｜ pp +2 ｜ tada-statics2 +1 ｜ tada-statics3 +1
-tada-statics4 +1 ｜ tada-statics5 +1 ｜ g759（asia → plain）+1
+<pre><code class="language-text">vendor_d +1 ｜ pg6 +1 ｜ vendor_c +1 ｜ pp +2 ｜ vendor_a-statics2 +1 ｜ vendor_a-statics3 +1
+vendor_a-statics4 +1 ｜ vendor_a-statics5 +1 ｜ g759（asia → plain）+1
 其余 8 套本来就逐字节一致
 </code></pre>
 <h3 id="2-3-逐个厂家切换-Worker-并由验证-一个厂家一条群通知">2.3 逐个厂家切换 Worker 并由验证（一个厂家一条群通知）</h3>
-<p>顺序：<code>pg-static</code>（试点）→ <code>pg3/pg4/pg5/pg6/pg7</code> → <code>tada-statics/1/2/3/4/5</code> → <code>pp/ppk/playson/panda</code>
+<p>顺序：<code>pg-static</code>（试点）→ <code>pg3/pg4/pg5/pg6/pg7</code> → <code>vendor_a-statics/1/2/3/4/5</code> → <code>pp/ppk/vendor_c/vendor_d</code>
 （g759 本来就在无后缀桶，无需切换）</p>
 <p>每个厂家的固定动作（脚本 <code>docker/scripts/worker_bucket_switch.py</code> 固化）：</p>
 <pre><code class="language-text">1) 从 Cloudflare 拉当前线上 Worker（保留开发的最新改动）→ 备份到
    worker-js-cdn-代码备份/【切换前备份】summer-wave-c94f-&lt;厂家&gt;-&lt;时间戳&gt;.js
 2) 只改该厂家的 BUCKET_MAP 条目：…-sa → 无后缀
 3) 部署（ESM 模块 multipart 上传）
-4) purge 三个 zone（xqv9m8.icu / tada-cdn-2026.icu / cdn-tokyo-dbqp.icu）
+4) purge 三个 zone（xqv9m8.icu / vendor_a-cdn-2026.icu / cdn-tokyo-bizops.icu）
 5) 验证：health.json + 一个真实对象的大小（两套域名）
 6) 验证失败 → 立即回滚到切换前版本并重新 purge + 发群
 </code></pre>
 <p>验证抽样（全部 ✅，两套新域名一致）：</p>
 <pre><code class="language-text">pg3 47912B PNG ｜ pg4 74041B PNG ｜ pg5 19637B PNG ｜ pg6 1382B CSS ｜ pg7 2133B JSON
-tada-statics 45B ｜ tada1 36785B JS ｜ tada2 573742B JS ｜ tada3 972B PNG
-tada4 601B py ｜ tada5 6148B ｜ pp/ppk 54/55B ｜ playson 2314656B JS ｜ panda 163B
+vendor_a-statics 45B ｜ vendor_a1 36785B JS ｜ vendor_a2 573742B JS ｜ vendor_a3 972B PNG
+vendor_a4 601B py ｜ vendor_a5 6148B ｜ pp/ppk 54/55B ｜ vendor_c 2314656B JS ｜ vendor_d 163B
 </code></pre>
 <p>线上复核：<code>BUCKET_MAP</code> 中已<strong>无任何 -sa 残留</strong>。</p>
 <h3 id="2-4-删除旧桶-16-个--sa-1-个--asia-已完成">2.4 删除旧桶（16 个 -sa + 1 个 -asia）—— ✅ 已完成</h3>
@@ -203,15 +204,15 @@ tada4 601B py ｜ tada5 6148B ｜ pp/ppk 54/55B ｜ playson 2314656B JS ｜ pand
 踩坑：
   · gsutil 默认单线程（约 14 对象/秒），3.9 万对象的桶要 40+ 分钟 →
     必须加 -m 并行（本次改用 gsutil -m rm -r 后速度大幅提升）
-  · tada-statics5-sa 首次删除报错（retry_decorator 重试后失败），单独重试成功
+  · vendor_a-statics5-sa 首次删除报错（retry_decorator 重试后失败），单独重试成功
   · 用 pkill -f &lt;脚本名&gt; 时命令行本身含关键字，会把自己杀掉 —— 要换成更精确的匹配
 </code></pre>
 <h3 id="2-5-删桶后全厂家抽检-最终验证-17-17-通过">2.5 删桶后全厂家抽检（最终验证）—— ✅ 17/17 通过</h3>
 <pre><code class="language-text">抽检方式：每个厂家从单桶取一个真实对象，经 CDN 在两套新域名拉取并比对字节数
 
 pg-static 1 ✅ ｜ pg3 47912B ✅ ｜ pg4 74041B ✅ ｜ pg5 19637B ✅ ｜ pg6 1382B ✅ ｜ pg7 2133B ✅
-tada-statics 45B ✅ ｜ tada1 36785B ✅ ｜ tada2 573742B ✅ ｜ tada3 972B ✅ ｜ tada4 601B ✅ ｜ tada5 6148B ✅
-pp 54B ✅ ｜ ppk 55B ✅ ｜ playson 2314656B ✅ ｜ panda 163B ✅ ｜ g759 53B ✅
+vendor_a-statics 45B ✅ ｜ vendor_a1 36785B ✅ ｜ vendor_a2 573742B ✅ ｜ vendor_a3 972B ✅ ｜ vendor_a4 601B ✅ ｜ vendor_a5 6148B ✅
+pp 54B ✅ ｜ ppk 55B ✅ ｜ vendor_c 2314656B ✅ ｜ vendor_d 163B ✅ ｜ g759 53B ✅
 
 异常项：0
 </code></pre>
@@ -268,12 +269,12 @@ pp 54B ✅ ｜ ppk 55B ✅ ｜ playson 2314656B ✅ ｜ panda 163B ✅ ｜ g759 
 </table>
 <p><strong>踩坑（重要）</strong>：</p>
 <pre><code class="language-text">1) ES Module 上传方式不同：GET 拉取会返回 multipart 封装（--boundary + Content-Disposition），
-   存盘时必须剥离；上传必须用 multipart + metadata.main_module（application/javascript+module），
+   存盘时必须剥离；上传必须用 multipart + mevendor_ata.main_module（application/javascript+module），
    按经典脚本直传会 400。cf_worker_deploy.py 已支持自动识别 + strip_multipart()。
 2) 部署工具需要 CF_API_TOKEN 环境变量；脚本里用 subprocess 调用时必须显式传 env，
    否则会「静默失败」（本次批量切换时踩到）。
 3) 批量后台任务必须用 setsid 启动：只用 nohup 时 SSH 会话结束会把进程带走
-   （本次第二批 tada 跑完后被杀，群里表现为「通知卡住」）。
+   （本次第二批 vendor_a 跑完后被杀，群里表现为「通知卡住」）。
 4) 每次改 Worker 都必须备份线上源码（用户要求），并按「一个厂家切换一次验证一次」推进。
 </code></pre>
 <h2 id="四-同期排查的静态资源问题-都有结论">四、同期排查的静态资源问题（都有结论）</h2>
@@ -293,7 +294,7 @@ pp 54B ✅ ｜ ppk 55B ✅ ｜ playson 2314656B ✅ ｜ panda 163B ✅ ｜ g759 
 <h3 id="4-3-图片-资源-200-但大小不对-例如-972B-的-PNG-只返回-107B">4.3 图片/资源 200 但大小不对（例如 972B 的 PNG 只返回 107B）</h3>
 <pre><code class="language-text">原因：Cloudflare 边缘缓存里存了旧的坏条目（10×4 占位图，107B），
       带随机参数绕过缓存就能拿到正确的 972B 原图。
-处理：purge 三个 zone 后复验，pg3/pg5/tada-statics3 等对象的字节数与源文件一致。
+处理：purge 三个 zone 后复验，pg3/pg5/vendor_a-statics3 等对象的字节数与源文件一致。
 </code></pre>
 <h3 id="4-4-大量-403-抽检脚本报全部-403">4.4 大量 403（抽检脚本报全部 403）</h3>
 <pre><code class="language-text">两种来源，都不是故障：
@@ -364,7 +365,7 @@ a710a180 17 厂家全部切换为单桶 + 同步/健康脚本改单桶
           <li>分类：历史运维与项目交付 / 巴西主站</li>
           <li>日期：2026-09-14</li>
           <li>标签：<span class="tag">巴西主站</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">CDN</span><span class="tag">安全运维</span></li>
-          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-09-14-1400-【架构+运维】客户端静态资源GCS单桶化与Wo…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609141400-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E6%9E%B6%E6%9E%84%2B%E8%BF%90%E7%BB%B4%E3%80%91%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20GCS%20%E5%8D%95%E6%A1%B6%E5%8C%96%E4%B8%8E%20Worker%20%E5%8F%98%E6%9B%B4%E5%85%A8%E8%AE%B0%E5%BD%95%EF%BC%882026-09-12%20~%2009-14%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+          <li><span>来源：~/Projects/ops/private-notes/master/docs/history/2026-09-14-1400-【架构+运维】客户端静态资源GCS单桶化与Wor…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609141400-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E6%9E%B6%E6%9E%84%2B%E8%BF%90%E7%BB%B4%E3%80%91%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20GCS%20%E5%8D%95%E6%A1%B6%E5%8C%96%E4%B8%8E%20Worker%20%E5%8F%98%E6%9B%B4%E5%85%A8%E8%AE%B0%E5%BD%95%EF%BC%882026-09-12%20~%2009-14%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
         </ul></div>
         <div class="aside-box"><h2>作者</h2>
           <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
@@ -374,10 +375,10 @@ a710a180 17 厂家全部切换为单桶 + 同步/健康脚本改单桶
     </div>
     <section class="seo-summary" aria-labelledby="seo-summary-title">
       <h2 id="seo-summary-title">文章摘要</h2>
-      <p>【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-14 14:00（Asia/Manila） 状态：✅ 切换完成并逐个验证（删旧桶进行中） 适用对象：所有后续要动「静态资源 / GCS…</p>
-      <p>关键词：巴西主站、Linux、Shell、Python、Docker、Nginx、CDN、安全运维、历史运维与项目交付、历史运维与项目交付 / 巴西主站</p>
+      <p>【架构+运维】客户端静态资源 GCS 单桶化与 Worker 变更全记录（2026-09-12 ~ 09-14）。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-14 14:00（Asia/Ma…</p>
+      <p>关键词：巴西主站、Linux、Shell、Python、Docker、Nginx、CDN、安全运维、历史运维与项目交付、历史运维与项目交付 / 巴西主站、一、最终架构（2026-09-14 起）、二、GCS 单桶化（本次核心操作）、2.1 变更前状态（09-14 盘点，只读）、2.2 关键前置：先做并集合并（否则删桶会丢文件）</p>
     </section>
-    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9017233d6393.html"><small>上一篇</small>【架构+踩坑】客户端资源同步 S3→GCS 的 SDK 实现与全部坑记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-62572f661b0f.html"><small>下一篇</small>【排查】TADA fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败</a></nav>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9017233d6393.html"><small>上一篇</small>【架构+踩坑】客户端资源同步 S3→GCS 的 SDK 实现与全部坑记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-62572f661b0f.html"><small>下一篇</small>【排查】vendor_a fg4（gameID 540）请求 500 —— 后端 protobuf 解析失败</a></nav>
   </main>
   <footer><div class="shell">
     <span>© 2026 BEN.OPS</span>

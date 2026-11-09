@@ -5,15 +5,17 @@ date: "2026-10-23T16:30:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Docker", "监控告警", "自动化", "CDN", "数据库恢复", "源码与配置"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-10-23-1630-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91master%E5%88%86%E6%94%AF%E7%B2%BE%E7%AE%80%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-10-23-1630-【运维】master分支精简记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-10-23-1630-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91master%E5%88%86%E6%94%AF%E7%B2%BE%E7%AE%80%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-10-23-1630-【运维】master分支精简记录.md"
 sourceSha256: "81cb3142eb90df6a5e8ca0df7d19bc4de6580f9d1022d18ecc267205c5bd5e49"
 sourceSystem: "project-doc"
 ---
 
 # master 分支精简记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-10-23-1630-【运维】master分支精简记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-10-23-1630-【运维】master分支精简记录.md`
 
 > 整理日期：2026-10-23 16:30｜日期依据：文件名日期
 
@@ -30,7 +32,7 @@ sourceSystem: "project-doc"
 
 | 类型 | 内容 |
 | --- | --- |
-| 厂家源码 | `tada/`、`pp/`、`pg/`、`g759/`、`ppk/`、`panda/`、`playson/`、`platform-api/` |
+| 厂家源码 | `vendor_a/`、`pp/`、`pg/`、`g759/`、`ppk/`、`vendor_d/`、`vendor_c/`、`platform-api/` |
 | 业务构建产物 | `Dockerfile`、`.dockerignore`、`requirements.txt`、`share.so`、`sitecustomize.py`、`server_configs`、`version.json`、`xxxxxx.mmdb` |
 | 结果快照 | `collected/`（15 个 results.json） |
 | 非发布工具 | `docker/browser-test/` |

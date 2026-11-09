@@ -4,10 +4,12 @@ title: "香港动态接口与静态资源 CORS 边界记录"
 date: "2026-11-08T17:02:00"
 categories: ["安全与堡垒机", "访问控制"]
 tags: ["安全与堡垒机", "访问控制", "MySQL", "Nginx", "SQL注入", "CORS", "日志分析", "知识笔记"]
-source: "03-安全运营与应急/03-安全配置与访问控制/DBQP-网络边界/2026-11-08-1702-【核对】香港动态接口与静态资源CORS边界记录.md"
+source: "03-安全运营与应急/03-安全配置与访问控制/某业务公司-网络边界/2026-11-08-1702-【核对】香港动态接口与静态资源CORS边界记录.md"
 ---
 
 # 香港动态接口与静态资源 CORS 边界记录
+
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
 > 来源：本地项目文档 `game/pgserver/master/docs/history/2026-11-08-1702-【核对】香港动态接口与静态资源CORS边界记录.md`
 > 整理：2026-11-09。仅复制到知识库，未改动原项目文件；敏感凭据已脱敏。
@@ -26,7 +28,7 @@ source: "03-安全运营与应急/03-安全配置与访问控制/DBQP-网络边�
 
 ## 二、源站直连验证
 
-测试使用 `http://203.0.113.1` 加业务 Host，绕过 EdgeOne，直接检查香港 Nginx 和上游后端。
+测试使用 `http://192.0.2.1` 加业务 Host，绕过 EdgeOne，直接检查香港 Nginx 和上游后端。
 
 | 目标 | 请求 | 结果 |
 
@@ -62,7 +64,7 @@ source: "03-安全运营与应急/03-安全配置与访问控制/DBQP-网络边�
 
 | `pg-static.m4q7z1.shop` | `*` | GET、HEAD、OPTIONS | `*` | 可跨域读取 |
 
-| `jili-static.m4q7z1.shop` | `*` | GET、HEAD、OPTIONS | `*` | 可跨域读取 |
+| `vendor_b-static.m4q7z1.shop` | `*` | GET、HEAD、OPTIONS | `*` | 可跨域读取 |
 
 | `g759-static.m4q7z1.shop` | `*` | GET、HEAD、OPTIONS | `*` | 可跨域读取 |
 
@@ -114,7 +116,7 @@ quick_check：ok
 重启核查进一步发现，香港 PG 容器新建 MySQL 连接时超时：
 
 ```text
-Can't connect to MySQL server on '203.0.113.1' (timed out)
+Can't connect to MySQL server on '192.0.2.1' (timed out)
 ```
 
 香港 01、02 和入口 Nginx 到该地址的 TCP 3306 均超时。PG01 已停止自动重启循环，

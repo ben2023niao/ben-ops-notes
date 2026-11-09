@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>【问题排查】双域名下静态资源 CDN 缓存验证与根因分析｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
-  <meta name="description" content="【问题排查】双域名下静态资源 CDN 缓存验证与根因分析。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-04 11:10（Asia/Manila） 项目：DBQP / PGServer master（CDN 静态缓存） 状态：✅ 验证完成（双域缓存生效）；Worker V4 恢复待确认">
-  <meta name="keywords" content="巴西主站，Nginx，自动化，CDN，DNS，故障排查，数据库恢复，源码与配置，历史运维与项目交付，历史运维与项目交付 / 巴西主站，【问题排查】双域名下静态资源 CDN 缓存验证与根因分析">
+  <meta name="description" content="【问题排查】双域名下静态资源 CDN 缓存验证与根因分析。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-04 11:10（Asia/Manila） 项目：某业务公司 / PGServer ma…">
+  <meta name="keywords" content="巴西主站，Nginx，自动化，CDN，DNS，故障排查，数据库恢复，源码与配置，历史运维与项目交付，历史运维与项目交付 / 巴西主站，【问题排查】双域名下静态资源 CDN 缓存验证与根因分析，一、背景，二、链路核查，三、实测（双域 × 各厂商代表性静态文件 × 3 次）">
   <meta name="author" content="BEN">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
   <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
@@ -22,7 +22,7 @@
   <meta property="og:locale" content="zh_CN">
   <meta property="og:site_name" content="BEN.OPS 工程笔记">
   <meta property="og:title" content="【问题排查】双域名下静态资源 CDN 缓存验证与根因分析">
-  <meta property="og:description" content="【问题排查】双域名下静态资源 CDN 缓存验证与根因分析。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-04 11:10（Asia/Manila） 项目：DBQP / PGServer master（CDN 静态缓存） 状态：✅ 验证完成（双域缓存生效）；Worker V4 恢复待确认">
+  <meta property="og:description" content="【问题排查】双域名下静态资源 CDN 缓存验证与根因分析。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-04 11:10（Asia/Manila） 项目：某业务公司 / PGServer ma…">
   <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4fa42347ea90.html">
   <meta property="article:published_time" content="2026-09-04T11:10:00+08:00">
   <meta property="article:modified_time" content="2026-09-04 11:10">
@@ -31,7 +31,7 @@
   
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="【问题排查】双域名下静态资源 CDN 缓存验证与根因分析">
-  <meta name="twitter:description" content="【问题排查】双域名下静态资源 CDN 缓存验证与根因分析。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-04 11:10（Asia/Manila） 项目：DBQP / PGServer master（CDN 静态缓存） 状态：✅ 验证完成（双域缓存生效）；Worker V4 恢复待确认">
+  <meta name="twitter:description" content="【问题排查】双域名下静态资源 CDN 缓存验证与根因分析。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-04 11:10（Asia/Manila） 项目：某业务公司 / PGServer ma…">
   
   <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
 --line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
@@ -75,7 +75,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 @media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
 .meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
 @media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4fa42347ea90.html#article","headline":"【问题排查】双域名下静态资源 CDN 缓存验证与根因分析","description":"【问题排查】双域名下静态资源 CDN 缓存验证与根因分析。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-04 11:10（Asia/Manila） 项目：DBQP / PGServer master（CDN 静态缓存） 状态：✅ 验证完成（双域缓存生效）；Worker V4 恢复待确认","datePublished":"2026-09-04T11:10:00+08:00","dateModified":"2026-09-04 11:10","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Nginx","自动化","CDN","DNS","故障排查","数据库恢复","源码与配置","历史运维与项目交付","历史运维与项目交付 / 巴西主站","【问题排查】双域名下静态资源 CDN 缓存验证与根因分析"],"wordCount":559,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4fa42347ea90.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4fa42347ea90.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【问题排查】双域名下静态资源 CDN 缓存验证与根因分析","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4fa42347ea90.html"}]}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4fa42347ea90.html#article","headline":"【问题排查】双域名下静态资源 CDN 缓存验证与根因分析","description":"【问题排查】双域名下静态资源 CDN 缓存验证与根因分析。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-04 11:10（Asia/Manila） 项目：某业务公司 / PGServer ma…","datePublished":"2026-09-04T11:10:00+08:00","dateModified":"2026-09-04 11:10","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Nginx","自动化","CDN","DNS","故障排查","数据库恢复","源码与配置","历史运维与项目交付","历史运维与项目交付 / 巴西主站","【问题排查】双域名下静态资源 CDN 缓存验证与根因分析","一、背景","二、链路核查","三、实测（双域 × 各厂商代表性静态文件 × 3 次）"],"wordCount":193,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4fa42347ea90.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4fa42347ea90.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【问题排查】双域名下静态资源 CDN 缓存验证与根因分析","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-4fa42347ea90.html"}]}]}</script>
 </head>
 <body>
   <header class="topbar"><div class="shell">
@@ -94,39 +94,40 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
     <header class="hero">
       <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
       <h1>【问题排查】双域名下静态资源 CDN 缓存验证与根因分析</h1>
-      <p class="lede">【问题排查】双域名下静态资源 CDN 缓存验证与根因分析。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-04 11:10（Asia/Manila） 项目：DBQP / PGServer master（CDN 静态缓存） 状态：✅ 验证完成（双域缓存生效）；Worker V4 恢复待确认</p>
+      <p class="lede">【问题排查】双域名下静态资源 CDN 缓存验证与根因分析。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-04 11:10（Asia/Manila） 项目：某业务公司 / PGServer ma…</p>
       <div class="meta">
         <time class="badge" datetime="2026-09-04T11:10:00+08:00">发布于 2026-09-04</time>
         <span class="badge">作者 BEN</span>
-        <span class="badge">559 字</span>
-        <span class="badge">2 分钟阅读</span>
+        <span class="badge">193 字</span>
+        <span class="badge">1 分钟阅读</span>
       </div>
     </header>
     <div class="layout">
       <article class="article" itemscope itemtype="https://schema.org/TechArticle">
         
 <blockquote>
-<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-09-04-1110-【问题排查】双域名静态CDN缓存验证记录.md</code></p>
+<p>公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。</p>
+<p>来源文件：<code>~/Projects/ops/private-notes/master/docs/history/2026-09-04-1110-【问题排查】双域名静态CDN缓存验证记录.md</code></p>
 <p>整理日期：2026-09-04 11:10｜日期依据：文件名日期</p>
 </blockquote>
 <p>时间：2026-09-04 11:10（Asia/Manila）
-项目：DBQP / PGServer master（CDN 静态缓存）
+项目：某业务公司 / PGServer master（CDN 静态缓存）
 状态：✅ 验证完成（双域缓存生效）；Worker V4 恢复待确认</p>
 <h2 id="一-背景">一、背景</h2>
 <pre><code class="language-text">三域名时静态资源“没走上 CDN 缓存”，单域名正常；
-现切双域名（tada-cdn-2026 + xqv9m8），需结合 nginx/CDN 配置验证并解决。
+现切双域名（vendor_a-cdn-2026 + xqv9m8），需结合 nginx/CDN 配置验证并解决。
 </code></pre>
 <h2 id="二-链路核查">二、链路核查</h2>
 <pre><code class="language-text">1) DNS：静态子域 CNAME -&gt; GCS 桶（proxied），g759 类走通配 A(proxied)；
-2) CF Worker 路由：两域均挂 *-static / tada-statics(1/2) -&gt; summer-wave-c94f；
+2) CF Worker 路由：两域均挂 *-static / vendor_a-statics(1/2) -&gt; summer-wave-c94f；
 3) Cache Rules：statics（cache=true, edge TTL 604800）两域均存在；
 4) 响应头转换规则 statics-cache-response：已全部禁用（不影响边缘缓存）；
 5) nginx：静态请求不经 nginx（响应带 x-goog-* = GCS 回源标记）。
 </code></pre>
 <h2 id="三-实测-双域-各厂商代表性静态文件-3-次">三、实测（双域 × 各厂商代表性静态文件 × 3 次）</h2>
-<pre><code class="language-text">pg-static/126/index、pg3-7 各游戏 index、tada-statics JS、
-pp/ppk/playson/panda health.json：
-tada-cdn-2026.icu：全部 [200/MISS] -&gt; [200/HIT] -&gt; [200/HIT]
+<pre><code class="language-text">pg-static/126/index、pg3-7 各游戏 index、vendor_a-statics JS、
+pp/ppk/vendor_c/vendor_d health.json：
+vendor_a-cdn-2026.icu：全部 [200/MISS] -&gt; [200/HIT] -&gt; [200/HIT]
 xqv9m8.icu：     全部 [200/MISS] -&gt; [200/HIT] -&gt; [200/HIT]
 结论：双域名下 CDN 静态缓存已生效（每个域名各自独立缓存）。
 </code></pre>
@@ -139,7 +140,7 @@ xqv9m8.icu：     全部 [200/MISS] -&gt; [200/HIT] -&gt; [200/HIT]
    （按域名/bucket 隔离缓存键）。
 </code></pre>
 <h2 id="五-建议">五、建议</h2>
-<pre><code class="language-text">A. 发布后用 cdn_warm_static.py 对 tada-cdn-2026 + xqv9m8 双域预热；
+<pre><code class="language-text">A. 发布后用 cdn_warm_static.py 对 vendor_a-cdn-2026 + xqv9m8 双域预热；
 B. 线上 Worker 恢复仓库 V4（备份 v16 快照可回滚）——待用户确认；
 C. 验证缓存：固定 URL 连测 2 次看 HIT，勿带随机参数。
 </code></pre>
@@ -157,7 +158,7 @@ C. 验证缓存：固定 URL 连测 2 次看 HIT，勿带随机参数。
           <li>分类：历史运维与项目交付 / 巴西主站</li>
           <li>日期：2026-09-04</li>
           <li>标签：<span class="tag">巴西主站</span><span class="tag">Nginx</span><span class="tag">自动化</span><span class="tag">CDN</span><span class="tag">DNS</span><span class="tag">故障排查</span><span class="tag">数据库恢复</span><span class="tag">源码与配置</span></li>
-          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-09-04-1110-【问题排查】双域名静态CDN缓存验证记录.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609041110-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BNginx%2B%E8%87%AA%E5%8A%A8%E5%8C%96-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E5%8F%8C%E5%9F%9F%E5%90%8D%E4%B8%8B%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20CDN%20%E7%BC%93%E5%AD%98%E9%AA%8C%E8%AF%81%E4%B8%8E%E6%A0%B9%E5%9B%A0%E5%88%86%E6%9E%90.md" type="text/markdown">查看 Markdown 原文</a></li>
+          <li><span>来源：~/Projects/ops/private-notes/master/docs/history/2026-09-04-1110-【问题排查】双域名静态CDN缓存验证记录.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609041110-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BNginx%2B%E8%87%AA%E5%8A%A8%E5%8C%96-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E5%8F%8C%E5%9F%9F%E5%90%8D%E4%B8%8B%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20CDN%20%E7%BC%93%E5%AD%98%E9%AA%8C%E8%AF%81%E4%B8%8E%E6%A0%B9%E5%9B%A0%E5%88%86%E6%9E%90.md" type="text/markdown">查看 Markdown 原文</a></li>
         </ul></div>
         <div class="aside-box"><h2>作者</h2>
           <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
@@ -167,10 +168,10 @@ C. 验证缓存：固定 URL 连测 2 次看 HIT，勿带随机参数。
     </div>
     <section class="seo-summary" aria-labelledby="seo-summary-title">
       <h2 id="seo-summary-title">文章摘要</h2>
-      <p>【问题排查】双域名下静态资源 CDN 缓存验证与根因分析。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-04 11:10（Asia/Manila） 项目：DBQP / PGServer master（CDN 静态缓存） 状态：✅ 验证完成（双域缓存生效）；Worker V4 恢复待确认</p>
-      <p>关键词：巴西主站、Nginx、自动化、CDN、DNS、故障排查、数据库恢复、源码与配置、历史运维与项目交付、历史运维与项目交付 / 巴西主站、【问题排查】双域名下静态资源 CDN 缓存验证与根因分析</p>
+      <p>【问题排查】双域名下静态资源 CDN 缓存验证与根因分析。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-04 11:10（Asia/Manila） 项目：某业务公司 / PGServer ma…</p>
+      <p>关键词：巴西主站、Nginx、自动化、CDN、DNS、故障排查、数据库恢复、源码与配置、历史运维与项目交付、历史运维与项目交付 / 巴西主站、【问题排查】双域名下静态资源 CDN 缓存验证与根因分析、一、背景、二、链路核查、三、实测（双域 × 各厂商代表性静态文件 × 3 次）</p>
     </section>
-    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-151a3c0498ab.html"><small>上一篇</small>【发布】platform-api 双 Argo 域（tada-cdn-2026 + xqv9m8）缓存对照</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-11715facb1bf.html"><small>下一篇</small>【网络调整】全部域名启用 statics-cache-response（operation=set）</a></nav>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-151a3c0498ab.html"><small>上一篇</small>【发布】platform-api 双 Argo 域（vendor_a-cdn-2026 + xqv9m8）缓存对照</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-11715facb1bf.html"><small>下一篇</small>【网络调整】全部域名启用 statics-cache-response（operation=set）</a></nav>
   </main>
   <footer><div class="shell">
     <span>© 2026 BEN.OPS</span>

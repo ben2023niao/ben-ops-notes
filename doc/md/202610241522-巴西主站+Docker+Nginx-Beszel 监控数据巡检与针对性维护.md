@@ -5,20 +5,22 @@ date: "2026-10-24T15:22:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Docker", "Nginx", "监控告警", "安全运维", "故障排查", "数据库恢复"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-10-24-1522-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91Beszel%E7%9B%91%E6%8E%A7%E6%95%B0%E6%8D%AE%E5%B7%A1%E6%A3%80%E4%B8%8E%E9%92%88%E5%AF%B9%E6%80%A7%E7%BB%B4%E6%8A%A4.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-10-24-1522-【运维】Beszel监控数据巡检与针对性维护.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-10-24-1522-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91Beszel%E7%9B%91%E6%8E%A7%E6%95%B0%E6%8D%AE%E5%B7%A1%E6%A3%80%E4%B8%8E%E9%92%88%E5%AF%B9%E6%80%A7%E7%BB%B4%E6%8A%A4.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-10-24-1522-【运维】Beszel监控数据巡检与针对性维护.md"
 sourceSha256: "51660386c75f0b6c44389f253e0c8b0ca46ab617f72b5bf03a2f3bc405bebdae"
 sourceSystem: "project-doc"
 ---
 
 # Beszel 监控数据巡检与针对性维护
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-10-24-1522-【运维】Beszel监控数据巡检与针对性维护.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-10-24-1522-【运维】Beszel监控数据巡检与针对性维护.md`
 
 > 整理日期：2026-10-24 15:22｜日期依据：文件名日期
 
 时间：2026-10-24 15:22（北京）｜2026-10-24 04:22（巴西圣保罗）
-数据源：东京 Beszel Hub（`34.146.121.225:8090`）SQLite，读取 11 台被监控系统的
+数据源：东京 Beszel Hub（`192.0.2.15:8090`）SQLite，读取 11 台被监控系统的
 最新 `system_stats`、`alerts`、`alerts_history`、`containers`。
 
 ## 一、Beszel 最新数据（2026-10-24 07:17 UTC）
@@ -68,8 +70,8 @@ sourceSystem: "project-doc"
 
 | 机器 | 已用/总量 | 可用 | 主要占用 |
 | --- | --- | ---: | --- |
-| 巴西 01 | 14.5G/32G | 17.5G | pg 容器约 5.7G，tada/panda/playson 各 1–1.6G |
-| 巴西 02 | 14.4G/32G | 17.7G | pg 容器约 5.6G，tada/panda 各 1.4–1.7G |
+| 巴西 01 | 14.5G/32G | 17.5G | pg 容器约 5.7G，vendor_a/vendor_d/vendor_c 各 1–1.6G |
+| 巴西 02 | 14.4G/32G | 17.7G | pg 容器约 5.6G，vendor_a/vendor_d 各 1.4–1.7G |
 | 香港 01 | 7.7G/32G | 24G | pg 约 4.2G |
 | 香港 02 | 7.7G/32G | 24G | pg 约 3.9G |
 | 东京 | 6.9G/16G | 8.7G | GitLab Ruby 进程 |

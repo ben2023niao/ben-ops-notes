@@ -5,15 +5,17 @@ date: "2026-10-20T15:30:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Python", "监控告警", "故障排查"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/hongkong/live/2026-10-20-1530-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91PG%E9%A6%99%E6%B8%AF%E5%8E%9F%E5%A7%8B%E6%97%A5%E5%BF%97%E5%AF%BC%E5%87%BA%E4%BA%A4%E4%BB%98%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/hongkong/live/2026-10-20-1530-【运维】PG香港原始日志导出交付记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/hongkong/live/2026-10-20-1530-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91PG%E9%A6%99%E6%B8%AF%E5%8E%9F%E5%A7%8B%E6%97%A5%E5%BF%97%E5%AF%BC%E5%87%BA%E4%BA%A4%E4%BB%98%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/hongkong/live/2026-10-20-1530-【运维】PG香港原始日志导出交付记录.md"
 sourceSha256: "05c4c86435b55f98fb3df67b53333295799d5457f10bdc5c33534be3899d73ea"
 sourceSystem: "project-doc"
 ---
 
 # PG 香港原始日志导出交付记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/hongkong/live/2026-10-20-1530-【运维】PG香港原始日志导出交付记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/hongkong/live/2026-10-20-1530-【运维】PG香港原始日志导出交付记录.md`
 
 > 整理日期：2026-10-20 15:30｜日期依据：文件名日期
 
@@ -38,8 +40,8 @@ sourceSystem: "project-doc"
 
 | 后端 | 原始大小 | 转换+压缩后 | S3 key |
 | --- | --- | --- | --- |
-| prod-01 `203.0.113.1` | 18G | 2,960,479,309 B（2.96GB） | `full-logs/hk/prod01/2026-10-18_to_2026-10-20/pg-bjt.log.gz` |
-| prod-02 `203.0.113.1` | 18G | 2,961,743,319 B（2.96GB） | `full-logs/hk/prod02/2026-10-18_to_2026-10-20/pg-bjt.log.gz` |
+| prod-01 `192.0.2.1` | 18G | 2,960,479,309 B（2.96GB） | `full-logs/hk/prod01/2026-10-18_to_2026-10-20/pg-bjt.log.gz` |
+| prod-02 `192.0.2.1` | 18G | 2,961,743,319 B（2.96GB） | `full-logs/hk/prod02/2026-10-18_to_2026-10-20/pg-bjt.log.gz` |
 
 处理方式：`log_tz_convert.py --engine awk --gzip`
 
@@ -65,15 +67,15 @@ sourceSystem: "project-doc"
 ```bash
 # 在目标后端
 cd /data/server-runtime/logs/server
-nice -n 10 ionice -c2 -n7 python3 /opt/dbqp-scripts/log_tz_convert.py \
+nice -n 10 ionice -c2 -n7 python3 /opt/bizops-scripts/log_tz_convert.py \
   '2026-10-18.log 2026-10-19.log 2026-10-20.log' \
   /tmp/pg-hk-prod01-bjt.log.gz --engine awk --gzip
 
 # 上传 + 预签名
-set -a; . /etc/dbqp-game-log-s3.env; set +a
+set -a; . /etc/bizops-game-log-s3.env; set +a
 aws s3 cp /tmp/pg-hk-prod01-bjt.log.gz \
-  "s3://$DBQP_LOG_S3_BUCKET/full-logs/hk/prod01/2026-10-18_to_2026-10-20/pg-bjt.log.gz"
+  "s3://$某业务公司_LOG_S3_BUCKET/full-logs/hk/prod01/2026-10-18_to_2026-10-20/pg-bjt.log.gz"
 aws s3 presign \
-  "s3://$DBQP_LOG_S3_BUCKET/full-logs/hk/prod01/2026-10-18_to_2026-10-20/pg-bjt.log.gz" \
+  "s3://$某业务公司_LOG_S3_BUCKET/full-logs/hk/prod01/2026-10-18_to_2026-10-20/pg-bjt.log.gz" \
   --expires-in 604800
 ```

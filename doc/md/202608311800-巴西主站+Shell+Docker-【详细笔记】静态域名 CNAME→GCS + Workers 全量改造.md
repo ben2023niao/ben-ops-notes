@@ -5,21 +5,23 @@ date: "2026-08-31T18:00:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Docker", "Nginx", "监控告警", "CDN", "DNS", "安全运维"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-08-31-1800-%E3%80%90%E7%AC%94%E8%AE%B0%E3%80%91%E9%9D%99%E6%80%81%E5%9F%9F%E5%90%8DCNAME%E4%B8%8EWorkers%E5%85%A8%E9%87%8F%E6%94%B9%E9%80%A0%E8%AF%A6%E7%BB%86%E6%93%8D%E4%BD%9C%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-08-31-1800-【笔记】静态域名CNAME与Workers全量改造详细操作记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-08-31-1800-%E3%80%90%E7%AC%94%E8%AE%B0%E3%80%91%E9%9D%99%E6%80%81%E5%9F%9F%E5%90%8DCNAME%E4%B8%8EWorkers%E5%85%A8%E9%87%8F%E6%94%B9%E9%80%A0%E8%AF%A6%E7%BB%86%E6%93%8D%E4%BD%9C%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-08-31-1800-【笔记】静态域名CNAME与Workers全量改造详细操作记录.md"
 sourceSha256: "a66ec31275b0a9e1309d8afb1eb938b8fe8bfe071bdd790e7bddf9b3f65541ee"
 sourceSystem: "project-doc"
 ---
 
 # 【详细笔记】静态域名 CNAME→GCS + Workers 全量改造
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-08-31-1800-【笔记】静态域名CNAME与Workers全量改造详细操作记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-08-31-1800-【笔记】静态域名CNAME与Workers全量改造详细操作记录.md`
 
 > 整理日期：2026-08-31 18:00｜日期依据：文件名日期
 
 时间：2026-08-31（Asia/Manila）
-项目：DBQP / PGServer master
-执行人：Codex（本地工作区 + 宝塔 35.247.205.6 + Cloudflare API）
+项目：某业务公司 / PGServer master
+执行人：Codex（本地工作区 + 宝塔 192.0.2.8 + Cloudflare API）
 范围：巴西 22 套 zone × 11 静态前缀 = 242 个静态域名；香港 cn 分支不受影响
 
 ## 一、背景与目标
@@ -49,7 +51,7 @@ sourceSystem: "project-doc"
 ### 1. 08-31 07:00 评估与首个实测
 
 ```text
-- 创建评估文档；tada-statics1 -> -sa 桶 CNAME 实测 404（GCS Host 校验）
+- 创建评估文档；vendor_a-statics1 -> -sa 桶 CNAME 实测 404（GCS Host 校验）
 - 确认官方机制 + 文档引用；写入评估文档第一~八节
 - 提示词 A（CNAME 版，标注 404 风险）/ 提示词 B（Workers 版）
 ```
@@ -58,7 +60,7 @@ sourceSystem: "project-doc"
 
 ```text
 - 工具：新增 docker/scripts/cf_static_cname_switch.py（转换/逐条字节验证/回滚）
-- tada-cdn-2026.icu 11/11 失败、cdn-tokyo-dbqp.icu 11/11 失败 -> 全部还原 A->宝塔
+- vendor_a-cdn-2026.icu 11/11 失败、cdn-tokyo-bizops.icu 11/11 失败 -> 全部还原 A->宝塔
 - xqv9m8.icu 试点 10/11 失败（上午）-> 已还原；pg4 CNAME 例外保留
 - 巴西+香港 GCS S3 域名清单（24 个）整理发群
 - 评估文档第九节落档
@@ -67,22 +69,22 @@ sourceSystem: "project-doc"
 ### 3. 08-31 晚 用户手动 CNAME 生效确认 + 监控上线
 
 ```text
-- 用户面板手动配置 4 条 CNAME（pg4-static.xqv9m8/6qv8m、tada-statics1.cdn-tokyo-dbqp.icu/.cyou）
+- 用户面板手动配置 4 条 CNAME（pg4-static.xqv9m8/6qv8m、vendor_a-statics1.cdn-tokyo-bizops.icu/.cyou）
   等待约 20 分钟后生效，4/4 字节比对一致
 - 线上 platform-api static_hosts 确认为 22 套 zone（用户手动扩展，含 game_hosts）
 - 全量域名+CNAME 清单（242 个）发群；4 已配置 / 238 待配置
 - 新增 docker/scripts/cf_static_cname_monitor.py（每 10 分钟扫描 CNAME 并字节验证，
-  状态变化才发群）；宝塔 cron */10；token /root/dbqp-cf-dns.env
+  状态变化才发群）；宝塔 cron */10；token /root/bizops-cf-dns.env
 - Workers 限制与费用查询（API zone 套餐 5 Pro+37 Free + 官方文档）发群，评估文档第十一节
 ```
 
 ### 4. 08-31 深夜 platform-api 配置同步 + Worker 复用方案
 
 ```text
-- 线上 9 个厂商配置同步 master（pg/tada/pp/popok/playson/panda 扩 22 zone，
-  g759 保持线上外部测试域，jdb/jili 不变；无原始 S3 域名）
-- 用户创建 Worker「summer-wave-c94f」，手动配置 6qv8m/cdn-tokyo-dbqp.icu/.cyou 路由
-- 发现缺口：*-statics1.* 只覆盖 tada-statics1，漏 tada-statics/tada-statics2
+- 线上 9 个厂商配置同步 master（pg/vendor_a/pp/popok/vendor_c/vendor_d 扩 22 zone，
+  g759 保持线上外部测试域，jdb/vendor_b 不变；无原始 S3 域名）
+- 用户创建 Worker「summer-wave-c94f」，手动配置 6qv8m/cdn-tokyo-bizops.icu/.cyou 路由
+- 发现缺口：*-statics1.* 只覆盖 vendor_a-statics1，漏 vendor_a-statics/vendor_a-statics2
 - 复用方案发群：所有 zone 路由指向同一 Worker（19 zone × 2 + 3 补丁）
 - 评估文档第十二、十三节落档
 ```
@@ -91,27 +93,27 @@ sourceSystem: "project-doc"
 
 ```text
 - token 名 sweet-surf-7056，权限策略 Write all resources（区域级 42+ 项、账户级 118+ 项）
-- 客户端 IP 过滤：35.247.205.6（宝塔）+ 34.151.249.53（备用机）
+- 客户端 IP 过滤：192.0.2.8（宝塔）+ 192.0.2.13（备用机）
 - 过期：2027-09-01（1 年，使用后应撤销）
-- 存放：宝塔 /root/dbqp-cf-workers.env（root-only 600），未入库/未发群
+- 存放：宝塔 /root/bizops-cf-workers.env（root-only 600），未入库/未发群
 ```
 
 ### 6. 全量部署执行（API）
 
 ```text
 a) Worker 代码更新（PUT summer-wave-c94f）：
-   - 显式 12 前缀 -> 桶映射（修复 g759-static 拼错桶名 dbqp-gcs-g759-static-sa）
+   - 显式 12 前缀 -> 桶映射（修复 g759-static 拼错桶名 bizops-gcs-g759-static-sa）
    - 非静态前缀 passthrough（api/games 动态域名不受影响）
    - 保留 CORS 头（Access-Control-Allow-Origin: *）
    - 源码：docker/scripts/summer-wave-static-proxy.js
 b) Workers 路由 90 条（0 失败）：
-   - 22 zone × 4 条：*-static.<zone>/* + tada-statics.<zone>/* +
-     tada-statics1.<zone>/* + tada-statics2.<zone>/*
-   - 说明：CF 路由通配符只允许主机名开头，tada-statics*.* 不合法 -> 用显式 3 条
-   - cdn-tokyo-dbqp.icu/.cyou 保留旧 *-statics1.*（冗余无害）
+   - 22 zone × 4 条：*-static.<zone>/* + vendor_a-statics.<zone>/* +
+     vendor_a-statics1.<zone>/* + vendor_a-statics2.<zone>/*
+   - 说明：CF 路由通配符只允许主机名开头，vendor_a-statics*.* 不合法 -> 用显式 3 条
+   - cdn-tokyo-bizops.icu/.cyou 保留旧 *-statics1.*（冗余无害）
 c) Cache Rules 22 条（0 失败）：
    - 名称 statics；筛选仅静态子域（ends_with http.host "-static.<zone>" 或
-     starts_with http.host "tada-statics.<zone>"）
+     starts_with http.host "vendor_a-statics.<zone>"）
    - 动作 set_cache_settings cache=true + edge_ttl override_origin 604800（7 天）
    - 优化：3 个已有 zone 从「全部请求」收窄为「仅静态子域」（防 api 动态缓存 7 天）
    - Workers Caching 开启（PATCH settings cache.enabled=true），实测 HIT
@@ -170,13 +172,13 @@ Workers：Free 10 万请求/天；Paid $5/月含 1000 万请求 + 3000 万 CPU-m
       返回 {"rcode":0,...,"msg":"succ"} 即正常（HTTP 200）
 静态：每个游戏目录放 health.json（内容参考动态格式）：
       {"rcode":0,"data":{"provider":"pg","host":"pg4-static",
-       "path":"126/","bucket":"dbqp-gcs-pg4-static-sa"},"msg":"succ"}
+       "path":"126/","bucket":"bizops-gcs-pg4-static-sa"},"msg":"succ"}
 ```
 
 ### 8.2 静态 health.json（已完成）
 
 ```text
-生成：304 个游戏目录（PG 104 / TADA 83 / PP 1 / PPK 1 / PLAYSON 50 /
+生成：304 个游戏目录（PG 104 / vendor_a 83 / PP 1 / PPK 1 / vendor_c 50 /
       PANDA 52 / G759 13），逐目录 health.json
 上传：12 个 -sa 桶全部成功（首次 cp -r 传错嵌套路径，已清理并按正确路径重传）
 验证：912/912 通过 CF 静态域名返回 200（3 套 Argo zone）
@@ -189,7 +191,7 @@ Workers：Free 10 万请求/天；Paid $5/月含 1000 万请求 + 3000 万 CPU-m
 ```text
 问题：预热后 cf-cache-status=DYNAMIC，缓存未生效
 根因：Worker 响应不走 Cache Rules / Page Rules（Worker 即源站）；
-      Workers Caching 开关经 API 无法可靠开启（deployment metadata cache=None）
+      Workers Caching 开关经 API 无法可靠开启（deployment mevendor_ata cache=None）
 修复：Worker 内置 Cache API——GET 200 响应缓存 7 天（max-age=604800），
       实测第二次请求 HIT（确定生效，不依赖面板开关）
       源码：docker/scripts/summer-wave-static-proxy.js（已更新）

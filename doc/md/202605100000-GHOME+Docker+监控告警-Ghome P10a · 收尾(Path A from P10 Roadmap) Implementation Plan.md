@@ -5,13 +5,15 @@ date: "2026-05-10T00:00:00+08:00"
 dateSource: "文件名日期"
 categories: ["业务系统运维", "GHOME"]
 tags: ["GHOME", "Docker", "监控告警", "CDN", "源码与配置"]
-source: "project-file:///Private/from-oldmac-20261109/Users/ben/Projects/work/game/ghome/docs/superpowers/plans/2026-05-10-ghome-p10a-finishing.md"
+source: "project-file:///Private/from-oldmac-20261109/Users/operator/Projects/work/game/ghome/docs/superpowers/plans/2026-05-10-ghome-p10a-finishing.md"
 sourcePath: "~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-10-ghome-p10a-finishing.md"
 sourceSha256: "0154b60d115e3ab68649cf40561c6f4aa2dc1f04b98c9a6a82187dcadbb7bf3e"
 sourceSystem: "project-doc"
 ---
 
 # Ghome P10a · 收尾(Path A from P10 Roadmap) Implementation Plan
+
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
 > 来源文件：`~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-10-ghome-p10a-finishing.md`
 
@@ -383,7 +385,7 @@ T9 smoke + tag — 最后
 - Create: `apps/web/app/guide/[slug]/opengraph-image.tsx`
 - Create: `apps/web/app/topic/[slug]/opengraph-image.tsx`
 - Create: `apps/web/components/JsonLd.tsx` (server)
-- Modify: 4 detail pages(挂 JsonLd + Twitter Card metadata)
+- Modify: 4 detail pages(挂 JsonLd + Twitter Card mevendor_ata)
 - Modify: `apps/web/app/layout.tsx`(默认 Twitter Card)
 
 ### Steps
@@ -418,8 +420,8 @@ T9 smoke + tag — 最后
    - Video: `VideoObject` schema
    - Guide: `Article` schema
    - Topic: `CollectionPage` schema
-5. layout.tsx 加默认 `metadata.twitter = { card: "summary_large_image", site: "@Ghome" }`
-6. 各 detail 页 generateMetadata 加 `twitter: { card: ..., images: [`/${path}/opengraph-image`] }`
+5. layout.tsx 加默认 `mevendor_ata.twitter = { card: "summary_large_image", site: "@Ghome" }`
+6. 各 detail 页 generateMevendor_ata 加 `twitter: { card: ..., images: [`/${path}/opengraph-image`] }`
 7. typecheck + build + smoke(curl 看 og: 与 application/ld+json 字符串)+ commit
 
 ### Tricky Bits

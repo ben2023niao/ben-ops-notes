@@ -5,26 +5,28 @@ date: "2026-09-01T14:30:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Python", "Docker", "Nginx", "监控告警", "自动化", "CDN"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-09-01-1430-%E3%80%90%E6%B5%81%E9%87%8F%E5%88%87%E6%8D%A2%E3%80%91%E5%AE%9D%E5%A1%94nginx%E5%90%8C%E6%AD%A5%E5%A4%87%E7%94%A8%E6%9C%BA%E4%B8%8E%E5%85%A8%E5%9F%9F%E5%90%8D%E5%88%87%E6%8D%A2%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-09-01-1430-【流量切换】宝塔nginx同步备用机与全域名切换记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-09-01-1430-%E3%80%90%E6%B5%81%E9%87%8F%E5%88%87%E6%8D%A2%E3%80%91%E5%AE%9D%E5%A1%94nginx%E5%90%8C%E6%AD%A5%E5%A4%87%E7%94%A8%E6%9C%BA%E4%B8%8E%E5%85%A8%E5%9F%9F%E5%90%8D%E5%88%87%E6%8D%A2%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-09-01-1430-【流量切换】宝塔nginx同步备用机与全域名切换记录.md"
 sourceSha256: "99ceffb17e4d44308246e37fda0d1ba92a7febcc9f86bbcf265b04789b88483b"
 sourceSystem: "project-doc"
 ---
 
 # 【流量切换】宝塔 nginx 同步备用机 + 全域名切换记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-09-01-1430-【流量切换】宝塔nginx同步备用机与全域名切换记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-01-1430-【流量切换】宝塔nginx同步备用机与全域名切换记录.md`
 
 > 整理日期：2026-09-01 14:30｜日期依据：文件名日期
 
 时间：2026-09-01 14:30（Asia/Manila）
-项目：DBQP / PGServer master
-执行人：Codex（本地 + 宝塔 35.247.205.6 + 备用机 34.151.249.53 + Cloudflare API）
+项目：某业务公司 / PGServer master
+执行人：Codex（本地 + 宝塔 192.0.2.8 + 备用机 192.0.2.13 + Cloudflare API）
 
 ## 一、任务
 
 ```text
-1. 宝塔 nginx 全量同步到备用机（dbqp-saopaulo-nginx-standby-01, 34.151.249.53）
+1. 宝塔 nginx 全量同步到备用机（bizops-saopaulo-nginx-standby-01, 192.0.2.13）
 2. 全部域名 A 记录切换到备用机
 3. 全厂家全游戏测试
 4. 留下流量切换笔记与脚本
@@ -36,7 +38,7 @@ sourceSystem: "project-doc"
 宝塔 nginx 1.28.0：52 个站点 conf、78 证书目录
 备用机 nginx 1.30.4：25 个 conf（active），磁盘 153G 空闲
 差异：25 个共享站点配置中 10 个不同
-  - 静态 conf（pg/pg3/pg5/tada-statics/1/2/pp/ppk/playson/panda）：CORS 头位置
+  - 静态 conf（pg/pg3/pg5/vendor_a-statics/1/2/pp/ppk/vendor_c/vendor_d）：CORS 头位置
   - g759-games：备用机有「根路径 200 线路探测」，宝塔被每日生成脚本覆盖丢失
 include 目录（common/extension/well-known/tcp/rewrite）：已同步
 证书 78 目录：大小一致
@@ -68,7 +70,7 @@ include 目录（common/extension/well-known/tcp/rewrite）：已同步
 ## 五、DNS 切换（199 条）
 
 ```text
-范围：全部 proxied A 记录 content=35.247.205.6 -> 34.151.249.53
+范围：全部 proxied A 记录 content=192.0.2.8 -> 192.0.2.13
   （api.<22 zone>、6 厂商 games.<22 zone>、通配符 *.<zone>、www、根域、
    socket.shanghu01/02/03.cc、verify/api.pgofficialbx.com）
 工具：docker/scripts/dns_cutover.py
@@ -81,12 +83,12 @@ include 目录（common/extension/well-known/tcp/rewrite）：已同步
 
 ```text
 切换前直连 IP 对比（宝塔 vs 备用机）：pg-games 200/200、api 200/200、
-  tada 403/403、g759 200/200、verify 200/200、socket 行为一致
+  vendor_a 403/403、g759 200/200、verify 200/200、socket 行为一致
 切换后（公网）：
   动态 /health 157 项：153 正常 rcode=0；4 个 410 为已知未启用 zone
     （api/pg-games 的 t6qv8m.icu 与 6qv8m.icu，切换前后一致）
-  全厂家入口 /health：PG/TADA/PP/PPK/PLAYSON/PANDA/G759 全部 200
-  静态 health.json：pg4/tada/playson/panda 抽检全部 200
+  全厂家入口 /health：PG/vendor_a/PP/PPK/vendor_c/PANDA/G759 全部 200
+  静态 health.json：pg4/vendor_a/vendor_c/vendor_d 抽检全部 200
   备用机 nginx 日志：已见真实游戏流量（HeadlessChrome POST /web-api/... 200）
 ```
 
@@ -94,7 +96,7 @@ include 目录（common/extension/well-known/tcp/rewrite）：已同步
 
 ```text
 export [敏感内容已脱敏]
-python3 docker/scripts/dns_cutover.py --to-baota   # 34.151.249.53 -> 35.247.205.6
+python3 docker/scripts/dns_cutover.py --to-baota   # 192.0.2.13 -> 192.0.2.8
 备用机 nginx 保持运行即可，宝塔配置未被改动（仅生成脚本模板更新）。
 ```
 
@@ -150,39 +152,39 @@ python3 docker/scripts/dns_cutover.py --to-baota   # 34.151.249.53 -> 35.247.205
    宝塔+备用机 reload；验证 4 域名 410（cache-buster/直连源站均 410）
 2. platform-api 配置：6 厂商移除 t6qv8m.icu/6qv8m.icu（game+static hosts）
 3. api_hosts：pg.json default 新增 api_hosts=20 条 api.<zone>
-   （含 3 条 Argo：api.xqv9m8 / api.tada-cdn-2026 / api.cdn-tokyo-dbqp）
+   （含 3 条 Argo：api.xqv9m8 / api.vendor_a-cdn-2026 / api.cdn-tokyo-bizops）
 4. launcher 代码：game_launcher.py 注入 params_dict["api_hosts"]
    （conf/domains/<provider>.json -> default.api_hosts，增量不破坏现有逻辑）
 5. 发布：3 台后端容器 docker cp 更新 json+py 并 docker restart；
    容器内校验 api_hosts=20、无 t6qv8m/6qv8m
-6. 验证：api.xqv9m8/tada-cdn-2026/cdn-tokyo-dbqp 200、其他 api 200、
+6. 验证：api.xqv9m8/vendor_a-cdn-2026/cdn-tokyo-bizops 200、其他 api 200、
    api.t6qv8m/6qv8m 410、游戏域名 200
 
 备注：容器为热更新（docker cp + restart）；下次镜像重建需以 master 为准，
       已同步 master 仓库与宝塔/后端 /opt/pgserver 副本。
 ```
 
-## 十一、厂商配置清理：删除 fc/jili/jdb + g759 线上化（2026-09-01 17:00）
+## 十一、厂商配置清理：删除 fc/vendor_b/jdb + g759 线上化（2026-09-01 17:00）
 
 ```text
-用户要求：删除测试环境厂商配置 fc.json / jili.json / jdb.json；
+用户要求：删除测试环境厂商配置 fc.json / vendor_b.json / jdb.json；
           g759.json 由测试配置改为线上配置（参考其他厂商）。
 
 执行：
-1. 删除 platform-api/conf/domains/ 的 fc.json / jili.json / jdb.json（master）
+1. 删除 platform-api/conf/domains/ 的 fc.json / vendor_b.json / jdb.json（master）
    - 同时删除宝塔 /opt/pgserver 与 3 台后端主机副本 + 运行容器内文件
-   - 容器内最终 7 个厂商文件：g759/panda/pg/playson/popok/pp/tada
-2. g759.json 重写为线上配置（镜像 panda 结构，排除 t6qv8m/6qv8m）：
-   - static_hosts 20 条 g759-static.<zone>（含 xqv9m8/tada-cdn-2026/cdn-tokyo-dbqp）
+   - 容器内最终 7 个厂商文件：g759/vendor_d/pg/vendor_c/popok/pp/vendor_a
+2. g759.json 重写为线上配置（镜像 vendor_d 结构，排除 t6qv8m/6qv8m）：
+   - static_hosts 20 条 g759-static.<zone>（含 xqv9m8/vendor_a-cdn-2026/cdn-tokyo-bizops）
    - game_hosts 20 条 g759-games.<zone>
    - special_games: []
 3. 发布：3 台后端容器 docker cp 更新 + 删除测试文件（按请求读配置，无需重启）
 4. 验证：
-   - 容器内 g759 static=20/game=20、无 fc/jili/jdb
-   - g759-games.xqv9m8/tada-cdn-2026/cdn-tokyo-dbqp /health 200
+   - 容器内 g759 static=20/game=20、无 fc/vendor_b/jdb
+   - g759-games.xqv9m8/vendor_a-cdn-2026/cdn-tokyo-bizops /health 200
    - g759-static 游戏页 load.html 200、health.json 200（games/<game>/health.json）
 
-备注：agent_apis.py 仍 import game_plat_jili/game_plat_jdb（模块保留）；
+备注：agent_apis.py 仍 import game_plat_vendor_b/game_plat_jdb（模块保留）；
       删除的是域名配置，未删除 python 模块（如需彻底下线厂商再单独处理）。
 ```
 

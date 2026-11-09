@@ -5,20 +5,22 @@ date: "2026-09-17T00:00:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Linux", "Shell", "Python", "Docker", "监控告警", "CDN", "DNS"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-09-17-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91GCS%E7%9B%B8%E5%85%B3%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E7%9B%98%E7%82%B9%E4%B8%8E%E5%85%B3%E9%97%AD%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-09-17-【运维】GCS相关定时任务盘点与关闭记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-09-17-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91GCS%E7%9B%B8%E5%85%B3%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E7%9B%98%E7%82%B9%E4%B8%8E%E5%85%B3%E9%97%AD%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-09-17-【运维】GCS相关定时任务盘点与关闭记录.md"
 sourceSha256: "61a69ea3587dfdca38cdd8b9df434fcd31b06ede2b76a6dc652a3f2002761ca5"
 sourceSystem: "project-doc"
 ---
 
 # 【运维】GCS 相关定时任务盘点与关闭记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-09-17-【运维】GCS相关定时任务盘点与关闭记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-17-【运维】GCS相关定时任务盘点与关闭记录.md`
 
 > 整理日期：2026-09-17 00:00｜日期依据：文件名日期
 
 时间：2026-09-17
-范围：宝塔 35.247.205.6、后台 01/02/03、宝塔上的 Docker 容器
+范围：宝塔 192.0.2.8、后台 01/02/03、宝塔上的 Docker 容器
 目标：找出所有跟 GCS 有关的定时任务并关闭（不通知飞机群）
 
 ## 一、结论
@@ -28,7 +30,7 @@ sourceSystem: "project-doc"
 | # | 任务 | 位置 | 周期 | 处理 | 备注 |
 | --- | --- | --- | --- | --- | --- |
 | 1 | 静态资源同步到 GCS | 宝塔面板计划任务 | 每天 03:10 | **已删除**（2026-09-17 17:25，面板安全日志有记录） | 原本已是"停用"状态 |
-| 2 | 游戏结果集备份到 GCS<br>`/root/game_results_gcs_backup.sh` | root crontab | 每天 02:20 | **已注释关闭** | 备份到 gs://dbqp-game-results-db-backup |
+| 2 | 游戏结果集备份到 GCS<br>`/root/game_results_gcs_backup.sh` | root crontab | 每天 02:20 | **已注释关闭** | 备份到 gs://bizops-game-results-db-backup |
 | 3 | GCS health.json 自动补齐<br>`gcs_health_json_ensure.py --apply` | root crontab | 每 15 分钟 | **已注释关闭** | 会往各桶写 health.json |
 | 4 | S3→GCS 同步请求 worker<br>`s3_sync_request_worker.py` | root crontab | 每分钟 | **已注释关闭** | 处理机器人按钮投递的同步请求 |
 
@@ -67,13 +69,13 @@ sourceSystem: "project-doc"
 
 后台 01 / 02 / 03：
   · root crontab 只有 daily_error_log_pack.py（03 另有 disk_cleanup.sh），无 GCS
-  · /etc/cron.d 只有 e2scrub_all；systemd 定时器 dbqp-log-maintenance / dbqp-game-log-archive /
-    dbqp-disk-cleanup 等，grep GCS 关键字命中 0
+  · /etc/cron.d 只有 e2scrub_all；systemd 定时器 bizops-log-maintenance / bizops-game-log-archive /
+    bizops-disk-cleanup 等，grep GCS 关键字命中 0
   · 容器内无 cron 定时任务
 
 宝塔 /root 下还留着一批**未被任何 cron 调度**的 GCS 脚本（历史遗留，仅供参考/备用）：
-  cron-gcs-static-sync.sh、dbqp_gcs_static_sync.sh、dbqp_gcs_static_sync_gsutil.sh、
-  dbqp_gcs_static_sync_gsutil_fast.sh、git_static_gcs_sync.py、tada3_5_static_gcs_sync.py
+  cron-gcs-static-sync.sh、bizops_gcs_static_sync.sh、bizops_gcs_static_sync_gsutil.sh、
+  bizops_gcs_static_sync_gsutil_fast.sh、git_static_gcs_sync.py、vendor_a3_5_static_gcs_sync.py
   → 已逐个确认"无任何 cron/计划任务引用"，不产生定时行为，本次未删除。
 
 注意：`new_game_static_check.py`（每 10 分钟）只通过 CDN 检查静态入口 HTTP 200，
@@ -83,7 +85,7 @@ sourceSystem: "project-doc"
 ## 四、关闭后需要注意的影响
 
 1. **health.json 不再自动补齐**：以后新建/同步桶后，如果缺 health.json，
-   需要人工跑一次：`python3 /opt/dbqp-scripts/gcs_health_json_ensure.py --apply`。
+   需要人工跑一次：`python3 /opt/bizops-scripts/gcs_health_json_ensure.py --apply`。
 2. **结果集不再自动备份到 GCS**：需要备份时人工跑：
    `bash /root/game_results_gcs_backup.sh pg pp`（可指定厂家）。
 3. **机器人"静态资源同步S3到GCS"按钮不再工作**（因为每分钟的 worker 已关）：

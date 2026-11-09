@@ -1,0 +1,230 @@
+---
+id: "doc-49c46bcf1357"
+title: "【修复】香港 vendor_b 及全量域名配置 Git 污染修复记录"
+date: "2026-11-05T18:51:00+08:00"
+dateSource: "文件名日期"
+categories: ["历史运维与项目交付", "巴西主站"]
+tags: ["巴西主站", "Shell", "监控告警", "自动化", "CDN", "故障排查", "数据库恢复", "源码与配置"]
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-11-05-1851-%E3%80%90%E4%BF%AE%E5%A4%8D%E3%80%91%E9%A6%99%E6%B8%AFvendor_b%E5%8F%8A%E5%85%A8%E9%87%8F%E5%9F%9F%E5%90%8D%E9%85%8D%E7%BD%AEGit%E6%B1%A1%E6%9F%93%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-11-05-1851-【修复】香港vendor_b及全量域名配置Git污染修复记录.md"
+sourceSha256: "e5ee5daad22ac5d38a69ead8fc0cd954972d0b4beaecc9ca6cc7dafe55be22ea"
+sourceSystem: "project-doc"
+---
+
+# 【修复】香港 vendor_b 及全量域名配置 Git 污染修复记录
+
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-11-05-1851-【修复】香港vendor_b及全量域名配置Git污染修复记录.md`
+
+> 整理日期：2026-11-05 18:51｜日期依据：文件名日期
+
+更新时间：2026-11-05 18:51（Asia/Manila）
+
+执行范围：`ben` 域名配置、03 香港运行模板、HK01/HK02 运行目录。
+
+## 一、结论
+
+开发在新增 `domains-hk` 时没有使用香港线上配置，而是把其他环境的
+`vendor_b.json` 和旧 `cn` 分支 Host 复制进香港目录。
+
+直接证据：
+
+```text
+提交：2d725319 增加香港域名配置
+作者：ben <[邮箱已脱敏]>
+时间：2026-11-02 14:48:33 +0800
+巴西 vendor_b.json blob：6760d9d2dd32108a3934649332cc288e5238f5f6
+香港 vendor_b.json blob：6760d9d2dd32108a3934649332cc288e5238f5f6
+```
+
+两个文件完全相同，且香港 `vendor_b.json` 自该提交后从未修改。更准确地说，这不是
+普通“测试环境配置”，而是把巴西 vendor_b 的多 CDN 域名配置原样复制到了香港。
+
+## 二、故障证据
+
+修复前：
+
+```text
+vendor_b-aws.cxkerui.com/game-setting/game-info-list    502
+vendor_b-ali.shangdefu.com/game-setting/game-info-list  502
+vendor_b-cf.nuvastone.com/game-setting/game-info-list   502
+```
+
+香港应用容器和端口正常：
+
+```text
+HK01 game-service-vendor_b-prod：running，RestartCount=0，OOMKilled=false，9093
+HK02 game-service-vendor_b-prod：running，RestartCount=0，OOMKilled=false，9093
+```
+
+因此不是 vendor_b 应用崩溃，而是配置下发了香港不可用的动态/静态 Host。
+
+## 三、全量污染审计
+
+比较对象：
+
+```text
+Git 当前：platform-api/conf/domains-hk/
+线上权威快照：infrastructure/hongkong/domains/live-20261024/
+```
+
+发现并修复：
+
+| 文件 | 污染/偏差 | 修复 |
+| --- | --- | --- |
+| `vendor_b.json` | 巴西 `cxkerui/shangdefu/nuvastone` Host | 恢复香港 vendor_b Host |
+| `vendor_a.json` | 跨环境 CDN Host、旧 hkcloudplay01/02/03 动态 Host | 恢复 `vendor_b-static*` + `vendor_a-games.hkcloudplay06/07` |
+| `fc.json` | 与巴西相同的 `bxgjnet/repair127` 测试 Host | 恢复 `hkcloudplay06/07` |
+| `jdb.json` | 与巴西相同的 `bxgjnet/repair127` 测试 Host | 恢复 `hkcloudplay06/07` |
+| `g759.json` | 使用旧 `cn` 的 hkcloudplay01/02/03/04/05 | 恢复 `m4q7z1/k8x2v9.shop` |
+| `vendor_d.json` | 使用旧 `cn` Host | 恢复 `m4q7z1/k8x2v9.shop` |
+| `pg.json` | 使用旧 `cn` Host，且缺少 Socket API Host | 恢复线上一组/特殊组 Host，并补回 Socket |
+| `vendor_c.json` | 使用旧 `cn` Host | 恢复 `m4q7z1/k8x2v9.shop` |
+| `popok.json` | 使用旧 `cn` Host | 恢复 `m4q7z1/k8x2v9.shop` |
+| `pp.json` | 使用旧 `cn` Host | 恢复 `m4q7z1/k8x2v9.shop` |
+
+巴西目录审计：
+
+```text
+现有分组的 static_hosts / game_hosts / api_hosts 与巴西线上快照一致
+仅新增了 PP/vendor_a/G759 的 SPECIAL_GAMES_OPEN_20261028 游戏组
+未发现香港 hkcloudplay 域名串入
+```
+
+## 四、香港恢复后的 Host
+
+```text
+核心动态/静态：
+  *.m4q7z1.shop
+  *.k8x2v9.shop
+
+vendor_a/vendor_b v3～v5 扩展：
+  vendor_a-games.hkcloudplay06.com
+  vendor_a-games.hkcloudplay07.com
+  vendor_a-statics3/4/5.hkcloudplay06/07.com
+  vendor_b-static3/4/5-aws.hkcloudplay06/07.com
+
+PG Socket：
+  socket.p3w9n5.shop
+  socket.hk-socket.com
+
+未启用测试厂商：
+  fachai-test.hkcloudplay06/07.com
+  fachai-api.hkcloudplay06/07.com
+  jdb-test.hkcloudplay06/07.com
+  jdb-api.hkcloudplay06/07.com
+```
+
+所有 Host 来自 `live-20261024` 线上快照；游戏 ID 保留 Git 中较新的数据。
+
+## 五、校验器加固
+
+`scripts/validate_domains.py` 新增香港 Host 精确定位校验：
+
+- 每个厂家 default/static/game Host 必须等于香港线上配置；
+- PG 各特殊组静态域名及 Socket API 域名必须完整；
+- vendor_a/vendor_b v1～v5 使用各自香港扩展静态域名；
+- 20261028 新游戏组沿用所属环境已验证 Host；
+- 新增 Host 或更换线路必须显式更新校验规则，不能直接复制其他环境配置。
+
+验证：
+
+```text
+DOMAIN_CONFIG_OK
+BR_HOSTS_VS_LIVE=PASS
+HK_HOST_FAMILY_CHECK=PASS
+```
+
+## 六、部署结果
+
+```text
+ben vendor_b 修复提交：84d5dd38
+ben 全量香港域名恢复提交：4b6d2a04
+远端 origin/ben：4b6d2a04
+03 HEAD：4b6d2a04
+```
+
+备份：
+
+```text
+03：/data/server-runtime-hk/conf/domains.bak-20261105-185021-before-hk-live
+HK01：/data/server-runtime/conf/domains.bak-20261105-185033-before-hk-live
+HK02：/data/server-runtime/conf/domains.bak-20261105-185034-before-hk-live
+```
+
+配置一致性：
+
+```text
+03 source == 03 HK runtime == HK01 runtime == HK02 runtime
+10 个 JSON 文件全部有效
+HK01/HK02 domain digest：
+d3a95759ebfb02f77c3793594cb6d646438c1d30862fd9e07bc4ab5478493e59
+```
+
+## 七、入口验证
+
+动态入口：
+
+```text
+pg-games.m4q7z1.shop/health             200
+pp-games.m4q7z1.shop/health             200
+ppk-games.m4q7z1.shop/health            200
+vendor_d-games.m4q7z1.shop/health          200
+vendor_c-games.m4q7z1.shop/health        200
+g759-games.m4q7z1.shop/health           200
+vendor_a-games.hkcloudplay06.com/health     200
+vendor_a-games.hkcloudplay07.com/health     200
+vendor_b-games.m4q7z1.shop                  200
+vendor_b-games.k8x2v9.shop                  200
+```
+
+vendor_b：
+
+```text
+vendor_b-games.m4q7z1.shop：连续 10/10 HTTP 200
+vendor_b-games.k8x2v9.shop：连续 10/10 HTTP 200
+响应 Code=0，620 款游戏正常返回
+```
+
+静态抽测：
+
+```text
+vendor_b 默认资源：200
+vendor_b v1：200
+vendor_b v2：200
+PG/PP/PPK/PANDA/vendor_c/G759/vendor_a 静态根入口：200
+```
+
+容器：
+
+```text
+HK01：10 个业务容器
+HK02：10 个业务容器
+vendor_b：两台均 running，RestartCount=0，OOMKilled=false
+```
+
+本次只热更新域名 JSON，按 platform-api 的每次请求重新读取机制即时生效，
+未重启任何业务容器。
+
+## 八、回滚
+
+香港节点可整体恢复发布前域名目录：
+
+```bash
+cp -a /data/server-runtime/conf/domains.bak-20261105-185033-before-hk-live/. \
+  /data/server-runtime/conf/domains/       # HK01
+
+cp -a /data/server-runtime/conf/domains.bak-20261105-185034-before-hk-live/. \
+  /data/server-runtime/conf/domains/       # HK02
+```
+
+03 香港运行模板可从对应备份恢复，但正常回滚应优先使用 Git 提交。
+
+## 九、群通知与 Git
+
+汇总消息：862
+
+完整文档消息：863
+
+master 提交：已提交本地 `master`；最终提交 SHA 与结果见监控群。

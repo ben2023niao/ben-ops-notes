@@ -5,13 +5,15 @@ date: "2026-05-09T00:00:00+08:00"
 dateSource: "文件名日期"
 categories: ["业务系统运维", "GHOME"]
 tags: ["GHOME", "安全运维", "故障排查", "源码与配置"]
-source: "project-file:///Private/from-oldmac-20261109/Users/ben/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p8-search-wrapup.md"
+source: "project-file:///Private/from-oldmac-20261109/Users/operator/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p8-search-wrapup.md"
 sourcePath: "~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p8-search-wrapup.md"
 sourceSha256: "029f7d41d0c004bc92e0d41cc50f85fdeabfdbf412524f72fa1b43a586e80754"
 sourceSystem: "project-doc"
 ---
 
 # Ghome P8 · ILIKE + pgtrgm 搜索 + SEO异常验证异常验证/404/性能 收尾 Implementation Plan
+
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
 > 来源文件：`~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p8-search-wrapup.md`
 
@@ -25,10 +27,10 @@ sourceSystem: "project-doc"
    - `apps/web/app/search/page.tsx`(SSR 结果页,从 `?q=` 拿关键词,渲染三栏混合结果)
 2. **首页搜索框接通**:`apps/web/app/page.tsx` 当前是 `disabled` 的占位输入,改成 GET `<form action="/search">` + 真实 `<input>` + 提交按钮;`Header.tsx` 顶部也加一个轻量搜索入口
 3. **SEO异常验证 + 404 收尾**:
-   - 每个详情页加 `generateMetadata`(App / Video / Guide / Topic / Album / Ranking / Tag / Category)— 当前仅 `layout.tsx` 有 root metadata
+   - 每个详情页加 `generateMevendor_ata`(App / Video / Guide / Topic / Album / Ranking / Tag / Category)— 当前仅 `layout.tsx` 有 root mevendor_ata
    - `app/sitemap.ts` 输出全部 published 内容的 URL(每日 ISR 生成)
    - `app/robots.ts` 输出 `User-agent: * Allow: /` + sitemap 链接
-   - `not-found.tsx` 加快捷链(回首页 / 看 App / 看视频 / 看指南)+ 加 `metadata.title = '404'`
+   - `not-found.tsx` 加快捷链(回首页 / 看 App / 看视频 / 看指南)+ 加 `mevendor_ata.title = '404'`
    - 搜索结果页空态、阻断词(过短 q < 2 char)兜底 UX
 
 **完成判据(spec §6 P8):** 在首页搜索框输入"健身"提交 → `/search?q=%E5%81%A5%E8%BA%AB` 渲染:命中 App(若 detail 含"健身")+ 命中视频(`weekly-fitness-vlog` 等)+ 命中指南(若有)三栏混合结果。Sitemap 在 `https://localhost:3000/sitemap.xml` 列出所有 published 内容路径;robots.txt 允许全爬。
@@ -38,14 +40,14 @@ sourceSystem: "project-doc"
 - **q 校验**:trim,长度 < 2 char → 直接返回空结果(防全表扫 + 防爆 noise);长度 > 100 char 截断;`%`/`_` LIKE 元字符转义(防 ILIKE 注入扰动 — 不影响安全,只影响匹配语义)
 - **/search 页面 SSR**:`export const dynamic = "force-dynamic"`(每次都查),不做 ISR;搜索是低频路径,直查 DB 比维护 cache 更简单
 - **/api/search**:同样 `dynamic = 'force-dynamic'` + `runtime = 'nodejs'`(Prisma 直连),返回 `{ apps: [], videos: [], guides: [], q, took: ms }`。**未鉴权**(公开搜索)。**rate limit P8 不做** — 外部部署形态确定后再加;本地 dev 不需要
-- **per-detail 页 generateMetadata**:只覆盖 title + description + (可选)opengraph。不引入 og:image 生成器、不引入 canonical 自动检测 — 部署形态定下来再补
-- **sitemap.ts**:用 `MetadataRoute.Sitemap` 规范返回,SSG 时构建期跑 `prisma.findMany`;ISR 每天重建一次(`export const revalidate = 86400`)
+- **per-detail 页 generateMevendor_ata**:只覆盖 title + description + (可选)opengraph。不引入 og:image 生成器、不引入 canonical 自动检测 — 部署形态定下来再补
+- **sitemap.ts**:用 `Mevendor_ataRoute.Sitemap` 规范返回,SSG 时构建期跑 `prisma.findMany`;ISR 每天重建一次(`export const revalidate = 86400`)
 - **robots.ts**:静态返回(无 DB);引用 `WEB_BASE_URL` 拼 sitemap URL
 
 **Tech Stack:** 全部已有依赖,**无新增包**。
 - pg_trgm 扩展 + GIN 索引在 P1 migration 已建好(`apps_search_idx` `videos_search_idx` `guides_search_idx`,见 `packages/db/prisma/migrations/20260509015050_constraints/migration.sql:50-55`)
 - Prisma `$queryRaw` + `Prisma.sql` 模板
-- Next.js 15 `MetadataRoute.Sitemap` / `MetadataRoute.Robots` 内置
+- Next.js 15 `Mevendor_ataRoute.Sitemap` / `Mevendor_ataRoute.Robots` 内置
 
 **Spec 引用:** [`docs/superpowers/specs/2026-05-08-ghome-product-shape-design.md`](../specs/2026-05-08-ghome-product-shape-design.md) §4.4 搜索(MVP)、§6 P8。
 
@@ -64,17 +66,17 @@ apps/web/
 │  ├─ search/
 │  │  └─ page.tsx                         # T2:SSR 结果页
 │  ├─ page.tsx                            # T3 改:search-box 接通 GET form
-│  ├─ layout.tsx                          # T4 可能改:扩展 metadata 默认值(description 等)
+│  ├─ layout.tsx                          # T4 可能改:扩展 mevendor_ata 默认值(description 等)
 │  ├─ not-found.tsx                       # T4 改:加快捷链
 │  ├─ sitemap.ts                          # T4 新建
 │  ├─ robots.ts                           # T4 新建
-│  ├─ app/[slug]/page.tsx                 # T4 改:加 generateMetadata
-│  ├─ video/[slug]/page.tsx               # T4 改:加 generateMetadata
-│  ├─ guide/[slug]/page.tsx               # T4 改:加 generateMetadata
-│  ├─ topic/[slug]/page.tsx               # T4 改:加 generateMetadata
-│  ├─ album/[slug]/page.tsx               # T4 改:加 generateMetadata
-│  ├─ category/[slug]/page.tsx            # T4 改:加 generateMetadata
-│  └─ tag/[slug]/page.tsx                 # T4 改:加 generateMetadata
+│  ├─ app/[slug]/page.tsx                 # T4 改:加 generateMevendor_ata
+│  ├─ video/[slug]/page.tsx               # T4 改:加 generateMevendor_ata
+│  ├─ guide/[slug]/page.tsx               # T4 改:加 generateMevendor_ata
+│  ├─ topic/[slug]/page.tsx               # T4 改:加 generateMevendor_ata
+│  ├─ album/[slug]/page.tsx               # T4 改:加 generateMevendor_ata
+│  ├─ category/[slug]/page.tsx            # T4 改:加 generateMevendor_ata
+│  └─ tag/[slug]/page.tsx                 # T4 改:加 generateMevendor_ata
 ├─ components/
 │  └─ Header.tsx                          # T3 改:加搜索快捷入口(可选,顶部小图标)
 └─ lib/
@@ -96,7 +98,7 @@ apps/web/tests/
 - **ORDER BY 权重**:`CASE WHEN name ILIKE :q THEN 0 WHEN tag_match THEN 1 ELSE 2 END` 三档权重;同档内 ORDER BY `updated_at DESC`。LIMIT 10
 - **响应字段精简**:API 仅返回 `id / slug / name(title) / shortDesc(summary) / iconKey/coverKey / categorySlug` — **不**返回 detail/body_md / **不**返回 `redirect.targetUrl`(防 RSC payload 泄漏)
 - **ISR / cache**:`/search` 不缓存(`force-dynamic`);`/api/search` 同;**只有** `sitemap.ts` 用 ISR(`revalidate = 86400`)。robots.ts 是纯静态的(返回常量)
-- **metadata.description 长度 ≤ 160 char**:Google 建议
+- **mevendor_ata.description 长度 ≤ 160 char**:Google 建议
 - **不做(P8 范围外)**:
   - 即时联想(typeahead / autocomplete)— 留 P9
   - 搜索分页 — 各类 LIMIT 10 即够 MVP
@@ -408,7 +410,7 @@ export async function GET(req: NextRequest) {
 **Step 2: 写 `apps/web/app/search/page.tsx`**
 
 ```tsx
-import type { Metadata } from "next";
+import type { Mevendor_ata } from "next";
 import Link from "next/link";
 import { searchAll } from "@/lib/db";
 import { AppCard } from "@/components/AppCard";
@@ -418,7 +420,7 @@ import { Crumb } from "@/components/Crumb";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
+export const mevendor_ata: Mevendor_ata = {
   title: "搜索",
   description: "在 Ghome 上搜索 LGBTQ+ 相关 App、视频、指南。",
 };
@@ -694,14 +696,14 @@ git commit -m "feat(web): wire homepage search-box GET form + header search link
 
 ---
 
-## Task 4 — SEO异常验证 收尾:per-detail metadata + sitemap.ts + robots.ts + not-found 优化
+## Task 4 — SEO异常验证 收尾:per-detail mevendor_ata + sitemap.ts + robots.ts + not-found 优化
 
 **Files:**
 - Create: `apps/web/app/sitemap.ts`
 - Create: `apps/web/app/robots.ts`
 - Modify: `apps/web/app/not-found.tsx`
-- Modify: `apps/web/app/layout.tsx`(扩展 metadata 默认值)
-- Modify: 7 个 detail 页(加 `generateMetadata`):
+- Modify: `apps/web/app/layout.tsx`(扩展 mevendor_ata 默认值)
+- Modify: 7 个 detail 页(加 `generateMevendor_ata`):
   - `apps/web/app/app/[slug]/page.tsx`
   - `apps/web/app/video/[slug]/page.tsx`
   - `apps/web/app/guide/[slug]/page.tsx`
@@ -715,11 +717,11 @@ git commit -m "feat(web): wire homepage search-box GET form + header search link
 **Step 1: 写 `apps/web/app/robots.ts`**
 
 ```ts
-import type { MetadataRoute } from "next";
+import type { Mevendor_ataRoute } from "next";
 
 const WEB_BASE_URL = process.env.NEXT_PUBLIC_WEB_BASE_URL ?? "http://localhost:3000";
 
-export default function robots(): MetadataRoute.Robots {
+export default function robots(): Mevendor_ataRoute.Robots {
   return {
     rules: [{ userAgent: "*", allow: "/" }],
     sitemap: `${WEB_BASE_URL}/sitemap.xml`,
@@ -732,7 +734,7 @@ export default function robots(): MetadataRoute.Robots {
 **Step 2: 写 `apps/web/app/sitemap.ts`**
 
 ```ts
-import type { MetadataRoute } from "next";
+import type { Mevendor_ataRoute } from "next";
 import {
   getPublishedApps,
   getPublishedVideos,
@@ -747,7 +749,7 @@ const WEB_BASE_URL = process.env.NEXT_PUBLIC_WEB_BASE_URL ?? "http://localhost:3
 
 export const revalidate = 86400; // 每日重建
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+export default async function sitemap(): Promise<Mevendor_ataRoute.Sitemap> {
   const [apps, videos, guides, topics, albums, tags, appCats, videoCats] = await Promise.all([
     getPublishedApps(),
     getPublishedVideos(),
@@ -775,7 +777,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   const now = new Date();
-  const out: MetadataRoute.Sitemap = [
+  const out: Mevendor_ataRoute.Sitemap = [
     ...staticUrls.map((p) => ({ url: `${WEB_BASE_URL}${p}`, lastModified: now })),
     ...apps.map((a) => ({ url: `${WEB_BASE_URL}/app/${a.slug}`, lastModified: a.updatedAt })),
     ...videos.map((v) => ({ url: `${WEB_BASE_URL}/video/${v.slug}`, lastModified: v.updatedAt })),
@@ -791,15 +793,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 }
 ```
 
-> **`getPublishedApps`/`getPublishedVideos`** 默认无 limit,会拉全量。本地 9 + 20 行无压力;生产规模再考虑分 sitemap chunk(`MetadataRoute.Sitemap` 单文件最多 50000 条 URL,目前距上限远)。
+> **`getPublishedApps`/`getPublishedVideos`** 默认无 limit,会拉全量。本地 9 + 20 行无压力;生产规模再考虑分 sitemap chunk(`Mevendor_ataRoute.Sitemap` 单文件最多 50000 条 URL,目前距上限远)。
 >
 > **rankings 不入 sitemap** — 6 个内置榜单挂在 `/rankings` 静态页底下,不暴露 `/ranking/:slug` 子路由(P2 没建)。
 
-**Step 3: 改 `apps/web/app/layout.tsx`** — 扩展默认 metadata
+**Step 3: 改 `apps/web/app/layout.tsx`** — 扩展默认 mevendor_ata
 
 ```ts
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_WEB_BASE_URL ?? "http://localhost:3000"),
+export const mevendor_ata: Mevendor_ata = {
+  mevendor_ataBase: new URL(process.env.NEXT_PUBLIC_WEB_BASE_URL ?? "http://localhost:3000"),
   title: { default: "Ghome — LGBTQ+ 数字生活总入口", template: "%s · Ghome" },
   description: "Ghome 收录全球合规上架的 LGBTQ+ 相关 App、视频内容、内容平台,提供专题、榜单、指南等导航服务。",
   keywords: ["LGBTQ", "男同", "App", "视频", "指南", "导航", "Ghome"],
@@ -811,17 +813,17 @@ export const metadata: Metadata = {
 };
 ```
 
-> `metadataBase` 必填用于解析相对 og:url。
+> `mevendor_ataBase` 必填用于解析相对 og:url。
 
-**Step 4: 给 7 个 detail 页加 `generateMetadata`**
+**Step 4: 给 7 个 detail 页加 `generateMevendor_ata`**
 
 每个 detail 页 pattern 一致(以 `apps/web/app/app/[slug]/page.tsx` 为例):
 
 ```tsx
-import type { Metadata } from "next";
+import type { Mevendor_ata } from "next";
 import { getAppBySlug } from "@/lib/db";
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMevendor_ata({ params }: { params: Promise<{ slug: string }> }): Promise<Mevendor_ata> {
   const { slug } = await params;
   const app = await getAppBySlug(slug);
   if (!app) return { title: "未找到" };
@@ -848,13 +850,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 - category: `getVideoCategoryBySlug` → `name` / `description`(若有);`description` 字段可能没有,用 `'${name} 分类下的内容'`
 - tag: `getTagBySlug` → `label` / 描述用模板 `'#${label} 标签下的 App 与视频'`
 
-**Step 5: 改 `apps/web/app/not-found.tsx`** — 加快捷链 + metadata
+**Step 5: 改 `apps/web/app/not-found.tsx`** — 加快捷链 + mevendor_ata
 
 ```tsx
-import type { Metadata } from "next";
+import type { Mevendor_ata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = { title: "404 — 页面未找到" };
+export const mevendor_ata: Mevendor_ata = { title: "404 — 页面未找到" };
 
 export default function NotFound() {
   return (
@@ -893,18 +895,18 @@ git add "apps/web/app/sitemap.ts" "apps/web/app/robots.ts" \
         "apps/web/app/guide/[slug]/page.tsx" "apps/web/app/topic/[slug]/page.tsx" \
         "apps/web/app/album/[slug]/page.tsx" "apps/web/app/category/[slug]/page.tsx" \
         "apps/web/app/tag/[slug]/page.tsx"
-git commit -m "feat(web): per-detail generateMetadata + sitemap.ts + robots.ts + 404 quicklinks"
+git commit -m "feat(web): per-detail generateMevendor_ata + sitemap.ts + robots.ts + 404 quicklinks"
 ```
 
 ## Tricky Bits (T4)
 
-1. **`metadataBase`**:Next.js 警告"metadataBase is not set"会在 build 期出现,产环境影响 og:url 解析。设了就消失
-2. **`generateMetadata` async**:与 page 同的 params Promise 模式;`if (!app) return { title: "未找到" }` 兜底 — 实际后面 page 会 `notFound()`,但 metadata 也要不崩
+1. **`mevendor_ataBase`**:Next.js 警告"mevendor_ataBase is not set"会在 build 期出现,产环境影响 og:url 解析。设了就消失
+2. **`generateMevendor_ata` async**:与 page 同的 params Promise 模式;`if (!app) return { title: "未找到" }` 兜底 — 实际后面 page 会 `notFound()`,但 mevendor_ata 也要不崩
 3. **`description` 长度 ≤ 160**:`.slice(0, 160)`。开头 `(short_desc ?? detail ?? "")` 兜底
 4. **sitemap revalidate**:`export const revalidate = 86400` — 每日重建一次,不需要 admin 写后强制 revalidate
 5. **`getAllTags` 没 `updatedAt`**:tags 表没 updated_at 字段(P1 schema);sitemap 中 tag URL 不带 lastModified
 6. **`/categories` 是 list 页,`/category/:slug` 是 detail**:按 P2 命名约定,确保 sitemap 用对
-7. **canonical 用相对路径**:`alternates: { canonical: "/app/slug" }` — 与 `metadataBase` 拼接后变绝对 URL
+7. **canonical 用相对路径**:`alternates: { canonical: "/app/slug" }` — 与 `mevendor_ataBase` 拼接后变绝对 URL
 8. **不引入 og-image 生成器**:留下次。本 P8 不写 `og:image`(MVP)
 9. **`getAllTags` 与 `getAppCategories` 已存在?**:`apps/web/lib/db.ts` 已有 `getAllTags()` 与 `getAppCategories()` `getVideoCategories()`(P2),sitemap 直接复用
 10. **`NEXT_PUBLIC_WEB_BASE_URL`**:可能没在 `.env.example`,本 task 加一行(就在 admin `.env.example` 同一时期)。生产部署需配真实域名
@@ -1004,9 +1006,9 @@ git tag p8-search-wrapup
 - [ ] `Header.tsx` 加搜索快捷入口
 - [ ] `app/sitemap.ts` 输出全部 published 内容 URL,每日 ISR
 - [ ] `app/robots.ts` 输出 `Allow: /` + sitemap 链接
-- [ ] 7 个 detail 页有 `generateMetadata` + canonical
-- [ ] `layout.tsx` 有 `metadataBase` + 默认 description / og 元
-- [ ] `not-found.tsx` 有 metadata + 4 个快捷链
+- [ ] 7 个 detail 页有 `generateMevendor_ata` + canonical
+- [ ] `layout.tsx` 有 `mevendor_ataBase` + 默认 description / og 元
+- [ ] `not-found.tsx` 有 mevendor_ata + 4 个快捷链
 - [ ] 搜"健身"在 `/search` 三栏混合命中
 - [ ] CI 通过(无新测试,但 lint/typecheck/build 必须绿)
 - [ ] tag `p8-search-wrapup` 落在 main HEAD

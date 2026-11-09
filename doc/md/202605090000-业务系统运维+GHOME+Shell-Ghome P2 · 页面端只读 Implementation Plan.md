@@ -5,13 +5,15 @@ date: "2026-05-09T00:00:00+08:00"
 dateSource: "文件名日期"
 categories: ["业务系统运维", "GHOME"]
 tags: ["GHOME", "Shell", "Docker", "自动化", "源码与配置"]
-source: "project-file:///Private/from-oldmac-20261109/Users/ben/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p2-frontend-readonly.md"
+source: "project-file:///Private/from-oldmac-20261109/Users/operator/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p2-frontend-readonly.md"
 sourcePath: "~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p2-frontend-readonly.md"
 sourceSha256: "e0d141606d9a3d047f5bd645a621f18d06ae8bb3e4f2860475696d94a360dd86"
 sourceSystem: "project-doc"
 ---
 
 # Ghome P2 · 页面端只读 Implementation Plan
+
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
 > 来源文件：`~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p2-frontend-readonly.md`
 
@@ -778,14 +780,14 @@ export function Crumb({ items }: { items: Array<{ href?: string; label: ReactNod
 - [ ] **Step 4: 重写 `apps/web/app/layout.tsx`(加 SvgSprite + Header + Footer)**
 
 ```tsx
-import type { Metadata } from "next";
+import type { Mevendor_ata } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SvgSprite } from "@/lib/icons";
 
-export const metadata: Metadata = {
+export const mevendor_ata: Mevendor_ata = {
   title: { default: "Ghome", template: "%s · Ghome" },
   description: "LGBTQ+ 数字生活总入口 — App / 视频 / 专题 / 指南",
 };

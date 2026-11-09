@@ -5,20 +5,22 @@ date: "2026-09-09T12:23:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Docker", "Nginx", "自动化", "故障排查", "数据库恢复", "源码与配置"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-09-09-1223-%E3%80%90%E6%9E%B6%E6%9E%84%E6%94%B9%E9%80%A0%2B%E6%96%87%E6%A1%A3%E3%80%91version.json%E4%B8%8Eserver_configs%E5%AE%BF%E4%B8%BB%E6%9C%BA%E5%85%B1%E4%BA%AB%E7%83%AD%E6%9B%B4%E5%8F%8Anginx%E8%BD%AC%E5%8F%91IP%E6%B8%85%E5%8D%95%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-09-09-1223-【架构改造+文档】version.json与server_configs宿主机共享热更及nginx转发IP清单记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-09-09-1223-%E3%80%90%E6%9E%B6%E6%9E%84%E6%94%B9%E9%80%A0%2B%E6%96%87%E6%A1%A3%E3%80%91version.json%E4%B8%8Eserver_configs%E5%AE%BF%E4%B8%BB%E6%9C%BA%E5%85%B1%E4%BA%AB%E7%83%AD%E6%9B%B4%E5%8F%8Anginx%E8%BD%AC%E5%8F%91IP%E6%B8%85%E5%8D%95%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-09-09-1223-【架构改造+文档】version.json与server_configs宿主机共享热更及nginx转发IP清单记录.md"
 sourceSha256: "f87d7bf55293af564904ff4ec5b06a5f51133a7b98f48be9c23cc843ae2da9a9"
 sourceSystem: "project-doc"
 ---
 
 # 【架构改造+文档】version.json/serverconfigs 宿主机共享热更 + nginx 转发 IP 清单
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-09-09-1223-【架构改造+文档】version.json与server_configs宿主机共享热更及nginx转发IP清单记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-09-1223-【架构改造+文档】version.json与server_configs宿主机共享热更及nginx转发IP清单记录.md`
 
 > 整理日期：2026-09-09 12:23｜日期依据：文件名日期
 
 时间：2026-09-09 12:23（Asia/Manila）
-项目：DBQP / PGServer master（巴西生产后端 01 单节点运行容器）
+项目：某业务公司 / PGServer master（巴西生产后端 01 单节点运行容器）
 结果：✅ 共享配置挂载落地并热更验证通过；巴西/香港 nginx 转发 IP 已整理发用户与群
 
 ## 一、目标
@@ -43,7 +45,7 @@ sourceSystem: "project-doc"
 4. docker/scripts/hot_update_runtime_config.py：
    从“docker cp 到各容器”改为“覆盖 01/02/03 宿主机共享文件”；
    若对应容器运行则校验共享挂载内 sha，不重启、不 docker cp。
-   服务名列表补 dbqp-g759-release / dbqp-tada-ws2-release。
+   服务名列表补 bizops-g759-release / bizops-vendor_a-ws2-release。
 5. ben-bot 同步维护 run.py 文案同步为宿主机共享文件热更。
 ```
 
@@ -51,16 +53,16 @@ sourceSystem: "project-doc"
 
 ```text
 当前仅后端 01 运行 8 个厂家容器：
-  pg / tada(HTTP+WS2) / pp / popok(ppk) / playson / panda / g759 /
+  pg / vendor_a(HTTP+WS2) / pp / popok(ppk) / vendor_c / vendor_d / g759 /
   platform-api。
 
 过程：
 1. 先按旧容器重建（第一次脚本漏带顶层 Mounts，已修正）。
 2. 最终按“原日志/结果集绑定 + 新增两个共享文件挂载”重建 8 个容器：
-   docker inspect 备份：后端01 /root/dbqp-mount-migration-backup-20260909/*.json。
+   docker inspect 备份：后端01 /root/bizops-mount-migration-backup-20260909/*.json。
 3. 容器内文件与宿主机一致：
    version.json=c0d5e53f…，server_configs=cb6408ca…，全部 8/8 匹配；
-   RestartCount=0；结果集挂载可见（pg 159 / pp 130 / tada 175 / panda 51 /
+   RestartCount=0；结果集挂载可见（pg 159 / pp 130 / vendor_a 175 / vendor_d 51 /
    g759 48），日志无 DB/结果集错误。
 ```
 
@@ -80,20 +82,20 @@ sourceSystem: "project-doc"
 ```text
 巴西：
   宝塔 nginx（域名/管理）
-    hostname：dbqp-saopaulo-game-results-data-bt
-    内网：203.0.113.1
-    外网：35.247.205.6
+    hostname：bizops-saopaulo-game-results-data-bt
+    内网：192.0.2.1
+    外网：192.0.2.8
     说明：2026-09-01 切流后非主流量入口，仍为域名/Nginx 管理源站。
   备用 nginx（当前主流量入口）
-    hostname：dbqp-saopaulo-nginx-standby-01
-    内网：203.0.113.1
-    外网：34.151.249.53
+    hostname：bizops-saopaulo-nginx-standby-01
+    内网：192.0.2.1
+    外网：192.0.2.13
 
 香港：
   香港入口 nginx
-    hostname：dbqp-hongkong-game-results-data-bt
-    内网：203.0.113.1
-    外网：34.92.13.108
+    hostname：bizops-hongkong-game-results-data-bt
+    内网：192.0.2.1
+    外网：192.0.2.14
 
 以上 hostname 与内网 IP 已于 2026-09-09 实时核验；外网 IP 与
 线上服务器信息/README.md、servers.json 一致。
@@ -104,7 +106,7 @@ sourceSystem: "project-doc"
 ```text
 回滚：
   后端 01 容器重建前 inspect 保留在
-  /root/dbqp-mount-migration-backup-20260909/；
+  /root/bizops-mount-migration-backup-20260909/；
   旧热更机制可从 Git 历史恢复 hot_update_runtime_config.py。
 后续：
   1) 本地提交尚未 Push；后端 /opt/pgserver 与 /workspace/pgserver 需要在本

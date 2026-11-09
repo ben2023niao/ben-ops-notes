@@ -5,15 +5,17 @@ date: "2026-10-27T15:10:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Python", "Nginx", "自动化", "CDN", "安全运维", "故障排查"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-10-27-1510-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91Nginx%E8%BD%AC%E5%8F%91CF-IPCountry%E4%B8%8ECloudflare%E5%85%A8Zone%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE%E5%BC%80%E5%90%AF.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-10-27-1510-【运维】Nginx转发CF-IPCountry与Cloudflare全Zone地理位置开启.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-10-27-1510-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91Nginx%E8%BD%AC%E5%8F%91CF-IPCountry%E4%B8%8ECloudflare%E5%85%A8Zone%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE%E5%BC%80%E5%90%AF.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-10-27-1510-【运维】Nginx转发CF-IPCountry与Cloudflare全Zone地理位置开启.md"
 sourceSha256: "fbe7aa5c23197a812e23e820459ecd3bef478871c39e7cee5e8c8e4ec455c663"
 sourceSystem: "project-doc"
 ---
 
 # Nginx 转发 CF-IPCountry 与 Cloudflare 地理位置开启
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-10-27-1510-【运维】Nginx转发CF-IPCountry与Cloudflare全Zone地理位置开启.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-10-27-1510-【运维】Nginx转发CF-IPCountry与Cloudflare全Zone地理位置开启.md`
 
 > 整理日期：2026-10-27 15:10｜日期依据：文件名日期
 
@@ -38,7 +40,7 @@ proxy_set_header CF-IPCountry $http_cf_ipcountry;
 
 ```text
 /www/server/panel/vhost/nginx/common/all-games-proxy.conf
-/www/server/panel/vhost/nginx/common/tada-proxy.conf
+/www/server/panel/vhost/nginx/common/vendor_a-proxy.conf
 /www/server/panel/vhost/nginx/common/socket-proxy.conf
 /www/server/panel/vhost/nginx/common/pg-proxy.conf
 /www/server/panel/vhost/nginx/verify.pgofficialbx.com.conf
@@ -48,7 +50,7 @@ proxy_set_header CF-IPCountry $http_cf_ipcountry;
 
 ```text
 all-games-proxy.conf：10 处
-tada-proxy.conf：3 处
+vendor_a-proxy.conf：3 处
 socket-proxy.conf：1 处
 pg-proxy.conf：1 处
 verify 站点：1 处
@@ -60,7 +62,7 @@ verify 站点：1 处
 
 ```text
 all-games-proxy.conf：10 处
-tada-proxy.conf：3 处
+vendor_a-proxy.conf：3 处
 socket-proxy.conf：1 处
 pg-proxy.conf：1 处
 verify 站点：1 处
@@ -71,7 +73,7 @@ verify 站点：1 处
 修改：
 
 ```text
-/etc/nginx/snippets/dbqp-hongkong-proxy.conf
+/etc/nginx/snippets/bizops-hongkong-proxy.conf
 /etc/nginx/proxy_params
 ```
 
@@ -126,7 +128,7 @@ configuration file test is successful
 ```
 
 香港 502 日志显示其现有 upstream
-`18.163.34.9:9090`、`43.198.52.147:9090` 均拒绝连接；该现象在本次 reload 前后均存在，
+`192.0.2.18:9090`、`192.0.2.19:9090` 均拒绝连接；该现象在本次 reload 前后均存在，
 与新增请求头无关。本次没有修改香港 upstream，也没有重启香港业务容器。
 
 最终复核时，香港 upstream 的 9090、9091、9099 端口仍不可达，因此 PP/PG/API
@@ -159,7 +161,7 @@ Cloudflare Account 共 54 个 zone：
 备份：
 
 ```text
-/root/dbqp-cf-backups/20261027-070407-ip-geolocation/results.json
+/root/bizops-cf-backups/20261027-070407-ip-geolocation/results.json
 ```
 
 ## 厂家差异说明
@@ -169,13 +171,13 @@ Cloudflare Account 共 54 个 zone：
 
 | 厂家/服务 | 巴西 | 香港 | 说明 |
 | --- | --- | --- | --- |
-| API、PG、PP、PPK、Playson、Panda、G759 | 有 | 有 | 两边都运行 |
-| TADA HTTP | 有 | 无 | 巴西 9096；香港没有该主服务 |
-| TADA WS2 | 有 | 容器有 | 两边均有 8765；香港 TADA/Socket 公网 Host 当前 410 |
+| API、PG、PP、PPK、Playson、vendor_d、G759 | 有 | 有 | 两边都运行 |
+| vendor_a HTTP | 有 | 无 | 巴西 9096；香港没有该主服务 |
+| vendor_a WS2 | 有 | 容器有 | 两边均有 8765；香港 vendor_a/Socket 公网 Host 当前 410 |
 | Socket | 有 | 公网关闭 | 香港 Nginx 明确返回 410 |
-| JILI | 无 | 有 | 香港 9093，复用 TADA 镜像 |
+| vendor_b | 无 | 有 | 香港 9093，复用 vendor_a 镜像 |
 
-香港 `conf/domains` 中可能保留 `tada.json`、`fc.json`、`jdb.json`，不能据此判断厂家启用。
+香港 `conf/domains` 中可能保留 `vendor_a.json`、`fc.json`、`jdb.json`，不能据此判断厂家启用。
 判断顺序应为：Nginx 路由 -> 运行容器 -> 域名配置。
 
 ## 仓库与回归校验

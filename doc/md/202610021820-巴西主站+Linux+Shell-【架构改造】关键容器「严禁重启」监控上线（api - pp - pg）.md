@@ -5,21 +5,23 @@ date: "2026-10-02T18:20:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Linux", "Shell", "Python", "Docker", "监控告警", "数据库恢复", "源码与配置"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-10-02-1820-%E3%80%90%E6%9E%B6%E6%9E%84%E6%94%B9%E9%80%A0%E3%80%91%E5%85%B3%E9%94%AE%E5%AE%B9%E5%99%A8api-pp-pg%E4%B8%A5%E7%A6%81%E9%87%8D%E5%90%AF%E7%9B%91%E6%8E%A7%E4%B8%8A%E7%BA%BF%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-10-02-1820-【架构改造】关键容器api-pp-pg严禁重启监控上线记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-10-02-1820-%E3%80%90%E6%9E%B6%E6%9E%84%E6%94%B9%E9%80%A0%E3%80%91%E5%85%B3%E9%94%AE%E5%AE%B9%E5%99%A8api-pp-pg%E4%B8%A5%E7%A6%81%E9%87%8D%E5%90%AF%E7%9B%91%E6%8E%A7%E4%B8%8A%E7%BA%BF%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-10-02-1820-【架构改造】关键容器api-pp-pg严禁重启监控上线记录.md"
 sourceSha256: "9842281e62b0f33e40d024473b453a69e2e82c4a4a2087485ce34c6f9640f546"
 sourceSystem: "project-doc"
 ---
 
 # 【架构改造】关键容器「严禁重启」监控上线（api / pp / pg）
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-10-02-1820-【架构改造】关键容器api-pp-pg严禁重启监控上线记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-10-02-1820-【架构改造】关键容器api-pp-pg严禁重启监控上线记录.md`
 
 > 整理日期：2026-10-02 18:20｜日期依据：文件名日期
 
 时间：2026-10-02 18:20（北京）/ 10:20（UTC）
-对象机器：后台 01 `203.0.113.1`、后台 02 `203.0.113.1`（被监控方）
-　　　　　备用入口机 `34.151.249.53`（跑定时任务）
+对象机器：后台 01 `192.0.2.1`、后台 02 `192.0.2.1`（被监控方）
+　　　　　备用入口机 `192.0.2.13`（跑定时任务）
 需求：
 　　· 开发（Ben C++）：「巴西线上的厂商不能重启了哈」「除了今天更的几个厂商，都不能重启。重启会有问题」
 　　　「一定不能重启哈」，最后拍定**先不改配置、只做监控**（「算了，监控到起」）
@@ -33,7 +35,7 @@ sourceSystem: "project-doc"
 ## 一、上线前的现状基线（2026-10-02 实测）
 
 ```text
-prod-01（203.0.113.1）                 prod-02（203.0.113.1）
+prod-01（192.0.2.1）                 prod-02（192.0.2.1）
   api-prod  running restarts=0 id=f7e9752db6b2   api-prod  running restarts=0 id=587ad9c4e1ab
   pp-prod   running restarts=0 id=b668823fcaf5   pp-prod   running restarts=0 id=8e050e9694f8
   pg-prod   running restarts=0 id=87d09e8bbf28   pg-prod   running restarts=0 id=4479ab6189fb
@@ -64,7 +66,7 @@ prod-01（203.0.113.1）                 prod-02（203.0.113.1）
   2) 容器 ID 变了                 → 容器被删掉重建（start.sh 的 stop+rm+run 会这样）
   3) State.Status != running      → 当前不在运行（exited/restarting/dead/created/paused）
   4) 容器查不到                    → 容器缺失
-  5) 宿主机可用内存 < 3000 MB     → OOM 前置预警（可用 DBQP_HOST_MEM_MIN_MB 调阈值）
+  5) 宿主机可用内存 < 3000 MB     → OOM 前置预警（可用 某业务公司_HOST_MEM_MIN_MB 调阈值）
 
 抑制与恢复：
   · 同一状态的重复采样不会重复发（状态文件里记 alerted 标记）
@@ -77,16 +79,16 @@ prod-01（203.0.113.1）                 prod-02（203.0.113.1）
 ## 三、报警长这样
 
 ```text
-【DBQP 巴西项目｜关键容器重启监控｜报警】@运维 @Ben_Bird @benb6879
+【某业务公司 巴西项目｜关键容器重启监控｜报警】@运维 @Ben_Bird @benb6879
 时间：北京 2026-10-02 18:21:00 ｜ 巴西圣保罗 2026-10-02 07:21:00
 ⚠️ 开发 2026-10-02 明确要求：今天更新的 api / pp / pg **千万不能重启**。
-- game-service-api-prod（203.0.113.1 / 01）id=f7e9752db6b2 status=running restarts=0 策略=always
+- game-service-api-prod（192.0.2.1 / 01）id=f7e9752db6b2 status=running restarts=0 策略=always
   → **发生重启**（restarts 0 → 1）
   started=2026-10-02T09:15:03.123456789Z
   OOMKilled=false ExitCode=0 RestartPolicy=always
 
 （内存预警的样子）
-- ⚠️ 宿主机内存告急：203.0.113.1 / 01 可用 1800 MB（阈值 3000 MB）
+- ⚠️ 宿主机内存告急：192.0.2.1 / 01 可用 1800 MB（阈值 3000 MB）
   → 逼近 OOM，可能被杀进程后由 --restart=always 自动重启容器，请尽快处理
 ```
 
@@ -99,7 +101,7 @@ prod-01（203.0.113.1）                 prod-02（203.0.113.1）
 4) 定时任务：入口机 crontab 新增
      * * * * * set -a; . /opt/benbot-runtime.env; set +a; \
        /usr/bin/python3 /opt/pgserver/docker/scripts/critical_restart_watch.py \
-       >> /var/log/dbqp-restart-watch.log 2>&1
+       >> /var/log/bizops-restart-watch.log 2>&1
    加之前备份：/root/crontab.bak-20261002-101832-before-restart-watch
 5) cron 生效实测：syslog 里 10:19:01、10:20:01 都有该命令执行记录，
    状态文件 mtime 逐分钟刷新（18:19:02 → 18:20:03）
@@ -124,19 +126,19 @@ prod-01（203.0.113.1）                 prod-02（203.0.113.1）
 /usr/bin/python3 /opt/pgserver/docker/scripts/critical_restart_watch.py --test-notify
 
 # 看日志 / 状态
-tail -20 /var/log/dbqp-restart-watch.log
-cat /var/tmp/dbqp-restart-watch.json
+tail -20 /var/log/bizops-restart-watch.log
+cat /var/tmp/bizops-restart-watch.json
 
 # 临时停用 / 恢复（入口机 crontab 里注释那一行即可）
 crontab -l | sed 's|^\* \* \* \* \* \(set -a; . /opt/benbot-runtime.env.*critical_restart_watch.*\)|#PAUSED \1|' | crontab -
 
 # 调整内存预警阈值（默认 3000 MB）——在 crontab 那行前面加：
-#   DBQP_HOST_MEM_MIN_MB=5000
+#   某业务公司_HOST_MEM_MIN_MB=5000
 ```
 
 ```text
 要换监控对象：改脚本里的 WATCH（IP → 容器名列表），保存后重跑一次即可；
-旧对象的键留在状态文件里不影响，删掉 /var/tmp/dbqp-restart-watch.json 就重新建基线。
+旧对象的键留在状态文件里不影响，删掉 /var/tmp/bizops-restart-watch.json 就重新建基线。
 ```
 
 ## 六、局限与建议（未执行，等开发/运维决定）
@@ -155,7 +157,7 @@ crontab -l | sed 's|^\* \* \* \* \* \(set -a; . /opt/benbot-runtime.env.*critica
 ```text
 docker/scripts/critical_restart_watch.py                 # 本次新增
 /opt/pgserver/docker/scripts/critical_restart_watch.py    # 入口机部署副本
-/var/log/dbqp-restart-watch.log、/var/tmp/dbqp-restart-watch.json
+/var/log/bizops-restart-watch.log、/var/tmp/bizops-restart-watch.json
 docker/scripts/container_health_monitor.py                # 既有容器监控（2 分钟一轮，覆盖全厂家）
 docker/doc/2026-09-24-1445-…容器监控只留0102并发版窗口自动静默….md   # 容器监控上一轮改造
 ```

@@ -5,26 +5,28 @@ date: "2026-11-06T22:21:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Docker", "Nginx", "自动化", "CDN", "DNS", "安全运维"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-11-06-2221-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E8%BF%90%E7%BB%B4%E5%8F%91%E5%B8%83%E9%A1%B5%E9%A6%99%E6%B8%AF%E5%8F%8CCDN%E4%B8%8E%E4%B8%80%E9%94%AE%E6%B8%85%E7%BC%93%E5%AD%98%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-11-06-2221-【优化】运维发布页香港双CDN与一键清缓存记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-11-06-2221-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E8%BF%90%E7%BB%B4%E5%8F%91%E5%B8%83%E9%A1%B5%E9%A6%99%E6%B8%AF%E5%8F%8CCDN%E4%B8%8E%E4%B8%80%E9%94%AE%E6%B8%85%E7%BC%93%E5%AD%98%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-11-06-2221-【优化】运维发布页香港双CDN与一键清缓存记录.md"
 sourceSha256: "a2a44bdd5dfcfb886de96965a1ed168e680623f760725b267d916df796b49dd6"
 sourceSystem: "project-doc"
 ---
 
 # 【优化】运维发布页香港双 CDN 与一键清缓存记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-11-06-2221-【优化】运维发布页香港双CDN与一键清缓存记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-11-06-2221-【优化】运维发布页香港双CDN与一键清缓存记录.md`
 
 > 整理日期：2026-11-06 22:21｜日期依据：文件名日期
 
 更新时间：2026-11-06 22:21（Asia/Manila）
 
-执行范围：`deliverables/dbqp-ops-console`、巴西宝塔 `dbqp-ops-console`、香港腾讯 EdgeOne、香港 Cloudflare。
+执行范围：`deliverables/bizops-ops-console`、巴西宝塔 `bizops-ops-console`、香港腾讯 EdgeOne、香港 Cloudflare。
 
 ## 一、请求
 
 ```text
-1. 更新 dbqp-ops-console 的“运维发布页.html”；
+1. 更新 bizops-ops-console 的“运维发布页.html”；
 2. 详细补充香港同时使用 Cloudflare 与腾讯云 EdgeOne 的架构；
 3. 研究并实现腾讯 CDN 的网页按钮清缓存；
 4. 汇总文档发群；
@@ -36,7 +38,7 @@ sourceSystem: "project-doc"
 主仓库：
 
 ```text
-目录：/Users/ben/Projects/work/game/pgserver/master
+目录：/Users/operator/Projects/ops/private-notes/master
 本地 master：5a431790
 origin/master：a72f41fb
 origin/ben：9f59b4f3
@@ -47,7 +49,7 @@ origin/ben：9f59b4f3
 独立香港仓库：
 
 ```text
-目录：/Users/ben/Projects/work/game/pgserver/cn
+目录：/Users/operator/Projects/ops/private-notes/cn
 本地 cn：1fbe688f
 origin/cn：5c3b3de6
 工作区：干净
@@ -63,20 +65,20 @@ origin/cn：5c3b3de6
 ```text
 m4q7z1.shop  zone-3vm5evyb78ic  22 个加速域名
 k8x2v9.shop  zone-3vm7ccg417yf  22 个加速域名
-源站：34.150.1.185:80 HTTP
+源站：192.0.2.37:80 HTTP
 ```
 
 负责：
 
 ```text
 动态 8 个：
-pg-games / api / jili-games / pp-games /
-ppk-games / panda-games / playson-games / g759-games
+pg-games / api / vendor_b-games / pp-games /
+ppk-games / vendor_d-games / vendor_c-games / g759-games
 
 静态 14 个：
 pg-static / pg3-static / pg4-static / pg5-static / pg6-static / pg7-static /
-pp-static / ppk-static / panda-static / playson-static / g759-static /
-jili-static / jili-static1 / jili-static2
+pp-static / ppk-static / vendor_d-static / vendor_c-static / g759-static /
+vendor_b-static / vendor_b-static1 / vendor_b-static2
 ```
 
 ### 3.2 Cloudflare
@@ -86,7 +88,7 @@ hkcloudplay06.com  fd8476ddbd25b40f4c870d8066329aca
 hkcloudplay07.com  ad235f3123a5c6259f5b2e699bdd7b93
 ```
 
-06/07 继续由 Cloudflare Worker `dbqp-hk-static-proxy` 提供静态资源。
+06/07 继续由 Cloudflare Worker `bizops-hk-static-proxy` 提供静态资源。
 Worker 自定义缓存键无法按单个 URL 或厂家精准失效，只能整 zone
 `purge_everything`。
 
@@ -95,7 +97,7 @@ Worker 自定义缓存键无法按单个 URL 或厂家精准失效，只能整 z
 文件：
 
 ```text
-deliverables/dbqp-ops-console/web/运维发布页.html
+deliverables/bizops-ops-console/web/运维发布页.html
 ```
 
 主要变化：
@@ -118,8 +120,8 @@ deliverables/dbqp-ops-console/web/运维发布页.html
 新增：
 
 ```text
-deliverables/dbqp-ops-console/app/cdn.py
-deliverables/dbqp-ops-console/tests/test_cdn.py
+deliverables/bizops-ops-console/app/cdn.py
+deliverables/bizops-ops-console/tests/test_cdn.py
 ```
 
 接口：
@@ -128,7 +130,7 @@ deliverables/dbqp-ops-console/tests/test_cdn.py
 POST /api/cdn/purge
 {
   "providers": ["edgeone", "cloudflare"],
-  "vendors": ["pg", "tada", "jili", "pp"],
+  "vendors": ["pg", "vendor_a", "vendor_b", "pp"],
   "dry_run": false
 }
 ```
@@ -165,7 +167,7 @@ POST /zones/{zone_id}/purge_cache
 
 ## 六、Secret 配置
 
-线上 `dbqp-ops-console` 新增三份只读 Secret：
+线上 `bizops-ops-console` 新增三份只读 Secret：
 
 ```text
 /run/secrets/tencentcloud_secret_id
@@ -181,7 +183,7 @@ mode：0400
 ```
 
 腾讯云凭据来自本机 macOS Keychain；Cloudflare Token 从巴西宝塔原有
-`/root/dbqp-cf-workers.env` 读取。所有密钥值均未输出到终端、文档或 Git。
+`/root/bizops-cf-workers.env` 读取。所有密钥值均未输出到终端、文档或 Git。
 
 ## 七、验证
 
@@ -196,7 +198,7 @@ OK
 
 ```text
 厂家到静态前缀映射；
-TADA / JILI 共享前缀去重；
+vendor_a / vendor_b 共享前缀去重；
 非法 provider / vendor 拒绝；
 EdgeOne purge_host payload；
 Cloudflare purge_everything payload；
@@ -220,13 +222,13 @@ EdgeOne 两站点 visible=true
 备份：
 
 ```text
-/opt/dbqp-ops-console/backups/code-before-20261106-221854.tar.gz
+/opt/bizops-ops-console/backups/code-before-20261106-221854.tar.gz
 ```
 
 镜像：
 
 ```text
-dbqp-ops-console:20261106-r10
+bizops-ops-console:20261106-r10
 image id：sha256:bbc190f41b8a3d6f74add1a4e8df08596afafa2a2f10c5b4e5f2211674601e98
 ```
 
@@ -236,7 +238,7 @@ image id：sha256:bbc190f41b8a3d6f74add1a4e8df08596afafa2a2f10c5b4e5f2211674601e
 status：running
 health：healthy
 version：2026-11-06-r10
-入口：http://35.247.205.6:8787
+入口：http://192.0.2.8:8787
 ```
 
 ### 7.4 线上双 CDN 只读预检
@@ -259,7 +261,7 @@ purge，避免在没有发布变更时制造冷缓存。
 ## 八、影响范围
 
 ```text
-1. 只更新 dbqp-ops-console 运维控制台；
+1. 只更新 bizops-ops-console 运维控制台；
 2. 未重启任何游戏业务容器；
 3. 未修改香港 01/02；
 4. 未修改 Nginx、DNS、Worker、EdgeOne 规则或缓存内容；
@@ -270,7 +272,7 @@ purge，避免在没有发布变更时制造冷缓存。
 ## 九、回滚
 
 ```bash
-cd /opt/dbqp-ops-console
+cd /opt/bizops-ops-console
 tar -xzf backups/code-before-20261106-221854.tar.gz -C .
 docker compose -f deploy/docker-compose.yml up -d --force-recreate
 ```

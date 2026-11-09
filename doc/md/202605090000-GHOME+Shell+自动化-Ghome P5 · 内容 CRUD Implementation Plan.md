@@ -5,13 +5,15 @@ date: "2026-05-09T00:00:00+08:00"
 dateSource: "文件名日期"
 categories: ["业务系统运维", "GHOME"]
 tags: ["GHOME", "Shell", "自动化", "数据库恢复", "源码与配置"]
-source: "project-file:///Private/from-oldmac-20261109/Users/ben/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p5-content-crud.md"
+source: "project-file:///Private/from-oldmac-20261109/Users/operator/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p5-content-crud.md"
 sourcePath: "~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p5-content-crud.md"
 sourceSha256: "c73633013a4511279c03cb2082eb5822eb4d5297ddff42315d53b12f0f78734c"
 sourceSystem: "project-doc"
 ---
 
 # Ghome P5 · 内容 CRUD Implementation Plan
+
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
 > 来源文件：`~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p5-content-crud.md`
 
@@ -112,7 +114,7 @@ apps/web/.env / .env.example              # T1 加 REVALIDATE_SECRET
 - **publish 同时触发 revalidate**:`revalidateWeb(['app:slug', 'apps-list'])` 之类
 - **`REVALIDATE_SECRET`**:32 字节随机,admin/.env、web/.env、CI 都设
 - **slug 不可改**:P5 编辑 App/Video/Guide 时**不允许**改 slug(避免 SEO异常验证 + 链接断裂)。要改 slug 的场景视为"删旧建新"(P5 不做特殊 UI)
-- **redirect 不在 P5 改**:redirect.targetUrl 与 disabled 留 P7 单独管理。P5 的 App/Video 编辑只动 metadata
+- **redirect 不在 P5 改**:redirect.targetUrl 与 disabled 留 P7 单独管理。P5 的 App/Video 编辑只动 mevendor_ata
 - 提交风格:Conventional Commits;每 task 末尾 commit
 - 不引 Tailwind / 不上第三方 form 库(react-hook-form 等);用原生 form
 
@@ -1071,7 +1073,7 @@ export default async function EditAppPage({
     orderBy: { sortOrder: "asc" },
   });
 
-  /* ============ server action: save metadata ============ */
+  /* ============ server action: save mevendor_ata ============ */
   async function save(formData: FormData) {
     "use server";
     const session = await auth();
@@ -1287,7 +1289,7 @@ pnpm --filter @ghome/admin build
 
 ```bash
 git add "apps/admin/app/(admin)/apps/[id]/"
-git commit -m "feat(admin): App edit page with metadata form, tag picker, status transitions, soft delete"
+git commit -m "feat(admin): App edit page with mevendor_ata form, tag picker, status transitions, soft delete"
 ```
 
 ## Tricky Bits (T5)
@@ -1501,7 +1503,7 @@ Expected: 6 个 tag 全在(p0..p5)。log 显示 P5 期间 ~10 commits + tag。
 ## P5 完成判据(对应 spec §5)
 
 - ✅ App / Video / Guide 列表页(状态筛选 + 搜索 + 排序 by updatedAt desc)— T2
-- ✅ App / Video / Guide 编辑页(metadata form + 状态切换 + 软删除)— T5/6/7
+- ✅ App / Video / Guide 编辑页(mevendor_ata form + 状态切换 + 软删除)— T5/6/7
 - ✅ 状态机:draft / published / archived,UI 守卫 + server action 守卫 — T1/T5
 - ✅ Tag 内联 CRUD(`POST /api/tags` + TagPicker client component)— T4
 - ✅ audit_log 写入(每个写操作 log + Dashboard 暂未显示活跃,P 后期做)— T3/T5/6/7

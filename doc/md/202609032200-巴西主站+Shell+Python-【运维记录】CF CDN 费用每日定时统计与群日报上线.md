@@ -5,20 +5,22 @@ date: "2026-09-03T22:00:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Python", "Docker", "CDN", "安全运维"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-09-03-2200-%E3%80%90%E8%BF%90%E7%BB%B4%E8%AE%B0%E5%BD%95%E3%80%91CF%E8%B4%B9%E7%94%A8%E6%AF%8F%E6%97%A5%E5%AE%9A%E6%97%B6%E7%BB%9F%E8%AE%A1%E4%B8%8A%E7%BA%BF%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-09-03-2200-【运维记录】CF费用每日定时统计上线记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-09-03-2200-%E3%80%90%E8%BF%90%E7%BB%B4%E8%AE%B0%E5%BD%95%E3%80%91CF%E8%B4%B9%E7%94%A8%E6%AF%8F%E6%97%A5%E5%AE%9A%E6%97%B6%E7%BB%9F%E8%AE%A1%E4%B8%8A%E7%BA%BF%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-09-03-2200-【运维记录】CF费用每日定时统计上线记录.md"
 sourceSha256: "dba7cc002720e5d06639b5afb9e95c4b8e3de84767d347030fc3da83d6b70b07"
 sourceSystem: "project-doc"
 ---
 
 # 【运维记录】CF CDN 费用每日定时统计与群日报上线
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-09-03-2200-【运维记录】CF费用每日定时统计上线记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-03-2200-【运维记录】CF费用每日定时统计上线记录.md`
 
 > 整理日期：2026-09-03 22:00｜日期依据：文件名日期
 
 时间：2026-09-03 22:00-22:15（Asia/Manila）
-项目：DBQP / PGServer master（宝塔定时任务）
+项目：某业务公司 / PGServer master（宝塔定时任务）
 状态：✅ 已上线（cron 每天 08:30 自动跑 + 发群）
 
 ## 一、需求
@@ -34,18 +36,18 @@ sourceSystem: "project-doc"
   docker/scripts/cf_billing_daily_summary.py  每日汇总 + 发群（大白话日报）
   （复用 docker/scripts/cf_billing_report.py 生成 billing.json）
 宝塔部署：
-  /opt/dbqp-scripts/cf_billing_daily_summary.py
-  /opt/dbqp-scripts/cf_billing_report.py
+  /opt/bizops-scripts/cf_billing_daily_summary.py
+  /opt/bizops-scripts/cf_billing_report.py
 cron（root，Asia/Manila）：
-  日报：30 8 * * *   python3 /opt/dbqp-scripts/cf_billing_daily_summary.py \
-    --frequency daily --state-file /var/tmp/dbqp-cf-billing-last.json \
+  日报：30 8 * * *   python3 /opt/bizops-scripts/cf_billing_daily_summary.py \
+    --frequency daily --state-file /var/tmp/bizops-cf-billing-last.json \
     >> /var/log/cf_billing_daily.log 2>&1
   周报：35 8 * * 1   python3 ... --frequency weekly \
-    --state-file /var/tmp/dbqp-cf-billing-last-week.json >> /var/log/cf_billing_weekly.log 2>&1
+    --state-file /var/tmp/bizops-cf-billing-last-week.json >> /var/log/cf_billing_weekly.log 2>&1
   月报：40 8 1 * *   python3 ... --frequency monthly \
-    --state-file /var/tmp/dbqp-cf-billing-last-month.json >> /var/log/cf_billing_monthly.log 2>&1
+    --state-file /var/tmp/bizops-cf-billing-last-month.json >> /var/log/cf_billing_monthly.log 2>&1
 发送：读 /opt/benbot-runtime.env（TG_BOT_TOKEN / BEN_BOT_MONITOR_CHAT_ID）
-对比：/var/tmp/dbqp-cf-billing-last.json 记录上次总额，日报输出“与上次一致/变化”。
+对比：/var/tmp/bizops-cf-billing-last.json 记录上次总额，日报输出“与上次一致/变化”。
 三档折算：按订阅计费周期（2026-08-29 ~ 09-29，30 天）折算，
   每天≈4.67｜每周≈32.67｜每月 140 USD（月报含“本周期已过天数按比例费用”参考值）。
 ```
@@ -58,7 +60,7 @@ cron（root，Asia/Manila）：
 计费周期：2026-08-29 ~ 2026-09-29（30 天）
 折算费用：每天≈4.67 ｜ 每周≈32.67 ｜ 每月=140.00 USD
 对比：与上次一致（无变化）
-付费域名 5 个：cdn-tokyo-dbqp 30 / tada-cdn-2026 30 / xqv9m8 30 /
+付费域名 5 个：cdn-tokyo-bizops 30 / vendor_a-cdn-2026 30 / xqv9m8 30 /
               q7m9v8 25 / t6qv8m 25
 免费域名 37 个
 备注：t6qv8m 已下架仍计费建议退订；Workers Paid 5 账户级另计；

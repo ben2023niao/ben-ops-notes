@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <title>【架构+优化】dbqp-ops-console 实时执行审计与结果集权限自愈部署记录（2026-11-02 · 3480）｜安全与堡垒机 / 访问控制｜BEN.OPS</title>
-  <meta name="description" content="【架构+优化】dbqp-ops-console 实时执行审计与结果集权限自愈部署记录。本文属于安全与堡垒机 / 访问控制，执行范围：本地 master、巴西宝塔控制台、巴西 01/02/04/05、香港 01/02。 dbqp-ops-console 已从静态 HTML 方案升级为可执行的 FastAPI 控制台…">
-  <meta name="keywords" content="安全与堡垒机，访问控制，Docker，Nginx，SQL注入，权限管理，备份恢复，知识笔记，安全与堡垒机 / 访问控制，【架构+优化】dbqp-ops-console 实时执行审计与结果集权限自愈部署记录">
+  <title>【架构+优化】bizops-ops-console 实时执行审计与结果集权限自愈部署记录（2026-11-02 · 3480）｜安全与堡垒机 / 访问控制｜BEN.OPS</title>
+  <meta name="description" content="【架构+优化】bizops-ops-console 实时执行审计与结果集权限自愈部署记录。本文属于安全与堡垒机 / 访问控制，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 执行范围：本地 master、巴西宝塔控制台、巴西 01/02/04/05、香港 0…">
+  <meta name="keywords" content="安全与堡垒机，访问控制，Docker，Nginx，SQL注入，权限管理，备份恢复，知识笔记，安全与堡垒机 / 访问控制，【架构+优化】bizops-ops-console 实时执行审计与结果集权限自愈部署记录，一、结论，二、开始前基线，三、告警证据与根因，四、控制台实现">
   <meta name="author" content="BEN">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
   <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
@@ -14,24 +14,24 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aac8b4073480.html">
   <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aac8b4073480.html">
-  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202611021640-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%2BDocker%2BNginx-%E3%80%90%E6%9E%B6%E6%9E%84%2B%E4%BC%98%E5%8C%96%E3%80%91dbqp-ops-console%20%E5%AE%9E%E6%97%B6%E6%89%A7%E8%A1%8C%E5%AE%A1%E8%AE%A1%E4%B8%8E%E7%BB%93%E6%9E%9C%E9%9B%86%E6%9D%83%E9%99%90%E8%87%AA%E6%84%88%E9%83%A8%E7%BD%B2%E8%AE%B0%E5%BD%95.md">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202611021640-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%2BDocker%2BNginx-%E3%80%90%E6%9E%B6%E6%9E%84%2B%E4%BC%98%E5%8C%96%E3%80%91bizops-ops-console%20%E5%AE%9E%E6%97%B6%E6%89%A7%E8%A1%8C%E5%AE%A1%E8%AE%A1%E4%B8%8E%E7%BB%93%E6%9E%9C%E9%9B%86%E6%9D%83%E9%99%90%E8%87%AA%E6%84%88%E9%83%A8%E7%BD%B2%E8%AE%B0%E5%BD%95.md">
   <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
   <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
   <link rel="author" href="https://t.me/Ben_Bird">
   <meta property="og:type" content="article">
   <meta property="og:locale" content="zh_CN">
   <meta property="og:site_name" content="BEN.OPS 工程笔记">
-  <meta property="og:title" content="【架构+优化】dbqp-ops-console 实时执行审计与结果集权限自愈部署记录（2026-11-02 · 3480）">
-  <meta property="og:description" content="【架构+优化】dbqp-ops-console 实时执行审计与结果集权限自愈部署记录。本文属于安全与堡垒机 / 访问控制，执行范围：本地 master、巴西宝塔控制台、巴西 01/02/04/05、香港 01/02。 dbqp-ops-console 已从静态 HTML 方案升级为可执行的 FastAPI 控制台…">
+  <meta property="og:title" content="【架构+优化】bizops-ops-console 实时执行审计与结果集权限自愈部署记录（2026-11-02 · 3480）">
+  <meta property="og:description" content="【架构+优化】bizops-ops-console 实时执行审计与结果集权限自愈部署记录。本文属于安全与堡垒机 / 访问控制，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 执行范围：本地 master、巴西宝塔控制台、巴西 01/02/04/05、香港 0…">
   <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aac8b4073480.html">
-  <meta property="article:published_time" content="2026-11-02T16:40:00">
+  <meta property="article:published_time" content="2026-11-02T16:40:00+08:00">
   <meta property="article:modified_time" content="2026-11-02 16:40">
   <meta property="article:section" content="安全与堡垒机 / 访问控制">
   <meta property="article:author" content="https://t.me/Ben_Bird">
   
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="【架构+优化】dbqp-ops-console 实时执行审计与结果集权限自愈部署记录（2026-11-02 · 3480）">
-  <meta name="twitter:description" content="【架构+优化】dbqp-ops-console 实时执行审计与结果集权限自愈部署记录。本文属于安全与堡垒机 / 访问控制，执行范围：本地 master、巴西宝塔控制台、巴西 01/02/04/05、香港 01/02。 dbqp-ops-console 已从静态 HTML 方案升级为可执行的 FastAPI 控制台…">
+  <meta name="twitter:title" content="【架构+优化】bizops-ops-console 实时执行审计与结果集权限自愈部署记录（2026-11-02 · 3480）">
+  <meta name="twitter:description" content="【架构+优化】bizops-ops-console 实时执行审计与结果集权限自愈部署记录。本文属于安全与堡垒机 / 访问控制，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 执行范围：本地 master、巴西宝塔控制台、巴西 01/02/04/05、香港 0…">
   
   <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
 --line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
@@ -75,7 +75,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 @media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
 .meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
 @media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aac8b4073480.html#article","headline":"【架构+优化】dbqp-ops-console 实时执行审计与结果集权限自愈部署记录（2026-11-02 · 3480）","description":"【架构+优化】dbqp-ops-console 实时执行审计与结果集权限自愈部署记录。本文属于安全与堡垒机 / 访问控制，执行范围：本地 master、巴西宝塔控制台、巴西 01/02/04/05、香港 01/02。 dbqp-ops-console 已从静态 HTML 方案升级为可执行的 FastAPI 控制台…","datePublished":"2026-11-02T16:40:00","dateModified":"2026-11-02 16:40","inLanguage":"zh-CN","articleSection":["安全与堡垒机","访问控制"],"keywords":["安全与堡垒机","访问控制","Docker","Nginx","SQL注入","权限管理","备份恢复","知识笔记","安全与堡垒机 / 访问控制","【架构+优化】dbqp-ops-console 实时执行审计与结果集权限自愈部署记录"],"wordCount":1586,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aac8b4073480.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aac8b4073480.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 访问控制","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【架构+优化】dbqp-ops-console 实时执行审计与结果集权限自愈部署记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aac8b4073480.html"}]}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aac8b4073480.html#article","headline":"【架构+优化】bizops-ops-console 实时执行审计与结果集权限自愈部署记录（2026-11-02 · 3480）","description":"【架构+优化】bizops-ops-console 实时执行审计与结果集权限自愈部署记录。本文属于安全与堡垒机 / 访问控制，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 执行范围：本地 master、巴西宝塔控制台、巴西 01/02/04/05、香港 0…","datePublished":"2026-11-02T16:40:00+08:00","dateModified":"2026-11-02 16:40","inLanguage":"zh-CN","articleSection":["安全与堡垒机","访问控制"],"keywords":["安全与堡垒机","访问控制","Docker","Nginx","SQL注入","权限管理","备份恢复","知识笔记","安全与堡垒机 / 访问控制","【架构+优化】bizops-ops-console 实时执行审计与结果集权限自愈部署记录","一、结论","二、开始前基线","三、告警证据与根因","四、控制台实现"],"wordCount":1226,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aac8b4073480.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aac8b4073480.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机 / 访问控制","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【架构+优化】bizops-ops-console 实时执行审计与结果集权限自愈部署记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aac8b4073480.html"}]}]}</script>
 </head>
 <body>
   <header class="topbar"><div class="shell">
@@ -89,37 +89,38 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
   <main class="shell">
     <nav class="crumbs" aria-label="面包屑">
       <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
-      › <span>安全与堡垒机 / 访问控制</span> › <span>【架构+优化】dbqp-ops-console 实时执行审计与结果集权限自愈部署记录（2026-11-02 · 3480）</span>
+      › <span>安全与堡垒机 / 访问控制</span> › <span>【架构+优化】bizops-ops-console 实时执行审计与结果集权限自愈部署记录（2026-11-02 · 3480）</span>
     </nav>
     <header class="hero">
       <div class="eyebrow">安全与堡垒机 / 访问控制</div>
-      <h1>【架构+优化】dbqp-ops-console 实时执行审计与结果集权限自愈部署记录（2026-11-02 · 3480）</h1>
-      <p class="lede">【架构+优化】dbqp-ops-console 实时执行审计与结果集权限自愈部署记录。本文属于安全与堡垒机 / 访问控制，执行范围：本地 master、巴西宝塔控制台、巴西 01/02/04/05、香港 01/02。 dbqp-ops-console 已从静态 HTML 方案升级为可执行的 FastAPI 控制台…</p>
+      <h1>【架构+优化】bizops-ops-console 实时执行审计与结果集权限自愈部署记录（2026-11-02 · 3480）</h1>
+      <p class="lede">【架构+优化】bizops-ops-console 实时执行审计与结果集权限自愈部署记录。本文属于安全与堡垒机 / 访问控制，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 执行范围：本地 master、巴西宝塔控制台、巴西 01/02/04/05、香港 0…</p>
       <div class="meta">
-        <time class="badge" datetime="2026-11-02T16:40:00">发布于 2026-11-02</time>
+        <time class="badge" datetime="2026-11-02T16:40:00+08:00">发布于 2026-11-02</time>
         <span class="badge">作者 BEN</span>
-        <span class="badge">1,586 字</span>
-        <span class="badge">5 分钟阅读</span>
+        <span class="badge">1,226 字</span>
+        <span class="badge">4 分钟阅读</span>
       </div>
     </header>
     <div class="layout">
       <article class="article" itemscope itemtype="https://schema.org/TechArticle">
         
 <blockquote>
-<p>来源：本地项目文档 <code>game/pgserver/master/docs/history/2026-11-02-1640-【架构+优化】dbqp-ops-console实时执行审计与结果集权限自愈部署记录.md</code>
+<p>公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。</p>
+<p>来源：本地项目文档 <code>game/pgserver/master/docs/history/2026-11-02-1640-【架构+优化】bizops-ops-console实时执行审计与结果集权限自愈部署记录.md</code>
 整理：2026-11-09。仅复制到知识库，未改动原项目文件；敏感凭据已脱敏。</p>
 </blockquote>
 <p>更新时间：2026-11-02 16:40（Asia/Manila）</p>
 <p>执行范围：本地 master、巴西宝塔控制台、巴西 01/02/04/05、香港 01/02。</p>
 <h2 id="一-结论">一、结论</h2>
-<p><code>dbqp-ops-console</code> 已从静态 HTML 方案升级为可执行的 FastAPI 控制台，
+<p><code>bizops-ops-console</code> 已从静态 HTML 方案升级为可执行的 FastAPI 控制台，
 部署于巴西宝塔，通过 SSH 调用白名单入口对应的发布命令；浏览器可实时查看
 stdout/stderr、退出码和状态，并把操作与完整输出写入 SQLite 审计库。</p>
 <p>本次同时把结果集权限处理纳入每次后端发布：</p>
 <ol>
 <li><code>rsync</code> 拉取运行时统一加 <code>--chown=1000:1000</code>；</li>
 <li>同步完成后立即静默执行 <code>fix_result_perms.sh</code>；</li>
-<li>启动容器前校验 <code>dbqp-result-perms.timer</code> 为 enabled + active；</li>
+<li>启动容器前校验 <code>bizops-result-perms.timer</code> 为 enabled + active；</li>
 <li>再次扫描 <code>game_result_datas</code>，仍有错误属主或 owner 不可读写时立即中止；</li>
 <li>六台后端的运行期 timer 均保持 enabled + active，作为最后兜底。</li>
 </ol>
@@ -146,13 +147,13 @@ origin/ben：9748ad3224c60099fd7b6c0756b628ad10e59fc7
 <h2 id="四-控制台实现">四、控制台实现</h2>
 <h3 id="4-1-部署拓扑">4.1 部署拓扑</h3>
 <pre><code class="language-text">浏览器
-  -&gt; 203.0.113.1:8787（宝塔 Nginx）
-  -&gt; 203.0.113.1:8788
-  -&gt; dbqp-ops-console 容器
+  -&gt; 192.0.2.1:8787（宝塔 Nginx）
+  -&gt; 192.0.2.1:8788
+  -&gt; bizops-ops-console 容器
   -&gt; 私网 SSH
   -&gt; 03 / 巴西后端 / 香港后端
 </code></pre>
-<p>容器名：<code>dbqp-ops-console</code></p>
+<p>容器名：<code>bizops-ops-console</code></p>
 <p>容器不挂载宿主机 Docker Socket；发布命令通过私网 SSH 到达目标机。宝塔
 Nginx 负责公网端口反代，容器端口只绑定本机回环。</p>
 <h3 id="4-2-鉴权与审计">4.2 鉴权与审计</h3>
@@ -189,8 +190,8 @@ Nginx 负责公网端口反代，容器端口只绑定本机回环。</p>
 <pre><code class="language-text">pull images
 → stop containers
 → rsync
-→ NOTIFY=0 /opt/dbqp-scripts/fix_result_perms.sh
-→ check dbqp-result-perms.timer enabled + active
+→ NOTIFY=0 /opt/bizops-scripts/fix_result_perms.sh
+→ check bizops-result-perms.timer enabled + active
 → scan game_result_datas
 → start containers
 → verify Image ID
@@ -238,15 +239,15 @@ SSE：stage / stdout / complete 正常
 Job 状态：passed
 </code></pre>
 <p>最终部署：</p>
-<pre><code class="language-text">容器：dbqp-ops-console
-镜像：dbqp-ops-console:20261102
+<pre><code class="language-text">容器：bizops-ops-console
+镜像：bizops-ops-console:20261102
 镜像 ID：sha256:d9b6c51b42a2a15196e81fa5a5ce68a0ed52da7d28fe3362c799e0e219a5e1d8
 容器：Up (healthy)
-入口：http://203.0.113.1:8787
+入口：http://192.0.2.1:8787
 </code></pre>
 <h2 id="八-交付物">八、交付物</h2>
-<pre><code class="language-text">deliverables/dbqp-ops-console/
-deliverables/dbqp-ops-console-20261102.zip
+<pre><code class="language-text">deliverables/bizops-ops-console/
+deliverables/bizops-ops-console-20261102.zip
 ZIP SHA256：cbbf7eb9a0d3eb397f18ba77d87648051893480013d6cf1ab0489a96a08e10d0
 </code></pre>
 <p>ZIP 不包含：</p>
@@ -259,20 +260,20 @@ ZIP SHA256：cbbf7eb9a0d3eb397f18ba77d87648051893480013d6cf1ab0489a96a08e10d0
 </ul>
 <h2 id="九-备份与回滚">九、备份与回滚</h2>
 <p>部署前宝塔备份：</p>
-<pre><code class="language-text">/opt/dbqp-ops-console/backups/code-before-20261102-163909.tar.gz
+<pre><code class="language-text">/opt/bizops-ops-console/backups/code-before-20261102-163909.tar.gz
 </code></pre>
 <p>回滚代码：</p>
-<pre><code class="language-bash">cd /opt/dbqp-ops-console
+<pre><code class="language-bash">cd /opt/bizops-ops-console
 tar -xzf backups/code-before-20261102-163909.tar.gz -C .
 docker compose -f deploy/docker-compose.yml up -d --build
-curl -fsS http://203.0.113.1:8788/api/health
+curl -fsS http://192.0.2.1:8788/api/health
 </code></pre>
 <p>回滚不会删除 <code>data/</code>、<code>secrets/</code> 或业务服务器上的运行目录。</p>
 <h2 id="十-安全边界">十、安全边界</h2>
 <ul>
 <li>后端服务器不新增公网 8787 规则；</li>
 <li>容器不挂 Docker Socket；</li>
-<li>控制台只绑定 <code>203.0.113.1:8788</code>；</li>
+<li>控制台只绑定 <code>192.0.2.1:8788</code>；</li>
 <li>GCP 防火墙只开放宝塔入口 <code>8787</code>；</li>
 <li>Cloudflare Access 或 HTTPS 域名仍建议作为下一阶段；</li>
 <li>真实密码、Token、GitLab URL 不进入 Git、交付 ZIP 或群消息。</li>
@@ -289,7 +290,7 @@ curl -fsS http://203.0.113.1:8788/api/health
           <li>分类：安全与堡垒机 / 访问控制</li>
           <li>日期：2026-11-02</li>
           <li>标签：<span class="tag">安全与堡垒机</span><span class="tag">访问控制</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">SQL注入</span><span class="tag">权限管理</span><span class="tag">备份恢复</span><span class="tag">知识笔记</span></li>
-          <li><span>来源：03-安全运营与应急/03-安全配置与访问控制/DBQP-权限与审计/2026-11-02-1640-【架构+优化】dbqp-ops-console实时执行审计与结果集权限自愈部…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202611021640-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%2BDocker%2BNginx-%E3%80%90%E6%9E%B6%E6%9E%84%2B%E4%BC%98%E5%8C%96%E3%80%91dbqp-ops-console%20%E5%AE%9E%E6%97%B6%E6%89%A7%E8%A1%8C%E5%AE%A1%E8%AE%A1%E4%B8%8E%E7%BB%93%E6%9E%9C%E9%9B%86%E6%9D%83%E9%99%90%E8%87%AA%E6%84%88%E9%83%A8%E7%BD%B2%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+          <li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202611021640-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%2BDocker%2BNginx-%E3%80%90%E6%9E%B6%E6%9E%84%2B%E4%BC%98%E5%8C%96%E3%80%91bizops-ops-console%20%E5%AE%9E%E6%97%B6%E6%89%A7%E8%A1%8C%E5%AE%A1%E8%AE%A1%E4%B8%8E%E7%BB%93%E6%9E%9C%E9%9B%86%E6%9D%83%E9%99%90%E8%87%AA%E6%84%88%E9%83%A8%E7%BD%B2%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
         </ul></div>
         <div class="aside-box"><h2>作者</h2>
           <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
@@ -299,10 +300,10 @@ curl -fsS http://203.0.113.1:8788/api/health
     </div>
     <section class="seo-summary" aria-labelledby="seo-summary-title">
       <h2 id="seo-summary-title">文章摘要</h2>
-      <p>【架构+优化】dbqp-ops-console 实时执行审计与结果集权限自愈部署记录。本文属于安全与堡垒机 / 访问控制，执行范围：本地 master、巴西宝塔控制台、巴西 01/02/04/05、香港 01/02。 dbqp-ops-console 已从静态 HTML 方案升级为可执行的 FastAPI 控制台…</p>
-      <p>关键词：安全与堡垒机、访问控制、Docker、Nginx、SQL注入、权限管理、备份恢复、知识笔记、安全与堡垒机 / 访问控制、【架构+优化】dbqp-ops-console 实时执行审计与结果集权限自愈部署记录</p>
+      <p>【架构+优化】bizops-ops-console 实时执行审计与结果集权限自愈部署记录。本文属于安全与堡垒机 / 访问控制，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 执行范围：本地 master、巴西宝塔控制台、巴西 01/02/04/05、香港 0…</p>
+      <p>关键词：安全与堡垒机、访问控制、Docker、Nginx、SQL注入、权限管理、备份恢复、知识笔记、安全与堡垒机 / 访问控制、【架构+优化】bizops-ops-console 实时执行审计与结果集权限自愈部署记录、一、结论、二、开始前基线、三、告警证据与根因、四、控制台实现</p>
     </section>
-    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-704df4482cb6.html"><small>上一篇</small>【修复】TADA 游戏 ID 分组 v2 清空与 v3 归位记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-665c627d73ec.html"><small>下一篇</small>【架构+优化】dbqp-ops-console 实时执行审计与结果集权限自愈部署记录</a></nav>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-704df4482cb6.html"><small>上一篇</small>【修复】vendor_a 游戏 ID 分组 v2 清空与 v3 归位记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-665c627d73ec.html"><small>下一篇</small>【架构+优化】bizops-ops-console 实时执行审计与结果集权限自愈部署记录</a></nav>
   </main>
   <footer><div class="shell">
     <span>© 2026 BEN.OPS</span>

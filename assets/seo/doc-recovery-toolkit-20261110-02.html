@@ -1,0 +1,2041 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>某支付平台数据库恢复脚本与工具说明｜数据库与恢复 / MySQL｜BEN.OPS</title>
+  <meta name="description" content="某支付平台数据库恢复脚本与工具说明。本文属于数据库与恢复 / MySQL，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 平台：某支付平台 归档时间：2026-11-10 04:45（Asia/Manila，UTC+8） 范围：主库日备与 binlog PI…">
+  <meta name="keywords" content="某支付平台，数据库恢复，PITR，binlog，XtraBackup，MySQL，备份恢复，支付数据，Shell，Python，数据库与恢复，数据库与恢复 / MySQL，某支付平台数据库恢复脚本与工具说明，一、归档范围与数据边界">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-recovery-toolkit-20261110-02.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-recovery-toolkit-20261110-02.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202611100445-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%81%A2%E5%A4%8D%2BMySQL%2BXtraBackup%2BShell%2BPython-%E6%9F%90%E6%94%AF%E4%BB%98%E5%B9%B3%E5%8F%B0%E6%95%B0%E6%8D%AE%E5%BA%93%E6%81%A2%E5%A4%8D%E8%84%9A%E6%9C%AC%E4%B8%8E%E5%B7%A5%E5%85%B7%E8%AF%B4%E6%98%8E.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="某支付平台数据库恢复脚本与工具说明">
+  <meta property="og:description" content="某支付平台数据库恢复脚本与工具说明。本文属于数据库与恢复 / MySQL，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 平台：某支付平台 归档时间：2026-11-10 04:45（Asia/Manila，UTC+8） 范围：主库日备与 binlog PI…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-recovery-toolkit-20261110-02.html">
+  <meta property="article:published_time" content="2026-11-10T04:45:00+08:00">
+  <meta property="article:modified_time" content="2026-11-10 04:45">
+  <meta property="article:section" content="数据库与恢复 / MySQL">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="某支付平台数据库恢复脚本与工具说明">
+  <meta name="twitter:description" content="某支付平台数据库恢复脚本与工具说明。本文属于数据库与恢复 / MySQL，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 平台：某支付平台 归档时间：2026-11-10 04:45（Asia/Manila，UTC+8） 范围：主库日备与 binlog PI…">
+  
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-recovery-toolkit-20261110-02.html#article","headline":"某支付平台数据库恢复脚本与工具说明","description":"某支付平台数据库恢复脚本与工具说明。本文属于数据库与恢复 / MySQL，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 平台：某支付平台 归档时间：2026-11-10 04:45（Asia/Manila，UTC+8） 范围：主库日备与 binlog PI…","datePublished":"2026-11-10T04:45:00+08:00","dateModified":"2026-11-10 04:45","inLanguage":"zh-CN","articleSection":["数据库与恢复","MySQL"],"keywords":["某支付平台","数据库恢复","PITR","binlog","XtraBackup","MySQL","备份恢复","支付数据","Shell","Python","数据库与恢复","数据库与恢复 / MySQL","某支付平台数据库恢复脚本与工具说明","一、归档范围与数据边界"],"wordCount":2408,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-recovery-toolkit-20261110-02.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-recovery-toolkit-20261110-02.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"数据库与恢复 / MySQL","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"某支付平台数据库恢复脚本与工具说明","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-recovery-toolkit-20261110-02.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>数据库与恢复 / MySQL</span> › <span>某支付平台数据库恢复脚本与工具说明</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">数据库与恢复 / MySQL</div>
+      <h1>某支付平台数据库恢复脚本与工具说明</h1>
+      <p class="lede">某支付平台数据库恢复脚本与工具说明。本文属于数据库与恢复 / MySQL，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 平台：某支付平台 归档时间：2026-11-10 04:45（Asia/Manila，UTC+8） 范围：主库日备与 binlog PI…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-11-10T04:45:00+08:00">发布于 2026-11-10</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,408 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+        
+<blockquote>
+<p>公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。</p>
+<p>平台：某支付平台<br/>
+归档时间：2026-11-10 04:45（Asia/Manila，UTC+8）<br/>
+范围：主库日备与 binlog PITR，以及 2026-07-15 XtraBackup 中 57 张历史 <code>_bak</code> 表恢复。</p>
+</blockquote>
+<p>本文完整归档某支付平台 本次误删恢复所用的审计、导出、回放、历史表导入、在线核验和重建工具。正文先说明工具包边界、目录职责和交付物校验结果，再记录恢复结论、删除位置、恢复链、实际运行数据、安全门禁和每一个脚本的源码，供本次支付业务恢复审计、复盘和受控复现使用。</p>
+<h2 id="一-归档范围与数据边界">一、归档范围与数据边界</h2>
+<p>本工具包覆盖 某支付平台 主库日备导入、DROP 前 binlog PITR、57 张历史 <code>_bak</code> 表隔离导出与导入、数据库和恢复材料核验，以及文档与 ZIP 重建。ZIP 只含 README、校验清单和 13 个脚本，不含数据库密码、Token、私钥、云 API Key 或支付业务数据。</p>
+<p>某海外中转站 上约 7.36 GiB 的 某支付平台 恢复材料属于支付业务数据，不放入工具 ZIP，也不发送到群。恢复群只传脚本、说明、文件大小和哈希。本文记录材料数量和校验结论，不嵌入数据包、业务记录或凭据。</p>
+<h2 id="二-工具包目录与中文备注">二、工具包目录与中文备注</h2>
+<p>目录按恢复阶段拆分。恢复发现、主库 PITR、历史 <code>_bak</code> 表处理、核验和重建工具各自独立，便于审计每一步输入、停止条件和输出。</p>
+<pre><code class="language-text">paydb-recovery-toolkit-20261110/
+├── README.md
+│   └── 恢复链、目录说明、核验结果、全部源码
+├── SHA256SUMS
+│   └── 包内逐文件完整性校验
+├── 01_discovery/
+│   ├── emergency_bastion_exec.py
+│   │   └── 经新堡垒机执行受限只读命令
+│   ├── emergency_database_recovery_audit.py
+│   │   └── 数据库、复制状态和 binlog 盘点
+│   ├── emergency_web_db_discovery.py
+│   │   └── 从 Web 配置定位目标库并自动脱敏
+│   └── emergency_backup_discovery.py
+│       └── 备份机 SQL / XtraBackup / tar 盘点
+├── 02_main_pitr/
+│   ├── paydb_binlog_export.sh
+│   │   └── DROP 前停止位导出与 DROP 门禁
+│   └── paydb_main_restore.sh
+│       └── 日备导入、GTID 清理、binlog 回放、计数核验
+├── 03_bak_tables/
+│   ├── paydb_backup_reader.service
+│   │   └── 本地 socket、禁止网络的临时只读 MySQL
+│   ├── paydb_bak_export_all.sh
+│   │   └── 57 张 _bak 表 4 路并行协调导出
+│   ├── paydb_bak_export_one.sh
+│   │   └── 单表导出、压缩、SHA256、上传
+│   └── paydb_bak_import_on_db1.sh
+│       └── 下载、校验、事件保护、逐表导入、表名核对
+├── 04_verify/
+│   ├── paydb_verify.sql
+│   │   └── 表数、核心行数、事件、CHECK TABLE
+│   └── paydb_artifact_verify.sh
+│       └── 某海外中转站 材料、gzip、61 项 SHA256 核验
+└── 05_rebuild_docs/
+    └── build_paydb_recovery_toolkit.py
+        └── 一键重建文档与 ZIP
+</code></pre>
+<h2 id="三-工具包与恢复材料核验">三、工具包与恢复材料核验</h2>
+<p>本次导入时实际检查了 Markdown 和 ZIP。原始 Markdown 的 SHA256 与归档记录一致；ZIP 的 SHA256 和字节数一致，压缩包 CRC 测试无错误。ZIP 内共 15 个文件，由 <code>SHA256SUMS</code>、README 和 13 个脚本组成；校验清单列出 14 个文件，全部通过，校验文件本身按惯例不计入自身清单。</p>
+<table>
+<thead>
+<tr>
+<th>核验项</th>
+<th>实际结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ZIP 压缩完整性</td>
+<td>通过，无 CRC 错误</td>
+</tr>
+<tr>
+<td>ZIP 内文件</td>
+<td>15 个</td>
+</tr>
+<tr>
+<td>脚本文件</td>
+<td>13 个</td>
+</tr>
+<tr>
+<td><code>SHA256SUMS</code> 条目</td>
+<td>14 项</td>
+</tr>
+<tr>
+<td>包内 SHA256</td>
+<td>14/14 通过</td>
+</tr>
+<tr>
+<td>明文凭据扫描</td>
+<td>密码、Token、私钥、Access Key 均为 0 命中</td>
+</tr>
+<tr>
+<td>支付业务数据</td>
+<td>工具 ZIP 内为 0</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>附件</th>
+<th>SHA256</th>
+<th style="text-align: right;">大小</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Markdown 说明文档</td>
+<td><code>c8b091077279a2c2ab8a18ac637d2b79a917a32d96e94f2a158912614b9d28ff</code></td>
+<td style="text-align: right;">68,261 bytes</td>
+</tr>
+<tr>
+<td>完整工具包 ZIP</td>
+<td><code>94247f1432e7029ec76cb3a5a65bce50e1216a4b58f54c22722393b6f501f68e</code></td>
+<td style="text-align: right;">49,896 bytes</td>
+</tr>
+</tbody>
+</table>
+<p>某海外中转站 恢复材料另行使用 <code>paydb_artifact_verify.sh</code> 核验。当前记录为 57 个 <code>_bak</code> 表 SQL 包、3 个 binlog 导出 SQL、1 个日备 tar 包，gzip 坏包 0，61 项 SHA256 全部通过，<code>.sql.gz</code> 合计 约 7.36 GiB。</p>
+<h2 id="四-恢复结论与完成状态">四、恢复结论与完成状态</h2>
+<ul>
+<li>某支付平台 主库已通过 <strong>备份节点 日备 + binlog PITR</strong> 恢复到 DROP 前位置。</li>
+<li>主恢复里程碑：2026-11-07 13:50:15 CST 完成；当时 <code>paydb</code> 152 张表，<code>user_account=约 55 万</code>、<code>user_profile=约 55 万</code>、<code>transaction_detail=约 118 万</code>。</li>
+<li>57 张历史 <code>_bak</code> 表已从 2026-07-15 XtraBackup 快照导出并全部导入；2026-11-07 17:26:23 CST 完成，失败 0。</li>
+<li><code>_bak</code> 导入后里程碑：<code>paydb</code> 187 张表，其中含 <code>_bak</code> 的基表 69 张；<code>transaction_detail=约 118 万</code>。</li>
+<li>2026-11-10 04:33:45 CST 在线复核：187 张表、69 张 <code>_bak</code> 表、约 78,050.14 MB；<code>user_account=约 55 万</code>、<code>user_profile=约 55 万</code>、<code>transaction_detail=约 116 万</code>。这些是恢复后继续运行中的实时值，不是 11 月 7 日恢复快照值。</li>
+<li>事件计划当前 8 个：7 个启用、1 个停用；<code>e_migrate_data</code> 原状态为停用，未擅自启用。</li>
+<li><code>paydb2</code>、<code>paydb_20220101</code> 未纳入本次数据恢复，保持排期状态。</li>
+</ul>
+<h2 id="五-删除点与安全停止位置">五、删除点与安全停止位置</h2>
+<pre><code class="language-text">数据库：paydb
+删除时间：2026-11-07 00:08:40 CST
+binlog：/data/mysql/log/mysql-bin.000091
+删除位置：693350583 / 693350648
+导出停止位：693350648
+DROP 检查：0
+</code></pre>
+<p>导出的恢复包使用 <code>mysqlbinlog --skip-gtids --database=paydb --stop-position=693350648</code>。
+脚本在发布前还会再次扫描 <code>DROP DATABASE paydb</code>，命中即拒绝继续。</p>
+<h2 id="六-实际恢复链">六、实际恢复链</h2>
+<h3 id="1-日备恢复">1. 日备恢复</h3>
+<p>备份节点 上的日备为：</p>
+<pre><code class="language-text">/data/backup/paydb_backup_20261107_000001.tar.gz
+大小：1,003,596,503 bytes
+SHA256：d6135cd3b9014e14c2142d5c7f7342bde9116e94e06879fe44b692557cbe6bae
+</code></pre>
+<p>解包到 <code>/data/paydb-recovery-20261107/temp_20261107_000001/</code>，共 114 个表 SQL。
+导入时清除源库 <code>SET @@GLOBAL.GTID_PURGED=...</code>，避免污染目标实例 GTID 状态。</p>
+<h3 id="2-binlog-PITR">2. binlog PITR</h3>
+<p>只提取 <code>paydb</code> 库在 <code>2026-11-07 00:00:00</code> 之后、DROP 完成位置之前的事件：</p>
+<pre><code class="language-text">paydb-binlog-before-drop-20261107.sql.gz
+大小：3,250,451 bytes
+SHA256：6600694357d161b298782de3ad4fbef36ef71a1527750e543f90b880036fe8ea
+</code></pre>
+<p>实际回放使用 <code>mysql --force</code>。日志中有 15 条 <code>ERROR 1062</code>（重复主键）
+和 2 条 <code>ERROR 1032</code>（目标记录不存在），没有其他 SQL 错误；回放结束后
+通过核心计数、对象数量和后续在线业务变化核验。<code>--force</code> 是本次实际口径，
+重新演练时必须在隔离库先验证，不能直接覆盖在线 主节点。</p>
+<h3 id="3-57-张-_bak-表">3. 57 张 <code>_bak</code> 表</h3>
+<p>来源为 备份节点：</p>
+<pre><code class="language-text">/data/backup/2026-07-15_20-22-51
+类型：XtraBackup 历史物理快照
+</code></pre>
+<p>使用 <code>innobackupex --apply-log --export</code> 后，以本地 socket、
+<code>--skip-networking --skip-grant-tables</code> 启动临时 MySQL，避免任何网络访问。</p>
+<p>备份中目标范围共 57 张表名含 <code>_bak</code> 的表：</p>
+<pre><code class="language-text">导出：2026-11-07 14:29:45 → 14:42:28 CST
+并发：4 个 worker
+导出：57/57，失败 0
+上传：57/57，失败 0
+导入：57/57，失败 0
+目标表名缺失：0
+</code></pre>
+<p>导入脚本先暂停原有启用事件，逐表导入，再恢复事件状态。本次旧脚本曾因恢复 SQL
+缺少 <code>USE paydb</code> 报 <code>ERROR 1046</code>；本工具包已修复该缺陷。</p>
+<h2 id="七-某海外中转站-恢复材料">七、某海外中转站 恢复材料</h2>
+<p>目录：</p>
+<pre><code class="language-text">/data/recovery-staging
+</code></pre>
+<p>截至 2026-11-10 只读核验：</p>
+<pre><code class="language-text">57 个 paydb-bak-*.sql.gz
+3 个 binlog 导出 SQL
+1 个 paydb_backup_20261107_000001.tar.gz
+gzip 坏包：0
+SHA256 清单：61 项，全部通过
+.sql.gz 合计：约 7.36 GiB（7.36 GiB）
+</code></pre>
+<p>恢复材料属于支付业务数据，<strong>不放入本工具 ZIP，不发送到群</strong>。群内只发送脚本、
+说明、大小和哈希，不发送数据包本身。</p>
+<h2 id="八-安全边界">八、安全边界</h2>
+<ul>
+<li>工具包不包含数据库密码、SSH 私钥、Telegram Token、云 API Key 或业务数据。</li>
+<li>密码只从 root-only helper、受限环境文件或进程环境读取。</li>
+<li>临时历史库必须使用 <code>--skip-networking</code>，只通过本地 socket 访问。</li>
+<li>回放目标已有数据时，<code>paydb_main_restore.sh</code> 默认拒绝继续。</li>
+<li>主库恢复脚本必须显式设置 <code>PAY_PLATFORM_CONFIRM_RESTORE=I_UNDERSTAND_PAY_PLATFORM_RESTORE</code>。</li>
+<li>任何导出包发现 <code>DROP DATABASE paydb</code> 都必须停止，不得发布或回放。</li>
+<li>回放完成不等于支付链路验收完成；仍需 DBA、开发和业务共同核验。</li>
+</ul>
+<h2 id="九-复现顺序">九、复现顺序</h2>
+<ol>
+<li>用 <code>01_discovery</code> 工具确认源、目标、Web 配置、删除位和备份材料。</li>
+<li>用 <code>paydb_binlog_export.sh</code> 生成安全 binlog SQL。</li>
+<li>用 <code>paydb_main_restore.sh</code> 在隔离库或已批准目标库导入日备并回放。</li>
+<li>用 <code>paydb_verify.sql</code> 核对表数、核心行数、事件和 <code>CHECK TABLE</code>。</li>
+<li>用 <code>paydb_backup_reader.service</code> 启动本地只读历史实例。</li>
+<li>用 3 个 <code>_bak</code> 脚本完成导出、中转和导入。</li>
+<li>用 <code>paydb_artifact_verify.sh</code> 核验某海外中转站 恢复材料。</li>
+<li>将结果提交 DBA、开发和支付业务验收。</li>
+</ol>
+<h2 id="十-脚本与完整源码">十、脚本与完整源码</h2>
+<p>以下内容为本次实际使用脚本，以及根据实际审计命令固化的可复现版本。
+实际恢复时主链曾分步通过堡垒机执行；<code>paydb_main_restore.sh</code> 是这些步骤的
+受控封装，增加确认门禁、GTID 清理、事件保护和非空库拒绝。</p>
+<h3 id="10-1-01_discovery-恢复发现与只读盘点">10.1 01_discovery 恢复发现与只读盘点</h3>
+<p>通过新堡垒机和 Web 配置定位 主节点、备份节点、备份、binlog 与恢复源；输出自动脱敏。</p>
+<h4 id="01_discoveryemergency_bastion_execpy"><code>01_discovery/emergency_bastion_exec.py</code></h4>
+<p><strong>中文备注：</strong> 通过新堡垒机在指定资产执行受限只读命令。</p>
+<pre><code class="language-python">#!/usr/bin/env python3
+# ============================================================================
+# 平台：某支付平台
+# 恢复阶段：01_discovery
+# 中文备注：通过新堡垒机在指定资产执行受限只读命令。
+# 安全说明：本文件不包含密码、Token 或私钥；运行时从受限环境读取。
+# ============================================================================
+"""Run a named read-only audit script through the replacement JumpServer."""
+
+from __future__ import annotations
+
+import argparse
+import base64
+import gzip
+import json
+import os
+import time
+from pathlib import Path
+
+import pexpect
+
+from emergency_bastion_deep_audit import clean, parse_assets
+from emergency_bastion_ioc_scan import spawn_jumpserver
+from emergency_web_db_discovery import DISCOVERY_SCRIPT
+
+
+PRESETS = {
+    "web-db": (DISCOVERY_SCRIPT, "__WEB_DB_BEGIN__", "__WEB_DB_END__"),
+}
+
+
+def run_asset(name: str, script: str, start: str, end: str) -&gt; dict[str, object]:
+    result: dict[str, object] = {"asset": name, "status": "unknown"}
+    child = spawn_jumpserver()
+    try:
+        child.send("/")
+        child.expect("搜索:", timeout=10)
+        child.send(name)
+        child.send("\r")
+        child.expect(name, timeout=15)
+        time.sleep(0.8)
+        child.send("\r")
+        login = child.expect(
+            [
+                r"\[[^\]]+@[^\]]+\]\s*[#$] ",
+                r"(?:Permission denied|Authentication failed|Connection refused|"
+                r"没有可用的授权账号或终端协议|无法获取连接选项)",
+                pexpect.TIMEOUT,
+            ],
+            timeout=35,
+        )
+        if login != 0:
+            result["status"] = "login_failed" if login == 1 else "login_timeout"
+            result["transcript"] = clean(child.before or "", name)
+            return result
+        payload = base64.b64encode(
+            gzip.compress(script.encode("utf-8"), compresslevel=9)
+        ).decode("ascii")
+        child.sendline(f"echo {payload} | base64 -d | gzip -d | bash")
+        state = child.expect(
+            [end, pexpect.TIMEOUT],
+            timeout=int(os.environ.get("某业务公司_BASTION_EXEC_TIMEOUT", "240")),
+        )
+        block = clean(child.before or "", name)
+        if start in block:
+            block = block.rsplit(start, 1)[-1]
+        result["status"] = "scanned" if state == 0 else "scan_timeout"
+        result["transcript"] = block.replace(end, "")
+        return result
+    finally:
+        child.close(force=True)
+
+
+def main() -&gt; int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--assets", required=True)
+    preset_or_command = parser.add_mutually_exclusive_group(required=True)
+    preset_or_command.add_argument("--preset", choices=sorted(PRESETS))
+    preset_or_command.add_argument(
+        "--command-b64", help="base64-encoded read-only shell command"
+    )
+    parser.add_argument("--output", required=True)
+    parser.add_argument("--asset", action="append", default=[])
+    args = parser.parse_args()
+    if args.command_b64:
+        script = base64.b64decode(args.command_b64).decode("utf-8")
+        start, end = "__COMMAND_BEGIN__", "__COMMAND_END__"
+        script = f"printf '{start}\\n'\n{script}\nprintf '{end}\\n'\n"
+    else:
+        script, start, end = PRESETS[args.preset]
+    assets = parse_assets(Path(args.assets))
+    if args.asset:
+        selected = set(args.asset)
+        assets = [item for item in assets if item[0] in selected]
+    results: list[dict[str, object]] = []
+    for name, ip in assets:
+        print(name, flush=True)
+        try:
+            result = run_asset(name, script, start, end)
+            result["ip"] = ip
+        except Exception as exc:
+            result = {
+                "asset": name,
+                "ip": ip,
+                "status": "exception",
+                "error": f"{type(exc).__name__}: {exc}",
+            }
+        results.append(result)
+        Path(args.output).write_text(
+            json.dumps({"assets": results}, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        print(result["status"], flush=True)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+</code></pre>
+<h4 id="01_discoveryemergency_database_recovery_auditpy"><code>01_discovery/emergency_database_recovery_audit.py</code></h4>
+<p><strong>中文备注：</strong> 批量盘点数据库目录、复制状态、binlog 和业务库时间。</p>
+<pre><code class="language-python">#!/usr/bin/env python3
+# ============================================================================
+# 平台：某支付平台
+# 恢复阶段：01_discovery
+# 中文备注：批量盘点数据库目录、复制状态、binlog 和业务库时间。
+# 安全说明：本文件不包含密码、Token 或私钥；运行时从受限环境读取。
+# ============================================================================
+"""Read-only MySQL recovery-point audit through the authorized JumpServer."""
+
+from __future__ import annotations
+
+import base64
+import argparse
+import json
+import os
+import time
+from pathlib import Path
+
+import pexpect
+
+from emergency_bastion_ioc_scan import clean, spawn_jumpserver
+
+
+TARGETS = [
+    ("sample-node-01", "192.0.2.10"),
+    ("sample-node-02", "192.0.2.11"),
+    ("sample-node-03", "192.0.2.12"),
+    ("sample-node-04", "192.0.2.13"),
+    ("sample-node-05", "192.0.2.14"),
+    ("sample-node-06", "192.0.2.15"),
+    ("sample-node-07", "192.0.2.16"),
+    ("sample-node-08", "192.0.2.17"),
+    ("sample-node-09", "192.0.2.18"),
+    ("sample-node-10", "192.0.2.19"),
+    ("sample-node-11", "192.0.2.20"),
+    ("sample-node-12", "192.0.2.21"),
+    ("sample-node-13", "192.0.2.22"),
+    ("sample-node-14", "192.0.2.23"),
+    ("sample-node-15", "192.0.2.24"),
+    ("sample-node-16", "192.0.2.25"),
+    ("sample-node-17", "192.0.2.26"),
+    ("sample-node-18", "192.0.2.27"),
+    ("aws-us-newgpay-online-db", "192.0.2.28"),
+    ("sample-node-19", "192.0.2.29"),
+    ("sample-node-20", "192.0.2.30"),
+    ("sample-node-21", "192.0.2.31"),
+    ("sample-node-22", "192.0.2.32"),
+    ("sample-node-23", "192.0.2.33"),
+    ("sample-node-24", "192.0.2.34"),
+    ("sample-node-25", "192.0.2.35"),
+]
+
+MYSQL_AUDIT_SCRIPT = r"""
+set +e
+printf '__DB_BEGIN__\n'
+printf 'HOST='; hostname
+printf 'IP='; hostname -I
+printf 'MYSQL_DATA='; sudo -n ls /data/mysql/data 2&gt;/dev/null | paste -sd, -
+echo
+printf 'MYSQL_SCRIPT='
+for f in /root/mysql.sh /home/centos/mysql.sh; do sudo -n test -f "$f" &amp;&amp; printf '%s,' "$f"; done
+echo
+if sudo -n test -f /root/mysql.sh; then
+  printf '%s\n' \
+    'SELECT @@server_id AS server_id, @@hostname AS hostname, @@read_only AS read_only, @@super_read_only AS super_read_only;' \
+    'SHOW DATABASES;' \
+    'SHOW MASTER STATUS;' \
+    'SHOW SLAVE STATUS\G' \
+    'SELECT table_schema, COUNT(*) AS tables_count FROM information_schema.tables WHERE table_schema NOT IN ("mysql","performance_schema","information_schema","sys") GROUP BY table_schema ORDER BY table_schema;' \
+    'SELECT table_schema, MAX(update_time) AS latest_update_time FROM information_schema.tables WHERE table_schema NOT IN ("mysql","performance_schema","information_schema","sys") GROUP BY table_schema ORDER BY table_schema;' \
+  | sudo -n env PATH=/data/mysql/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin bash /root/mysql.sh 2&gt;&amp;1
+elif sudo -n test -f /home/centos/mysql.sh; then
+  printf '%s\n' \
+    'SELECT @@server_id AS server_id, @@hostname AS hostname, @@read_only AS read_only, @@super_read_only AS super_read_only;' \
+    'SHOW DATABASES;' \
+    'SHOW MASTER STATUS;' \
+    'SHOW SLAVE STATUS\G' \
+    'SELECT table_schema, COUNT(*) AS tables_count FROM information_schema.tables WHERE table_schema NOT IN ("mysql","performance_schema","information_schema","sys") GROUP BY table_schema ORDER BY table_schema;' \
+    'SELECT table_schema, MAX(update_time) AS latest_update_time FROM information_schema.tables WHERE table_schema NOT IN ("mysql","performance_schema","information_schema","sys") GROUP BY table_schema ORDER BY table_schema;' \
+  | sudo -n env PATH=/data/mysql/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin bash /home/centos/mysql.sh 2&gt;&amp;1
+else
+  echo MYSQL_HELPER_NOT_FOUND
+fi
+printf '__DB_END__\n'
+"""
+
+
+def scan(name: str, ip: str) -&gt; dict[str, object]:
+    result: dict[str, object] = {"asset": name, "ip": ip, "status": "unknown"}
+    child = spawn_jumpserver()
+    try:
+        child.send("/")
+        child.expect("搜索:", timeout=10)
+        child.send(name)
+        child.send("\r")
+        child.expect(name, timeout=15)
+        time.sleep(0.8)
+        child.send("\r")
+        index = child.expect(
+            [
+                r"\[[^\]]+@[^\]]+\]\s*[#$] ",
+                r"(?:Permission denied|Authentication failed|Connection refused|"
+                r"没有可用的授权账号或终端协议|无法获取连接选项)",
+                pexpect.TIMEOUT,
+            ],
+            timeout=25,
+        )
+        if index != 0:
+            result["status"] = "login_failed" if index == 1 else "login_timeout"
+            result["transcript"] = clean(child.before or "", name)
+            return result
+        encoded = base64.b64encode(MYSQL_AUDIT_SCRIPT.encode()).decode("ascii")
+        child.sendline(f"echo {encoded} | base64 -d | bash")
+        index = child.expect(
+            [r"__DB_END__", pexpect.TIMEOUT],
+            timeout=45,
+        )
+        block = clean(child.before or "", name)
+        if "__DB_BEGIN__" in block:
+            block = block.rsplit("__DB_BEGIN__", 1)[-1]
+        result["status"] = "scanned" if index == 0 else "scan_timeout"
+        result["transcript"] = block
+        return result
+    finally:
+        child.close(force=True)
+
+
+def main() -&gt; int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--only", action="append", default=[])
+    parser.add_argument(
+        "--output", default="/tmp/emergency-database-recovery-audit.json"
+    )
+    args = parser.parse_args()
+    targets = TARGETS
+    if args.only:
+        selected = set(args.only)
+        targets = [item for item in targets if item[0] in selected]
+    output = Path(args.output)
+    results = []
+    for name, ip in targets:
+        print(name, flush=True)
+        try:
+            result = scan(name, ip)
+        except Exception as exc:
+            result = {
+                "asset": name,
+                "ip": ip,
+                "status": "exception",
+                "error": f"{type(exc).__name__}: {exc}",
+            }
+        results.append(result)
+        output.write_text(
+            json.dumps({"assets": results}, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        print(result["status"], flush=True)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+</code></pre>
+<h4 id="01_discoveryemergency_web_db_discoverypy"><code>01_discovery/emergency_web_db_discovery.py</code></h4>
+<p><strong>中文备注：</strong> 从 Web 发布目录定位 database.php，自动隐藏密码后再输出。</p>
+<pre><code class="language-python">#!/usr/bin/env python3
+# ============================================================================
+# 平台：某支付平台
+# 恢复阶段：01_discovery
+# 中文备注：从 Web 发布目录定位 database.php，自动隐藏密码后再输出。
+# 安全说明：本文件不包含密码、Token 或私钥；运行时从受限环境读取。
+# ============================================================================
+"""Discover database endpoints from web application configs.
+
+Credentials are redacted in output. The legacy JumpServer credential remains
+inside the legacy host process and is used only for the requested read.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import subprocess
+from pathlib import Path
+
+from emergency_bastion_deep_audit import parse_assets
+
+
+OLD_HOST = "192.0.2.36"
+BUILD_HOST = "root@192.0.2.37"
+
+DISCOVERY_SCRIPT = r"""
+set +e
+printf '__WEB_DB_BEGIN__\n'
+printf 'HOST='; hostname
+printf 'IP='; hostname -I
+printf 'DATE='; date '+%F %T %Z'
+printf 'NGINX_ROOTS='
+sudo -n grep -RhE '^[[:space:]]*root[[:space:]]+[^;]+;' \
+  /etc/nginx /www/server/panel/vhost /www/server/nginx/conf 2&gt;/dev/null |
+  sed -E 's#^[[:space:]]*root[[:space:]]+##; s#;[[:space:]]*$##' |
+  sort -u | head -60 | paste -sd, -
+echo
+files=$(sudo -n timeout 20s find /www/wwwroot /data/wwwroot /data/release /home -maxdepth 6 \
+  -type f -size -2M -newermt '2026-01-01' \
+  \( -name '.env' -o -name '*.env' -o -name 'database.php' \
+     -o -name 'database_release.php' -o -name 'settings.php' \) \
+  ! -path '*/vendor/*' ! -path '*/vendor_pwa/*' ! -path '*/node_modules/*' \
+  ! -path '*/.git/*' ! -path '*/.github/*' ! -path '*/.travis.yml' \
+  -printf '%T@|%p\n' 2&gt;/dev/null | sort -nr | cut -d'|' -f2- | head -25)
+files=$(printf '%s\n' $files | grep -E '/(config|application|conf|settings)/|/\.env$|database' | head -25)
+printf 'CONFIG_FILES=%s\n' "$files" | head -c 8000
+echo
+idx=0
+for f in $files; do
+  idx=$((idx+1))
+  [ "$idx" -gt 25 ] &amp;&amp; break
+  printf 'FILE_%s=%s\n' "$idx" "$f"
+  printf 'SHA_%s=' "$idx"; sudo -n sha256sum "$f" 2&gt;/dev/null | awk '{print $1}'
+  printf 'LINES_%s=' "$idx"
+  sudo -n grep -aEin \
+    'DB_HOST|DB_PORT|DB_NAME|DB_USER|DB_PASS|MYSQL_HOST|MYSQL_PORT|MYSQL_USER|MYSQL_PASS|database|hostname|username|password|redis_host|redis_port|redis_password|spring.datasource' \
+    "$f" 2&gt;/dev/null | head -40 |
+    sed -E 's/(password|passwd|pass|pwd|secret|token|key)[^,;]*/\1=&lt;REDACTED&gt;/Ig' |
+    paste -sd '|' -
+  echo
+done
+printf '__WEB_DB_END__\n'
+"""
+
+REMOTE_RUNNER = r"""
+import base64
+import io
+import sys
+import django
+
+django.setup()
+
+import paramiko
+from assets.models import SystemUser
+
+target = "__IR_TARGET_IP__"
+payload = base64.b64decode("__IR_SCRIPT_B64__")
+last_error = ""
+
+for name in ("centos-basic", "centos-yfb", "centos-DBA", "centos"):
+    try:
+        user = SystemUser.objects.get(name=name)
+        kwargs = {
+            "hostname": target,
+            "port": 22,
+            "username": user.username,
+            "timeout": 15,
+            "banner_timeout": 15,
+            "auth_timeout": 15,
+            "allow_agent": False,
+            "look_for_keys": False,
+        }
+        if user.private_key:
+            kwargs["pkey"] = paramiko.RSAKey.from_private_key(
+                io.StringIO(user.private_key), password=user.password or None
+            )
+        elif user.password:
+            kwargs["password"] = user.password
+        else:
+            continue
+        client = paramiko.SSHClient()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        client.connect(**kwargs)
+        stdin, stdout, stderr = client.exec_command("bash -s", timeout=120)
+        stdin.write(payload)
+        stdin.channel.shutdown_write()
+        sys.stdout.write(stdout.read().decode("utf-8", "replace"))
+        sys.stdout.flush()
+        sys.stderr.write(stderr.read().decode("utf-8", "replace"))
+        client.close()
+        raise SystemExit(0)
+    except SystemExit:
+        raise
+    except Exception as exc:
+        last_error = f"{name}:{type(exc).__name__}"
+
+print("__CONNECT_FAILED__=" + last_error)
+"""
+
+
+def run_remote(name: str, ip: str, key: Path, timeout: int) -&gt; tuple[int, str, str]:
+    password = os.environ.get("BASTION_BOOTSTRAP_PASSWORD", "")
+    if not password:
+        raise RuntimeError("BASTION_BOOTSTRAP_PASSWORD is required")
+    import base64
+    encoded = base64.b64encode(DISCOVERY_SCRIPT.encode("utf-8")).decode("ascii")
+    runner = REMOTE_RUNNER.replace("__IR_TARGET_IP__", ip).replace(
+        "__IR_SCRIPT_B64__", encoded
+    )
+    proxy = (
+        "sshpass -e ssh -o StrictHostKeyChecking=accept-new "
+        f"-o ConnectTimeout=15 -W %h:%p {BUILD_HOST}"
+    )
+    env = os.environ.copy()
+    env["SSHPASS"] = password
+    proc = subprocess.run(
+        [
+            "ssh",
+            "-i",
+            str(key),
+            "-o",
+            "IdentitiesOnly=yes",
+            "-o",
+            "BatchMode=yes",
+            "-o",
+            "StrictHostKeyChecking=accept-new",
+            "-o",
+            "ConnectTimeout=15",
+            "-o",
+            f"ProxyCommand={proxy}",
+            f"root@{OLD_HOST}",
+            (
+                "cd /opt/jumpserver/apps &amp;&amp; "
+                "LANG=en_US.utf8 LC_ALL=en_US.utf8 "
+                "DJANGO_SETTINGS_MODULE=jumpserver.settings "
+                "/opt/py3/bin/python -"
+            ),
+        ],
+        input=runner,
+        text=True,
+        capture_output=True,
+        env=env,
+        timeout=timeout,
+    )
+    return proc.returncode, proc.stdout, proc.stderr
+
+
+def main() -&gt; int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--assets", required=True)
+    parser.add_argument("--output", required=True)
+    parser.add_argument(
+        "--key", default="/Users/operator/Downloads/jumpser-old.crash"
+    )
+    parser.add_argument("--web", action="append", default=[])
+    parser.add_argument("--timeout", type=int, default=180)
+    args = parser.parse_args()
+
+    assets = parse_assets(Path(args.assets))
+    if args.web:
+        wanted = set(args.web)
+        assets = [item for item in assets if item[0] in wanted]
+    results: list[dict[str, object]] = []
+    for name, ip in assets:
+        print(name, flush=True)
+        result: dict[str, object] = {"asset": name, "ip": ip, "status": "unknown"}
+        try:
+            rc, stdout, stderr = run_remote(name, ip, Path(args.key), args.timeout)
+            if "__WEB_DB_END__" in stdout:
+                result["status"] = "scanned"
+                result["transcript"] = stdout.split("__WEB_DB_BEGIN__", 1)[-1].replace(
+                    "__WEB_DB_END__", ""
+                )
+            else:
+                result["status"] = "scan_failed" if rc else "scan_timeout"
+                result["transcript"] = stdout[-5000:]
+                result["error"] = stderr[-2000:]
+        except Exception as exc:
+            result["status"] = "exception"
+            result["error"] = f"{type(exc).__name__}: {exc}"
+        results.append(result)
+        Path(args.output).write_text(
+            json.dumps({"assets": results}, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        print(result["status"], flush=True)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+</code></pre>
+<h4 id="01_discoveryemergency_backup_discoverypy"><code>01_discovery/emergency_backup_discovery.py</code></h4>
+<p><strong>中文备注：</strong> 盘点备份机上的 SQL、xbstream、tar 包和备份脚本。</p>
+<pre><code class="language-python">#!/usr/bin/env python3
+# ============================================================================
+# 平台：某支付平台
+# 恢复阶段：01_discovery
+# 中文备注：盘点备份机上的 SQL、xbstream、tar 包和备份脚本。
+# 安全说明：本文件不包含密码、Token 或私钥；运行时从受限环境读取。
+# ============================================================================
+"""Discover recent database backup artifacts on authorized backup servers."""
+
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+
+from emergency_bastion_deep_audit import parse_assets
+from emergency_bastion_exec import run_asset
+
+
+BACKUP_SCRIPT = r"""
+set +e
+printf '__BACKUP_BEGIN__\n'
+printf 'HOST='; hostname
+printf 'DATE='; date '+%F %T %Z'
+printf 'MOUNTS='; df -hT /data /backup /opt 2&gt;/dev/null | tail -n +2 | paste -sd, -
+echo
+printf 'RECENT_FILES='
+sudo -n timeout 35s find /data /backup /backups /opt -maxdepth 7 -type f \
+  \( -iname '*.sql' -o -iname '*.sql.gz' -o -iname '*.sql.xz' -o -iname '*.sql.zst' \
+     -o -iname '*.xb' -o -iname '*.xbstream' -o -iname '*.tar.gz' \
+     -o -iname 'xtrabackup_checkpoints' -o -iname '*dump*' \) \
+  -newermt '2026-01-01' -printf '%TY-%Tm-%Td|%TH:%TM|%u|%m|%s|%p;' 2&gt;/dev/null |
+  sort | tail -200 | paste -sd, -
+echo
+printf 'RECENT_DIRS='
+sudo -n timeout 35s find /data /backup /backups /opt -maxdepth 5 -type d \
+  \( -iname '*backup*' -o -iname '*dump*' -o -iname '*xtrabackup*' \) \
+  -newermt '2026-01-01' -printf '%TY-%Tm-%Td|%TH:%TM|%u|%m|%p;' 2&gt;/dev/null |
+  sort | tail -100 | paste -sd, -
+echo
+printf 'LARGE_FILES='
+sudo -n timeout 25s find /data /backup /backups -maxdepth 6 -type f -size +100M \
+  -printf '%TY-%Tm-%Td|%TH:%TM|%u|%m|%s|%p;' 2&gt;/dev/null |
+  sort | tail -100 | paste -sd, -
+echo
+printf 'BACKUP_SCRIPTS='
+sudo -n timeout 20s grep -RIlE 'mysqldump|xtrabackup|mariabackup|innobackupex|sql.gz' \
+  /root /home /usr/local/bin /opt /data 2&gt;/dev/null | head -100 | paste -sd, -
+echo
+printf '__BACKUP_END__\n'
+"""
+
+
+def main() -&gt; int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--assets", required=True)
+    parser.add_argument("--output", required=True)
+    parser.add_argument("--asset", action="append", default=[])
+    args = parser.parse_args()
+    assets = parse_assets(Path(args.assets))
+    if args.asset:
+        selected = set(args.asset)
+        assets = [item for item in assets if item[0] in selected]
+    results: list[dict[str, object]] = []
+    for name, ip in assets:
+        print(name, flush=True)
+        try:
+            result = run_asset(
+                name, BACKUP_SCRIPT, "__BACKUP_BEGIN__", "__BACKUP_END__"
+            )
+            result["ip"] = ip
+        except Exception as exc:
+            result = {
+                "asset": name,
+                "ip": ip,
+                "status": "exception",
+                "error": f"{type(exc).__name__}: {exc}",
+            }
+        results.append(result)
+        Path(args.output).write_text(
+            json.dumps({"assets": results}, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        print(result["status"], flush=True)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+</code></pre>
+<h3 id="10-2-02_main_pitr-主库日备与-binlog-PITR">10.2 02_main_pitr 主库日备与 binlog PITR</h3>
+<p>恢复 某支付平台 主库：备份节点 日备 114 个表文件导入，再回放到 DROP 前位置。</p>
+<h4 id="02_main_pitrpaydb_binlog_exportsh"><code>02_main_pitr/paydb_binlog_export.sh</code></h4>
+<p><strong>中文备注：</strong> 从 mysql-bin.000091 导出 paydb SQL，固定 DROP 前停止位并做 DROP 门禁。</p>
+<pre><code class="language-bash">#!/bin/bash
+# ============================================================================
+# 平台：某支付平台
+# 恢复阶段：02_main_pitr
+# 中文备注：从 mysql-bin.000091 导出 paydb SQL，固定 DROP 前停止位并做 DROP 门禁。
+# 安全说明：本文件不包含密码、Token 或私钥；运行时从受限环境读取。
+# ============================================================================
+# ============================================================================
+# 平台：某支付平台
+# 恢复阶段：主库 PITR binlog 导出
+# 中文备注：从 备份节点 的 mysql-bin.000091 导出 DROP 之前、仅属于 paydb 的 SQL。
+# 安全说明：本文件不包含密码、Token 或私钥；输出包会先检查不得包含 DROP。
+# ============================================================================
+set -euo pipefail
+
+mysqlbinlog_bin="${PAY_PLATFORM_MYSQLBINLOG_BIN:-/data/mysql/bin/mysqlbinlog}"
+source_binlog="${PAY_PLATFORM_SOURCE_BINLOG:?PAY_PLATFORM_SOURCE_BINLOG is required}"
+database="${PAY_PLATFORM_DATABASE:-paydb}"
+start_datetime="${PAY_PLATFORM_START_DATETIME:?PAY_PLATFORM_START_DATETIME is required}"
+stop_position="${PAY_PLATFORM_STOP_POSITION:?PAY_PLATFORM_STOP_POSITION is required}"
+output="${PAY_PLATFORM_BINLOG_OUTPUT:?PAY_PLATFORM_BINLOG_OUTPUT is required}"
+
+[[ -x "$mysqlbinlog_bin" ]] || {
+  echo "MYSQLBINLOG_NOT_EXECUTABLE=$mysqlbinlog_bin" &gt;&amp;2
+  exit 2
+}
+[[ -r "$source_binlog" ]] || {
+  echo "SOURCE_BINLOG_NOT_READABLE=$source_binlog" &gt;&amp;2
+  exit 3
+}
+[[ "$stop_position" =~ ^[0-9]+$ ]] || {
+  echo "INVALID_STOP_POSITION=$stop_position" &gt;&amp;2
+  exit 4
+}
+
+output_dir="$(dirname "$output")"
+mkdir -p "$output_dir"
+partial="${output}.part"
+error_log="${output}.mysqlbinlog.err"
+manifest="${output}.sha256"
+rm -f "$partial"
+trap 'rm -f "$partial"' EXIT
+
+# --skip-gtids 避免在恢复目标上重新注入源库 GTID。
+# --database 只保留 paydb；--stop-position 固定在 DROP 完成位置之前。
+sudo -n "$mysqlbinlog_bin" \
+  --skip-gtids \
+  --database="$database" \
+  --start-datetime="$start_datetime" \
+  --stop-position="$stop_position" \
+  "$source_binlog" 2&gt;"$error_log" | gzip -9 &gt;"$partial"
+
+gzip -t "$partial"
+
+# 安全门禁：即使停止位置写错，也拒绝发布包含 DROP DATABASE 的恢复包。
+if gzip -dc "$partial" | grep -aEiq \
+    "DROP[[:space:]]+DATABASE([[:space:]]|.*\`)$database"; then
+  echo "DROP_EVENT_DETECTED=1 OUTPUT=$partial" &gt;&amp;2
+  exit 25
+fi
+
+mv -f "$partial" "$output"
+sha256="$(sha256sum "$output" | awk '{print $1}')"
+size="$(stat -c %s "$output")"
+printf '%s  %s\n' "$sha256" "$(basename "$output")" &gt;"$manifest"
+
+printf 'BINLOG_EXPORT=%s\n' "$output"
+printf 'BINLOG_BYTES=%s\n' "$size"
+printf 'BINLOG_SHA256=%s\n' "$sha256"
+printf 'DROP_EVENT_DETECTED=0\n'
+</code></pre>
+<h4 id="02_main_pitrpaydb_main_restoresh"><code>02_main_pitr/paydb_main_restore.sh</code></h4>
+<p><strong>中文备注：</strong> 导入日备表 SQL、清理 GTID_PURGED、回放安全 binlog 并输出核心计数。</p>
+<pre><code class="language-bash">#!/bin/bash
+# ============================================================================
+# 平台：某支付平台
+# 恢复阶段：02_main_pitr
+# 中文备注：导入日备表 SQL、清理 GTID_PURGED、回放安全 binlog 并输出核心计数。
+# 安全说明：本文件不包含密码、Token 或私钥；运行时从受限环境读取。
+# ============================================================================
+# ============================================================================
+# 平台：某支付平台
+# 恢复阶段：主库日备 + binlog PITR
+# 中文备注：导入 备份节点 日备的 114 个表 SQL，再回放到 DROP 前位置。
+# 安全说明：本文件不包含密码；必须显式确认，已有数据默认拒绝覆盖。
+# ============================================================================
+set -euo pipefail
+
+database="${PAY_PLATFORM_RESTORE_DATABASE:-paydb}"
+backup_tar="${PAY_PLATFORM_BACKUP_TAR:-/data/backup/paydb_backup_20261107_000001.tar.gz}"
+restore_root="${PAY_PLATFORM_RESTORE_ROOT:-/data/paydb-recovery-20261107}"
+table_dir="${PAY_PLATFORM_TABLE_SQL_DIR:-$restore_root/temp_20261107_000001}"
+binlog_sql="${PAY_PLATFORM_BINLOG_SQL:?PAY_PLATFORM_BINLOG_SQL is required}"
+mysql_helper="${PAY_PLATFORM_MYSQL_HELPER:-/root/mysql.sh}"
+mysql_bin="${PAY_PLATFORM_MYSQL_BIN:-/data/mysql/bin/mysql}"
+confirm="${PAY_PLATFORM_CONFIRM_RESTORE:-}"
+allow_nonempty="${PAY_PLATFORM_ALLOW_NONEMPTY:-0}"
+binlog_force="${PAY_PLATFORM_BINLOG_FORCE:-1}"
+
+[[ "$confirm" == "I_UNDERSTAND_PAY_PLATFORM_RESTORE" ]] || {
+  echo "Set PAY_PLATFORM_CONFIRM_RESTORE=I_UNDERSTAND_PAY_PLATFORM_RESTORE" &gt;&amp;2
+  exit 2
+}
+[[ -x "$mysql_bin" ]] || {
+  echo "MYSQL_NOT_EXECUTABLE=$mysql_bin" &gt;&amp;2
+  exit 3
+}
+[[ -r "$binlog_sql" ]] || {
+  echo "BINLOG_SQL_NOT_READABLE=$binlog_sql" &gt;&amp;2
+  exit 4
+}
+
+# 密码只从 root-only mysql.sh 读取，不输出到终端或日志。
+mysql_password="$(
+  awk '{
+    for (i = 1; i &lt;= NF; i++) {
+      if ($i ~ /^-p/) {
+        value = substr($i, 3)
+        if (value != "") {
+          print value
+          exit
+        }
+      }
+    }
+  }' "$mysql_helper"
+)"
+case "$mysql_password" in
+  \'*\'|\"*\")
+    mysql_password="${mysql_password:1:${#mysql_password}-2}"
+    ;;
+esac
+[[ -n "$mysql_password" ]] || {
+  echo "MYSQL_PASSWORD_PARSE_FAILED" &gt;&amp;2
+  exit 5
+}
+
+mysql_run() {
+  MYSQL_PWD="$mysql_password" "$mysql_bin" \
+    --socket=/tmp/mysql.sock -uroot --connect-timeout=8 "$@"
+}
+
+# 若日备尚未解包，则先解到独立恢复目录。
+if [[ ! -d "$table_dir" || -z "$(find "$table_dir" -maxdepth 1 -type f -name '*.sql' -print -quit)" ]]; then
+  [[ -r "$backup_tar" ]] || {
+    echo "BACKUP_TAR_NOT_READABLE=$backup_tar" &gt;&amp;2
+    exit 6
+  }
+  mkdir -p "$restore_root"
+  tar -xzf "$backup_tar" -C "$restore_root"
+fi
+
+mapfile -t table_files &lt; &lt;(find "$table_dir" -maxdepth 1 -type f -name '*.sql' | sort)
+[[ "${#table_files[@]}" -gt 0 ]] || {
+  echo "NO_TABLE_SQL=$table_dir" &gt;&amp;2
+  exit 7
+}
+
+mysql_run &lt;&lt;SQL
+CREATE DATABASE IF NOT EXISTS \`$database\` DEFAULT CHARACTER SET latin1;
+SQL
+
+existing_tables="$(mysql_run --batch --skip-column-names -e \
+  "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='$database'")"
+if [[ "$existing_tables" -gt 0 &amp;&amp; "$allow_nonempty" != "1" ]]; then
+  echo "REFUSE_NONEMPTY_DATABASE=$database TABLES=$existing_tables" &gt;&amp;2
+  echo "Set PAY_PLATFORM_ALLOW_NONEMPTY=1 only after a verified backup." &gt;&amp;2
+  exit 8
+fi
+
+log_dir="${PAY_PLATFORM_RESTORE_LOG_DIR:-/tmp}"
+log="$log_dir/paydb-main-restore-$(date +%Y%m%d-%H%M%S).log"
+mkdir -p "$log_dir"
+exec &gt; &gt;(tee -a "$log") 2&gt;&amp;1
+
+# 全局事件调度器在导入期间关闭，避免日备中的事件在数据未完整时触发。
+event_scheduler_original="$(mysql_run --batch --skip-column-names -e \
+  'SELECT @@GLOBAL.event_scheduler')"
+restore_event_scheduler() {
+  mysql_run -e \
+    "SET GLOBAL event_scheduler=$event_scheduler_original" &gt;/dev/null 2&gt;&amp;1 || true
+}
+trap restore_event_scheduler EXIT
+mysql_run -e 'SET GLOBAL event_scheduler=OFF'
+
+echo "RESTORE_START=$(date '+%F %T %Z')"
+echo "DATABASE=$database"
+echo "TABLE_DIR=$table_dir TABLE_FILES=${#table_files[@]}"
+
+index=0
+for file in "${table_files[@]}"; do
+  index=$((index + 1))
+  echo "TABLE_IMPORT_START=$index/$(
+    echo "${#table_files[@]}"
+  ) $(basename "$file")"
+
+  # 日备 SQL 带源库 GTID_PURGED；清掉该语句，避免污染恢复实例的 GTID 状态。
+  {
+    printf 'SET SESSION sql_log_bin=0;\nSET SESSION foreign_key_checks=0;\n'
+    awk '
+      BEGIN { skip = 0 }
+      /^SET @@GLOBAL\.GTID_PURGED=/ { skip = 1 }
+      skip == 0 { print }
+      skip == 1 &amp;&amp; /;$/ { skip = 0 }
+    ' "$file"
+  } | mysql_run "$database"
+  echo "TABLE_IMPORT_RC=0 TABLE=$(basename "$file")"
+done
+
+echo "TABLE_IMPORT_FINISH=$index $(date '+%F %T %Z')"
+
+# 发布前再次检查 SQL 包里没有 DROP DATABASE。
+gzip -t "$binlog_sql"
+if gzip -dc "$binlog_sql" 2&gt;/dev/null | grep -aEiq \
+    "DROP[[:space:]]+DATABASE([[:space:]]|.*\`)$database"; then
+  echo "DROP_EVENT_DETECTED=1" &gt;&amp;2
+  exit 25
+fi
+
+mysql_args=(--force)
+if [[ "$binlog_force" != "1" ]]; then
+  mysql_args=()
+fi
+
+echo "BINLOG_REPLAY_START=$(date '+%F %T %Z')"
+gzip -dc "$binlog_sql" | mysql_run "${mysql_args[@]}" "$database"
+echo "BINLOG_REPLAY_RC=0 FINISH=$(date '+%F %T %Z')"
+
+# 输出核心计数供恢复人员立即比对；完整核验继续执行 paydb_verify.sql。
+mysql_run --table "$database" -e "
+SELECT NOW() AS checked_at, @@hostname AS mysql_host;
+SELECT COUNT(*) AS total_tables FROM information_schema.TABLES
+ WHERE TABLE_SCHEMA=DATABASE();
+SELECT COUNT(*) AS bak_tables FROM information_schema.TABLES
+ WHERE TABLE_SCHEMA=DATABASE() AND LOWER(TABLE_NAME) LIKE '%\\_bak%';
+SELECT
+ (SELECT COUNT(*) FROM user_account) AS user_account_rows,
+ (SELECT COUNT(*) FROM user_profile) AS user_profile_rows,
+ (SELECT COUNT(*) FROM transaction_detail) AS transaction_detail_rows;
+SELECT COUNT(*) AS events_total,
+       SUM(STATUS='ENABLED') AS events_enabled,
+       SUM(STATUS='DISABLED') AS events_disabled
+  FROM information_schema.EVENTS WHERE EVENT_SCHEMA=DATABASE();
+"
+
+restore_event_scheduler
+trap - EXIT
+echo "RESTORE_FINISH=$(date '+%F %T %Z')"
+</code></pre>
+<h3 id="10-3-03_bak_tables-历史-_bak-表隔离导出与导入">10.3 03_bak_tables 历史 _bak 表隔离导出与导入</h3>
+<p>从 2026-07-15 XtraBackup 隔离快照导出 57 张历史 _bak 表，再导入 主节点。</p>
+<h4 id="03_bak_tablespaydb_backup_readerservice"><code>03_bak_tables/paydb_backup_reader.service</code></h4>
+<p><strong>中文备注：</strong> 仅本地 socket、skip-networking 的临时只读 MySQL 实例定义。</p>
+<pre><code class="language-ini"># ============================================================================
+# 平台：某支付平台
+# 恢复阶段：03_bak_tables
+# 中文备注：仅本地 socket、skip-networking 的临时只读 MySQL 实例定义。
+# 安全说明：本文件不包含密码、Token 或私钥；运行时从受限环境读取。
+# ============================================================================
+# ============================================================================
+# 平台：某支付平台
+# 恢复阶段：2026-07-15 XtraBackup 隔离只读实例
+# 中文备注：仅通过本地 socket 启动 skip-grant 临时 MySQL，供导出 57 张 _bak 表。
+# 安全说明：--skip-networking 禁止网络访问；不修改主业务 MySQL。
+# ============================================================================
+[Unit]
+Description=某支付平台 recovery-only MySQL reader for July XtraBackup
+After=network.target
+ConditionPathIsDirectory=/data/backup/2026-07-15_20-22-51
+
+[Service]
+Type=simple
+User=mysql
+Group=mysql
+ExecStart=/data/mysql/bin/mysqld --no-defaults --basedir=/data/mysql --datadir=/data/backup/2026-07-15_20-22-51 --plugin-dir=/data/mysql/lib/plugin --user=mysql --socket=/tmp/mysql3307.sock --pid-file=/tmp/mysql3307.pid --skip-networking --skip-grant-tables --skip-log-bin --innodb-buffer-pool-size=2G --log-error=/tmp/mysql3307.err
+Restart=no
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+<h4 id="03_bak_tablespaydb_bak_export_allsh"><code>03_bak_tables/paydb_bak_export_all.sh</code></h4>
+<p><strong>中文备注：</strong> 4 路并发协调 57 张 _bak 表导出。</p>
+<pre><code class="language-bash">#!/bin/bash
+# ============================================================================
+# 平台：某支付平台
+# 恢复阶段：03_bak_tables
+# 中文备注：4 路并发协调 57 张 _bak 表导出。
+# 安全说明：本文件不包含密码、Token 或私钥；运行时从受限环境读取。
+# ============================================================================
+# ============================================================================
+# 平台：某支付平台
+# 恢复阶段：57 张历史 _bak 表导出
+# 中文备注：按表清单启动 4 路并发导出，每张表交给一个独立 worker。
+# 安全说明：本文件不包含密码、Token 或私钥；MySQL 只在目标机本地受限环境读取。
+# ============================================================================
+set -uo pipefail
+
+# 所有路径都允许通过环境变量覆盖，便于在故障机上复现而不修改脚本。
+root="${PAY_PLATFORM_BAK_ROOT:-/data/paydb-bak-work}"
+tables_file="${1:-${root}/paydb-bak-tables.txt}"
+export_dir="${EXPORT_DIR:-${root}/exports-20261107-v2}"
+log_dir="${LOG_DIR:-${root}/logs-20261107-v2}"
+worker="${WORKER_SCRIPT:-/usr/local/sbin/paydb_bak_export_one.sh}"
+parallel="${PARALLEL:-4}"
+
+# 先验证输入，避免 xargs 在无表清单时静默成功。
+[[ -s "$tables_file" ]] || {
+  echo "TABLE_LIST_MISSING=$tables_file" &gt;&amp;2
+  exit 2
+}
+[[ -x "$worker" ]] || {
+  echo "WORKER_NOT_EXECUTABLE=$worker" &gt;&amp;2
+  exit 3
+}
+
+mkdir -p "$export_dir" "$log_dir"
+printf 'COORDINATOR_START=%s\n' "$(date '+%F %T %Z')" \
+  | tee "${log_dir}/coordinator.log"
+printf 'TABLES=%s PARALLEL=%s\n' "$(wc -l &lt; "$tables_file")" "$parallel" \
+  | tee -a "${log_dir}/coordinator.log"
+
+# 每行是一张表；-P 控制并发，-n 1 保证 worker 一次只处理一张表。
+xargs -r -P "$parallel" -n 1 "$worker" &lt;"$tables_file"
+rc=$?
+printf 'COORDINATOR_RC=%s\n' "$rc" | tee -a "${log_dir}/coordinator.log"
+printf 'COORDINATOR_FINISH=%s\n' "$(date '+%F %T %Z')" \
+  | tee -a "${log_dir}/coordinator.log"
+exit "$rc"
+</code></pre>
+<h4 id="03_bak_tablespaydb_bak_export_onesh"><code>03_bak_tables/paydb_bak_export_one.sh</code></h4>
+<p><strong>中文备注：</strong> 单表导出、压缩、SHA256 记录和上传中转机。</p>
+<pre><code class="language-bash">#!/bin/bash
+# ============================================================================
+# 平台：某支付平台
+# 恢复阶段：03_bak_tables
+# 中文备注：单表导出、压缩、SHA256 记录和上传中转机。
+# 安全说明：本文件不包含密码、Token 或私钥；运行时从受限环境读取。
+# ============================================================================
+# ============================================================================
+# 平台：某支付平台
+# 恢复阶段：57 张历史 _bak 表单表导出
+# 中文备注：从隔离只读 MySQL 导出单表，压缩、校验后传到宝塔中转目录。
+# 安全说明：本文件不包含密码、Token 或私钥；只使用本地 socket 和受限传输密钥。
+# ============================================================================
+set -uo pipefail
+
+table="${1:?usage: paydb_bak_export_one.sh TABLE}"
+export_dir="${EXPORT_DIR:-/data/paydb-bak-work/exports-20261107-v2}"
+log_dir="${LOG_DIR:-/data/paydb-bak-work/logs-20261107-v2}"
+mysql_bin="${MYSQL_BIN:-/data/mysql/bin/mysqldump}"
+socket="${MYSQL_SOCKET:-/tmp/mysql3307.sock}"
+transfer_key="${TRANSFER_KEY:-/tmp/.bizops-transfer-key}"
+transfer_target="${TRANSFER_TARGET:-root@192.0.2.38:/root/vendor_a-zips/}"
+
+# 只保留安全文件名，避免表名中的特殊字符影响本地路径。
+safe="$(printf '%s' "$table" | tr -c 'A-Za-z0-9_.-' '_')"
+final="${export_dir}/paydb-bak-${safe}.sql.gz"
+partial="${final}.part"
+failed="${export_dir}/paydb-bak-${safe}.sql.gz.failed"
+log="${log_dir}/paydb-bak-${safe}.log"
+
+mkdir -p "$export_dir" "$log_dir"
+# 中断或失败时不留下可被误认为完整包的 .part 文件。
+rm -f "$partial"
+trap 'rm -f "$partial"' EXIT
+
+{
+  printf 'TABLE_START=%s %s\n' "$table" "$(date '+%F %T %Z')"
+  printf 'EXPORT_TARGET=%s\n' "$final"
+} | tee "$log"
+
+set -o pipefail
+# 隔离实例使用 skip-grant-tables 并以本地 socket 只读运行；
+# --single-transaction 与 --quick 避免长时间锁表和大内存占用。
+sudo -n "$mysql_bin" \
+  --socket="$socket" \
+  -uroot \
+  --single-transaction \
+  --quick \
+  --skip-lock-tables \
+  --hex-blob \
+  --set-gtid-purged=OFF \
+  --no-create-db \
+  paydb "$table" | gzip -1 &gt;"$partial"
+rc=$?
+printf 'DUMP_RC=%s\n' "$rc" &gt;&gt;"$log"
+
+if [[ "$rc" -ne 0 || ! -s "$partial" ]]; then
+  mv -f "$partial" "$failed" 2&gt;/dev/null || true
+  printf 'TABLE_FAIL=%s %s\n' "$table" "$(date '+%F %T %Z')" &gt;&gt;"$log"
+  exit "$rc"
+fi
+
+mv -f "$partial" "$final"
+# 大小和 SHA256 同时落日志，供中转机、目标机逐项比对。
+size="$(stat -c %s "$final")"
+sha="$(sha256sum "$final" | awk '{print $1}')"
+printf 'EXPORT_BYTES=%s\nEXPORT_SHA256=%s\n' "$size" "$sha" &gt;&gt;"$log"
+
+# 传输密钥权限由 root/受控账号维护，脚本只检查文件非空。
+if [[ -s "$transfer_key" ]]; then
+  timeout 1800 scp -q \
+    -i "$transfer_key" \
+    -o StrictHostKeyChecking=no \
+    -o UserKnownHostsFile=/dev/null \
+    "$final" "$transfer_target"
+  scp_rc=$?
+else
+  scp_rc=127
+fi
+printf 'SCP_RC=%s\n' "$scp_rc" &gt;&gt;"$log"
+printf 'TABLE_FINISH=%s %s\n' "$table" "$(date '+%F %T %Z')" &gt;&gt;"$log"
+
+# SCP 失败时向协调器返回非零，整批任务会标记失败。
+[[ "$scp_rc" -eq 0 ]]
+</code></pre>
+<h4 id="03_bak_tablespaydb_bak_import_on_db1sh"><code>03_bak_tables/paydb_bak_import_on_db1.sh</code></h4>
+<p><strong>中文备注：</strong> 下载、gzip 校验、暂停事件、逐表导入并核对 57 个表名。</p>
+<pre><code class="language-bash">#!/bin/bash
+# ============================================================================
+# 平台：某支付平台
+# 恢复阶段：03_bak_tables
+# 中文备注：下载、gzip 校验、暂停事件、逐表导入并核对 57 个表名。
+# 安全说明：本文件不包含密码、Token 或私钥；运行时从受限环境读取。
+# ============================================================================
+# ============================================================================
+# 平台：某支付平台
+# 恢复阶段：57 张历史 _bak 表导入 主节点
+# 中文备注：下载、解压前校验、临时关闭事件和约束、逐表导入并核对目标表名。
+# 安全说明：本文件不包含密码、Token 或私钥；MySQL 密码只从 root-only helper 读取。
+# ============================================================================
+set -uo pipefail
+
+source_host="${PAY_PLATFORM_BAK_SOURCE_HOST:-root@192.0.2.38}"
+source_dir="${PAY_PLATFORM_BAK_SOURCE_DIR:-/root/vendor_a-zips}"
+work_dir="${PAY_PLATFORM_BAK_WORK_DIR:-/data/paydb-bak-restore}"
+key="${PAY_PLATFORM_BAK_TRANSFER_KEY:-/tmp/.bizops-transfer-key}"
+mysql_helper="${PAY_PLATFORM_MYSQL_HELPER:-/root/mysql.sh}"
+database="${PAY_PLATFORM_DATABASE:-paydb}"
+expected="${PAY_PLATFORM_BAK_EXPECTED:-57}"
+mysql_bin="${PAY_PLATFORM_MYSQL_BIN:-/data/mysql/bin/mysql}"
+
+# 兼容历史 mysql.sh 中 -pPASSWORD、-p 'PASSWORD' 和 -p "PASSWORD" 三种写法。
+# 密码只保存在当前进程变量中，不写入日志。
+mysql_password="$(
+  awk '{
+    for (i = 1; i &lt;= NF; i++) {
+      if ($i ~ /^-p/) {
+        value = substr($i, 3)
+        if (value != "") {
+          print value
+          exit
+        }
+      }
+    }
+  }' "$mysql_helper"
+)"
+case "$mysql_password" in
+  \'*\'|\"*\")
+    mysql_password="${mysql_password:1:${#mysql_password}-2}"
+    ;;
+esac
+[[ -n "$mysql_password" ]] || {
+  echo "MYSQL_PASSWORD_PARSE_FAILED"
+  exit 23
+}
+
+mysql_run() {
+  MYSQL_PWD="$mysql_password" "$mysql_bin" -uroot --connect-timeout=8 \
+    --batch --skip-column-names "$@"
+}
+
+# 下载目录可复用；日志保留完整执行轨迹。
+mkdir -p "$work_dir/download" "$work_dir/logs"
+log="$work_dir/logs/import-$(date +%Y%m%d-%H%M%S).log"
+exec &gt; &gt;(tee -a "$log") 2&gt;&amp;1
+
+events_enable="$work_dir/events-enable.sql"
+events_disable="$work_dir/events-disable.sql"
+events_restore_done=0
+restore_events() {
+  [[ "$events_restore_done" -eq 0 ]] || return 0
+  events_restore_done=1
+  if [[ -s "$events_enable" ]]; then
+    echo "RESTORE_EVENTS_BEGIN $(date '+%F %T %Z')"
+    if mysql_run &lt;"$events_enable"; then
+      echo "RESTORE_EVENTS_RC=0"
+      return 0
+    fi
+    rc=$?
+    echo "RESTORE_EVENTS_RC=$rc"
+    return "$rc"
+  fi
+  return 0
+}
+# 任何中途失败都尝试恢复导入前已启用的事件。
+trap 'restore_events || true' EXIT
+
+echo "SYNC_START=$(date '+%F %T %Z')"
+existing="$(find "$work_dir/download" -maxdepth 1 -type f -name 'paydb-bak-*.sql.gz' | wc -l)"
+if [[ "$existing" -eq "$expected" ]]; then
+  sync_rc=0
+  echo "SYNC_SKIPPED_EXISTING=$existing"
+else
+  scp -q -i "$key" \
+    -o StrictHostKeyChecking=no \
+    -o UserKnownHostsFile=/dev/null \
+    "$source_host:$source_dir/paydb-bak-*.sql.gz" \
+    "$work_dir/download/"
+  sync_rc=$?
+fi
+echo "SYNC_RC=$sync_rc"
+[[ "$sync_rc" -eq 0 ]] || exit "$sync_rc"
+
+mapfile -t files &lt; &lt;(find "$work_dir/download" -maxdepth 1 -type f -name 'paydb-bak-*.sql.gz' | sort)
+echo "SYNC_FILES=${#files[@]}"
+[[ "${#files[@]}" -eq "$expected" ]] || exit 20
+
+# 先全量做 gzip 完整性检查，任何坏包都不得进入写库阶段。
+for file in "${files[@]}"; do
+  if ! gzip -t "$file"; then
+    echo "GZIP_INVALID=$file"
+    exit 21
+  fi
+done
+echo "GZIP_VERIFY=ok"
+
+# 记录导入前处于 ENABLED 的事件；导入期间逐条 DISABLE。
+# 生成的文件必须自带 USE，否则退出时恢复会在“No database selected”处失败。
+printf "%s\n" "
+USE \`$database\`;
+SELECT CONCAT('USE \`$database\`; ALTER EVENT \`', EVENT_NAME, '\` ENABLE;')
+FROM information_schema.EVENTS
+WHERE EVENT_SCHEMA='$database' AND STATUS='ENABLED';
+" | mysql_run &gt;"$events_enable"
+printf "%s\n" "
+USE \`$database\`;
+SELECT CONCAT('USE \`$database\`; ALTER EVENT \`', EVENT_NAME, '\` DISABLE;')
+FROM information_schema.EVENTS
+WHERE EVENT_SCHEMA='$database' AND STATUS='ENABLED';
+" | mysql_run &gt;"$events_disable"
+echo "EVENTS_TO_RESTORE=$(wc -l &lt; "$events_enable")"
+if mysql_run &lt;"$events_disable"; then
+  echo "EVENTS_DISABLED_RC=0"
+else
+  echo "EVENTS_DISABLED_RC=$?"
+  exit 24
+fi
+
+# 每张表都在独立事务上下文中执行，并临时关闭外键检查。
+# 单表失败立即停止，不把后续表继续写入造成难以判断的半完成状态。
+for file in "${files[@]}"; do
+  base="$(basename "$file" .sql.gz)"
+  echo "TABLE_IMPORT_START=$base $(date '+%F %T %Z')"
+  {
+    printf 'USE `%s`;\nSET FOREIGN_KEY_CHECKS=0;\n' "$database"
+    gzip -dc "$file"
+    printf '\nSET FOREIGN_KEY_CHECKS=1;\n'
+  } | mysql_run
+  rc=$?
+  echo "TABLE_IMPORT_RC=$rc TABLE=$base"
+  [[ "$rc" -eq 0 ]] || exit "$rc"
+done
+
+echo "TABLE_DATA_IMPORT_DONE=$(date '+%F %T %Z')"
+# 不依赖导入日志，直接到 information_schema 验证 57 个目标表名都存在。
+verified=0
+missing=0
+for file in "${files[@]}"; do
+  base="$(basename "$file" .sql.gz)"
+  table="${base#paydb-bak-}"
+  exists="$(printf "%s\n" "
+SELECT COUNT(*)
+FROM information_schema.TABLES
+WHERE TABLE_SCHEMA='$database' AND TABLE_NAME='$table';
+" | mysql_run)"
+  if [[ "$exists" == "1" ]]; then
+    verified=$((verified + 1))
+  else
+    echo "TABLE_MISSING=$table"
+    missing=$((missing + 1))
+  fi
+done
+echo "EXPECTED_TABLES_PRESENT=$verified/$expected"
+[[ "$missing" -eq 0 ]] || exit 22
+
+restore_events
+restore_rc=$?
+trap - EXIT
+[[ "$restore_rc" -eq 0 ]] || exit "$restore_rc"
+
+echo "IMPORT_FINISH=$(date '+%F %T %Z')"
+exit 0
+</code></pre>
+<h3 id="10-4-04_verify-在线核验与恢复材料校验">10.4 04_verify 在线核验与恢复材料校验</h3>
+<p>恢复后只读核验表数、历史表数、核心行数、事件状态和所有恢复材料。</p>
+<h4 id="04_verifypaydb_verifysql"><code>04_verify/paydb_verify.sql</code></h4>
+<p><strong>中文备注：</strong> 在线数据库核验 SQL；只执行 SELECT 和 CHECK TABLE。</p>
+<pre><code class="language-sql">-- 平台：某支付平台
+-- 恢复阶段：04_verify
+-- 中文备注：在线数据库核验 SQL；只执行 SELECT 和 CHECK TABLE。
+-- 安全说明：本文件不包含密码、Token 或私钥。
+-- ============================================================================
+-- 平台：某支付平台
+-- 恢复阶段：主库与 57 张 _bak 表恢复后核验
+-- 中文备注：核对表数、历史表数、核心行数、事件状态和数据时间。
+-- 安全说明：本文件只执行 SELECT 与 CHECK TABLE，不修改业务数据。
+-- ============================================================================
+
+SELECT
+  NOW() AS checked_at,
+  @@hostname AS mysql_host,
+  @@version AS mysql_version,
+  CURRENT_USER() AS mysql_user;
+
+SELECT
+  COUNT(*) AS total_tables,
+  SUM(TABLE_TYPE = 'BASE TABLE') AS base_tables,
+  SUM(TABLE_TYPE = 'VIEW') AS views,
+  ROUND(COALESCE(SUM(DATA_LENGTH + INDEX_LENGTH), 0) / 1024 / 1024, 2)
+    AS size_mb,
+  COALESCE(SUM(TABLE_ROWS), 0) AS innodb_estimated_rows
+FROM information_schema.TABLES
+WHERE TABLE_SCHEMA = 'paydb';
+
+SELECT
+  COUNT(*) AS bak_tables
+FROM information_schema.TABLES
+WHERE TABLE_SCHEMA = 'paydb'
+  AND TABLE_TYPE = 'BASE TABLE'
+  AND LOWER(TABLE_NAME) LIKE '%\_bak%';
+
+SELECT
+  (SELECT COUNT(*) FROM user_account) AS user_account_rows,
+  (SELECT COUNT(*) FROM user_profile) AS user_profile_rows,
+  (SELECT COUNT(*) FROM transaction_detail) AS transaction_detail_rows;
+
+SELECT
+  EVENT_NAME,
+  STATUS,
+  INTERVAL_VALUE,
+  INTERVAL_FIELD
+FROM information_schema.EVENTS
+WHERE EVENT_SCHEMA = 'paydb'
+ORDER BY EVENT_NAME;
+
+SELECT
+  TABLE_NAME,
+  COALESCE(DATE_FORMAT(UPDATE_TIME, '%Y-%m-%d %H:%i:%s'), 'NULL')
+    AS latest_update_time
+FROM information_schema.TABLES
+WHERE TABLE_SCHEMA = 'paydb'
+  AND TABLE_TYPE = 'BASE TABLE'
+ORDER BY UPDATE_TIME DESC, TABLE_NAME
+LIMIT 20;
+
+CHECK TABLE paydb.user_account, paydb.user_profile, paydb.transaction_detail;
+</code></pre>
+<h4 id="04_verifypaydb_artifact_verifysh"><code>04_verify/paydb_artifact_verify.sh</code></h4>
+<p><strong>中文备注：</strong> 核验某海外中转站 上 57 个 _bak 包、gzip 完整性和 61 项 SHA256 清单。</p>
+<pre><code class="language-bash">#!/bin/bash
+# ============================================================================
+# 平台：某支付平台
+# 恢复阶段：04_verify
+# 中文备注：核验某海外中转站 上 57 个 _bak 包、gzip 完整性和 61 项 SHA256 清单。
+# 安全说明：本文件不包含密码、Token 或私钥；运行时从受限环境读取。
+# ============================================================================
+# ============================================================================
+# 平台：某支付平台
+# 恢复阶段：某海外中转站 恢复材料完整性核验
+# 中文备注：核对 57 个 _bak 包、压缩完整性、SHA256 清单和证据包数量。
+# 安全说明：本文件只读校验，不删除、不移动、不导入任何业务数据。
+# ============================================================================
+set -euo pipefail
+
+artifact_dir="${PAY_PLATFORM_ARTIFACT_DIR:-/data/recovery-staging}"
+manifest="${PAY_PLATFORM_ARTIFACT_MANIFEST:-$artifact_dir/paydb-target.sha256}"
+expected_bak="${PAY_PLATFORM_EXPECTED_BAK:-57}"
+
+cd "$artifact_dir"
+
+bak_files="$(find . -maxdepth 1 -type f -name 'paydb-bak-*.sql.gz' | wc -l)"
+partial_files="$(find . -maxdepth 1 -type f -name '*.part' | wc -l)"
+failed_files="$(find . -maxdepth 1 -type f -name '*.failed' | wc -l)"
+
+echo "ARTIFACT_DIR=$artifact_dir"
+echo "BAK_FILES=$bak_files EXPECTED=$expected_bak"
+echo "PARTIAL_FILES=$partial_files"
+echo "FAILED_FILES=$failed_files"
+
+[[ "$bak_files" -eq "$expected_bak" ]]
+[[ "$partial_files" -eq 0 ]]
+[[ "$failed_files" -eq 0 ]]
+
+bad_gzip=0
+for file in paydb-bak-*.sql.gz; do
+  if ! gzip -t "$file"; then
+    echo "GZIP_INVALID=$file"
+    bad_gzip=$((bad_gzip + 1))
+  fi
+done
+echo "GZIP_BAD=$bad_gzip"
+[[ "$bad_gzip" -eq 0 ]]
+
+[[ -s "$manifest" ]]
+sha256sum -c "$manifest"
+
+echo "MANIFEST_ENTRIES=$(wc -l &lt; "$manifest")"
+echo "ARTIFACT_VERIFY=OK"
+</code></pre>
+<h3 id="10-5-05_rebuild_docs-工具包重建">10.5 05_rebuild_docs 工具包重建</h3>
+<p>一键重建本说明、分类目录、SHA256 清单和可发群 ZIP。</p>
+<h4 id="05_rebuild_docsbuild_paydb_recovery_toolkitpy"><code>05_rebuild_docs/build_paydb_recovery_toolkit.py</code></h4>
+<p><strong>中文备注：</strong> 某支付平台 恢复工具包构建器。</p>
+<pre><code class="language-python">#!/usr/bin/env python3
+# ============================================================================
+# 平台：某支付平台
+# 恢复阶段：05_rebuild_docs
+# 中文备注：某支付平台 恢复工具包构建器。
+# 安全说明：本文件不包含密码、Token 或私钥；运行时从受限环境读取。
+# ============================================================================
+"""生成 某支付平台 数据库恢复脚本与工具包。
+
+输出：
+1. 中文 Markdown 总说明，含目录树、恢复链、核验结果和全部脚本源码；
+2. 按阶段分类的脚本副本；
+3. SHA256SUMS；
+4. 可发群的 zip 压缩包。
+
+实际业务数据库导出包、binlog SQL 和 57 张 _bak 表压缩包不放入本工具包，
+避免把支付业务数据发到群聊。
+"""
+
+from __future__ import annotations
+
+import hashlib
+import shutil
+import zipfile
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+STAMP = "20261110"
+OUT_DIR = ROOT / "deliverables" / f"paydb-recovery-toolkit-{STAMP}"
+DOC_NAME = "某支付平台数据库恢复脚本与工具说明.md"
+DOC_PATH = (
+    ROOT
+    / "docs"
+    / "history"
+    / f"2026-11-10-0445-【恢复工具】{DOC_NAME}"
+)
+
+
+GROUPS = [
+    (
+        "01_discovery",
+        "通过新堡垒机和 Web 配置定位 主节点、备份节点、备份、binlog 与恢复源；输出自动脱敏。",
+        [
+            (
+                "emergency_bastion_exec.py",
+                "通过新堡垒机在指定资产执行受限只读命令。",
+            ),
+            (
+                "emergency_database_recovery_audit.py",
+                "批量盘点数据库目录、复制状态、binlog 和业务库时间。",
+            ),
+            (
+                "emergency_web_db_discovery.py",
+                "从 Web 发布目录定位 database.php，自动隐藏密码后再输出。",
+            ),
+            (
+                "emergency_backup_discovery.py",
+                "盘点备份机上的 SQL、xbstream、tar 包和备份脚本。",
+            ),
+        ],
+    ),
+    (
+        "02_main_pitr",
+        "恢复 某支付平台 主库：备份节点 日备 114 个表文件导入，再回放到 DROP 前位置。",
+        [
+            (
+                "paydb_binlog_export.sh",
+                "从 mysql-bin.000091 导出 paydb SQL，固定 DROP 前停止位并做 DROP 门禁。",
+            ),
+            (
+                "paydb_main_restore.sh",
+                "导入日备表 SQL、清理 GTID_PURGED、回放安全 binlog 并输出核心计数。",
+            ),
+        ],
+    ),
+    (
+        "03_bak_tables",
+        "从 2026-07-15 XtraBackup 隔离快照导出 57 张历史 _bak 表，再导入 主节点。",
+        [
+            (
+                "paydb_backup_reader.service",
+                "仅本地 socket、skip-networking 的临时只读 MySQL 实例定义。",
+            ),
+            (
+                "paydb_bak_export_all.sh",
+                "4 路并发协调 57 张 _bak 表导出。",
+            ),
+            (
+                "paydb_bak_export_one.sh",
+                "单表导出、压缩、SHA256 记录和上传中转机。",
+            ),
+            (
+                "paydb_bak_import_on_db1.sh",
+                "下载、gzip 校验、暂停事件、逐表导入并核对 57 个表名。",
+            ),
+        ],
+    ),
+    (
+        "04_verify",
+        "恢复后只读核验表数、历史表数、核心行数、事件状态和所有恢复材料。",
+        [
+            (
+                "paydb_verify.sql",
+                "在线数据库核验 SQL；只执行 SELECT 和 CHECK TABLE。",
+            ),
+            (
+                "paydb_artifact_verify.sh",
+                "核验某海外中转站 上 57 个 _bak 包、gzip 完整性和 61 项 SHA256 清单。",
+            ),
+        ],
+    ),
+    (
+        "05_rebuild_docs",
+        "一键重建本说明、分类目录、SHA256 清单和可发群 ZIP。",
+        [
+            (
+                "build_paydb_recovery_toolkit.py",
+                "某支付平台 恢复工具包构建器。",
+            ),
+        ],
+    ),
+]
+
+
+def read_source(name: str) -&gt; str:
+    path = ROOT / "scripts" / name
+    if not path.is_file():
+        raise FileNotFoundError(path)
+    return path.read_text(encoding="utf-8")
+
+
+def add_chinese_header(name: str, stage: str, note: str, source: str) -&gt; str:
+    if name.endswith(".sql"):
+        header = [
+            "-- 平台：某支付平台",
+            f"-- 恢复阶段：{stage}",
+            f"-- 中文备注：{note}",
+            "-- 安全说明：本文件不包含密码、Token 或私钥。",
+            "",
+        ]
+        return "\n".join(header) + source
+
+    header = [
+        "# ============================================================================",
+        "# 平台：某支付平台",
+        f"# 恢复阶段：{stage}",
+        f"# 中文备注：{note}",
+        "# 安全说明：本文件不包含密码、Token 或私钥；运行时从受限环境读取。",
+        "# ============================================================================",
+        "",
+    ]
+    shebang, separator, body = source.partition("\n")
+    if separator and shebang.startswith("#!"):
+        return shebang + "\n" + "\n".join(header) + body.lstrip("\n")
+    return "\n".join(header) + source
+
+
+def tree_lines() -&gt; list[str]:
+    lines = [
+        f"paydb-recovery-toolkit-{STAMP}/",
+        "├── README.md",
+        "├── SHA256SUMS",
+    ]
+    for group, _, files in GROUPS:
+        lines.append(f"├── {group}/")
+        for index, (name, _) in enumerate(files):
+            branch = "└──" if index == len(files) - 1 else "├──"
+            lines.append(f"│   {branch} {name}")
+    return lines
+
+
+def build() -&gt; Path:
+    if OUT_DIR.exists():
+        shutil.rmtree(OUT_DIR)
+    OUT_DIR.mkdir(parents=True)
+
+    sections: list[str] = []
+    for group, group_note, files in GROUPS:
+        target_dir = OUT_DIR / group
+        target_dir.mkdir()
+        sections.append(f"## {group}\n\n{group_note}\n")
+        for name, note in files:
+            source = read_source(name)
+            bundled = add_chinese_header(name, group, note, source)
+            (target_dir / name).write_text(bundled, encoding="utf-8")
+            language = (
+                "python"
+                if name.endswith(".py")
+                else "sql"
+                if name.endswith(".sql")
+                else "ini"
+                if name.endswith(".service")
+                else "bash"
+            )
+            sections.extend(
+                [
+                    f"### `{group}/{name}`",
+                    "",
+                    f"**中文备注：** {note}",
+                    "",
+                    f"````{language}",
+                    bundled.rstrip(),
+                    "````",
+                    "",
+                ]
+            )
+
+    tree = "\n".join(tree_lines())
+    document = f"""# 某支付平台数据库恢复脚本与工具说明
+
+&gt; **平台标识：某支付平台**  
+&gt; 文档时间：2026-11-10（Asia/Manila；数据库时间为 UTC+8）  
+&gt; 适用场景：数据库被删除后，使用日备、binlog 和 XtraBackup 历史快照恢复 某支付平台 主库及 57 张 `_bak` 表。
+
+## 一、结论与完成状态
+
+- 某支付平台 主库已通过 **备份节点 日备 + binlog PITR** 恢复到 DROP 前位置。
+- 主恢复里程碑：2026-11-07 13:50:15 CST 完成；当时 `paydb` 152 张表，`user_account=约 55 万`、`user_profile=约 55 万`、`transaction_detail=约 118 万`。
+- 57 张历史 `_bak` 表已从 2026-07-15 XtraBackup 快照导出并全部导入；2026-11-07 17:26:23 CST 完成，失败 0。
+- `_bak` 导入后里程碑：`paydb` 187 张表，其中含 `_bak` 的基表 69 张；`transaction_detail=约 118 万`。
+- 2026-11-10 04:33:45 CST 在线复核：187 张表、69 张 `_bak` 表、约 78,050.14 MB；`user_account=约 55 万`、`user_profile=约 55 万`、`transaction_detail=约 116 万`。这些是恢复后继续运行中的实时值，不是 11 月 7 日恢复快照值。
+- 事件计划当前 8 个：7 个启用、1 个停用；`e_migrate_data` 原状态为停用，未擅自启用。
+- `paydb2`、`paydb_20220101` 未纳入本次数据恢复，保持排期状态。
+
+## 二、删除点与安全停止位置
+
+```text
+数据库：paydb
+删除时间：2026-11-07 00:08:40 CST
+binlog：/data/mysql/log/mysql-bin.000091
+删除位置：693350583 / 693350648
+导出停止位：693350648
+DROP 检查：0
+```
+
+导出的恢复包使用 `mysqlbinlog --skip-gtids --database=paydb --stop-position=693350648`。
+脚本在发布前还会再次扫描 `DROP DATABASE paydb`，命中即拒绝继续。
+
+## 三、目录树
+
+```text
+{tree}
+```
+
+## 四、实际恢复链
+
+### 1. 日备恢复
+
+备份节点 上的日备为：
+
+```text
+/data/backup/paydb_backup_20261107_000001.tar.gz
+大小：1,003,596,503 bytes
+SHA256：d6135cd3b9014e14c2142d5c7f7342bde9116e94e06879fe44b692557cbe6bae
+```
+
+解包到 `/data/paydb-recovery-20261107/temp_20261107_000001/`，共 114 个表 SQL。
+导入时清除源库 `SET @@GLOBAL.GTID_PURGED=...`，避免污染目标实例 GTID 状态。
+
+### 2. binlog PITR
+
+只提取 `paydb` 库在 `2026-11-07 00:00:00` 之后、DROP 完成位置之前的事件：
+
+```text
+paydb-binlog-before-drop-20261107.sql.gz
+大小：3,250,451 bytes
+SHA256：6600694357d161b298782de3ad4fbef36ef71a1527750e543f90b880036fe8ea
+```
+
+实际回放使用 `mysql --force`。日志中有 15 条 `ERROR 1062`（重复主键）
+和 2 条 `ERROR 1032`（目标记录不存在），没有其他 SQL 错误；回放结束后
+通过核心计数、对象数量和后续在线业务变化核验。`--force` 是本次实际口径，
+重新演练时必须在隔离库先验证，不能直接覆盖在线 主节点。
+
+### 3. 57 张 `_bak` 表
+
+来源为 备份节点：
+
+```text
+/data/backup/2026-07-15_20-22-51
+类型：XtraBackup 历史物理快照
+```
+
+使用 `innobackupex --apply-log --export` 后，以本地 socket、
+`--skip-networking --skip-grant-tables` 启动临时 MySQL，避免任何网络访问。
+
+备份中目标范围共 57 张表名含 `_bak` 的表：
+
+```text
+导出：2026-11-07 14:29:45 → 14:42:28 CST
+并发：4 个 worker
+导出：57/57，失败 0
+上传：57/57，失败 0
+导入：57/57，失败 0
+目标表名缺失：0
+```
+
+导入脚本先暂停原有启用事件，逐表导入，再恢复事件状态。本次旧脚本曾因恢复 SQL
+缺少 `USE paydb` 报 `ERROR 1046`；本工具包已修复该缺陷。
+
+## 五、某海外中转站 恢复材料
+
+目录：
+
+```text
+/data/recovery-staging
+```
+
+截至 2026-11-10 只读核验：
+
+```text
+57 个 paydb-bak-*.sql.gz
+3 个 binlog 导出 SQL
+1 个 paydb_backup_20261107_000001.tar.gz
+gzip 坏包：0
+SHA256 清单：61 项，全部通过
+.sql.gz 合计：约 7.36 GiB（7.36 GiB）
+```
+
+恢复材料属于支付业务数据，**不放入本工具 ZIP，不发送到群**。群内只发送脚本、
+说明、大小和哈希，不发送数据包本身。
+
+## 六、安全边界
+
+- 工具包不包含数据库密码、SSH 私钥、Telegram Token、云 API Key 或业务数据。
+- 密码只从 root-only helper、受限环境文件或进程环境读取。
+- 临时历史库必须使用 `--skip-networking`，只通过本地 socket 访问。
+- 回放目标已有数据时，`paydb_main_restore.sh` 默认拒绝继续。
+- 主库恢复脚本必须显式设置 `PAY_PLATFORM_CONFIRM_RESTORE=I_UNDERSTAND_PAY_PLATFORM_RESTORE`。
+- 任何导出包发现 `DROP DATABASE paydb` 都必须停止，不得发布或回放。
+- 回放完成不等于支付链路验收完成；仍需 DBA、开发和业务共同核验。
+
+## 七、复现顺序
+
+1. 用 `01_discovery` 工具确认源、目标、Web 配置、删除位和备份材料。
+2. 用 `paydb_binlog_export.sh` 生成安全 binlog SQL。
+3. 用 `paydb_main_restore.sh` 在隔离库或已批准目标库导入日备并回放。
+4. 用 `paydb_verify.sql` 核对表数、核心行数、事件和 `CHECK TABLE`。
+5. 用 `paydb_backup_reader.service` 启动本地只读历史实例。
+6. 用 3 个 `_bak` 脚本完成导出、中转和导入。
+7. 用 `paydb_artifact_verify.sh` 核验某海外中转站 恢复材料。
+8. 将结果提交 DBA、开发和支付业务验收。
+
+## 八、脚本与完整源码
+
+以下内容为本次实际使用脚本，以及根据实际审计命令固化的可复现版本。
+实际恢复时主链曾分步通过堡垒机执行；`paydb_main_restore.sh` 是这些步骤的
+受控封装，增加确认门禁、GTID 清理、事件保护和非空库拒绝。
+
+{chr(10).join(sections)}
+"""
+
+    (OUT_DIR / "README.md").write_text(document, encoding="utf-8")
+    DOC_PATH.parent.mkdir(parents=True, exist_ok=True)
+    DOC_PATH.write_text(document, encoding="utf-8")
+
+    checksum_lines = []
+    for path in sorted(OUT_DIR.rglob("*")):
+        if path.is_file() and path.name != "SHA256SUMS":
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            checksum_lines.append(
+                f"{digest}  {path.relative_to(OUT_DIR).as_posix()}"
+            )
+    (OUT_DIR / "SHA256SUMS").write_text(
+        "\n".join(checksum_lines) + "\n", encoding="utf-8"
+    )
+
+    archive = ROOT / "deliverables" / f"paydb-recovery-toolkit-{STAMP}.zip"
+    with zipfile.ZipFile(
+        archive, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9
+    ) as bundle:
+        for path in sorted(OUT_DIR.rglob("*")):
+            if path.is_file():
+                bundle.write(path, path.relative_to(OUT_DIR.parent))
+    return archive
+
+
+if __name__ == "__main__":
+    print(build())
+</code></pre>
+<h2 id="十一-归档复核结论">十一、归档复核结论</h2>
+<p>某支付平台 主库已通过 备份节点 日备和 binlog PITR 恢复到 DROP 前位置，DROP 检查为 0；主恢复于 2026-11-07 13:50:15 CST 完成，失败 0。57 张历史 <code>_bak</code> 表完成导出、上传、导入各 57/57，目标表名缺失 0，并于 2026-11-07 17:26:23 CST 完成。</p>
+<p>2026-11-10 04:33:45 CST 的在线复核结果为 187 张表、69 张 <code>_bak</code> 表，<code>user_account=约 55 万</code>、<code>user_profile=约 55 万</code>、<code>transaction_detail=约 116 万</code>。这些是恢复后继续运行中的实时值，不代表 11 月 7 日恢复快照。<code>paydb2</code> 和 <code>paydb_20220101</code> 未纳入本次数据恢复。</p>
+<p>工具包已通过 ZIP、包内 SHA256、脚本源码和凭据扫描复核。主库恢复必须显式确认，非空目标库默认拒绝执行，临时历史实例只使用本地 socket 和 <code>--skip-networking</code>，任何恢复 SQL 出现 <code>DROP DATABASE paydb</code> 都必须停止。所有脚本仅用于 某支付平台 本次恢复审计和受控复盘。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-归档范围与数据边界">一、归档范围与数据边界</a></li><li style="margin-left:0.0rem"><a href="#二-工具包目录与中文备注">二、工具包目录与中文备注</a></li><li style="margin-left:0.0rem"><a href="#三-工具包与恢复材料核验">三、工具包与恢复材料核验</a></li><li style="margin-left:0.0rem"><a href="#四-恢复结论与完成状态">四、恢复结论与完成状态</a></li><li style="margin-left:0.0rem"><a href="#五-删除点与安全停止位置">五、删除点与安全停止位置</a></li><li style="margin-left:0.0rem"><a href="#六-实际恢复链">六、实际恢复链</a></li><li style="margin-left:0.8rem"><a href="#1-日备恢复">1. 日备恢复</a></li><li style="margin-left:0.8rem"><a href="#2-binlog-PITR">2. binlog PITR</a></li><li style="margin-left:0.8rem"><a href="#3-57-张-_bak-表">3. 57 张 _bak 表</a></li><li style="margin-left:0.0rem"><a href="#七-某海外中转站-恢复材料">七、某海外中转站 恢复材料</a></li><li style="margin-left:0.0rem"><a href="#八-安全边界">八、安全边界</a></li><li style="margin-left:0.0rem"><a href="#九-复现顺序">九、复现顺序</a></li><li style="margin-left:0.0rem"><a href="#十-脚本与完整源码">十、脚本与完整源码</a></li><li style="margin-left:0.8rem"><a href="#10-1-01_discovery-恢复发现与只读盘点">10.1 01_discovery 恢复发现与只读盘点</a></li><li style="margin-left:0.8rem"><a href="#10-2-02_main_pitr-主库日备与-binlog-PITR">10.2 02_main_pitr 主库日备与 binlog PITR</a></li><li style="margin-left:0.8rem"><a href="#10-3-03_bak_tables-历史-_bak-表隔离导出与导入">10.3 03_bak_tables 历史 _bak 表隔离导出与导入</a></li><li style="margin-left:0.8rem"><a href="#10-4-04_verify-在线核验与恢复材料校验">10.4 04_verify 在线核验与恢复材料校验</a></li><li style="margin-left:0.8rem"><a href="#10-5-05_rebuild_docs-工具包重建">10.5 05_rebuild_docs 工具包重建</a></li><li style="margin-left:0.0rem"><a href="#十一-归档复核结论">十一、归档复核结论</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：数据库与恢复 / MySQL</li>
+          <li>日期：2026-11-10</li>
+          <li>标签：<span class="tag">某支付平台</span><span class="tag">数据库恢复</span><span class="tag">PITR</span><span class="tag">binlog</span><span class="tag">XtraBackup</span><span class="tag">MySQL</span><span class="tag">备份恢复</span><span class="tag">支付数据</span><span class="tag">Shell</span><span class="tag">Python</span></li>
+          <li><span>来源：/Users/operator/Downloads/2026_11_10_0445_恢复工具_某支付平台数据库恢复脚本与工具说明.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202611100445-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%81%A2%E5%A4%8D%2BMySQL%2BXtraBackup%2BShell%2BPython-%E6%9F%90%E6%94%AF%E4%BB%98%E5%B9%B3%E5%8F%B0%E6%95%B0%E6%8D%AE%E5%BA%93%E6%81%A2%E5%A4%8D%E8%84%9A%E6%9C%AC%E4%B8%8E%E5%B7%A5%E5%85%B7%E8%AF%B4%E6%98%8E.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>某支付平台数据库恢复脚本与工具说明。本文属于数据库与恢复 / MySQL，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 平台：某支付平台 归档时间：2026-11-10 04:45（Asia/Manila，UTC+8） 范围：主库日备与 binlog PI…</p>
+      <p>关键词：某支付平台、数据库恢复、PITR、binlog、XtraBackup、MySQL、备份恢复、支付数据、Shell、Python、数据库与恢复、数据库与恢复 / MySQL、某支付平台数据库恢复脚本与工具说明、一、归档范围与数据边界</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-recovery-toolkit-20261110-01.html"><small>上一篇</small>某业务平台数据库恢复脚本与工具说明</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-recovery-toolkit-20261110-02.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

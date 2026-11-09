@@ -5,15 +5,17 @@ date: "2026-11-08T17:02:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Nginx", "MySQL", "CDN", "故障排查", "源码与配置"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-11-08-1702-%E3%80%90%E6%A0%B8%E5%AF%B9%E3%80%91%E9%A6%99%E6%B8%AF%E5%8A%A8%E6%80%81%E6%8E%A5%E5%8F%A3%E4%B8%8E%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90CORS%E8%BE%B9%E7%95%8C%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-11-08-1702-【核对】香港动态接口与静态资源CORS边界记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-11-08-1702-%E3%80%90%E6%A0%B8%E5%AF%B9%E3%80%91%E9%A6%99%E6%B8%AF%E5%8A%A8%E6%80%81%E6%8E%A5%E5%8F%A3%E4%B8%8E%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90CORS%E8%BE%B9%E7%95%8C%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-11-08-1702-【核对】香港动态接口与静态资源CORS边界记录.md"
 sourceSha256: "9d863027009136cff03d42810e65f0cee2bae8cf1dccf6aa1a4b06c2467a9ce9"
 sourceSystem: "project-doc"
 ---
 
 # 香港动态接口与静态资源 CORS 边界记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-11-08-1702-【核对】香港动态接口与静态资源CORS边界记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-11-08-1702-【核对】香港动态接口与静态资源CORS边界记录.md`
 
 > 整理日期：2026-11-08 17:02｜日期依据：文件名日期
 
@@ -31,7 +33,7 @@ sourceSystem: "project-doc"
 
 ## 二、源站直连验证
 
-测试使用 `http://34.150.1.185` 加业务 Host，绕过 EdgeOne，直接检查香港 Nginx 和上游后端。
+测试使用 `http://192.0.2.37` 加业务 Host，绕过 EdgeOne，直接检查香港 Nginx 和上游后端。
 
 | 目标 | 请求 | 结果 |
 |---|---|---|
@@ -57,7 +59,7 @@ sourceSystem: "project-doc"
 | 域名 | ACAO | Allow-Methods | Allow-Headers | 结论 |
 |---|---|---|---|---|
 | `pg-static.m4q7z1.shop` | `*` | GET、HEAD、OPTIONS | `*` | 可跨域读取 |
-| `jili-static.m4q7z1.shop` | `*` | GET、HEAD、OPTIONS | `*` | 可跨域读取 |
+| `vendor_b-static.m4q7z1.shop` | `*` | GET、HEAD、OPTIONS | `*` | 可跨域读取 |
 | `g759-static.m4q7z1.shop` | `*` | GET、HEAD、OPTIONS | `*` | 可跨域读取 |
 
 `pg-games.m4q7z1.shop` 对任意 Origin 返回反射值与 `Allow-Credentials=true`，不影响静态资源域现有的任意来源策略。
@@ -108,7 +110,7 @@ quick_check：ok
 重启核查进一步发现，香港 PG 容器新建 MySQL 连接时超时：
 
 ```text
-Can't connect to MySQL server on '47.239.230.107' (timed out)
+Can't connect to MySQL server on '192.0.2.51' (timed out)
 ```
 
 香港 01、02 和入口 Nginx 到该地址的 TCP 3306 均超时。PG01 已停止自动重启循环，

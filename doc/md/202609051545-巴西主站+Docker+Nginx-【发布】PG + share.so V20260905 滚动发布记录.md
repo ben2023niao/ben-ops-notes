@@ -5,20 +5,22 @@ date: "2026-09-05T15:45:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Docker", "Nginx", "自动化", "CDN", "数据库恢复", "源码与配置"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-09-05-1545-%E3%80%90%E5%8F%91%E5%B8%83%E3%80%91PG%E4%B8%8Eshare.so%20V20260905%E6%BB%9A%E5%8A%A8%E5%8F%91%E5%B8%83%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-09-05-1545-【发布】PG与share.so V20260905滚动发布记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-09-05-1545-%E3%80%90%E5%8F%91%E5%B8%83%E3%80%91PG%E4%B8%8Eshare.so%20V20260905%E6%BB%9A%E5%8A%A8%E5%8F%91%E5%B8%83%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-09-05-1545-【发布】PG与share.so V20260905滚动发布记录.md"
 sourceSha256: "dacb3fa3c94e61538ef5d2d234dca620ef2abbdc208166e2d0e88b33438c9b44"
 sourceSystem: "project-doc"
 ---
 
 # 【发布】PG + share.so V20260905 滚动发布记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-09-05-1545-【发布】PG与share.so V20260905滚动发布记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-05-1545-【发布】PG与share.so V20260905滚动发布记录.md`
 
 > 整理日期：2026-09-05 15:45｜日期依据：文件名日期
 
 时间：2026-09-05 15:45（Asia/Manila）
-项目：DBQP / PGServer master（后端发布）
+项目：某业务公司 / PGServer master（后端发布）
 状态：✅ 完成（滚动更新，用户影响最小）
 
 ## 一、内容
@@ -47,8 +49,8 @@ origin：71b7ee6b（更新 PG 部分游戏数值）+ 176fa9b3（V20260905 share.
 1) PG 3 台：/app/share.so md5 30ff370b…，server.py 2653b6d7…，
    风险配置 48 md5 14af8b21…；
 2) 01 全部厂家容器 share md5 30ff370b…；
-3) health：api/pg-games/tada/pp/g759 .cdn-tokyo-dbqp 全 200；
-4) platform-api 仍单域 cdn-tokyo（29 条，tada/xqv=0）。
+3) health：api/pg-games/vendor_a/pp/g759 .cdn-tokyo-bizops 全 200；
+4) platform-api 仍单域 cdn-tokyo（29 条，vendor_a/xqv=0）。
 ```
 
 ## 四、注意
@@ -78,6 +80,6 @@ origin：71b7ee6b（更新 PG 部分游戏数值）+ 176fa9b3（V20260905 share.
 用户要求线上保持 01 单机便于观察日志：
 1) 02/03 PG 容器 docker stop（Exited，保留新版镜像）；
 2) nginx 还原 bak-20260905-pg-rolling -> pg_game_backend 仅 01；
-3) 验证 api/pg-games .cdn-tokyo-dbqp /health 200。
+3) 验证 api/pg-games .cdn-tokyo-bizops /health 200。
 后续恢复三机：nginx 去掉 down + 启动/重建 02/03 容器。
 ```

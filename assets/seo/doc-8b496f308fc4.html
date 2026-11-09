@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <title>【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 TADA 9096 缺失发现）｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
-  <meta name="description" content="【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 TADA 9096 缺失发现）。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-24 14:45（北京时间）/ 06:45（UTC） 对象机器：后台 01 203.0.113.1 、后台 02 203.0.113.1…">
-  <meta name="keywords" content="巴西主站，Linux，Shell，Python，Docker，Nginx，Redis，监控告警，历史运维与项目交付，历史运维与项目交付 / 巴西主站">
+  <title>【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 vendor_a 9096 缺失发现）｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
+  <meta name="description" content="【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 vendor_a 9096 缺失发现）。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-24 14:45（北京时间…">
+  <meta name="keywords" content="巴西主站，Linux，Shell，Python，Docker，Nginx，Redis，监控告警，历史运维与项目交付，历史运维与项目交付 / 巴西主站，一、03 为什么退出监控，二、发版窗口自动静默（这次误报的真正原因），1. 证据：02 上的发版流程，2. 机制">
   <meta name="author" content="BEN">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
   <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
@@ -14,15 +14,15 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8b496f308fc4.html">
   <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8b496f308fc4.html">
-  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609241445-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E4%BC%98%E5%8C%96%2B%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E5%AE%B9%E5%99%A8%E7%9B%91%E6%8E%A7%E5%8F%AA%E7%95%99%2001-02%20%2B%20%E5%8F%91%E7%89%88%E7%AA%97%E5%8F%A3%E8%87%AA%E5%8A%A8%E9%9D%99%E9%BB%98%EF%BC%88%E5%90%AB%2002%20%E7%9A%84%20TADA%209096%20%E7%BC%BA%E5%A4%B1%E5%8F%91%E7%8E%B0%EF%BC%89.md">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609241445-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E4%BC%98%E5%8C%96%2B%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E5%AE%B9%E5%99%A8%E7%9B%91%E6%8E%A7%E5%8F%AA%E7%95%99%2001-02%20%2B%20%E5%8F%91%E7%89%88%E7%AA%97%E5%8F%A3%E8%87%AA%E5%8A%A8%E9%9D%99%E9%BB%98%EF%BC%88%E5%90%AB%2002%20%E7%9A%84%20vendor_a%209096%20%E7%BC%BA%E5%A4%B1%E5%8F%91%E7%8E%B0%EF%BC%89.md">
   <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
   <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
   <link rel="author" href="https://t.me/Ben_Bird">
   <meta property="og:type" content="article">
   <meta property="og:locale" content="zh_CN">
   <meta property="og:site_name" content="BEN.OPS 工程笔记">
-  <meta property="og:title" content="【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 TADA 9096 缺失发现）">
-  <meta property="og:description" content="【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 TADA 9096 缺失发现）。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-24 14:45（北京时间）/ 06:45（UTC） 对象机器：后台 01 203.0.113.1 、后台 02 203.0.113.1…">
+  <meta property="og:title" content="【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 vendor_a 9096 缺失发现）">
+  <meta property="og:description" content="【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 vendor_a 9096 缺失发现）。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-24 14:45（北京时间…">
   <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8b496f308fc4.html">
   <meta property="article:published_time" content="2026-09-24T14:45:00+08:00">
   <meta property="article:modified_time" content="2026-09-24 14:45">
@@ -30,8 +30,8 @@
   <meta property="article:author" content="https://t.me/Ben_Bird">
   
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 TADA 9096 缺失发现）">
-  <meta name="twitter:description" content="【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 TADA 9096 缺失发现）。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-24 14:45（北京时间）/ 06:45（UTC） 对象机器：后台 01 203.0.113.1 、后台 02 203.0.113.1…">
+  <meta name="twitter:title" content="【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 vendor_a 9096 缺失发现）">
+  <meta name="twitter:description" content="【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 vendor_a 9096 缺失发现）。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-24 14:45（北京时间…">
   
   <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
 --line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
@@ -75,7 +75,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 @media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
 .meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
 @media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8b496f308fc4.html#article","headline":"【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 TADA 9096 缺失发现）","description":"【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 TADA 9096 缺失发现）。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-24 14:45（北京时间）/ 06:45（UTC） 对象机器：后台 01 203.0.113.1 、后台 02 203.0.113.1…","datePublished":"2026-09-24T14:45:00+08:00","dateModified":"2026-09-24 14:45","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Linux","Shell","Python","Docker","Nginx","Redis","监控告警","历史运维与项目交付","历史运维与项目交付 / 巴西主站"],"wordCount":2867,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8b496f308fc4.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8b496f308fc4.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 TADA 9096 缺失发现）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8b496f308fc4.html"}]}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8b496f308fc4.html#article","headline":"【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 vendor_a 9096 缺失发现）","description":"【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 vendor_a 9096 缺失发现）。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-24 14:45（北京时间…","datePublished":"2026-09-24T14:45:00+08:00","dateModified":"2026-09-24 14:45","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Linux","Shell","Python","Docker","Nginx","Redis","监控告警","历史运维与项目交付","历史运维与项目交付 / 巴西主站","一、03 为什么退出监控","二、发版窗口自动静默（这次误报的真正原因）","1. 证据：02 上的发版流程","2. 机制"],"wordCount":884,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8b496f308fc4.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8b496f308fc4.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 vendor_a 9096 缺失发现）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-8b496f308fc4.html"}]}]}</script>
 </head>
 <body>
   <header class="topbar"><div class="shell">
@@ -89,37 +89,38 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
   <main class="shell">
     <nav class="crumbs" aria-label="面包屑">
       <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
-      › <span>历史运维与项目交付 / 巴西主站</span> › <span>【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 TADA 9096 缺失发现）</span>
+      › <span>历史运维与项目交付 / 巴西主站</span> › <span>【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 vendor_a 9096 缺失发现）</span>
     </nav>
     <header class="hero">
       <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
-      <h1>【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 TADA 9096 缺失发现）</h1>
-      <p class="lede">【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 TADA 9096 缺失发现）。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-24 14:45（北京时间）/ 06:45（UTC） 对象机器：后台 01 203.0.113.1 、后台 02 203.0.113.1…</p>
+      <h1>【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 vendor_a 9096 缺失发现）</h1>
+      <p class="lede">【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 vendor_a 9096 缺失发现）。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-24 14:45（北京时间…</p>
       <div class="meta">
         <time class="badge" datetime="2026-09-24T14:45:00+08:00">发布于 2026-09-24</time>
         <span class="badge">作者 BEN</span>
-        <span class="badge">2,867 字</span>
-        <span class="badge">9 分钟阅读</span>
+        <span class="badge">884 字</span>
+        <span class="badge">3 分钟阅读</span>
       </div>
     </header>
     <div class="layout">
       <article class="article" itemscope itemtype="https://schema.org/TechArticle">
         
 <blockquote>
-<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-09-24-1445-【优化+问题排查】容器监控只留0102并发版窗口自动静默含02的TADA缺失记录.md</code></p>
+<p>公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。</p>
+<p>来源文件：<code>~/Projects/ops/private-notes/master/docs/history/2026-09-24-1445-【优化+问题排查】容器监控只留0102并发版窗口自动静默含02的vendor_a缺失记录.md</code></p>
 <p>整理日期：2026-09-24 14:45｜日期依据：文件名日期</p>
 </blockquote>
 <p>时间：2026-09-24 14:45（北京时间）/ 06:45（UTC）
-对象机器：后台 01 <code>203.0.113.1</code>、后台 02 <code>203.0.113.1</code>、打包机 03 <code>203.0.113.1</code>、入口机 <code>34.151.249.53</code>
+对象机器：后台 01 <code>192.0.2.1</code>、后台 02 <code>192.0.2.1</code>、打包机 03 <code>192.0.2.1</code>、入口机 <code>192.0.2.13</code>
 需求：03 改成打包机后不需要监控；把容器监控的误报收敛掉。<strong>本轮不发飞机群通知。</strong>
 结果：① 03 已从容器监控移除；② 新增「发版窗口自动静默」，发版期间停容器不再报警；
-　　　③ 汇总行不再含糊；④ <strong>顺带查出 02 的 TADA 主服务（9096）现在真的没在跑</strong>（见第五节）。</p>
+　　　③ 汇总行不再含糊；④ <strong>顺带查出 02 的 vendor_a 主服务（9096）现在真的没在跑</strong>（见第五节）。</p>
 <hr/>
 <h2 id="一-03-为什么退出监控">一、03 为什么退出监控</h2>
 <p>需求原话：<strong>「03 服务器做打包用不需要监控」</strong>。实测确认 03 的性质确实变了：</p>
-<pre><code class="language-text">03（203.0.113.1）docker ps -a 全量（2026-09-24 06:40 UTC）：
+<pre><code class="language-text">03（192.0.2.1）docker ps -a 全量（2026-09-24 06:40 UTC）：
   beszel-agent / registry / jms_celery / jms_chen / jms_core / jms_koko /
-  jms_lion / jms_postgresql / jms_redis / jms_web / dbqp-resource-sync(Exited)
+  jms_lion / jms_postgresql / jms_redis / jms_web / bizops-resource-sync(Exited)
   hopeful_feistel|Up 3 seconds          ← docker run 不带 --name 的匿名打包容器
 
 监听端口只剩：22 / 80 / 2222 / 5000
@@ -129,22 +130,22 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 02 的 shell 历史显示发版时是从 03 拉 <code>/data/server-runtime</code>（见第二节）。
 继续按厂家名监控 03，只会每 2 分钟误报一次（用户收到的 17:06 那条就是这么来的）。</p>
 <p><strong>改动</strong>：<code>BACKENDS</code> 从三台减成两台。</p>
-<pre><code class="language-python">BACKENDS = [("203.0.113.1", "01"), ("203.0.113.1", "02")]
-# 2026-09-24：03（203.0.113.1）已改成打包机，厂家容器全部下线，不再纳入监控。
+<pre><code class="language-python">BACKENDS = [("192.0.2.1", "01"), ("192.0.2.1", "02")]
+# 2026-09-24：03（192.0.2.1）已改成打包机，厂家容器全部下线，不再纳入监控。
 </code></pre>
 <p>期望容器数从 29 个变成 <strong>20 个</strong>（01 十个 + 02 十个）。</p>
 <h2 id="二-发版窗口自动静默-这次误报的真正原因">二、发版窗口自动静默（这次误报的真正原因）</h2>
 <h3 id="1-证据-02-上的发版流程">1. 证据：02 上的发版流程</h3>
 <p>02 的 root shell 历史（原样摘录）：</p>
-<pre><code class="language-text">sh stop.sh tada
+<pre><code class="language-text">sh stop.sh vendor_a
 sh stop.sh pp
 sh stop.sh api
 docker ps
 rsync -avz --delete --exclude 'logs' --exclude '*.db-shm' --exclude '*.db-wal' \
-      root@203.0.113.1:/data/server-runtime /data/
+      root@192.0.2.1:/data/server-runtime /data/
 rsync -avP --delete -e "ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=3" ...（同上）
 sh start.sh pp 20260923-ben
-sh start.sh tada 20260923-ben
+sh start.sh vendor_a 20260923-ben
 sh start.sh api 20260923-ben
 </code></pre>
 <p>发版顺序是：<strong>停容器 → 从打包机 03 同步 /data/server-runtime → 再启动容器</strong>。
@@ -166,8 +167,8 @@ META=0 → 恢复原来的「连续 3 次（约 6 分钟）才报警」逻辑
 6 分钟内照样会报出来，不会因为“静默”把真故障吞掉。</p>
 <p>防卡死上限：发版进程就算一直不退出，最多静默 <code>RELEASE_WINDOW_MAX_SAMPLES</code> 次采样
 （默认 30 次 ≈ 60 分钟），超限后按正常缺失逻辑报警（再约 6 分钟发警）。</p>
-<p>开关：<code>DBQP_CONTAINER_RELEASE_WINDOW=0</code> 可整体关闭该特性；
-<code>DBQP_CONTAINER_RELEASE_WINDOW_MAX=N</code> 改上限。</p>
+<p>开关：<code>某业务公司_CONTAINER_RELEASE_WINDOW=0</code> 可整体关闭该特性；
+<code>某业务公司_CONTAINER_RELEASE_WINDOW_MAX=N</code> 改上限。</p>
 <h2 id="三-另外两处顺手修掉的问题">三、另外两处顺手修掉的问题</h2>
 <pre><code class="language-text">① 汇总行不再含糊
    老版本：容器在宽限期、甚至已经报过警了，也照样打印 “OK … 全部正常”，
@@ -195,61 +196,61 @@ META=0 → 恢复原来的「连续 3 次（约 6 分钟）才报警」逻辑
    · 有 rsync 进程时同样的缺失 → 4 次采样全程「发布窗口中暂缺 N 个（不报警）」；
    · 发版进程结束后容器仍缺 → 重新计数，第 3 次报警；
    · 发版进程卡死且超过上限 → 按正常逻辑报警；
-   · 预置 03 的旧状态键 + dbqp-*-release-* 旧键 → 跑一次后全部被清理，状态键 22 个（2 后端 + 20 容器）。
+   · 预置 03 的旧状态键 + bizops-*-release-* 旧键 → 跑一次后全部被清理，状态键 22 个（2 后端 + 20 容器）。
 </code></pre>
-<h2 id="五-顺带查出的真问题-02-的-TADA-主服务-9096-现在没在跑">五、⚠️ 顺带查出的真问题：02 的 TADA 主服务（9096）现在没在跑</h2>
+<h2 id="五-顺带查出的真问题-02-的-vendor_a-主服务-9096-现在没在跑">五、⚠️ 顺带查出的真问题：02 的 vendor_a 主服务（9096）现在没在跑</h2>
 <p>这一条<strong>不是误报</strong>，是本次排查时确认的真实缺口。</p>
 <h3 id="1-事实">1. 事实</h3>
-<pre><code class="language-text">02（203.0.113.1）docker ps -a 全量里只有 game-service-tada-ws-prod（8765），
-没有任何名字的 TADA 主服务容器（不是「换名字了」——全量列过了，就是没有）；
+<pre><code class="language-text">02（192.0.2.1）docker ps -a 全量里只有 game-service-vendor_a-ws-prod（8765），
+没有任何名字的 vendor_a 主服务容器（不是「换名字了」——全量列过了，就是没有）；
 02 上 9096 端口没有任何进程监听（ss -ltnp 只有 22/8765/9018/9019/9020/9090/9091/9098/9099）。
-02 本地 start.sh 的 ALL_VENDORS 是有 tada 的：
-  ALL_VENDORS="api pg tada tada_ws ppk pp playson panda g759"
-02 上 tada/api/pp 三个容器是同一次发版（20260923-ben）起的，
-  但 api-prod、pp-prod 现在是 Up（21 小时），tada-prod 却不在 —— 属于「同步完漏启 / 启了又没了」。
+02 本地 start.sh 的 ALL_VENDORS 是有 vendor_a 的：
+  ALL_VENDORS="api pg vendor_a vendor_a_ws ppk pp vendor_c vendor_d g759"
+02 上 vendor_a/api/pp 三个容器是同一次发版（20260923-ben）起的，
+  但 api-prod、pp-prod 现在是 Up（21 小时），vendor_a-prod 却不在 —— 属于「同步完漏启 / 启了又没了」。
 </code></pre>
 <h3 id="2-用户影响-有日志证据">2. 用户影响（有日志证据）</h3>
 <p>入口机 nginx error log（2026-09-24 06:40~06:41 UTC，真实客户端 IP）：</p>
 <pre><code class="language-text">connect() failed (111: Connection refused) while connecting to upstream,
-  request: "GET /lt/ HTTP/2.0", upstream: "http://203.0.113.1:9096/lt/",
-  host: "tada-games.xqv9m8.icu"
+  request: "GET /lt/ HTTP/2.0", upstream: "http://192.0.2.1:9096/lt/",
+  host: "vendor_a-games.xqv9m8.icu"
 （每 12 秒一条，反复出现）
 </code></pre>
 <pre><code class="language-text">线上表现：nginx 的 proxy_next_upstream 会把失败的请求重试到 01，
-          所以用户大多还能打开（实测 tada-games 域名 health 连续 10 次 200），
+          所以用户大多还能打开（实测 vendor_a-games 域名 health 连续 10 次 200），
           但每次命中 02 都会多一次失败重试（增加延迟），并偶发 500（access log 里有 13 条 500）。
-TADA 冗余：02 上等于没有 TADA 后端，01 单点扛 TADA。
+vendor_a 冗余：02 上等于没有 vendor_a 后端，01 单点扛 vendor_a。
 </code></pre>
 <h3 id="3-建议处理-未执行-等确认">3. 建议处理（未执行，等确认）</h3>
-<pre><code class="language-text">在 02 上执行（版本号照 01 上 tada 容器正在用的 tag，当前 01/02 都是 20260923-ben）：
+<pre><code class="language-text">在 02 上执行（版本号照 01 上 vendor_a 容器正在用的 tag，当前 01/02 都是 20260923-ben）：
     cd /data/server-runtime
-    sh start.sh tada 20260923-ben
-    # 起来后确认：docker ps | grep tada、ss -ltnp | grep 9096、curl 本机 9096
-再盯一会儿 nginx error log，确认 203.0.113.1:9096 的 refused 不再出现。
+    sh start.sh vendor_a 20260923-ben
+    # 起来后确认：docker ps | grep vendor_a、ss -ltnp | grep 9096、curl 本机 9096
+再盯一会儿 nginx error log，确认 192.0.2.1:9096 的 refused 不再出现。
 </code></pre>
 <h3 id="4-后续-2026-09-24-17-15-更新">4. 后续（2026-09-24 17:15 更新）</h3>
-<pre><code class="language-text">· 用户已手动执行 sh start.sh tada 20260923-ben，02 的 TADA（9096）已恢复。
+<pre><code class="language-text">· 用户已手动执行 sh start.sh vendor_a 20260923-ben，02 的 vendor_a（9096）已恢复。
 · 消失原因已查明：不是故障也不是自动任务，是有人在 02 上一个从 9/18 起就一直挂着的
-  常驻 SSH 会话（工作目录 /data/server-runtime）里手动执行了 sh stop.sh tada，
+  常驻 SSH 会话（工作目录 /data/server-runtime）里手动执行了 sh stop.sh vendor_a，
   而 stop.sh 是 stop + rm，之后没执行对应的 start.sh。
   完整证据链（含 journald 逐秒日志、常驻会话 PID/对端 IP）见：
-  docker/doc/2026-09-24-1715-【问题排查】02的TADA容器消失原因定位-常驻会话手动stop记录.md
+  docker/doc/2026-09-24-1715-【问题排查】02的vendor_a容器消失原因定位-常驻会话手动stop记录.md
 </code></pre>
 <h2 id="六-回滚方法">六、回滚方法</h2>
-<pre><code class="language-text">监控脚本（入口机 34.151.249.53）：
+<pre><code class="language-text">监控脚本（入口机 192.0.2.13）：
   # 回到「还在监控 03、没有发版窗口静默」的版本
   cp -a /opt/pgserver/docker/scripts/container_health_monitor.py.bak-20260924-144110-before-03-out-and-release-window \
         /opt/pgserver/docker/scripts/container_health_monitor.py
 
 监控状态文件（入口机）：
-  /var/tmp/dbqp-container-health.json.bak-20260924-144110
-  （另可用 /var/tmp/dbqp-container-health.json.bak-20260919-092950 回到更早状态）
+  /var/tmp/bizops-container-health.json.bak-20260924-144110
+  （另可用 /var/tmp/bizops-container-health.json.bak-20260919-092950 回到更早状态）
 
 只想临时关掉「发版窗口静默」而不动脚本：
-  在入口机 crontab 那一行前面加 DBQP_CONTAINER_RELEASE_WINDOW=0（或用环境变量文件）。
+  在入口机 crontab 那一行前面加 某业务公司_CONTAINER_RELEASE_WINDOW=0（或用环境变量文件）。
 </code></pre>
 <h2 id="七-明确没做的事">七、明确没做的事</h2>
-<pre><code class="language-text">· 没有启停任何业务容器（包括没有替开发去启 02 的 tada）。
+<pre><code class="language-text">· 没有启停任何业务容器（包括没有替开发去启 02 的 vendor_a）。
 · 没有改 nginx（01+02 双活、03 down 的现状保持）。
 · 没有动 03 上的打包相关东西（jumpserver / registry / 临时容器都没碰）。
 · 没有停 03 的 beszel-agent：那是宿主机监控（CPU/内存/磁盘），与本次容器报警无关；
@@ -265,19 +266,19 @@ docker/doc/2026-09-19-1740-【优化】01-02-03磁盘清理与容器监控适配
 <h2 id="九-2026-09-24-后续迭代-告警样式统一-项目标识-提及-双时区-测试通道">九、2026-09-24 后续迭代：告警样式统一（项目标识 + @提及 + 双时区 + 测试通道）</h2>
 <p>用户要求：容器缺失/恢复这类通知也要 @ 到人，并且巴西要带项目标签，样式对齐「结果集权限告警」。</p>
 <pre><code class="language-text">改造后的样式：
-  【DBQP 巴西项目｜容器监控｜报警】@运维 @Ben_Bird @benb6879
+  【某业务公司 巴西项目｜容器监控｜报警】@运维 @Ben_Bird @benb6879
   时间：北京 2026-09-24 17:05:12 ｜ 巴西圣保罗 2026-09-24 06:05:12
-  - 容器缺失：game-service-tada-prod（203.0.113.1 / 02）连续 3 次采样（约 6 分钟）未找到，候选名：…
+  - 容器缺失：game-service-vendor_a-prod（192.0.2.1 / 02）连续 3 次采样（约 6 分钟）未找到，候选名：…
 
-  【DBQP 巴西项目｜容器监控｜恢复】@运维 @Ben_Bird @benb6879
+  【某业务公司 巴西项目｜容器监控｜恢复】@运维 @Ben_Bird @benb6879
   时间：北京 … ｜ 巴西圣保罗 …
-  - 容器恢复：game-service-tada-prod（203.0.113.1 / 02）image=…
+  - 容器恢复：game-service-vendor_a-prod（192.0.2.1 / 02）image=…
 </code></pre>
 <pre><code class="language-text">改动内容：
-1) MENTIONS = @运维 @Ben_Bird @benb6879（可用环境变量 DBQP_MONITOR_MENTIONS 覆盖）
+1) MENTIONS = @运维 @Ben_Bird @benb6879（可用环境变量 某业务公司_MONITOR_MENTIONS 覆盖）
    —— @Ben_Bird / @benb6879 是真实 Telegram 用户名会被提醒；@运维 非法用户名只作称呼。
 2) PROJECT_NAME（默认「巴西项目」，可用环境变量覆盖）拼进标题，
-   与结果集权限告警的【DBQP &lt;项目&gt;｜…】保持同一套写法。
+   与结果集权限告警的【某业务公司 &lt;项目&gt;｜…】保持同一套写法。
 3) 时间改成「北京 + 巴西圣保罗」双时区（用 zoneinfo，取不到时回退 +8/-3 固定偏移），
    日志里仍沿用原来的本地时间戳，避免影响按日志排查的习惯。
 4) 新增 `--test-notify`：只往群里发一条【报警·测试】+一条【恢复·测试】用于验证
@@ -294,12 +295,12 @@ docker/doc/2026-09-19-1740-【优化】01-02-03磁盘清理与容器监控适配
 </code></pre>
       </article>
       <aside class="aside">
-        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-03-为什么退出监控">一、03 为什么退出监控</a></li><li style="margin-left:0.0rem"><a href="#二-发版窗口自动静默-这次误报的真正原因">二、发版窗口自动静默（这次误报的真正原因）</a></li><li style="margin-left:0.8rem"><a href="#1-证据-02-上的发版流程">1. 证据：02 上的发版流程</a></li><li style="margin-left:0.8rem"><a href="#2-机制">2. 机制</a></li><li style="margin-left:0.0rem"><a href="#三-另外两处顺手修掉的问题">三、另外两处顺手修掉的问题</a></li><li style="margin-left:0.0rem"><a href="#四-验证-本次实测">四、验证（本次实测）</a></li><li style="margin-left:0.0rem"><a href="#五-顺带查出的真问题-02-的-TADA-主服务-9096-现在没在跑">五、⚠️ 顺带查出的真问题：02 的 TADA 主服务（9096）现在没在跑</a></li><li style="margin-left:0.8rem"><a href="#1-事实">1. 事实</a></li><li style="margin-left:0.8rem"><a href="#2-用户影响-有日志证据">2. 用户影响（有日志证据）</a></li><li style="margin-left:0.8rem"><a href="#3-建议处理-未执行-等确认">3. 建议处理（未执行，等确认）</a></li><li style="margin-left:0.8rem"><a href="#4-后续-2026-09-24-17-15-更新">4. 后续（2026-09-24 17:15 更新）</a></li><li style="margin-left:0.0rem"><a href="#六-回滚方法">六、回滚方法</a></li><li style="margin-left:0.0rem"><a href="#七-明确没做的事">七、明确没做的事</a></li><li style="margin-left:0.0rem"><a href="#八-相关文件">八、相关文件</a></li><li style="margin-left:0.0rem"><a href="#九-2026-09-24-后续迭代-告警样式统一-项目标识-提及-双时区-测试通道">九、2026-09-24 后续迭代：告警样式统一（项目标识 + @提及 + 双时区 + 测试通道）</a></li></ol></aside>
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#一-03-为什么退出监控">一、03 为什么退出监控</a></li><li style="margin-left:0.0rem"><a href="#二-发版窗口自动静默-这次误报的真正原因">二、发版窗口自动静默（这次误报的真正原因）</a></li><li style="margin-left:0.8rem"><a href="#1-证据-02-上的发版流程">1. 证据：02 上的发版流程</a></li><li style="margin-left:0.8rem"><a href="#2-机制">2. 机制</a></li><li style="margin-left:0.0rem"><a href="#三-另外两处顺手修掉的问题">三、另外两处顺手修掉的问题</a></li><li style="margin-left:0.0rem"><a href="#四-验证-本次实测">四、验证（本次实测）</a></li><li style="margin-left:0.0rem"><a href="#五-顺带查出的真问题-02-的-vendor_a-主服务-9096-现在没在跑">五、⚠️ 顺带查出的真问题：02 的 vendor_a 主服务（9096）现在没在跑</a></li><li style="margin-left:0.8rem"><a href="#1-事实">1. 事实</a></li><li style="margin-left:0.8rem"><a href="#2-用户影响-有日志证据">2. 用户影响（有日志证据）</a></li><li style="margin-left:0.8rem"><a href="#3-建议处理-未执行-等确认">3. 建议处理（未执行，等确认）</a></li><li style="margin-left:0.8rem"><a href="#4-后续-2026-09-24-17-15-更新">4. 后续（2026-09-24 17:15 更新）</a></li><li style="margin-left:0.0rem"><a href="#六-回滚方法">六、回滚方法</a></li><li style="margin-left:0.0rem"><a href="#七-明确没做的事">七、明确没做的事</a></li><li style="margin-left:0.0rem"><a href="#八-相关文件">八、相关文件</a></li><li style="margin-left:0.0rem"><a href="#九-2026-09-24-后续迭代-告警样式统一-项目标识-提及-双时区-测试通道">九、2026-09-24 后续迭代：告警样式统一（项目标识 + @提及 + 双时区 + 测试通道）</a></li></ol></aside>
         <div class="aside-box"><h2>文章信息</h2><ul>
           <li>分类：历史运维与项目交付 / 巴西主站</li>
           <li>日期：2026-09-24</li>
           <li>标签：<span class="tag">巴西主站</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">Redis</span><span class="tag">监控告警</span></li>
-          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-09-24-1445-【优化+问题排查】容器监控只留0102并发版窗…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609241445-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E4%BC%98%E5%8C%96%2B%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E5%AE%B9%E5%99%A8%E7%9B%91%E6%8E%A7%E5%8F%AA%E7%95%99%2001-02%20%2B%20%E5%8F%91%E7%89%88%E7%AA%97%E5%8F%A3%E8%87%AA%E5%8A%A8%E9%9D%99%E9%BB%98%EF%BC%88%E5%90%AB%2002%20%E7%9A%84%20TADA%209096%20%E7%BC%BA%E5%A4%B1%E5%8F%91%E7%8E%B0%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+          <li><span>来源：~/Projects/ops/private-notes/master/docs/history/2026-09-24-1445-【优化+问题排查】容器监控只留0102并发版窗口…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609241445-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E4%BC%98%E5%8C%96%2B%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E5%AE%B9%E5%99%A8%E7%9B%91%E6%8E%A7%E5%8F%AA%E7%95%99%2001-02%20%2B%20%E5%8F%91%E7%89%88%E7%AA%97%E5%8F%A3%E8%87%AA%E5%8A%A8%E9%9D%99%E9%BB%98%EF%BC%88%E5%90%AB%2002%20%E7%9A%84%20vendor_a%209096%20%E7%BC%BA%E5%A4%B1%E5%8F%91%E7%8E%B0%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
         </ul></div>
         <div class="aside-box"><h2>作者</h2>
           <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
@@ -309,8 +310,8 @@ docker/doc/2026-09-19-1740-【优化】01-02-03磁盘清理与容器监控适配
     </div>
     <section class="seo-summary" aria-labelledby="seo-summary-title">
       <h2 id="seo-summary-title">文章摘要</h2>
-      <p>【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 TADA 9096 缺失发现）。本文属于历史运维与项目交付 / 巴西主站，时间：2026-09-24 14:45（北京时间）/ 06:45（UTC） 对象机器：后台 01 203.0.113.1 、后台 02 203.0.113.1…</p>
-      <p>关键词：巴西主站、Linux、Shell、Python、Docker、Nginx、Redis、监控告警、历史运维与项目交付、历史运维与项目交付 / 巴西主站</p>
+      <p>【优化+问题排查】容器监控只留 01/02 + 发版窗口自动静默（含 02 的 vendor_a 9096 缺失发现）。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 时间：2026-09-24 14:45（北京时间…</p>
+      <p>关键词：巴西主站、Linux、Shell、Python、Docker、Nginx、Redis、监控告警、历史运维与项目交付、历史运维与项目交付 / 巴西主站、一、03 为什么退出监控、二、发版窗口自动静默（这次误报的真正原因）、1. 证据：02 上的发版流程、2. 机制</p>
     </section>
     <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-063fa6eb2d04.html"><small>上一篇</small>2026-09-24 香港 standby 入口服务器与新域名 hkcloudplay06/07 接入记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-099f591f15c0.html"><small>下一篇</small>【优化+问题排查】结果集权限被改坏的原因定位 + 权限自愈监控上线</a></nav>
   </main>

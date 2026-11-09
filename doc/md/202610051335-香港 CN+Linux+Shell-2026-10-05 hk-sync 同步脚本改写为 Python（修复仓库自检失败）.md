@@ -5,15 +5,17 @@ date: "2026-10-05T13:35:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "香港 CN"]
 tags: ["香港 CN", "Linux", "Shell", "Python", "Docker", "监控告警", "故障排查", "源码与配置"]
-source: "project-file:///Projects/work/game/pgserver/cn/docker/doc/2026-10-05-1335-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91hk-sync%E8%84%9A%E6%9C%AC%E6%94%B9%E5%86%99%E4%B8%BAPython%E5%B9%B6%E4%BF%AE%E5%A4%8DCI%E8%87%AA%E6%A3%80.md"
-sourcePath: "~/Projects/work/game/pgserver/cn/docker/doc/2026-10-05-1335-【运维】hk-sync脚本改写为Python并修复CI自检.md"
+source: "project-file:///Projects/ops/private-notes/cn/docker/doc/2026-10-05-1335-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91hk-sync%E8%84%9A%E6%9C%AC%E6%94%B9%E5%86%99%E4%B8%BAPython%E5%B9%B6%E4%BF%AE%E5%A4%8DCI%E8%87%AA%E6%A3%80.md"
+sourcePath: "~/Projects/ops/private-notes/cn/docker/doc/2026-10-05-1335-【运维】hk-sync脚本改写为Python并修复CI自检.md"
 sourceSha256: "8b4d72ae031693b4a811f4f948bc40701fd2044fb05cbc5a043851a060bc22e7"
 sourceSystem: "project-doc"
 ---
 
 # 2026-10-05 hk-sync 同步脚本改写为 Python（修复仓库自检失败）
 
-> 来源文件：`~/Projects/work/game/pgserver/cn/docker/doc/2026-10-05-1335-【运维】hk-sync脚本改写为Python并修复CI自检.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-10-05-1335-【运维】hk-sync脚本改写为Python并修复CI自检.md`
 
 > 整理日期：2026-10-05 13:35｜日期依据：文件名日期
 
@@ -44,7 +46,7 @@ sourceSystem: "project-doc"
    · 支持环境变量覆盖：HK_SYNC_SRC / HK_SYNC_RUNTIME_SRC / HK_SYNC_RESULTS_SRC / HK_SYNC_DST /
      RSYNC_PASSFILE / RSYNC_LOG。
 2) 删除 docker/deploy/hongkong/hk-sync.sh（旧 sh 留档在 12:10 那次提交里，可随时回看）。
-3) 香港 prod-01 / prod-02 同步更新：/opt/dbqp-hk-ops/hk_sync.py 已就位（旧 hk-sync.sh 保留，
+3) 香港 prod-01 / prod-02 同步更新：/opt/bizops-hk-ops/hk_sync.py 已就位（旧 hk-sync.sh 保留，
    不改动用户手感；新脚本是替代品）。
 ```
 
@@ -57,8 +59,8 @@ sourceSystem: "project-doc"
         两条 rsync 命令行与旧 sh 逐字一致，日志正常落盘，退出码 0。
 · 两台服务器：py_compile 通过、--help 正常；md5 = 569299ff85c3306777106341b6f446fb（本地/01/02 三处一致）。
 · prod-01 实跑 `runtime --dry-run -i`：rc=0，DRY RUN 正常（total size 71,512,862），
-  结尾 conf 自检：configs-jili.py is_top_new_configs=1、configs-panda.py is_top_new_configs=1（未被同步源覆盖）。
-· prod-02 直接调 check_conf()：同上，jili 102 行 / panda 47 行、均为 1。
+  结尾 conf 自检：configs-vendor_b.py is_top_new_configs=1、configs-vendor_d.py is_top_new_configs=1（未被同步源覆盖）。
+· prod-02 直接调 check_conf()：同上，vendor_b 102 行 / vendor_d 47 行、均为 1。
 · /root/.rsync-pass 两台都在（600，root:root）。
 ```
 
@@ -66,6 +68,6 @@ sourceSystem: "project-doc"
 
 ```text
 docker/deploy/hongkong/hk_sync.py（新脚本）
-docker/doc/2026-10-05-1210-【优化+故障处理】香港同步脚本优化复核与jili崩溃修复.md（原始优化与 jili 崩溃根因）
+docker/doc/2026-10-05-1210-【优化+故障处理】香港同步脚本优化复核与vendor_b崩溃修复.md（原始优化与 vendor_b 崩溃根因）
 docker/ci/check.py（reject_shell_scripts 规则）
 ```

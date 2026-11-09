@@ -5,13 +5,15 @@ date: "2026-08-03T20:03:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "18Game 测试环境"]
 tags: ["18Game 测试环境", "Linux", "Shell", "Python", "Nginx", "自动化", "CDN", "安全运维"]
-source: "project-file:///Private/from-oldmac-20261109/Users/ben/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-03_2003-%E3%80%90%E9%AA%8C%E8%AF%81%E8%AE%B0%E5%BD%95%2B%E5%AE%89%E5%85%A8%E4%BC%98%E5%8C%96%E3%80%91%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83H5-PC%E5%8A%A0%E5%AF%86%E8%A7%86%E9%A2%91%E7%BD%91%E9%A1%B5%E6%92%AD%E6%94%BE%E9%AA%8C%E8%AF%81.md"
+source: "project-file:///Private/from-oldmac-20261109/Users/operator/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-03_2003-%E3%80%90%E9%AA%8C%E8%AF%81%E8%AE%B0%E5%BD%95%2B%E5%AE%89%E5%85%A8%E4%BC%98%E5%8C%96%E3%80%91%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83H5-PC%E5%8A%A0%E5%AF%86%E8%A7%86%E9%A2%91%E7%BD%91%E9%A1%B5%E6%92%AD%E6%94%BE%E9%AA%8C%E8%AF%81.md"
 sourcePath: "~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-03_2003-【验证记录+安全优化】测试环境H5-PC加密视频网页播放验证.md"
 sourceSha256: "6e760681ad85433540356214de622676fd5023296f3dc6fdcb6317bc72c0b490"
 sourceSystem: "project-doc"
 ---
 
 # 测试环境 H5/PC 加密视频网页播放验证记录
+
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
 > 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-03_2003-【验证记录+安全优化】测试环境H5-PC加密视频网页播放验证.md`
 
@@ -69,7 +71,7 @@ sourceSystem: "project-doc"
 2. 上传或复制到独立测试路径。
 3. 通过 `test-img.hbabaxb.cn` 形成带 `token/t` 的加密视频 URL。
 4. 在当前测试 H5/PC 网页中实际渲染 `<video>`。
-5. 验证浏览器 Network、metadata、播放状态。
+5. 验证浏览器 Network、mevendor_ata、播放状态。
 
 ## 4. 测试对象
 
@@ -199,13 +201,13 @@ https://test-h5.hbabaxb.cn/
 - 临时在 DOM 中插入 3 个 `<video>` 元素。
 - `src` 使用 `test-img.hbabaxb.cn/uploads/audit/video-playback/...mp4` 带 `token/t` 的地址。
 - 设置 `muted`、`playsInline`、`controls`。
-- 等待 metadata。
+- 等待 mevendor_ata。
 - 调用 `play()`。
 - 观察 Network。
 
 结果：
 
-| 对象 | metadata | play() | error | readyState | 尺寸 |
+| 对象 | mevendor_ata | play() | error | readyState | 尺寸 |
 | --- | --- | --- | --- | ---: | --- |
 | `sample-01.mp4` | 成功 | 成功 | 0 | 3 | 854x481 |
 | `sample-02.mp4` | 成功 | 成功 | 0 | 4 | 750x422 |
@@ -220,7 +222,7 @@ Media 206 video/mp4
 H5 结论：
 
 - 当前 H5 页面内可渲染加密视频。
-- metadata 可加载。
+- mevendor_ata 可加载。
 - 浏览器可发起 Media Range 请求。
 - muted play() 成功。
 
@@ -309,7 +311,7 @@ PC 结论：
 - DOM 中有 `video/source`。
 - Network 中视频请求为 `206` 或 `200`。
 - Content-Type 为 `video/mp4`。
-- `loadedmetadata` 成功。
+- `loadedmevendor_ata` 成功。
 - `videoWidth/videoHeight` 正常。
 - 播放不报错。
 

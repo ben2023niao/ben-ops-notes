@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>香港动态接口与静态资源 CORS 边界记录（2026-11-08 · 2a99）｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
-  <meta name="description" content="香港动态接口与静态资源 CORS 边界记录。本文属于历史运维与项目交付 / 巴西主站，执行范围： m4q7z1.shop 、 p3w9n5.shop 两个腾讯云 EdgeOne 站点，以及香港源站 Nginx。 动态接口的 CORS 由业务代码负责。Nginx 只透传后端响应头，EdgeOne 只做动态转发和 N…">
-  <meta name="keywords" content="巴西主站，Nginx，MySQL，CDN，故障排查，源码与配置，历史运维与项目交付，历史运维与项目交付 / 巴西主站，香港动态接口与静态资源 CORS 边界记录">
+  <meta name="description" content="香港动态接口与静态资源 CORS 边界记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 执行范围： m4q7z1.shop 、 p3w9n5.shop 两个腾讯云 EdgeOne 站点，以及香港源站 Nginx。…">
+  <meta name="keywords" content="巴西主站，Nginx，MySQL，CDN，故障排查，源码与配置，历史运维与项目交付，历史运维与项目交付 / 巴西主站，香港动态接口与静态资源 CORS 边界记录，一、结论，二、源站直连验证，三、EdgeOne 验证，四、静态域名抽检，五、最终操作">
   <meta name="author" content="BEN">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
   <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
@@ -22,7 +22,7 @@
   <meta property="og:locale" content="zh_CN">
   <meta property="og:site_name" content="BEN.OPS 工程笔记">
   <meta property="og:title" content="香港动态接口与静态资源 CORS 边界记录（2026-11-08 · 2a99）">
-  <meta property="og:description" content="香港动态接口与静态资源 CORS 边界记录。本文属于历史运维与项目交付 / 巴西主站，执行范围： m4q7z1.shop 、 p3w9n5.shop 两个腾讯云 EdgeOne 站点，以及香港源站 Nginx。 动态接口的 CORS 由业务代码负责。Nginx 只透传后端响应头，EdgeOne 只做动态转发和 N…">
+  <meta property="og:description" content="香港动态接口与静态资源 CORS 边界记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 执行范围： m4q7z1.shop 、 p3w9n5.shop 两个腾讯云 EdgeOne 站点，以及香港源站 Nginx。…">
   <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-42b228c62a99.html">
   <meta property="article:published_time" content="2026-11-08T17:02:00+08:00">
   <meta property="article:modified_time" content="2026-11-08 17:02">
@@ -31,7 +31,7 @@
   
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="香港动态接口与静态资源 CORS 边界记录（2026-11-08 · 2a99）">
-  <meta name="twitter:description" content="香港动态接口与静态资源 CORS 边界记录。本文属于历史运维与项目交付 / 巴西主站，执行范围： m4q7z1.shop 、 p3w9n5.shop 两个腾讯云 EdgeOne 站点，以及香港源站 Nginx。 动态接口的 CORS 由业务代码负责。Nginx 只透传后端响应头，EdgeOne 只做动态转发和 N…">
+  <meta name="twitter:description" content="香港动态接口与静态资源 CORS 边界记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 执行范围： m4q7z1.shop 、 p3w9n5.shop 两个腾讯云 EdgeOne 站点，以及香港源站 Nginx。…">
   
   <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
 --line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
@@ -75,7 +75,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 @media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
 .meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
 @media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-42b228c62a99.html#article","headline":"香港动态接口与静态资源 CORS 边界记录（2026-11-08 · 2a99）","description":"香港动态接口与静态资源 CORS 边界记录。本文属于历史运维与项目交付 / 巴西主站，执行范围： m4q7z1.shop 、 p3w9n5.shop 两个腾讯云 EdgeOne 站点，以及香港源站 Nginx。 动态接口的 CORS 由业务代码负责。Nginx 只透传后端响应头，EdgeOne 只做动态转发和 N…","datePublished":"2026-11-08T17:02:00+08:00","dateModified":"2026-11-08 17:02","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Nginx","MySQL","CDN","故障排查","源码与配置","历史运维与项目交付","历史运维与项目交付 / 巴西主站","香港动态接口与静态资源 CORS 边界记录"],"wordCount":1148,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-42b228c62a99.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-42b228c62a99.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"香港动态接口与静态资源 CORS 边界记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-42b228c62a99.html"}]}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-42b228c62a99.html#article","headline":"香港动态接口与静态资源 CORS 边界记录（2026-11-08 · 2a99）","description":"香港动态接口与静态资源 CORS 边界记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 执行范围： m4q7z1.shop 、 p3w9n5.shop 两个腾讯云 EdgeOne 站点，以及香港源站 Nginx。…","datePublished":"2026-11-08T17:02:00+08:00","dateModified":"2026-11-08 17:02","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Nginx","MySQL","CDN","故障排查","源码与配置","历史运维与项目交付","历史运维与项目交付 / 巴西主站","香港动态接口与静态资源 CORS 边界记录","一、结论","二、源站直连验证","三、EdgeOne 验证","四、静态域名抽检","五、最终操作"],"wordCount":1011,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-42b228c62a99.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-42b228c62a99.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"香港动态接口与静态资源 CORS 边界记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-42b228c62a99.html"}]}]}</script>
 </head>
 <body>
   <header class="topbar"><div class="shell">
@@ -94,19 +94,20 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
     <header class="hero">
       <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
       <h1>香港动态接口与静态资源 CORS 边界记录（2026-11-08 · 2a99）</h1>
-      <p class="lede">香港动态接口与静态资源 CORS 边界记录。本文属于历史运维与项目交付 / 巴西主站，执行范围： m4q7z1.shop 、 p3w9n5.shop 两个腾讯云 EdgeOne 站点，以及香港源站 Nginx。 动态接口的 CORS 由业务代码负责。Nginx 只透传后端响应头，EdgeOne 只做动态转发和 N…</p>
+      <p class="lede">香港动态接口与静态资源 CORS 边界记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 执行范围： m4q7z1.shop 、 p3w9n5.shop 两个腾讯云 EdgeOne 站点，以及香港源站 Nginx。…</p>
       <div class="meta">
         <time class="badge" datetime="2026-11-08T17:02:00+08:00">发布于 2026-11-08</time>
         <span class="badge">作者 BEN</span>
-        <span class="badge">1,148 字</span>
-        <span class="badge">4 分钟阅读</span>
+        <span class="badge">1,011 字</span>
+        <span class="badge">3 分钟阅读</span>
       </div>
     </header>
     <div class="layout">
       <article class="article" itemscope itemtype="https://schema.org/TechArticle">
         
 <blockquote>
-<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-11-08-1702-【核对】香港动态接口与静态资源CORS边界记录.md</code></p>
+<p>公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。</p>
+<p>来源文件：<code>~/Projects/ops/private-notes/master/docs/history/2026-11-08-1702-【核对】香港动态接口与静态资源CORS边界记录.md</code></p>
 <p>整理日期：2026-11-08 17:02｜日期依据：文件名日期</p>
 </blockquote>
 <p>时间：2026-11-08 17:02 至 19:35（Asia/Manila）</p>
@@ -116,7 +117,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 <p>运维需要关注静态资源的跨域读取能力。当前抽查的静态域名已经返回允许任意来源的响应头，动态域名也不需要额外兜底。</p>
 <p>本次处理期间曾临时添加动态 EdgeOne CORS 规则 <code>rule-3x65h1mmsj0a</code>。按上述架构复核后已撤回。腾讯云 API 回读两个站点的自定义规则数量均为 0。</p>
 <h2 id="二-源站直连验证">二、源站直连验证</h2>
-<p>测试使用 <code>http://34.150.1.185</code> 加业务 Host，绕过 EdgeOne，直接检查香港 Nginx 和上游后端。</p>
+<p>测试使用 <code>http://192.0.2.37</code> 加业务 Host，绕过 EdgeOne，直接检查香港 Nginx 和上游后端。</p>
 <table>
 <thead>
 <tr>
@@ -191,7 +192,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 <td>可跨域读取</td>
 </tr>
 <tr>
-<td><code>jili-static.m4q7z1.shop</code></td>
+<td><code>vendor_b-static.m4q7z1.shop</code></td>
 <td><code>*</code></td>
 <td>GET、HEAD、OPTIONS</td>
 <td><code>*</code></td>
@@ -239,7 +240,7 @@ quick_check：ok
 </code></pre>
 <p>因此，历史记录中的“结果集只读或结果库内容不一致”问题不适用于本次 PG65。</p>
 <p>重启核查进一步发现，香港 PG 容器新建 MySQL 连接时超时：</p>
-<pre><code class="language-text">Can't connect to MySQL server on '47.239.230.107' (timed out)
+<pre><code class="language-text">Can't connect to MySQL server on '192.0.2.51' (timed out)
 </code></pre>
 <p>香港 01、02 和入口 Nginx 到该地址的 TCP 3306 均超时。PG01 已停止自动重启循环，
 PG02 保持原连接运行，避免同时失去两台后端。待 DBA 放通香港后端公网/内网源 IP
@@ -252,7 +253,7 @@ PG02 保持原连接运行，避免同时失去两台后端。待 DBA 放通香�
           <li>分类：历史运维与项目交付 / 巴西主站</li>
           <li>日期：2026-11-08</li>
           <li>标签：<span class="tag">巴西主站</span><span class="tag">Nginx</span><span class="tag">MySQL</span><span class="tag">CDN</span><span class="tag">故障排查</span><span class="tag">源码与配置</span></li>
-          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-11-08-1702-【核对】香港动态接口与静态资源CORS边界记录…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202611081702-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BNginx%2BMySQL-%E9%A6%99%E6%B8%AF%E5%8A%A8%E6%80%81%E6%8E%A5%E5%8F%A3%E4%B8%8E%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20CORS%20%E8%BE%B9%E7%95%8C%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+          <li><span>来源：~/Projects/ops/private-notes/master/docs/history/2026-11-08-1702-【核对】香港动态接口与静态资源CORS边界记录.…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202611081702-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BNginx%2BMySQL-%E9%A6%99%E6%B8%AF%E5%8A%A8%E6%80%81%E6%8E%A5%E5%8F%A3%E4%B8%8E%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20CORS%20%E8%BE%B9%E7%95%8C%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
         </ul></div>
         <div class="aside-box"><h2>作者</h2>
           <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
@@ -262,8 +263,8 @@ PG02 保持原连接运行，避免同时失去两台后端。待 DBA 放通香�
     </div>
     <section class="seo-summary" aria-labelledby="seo-summary-title">
       <h2 id="seo-summary-title">文章摘要</h2>
-      <p>香港动态接口与静态资源 CORS 边界记录。本文属于历史运维与项目交付 / 巴西主站，执行范围： m4q7z1.shop 、 p3w9n5.shop 两个腾讯云 EdgeOne 站点，以及香港源站 Nginx。 动态接口的 CORS 由业务代码负责。Nginx 只透传后端响应头，EdgeOne 只做动态转发和 N…</p>
-      <p>关键词：巴西主站、Nginx、MySQL、CDN、故障排查、源码与配置、历史运维与项目交付、历史运维与项目交付 / 巴西主站、香港动态接口与静态资源 CORS 边界记录</p>
+      <p>香港动态接口与静态资源 CORS 边界记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 执行范围： m4q7z1.shop 、 p3w9n5.shop 两个腾讯云 EdgeOne 站点，以及香港源站 Nginx。…</p>
+      <p>关键词：巴西主站、Nginx、MySQL、CDN、故障排查、源码与配置、历史运维与项目交付、历史运维与项目交付 / 巴西主站、香港动态接口与静态资源 CORS 边界记录、一、结论、二、源站直连验证、三、EdgeOne 验证、四、静态域名抽检、五、最终操作</p>
     </section>
     <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-36e7d7e4e0c3.html"><small>上一篇</small>香港动态接口与静态资源 CORS 边界记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-aa4fba80b33c.html"><small>下一篇</small>03-安全运营与应急</a></nav>
   </main>

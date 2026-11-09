@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>香港 AWS S3 与 CloudFront 迁移搭建记录｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
-  <meta name="description" content="香港 AWS S3 与 CloudFront 迁移搭建记录。本文属于历史运维与项目交付 / 巴西主站，为改善中国大陆访问香港游戏资源时的链路质量，新增一套 AWS 测试架构： 资源复制、CDN 配置和强制解析验证完成后，已于 2026-07-17 按厂商和域名前缀完成灰度切换。同日稍后按项目要求收口为 PG、PP…">
-  <meta name="keywords" content="巴西主站，Shell，Docker，Nginx，CDN，DNS，安全运维，数据库恢复，历史运维与项目交付，历史运维与项目交付 / 巴西主站，香港 AWS S3 与 CloudFront 迁移搭建记录">
+  <meta name="description" content="香港 AWS S3 与 CloudFront 迁移搭建记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 为改善中国大陆访问香港游戏资源时的链路质量，新增一套 AWS 测试架构： 资源复制、CDN 配置和强制解析验…">
+  <meta name="keywords" content="巴西主站，Shell，Docker，Nginx，CDN，DNS，安全运维，数据库恢复，历史运维与项目交付，历史运维与项目交付 / 巴西主站，香港 AWS S3 与 CloudFront 迁移搭建记录，目标与边界，安全处理，AWS 资源">
   <meta name="author" content="BEN">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
   <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
@@ -22,7 +22,7 @@
   <meta property="og:locale" content="zh_CN">
   <meta property="og:site_name" content="BEN.OPS 工程笔记">
   <meta property="og:title" content="香港 AWS S3 与 CloudFront 迁移搭建记录">
-  <meta property="og:description" content="香港 AWS S3 与 CloudFront 迁移搭建记录。本文属于历史运维与项目交付 / 巴西主站，为改善中国大陆访问香港游戏资源时的链路质量，新增一套 AWS 测试架构： 资源复制、CDN 配置和强制解析验证完成后，已于 2026-07-17 按厂商和域名前缀完成灰度切换。同日稍后按项目要求收口为 PG、PP…">
+  <meta property="og:description" content="香港 AWS S3 与 CloudFront 迁移搭建记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 为改善中国大陆访问香港游戏资源时的链路质量，新增一套 AWS 测试架构： 资源复制、CDN 配置和强制解析验…">
   <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fbc4001c8767.html">
   <meta property="article:published_time" content="2026-07-17T15:00:00+08:00">
   <meta property="article:modified_time" content="2026-07-17 15:00">
@@ -31,7 +31,7 @@
   
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="香港 AWS S3 与 CloudFront 迁移搭建记录">
-  <meta name="twitter:description" content="香港 AWS S3 与 CloudFront 迁移搭建记录。本文属于历史运维与项目交付 / 巴西主站，为改善中国大陆访问香港游戏资源时的链路质量，新增一套 AWS 测试架构： 资源复制、CDN 配置和强制解析验证完成后，已于 2026-07-17 按厂商和域名前缀完成灰度切换。同日稍后按项目要求收口为 PG、PP…">
+  <meta name="twitter:description" content="香港 AWS S3 与 CloudFront 迁移搭建记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 为改善中国大陆访问香港游戏资源时的链路质量，新增一套 AWS 测试架构： 资源复制、CDN 配置和强制解析验…">
   
   <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
 --line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
@@ -75,7 +75,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 @media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
 .meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
 @media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fbc4001c8767.html#article","headline":"香港 AWS S3 与 CloudFront 迁移搭建记录","description":"香港 AWS S3 与 CloudFront 迁移搭建记录。本文属于历史运维与项目交付 / 巴西主站，为改善中国大陆访问香港游戏资源时的链路质量，新增一套 AWS 测试架构： 资源复制、CDN 配置和强制解析验证完成后，已于 2026-07-17 按厂商和域名前缀完成灰度切换。同日稍后按项目要求收口为 PG、PP…","datePublished":"2026-07-17T15:00:00+08:00","dateModified":"2026-07-17 15:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","Docker","Nginx","CDN","DNS","安全运维","数据库恢复","历史运维与项目交付","历史运维与项目交付 / 巴西主站","香港 AWS S3 与 CloudFront 迁移搭建记录"],"wordCount":1647,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fbc4001c8767.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fbc4001c8767.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"香港 AWS S3 与 CloudFront 迁移搭建记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fbc4001c8767.html"}]}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fbc4001c8767.html#article","headline":"香港 AWS S3 与 CloudFront 迁移搭建记录","description":"香港 AWS S3 与 CloudFront 迁移搭建记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 为改善中国大陆访问香港游戏资源时的链路质量，新增一套 AWS 测试架构： 资源复制、CDN 配置和强制解析验…","datePublished":"2026-07-17T15:00:00+08:00","dateModified":"2026-07-17 15:00","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Shell","Docker","Nginx","CDN","DNS","安全运维","数据库恢复","历史运维与项目交付","历史运维与项目交付 / 巴西主站","香港 AWS S3 与 CloudFront 迁移搭建记录","目标与边界","安全处理","AWS 资源"],"wordCount":1463,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fbc4001c8767.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fbc4001c8767.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"香港 AWS S3 与 CloudFront 迁移搭建记录","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-fbc4001c8767.html"}]}]}</script>
 </head>
 <body>
   <header class="topbar"><div class="shell">
@@ -94,11 +94,11 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
     <header class="hero">
       <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
       <h1>香港 AWS S3 与 CloudFront 迁移搭建记录</h1>
-      <p class="lede">香港 AWS S3 与 CloudFront 迁移搭建记录。本文属于历史运维与项目交付 / 巴西主站，为改善中国大陆访问香港游戏资源时的链路质量，新增一套 AWS 测试架构： 资源复制、CDN 配置和强制解析验证完成后，已于 2026-07-17 按厂商和域名前缀完成灰度切换。同日稍后按项目要求收口为 PG、PP…</p>
+      <p class="lede">香港 AWS S3 与 CloudFront 迁移搭建记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 为改善中国大陆访问香港游戏资源时的链路质量，新增一套 AWS 测试架构： 资源复制、CDN 配置和强制解析验…</p>
       <div class="meta">
         <time class="badge" datetime="2026-07-17T15:00:00+08:00">发布于 2026-07-17</time>
         <span class="badge">作者 BEN</span>
-        <span class="badge">1,647 字</span>
+        <span class="badge">1,463 字</span>
         <span class="badge">5 分钟阅读</span>
       </div>
     </header>
@@ -106,7 +106,8 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
       <article class="article" itemscope itemtype="https://schema.org/TechArticle">
         
 <blockquote>
-<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/hongkong/cn/2026-07-17-1500-【架构改造】香港AWS-S3与CloudFront迁移搭建记录.md</code></p>
+<p>公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。</p>
+<p>来源文件：<code>~/Projects/ops/private-notes/master/docs/history/hongkong/cn/2026-07-17-1500-【架构改造】香港AWS-S3与CloudFront迁移搭建记录.md</code></p>
 <p>整理日期：2026-07-17 15:00｜日期依据：文件名日期</p>
 </blockquote>
 <h2 id="目标与边界">目标与边界</h2>
@@ -114,12 +115,12 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 <pre><code class="language-text">静态资源：CloudFront -&gt; 香港私有 S3（ap-east-1）
 动态接口：CloudFront -&gt; 香港 Nginx -&gt; 两台外部后端
 </code></pre>
-<p>资源复制、CDN 配置和强制解析验证完成后，已于 2026-07-17 按厂商和域名前缀完成灰度切换。同日稍后按项目要求收口为 PG、PP、PPK、PANDA、JILI + platform-api：当前 50 个静态域名和 33 个动态/核心域名通过 Cloudflare DNS-only CNAME 指向 AWS CloudFront；TADA、PLAYSON、Socket 已退出当前范围。原有通配记录和每批 DNS 备份均保留，可快速回退。最终状态见 <code>2026-07-17-1900-【架构改造+网络调整】香港CN五厂商收口与JILI-AWS接入完整记录.md</code>。</p>
+<p>资源复制、CDN 配置和强制解析验证完成后，已于 2026-07-17 按厂商和域名前缀完成灰度切换。同日稍后按项目要求收口为 PG、PP、PPK、PANDA、vendor_b + platform-api：当前 50 个静态域名和 33 个动态/核心域名通过 Cloudflare DNS-only CNAME 指向 AWS CloudFront；vendor_a、vendor_c、Socket 已退出当前范围。原有通配记录和每批 DNS 备份均保留，可快速回退。最终状态见 <code>2026-07-17-1900-【架构改造+网络调整】香港CN五厂商收口与vendor_b-AWS接入完整记录.md</code>。</p>
 <h2 id="安全处理">安全处理</h2>
 <ul>
 <li>已删除此前暴露的 AWS 访问密钥，并确认旧密钥失效。</li>
 <li>新 AWS 密钥仅配置在香港 Nginx 服务器的 root AWS CLI profile 中，未写入 Git。</li>
-<li>Cloudflare API Token 仅配置在香港 Nginx 服务器，权限为 DNS 编辑、Zone 读取，并限制来源 IP 为 <code>34.92.13.108</code>。</li>
+<li>Cloudflare API Token 仅配置在香港 Nginx 服务器，权限为 DNS 编辑、Zone 读取，并限制来源 IP 为 <code>192.0.2.14</code>。</li>
 <li>本地 <code>docker/cf.api</code>、AWS CSV 和令牌文件已加入 <code>.gitignore</code>，不允许提交。</li>
 <li>S3 开启禁止公网访问、SSE-S3 加密和版本控制；公网直接读取测试返回 <code>403</code>。</li>
 </ul>
@@ -142,11 +143,11 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 </tr>
 <tr>
 <td>私有桶</td>
-<td><code>dbqp-h5-hk-517506432530</code></td>
+<td><code>bizops-h5-hk-517506432530</code></td>
 </tr>
 <tr>
 <td>CloudFront OAC</td>
-<td><code>dbqp-hk-static-oac</code> / <code>E3B9A5Q6NHFLMX</code></td>
+<td><code>bizops-hk-static-oac</code> / <code>E3B9A5Q6NHFLMX</code></td>
 </tr>
 <tr>
 <td>ACM 证书</td>
@@ -154,7 +155,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 </tr>
 <tr>
 <td>动态回源域名</td>
-<td><code>origin-hk.hkplaycore.com</code> -&gt; <code>34.92.13.108</code>（DNS only）</td>
+<td><code>origin-hk.hkplaycore.com</code> -&gt; <code>192.0.2.14</code>（DNS only）</td>
 </tr>
 </tbody>
 </table>
@@ -190,8 +191,8 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 <p>强制解析验证结果：</p>
 <ul>
 <li><code>pg-games.hkcloudplay01.com</code> 返回应用 <code>200</code>。</li>
-<li>API、PP 和 Panda 根路径返回各自应用的 <code>404/403</code>，响应来自香港 Nginx/后端，不是 CDN 连接失败。</li>
-<li>JILI API 与 5 个 JILI 游戏域名的 <code>/game-setting/game-info-list</code> 均返回 200。</li>
+<li>API、PP 和 vendor_d 根路径返回各自应用的 <code>404/403</code>，响应来自香港 Nginx/后端，不是 CDN 连接失败。</li>
+<li>vendor_b API 与 5 个 vendor_b 游戏域名的 <code>/game-setting/game-info-list</code> 均返回 200。</li>
 </ul>
 <h3 id="静态资源">静态资源</h3>
 <table>
@@ -241,32 +242,32 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 <td style="text-align: right;">5</td>
 </tr>
 <tr>
-<td><code>panda-static</code></td>
+<td><code>vendor_d-static</code></td>
 <td><code>E11FJTU4P1WOTI</code></td>
 <td><code>d40y8tdqqhbne.cloudfront.net</code></td>
 <td style="text-align: right;">5</td>
 </tr>
 <tr>
-<td><code>jili-static</code></td>
+<td><code>vendor_b-static</code></td>
 <td><code>E2KICAEYOWJ24E</code></td>
 <td><code>d1b9hbqri3a5s2.cloudfront.net</code></td>
 <td style="text-align: right;">5</td>
 </tr>
 <tr>
-<td><code>jili-static1</code></td>
+<td><code>vendor_b-static1</code></td>
 <td><code>EIKLXE4BT0I05</code></td>
 <td><code>duwwtt8kps0e1.cloudfront.net</code></td>
 <td style="text-align: right;">5</td>
 </tr>
 <tr>
-<td><code>jili-static2</code></td>
+<td><code>vendor_b-static2</code></td>
 <td><code>E38M63JF95BKAL</code></td>
 <td><code>dl70k4sviqmqh.cloudfront.net</code></td>
 <td style="text-align: right;">5</td>
 </tr>
 </tbody>
 </table>
-<p>每个活动静态分配绑定对应的 5 个 <code>hkcloudplay01.com</code> 至 <code>hkcloudplay05.com</code> 域名。当前 10 个活动前缀分别使用 prefix-scoped OAC 桶策略；TADA/PLAYSON 旧资源和策略暂留作审计与回滚材料，但没有业务 DNS。</p>
+<p>每个活动静态分配绑定对应的 5 个 <code>hkcloudplay01.com</code> 至 <code>hkcloudplay05.com</code> 域名。当前 10 个活动前缀分别使用 prefix-scoped OAC 桶策略；vendor_a/vendor_c 旧资源和策略暂留作审计与回滚材料，但没有业务 DNS。</p>
 <h2 id="GCS-到香港-S3-同步结果">GCS 到香港 S3 同步结果</h2>
 <table>
 <thead>
@@ -322,28 +323,28 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 <td style="text-align: right;">2,125,758,610</td>
 </tr>
 <tr>
-<td><code>panda-static</code></td>
+<td><code>vendor_d-static</code></td>
 <td style="text-align: right;">78,664</td>
 <td style="text-align: right;">78,664</td>
 <td style="text-align: right;">1,316,540,465</td>
 <td style="text-align: right;">1,316,540,465</td>
 </tr>
 <tr>
-<td><code>jili-static</code></td>
+<td><code>vendor_b-static</code></td>
 <td style="text-align: right;">17,450</td>
 <td style="text-align: right;">17,450</td>
 <td style="text-align: right;">2,220,113,567</td>
 <td style="text-align: right;">2,220,113,567</td>
 </tr>
 <tr>
-<td><code>jili-static1</code></td>
+<td><code>vendor_b-static1</code></td>
 <td style="text-align: right;">2,620</td>
 <td style="text-align: right;">2,620</td>
 <td style="text-align: right;">564,873,936</td>
 <td style="text-align: right;">564,873,936</td>
 </tr>
 <tr>
-<td><code>jili-static2</code></td>
+<td><code>vendor_b-static2</code></td>
 <td style="text-align: right;">1,072</td>
 <td style="text-align: right;">1,072</td>
 <td style="text-align: right;">203,719,543</td>
@@ -358,7 +359,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 </tr>
 </tbody>
 </table>
-<p>同步使用 <code>rclone copy --metadata</code>，只复制新增或变化对象，不删除 GCS 源数据。每组完成后同时核对源/目标对象数和总字节数。</p>
+<p>同步使用 <code>rclone copy --mevendor_ata</code>，只复制新增或变化对象，不删除 GCS 源数据。每组完成后同时核对源/目标对象数和总字节数。</p>
 <h2 id="PP-特殊兼容">PP 特殊兼容</h2>
 <p>原香港 Nginx 对 PP 静态域名使用以下兼容规则：</p>
 <pre><code class="language-nginx">location ~* /customizations\.info$ {
@@ -366,7 +367,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
     return 200 "";
 }
 </code></pre>
-<p>迁移到 S3 后，由 CloudFront Function <code>dbqp-hk-pp-customizations</code> 在 viewer-request 阶段保持相同行为，仅挂载到 <code>pp-static</code> 分配。</p>
+<p>迁移到 S3 后，由 CloudFront Function <code>bizops-hk-pp-customizations</code> 在 viewer-request 阶段保持相同行为，仅挂载到 <code>pp-static</code> 分配。</p>
 <p>强制解析实测 5 个 PP 静态域名全部返回：</p>
 <pre><code class="language-text">HTTP 200
 Content-Length: 0
@@ -446,10 +447,10 @@ direct_s3_status=403
 <p>所有脚本只引用 AWS profile 或服务器本机令牌路径，不包含明文密钥。</p>
 <h2 id="DNS-切换状态">DNS 切换状态</h2>
 <ul>
-<li>50/50 个 PG、PP、PPK、PANDA、JILI 静态域名已切换到各自的静态 CloudFront 分配。</li>
+<li>50/50 个 PG、PP、PPK、PANDA、vendor_b 静态域名已切换到各自的静态 CloudFront 分配。</li>
 <li>25/25 个五厂商游戏域名已切换到动态 CloudFront 分配。</li>
 <li>8/8 个 platform-api、Verify 和五厂商 API 域名已切换到动态 CloudFront 分配。</li>
-<li>TADA、PLAYSON、Socket 已退出 <code>cn</code> 当前范围，精确 DNS 与动态 CloudFront 别名残留均为 0。</li>
+<li>vendor_a、vendor_c、Socket 已退出 <code>cn</code> 当前范围，精确 DNS 与动态 CloudFront 别名残留均为 0。</li>
 <li>精确记录统一使用 DNS-only CNAME、TTL 60 秒；原有通配 A 记录未删除。</li>
 <li>已实际执行一次删除精确 CNAME 的回滚演练，确认通配记录立即恢复接管，随后重新应用 AWS CNAME。</li>
 </ul>
@@ -460,7 +461,7 @@ direct_s3_status=403
 <li>全量资源、55 个静态域名和 PP 特殊规则验证完成：<code>message_id=2703</code>。</li>
 <li>DNS 灰度及回滚演练：<code>message_id=2704</code> 至 <code>2711</code>。</li>
 <li>动态域名最终批与总结果：<code>message_id=2712</code>。</li>
-<li>五厂商收口与 JILI 接入：<code>message_id=2715</code>、<code>2716</code>、<code>2717</code>、<code>2718</code>、<code>2722</code>、<code>2724</code>、<code>2726</code>。</li>
+<li>五厂商收口与 vendor_b 接入：<code>message_id=2715</code>、<code>2716</code>、<code>2717</code>、<code>2718</code>、<code>2722</code>、<code>2724</code>、<code>2726</code>。</li>
 </ul>
       </article>
       <aside class="aside">
@@ -469,7 +470,7 @@ direct_s3_status=403
           <li>分类：历史运维与项目交付 / 巴西主站</li>
           <li>日期：2026-07-17</li>
           <li>标签：<span class="tag">巴西主站</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">CDN</span><span class="tag">DNS</span><span class="tag">安全运维</span><span class="tag">数据库恢复</span></li>
-          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/hongkong/cn/2026-07-17-1500-【架构改造】香港AWS…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607171500-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BDocker-%E9%A6%99%E6%B8%AF%20AWS%20S3%20%E4%B8%8E%20CloudFront%20%E8%BF%81%E7%A7%BB%E6%90%AD%E5%BB%BA%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
+          <li><span>来源：~/Projects/ops/private-notes/master/docs/history/hongkong/cn/2026-07-17-1500-【架构改造】香港AWS-…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202607171500-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BDocker-%E9%A6%99%E6%B8%AF%20AWS%20S3%20%E4%B8%8E%20CloudFront%20%E8%BF%81%E7%A7%BB%E6%90%AD%E5%BB%BA%E8%AE%B0%E5%BD%95.md" type="text/markdown">查看 Markdown 原文</a></li>
         </ul></div>
         <div class="aside-box"><h2>作者</h2>
           <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
@@ -479,8 +480,8 @@ direct_s3_status=403
     </div>
     <section class="seo-summary" aria-labelledby="seo-summary-title">
       <h2 id="seo-summary-title">文章摘要</h2>
-      <p>香港 AWS S3 与 CloudFront 迁移搭建记录。本文属于历史运维与项目交付 / 巴西主站，为改善中国大陆访问香港游戏资源时的链路质量，新增一套 AWS 测试架构： 资源复制、CDN 配置和强制解析验证完成后，已于 2026-07-17 按厂商和域名前缀完成灰度切换。同日稍后按项目要求收口为 PG、PP…</p>
-      <p>关键词：巴西主站、Shell、Docker、Nginx、CDN、DNS、安全运维、数据库恢复、历史运维与项目交付、历史运维与项目交付 / 巴西主站、香港 AWS S3 与 CloudFront 迁移搭建记录</p>
+      <p>香港 AWS S3 与 CloudFront 迁移搭建记录。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 为改善中国大陆访问香港游戏资源时的链路质量，新增一套 AWS 测试架构： 资源复制、CDN 配置和强制解析验…</p>
+      <p>关键词：巴西主站、Shell、Docker、Nginx、CDN、DNS、安全运维、数据库恢复、历史运维与项目交付、历史运维与项目交付 / 巴西主站、香港 AWS S3 与 CloudFront 迁移搭建记录、目标与边界、安全处理、AWS 资源</p>
     </section>
     <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-ea7757ce22b7.html"><small>上一篇</small>cn 分支精简与香港工具 Python 化记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-bf2ee9bd80e2.html"><small>下一篇</small>香港 AWS CloudFront 灰度切换与回滚验证记录</a></nav>
   </main>

@@ -5,21 +5,23 @@ date: "2026-09-07T17:45:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Python", "Nginx", "自动化", "安全运维", "故障排查", "源码与配置"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-09-07-1745-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%2B%E4%BF%AE%E5%A4%8D%E3%80%91Sanic%E7%95%B8%E5%BD%A2URL%E6%8E%A2%E6%B5%8Bconnection_task%E5%BC%82%E5%B8%B8%E5%88%86%E6%9E%90%E4%B8%8E%E5%85%9C%E5%BA%95%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-09-07-1745-【问题排查+修复】Sanic畸形URL探测connection_task异常分析与兜底修复记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-09-07-1745-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%2B%E4%BF%AE%E5%A4%8D%E3%80%91Sanic%E7%95%B8%E5%BD%A2URL%E6%8E%A2%E6%B5%8Bconnection_task%E5%BC%82%E5%B8%B8%E5%88%86%E6%9E%90%E4%B8%8E%E5%85%9C%E5%BA%95%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-09-07-1745-【问题排查+修复】Sanic畸形URL探测connection_task异常分析与兜底修复记录.md"
 sourceSha256: "dc0d444120c1177688ef5e7690625b2a4f1dc35aa950e05b29e8c997d726d848"
 sourceSystem: "project-doc"
 ---
 
 # 【问题排查+修复】Sanic 畸形 URL 探测 connectiontask 异常分析与兜底修复记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-09-07-1745-【问题排查+修复】Sanic畸形URL探测connection_task异常分析与兜底修复记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-07-1745-【问题排查+修复】Sanic畸形URL探测connection_task异常分析与兜底修复记录.md`
 
 > 整理日期：2026-09-07 17:45｜日期依据：文件名日期
 
 时间：2026-09-07 17:45（Asia/Manila）
-项目：DBQP / PGServer master
-范围：巴西后端 01 panda（dbqp-panda-release-01）→ 全部 Sanic 厂家服务（代码层兜底）
+项目：某业务公司 / PGServer master
+范围：巴西后端 01 vendor_d（bizops-vendor_d-release-01）→ 全部 Sanic 厂家服务（代码层兜底）
 结果：✅ 根因定位 + 仓库代码修复 + 隔离验证 PASS + 本地提交
 
 ## 一、问题
@@ -39,7 +41,7 @@ sanic.exceptions.BadRequest: Bad Request / Bad URL: icanhazip.com:443
 ## 二、定位证据
 
 ```text
-来源文件：后端 01 /opt/pgserver/logs/dbqp-panda-release-01/panda.log-20260907-000241.gz
+来源文件：后端 01 /opt/pgserver/logs/bizops-vendor_d-release-01/vendor_d.log-20260907-000241.gz
 行号：7928（Srv 0 2026-09-06 23:29:16 +0000）
 Traceback 与群内截图逐行一致：Request.__init__ parse_url 失败 → BadRequest
 → error_response → create_empty_request 再次用同一畸形 URL 构造请求 → 二次异常
@@ -49,8 +51,8 @@ Traceback 与群内截图逐行一致：Request.__init__ parse_url 失败 → Ba
 该异常没有出现在宝塔/备用机 Nginx access log，因为：
 
 ```text
-后端 01 公网 IP 34.39.183.154 的 9090（platform-api）与 9102（panda 容器
-9018 映射）可被公网直接访问（GCP 防火墙 game9000-10000 0.0.0.0/0 全开）。
+后端 01 公网 IP 192.0.2.10 的 9090（platform-api）与 9102（vendor_d 容器
+9018 映射）可被公网直接访问（GCP 防火墙 game9000-10000 192.0.2.3/0 全开）。
 探测请求绕过 Nginx 直达 Sanic，因此 Nginx 无日志、X-Real-IP 无从参与。
 ```
 
@@ -77,7 +79,7 @@ A1 公网扫描器探测“服务器能否当开放代理”的标准请求。�
    巡检脚本查询公网出口 IP，不在任何业务/反代请求路径上。
 
 Q2 nginx 有没有配 X-Real-IP？
-A2 已配置。socket/api/pg/all-games/tada 等公共反代 location 均有
+A2 已配置。socket/api/pg/all-games/vendor_a 等公共反代 location 均有
    proxy_set_header X-Real-IP $remote_addr。X-Real-IP 只影响后端取真实客户端
    IP，与 URL 解析异常无关；本次请求根本没有经过 nginx。
 ```
@@ -98,7 +100,7 @@ connection_task uncaught。对全部 Sanic 厂家服务统一生效，幂等，�
 
 ```text
 1. 语法检查：python3 -m py_compile sitecustomize.py PASS。
-2. 运行中 panda 容器内单元验证：原 create_empty_request 对畸形 URL 抛
+2. 运行中 vendor_d 容器内单元验证：原 create_empty_request 对畸形 URL 抛
    BadRequest；补丁回退后成功构造 Request（raw_url=/）。
 3. 隔离测试容器（pgserver:master-035305f3，--network none）：
    - /app/sitecustomize.py 自动导入 PASS，Http.create_empty_request
@@ -112,7 +114,7 @@ connection_task uncaught。对全部 Sanic 厂家服务统一生效，幂等，�
 
 ```text
 1. 后端 01 公网 9090/9102 直开，是这类探测能直达 Sanic 的根因；建议收敛 GCP
-   防火墙规则（game9000-10000 从 0.0.0.0/0 收窄为 VPC 内网 + 需要的厂家/运维
+   防火墙规则（game9000-10000 从 192.0.2.3/0 收窄为 VPC 内网 + 需要的厂家/运维
    源 IP），需先确认厂家回调等公网访问依赖。
 2. 线上容器生效方式：把 sitecustomize.py 同步进各容器 /app 后重启对应服务
    （或随下次镜像发布自动带入）；建议按发布窗口执行并逐容器验证。

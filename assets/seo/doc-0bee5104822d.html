@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <title>【问题排查】02 的 TADA 容器为什么消失（game-service-tada-prod / 9096）｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
-  <meta name="description" content="【问题排查】02 的 TADA 容器为什么消失（game-service-tada-prod / 9096）。本文属于历史运维与项目交付 / 巴西主站，/data/server-runtime/stop.sh 的实现正好就是 stop + rm： 所以命令不是通过新连接执行的，而是 早已存在的终端 。 同一个人/…">
-  <meta name="keywords" content="巴西主站，Linux，Shell，Docker，Nginx，监控告警，自动化，故障排查，历史运维与项目交付，历史运维与项目交付 / 巴西主站">
+  <title>【问题排查】02 的 vendor_a 容器为什么消失（game-service-vendor_a-prod / 9096）｜历史运维与项目交付 / 巴西主站｜BEN.OPS</title>
+  <meta name="description" content="【问题排查】02 的 vendor_a 容器为什么消失（game-service-vendor_a-prod / 9096）。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 /data/server-runtime/…">
+  <meta name="keywords" content="巴西主站，Linux，Shell，Docker，Nginx，监控告警，自动化，故障排查，历史运维与项目交付，历史运维与项目交付 / 巴西主站，一、先看指纹：是「被删除」而不是「崩溃退出」，二、精确到秒的销毁时刻（journald 原始日志），三、排除「新登录的人干的」：那个时间点没有任何新 SSH 登录，五、排除全部自动任务">
   <meta name="author" content="BEN">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
   <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
@@ -14,15 +14,15 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0bee5104822d.html">
   <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0bee5104822d.html">
-  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609241715-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%9102%20%E7%9A%84%20TADA%20%E5%AE%B9%E5%99%A8%E4%B8%BA%E4%BB%80%E4%B9%88%E6%B6%88%E5%A4%B1%EF%BC%88game-service-tada-prod%20-%209096%EF%BC%89.md">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609241715-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%9102%20%E7%9A%84%20vendor_a%20%E5%AE%B9%E5%99%A8%E4%B8%BA%E4%BB%80%E4%B9%88%E6%B6%88%E5%A4%B1%EF%BC%88game-service-vendor_a-prod%20-%209096%EF%BC%89.md">
   <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
   <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
   <link rel="author" href="https://t.me/Ben_Bird">
   <meta property="og:type" content="article">
   <meta property="og:locale" content="zh_CN">
   <meta property="og:site_name" content="BEN.OPS 工程笔记">
-  <meta property="og:title" content="【问题排查】02 的 TADA 容器为什么消失（game-service-tada-prod / 9096）">
-  <meta property="og:description" content="【问题排查】02 的 TADA 容器为什么消失（game-service-tada-prod / 9096）。本文属于历史运维与项目交付 / 巴西主站，/data/server-runtime/stop.sh 的实现正好就是 stop + rm： 所以命令不是通过新连接执行的，而是 早已存在的终端 。 同一个人/…">
+  <meta property="og:title" content="【问题排查】02 的 vendor_a 容器为什么消失（game-service-vendor_a-prod / 9096）">
+  <meta property="og:description" content="【问题排查】02 的 vendor_a 容器为什么消失（game-service-vendor_a-prod / 9096）。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 /data/server-runtime/…">
   <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0bee5104822d.html">
   <meta property="article:published_time" content="2026-09-24T17:15:00+08:00">
   <meta property="article:modified_time" content="2026-09-24 17:15">
@@ -30,8 +30,8 @@
   <meta property="article:author" content="https://t.me/Ben_Bird">
   
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="【问题排查】02 的 TADA 容器为什么消失（game-service-tada-prod / 9096）">
-  <meta name="twitter:description" content="【问题排查】02 的 TADA 容器为什么消失（game-service-tada-prod / 9096）。本文属于历史运维与项目交付 / 巴西主站，/data/server-runtime/stop.sh 的实现正好就是 stop + rm： 所以命令不是通过新连接执行的，而是 早已存在的终端 。 同一个人/…">
+  <meta name="twitter:title" content="【问题排查】02 的 vendor_a 容器为什么消失（game-service-vendor_a-prod / 9096）">
+  <meta name="twitter:description" content="【问题排查】02 的 vendor_a 容器为什么消失（game-service-vendor_a-prod / 9096）。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 /data/server-runtime/…">
   
   <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
 --line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
@@ -75,7 +75,7 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
 @media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
 .meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
 @media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0bee5104822d.html#article","headline":"【问题排查】02 的 TADA 容器为什么消失（game-service-tada-prod / 9096）","description":"【问题排查】02 的 TADA 容器为什么消失（game-service-tada-prod / 9096）。本文属于历史运维与项目交付 / 巴西主站，/data/server-runtime/stop.sh 的实现正好就是 stop + rm： 所以命令不是通过新连接执行的，而是 早已存在的终端 。 同一个人/…","datePublished":"2026-09-24T17:15:00+08:00","dateModified":"2026-09-24 17:15","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Linux","Shell","Docker","Nginx","监控告警","自动化","故障排查","历史运维与项目交付","历史运维与项目交付 / 巴西主站"],"wordCount":2038,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0bee5104822d.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0bee5104822d.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【问题排查】02 的 TADA 容器为什么消失（game-service-tada-prod / 9096）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0bee5104822d.html"}]}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0bee5104822d.html#article","headline":"【问题排查】02 的 vendor_a 容器为什么消失（game-service-vendor_a-prod / 9096）","description":"【问题排查】02 的 vendor_a 容器为什么消失（game-service-vendor_a-prod / 9096）。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 /data/server-runtime/…","datePublished":"2026-09-24T17:15:00+08:00","dateModified":"2026-09-24 17:15","inLanguage":"zh-CN","articleSection":["历史运维与项目交付","巴西主站"],"keywords":["巴西主站","Linux","Shell","Docker","Nginx","监控告警","自动化","故障排查","历史运维与项目交付","历史运维与项目交付 / 巴西主站","一、先看指纹：是「被删除」而不是「崩溃退出」","二、精确到秒的销毁时刻（journald 原始日志）","三、排除「新登录的人干的」：那个时间点没有任何新 SSH 登录","五、排除全部自动任务"],"wordCount":599,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0bee5104822d.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0bee5104822d.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"历史运维与项目交付 / 巴西主站","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"【问题排查】02 的 vendor_a 容器为什么消失（game-service-vendor_a-prod / 9096）","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-0bee5104822d.html"}]}]}</script>
 </head>
 <body>
   <header class="topbar"><div class="shell">
@@ -89,37 +89,38 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
   <main class="shell">
     <nav class="crumbs" aria-label="面包屑">
       <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
-      › <span>历史运维与项目交付 / 巴西主站</span> › <span>【问题排查】02 的 TADA 容器为什么消失（game-service-tada-prod / 9096）</span>
+      › <span>历史运维与项目交付 / 巴西主站</span> › <span>【问题排查】02 的 vendor_a 容器为什么消失（game-service-vendor_a-prod / 9096）</span>
     </nav>
     <header class="hero">
       <div class="eyebrow">历史运维与项目交付 / 巴西主站</div>
-      <h1>【问题排查】02 的 TADA 容器为什么消失（game-service-tada-prod / 9096）</h1>
-      <p class="lede">【问题排查】02 的 TADA 容器为什么消失（game-service-tada-prod / 9096）。本文属于历史运维与项目交付 / 巴西主站，/data/server-runtime/stop.sh 的实现正好就是 stop + rm： 所以命令不是通过新连接执行的，而是 早已存在的终端 。 同一个人/…</p>
+      <h1>【问题排查】02 的 vendor_a 容器为什么消失（game-service-vendor_a-prod / 9096）</h1>
+      <p class="lede">【问题排查】02 的 vendor_a 容器为什么消失（game-service-vendor_a-prod / 9096）。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 /data/server-runtime/…</p>
       <div class="meta">
         <time class="badge" datetime="2026-09-24T17:15:00+08:00">发布于 2026-09-24</time>
         <span class="badge">作者 BEN</span>
-        <span class="badge">2,038 字</span>
-        <span class="badge">6 分钟阅读</span>
+        <span class="badge">599 字</span>
+        <span class="badge">2 分钟阅读</span>
       </div>
     </header>
     <div class="layout">
       <article class="article" itemscope itemtype="https://schema.org/TechArticle">
         
 <blockquote>
-<p>来源文件：<code>~/Projects/work/game/pgserver/master/docs/history/2026-09-24-1715-【问题排查】02的TADA容器消失原因定位-常驻会话手动stop记录.md</code></p>
+<p>公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。</p>
+<p>来源文件：<code>~/Projects/ops/private-notes/master/docs/history/2026-09-24-1715-【问题排查】02的vendor_a容器消失原因定位-常驻会话手动stop记录.md</code></p>
 <p>整理日期：2026-09-24 17:15｜日期依据：文件名日期</p>
 </blockquote>
 <p>时间：2026-09-24 17:15（北京时间）/ 09:15（UTC）
-对象机器：后台 02 <code>203.0.113.1</code>（dbqp-saopaulo-sanic-prod-02）
-问题：02 的 <code>game-service-tada-prod</code>（TADA 主服务 9096）不见了，nginx 持续报
-　　　<code>connect() failed (111: Connection refused) ... upstream: http://203.0.113.1:9096/</code>
-结论：<strong>不是故障、也不是自动任务，是有人在一个常驻 SSH 会话里手动执行了 <code>sh stop.sh tada</code>，
+对象机器：后台 02 <code>192.0.2.1</code>（bizops-saopaulo-sanic-prod-02）
+问题：02 的 <code>game-service-vendor_a-prod</code>（vendor_a 主服务 9096）不见了，nginx 持续报
+　　　<code>connect() failed (111: Connection refused) ... upstream: http://192.0.2.1:9096/</code>
+结论：<strong>不是故障、也不是自动任务，是有人在一个常驻 SSH 会话里手动执行了 <code>sh stop.sh vendor_a</code>，
 　　　<code>stop.sh</code> 会 stop + rm 把容器删掉，之后没有执行对应的 <code>start.sh</code>。</strong>
 　　　容器在 06:26:27 UTC（北京 14:26:27）被删，06:45 手动启动后恢复。
 <strong>本轮不发飞机群通知。</strong></p>
 <hr/>
 <h2 id="一-先看指纹-是-被删除-而不是-崩溃退出">一、先看指纹：是「被删除」而不是「崩溃退出」</h2>
-<pre><code class="language-text">docker ps -a 全量里没有任何 tada 主服务容器（连 Exited / Restarting 都没有）；
+<pre><code class="language-text">docker ps -a 全量里没有任何 vendor_a 主服务容器（连 Exited / Restarting 都没有）；
 start.sh 起容器时带 --restart=always，正常情况下崩溃会留下 Restarting/Exited 记录。
 → 只有显式 docker rm 才会让容器一点痕迹都不留。
 </code></pre>
@@ -147,14 +148,14 @@ start.sh 起容器时带 --restart=always，正常情况下崩溃会留下 Resta
   · 「signal 15 + 10 秒后 using the force」= 标准 docker stop 行为（先 SIGTERM，超时再 SIGKILL），
     说明是有人下了 docker stop，而不是容器自己崩了；
   · 「task-delete / veth 注销 / overlayfs mount Deactivated」= 容器随后被删除；
-  · 容器 ID ad9aa6af12aa... 与 06:14:51 tada 日志里
-    「Leader节点: ad9aa6af12aa (PID:32)」完全一致 —— 就是 02 上那个正在带 leader 租约的 tada 实例，
-    即 02 当时是 TADA 的 user-sync leader，被停掉后 leader 才切走。
+  · 容器 ID ad9aa6af12aa... 与 06:14:51 vendor_a 日志里
+    「Leader节点: ad9aa6af12aa (PID:32)」完全一致 —— 就是 02 上那个正在带 leader 租约的 vendor_a 实例，
+    即 02 当时是 vendor_a 的 user-sync leader，被停掉后 leader 才切走。
 </code></pre>
 <h2 id="三-排除-新登录的人干的-那个时间点没有任何新-SSH-登录">三、排除「新登录的人干的」：那个时间点没有任何新 SSH 登录</h2>
 <pre><code class="language-text">06:20~06:36 之间，02 的 sshd 只有每 2 分钟一次的自动登录：
   06:20:02 / 06:22:02 / 06:24:01 / 06:26:02 / 06:28:02 / 06:30:01 / 06:32:02 / 06:34:02
-  全部来自 203.0.113.1 —— 那是入口机上的「DBQP 容器监控」自己（每 2 分钟采集一次）。
+  全部来自 192.0.2.1 —— 那是入口机上的「某业务公司 容器监控」自己（每 2 分钟采集一次）。
 除了它，没有其他来源成功登录过 02。
 </code></pre>
 <p>所以命令不是通过新连接执行的，而是<strong>早已存在的终端</strong>。</p>
@@ -166,7 +167,7 @@ start.sh 起容器时带 --restart=always，正常情况下崩溃会留下 Resta
   启动时间: Fri Sep 18 06:59:53 2026
   已存活  : 5 天 23 小时 49 分
   工作目录: /data/server-runtime        ← 正是执行 start.sh / stop.sh 的目录
-  TCP 对端: 60.100.65.172:53068
+  TCP 对端: 192.0.2.38:53068
   /dev/pts/0 最后活动时间: 2026-09-24 06:42:16 UTC（报警之后、重启之前）
 </code></pre>
 <pre><code class="language-text">旁证：/root/.bash_history 最后写入时间是 2026-09-23 09:29，末尾是
@@ -175,7 +176,7 @@ start.sh 起容器时带 --restart=always，正常情况下崩溃会留下 Resta
       所以历史文件里查不到今天那条 stop.sh，这属于正常现象，不是没执行过。
 </code></pre>
 <p><strong>同一个人/同一台机器上，01 也有一个一样的常驻会话</strong>（可选一并审计）：</p>
-<pre><code class="language-text">01 203.0.113.1：root@pts/1，启动于 Fri Sep 18 07:37:02，对端同样是 60.100.65.172，仍在线。
+<pre><code class="language-text">01 192.0.2.1：root@pts/1，启动于 Fri Sep 18 07:37:02，对端同样是 192.0.2.38，仍在线。
 </code></pre>
 <h2 id="五-排除全部自动任务">五、排除全部自动任务</h2>
 <table>
@@ -188,17 +189,17 @@ start.sh 起容器时带 --restart=always，正常情况下崩溃会留下 Resta
 </thead>
 <tbody>
 <tr>
-<td><code>dbqp-log-maintenance</code>（每小时 :04）</td>
+<td><code>bizops-log-maintenance</code>（每小时 :04）</td>
 <td>只跑 logrotate + journalctl vacuum + 日志上传 S3，06:04:00 用时不到 1 秒就结束</td>
 <td>排除</td>
 </tr>
 <tr>
-<td><code>dbqp-disk-cleanup</code>（每天 04:00）</td>
-<td>04:03 跑，日志里只删了<strong>旧镜像</strong>（api/pp/tada 的 20260919-ben），没有删容器</td>
+<td><code>bizops-disk-cleanup</code>（每天 04:00）</td>
+<td>04:03 跑，日志里只删了<strong>旧镜像</strong>（api/pp/vendor_a 的 20260919-ben），没有删容器</td>
 <td>排除</td>
 </tr>
 <tr>
-<td><code>dbqp-game-log-archive</code>（每小时 :09）</td>
+<td><code>bizops-game-log-archive</code>（每小时 :09）</td>
 <td>游戏日志轮转 + 旧日志上 S3</td>
 <td>排除</td>
 </tr>
@@ -220,46 +221,46 @@ start.sh 起容器时带 --restart=always，正常情况下崩溃会留下 Resta
 </tbody>
 </table>
 <h2 id="六-时间线还原-UTC">六、时间线还原（UTC）</h2>
-<pre><code class="language-text">09-23 08:4x   发版开始：sh stop.sh tada / pp / api（02），随后从打包机 03 rsync 资源
-09-23 08:48   监控报警（02 缺 tada/api/pp）—— 正常，属于发版窗口
-09-23 09:39   sh start.sh pp/tada/api 20260923-ben，容器起回（tada 此后跑了 21h30m）
-09-24 06:26:27 有人在「9/18 起的常驻 pts/0 会话」里执行 sh stop.sh tada
+<pre><code class="language-text">09-23 08:4x   发版开始：sh stop.sh vendor_a / pp / api（02），随后从打包机 03 rsync 资源
+09-23 08:48   监控报警（02 缺 vendor_a/api/pp）—— 正常，属于发版窗口
+09-23 09:39   sh start.sh pp/vendor_a/api 20260923-ben，容器起回（vendor_a 此后跑了 21h30m）
+09-24 06:26:27 有人在「9/18 起的常驻 pts/0 会话」里执行 sh stop.sh vendor_a
                → docker stop（10 秒后强杀）→ docker rm，容器彻底消失
 09-24 06:28/06:30/06:32 监控连续 3 次采样确认缺失 → 06:32 报警（这条报警是对的）
-09-24 06:26:38~06:43:23 nginx 持续 Connection refused 到 203.0.113.1:9096（每 12 秒一条），由 01 兜住
+09-24 06:26:38~06:43:23 nginx 持续 Connection refused 到 192.0.2.1:9096（每 12 秒一条），由 01 兜住
 09-24 06:42:16 该常驻会话仍在活动
-09-24 06:42:05 从 34.146.121.225 新建会话登录 02（人工介入）
-09-24 06:45   sh start.sh tada 20260923-ben → 容器 20cdf2c5dabd 起来，9096 恢复
+09-24 06:42:05 从 192.0.2.15 新建会话登录 02（人工介入）
+09-24 06:45   sh start.sh vendor_a 20260923-ben → 容器 20cdf2c5dabd 起来，9096 恢复
 </code></pre>
 <pre><code class="language-text">故障时长：06:26:27 ~ 06:45:04 UTC，约 18.5 分钟（北京 14:26:27 ~ 14:45:04）。
 恢复验证（2026-09-24 09:00 UTC 复查）：
-  · 02 上 docker ps：game-service-tada-prod  Up，0.0.0.0:9096-&gt;9096/tcp；
+  · 02 上 docker ps：game-service-vendor_a-prod  Up，192.0.2.3:9096-&gt;9096/tcp；
   · nginx error log：最后一条 9096 refused 停在 06:43:23，之后不再出现；
-  · 容器监控：14:44 那条采样发出「容器恢复：game-service-tada-prod（203.0.113.1 / 02）」，
+  · 容器监控：14:44 那条采样发出「容器恢复：game-service-vendor_a-prod（192.0.2.1 / 02）」，
     14:46 / 14:48 恢复为「OK … 期望容器 20 个」（不再有「缺失中」）。
 </code></pre>
 <h2 id="七-结论与建议">七、结论与建议</h2>
-<pre><code class="language-text">直接原因：手动 sh stop.sh tada（stop + rm）后没有 start 回来，与 9/23 那次发版是同一套动作，
-          区别只在于这次只停了 tada 一个、而且后续的「start.sh」这步漏了。
+<pre><code class="language-text">直接原因：手动 sh stop.sh vendor_a（stop + rm）后没有 start 回来，与 9/23 那次发版是同一套动作，
+          区别只在于这次只停了 vendor_a 一个、而且后续的「start.sh」这步漏了。
 责任判定：不是监控误报，也不是自动化误伤；监控这次是「准确报出真实缺口」。
 </code></pre>
 <p>建议（未执行，待确认）：</p>
 <pre><code class="language-text">1) 发版流程收口：停止/启动/同步三步要么写进同一个脚本一次跑完，
    要么在发版结束前用「期望容器清单」自检一遍（例如 sh start.sh all &lt;tag&gt; 或专用校验脚本）。
    现在「容器监控」已经能在发版进程结束后 6 分钟内报出漏启，可作为兜底。
-2) 常驻会话治理：01/02 各有一个从 9/18 挂到现在的 root 常驻会话（对端 60.100.65.172）。
+2) 常驻会话治理：01/02 各有一个从 9/18 挂到现在的 root 常驻会话（对端 192.0.2.38）。
    常驻会话的好处是省事，坏处是命令不落 .bash_history、出了问题很难追溯。
    建议发版改用脚本执行并保留日志，或至少用完退出重连。
 3) SSH 加固（顺带发现的独立风险）：02 的公网 IP 正在被扫描爆破，
-   06:00~06:10 就有 152.67.9.154 / 2.57.122.53 / 177.10.183.34 / 158.173.89.50 等来源
+   06:00~06:10 就有 192.0.2.39 / 192.0.2.40 / 192.0.2.41 / 192.0.2.42 等来源
    大量 Failed password（root、admin、minecraft、ec2-user…）。
-   建议把 22 端口收敛到只允许 宝塔 203.0.113.1 与内网 203.0.113.1/24，或加 fail2ban。
+   建议把 22 端口收敛到只允许 宝塔 192.0.2.1 与内网 192.0.2.1/24，或加 fail2ban。
 </code></pre>
 <h2 id="八-相关文件">八、相关文件</h2>
 <pre><code class="language-text">/data/server-runtime/stop.sh   # 02 上：docker stop + docker rm（本次动作来源）
 /data/server-runtime/start.sh  # 02 上：先清理同名容器再 docker run --restart=always
 docker/scripts/container_health_monitor.py   # 本次报警就是它发的（03 已退出监控、发版窗口自动静默）
-docker/doc/2026-09-24-1445-【优化+问题排查】容器监控只留0102并发版窗口自动静默含02的TADA缺失记录.md
+docker/doc/2026-09-24-1445-【优化+问题排查】容器监控只留0102并发版窗口自动静默含02的vendor_a缺失记录.md
 </code></pre>
       </article>
       <aside class="aside">
@@ -268,7 +269,7 @@ docker/doc/2026-09-24-1445-【优化+问题排查】容器监控只留0102并发
           <li>分类：历史运维与项目交付 / 巴西主站</li>
           <li>日期：2026-09-24</li>
           <li>标签：<span class="tag">巴西主站</span><span class="tag">Linux</span><span class="tag">Shell</span><span class="tag">Docker</span><span class="tag">Nginx</span><span class="tag">监控告警</span><span class="tag">自动化</span><span class="tag">故障排查</span></li>
-          <li><span>来源：~/Projects/work/game/pgserver/master/docs/history/2026-09-24-1715-【问题排查】02的TADA容器消失原因定位-常…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609241715-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%9102%20%E7%9A%84%20TADA%20%E5%AE%B9%E5%99%A8%E4%B8%BA%E4%BB%80%E4%B9%88%E6%B6%88%E5%A4%B1%EF%BC%88game-service-tada-prod%20-%209096%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
+          <li><span>来源：~/Projects/ops/private-notes/master/docs/history/2026-09-24-1715-【问题排查】02的vendor_a容器消失原因定…</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202609241715-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%9102%20%E7%9A%84%20vendor_a%20%E5%AE%B9%E5%99%A8%E4%B8%BA%E4%BB%80%E4%B9%88%E6%B6%88%E5%A4%B1%EF%BC%88game-service-vendor_a-prod%20-%209096%EF%BC%89.md" type="text/markdown">查看 Markdown 原文</a></li>
         </ul></div>
         <div class="aside-box"><h2>作者</h2>
           <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
@@ -278,8 +279,8 @@ docker/doc/2026-09-24-1445-【优化+问题排查】容器监控只留0102并发
     </div>
     <section class="seo-summary" aria-labelledby="seo-summary-title">
       <h2 id="seo-summary-title">文章摘要</h2>
-      <p>【问题排查】02 的 TADA 容器为什么消失（game-service-tada-prod / 9096）。本文属于历史运维与项目交付 / 巴西主站，/data/server-runtime/stop.sh 的实现正好就是 stop + rm： 所以命令不是通过新连接执行的，而是 早已存在的终端 。 同一个人/…</p>
-      <p>关键词：巴西主站、Linux、Shell、Docker、Nginx、监控告警、自动化、故障排查、历史运维与项目交付、历史运维与项目交付 / 巴西主站</p>
+      <p>【问题排查】02 的 vendor_a 容器为什么消失（game-service-vendor_a-prod / 9096）。本文属于历史运维与项目交付 / 巴西主站，公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。 /data/server-runtime/…</p>
+      <p>关键词：巴西主站、Linux、Shell、Docker、Nginx、监控告警、自动化、故障排查、历史运维与项目交付、历史运维与项目交付 / 巴西主站、一、先看指纹：是「被删除」而不是「崩溃退出」、二、精确到秒的销毁时刻（journald 原始日志）、三、排除「新登录的人干的」：那个时间点没有任何新 SSH 登录、五、排除全部自动任务</p>
     </section>
     <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-9a3085842f22.html"><small>上一篇</small>2026-09-24 香港后端 /data/server-runtime 同步与结果集权限自愈接入记录</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-097ac1ba56ae.html"><small>下一篇</small>2026-09-24 香港后端接入巴西容器仓库与容器启动测试记录</a></nav>
   </main>

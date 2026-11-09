@@ -5,20 +5,22 @@ date: "2026-09-04T10:40:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "CDN", "数据库恢复"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/2026-09-04-1040-%E3%80%90%E7%BD%91%E7%BB%9C%E8%B0%83%E6%95%B4%E3%80%91%E5%85%A8%E9%83%A8%E5%9F%9F%E5%90%8D%E7%A6%81%E7%94%A8statics-cache-response%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/2026-09-04-1040-【网络调整】全部域名禁用statics-cache-response记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/2026-09-04-1040-%E3%80%90%E7%BD%91%E7%BB%9C%E8%B0%83%E6%95%B4%E3%80%91%E5%85%A8%E9%83%A8%E5%9F%9F%E5%90%8D%E7%A6%81%E7%94%A8statics-cache-response%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/2026-09-04-1040-【网络调整】全部域名禁用statics-cache-response记录.md"
 sourceSha256: "2f2d5ad1a8c951eae3cdafa6c1b2a24875ea5f8a9fc52676fe658a30a03ae66f"
 sourceSystem: "project-doc"
 ---
 
 # 【网络调整】全部域名禁用响应头转换规则 statics-cache-response
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-09-04-1040-【网络调整】全部域名禁用statics-cache-response记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-04-1040-【网络调整】全部域名禁用statics-cache-response记录.md`
 
 > 整理日期：2026-09-04 10:40｜日期依据：文件名日期
 
 时间：2026-09-04 10:40（Asia/Manila）
-项目：DBQP / PGServer master（Cloudflare 响应头转换）
+项目：某业务公司 / PGServer master（Cloudflare 响应头转换）
 状态：✅ 22/22 禁用完成
 
 ## 一、需求
@@ -33,7 +35,7 @@ sourceSystem: "project-doc"
 ```text
 1) 全量扫描：22 个域名含该规则（17 启用 + 5 已禁用）；
 2) 操作前全量备份：每域名 response_headers / cache_settings /
-   worker_routes（66 JSON）-> /root/dbqp-cf-backups/
+   worker_routes（66 JSON）-> /root/bizops-cf-backups/
    20260904-statscache-disable-before/（tar 已发群 5137）；
 3) 逐个域名 PUT entrypoint：statics-cache-response enabled=false
    （其它规则保持原样；已禁用域名复核 enabled=false）；
@@ -43,10 +45,10 @@ sourceSystem: "project-doc"
 ## 三、域名清单
 
 ```text
-6qv8m/6xv8q/7m9v8/7v8k3/8m7xv/cdn-manila-dbqp.cyou/.icu/
-cdn-tokyo-dbqp.cyou/.icu/m6xv8q/m7v8k3/p8m7xv/q7m9v8/qv9m8/
-t6qv8m/tada-cdn-2026/tada-cdn-game/tada-cf-2026/tada-cf-game/
-tada-host-2026/tada-host-game/xqv9m8
+6qv8m/6xv8q/7m9v8/7v8k3/8m7xv/cdn-manila-bizops.cyou/.icu/
+cdn-tokyo-bizops.cyou/.icu/m6xv8q/m7v8k3/p8m7xv/q7m9v8/qv9m8/
+t6qv8m/vendor_a-cdn-2026/vendor_a-cdn-game/vendor_a-cf-2026/vendor_a-cf-game/
+vendor_a-host-2026/vendor_a-host-game/xqv9m8
 ```
 
 ## 四、恢复

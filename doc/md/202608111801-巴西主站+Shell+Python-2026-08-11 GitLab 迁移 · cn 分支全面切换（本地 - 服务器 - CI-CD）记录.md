@@ -5,20 +5,22 @@ date: "2026-08-11T18:01:00+08:00"
 dateSource: "文件名日期"
 categories: ["历史运维与项目交付", "巴西主站"]
 tags: ["巴西主站", "Shell", "Python", "Docker", "自动化", "安全运维", "源码与配置"]
-source: "project-file:///Projects/work/game/pgserver/master/docs/history/hongkong/cn/2026-08-11-1801-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91GitLab%E8%BF%81%E7%A7%BBcn%E5%88%86%E6%94%AF%E5%88%87%E6%8D%A2%E6%9C%AC%E5%9C%B0%E6%9C%8D%E5%8A%A1%E5%99%A8CI-CD%E8%AE%B0%E5%BD%95.md"
-sourcePath: "~/Projects/work/game/pgserver/master/docs/history/hongkong/cn/2026-08-11-1801-【运维】GitLab迁移cn分支切换本地服务器CI-CD记录.md"
+source: "project-file:///Projects/ops/private-notes/master/docs/history/hongkong/cn/2026-08-11-1801-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91GitLab%E8%BF%81%E7%A7%BBcn%E5%88%86%E6%94%AF%E5%88%87%E6%8D%A2%E6%9C%AC%E5%9C%B0%E6%9C%8D%E5%8A%A1%E5%99%A8CI-CD%E8%AE%B0%E5%BD%95.md"
+sourcePath: "~/Projects/ops/private-notes/master/docs/history/hongkong/cn/2026-08-11-1801-【运维】GitLab迁移cn分支切换本地服务器CI-CD记录.md"
 sourceSha256: "d436cb5596fbe5a7994c7bb93442ae1e9351e835a1da9fc0fc5d6c05fa666a5d"
 sourceSystem: "project-doc"
 ---
 
 # 2026-08-11 GitLab 迁移 · cn 分支全面切换（本地 / 服务器 / CI-CD）记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/hongkong/cn/2026-08-11-1801-【运维】GitLab迁移cn分支切换本地服务器CI-CD记录.md`
+> 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
+
+> 来源文件：`~/Projects/ops/private-notes/master/docs/history/hongkong/cn/2026-08-11-1801-【运维】GitLab迁移cn分支切换本地服务器CI-CD记录.md`
 
 > 整理日期：2026-08-11 18:01｜日期依据：文件名日期
 
 时间：2026-08-11 18:01（Asia/Manila）
-项目：DBQP / PGServer cn（香港轻量运维分支）
+项目：某业务公司 / PGServer cn（香港轻量运维分支）
 范围：cn 分支迁移至 gitlab.zg-qptest.com/platgames/server-release；本地（VS Code）、服务器、机器人 CI/CD 全面切换到新 GitLab
 执行人：Codex（本地工作区 + 宝塔/备用机只读复核）
 
@@ -44,24 +46,24 @@ sourceSystem: "project-doc"
 master 迁移已先行完成（2026-08-11 15:35-15:40）：本次复核新仓库 master=856aa42e、cn=5b1e79c2。
 cn 本地分支：8ed099bf，领先新仓库 cn（5b1e79c2）4 个提交：
   e574fb9b docs: record hong kong resource sync
-  c4a54355 docs: record hong kong panda static sync
+  c4a54355 docs: record hong kong vendor_d static sync
   a25b251b docs: add hong kong ops workbench
-  8ed099bf ops: add hong kong playson routing
+  8ed099bf ops: add hong kong vendor_c routing
 服务器：宝塔/备用机 /opt/pgserver origin 已在 master 任务切换为新 GitLab（旧 origin 保留 old-gitlab）。
-工作区未提交内容：2026-08-06 PLAYSON/PG 资源同步补录文档与 workbench 更新，本次一并提交。
+工作区未提交内容：2026-08-06 vendor_c/PG 资源同步补录文档与 workbench 更新，本次一并提交。
 ```
 
 ## 二、执行
 
 ```text
 1. 本地 cn：
-   - origin 保留为 old-gitlab（http://34.146.121.225:180/root/pgserver.git，可回退）；
+   - origin 保留为 old-gitlab（http://192.0.2.15:180/root/pgserver.git，可回退）；
    - 新增 origin=https://gitlab.zg-qptest.com/platgames/server-release.git；
    - osxkeychain 认证 fetch 成功（cn=5b1e79c2、master=856aa42e、main=d6ca9e20）。
 2. 推送 cn：5b1e79c2..8ed099bf（快进，新增 4 个提交）。
 3. 修正上游跟踪：remote rename 会把分支上游带到 old-gitlab，
    已执行 branch --set-upstream-to=origin/cn，保证后续 push/pull 走新仓库。
-4. 服务器复核（宝塔 35.247.205.6 / 备用机 34.151.249.53）：
+4. 服务器复核（宝塔 192.0.2.8 / 备用机 192.0.2.13）：
    - /opt/pgserver origin 均为新 GitLab（凭据内嵌 .git/config，root 权限，未入库）；
    - git fetch origin 成功：origin/master=856aa42e、origin/cn=8ed099bf。
 5. 机器人 CI/CD：
