@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试图片默认图与广告缓存旧签名修复记录 · 【修复Bug+安全优化】测试图片默认图与广告缓存旧签名修复记录
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-30_1850-【修复Bug+安全优化】测试图片默认图与广告缓存旧签名修复记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607301850-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%B5%8B%E8%AF%95%E5%9B%BE%E7%89%87%E9%BB%98%E8%AE%A4%E5%9B%BE%E4%B8%8E%E5%B9%BF%E5%91%8A%E7%BC%93%E5%AD%98%E6%97%A7%E7%AD%BE%E5%90%8D%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95%20%C2%B7%20%E3%80%90%E4%BF%AE%E5%A4%8DBug%2B%E5%AE%89%E5%85%A8%E4%BC%98%E5%8C%96%E3%80%91%E6%B5%8B%E8%AF%95%E5%9B%BE%E7%89%87%E9%BB%98%E8%AE%A4%E5%9B%BE%E4%B8%8E%E5%B9%BF%E5%91%8A%E7%BC%93%E5%AD%98%E6%97%A7%E7%AD%BE%E5%90%8D%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-30 18:50｜日期依据：文件名日期
 

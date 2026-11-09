@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 游点涩 PC 测试环境发布改造记录
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-22_1503-【架构改造】游点涩PC测试环境发布改造.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607221503-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E6%B8%B8%E7%82%B9%E6%B6%A9%20PC%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E5%8F%91%E5%B8%83%E6%94%B9%E9%80%A0%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-22 15:03｜日期依据：文件名日期
 

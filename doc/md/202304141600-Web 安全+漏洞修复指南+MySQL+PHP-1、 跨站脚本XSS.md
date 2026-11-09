@@ -9,6 +9,8 @@ source: "03-安全运营与应急/06-Web漏洞修复指南/漏洞修复指南.md
 
 # 1、	跨站脚本XSS
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D%E6%8C%87%E5%8D%97%2BMySQL%2BPHP-1%E3%80%81%20%E8%B7%A8%E7%AB%99%E8%84%9A%E6%9C%ACXSS.md)
+
 ## 1、	跨站脚本XSS
 
 ### 1.1反射xss

@@ -9,6 +9,8 @@ source: "01-Web安全/06-PHP安全/php 变形shell检测.md"
 
 # 一、变形webshell
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BPHP%2B%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81-%E4%B8%80%E3%80%81%E5%8F%98%E5%BD%A2webshell.md)
+
 原文 by [tsrc](https://security.tencent.com/index.php/blog/msg/19)
 
 ## 一、变形webshell

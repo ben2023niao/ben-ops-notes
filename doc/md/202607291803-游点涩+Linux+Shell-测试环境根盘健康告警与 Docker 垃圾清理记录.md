@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试环境根盘健康告警与 Docker 垃圾清理记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-07-29-1803-【优化】测试环境根盘健康告警与Docker垃圾清理记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607291803-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E6%A0%B9%E7%9B%98%E5%81%A5%E5%BA%B7%E5%91%8A%E8%AD%A6%E4%B8%8E%20Docker%20%E5%9E%83%E5%9C%BE%E6%B8%85%E7%90%86%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-29 18:03｜日期依据：文件名日期
 

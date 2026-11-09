@@ -12,6 +12,8 @@ sourceHtmlSha256: "7107773aff2018012cc0222569b58da6929ada9a9d8a3f80d3175a2c44472
 
 # k8s.jenkins
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206111701-%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%2BKubernetes%2BRedis-k8s.jenkins.md)
+
 > 原文：[k8s.jenkins](https://xn--6o0a585a.gitbook.io/devops/fu-wu/jenkins-install.sh/k8s.jenkins.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-11 17:01｜日期依据：GitBook 页面更新时间

@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-10-2100-【运维】vendor_a缺资源补齐+巴西同步香港+Worker缓存盐准备记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609102100-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BDocker%2BCDN-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91vendor_a%20%E7%BC%BA%E8%B5%84%E6%BA%90%E8%A1%A5%E9%BD%90%20%2B%20%E5%B7%B4%E8%A5%BF%E5%90%8C%E6%AD%A5%E9%A6%99%E6%B8%AF%20%2B%20Worker%20%E7%BC%93%E5%AD%98%E7%9B%90%E5%87%86%E5%A4%87%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-09-10 21:00｜日期依据：文件名日期
 

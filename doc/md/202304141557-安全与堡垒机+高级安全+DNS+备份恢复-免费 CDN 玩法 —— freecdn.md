@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # 免费 CDN 玩法 —— freecdn
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BDNS%2B%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D-%E5%85%8D%E8%B4%B9%20CDN%20%E7%8E%A9%E6%B3%95%20%E2%80%94%E2%80%94%20freecdn.md)
+
 <https://github.com/EtherDream/freecdn>
 freecdn 是一个纯前端的 CDN 解决方案，用于降低网站流量成本，同时提高网站稳定性、安全性，并且无需修改现有的业务逻辑。
 

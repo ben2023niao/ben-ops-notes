@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-01-1430-【流量切换】宝塔nginx同步备用机与全域名切换记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609011430-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-%E3%80%90%E6%B5%81%E9%87%8F%E5%88%87%E6%8D%A2%E3%80%91%E5%AE%9D%E5%A1%94%20nginx%20%E5%90%8C%E6%AD%A5%E5%A4%87%E7%94%A8%E6%9C%BA%20%2B%20%E5%85%A8%E5%9F%9F%E5%90%8D%E5%88%87%E6%8D%A2%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-09-01 14:30｜日期依据：文件名日期
 

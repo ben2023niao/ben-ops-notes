@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试环境上传 GIF 无法显示诊断记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-08-17-1831-【修复Bug】测试环境上传GIF无法显示诊断记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608171831-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BDocker%2BNginx-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E4%B8%8A%E4%BC%A0%20GIF%20%E6%97%A0%E6%B3%95%E6%98%BE%E7%A4%BA%E8%AF%8A%E6%96%AD%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-17 18:31｜日期依据：文件名日期
 

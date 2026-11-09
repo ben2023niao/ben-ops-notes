@@ -9,6 +9,8 @@ source: "01-Web安全/07-WAF与信息泄露/Bypass-WAF/bypass waf Cookbook.md"
 
 # 0x00 Overview
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWAF%E4%B8%8E%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%2BDNS%2BNginx-WAF%E4%B8%8E%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%E8%AF%B4%E6%98%8E-0x00%20Overview.md)
+
 原文 by MayIKissYou
 
 PS: I’ve been thinking of concluding the pieces of knowledge for a long time. This time at the wooyun summit , I repeated the previous process again and finished this article, wishing that the contents I organized could bring enlightenments to the first party workers and white hats.

@@ -9,6 +9,8 @@ source: "02-主机与渗透/01-Linux/Rootkit 综合教程.md"
 
 # 0x01 Definition of rootkit
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Linux%20%E4%B8%8E%20Shell%2BLinux%2B%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%2B%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86-Linux%E8%AF%B4%E6%98%8E-0x01%20Definition%20of%20rootkit.md)
+
 CSysSec注： 本文来自Diting0x的个人博客，分析了Linux下不同类型的rootkit、相关原理以及源码分析，值得推荐。
 转载本文请务必注明，文章出处：《[Rootkit综合教程](http://www.csyssec.org/20170102/rootkittutorial/)》与作者信息：Diting0x
 

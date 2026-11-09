@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/hongkong/cn/2026-07-17-1109-【架构改造】cn分支精简与香港工具Python化记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607171109-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-cn%20%E5%88%86%E6%94%AF%E7%B2%BE%E7%AE%80%E4%B8%8E%E9%A6%99%E6%B8%AF%E5%B7%A5%E5%85%B7%20Python%20%E5%8C%96%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-17 11:09｜日期依据：文件名日期
 

@@ -12,6 +12,8 @@ sourceHtmlSha256: "c3abbdd2faab051ca7d4c00019050a7d8fce494f864354adcf0179dd6e2c6
 
 # Telegram机器人
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202112271706-%E9%80%9A%E7%9F%A5%E4%B8%8E%E9%9B%86%E6%88%90%2BTelegram%2BShell-Telegram%E6%9C%BA%E5%99%A8%E4%BA%BA.md)
+
 > 原文：[Telegram机器人](https://xn--6o0a585a.gitbook.io/devops/telegram-ji-qi-ren.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2021-12-27 17:06｜日期依据：GitBook 页面更新时间

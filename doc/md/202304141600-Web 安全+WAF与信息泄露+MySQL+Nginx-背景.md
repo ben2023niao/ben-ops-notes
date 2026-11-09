@@ -9,6 +9,8 @@ source: "01-Web安全/07-WAF与信息泄露/Bypass-WAF/waf 之SQL注入防御思
 
 # 背景
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWAF%E4%B8%8E%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%2BMySQL%2BNginx-%E8%83%8C%E6%99%AF.md)
+
 原文 by [tsrc博客](https://security.tencent.com/index.php/blog/msg/65)
 
 ## 背景

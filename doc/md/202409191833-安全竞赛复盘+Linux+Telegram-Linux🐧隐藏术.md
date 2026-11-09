@@ -12,6 +12,8 @@ sourceHtmlSha256: "0aabe4719a3b09e2b936cea51247f994c3e87b4cfdcab2d2e518cdff9cda9
 
 # Linux🐧隐藏术
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202409191833-%E5%AE%89%E5%85%A8%E7%AB%9E%E8%B5%9B%E5%A4%8D%E7%9B%98%2BLinux%2BTelegram-Linux%F0%9F%90%A7%E9%9A%90%E8%97%8F%E6%9C%AF.md)
+
 > 原文：[Linux🐧隐藏术](https://ji-shu-jian-li.gitbook.io/ben_bird/linux-yin-cang-shu.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2024-09-19 18:33｜日期依据：GitBook 页面更新时间

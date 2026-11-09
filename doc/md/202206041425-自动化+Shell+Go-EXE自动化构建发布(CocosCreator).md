@@ -12,6 +12,8 @@ sourceHtmlSha256: "fc21fb534af544aaf7d1a4e645bc2c152f8f9ca39365d6a9080cf0aaecc13
 
 # EXE自动化构建发布(CocosCreator)
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206041425-%E8%87%AA%E5%8A%A8%E5%8C%96%2BShell%2BGo-EXE%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%8F%91%E5%B8%83%28CocosCreator%29.md)
+
 > 原文：[EXE自动化构建发布(CocosCreator)](https://xn--6o0a585a.gitbook.io/devops/zi-dong-hua/exe-zi-dong-hua-gou-jian-fa-bu-cocoscreator.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-04 14:25｜日期依据：GitBook 页面更新时间

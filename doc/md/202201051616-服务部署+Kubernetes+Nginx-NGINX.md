@@ -12,6 +12,8 @@ sourceHtmlSha256: "a83ce81110601f1144386a721b6117312ccb3bb6964260dddd605e72133c3
 
 # NGINX
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202201051616-%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%2BKubernetes%2BNginx-NGINX.md)
+
 > 原文：[NGINX](https://xn--6o0a585a.gitbook.io/devops/fu-wu/nginx.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-01-05 16:16｜日期依据：GitBook 页面更新时间

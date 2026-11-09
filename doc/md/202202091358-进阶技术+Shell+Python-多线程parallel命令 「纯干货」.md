@@ -12,6 +12,8 @@ sourceHtmlSha256: "e881ad76375ff070057e90c0280e037f2623ff3ad8639fc79427ca1ca5b57
 
 # 多线程parallel命令 「纯干货」
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202202091358-%E8%BF%9B%E9%98%B6%E6%8A%80%E6%9C%AF%2BShell%2BPython-%E5%A4%9A%E7%BA%BF%E7%A8%8Bparallel%E5%91%BD%E4%BB%A4%20%E3%80%8C%E7%BA%AF%E5%B9%B2%E8%B4%A7%E3%80%8D.md)
+
 > 原文：[多线程parallel命令 「纯干货」](https://xn--6o0a585a.gitbook.io/devops/jin-jie-ji-shu/duo-xian-cheng-parallel-ming-ling-chun-gan-huo.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-02-09 13:58｜日期依据：GitBook 页面更新时间

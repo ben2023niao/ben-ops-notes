@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Agent 工作日志 — 大白鲨聚合支付通道接入
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-24-shark-payment-integration.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605240000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BPython-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%20%E2%80%94%20%E5%A4%A7%E7%99%BD%E9%B2%A8%E8%81%9A%E5%90%88%E6%94%AF%E4%BB%98%E9%80%9A%E9%81%93%E6%8E%A5%E5%85%A5.md)
 
 > 整理日期：2026-05-24 00:00｜日期依据：文件名日期
 

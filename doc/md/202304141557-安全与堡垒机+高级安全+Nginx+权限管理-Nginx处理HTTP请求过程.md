@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # Nginx处理HTTP请求过程
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BNginx%2B%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86-Nginx%E5%A4%84%E7%90%86HTTP%E8%AF%B7%E6%B1%82%E8%BF%87%E7%A8%8B.md)
+
 **[Nginx](https://haicoder.net/nginx/nginx-tutorial.html)** 处理 **[HTTP](https://haicoder.net/http/http-tutorial.html)** 请求的过程大概可以分为 11 个阶段，如下：
 
 1. Read Request Headers：解析请求头。

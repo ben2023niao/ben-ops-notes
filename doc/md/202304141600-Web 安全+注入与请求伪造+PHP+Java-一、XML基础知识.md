@@ -9,6 +9,8 @@ source: "01-Web安全/02-注入与请求伪造/XML注入/XXE漏洞.md"
 
 # 一、XML基础知识
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%B3%A8%E5%85%A5%E4%B8%8E%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%2BPHP%2BJava-%E4%B8%80%E3%80%81XML%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86.md)
+
 原文 By Mark4z5
 
 ## 一、XML基础知识

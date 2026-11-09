@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 容器化浏览器
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BDocker%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E5%AE%B9%E5%99%A8%E5%8C%96%E6%B5%8F%E8%A7%88%E5%99%A8.md)
+
 解决公司内网访问项目调试非常非常卡顿问题
 1: 安装 Docker
 

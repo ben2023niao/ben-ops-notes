@@ -12,6 +12,8 @@ sourceHtmlSha256: "341d27782ba07eddfe174ba60bd20784dc4e3c106a23ac9b4c7e8f27d2fac
 
 # 自动化生成域名信息
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202112211533-%E8%87%AA%E5%8A%A8%E5%8C%96%2BShell%2BTelegram-%E8%87%AA%E5%8A%A8%E5%8C%96%E7%94%9F%E6%88%90%E5%9F%9F%E5%90%8D%E4%BF%A1%E6%81%AF.md)
+
 > 原文：[自动化生成域名信息](https://xn--6o0a585a.gitbook.io/devops/zi-dong-hua/zi-dong-hua-yun-wei/zi-dong-hua-sheng-cheng-yu-ming-xin-xi.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2021-12-21 15:33｜日期依据：GitBook 页面更新时间

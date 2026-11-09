@@ -9,6 +9,8 @@ source: "01-Web安全/06-PHP安全/php 框架审计.md"
 
 # 框架的选择
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BMySQL%2BApache-%E6%A1%86%E6%9E%B6%E7%9A%84%E9%80%89%E6%8B%A9.md)
+
 原文 by xiaoL-PKAV
 
 认识一些主流的开发框架与现在程序设计理念，包含了一些WEB设计上的趋势与概念。另外以我自己的角度去说明一下怎么去看一个PHP程序，方法适合于以上开源框架和一些公司内部开发的框架（只要能看到源码）。

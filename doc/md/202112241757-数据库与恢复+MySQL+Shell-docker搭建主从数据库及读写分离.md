@@ -12,6 +12,8 @@ sourceHtmlSha256: "74ed5bc0e61db76b6b4b7743588d3853638283a742ca960481a7abe2f91e1
 
 # docker搭建主从数据库及读写分离
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202112241757-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%81%A2%E5%A4%8D%2BMySQL%2BShell-docker%E6%90%AD%E5%BB%BA%E4%B8%BB%E4%BB%8E%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8F%8A%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB.md)
+
 > 原文：[docker搭建主从数据库及读写分离](https://xn--6o0a585a.gitbook.io/devops/shu-ju-ku/docker-da-jian-zhu-cong-shu-ju-ku-ji-du-xie-fen-li.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2021-12-24 17:57｜日期依据：GitBook 页面更新时间

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【运维记录】线上环境 AWS 账号与 CDN 限流排查记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-20-0418-【运维记录】线上环境AWS账号与CDN限流排查记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608200418-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BDocker%2BNginx-%E3%80%90%E8%BF%90%E7%BB%B4%E8%AE%B0%E5%BD%95%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20AWS%20%E8%B4%A6%E5%8F%B7%E4%B8%8E%20CDN%20%E9%99%90%E6%B5%81%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-20 04:18｜日期依据：文件名日期
 

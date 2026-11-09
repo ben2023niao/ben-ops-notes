@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # CICD Web 自动更新与定时任务边界说明
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-06-25-0900-【运维记录】测试环境CICD-Web自动更新与定时任务边界说明.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606250900-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-CICD%20Web%20%E8%87%AA%E5%8A%A8%E6%9B%B4%E6%96%B0%E4%B8%8E%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E8%BE%B9%E7%95%8C%E8%AF%B4%E6%98%8E.md)
 
 > 整理日期：2026-06-25 09:00｜日期依据：文件名日期
 

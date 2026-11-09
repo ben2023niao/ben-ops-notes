@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-10-27-1510-【运维】Nginx转发CF-IPCountry与Cloudflare全Zone地理位置开启.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610271510-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-Nginx%20%E8%BD%AC%E5%8F%91%20CF-IPCountry%20%E4%B8%8E%20Cloudflare%20%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE%E5%BC%80%E5%90%AF.md)
 
 > 整理日期：2026-10-27 15:10｜日期依据：文件名日期
 

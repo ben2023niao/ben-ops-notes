@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【问题排查】线上环境 logbus2 大数据上报缺数据与重复数据排查记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-19-1658-【问题排查】线上环境logbus2大数据上报缺数据与重复数据排查记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608191658-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20logbus2%20%E5%A4%A7%E6%95%B0%E6%8D%AE%E4%B8%8A%E6%8A%A5%E7%BC%BA%E6%95%B0%E6%8D%AE%E4%B8%8E%E9%87%8D%E5%A4%8D%E6%95%B0%E6%8D%AE%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-19 16:58｜日期依据：文件名日期
 

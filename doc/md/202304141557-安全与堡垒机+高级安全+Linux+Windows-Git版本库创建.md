@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # Git版本库创建
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2BWindows-Git%E7%89%88%E6%9C%AC%E5%BA%93%E5%88%9B%E5%BB%BA.md)
+
 版本库又名仓库，英文名 repository，你可以简单理解成一个目录，这个目录里面的所有文件都可以被 **[Git](https://haicoder.net/git/git-tutorial.html)** 管理起来，每个文件的修改、删除，Git 都能跟踪，以便任何时刻都可以追踪历史，或者在将来某个时刻可以 “还原”。
 
 ## Git创建版本库

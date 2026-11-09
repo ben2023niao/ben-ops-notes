@@ -9,6 +9,8 @@ source: "03-安全运营与应急/03-安全配置与访问控制/游点涩-网�
 
 # 【安全配置】线上 UA 策略改为「默认放行，只拦异常 UA」
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609301930-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%2BDocker%2BNginx-%E3%80%90%E5%AE%89%E5%85%A8%E9%85%8D%E7%BD%AE%E3%80%91%E7%BA%BF%E4%B8%8A%20UA%20%E7%AD%96%E7%95%A5%E6%94%B9%E4%B8%BA%E3%80%8C%E9%BB%98%E8%AE%A4%E6%94%BE%E8%A1%8C%EF%BC%8C%E5%8F%AA%E6%8B%A6%E5%BC%82%E5%B8%B8%20UA%E3%80%8D.md)
+
 > 来源：本地项目文档 `game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-30-1930-【安全配置】线上UA策略改为默认放行-只拦异常UA.md`
 > 整理：2026-11-09。仅复制到知识库，未改动原项目文件；敏感凭据已脱敏。
 

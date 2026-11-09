@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【修复+优化】配置发版三方一致性校验（测试环境 + 线上环境）
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-09-15_1749-【修复+优化】配置发版三方一致性校验（测试+线上）.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609151749-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E3%80%90%E4%BF%AE%E5%A4%8D%2B%E4%BC%98%E5%8C%96%E3%80%91%E9%85%8D%E7%BD%AE%E5%8F%91%E7%89%88%E4%B8%89%E6%96%B9%E4%B8%80%E8%87%B4%E6%80%A7%E6%A0%A1%E9%AA%8C%EF%BC%88%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20%2B%20%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%EF%BC%89.md)
 
 > 整理日期：2026-09-15 17:49｜日期依据：文件名日期
 

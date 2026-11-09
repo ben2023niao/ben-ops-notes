@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Agent Log — 风控告警 MVP 落地
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-26-risk-module-mvp.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605260000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BPython-Agent%20Log%20%E2%80%94%20%E9%A3%8E%E6%8E%A7%E5%91%8A%E8%AD%A6%20MVP%20%E8%90%BD%E5%9C%B0.md)
 
 > 整理日期：2026-05-26 00:00｜日期依据：文件名日期
 

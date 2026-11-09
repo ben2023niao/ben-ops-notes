@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试环境自动发布失败修复：GitHub 429 与镜像源
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-17_2235-【修复记录】测试环境自动发布失败-GitHub429与镜像源修复.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608172235-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E8%87%AA%E5%8A%A8%E5%8F%91%E5%B8%83%E5%A4%B1%E8%B4%A5%E4%BF%AE%E5%A4%8D%EF%BC%9AGitHub%20429%20%E4%B8%8E%E9%95%9C%E5%83%8F%E6%BA%90.md)
 
 > 整理日期：2026-08-17 22:35｜日期依据：文件名日期
 

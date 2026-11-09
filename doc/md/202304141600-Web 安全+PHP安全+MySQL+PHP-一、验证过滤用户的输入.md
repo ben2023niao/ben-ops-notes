@@ -9,6 +9,8 @@ source: "01-Web安全/06-PHP安全/php 安全编码.md"
 
 # 一、验证过滤用户的输入
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BMySQL%2BPHP-%E4%B8%80%E3%80%81%E9%AA%8C%E8%AF%81%E8%BF%87%E6%BB%A4%E7%94%A8%E6%88%B7%E7%9A%84%E8%BE%93%E5%85%A5.md)
+
 原文 by 瞌睡龙
 
 ## 一、验证过滤用户的输入

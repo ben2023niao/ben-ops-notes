@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-10-03-1720-【架构改造+故障处理】香港vendor_b-vendor_d崩溃根因修复与容器监控完善.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610031720-%E9%A6%99%E6%B8%AF%20CN%2BLinux%2BShell-2026-10-03%20%E9%A6%99%E6%B8%AF%20vendor_b-vendor_d%20%E9%87%8D%E5%90%AF%E5%BE%AA%E7%8E%AF%E6%A0%B9%E5%9B%A0%E4%BF%AE%E5%A4%8D%20%2B%20%E5%85%A8%E5%8E%82%E5%AE%B6%E5%AE%B9%E5%99%A8%E7%9B%91%E6%8E%A7%E5%AE%8C%E5%96%84.md)
 
 > 整理日期：2026-10-03 17:20｜日期依据：文件名日期
 

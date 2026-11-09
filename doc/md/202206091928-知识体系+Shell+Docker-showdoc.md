@@ -12,6 +12,8 @@ sourceHtmlSha256: "2b7c7937b9c301ed5cb5f5feea41d714b1f23f7c6b4bb44e3769ea98aaf95
 
 # showdoc
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206091928-%E7%9F%A5%E8%AF%86%E4%BD%93%E7%B3%BB%2BShell%2BDocker-showdoc.md)
+
 > 原文：[showdoc](https://xn--6o0a585a.gitbook.io/devops/showdoc.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-09 19:28｜日期依据：GitBook 页面更新时间

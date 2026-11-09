@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【分析】接口响应数据量排行榜（/api/v1 与 SDK 两侧）
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-19-1620-【分析】接口响应数据量排行榜（/api-v1 与 SDK 两侧）.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610191620-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BDocker%2BNginx-%E3%80%90%E5%88%86%E6%9E%90%E3%80%91%E6%8E%A5%E5%8F%A3%E5%93%8D%E5%BA%94%E6%95%B0%E6%8D%AE%E9%87%8F%E6%8E%92%E8%A1%8C%E6%A6%9C%EF%BC%88-api-v1%20%E4%B8%8E%20SDK%20%E4%B8%A4%E4%BE%A7%EF%BC%89.md)
 
 > 整理日期：2026-10-19 16:20｜日期依据：正文日期
 

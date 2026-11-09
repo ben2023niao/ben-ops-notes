@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # 方法二 百度相关搜索关键词抓取 读取txt文档关键词 导出txt关键词 多线程采集关键词
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BWindows%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E6%96%B9%E6%B3%95%E4%BA%8C%20%E7%99%BE%E5%BA%A6%E7%9B%B8%E5%85%B3%E6%90%9C%E7%B4%A2%E5%85%B3%E9%94%AE%E8%AF%8D%E6%8A%93%E5%8F%96%20%E8%AF%BB%E5%8F%96txt%E6%96%87%E6%A1%A3%E5%85%B3%E9%94%AE%E8%AF%8D%20%E5%AF%BC%E5%87%BAtxt%E5%85%B3%E9%94%AE%E8%AF%8D%20%E5%A4%9A%E7%BA%BF%E7%A8%8B%E9%87%87%E9%9B%86%E5%85%B3%E9%94%AE%E8%AF%8D.md)
+
 ```python
 #百度相关搜索关键词抓取，读取txt关键词，导出txt关键词
 # -*- coding=utf-8 -*-

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【问题排查】发布健康检查 WARNING 假警：.env 值以 = 结尾导致 PHP 解析失败
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-15-【问题排查】发布健康检查WARNING假警-环境文件等号结尾值导致PHP解析失败.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610150000-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E5%8F%91%E5%B8%83%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5%20WARNING%20%E5%81%87%E8%AD%A6%EF%BC%9A.env%20%E5%80%BC%E4%BB%A5%20%3D%20%E7%BB%93%E5%B0%BE%E5%AF%BC%E8%87%B4%20PHP%20%E8%A7%A3%E6%9E%90%E5%A4%B1%E8%B4%A5.md)
 
 > 整理日期：2026-10-15 00:00｜日期依据：文件名日期
 

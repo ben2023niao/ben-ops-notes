@@ -9,6 +9,8 @@ source: "01-Web安全/07-WAF与信息泄露/信息泄露/信息泄露.md"
 
 # 1.网络路径扫描
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWAF%E4%B8%8E%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%2BLinux%2BWindows-1.%E7%BD%91%E7%BB%9C%E8%B7%AF%E5%BE%84%E6%89%AB%E6%8F%8F.md)
+
 原文 by wooyun wiki
 
 ## 1.网络路径扫描

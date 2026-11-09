@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【性能排查】线上环境 MongoModel 巡检 · 风险逐条清单
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-09-01_1710-【性能排查】线上环境MongoModel巡检-风险逐条清单.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609011710-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E3%80%90%E6%80%A7%E8%83%BD%E6%8E%92%E6%9F%A5%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20MongoModel%20%E5%B7%A1%E6%A3%80%20%C2%B7%20%E9%A3%8E%E9%99%A9%E9%80%90%E6%9D%A1%E6%B8%85%E5%8D%95.md)
 
 > 整理日期：2026-09-01 17:10｜日期依据：文件名日期
 

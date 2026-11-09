@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-10-02-1645-【架构改造】香港全厂家容器状态监控上线（参考巴西）.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610021645-%E9%A6%99%E6%B8%AF%20CN%2BLinux%2BShell-2026-10-02%20%E9%A6%99%E6%B8%AF%E5%85%A8%E5%8E%82%E5%AE%B6%E5%AE%B9%E5%99%A8%E7%8A%B6%E6%80%81%E7%9B%91%E6%8E%A7%E4%B8%8A%E7%BA%BF%EF%BC%88%E5%8F%82%E8%80%83%E5%B7%B4%E8%A5%BF%20criticalrestartwatch.py%EF%BC%89.md)
 
 > 整理日期：2026-10-02 16:45｜日期依据：文件名日期
 

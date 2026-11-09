@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # DevOps 文档包发送「迷境运维中台大群」记录
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-24_1835-【运维记录】DevOps文档包发送迷境运维中台大群.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608241835-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2B%E8%87%AA%E5%8A%A8%E5%8C%96-DevOps%20%E6%96%87%E6%A1%A3%E5%8C%85%E5%8F%91%E9%80%81%E3%80%8C%E8%BF%B7%E5%A2%83%E8%BF%90%E7%BB%B4%E4%B8%AD%E5%8F%B0%E5%A4%A7%E7%BE%A4%E3%80%8D%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-24 18:35｜日期依据：文件名日期
 

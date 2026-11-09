@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 线上 H5+PC 新域名接入（yds-pc-h5-01/02/03.cc）
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-12_1536-【配置部署+运维记录】线上H5+PC新域名接入.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608121536-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E7%BA%BF%E4%B8%8A%20H5%2BPC%20%E6%96%B0%E5%9F%9F%E5%90%8D%E6%8E%A5%E5%85%A5%EF%BC%88yds-pc-h5-01-02-03.cc%EF%BC%89.md)
 
 > 整理日期：2026-08-12 15:36｜日期依据：文件名日期
 

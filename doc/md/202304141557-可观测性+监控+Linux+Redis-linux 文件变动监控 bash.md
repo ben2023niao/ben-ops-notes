@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/07-监控技巧
 
 # linux 文件变动监控 bash
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%2B%E7%9B%91%E6%8E%A7%2BLinux%2BRedis-linux%20%E6%96%87%E4%BB%B6%E5%8F%98%E5%8A%A8%E7%9B%91%E6%8E%A7%20bash.md)
+
 https://运维.[gitbook.io/devops/jian-kong/wen-jian-bian-dong-jian-kong](http://gitbook.io/devops/jian-kong/wen-jian-bian-dong-jian-kong)
 ![文档配图](../media/9121bdb8ac4dea68b9.png)
 

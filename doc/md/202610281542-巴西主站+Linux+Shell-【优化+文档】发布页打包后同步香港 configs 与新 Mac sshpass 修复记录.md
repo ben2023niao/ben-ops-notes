@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【优化+文档】发布页打包后同步香港 configs 与新 Mac sshpass 修复记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-10-28-1542-【优化+文档】发布页打包后同步香港configs与新Macsshpass修复记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610281542-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E4%BC%98%E5%8C%96%2B%E6%96%87%E6%A1%A3%E3%80%91%E5%8F%91%E5%B8%83%E9%A1%B5%E6%89%93%E5%8C%85%E5%90%8E%E5%90%8C%E6%AD%A5%E9%A6%99%E6%B8%AF%20configs%20%E4%B8%8E%E6%96%B0%20Mac%20sshpass%20%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-10-28 15:42｜日期依据：文件名日期
 

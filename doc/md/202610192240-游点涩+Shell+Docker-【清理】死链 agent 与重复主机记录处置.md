@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【清理】死链 agent 与重复主机记录处置
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-19-2240-【清理】死链 agent 与重复主机记录处置.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610192240-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E6%B8%85%E7%90%86%E3%80%91%E6%AD%BB%E9%93%BE%20agent%20%E4%B8%8E%E9%87%8D%E5%A4%8D%E4%B8%BB%E6%9C%BA%E8%AE%B0%E5%BD%95%E5%A4%84%E7%BD%AE.md)
 
 > 整理日期：2026-10-19 22:40｜日期依据：文件名日期
 

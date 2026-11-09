@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 线上前端携带用户真实 IP：后端 realip 信任修复与 SSR 遗留
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-18_1648-【修复记录】线上前端携带用户真实IP-后端realip信任与SSR遗留.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608181648-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BDocker-%E7%BA%BF%E4%B8%8A%E5%89%8D%E7%AB%AF%E6%90%BA%E5%B8%A6%E7%94%A8%E6%88%B7%E7%9C%9F%E5%AE%9E%20IP%EF%BC%9A%E5%90%8E%E7%AB%AF%20realip%20%E4%BF%A1%E4%BB%BB%E4%BF%AE%E5%A4%8D%E4%B8%8E%20SSR%20%E9%81%97%E7%95%99.md)
 
 > 整理日期：2026-08-18 16:48｜日期依据：文件名日期
 

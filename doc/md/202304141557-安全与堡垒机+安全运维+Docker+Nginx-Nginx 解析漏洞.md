@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/04-安全运维
 
 # Nginx 解析漏洞
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BDocker%2BNginx-Nginx%20%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E.md)
+
 ## 一、漏洞简介
 
 ## 二、漏洞影响

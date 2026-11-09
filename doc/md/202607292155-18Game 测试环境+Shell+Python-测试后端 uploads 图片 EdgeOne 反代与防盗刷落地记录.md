@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试后端 uploads 图片 EdgeOne 反代与防盗刷落地记录
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-29_2155-【网络调整+安全优化】测试后端uploads图片EdgeOne反代与防盗刷落地记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607292155-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%B5%8B%E8%AF%95%E5%90%8E%E7%AB%AF%20uploads%20%E5%9B%BE%E7%89%87%20EdgeOne%20%E5%8F%8D%E4%BB%A3%E4%B8%8E%E9%98%B2%E7%9B%97%E5%88%B7%E8%90%BD%E5%9C%B0%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-29 21:55｜日期依据：文件名日期
 

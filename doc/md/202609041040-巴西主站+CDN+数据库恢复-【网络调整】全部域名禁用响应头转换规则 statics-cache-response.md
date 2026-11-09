@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-04-1040-【网络调整】全部域名禁用statics-cache-response记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609041040-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BCDN%2B%E6%95%B0%E6%8D%AE%E5%BA%93%E6%81%A2%E5%A4%8D-%E3%80%90%E7%BD%91%E7%BB%9C%E8%B0%83%E6%95%B4%E3%80%91%E5%85%A8%E9%83%A8%E5%9F%9F%E5%90%8D%E7%A6%81%E7%94%A8%E5%93%8D%E5%BA%94%E5%A4%B4%E8%BD%AC%E6%8D%A2%E8%A7%84%E5%88%99%20statics-cache-response.md)
 
 > 整理日期：2026-09-04 10:40｜日期依据：文件名日期
 

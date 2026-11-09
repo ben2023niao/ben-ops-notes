@@ -9,6 +9,8 @@ source: "04-工具与漏洞研究/02-漏洞原理与科普/PHP-FPM 远程命令�
 
 # 0x00 FastCGI 是什么
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-%E5%B7%A5%E5%85%B7%E4%B8%8E%E8%84%9A%E6%9C%AC%2B%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E4%B8%8E%E7%A7%91%E6%99%AE%2BCVE%2BNginx-0x00%20FastCGI%20%E6%98%AF%E4%BB%80%E4%B9%88.md)
+
 ## 0x00 FastCGI 是什么
 
 FastCGI模式是CGI模式的优化升级版，主要解决了CGI模式性能不佳的问题。

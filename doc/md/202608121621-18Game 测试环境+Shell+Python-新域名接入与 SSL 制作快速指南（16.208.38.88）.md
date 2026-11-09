@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 新域名接入与 SSL 制作快速指南（16.208.38.88）
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-12_1621-【快速指南】新域名接入与SSL制作（16.208.38.88）.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608121621-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%96%B0%E5%9F%9F%E5%90%8D%E6%8E%A5%E5%85%A5%E4%B8%8E%20SSL%20%E5%88%B6%E4%BD%9C%E5%BF%AB%E9%80%9F%E6%8C%87%E5%8D%97%EF%BC%8816.208.38.88%EF%BC%89.md)
 
 > 整理日期：2026-08-12 16:21｜日期依据：文件名日期
 

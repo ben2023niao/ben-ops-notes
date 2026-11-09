@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-18-【运维】vendor_a-WS2(8765)原始启动方式与02手动启动命令.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609180000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91vendor_a%20WS2%EF%BC%888765%EF%BC%89%E5%8E%9F%E5%A7%8B%E5%90%AF%E5%8A%A8%E6%96%B9%E5%BC%8F%E6%95%B4%E7%90%86%20%2B%2002%20%E6%89%8B%E5%8A%A8%E5%90%AF%E5%8A%A8%E5%91%BD%E4%BB%A4.md)
 
 > 整理日期：2026-09-18 00:00｜日期依据：文件名日期
 

@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-10-02-1610-【运维记录】EdgeOne三站点规则中文标注与站点标签方案.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610021610-%E9%A6%99%E6%B8%AF%20CN%2BPython%2BDocker-2026-10-02%20EdgeOne%20%E4%B8%89%E4%B8%AA%E7%AB%99%E7%82%B9%E8%A7%84%E5%88%99%E4%B8%AD%E6%96%87%E6%A0%87%E6%B3%A8%20%2B%20%E7%AB%99%E7%82%B9%E6%A0%87%E7%AD%BE%E6%96%B9%E6%A1%88.md)
 
 > 整理日期：2026-10-02 16:10｜日期依据：文件名日期
 

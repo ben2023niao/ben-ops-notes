@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 新增备案域名静态资源无 CDN 反代与测试 H5/PC 重发验证
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-04_2119-【修复Bug+链路改造】新增备案域名静态资源无CDN反代与测试H5-PC重发验证.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608042119-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%96%B0%E5%A2%9E%E5%A4%87%E6%A1%88%E5%9F%9F%E5%90%8D%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E6%97%A0%20CDN%20%E5%8F%8D%E4%BB%A3%E4%B8%8E%E6%B5%8B%E8%AF%95%20H5-PC%20%E9%87%8D%E5%8F%91%E9%AA%8C%E8%AF%81.md)
 
 > 整理日期：2026-08-04 21:19｜日期依据：文件名日期
 

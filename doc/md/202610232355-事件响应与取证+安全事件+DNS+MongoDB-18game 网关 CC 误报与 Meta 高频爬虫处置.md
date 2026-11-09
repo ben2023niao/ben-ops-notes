@@ -9,6 +9,8 @@ source: "03-安全运营与应急/01-安全事件与取证/游点涩-域名与�
 
 # 18game 网关 CC 误报与 Meta 高频爬虫处置
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610232355-%E4%BA%8B%E4%BB%B6%E5%93%8D%E5%BA%94%E4%B8%8E%E5%8F%96%E8%AF%81%2B%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%2BDNS%2BMongoDB-18game%20%E7%BD%91%E5%85%B3%20CC%20%E8%AF%AF%E6%8A%A5%E4%B8%8E%20Meta%20%E9%AB%98%E9%A2%91%E7%88%AC%E8%99%AB%E5%A4%84%E7%BD%AE.md)
+
 > 来源：本地项目文档 `game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-23-2355-【安全事件】18game网关CC误报与Meta爬虫高频抓取处置.md`
 > 整理：2026-11-09。仅复制到知识库，未改动原项目文件；敏感凭据已脱敏。
 

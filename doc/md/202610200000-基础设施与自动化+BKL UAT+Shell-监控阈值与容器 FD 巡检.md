@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 监控阈值与容器 FD 巡检
 
-> 来源文件：`~/Projects/work/ops/devops/devops-bkl/doc/2026年10月20日-监控阈值与容器FD巡检/2026年10月20日-监控阈值与容器FD巡检.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610200000-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BShell-%E7%9B%91%E6%8E%A7%E9%98%88%E5%80%BC%E4%B8%8E%E5%AE%B9%E5%99%A8%20FD%20%E5%B7%A1%E6%A3%80.md)
 
 > 整理日期：2026-10-20 00:00｜日期依据：文件名日期
 

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试 PC 前端静态资源鉴权回退与后端 uploads 防盗刷方案
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-29_2119-【架构调整+回退】测试PC前端静态资源鉴权回退与后端uploads防盗刷方案.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607292119-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BDocker-%E6%B5%8B%E8%AF%95%20PC%20%E5%89%8D%E7%AB%AF%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E9%89%B4%E6%9D%83%E5%9B%9E%E9%80%80%E4%B8%8E%E5%90%8E%E7%AB%AF%20uploads%20%E9%98%B2%E7%9B%97%E5%88%B7%E6%96%B9%E6%A1%88.md)
 
 > 整理日期：2026-07-29 21:19｜日期依据：文件名日期
 

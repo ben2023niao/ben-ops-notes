@@ -9,6 +9,8 @@ source: "03-安全运营与应急/01-安全事件与取证/游点涩-域名与�
 
 # 【安全事件】线上环境 H5/PC 网关被 IPv6 脚本刷量攻击的取证分析与拦截记录
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609261035-%E4%BA%8B%E4%BB%B6%E5%93%8D%E5%BA%94%E4%B8%8E%E5%8F%96%E8%AF%81%2B%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%2BDocker%2BNginx-%E3%80%90%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20H5-PC%20%E7%BD%91%E5%85%B3%E8%A2%AB%20IPv6%20%E8%84%9A%E6%9C%AC%E5%88%B7%E9%87%8F%E6%94%BB%E5%87%BB%E7%9A%84%E5%8F%96%E8%AF%81%E5%88%86%E6%9E%90%E4%B8%8E%E6%8B%A6%E6%88%AA%E8%AE%B0%E5%BD%95.md)
+
 > 来源：本地项目文档 `game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-26-1035-【安全事件】线上环境H5PC网关被IPv6脚本刷量攻击取证分析与拦截记录.md`
 > 整理：2026-11-09。仅复制到知识库，未改动原项目文件；敏感凭据已脱敏。
 

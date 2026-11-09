@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # Http中的Keep-Alive
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BNginx%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-Http%E4%B8%AD%E7%9A%84Keep-Alive.md)
+
 ## Http中的Keep-Alive
 
 **[HTTP](https://haicoder.net/http/http-tutorial.html)** 持久连接（HTTP persistent connection，也称作 HTTP keep-alive 或 HTTP connection reuse，翻译过来可以是保持连接或者连接复用）是使用同一个 TCP 连接来发送和接收多个 HTTP 请求/应答，而不是为每一个新的请求/应答打开新的连接的方式。

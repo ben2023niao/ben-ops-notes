@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 主播端 LSJ + ZEGO 云播放器接入说明
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/api/streamer-lsj-zego-cloud-player.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606100047-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-%E4%B8%BB%E6%92%AD%E7%AB%AF%20LSJ%20%2B%20ZEGO%20%E4%BA%91%E6%92%AD%E6%94%BE%E5%99%A8%E6%8E%A5%E5%85%A5%E8%AF%B4%E6%98%8E.md)
 
 > 整理日期：2026-06-10 00:47｜日期依据：文件创建/修改时间
 

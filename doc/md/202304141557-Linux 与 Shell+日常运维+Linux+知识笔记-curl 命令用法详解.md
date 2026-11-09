@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/08-运维技巧
 
 # curl 命令用法详解
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2BLinux%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-curl%20%E5%91%BD%E4%BB%A4%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3.md)
+
 ```bash
 【前言】
     本文翻译和整理自 Linux-2.6.32 中和 curl 相关的 Manual Page 描述文档。 文档目的仅在提醒读者所遗忘的知识点，故在整理时削弱了阅读流畅性，适用于对 curl 有一定了解的开发人员。

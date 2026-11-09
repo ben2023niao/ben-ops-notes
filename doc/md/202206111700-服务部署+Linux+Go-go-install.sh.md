@@ -12,6 +12,8 @@ sourceHtmlSha256: "0af4f44535129cb7cb27c6f4ed61d0d1be658907997da1a435cfb04c54a06
 
 # go-install.sh
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206111700-%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%2BLinux%2BGo-go-install.sh.md)
+
 > 原文：[go-install.sh](https://xn--6o0a585a.gitbook.io/devops/fu-wu/go-install.sh.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-11 17:00｜日期依据：GitBook 页面更新时间

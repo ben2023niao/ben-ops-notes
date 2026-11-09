@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【数据维护+发布】线上环境时空之契 txt 配置与后端发布记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-06-2056-【数据维护+发布】线上环境时空之契txt配置与后端发布记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608062056-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BPython%2BDocker-%E3%80%90%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%2B%E5%8F%91%E5%B8%83%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E6%97%B6%E7%A9%BA%E4%B9%8B%E5%A5%91%20txt%20%E9%85%8D%E7%BD%AE%E4%B8%8E%E5%90%8E%E7%AB%AF%E5%8F%91%E5%B8%83%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-06 20:56｜日期依据：文件名日期
 

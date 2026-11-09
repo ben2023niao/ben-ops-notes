@@ -12,6 +12,8 @@ sourceHtmlSha256: "245da2b33c7113ffc93d034abfa9f505b89adeded8b0dfdcc70e998e17038
 
 # k8s.redis
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206111701-%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%2BKubernetes%2BRedis-k8s.redis.md)
+
 > 原文：[k8s.redis](https://xn--6o0a585a.gitbook.io/devops/fu-wu/redis-install.sh/k8s.redis.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-11 17:01｜日期依据：GitBook 页面更新时间

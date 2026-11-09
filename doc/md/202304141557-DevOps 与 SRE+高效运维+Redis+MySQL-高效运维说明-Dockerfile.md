@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/11-高效运维
 
 # Dockerfile
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E9%AB%98%E6%95%88%E8%BF%90%E7%BB%B4%2BRedis%2BMySQL-%E9%AB%98%E6%95%88%E8%BF%90%E7%BB%B4%E8%AF%B4%E6%98%8E-Dockerfile.md)
+
 ```
 FROM centos:7.8.2003ENV TZ=Asia/Shanghai
 RUN yum install -y epel-release https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm && yum install -y --setopt=tsflags=nodocs nginx redis mariadb-server mariadb-devel python36 python36-devel openldap-devel supervisor git gcc wget sshpass rsync sshfs && yum -y clean all --enablerepo='*'RUN pip3 install --upgrade pip -i https://pypi.doubanio.com/simple/

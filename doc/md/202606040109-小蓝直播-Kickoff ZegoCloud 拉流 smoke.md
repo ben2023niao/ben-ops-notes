@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Kickoff ZegoCloud 拉流 smoke
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/apps/web/docs/zego-play-smoke.html`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD-Kickoff%20ZegoCloud%20%E6%8B%89%E6%B5%81%20smoke.md)
 
 > 整理日期：2026-06-04 01:09｜日期依据：文件创建/修改时间
 

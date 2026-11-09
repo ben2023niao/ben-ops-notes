@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【配置维护】线上环境 pay.callback 回调域名更新同步记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-20-1449-【配置维护】线上环境pay.callback回调域名更新同步记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608201449-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E9%85%8D%E7%BD%AE%E7%BB%B4%E6%8A%A4%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20pay.callback%20%E5%9B%9E%E8%B0%83%E5%9F%9F%E5%90%8D%E6%9B%B4%E6%96%B0%E5%90%8C%E6%AD%A5%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-20 14:49｜日期依据：文件名日期
 

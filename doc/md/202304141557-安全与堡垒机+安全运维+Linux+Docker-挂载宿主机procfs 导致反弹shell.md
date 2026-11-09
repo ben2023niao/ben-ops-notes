@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/04-安全运维
 
 # 挂载宿主机procfs 导致反弹shell
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BLinux%2BDocker-%E6%8C%82%E8%BD%BD%E5%AE%BF%E4%B8%BB%E6%9C%BAprocfs%20%E5%AF%BC%E8%87%B4%E5%8F%8D%E5%BC%B9shell.md)
+
 ## 挂载宿主机procfs
 
 > 利用procfs通过写/proc/sys/kernel/core_pattern来进行逃逸，触发条件比较苛刻，需要有进程奔溃才能触发

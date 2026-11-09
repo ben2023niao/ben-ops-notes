@@ -9,6 +9,8 @@ source: "01-Web安全/06-PHP安全/php rasp 实现.md"
 
 # RASP概念
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BMySQL%2BPHP-RASP%E6%A6%82%E5%BF%B5.md)
+
 作者：c0d3p1ut0s & s1m0n  https://paper.seebug.org/449/
 
 ## RASP概念

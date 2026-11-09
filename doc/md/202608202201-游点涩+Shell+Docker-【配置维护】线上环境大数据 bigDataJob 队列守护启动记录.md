@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【配置维护】线上环境大数据 bigDataJob 队列守护启动记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-20-2201-【配置维护】线上环境大数据bigDataJob队列守护启动记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608202201-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E9%85%8D%E7%BD%AE%E7%BB%B4%E6%8A%A4%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E5%A4%A7%E6%95%B0%E6%8D%AE%20bigDataJob%20%E9%98%9F%E5%88%97%E5%AE%88%E6%8A%A4%E5%90%AF%E5%8A%A8%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-20 22:01｜日期依据：文件名日期
 

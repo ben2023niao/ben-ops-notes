@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试环境自动化发布排查：未卡住，构建完成并验证
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-17_2205-【排查记录】测试环境自动化发布未卡住-构建完成验证.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608172205-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BNginx-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E8%87%AA%E5%8A%A8%E5%8C%96%E5%8F%91%E5%B8%83%E6%8E%92%E6%9F%A5%EF%BC%9A%E6%9C%AA%E5%8D%A1%E4%BD%8F%EF%BC%8C%E6%9E%84%E5%BB%BA%E5%AE%8C%E6%88%90%E5%B9%B6%E9%AA%8C%E8%AF%81.md)
 
 > 整理日期：2026-08-17 22:05｜日期依据：文件名日期
 

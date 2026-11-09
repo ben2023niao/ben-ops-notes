@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 项目 nginx 日志优化分析
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BLinux%2BNginx-%E9%A1%B9%E7%9B%AE%20nginx%20%E6%97%A5%E5%BF%97%E4%BC%98%E5%8C%96%E5%88%86%E6%9E%90.md)
+
 ```
 [root@hk210svr008026 logs]# tail -1 A04_agent_three_mobile.log | awk -F'の' '{print "+客户ip->CDN->源服务器->内网ip= "$3" -> "$29" -> "$4" +用户访问= " $8" 请求 "$5$6" +状态= "$9" +服务器返回= "$11$23" +返回内容格式= "$26" +耗时秒= "$12" +产品信息= "$41" +客户端UA=  "$10}' | awk -F "+" '{for(i=1;i<=NF;i++) a[i,NR]=$i}END{for(i=1;i<=NF;i++) {for(j=1;j<=NR;j++) printf a[i,j] " ";print ""}}'
 

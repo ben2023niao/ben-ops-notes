@@ -12,6 +12,8 @@ sourceHtmlSha256: "fe7b420da0243175b8e387dff2e8d4ee7ce40a1de01da72f756b50d1a144c
 
 # k8s.nginx
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206111703-%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%2BKubernetes%2BNginx-k8s.nginx.md)
+
 > 原文：[k8s.nginx](https://xn--6o0a585a.gitbook.io/devops/fu-wu/nginx-install.sh/k8s.nginx.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-11 17:03｜日期依据：GitBook 页面更新时间

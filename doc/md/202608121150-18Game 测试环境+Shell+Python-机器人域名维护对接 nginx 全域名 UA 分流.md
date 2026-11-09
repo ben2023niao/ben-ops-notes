@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 机器人域名维护对接 nginx 全域名 UA 分流
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-12_1150-【配置同步+验证记录】机器人域名维护对接nginx全域名UA分流.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608121150-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9F%9F%E5%90%8D%E7%BB%B4%E6%8A%A4%E5%AF%B9%E6%8E%A5%20nginx%20%E5%85%A8%E5%9F%9F%E5%90%8D%20UA%20%E5%88%86%E6%B5%81.md)
 
 > 整理日期：2026-08-12 11:50｜日期依据：文件名日期
 

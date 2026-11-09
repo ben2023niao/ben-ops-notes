@@ -9,6 +9,8 @@ source: "01-Web安全/03-XSS与客户端/XSS/存储XSS.md"
 
 # 存储XSS 是什么
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BXSS%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%2BPHP%2BJava-%E5%AD%98%E5%82%A8XSS%20%E6%98%AF%E4%BB%80%E4%B9%88.md)
+
 ## 存储XSS 是什么
 
 持久型XSS（Persistent）又叫做存储XSS（Stored XSS），与非持久型XSS相反，它是指通过提交恶意数据到存储器（比如数据库、文本文件等），Web应用程序输出的时候是从存储器中读出恶意数据输出到页面的一类跨站脚本漏洞（csrf 写 + self-xss = 存储 xss）。

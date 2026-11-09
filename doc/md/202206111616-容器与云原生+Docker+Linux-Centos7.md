@@ -12,6 +12,8 @@ sourceHtmlSha256: "f7d50626ecad0c45d72c5870e54c3a570de8899f2cb96550da24c9565322c
 
 # Centos7
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206111616-%E5%AE%B9%E5%99%A8%E4%B8%8E%E4%BA%91%E5%8E%9F%E7%94%9F%2BDocker%2BLinux-Centos7.md)
+
 > 原文：[Centos7](https://xn--6o0a585a.gitbook.io/devops/docker/centos7.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-11 16:16｜日期依据：GitBook 页面更新时间

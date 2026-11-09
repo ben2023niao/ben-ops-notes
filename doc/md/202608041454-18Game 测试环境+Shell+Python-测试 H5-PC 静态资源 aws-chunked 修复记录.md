@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试 H5/PC 静态资源 aws-chunked 修复记录
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-04_1454-【修复Bug+网络调整】测试H5-PC静态资源aws-chunked修复记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608041454-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%B5%8B%E8%AF%95%20H5-PC%20%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20aws-chunked%20%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-04 14:54｜日期依据：文件名日期
 

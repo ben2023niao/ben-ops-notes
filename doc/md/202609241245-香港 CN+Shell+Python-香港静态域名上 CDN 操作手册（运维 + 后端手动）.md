@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-09-24-1245-【运维记录】香港静态域名上CDN操作手册（运维+后端手动）.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609241245-%E9%A6%99%E6%B8%AF%20CN%2BShell%2BPython-%E9%A6%99%E6%B8%AF%E9%9D%99%E6%80%81%E5%9F%9F%E5%90%8D%E4%B8%8A%20CDN%20%E6%93%8D%E4%BD%9C%E6%89%8B%E5%86%8C%EF%BC%88%E8%BF%90%E7%BB%B4%20%2B%20%E5%90%8E%E7%AB%AF%E6%89%8B%E5%8A%A8%EF%BC%89.md)
 
 > 整理日期：2026-09-24 12:45｜日期依据：文件名日期
 

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【权限授权】新运维 @fyb99 的运维角色与发布操作权限
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-10-12_1520-【权限授权】新运维fyb99发布与运维角色权限.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610121520-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E3%80%90%E6%9D%83%E9%99%90%E6%8E%88%E6%9D%83%E3%80%91%E6%96%B0%E8%BF%90%E7%BB%B4%20%40fyb99%20%E7%9A%84%E8%BF%90%E7%BB%B4%E8%A7%92%E8%89%B2%E4%B8%8E%E5%8F%91%E5%B8%83%E6%93%8D%E4%BD%9C%E6%9D%83%E9%99%90.md)
 
 > 整理日期：2026-10-12 15:20｜日期依据：文件名日期
 

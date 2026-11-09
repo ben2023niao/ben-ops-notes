@@ -12,6 +12,8 @@ sourceHtmlSha256: "4ecb612b166872ae2538600a74169b1a234f53fe41c2d74eabedcf9efb1f9
 
 # docker快速恢复备份数据库
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202201302045-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%81%A2%E5%A4%8D%2BMySQL%2BShell-docker%E5%BF%AB%E9%80%9F%E6%81%A2%E5%A4%8D%E5%A4%87%E4%BB%BD%E6%95%B0%E6%8D%AE%E5%BA%93.md)
+
 > 原文：[docker快速恢复备份数据库](https://xn--6o0a585a.gitbook.io/devops/shu-ju-ku/docker-kuai-su-hui-fu-bei-fen-shu-ju-ku.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-01-30 20:45｜日期依据：GitBook 页面更新时间

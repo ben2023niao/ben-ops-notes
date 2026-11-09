@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-10-10-1150-【运维】vendor_a日志按时间窗导出发群记录（开发要今天十点前）.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610101150-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BDocker-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91vendor_a%20%E6%97%A5%E5%BF%97%E6%8C%89%E6%97%B6%E9%97%B4%E7%AA%97%E5%AF%BC%E5%87%BA%E5%8F%91%E7%BE%A4%EF%BC%88%E5%BC%80%E5%8F%91%E8%A6%81%E3%80%8C%E4%BB%8A%E5%A4%A9%E5%8D%81%E7%82%B9%E4%B9%8B%E5%89%8D%E3%80%8D%EF%BC%89.md)
 
 > 整理日期：2026-10-10 11:50｜日期依据：文件名日期
 

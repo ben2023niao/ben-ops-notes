@@ -12,6 +12,8 @@ sourceHtmlSha256: "ea6e5836133342e68479639395270f9ab73475658c62b4f3a43eb4b3304b2
 
 # 常见下载器 docker 启动方式
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202202051514-%E8%87%AA%E5%8A%A8%E5%8C%96%2BLinux%2BShell-%E5%B8%B8%E8%A7%81%E4%B8%8B%E8%BD%BD%E5%99%A8%20docker%20%E5%90%AF%E5%8A%A8%E6%96%B9%E5%BC%8F.md)
+
 > 原文：[常见下载器 docker 启动方式](https://xn--6o0a585a.gitbook.io/devops/zi-dong-hua/chang-jian-xia-zai-qi-docker-qi-dong-fang-shi.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-02-05 15:14｜日期依据：GitBook 页面更新时间

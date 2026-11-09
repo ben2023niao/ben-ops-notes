@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【配置维护】线上环境后端 composer 新增 thinkinggame-ta-php-sdk 依赖手把手操作指引
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-11-1511-【配置维护】线上环境后端composer新增thinkinggame-ta-php-sdk依赖手把手操作指引.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608111511-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E3%80%90%E9%85%8D%E7%BD%AE%E7%BB%B4%E6%8A%A4%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E5%90%8E%E7%AB%AF%20composer%20%E6%96%B0%E5%A2%9E%20thinkinggame-ta-php-sdk%20%E4%BE%9D%E8%B5%96%E6%89%8B%E6%8A%8A%E6%89%8B%E6%93%8D%E4%BD%9C%E6%8C%87%E5%BC%95.md)
 
 > 整理日期：2026-08-11 15:11｜日期依据：文件名日期
 

@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/11-高效运维
 
 # 账户管理
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E9%AB%98%E6%95%88%E8%BF%90%E7%BB%B4%2BDocker%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86.md)
+
 ## 介绍
 
 除了页面上对普通用的管理，`Spug` 还提供了 `manage.py user` 命令可用于管理员账户的管理操作。

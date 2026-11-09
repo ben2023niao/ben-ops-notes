@@ -9,6 +9,8 @@ source: "03-安全运营与应急/06-Web漏洞修复指南/Web开发人员安全
 
 # Reference
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D%E6%8C%87%E5%8D%97%2BDNS%2BRedis-%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D%E6%8C%87%E5%8D%97%E8%AF%B4%E6%98%8E-Reference.md)
+
 ## Reference
 
 [实用性开发人员安全须知](https://github.com/FallibleInc/security-guide-for-developers/blob/master/security-checklist-zh.md)

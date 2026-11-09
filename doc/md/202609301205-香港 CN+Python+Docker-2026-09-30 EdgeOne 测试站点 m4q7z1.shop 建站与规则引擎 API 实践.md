@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-09-30-1205-【架构改造】EdgeOne测试站点m4q7z1shop建站与规则引擎API实践.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609301205-%E9%A6%99%E6%B8%AF%20CN%2BPython%2BDocker-2026-09-30%20EdgeOne%20%E6%B5%8B%E8%AF%95%E7%AB%99%E7%82%B9%20m4q7z1.shop%20%E5%BB%BA%E7%AB%99%E4%B8%8E%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8E%20API%20%E5%AE%9E%E8%B7%B5.md)
 
 > 整理日期：2026-09-30 12:05｜日期依据：文件名日期
 

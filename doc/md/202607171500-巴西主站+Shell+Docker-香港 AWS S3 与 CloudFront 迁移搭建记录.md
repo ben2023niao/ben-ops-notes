@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/hongkong/cn/2026-07-17-1500-【架构改造】香港AWS-S3与CloudFront迁移搭建记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607171500-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BDocker-%E9%A6%99%E6%B8%AF%20AWS%20S3%20%E4%B8%8E%20CloudFront%20%E8%BF%81%E7%A7%BB%E6%90%AD%E5%BB%BA%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-17 15:00｜日期依据：文件名日期
 

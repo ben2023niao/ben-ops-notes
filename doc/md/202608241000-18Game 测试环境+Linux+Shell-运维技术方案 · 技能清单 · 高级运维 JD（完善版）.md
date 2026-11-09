@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 运维技术方案 · 技能清单 · 高级运维 JD（完善版）
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-24_1000-【招聘+技术方案】运维技术栈技能清单与JD完善-内部材料.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608241000-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E8%BF%90%E7%BB%B4%E6%8A%80%E6%9C%AF%E6%96%B9%E6%A1%88%20%C2%B7%20%E6%8A%80%E8%83%BD%E6%B8%85%E5%8D%95%20%C2%B7%20%E9%AB%98%E7%BA%A7%E8%BF%90%E7%BB%B4%20JD%EF%BC%88%E5%AE%8C%E5%96%84%E7%89%88%EF%BC%89.md)
 
 > 整理日期：2026-08-24 10:00｜日期依据：文件名日期
 

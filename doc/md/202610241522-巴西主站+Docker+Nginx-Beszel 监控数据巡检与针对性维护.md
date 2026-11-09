@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-10-24-1522-【运维】Beszel监控数据巡检与针对性维护.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610241522-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BDocker%2BNginx-Beszel%20%E7%9B%91%E6%8E%A7%E6%95%B0%E6%8D%AE%E5%B7%A1%E6%A3%80%E4%B8%8E%E9%92%88%E5%AF%B9%E6%80%A7%E7%BB%B4%E6%8A%A4.md)
 
 > 整理日期：2026-10-24 15:22｜日期依据：文件名日期
 

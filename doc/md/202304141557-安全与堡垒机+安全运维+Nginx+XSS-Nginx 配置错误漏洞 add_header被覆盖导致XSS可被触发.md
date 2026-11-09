@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/04-安全运维
 
 # Nginx 配置错误漏洞 add_header被覆盖导致XSS可被触发
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BNginx%2BXSS-Nginx%20%E9%85%8D%E7%BD%AE%E9%94%99%E8%AF%AF%E6%BC%8F%E6%B4%9E%20add_header%E8%A2%AB%E8%A6%86%E7%9B%96%E5%AF%BC%E8%87%B4XSS%E5%8F%AF%E8%A2%AB%E8%A7%A6%E5%8F%91.md)
+
 ## 复现过程
 
 Nginx配置文件子块（server、location、if）中的`add_header`，将会覆盖父块中的`add_header`添加的HTTP头，造成一些安全隐患。

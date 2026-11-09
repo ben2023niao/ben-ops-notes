@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【优化】全容器文件描述符（nofile）检查与优化
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-20-1930-【优化】全容器文件描述符（nofile）检查与优化.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610201930-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E5%85%A8%E5%AE%B9%E5%99%A8%E6%96%87%E4%BB%B6%E6%8F%8F%E8%BF%B0%E7%AC%A6%EF%BC%88nofile%EF%BC%89%E6%A3%80%E6%9F%A5%E4%B8%8E%E4%BC%98%E5%8C%96.md)
 
 > 整理日期：2026-10-20 19:30｜日期依据：文件名日期
 

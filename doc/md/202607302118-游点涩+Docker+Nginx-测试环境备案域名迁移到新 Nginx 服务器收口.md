@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试环境备案域名迁移到新 Nginx 服务器收口
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-07-30-2118-【运维记录】测试环境备案域名迁移到新Nginx服务器收口.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607302118-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BDocker%2BNginx-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E5%A4%87%E6%A1%88%E5%9F%9F%E5%90%8D%E8%BF%81%E7%A7%BB%E5%88%B0%E6%96%B0%20Nginx%20%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%94%B6%E5%8F%A3.md)
 
 > 整理日期：2026-07-30 21:18｜日期依据：文件名日期
 

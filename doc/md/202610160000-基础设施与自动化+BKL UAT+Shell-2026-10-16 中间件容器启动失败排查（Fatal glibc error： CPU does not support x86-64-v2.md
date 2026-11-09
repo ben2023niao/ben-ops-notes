@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 2026-10-16 中间件容器启动失败排查（Fatal glibc error： CPU does not support x86-64-v2）
 
-> 来源文件：`~/Projects/work/ops/devops/devops-bkl/doc/2026年10月16日-中间件容器glibc报错排查/2026年10月16日-中间件容器glibc报错排查.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610160000-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BShell-2026-10-16%20%E4%B8%AD%E9%97%B4%E4%BB%B6%E5%AE%B9%E5%99%A8%E5%90%AF%E5%8A%A8%E5%A4%B1%E8%B4%A5%E6%8E%92%E6%9F%A5%EF%BC%88Fatal%20glibc%20error%EF%BC%9A%20CPU%20does%20not%20support%20x86-64-v2.md)
 
 > 整理日期：2026-10-16 00:00｜日期依据：文件名日期
 

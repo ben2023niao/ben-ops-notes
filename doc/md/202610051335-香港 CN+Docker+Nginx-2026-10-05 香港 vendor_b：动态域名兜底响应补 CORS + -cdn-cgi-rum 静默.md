@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-10-05-1335-【故障处理】香港vendor_b动态域名兜底响应补CORS与cdn-cgi静默.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610051335-%E9%A6%99%E6%B8%AF%20CN%2BDocker%2BNginx-2026-10-05%20%E9%A6%99%E6%B8%AF%20vendor_b%EF%BC%9A%E5%8A%A8%E6%80%81%E5%9F%9F%E5%90%8D%E5%85%9C%E5%BA%95%E5%93%8D%E5%BA%94%E8%A1%A5%20CORS%20%2B%20-cdn-cgi-rum%20%E9%9D%99%E9%BB%98.md)
 
 > 整理日期：2026-10-05 13:35｜日期依据：文件名日期
 

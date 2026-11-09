@@ -12,6 +12,8 @@ sourceHtmlSha256: "fc2225c46065f7a5439aa646c2c4ffd6866cc6515665bb080455175034a97
 
 # glances_alert.sh
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202202161214-%E7%9B%91%E6%8E%A7%2BShell%2B%E7%9B%91%E6%8E%A7%E5%91%8A%E8%AD%A6-glances_alert.sh.md)
+
 > 原文：[glances_alert.sh](https://xn--6o0a585a.gitbook.io/devops/jian-kong/glances-jian-kong-bu-shu/glances_alert.sh.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-02-16 12:14｜日期依据：GitBook 页面更新时间

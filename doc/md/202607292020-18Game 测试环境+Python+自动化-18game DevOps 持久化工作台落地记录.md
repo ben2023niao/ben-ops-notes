@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 18game DevOps 持久化工作台落地记录
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-29_2020-【架构改造+优化】18gameDevOps持久化工作台落地记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607292020-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2B%E8%87%AA%E5%8A%A8%E5%8C%96-18game%20DevOps%20%E6%8C%81%E4%B9%85%E5%8C%96%E5%B7%A5%E4%BD%9C%E5%8F%B0%E8%90%BD%E5%9C%B0%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-29 20:20｜日期依据：文件名日期
 

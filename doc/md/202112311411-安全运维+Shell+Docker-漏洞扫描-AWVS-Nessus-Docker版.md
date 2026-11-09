@@ -12,6 +12,8 @@ sourceHtmlSha256: "e9f7727c2e4e67da222dcbbf99fb50389837ca9db15091656e38c7d30728e
 
 # 漏洞扫描-AWVS-Nessus-Docker版
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202112311411-%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BShell%2BDocker-%E6%BC%8F%E6%B4%9E%E6%89%AB%E6%8F%8F-AWVS-Nessus-Docker%E7%89%88.md)
+
 > 原文：[漏洞扫描-AWVS-Nessus-Docker版](https://xn--6o0a585a.gitbook.io/devops/an-quan/lou-dong-sao-miao-awvsnessusdocker-ban.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2021-12-31 14:11｜日期依据：GitBook 页面更新时间

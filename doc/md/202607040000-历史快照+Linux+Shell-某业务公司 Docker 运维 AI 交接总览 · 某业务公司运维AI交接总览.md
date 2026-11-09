@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/work/game/archive/pgserver-backup-20260715/docker/doc/某业务公司运维AI交接总览.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607040000-%E5%8E%86%E5%8F%B2%E5%BF%AB%E7%85%A7%2BLinux%2BShell-%E6%9F%90%E4%B8%9A%E5%8A%A1%E5%85%AC%E5%8F%B8%20Docker%20%E8%BF%90%E7%BB%B4%20AI%20%E4%BA%A4%E6%8E%A5%E6%80%BB%E8%A7%88%20%C2%B7%20%E6%9F%90%E4%B8%9A%E5%8A%A1%E5%85%AC%E5%8F%B8%E8%BF%90%E7%BB%B4AI%E4%BA%A4%E6%8E%A5%E6%80%BB%E8%A7%88.md)
 
 > 整理日期：2026-07-04 00:00｜日期依据：正文日期
 

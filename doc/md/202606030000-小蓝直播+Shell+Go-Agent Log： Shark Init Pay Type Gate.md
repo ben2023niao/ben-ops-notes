@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Agent Log： Shark Init Pay Type Gate
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-06-03-shark-init-paytype-gate.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606030000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-Agent%20Log%EF%BC%9A%20Shark%20Init%20Pay%20Type%20Gate.md)
 
 > 整理日期：2026-06-03 00:00｜日期依据：文件名日期
 

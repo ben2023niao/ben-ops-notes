@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-11-02-1516-【修复】vendor_a游戏ID分组v2清空与v3归位记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202611021516-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2B%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5-%E3%80%90%E4%BF%AE%E5%A4%8D%E3%80%91vendor_a%20%E6%B8%B8%E6%88%8F%20ID%20%E5%88%86%E7%BB%84%20v2%20%E6%B8%85%E7%A9%BA%E4%B8%8E%20v3%20%E5%BD%92%E4%BD%8D%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-11-02 15:16｜日期依据：文件名日期
 

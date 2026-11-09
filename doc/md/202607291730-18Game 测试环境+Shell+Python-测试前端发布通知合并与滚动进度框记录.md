@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试前端发布通知合并与滚动进度框记录
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-29_1730-【优化】测试前端发布通知合并与滚动进度框记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607291730-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%B5%8B%E8%AF%95%E5%89%8D%E7%AB%AF%E5%8F%91%E5%B8%83%E9%80%9A%E7%9F%A5%E5%90%88%E5%B9%B6%E4%B8%8E%E6%BB%9A%E5%8A%A8%E8%BF%9B%E5%BA%A6%E6%A1%86%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-29 17:30｜日期依据：文件名日期
 

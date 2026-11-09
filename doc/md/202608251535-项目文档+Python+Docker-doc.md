@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # doc
 
-> 来源文件：`~/Projects/work/ops/aiwork/2026_devops/devops/python/ben-bot/doc/README.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608251535-%E9%A1%B9%E7%9B%AE%E6%96%87%E6%A1%A3%2BPython%2BDocker-doc.md)
 
 > 整理日期：2026-08-25 15:35｜日期依据：文件创建/修改时间
 

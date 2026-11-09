@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 华为手机QQ聊天记录如何导出电脑查看【免ROOT】,含文字语音等
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2B%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E5%8D%8E%E4%B8%BA%E6%89%8B%E6%9C%BAQQ%E8%81%8A%E5%A4%A9%E8%AE%B0%E5%BD%95%E5%A6%82%E4%BD%95%E5%AF%BC%E5%87%BA%E7%94%B5%E8%84%91%E6%9F%A5%E7%9C%8B%E3%80%90%E5%85%8DROOT%E3%80%91%2C%E5%90%AB%E6%96%87%E5%AD%97%E8%AF%AD%E9%9F%B3%E7%AD%89.md)
+
 很多人想把华为手机QQ聊天记录导出到电脑上进行查看或长期保存，其实方法并不难，您只需要按照以下视频教程或图文教程的步骤进行操作，就可以在免ROOT的情况下导出华为手机QQ消息中的所有文字，语音等聊天内容。
 
 **华为手机QQ聊天记录导出到电脑视频教程：<https://louyue.com/video/huaweiqq.mp4>**

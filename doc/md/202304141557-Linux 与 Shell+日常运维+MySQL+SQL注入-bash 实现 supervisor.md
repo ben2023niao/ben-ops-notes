@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/08-运维技巧
 
 # bash 实现 supervisor
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2BMySQL%2BSQL%E6%B3%A8%E5%85%A5-bash%20%E5%AE%9E%E7%8E%B0%20supervisor.md)
+
 ## 需求描述
 
 1、实现一个脚本工具，该脚本提供类似 supervisor 功能，可以对进程进行管理

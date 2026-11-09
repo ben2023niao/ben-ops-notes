@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-10-14-1035-【运维】巴西线上PP静态资源CDN缓存刷新记录(含分区查询漏刷bug修复).md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610141035-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BDocker-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91%E5%B7%B4%E8%A5%BF%E7%BA%BF%E4%B8%8A%20PP%20%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20CDN%20%E7%BC%93%E5%AD%98%E5%88%B7%E6%96%B0%EF%BC%88%E5%90%AB%20zone%20%E6%9F%A5%E8%AF%A2%E6%BC%8F%E5%88%B7%20bug%20%E4%BF%AE%E5%A4%8D%EF%BC%89.md)
 
 > 整理日期：2026-10-14 10:35｜日期依据：文件名日期
 

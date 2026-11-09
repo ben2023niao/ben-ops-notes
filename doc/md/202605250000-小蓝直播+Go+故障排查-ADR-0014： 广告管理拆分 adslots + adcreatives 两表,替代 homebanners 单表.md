@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # ADR-0014： 广告管理拆分 adslots + adcreatives 两表,替代 homebanners 单表
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/decisions/ADR-0014-ads-slot-creative-split.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605250000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2B%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5-ADR-0014%EF%BC%9A%20%E5%B9%BF%E5%91%8A%E7%AE%A1%E7%90%86%E6%8B%86%E5%88%86%20adslots%20%2B%20adcreatives%20%E4%B8%A4%E8%A1%A8%2C%E6%9B%BF%E4%BB%A3%20homebanners%20%E5%8D%95%E8%A1%A8.md)
 
 > 整理日期：2026-05-25 00:00｜日期依据：正文日期
 

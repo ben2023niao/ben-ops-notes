@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Kickoff PRD 模块索引
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/prd/modules/README.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605210000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BPython-Kickoff%20PRD%20%E6%A8%A1%E5%9D%97%E7%B4%A2%E5%BC%95.md)
 
 > 整理日期：2026-05-21 00:00｜日期依据：正文日期
 

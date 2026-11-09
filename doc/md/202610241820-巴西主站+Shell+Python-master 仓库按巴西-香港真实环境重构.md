@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-10-24-1820-【运维】master仓库按巴西香港真实环境重构.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610241820-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-master%20%E4%BB%93%E5%BA%93%E6%8C%89%E5%B7%B4%E8%A5%BF-%E9%A6%99%E6%B8%AF%E7%9C%9F%E5%AE%9E%E7%8E%AF%E5%A2%83%E9%87%8D%E6%9E%84.md)
 
 > 整理日期：2026-10-24 18:20｜日期依据：文件名日期
 

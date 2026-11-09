@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/11-高效运维
 
 # Rancher 建议
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E9%AB%98%E6%95%88%E8%BF%90%E7%BB%B4%2BLinux%2BDocker-Rancher%20%E5%BB%BA%E8%AE%AE.md)
+
 Rancher 允许您设置许多配置组合，有些配置适用于开发和测试环境，另外一些配置适用于生产环境。对于生产环境而言，除了配置之外，还有其他一些规模、安全和可靠性的建议可以提升 Rancher 的可用性和容错能力。当您在生产环境使用 Rancher 时，应该遵循以下使用建议。
 
 ## 预防和处理问题的提示

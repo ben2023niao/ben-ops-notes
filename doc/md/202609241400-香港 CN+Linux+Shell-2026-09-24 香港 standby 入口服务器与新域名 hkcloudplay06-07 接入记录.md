@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-09-24-1400-【架构改造】香港standby入口与新域名hkcloudplay0607接入记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609241400-%E9%A6%99%E6%B8%AF%20CN%2BLinux%2BShell-2026-09-24%20%E9%A6%99%E6%B8%AF%20standby%20%E5%85%A5%E5%8F%A3%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8E%E6%96%B0%E5%9F%9F%E5%90%8D%20hkcloudplay06-07%20%E6%8E%A5%E5%85%A5%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-09-24 14:00｜日期依据：文件名日期
 

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # taokju.com / tianxidlj.com / trusoundsedu.com CDN→服务器 排查记录
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-12_1130-【排查记录】taokju-tianxidlj-trusoundsedu-CDN回源诊断.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608121130-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-taokju.com%20-%20tianxidlj.com%20-%20trusoundsedu.com%20CDN%E2%86%92%E6%9C%8D%E5%8A%A1%E5%99%A8%20%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-12 11:30｜日期依据：文件名日期
 

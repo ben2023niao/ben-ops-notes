@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 数据模型设计 · data-model
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/main/docs/architecture/data-model.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605220000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B%E8%AE%BE%E8%AE%A1%20%C2%B7%20data-model-02.md)
 
 > 整理日期：2026-05-22 00:00｜日期依据：正文日期
 

@@ -12,6 +12,8 @@ sourceHtmlSha256: "513260f917a03c4f8bc5cd675b446052c5162f6ff5e33dab9c07e4074674a
 
 # 项目自动化构建发布
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202112281923-%E8%87%AA%E5%8A%A8%E5%8C%96%2BShell%2BTelegram-%E9%A1%B9%E7%9B%AE%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%8F%91%E5%B8%83.md)
+
 > 原文：[项目自动化构建发布](https://xn--6o0a585a.gitbook.io/devops/zi-dong-hua/xiang-mu-zi-dong-hua-gou-jian-fa-bu.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2021-12-28 19:23｜日期依据：GitBook 页面更新时间

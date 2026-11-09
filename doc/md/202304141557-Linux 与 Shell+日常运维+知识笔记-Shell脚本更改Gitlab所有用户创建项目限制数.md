@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/08-运维技巧
 
 # Shell脚本更改Gitlab所有用户创建项目限制数
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-Shell%E8%84%9A%E6%9C%AC%E6%9B%B4%E6%94%B9Gitlab%E6%89%80%E6%9C%89%E7%94%A8%E6%88%B7%E5%88%9B%E5%BB%BA%E9%A1%B9%E7%9B%AE%E9%99%90%E5%88%B6%E6%95%B0.md)
+
 - **生产实践：**
 
     使用shell脚本更改[Gitlab](https://chegva.com/tag/gitlab/ "View all posts in Gitlab")所有用户创建项目限制数

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # hbabaxb / hbazuua 前端 S3 静态资源域名补全
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-04_2143-【运维记录+域名补全】hbabaxb-hbazuua前端S3静态资源域名补全.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608042143-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BNginx-hbabaxb%20-%20hbazuua%20%E5%89%8D%E7%AB%AF%20S3%20%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E5%9F%9F%E5%90%8D%E8%A1%A5%E5%85%A8.md)
 
 > 整理日期：2026-08-04 21:43｜日期依据：文件名日期
 

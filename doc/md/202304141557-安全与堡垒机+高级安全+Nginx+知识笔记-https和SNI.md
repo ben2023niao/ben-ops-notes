@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # https和SNI
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BNginx%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-https%E5%92%8CSNI.md)
+
 在同一个nginx上配置多个域名，是稀松平常的事，纵然是使用https，也不过多配置几个证书的事情，似乎没有什么维护上的困难。然而，细思起来，背后却有很多故事，以至很多网站现在也苦恼不已。
 
 ## 1 基于Host的虚拟主机

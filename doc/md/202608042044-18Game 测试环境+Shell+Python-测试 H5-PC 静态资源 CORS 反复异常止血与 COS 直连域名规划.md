@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试 H5/PC 静态资源 CORS 反复异常止血与 COS 直连域名规划
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-04_2044-【修复Bug+链路整理】测试H5-PC静态资源CORS反复异常止血与COS直连域名规划.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608042044-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%B5%8B%E8%AF%95%20H5-PC%20%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20CORS%20%E5%8F%8D%E5%A4%8D%E5%BC%82%E5%B8%B8%E6%AD%A2%E8%A1%80%E4%B8%8E%20COS%20%E7%9B%B4%E8%BF%9E%E5%9F%9F%E5%90%8D%E8%A7%84%E5%88%92.md)
 
 > 整理日期：2026-08-04 20:44｜日期依据：文件名日期
 

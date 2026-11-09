@@ -12,6 +12,8 @@ sourceHtmlSha256: "b798a525b4ab5d16926075d8ebacfd979a35a9aec9e0572829c1d58ecf522
 
 # 部署owncloud云盘
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206111629-%E5%AE%B9%E5%99%A8%E4%B8%8E%E4%BA%91%E5%8E%9F%E7%94%9F%2BDocker%2BLinux-%E9%83%A8%E7%BD%B2owncloud%E4%BA%91%E7%9B%98.md)
+
 > 原文：[部署owncloud云盘](https://xn--6o0a585a.gitbook.io/devops/docker/centos7/bu-shu-owncloud-yun-pan.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-11 16:29｜日期依据：GitBook 页面更新时间

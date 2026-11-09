@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【问题排查】线上环境性界大战 iOS 登录/注册与 SDK 域名核验记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-20-0453-【问题排查】线上环境性界大战iOS登录注册与SDK域名核验记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608200453-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BDocker%2BRedis-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E6%80%A7%E7%95%8C%E5%A4%A7%E6%88%98%20iOS%20%E7%99%BB%E5%BD%95-%E6%B3%A8%E5%86%8C%E4%B8%8E%20SDK%20%E5%9F%9F%E5%90%8D%E6%A0%B8%E9%AA%8C%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-20 04:53｜日期依据：文件名日期
 

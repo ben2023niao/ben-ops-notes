@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【优化】线上环境 nginx 全链路审计与后端 workerconnections 加固记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-20-0337-【优化】线上环境nginx全链路审计与后端worker_connections加固记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608200337-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BDocker%2BNginx-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20nginx%20%E5%85%A8%E9%93%BE%E8%B7%AF%E5%AE%A1%E8%AE%A1%E4%B8%8E%E5%90%8E%E7%AB%AF%20workerconnections%20%E5%8A%A0%E5%9B%BA%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-20 03:37｜日期依据：文件名日期
 

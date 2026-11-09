@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Agent 工作日志：ledger 集成测试（真实 MySQL 事务）
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-24-ledger-integration-tests.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605240000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BPython%2BGo-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%EF%BC%9Aledger%20%E9%9B%86%E6%88%90%E6%B5%8B%E8%AF%95%EF%BC%88%E7%9C%9F%E5%AE%9E%20MySQL%20%E4%BA%8B%E5%8A%A1%EF%BC%89.md)
 
 > 整理日期：2026-05-24 00:00｜日期依据：文件名日期
 

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Agent 工作日志 — 补 P0 公开读接口(wallet/channels + config/system)
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-24-public-config-channels.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605240000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BPython%2BGo-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%20%E2%80%94%20%E8%A1%A5%20P0%20%E5%85%AC%E5%BC%80%E8%AF%BB%E6%8E%A5%E5%8F%A3%28wallet-channels%20%2B%20config-system%29.md)
 
 > 整理日期：2026-05-24 00:00｜日期依据：文件名日期
 

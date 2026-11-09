@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 线上环境 GD WebP 支持改造与维护提示词
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-07-06-1627-【架构改造】线上环境GD-WebP支持改造维护提示词.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607061627-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20GD%20WebP%20%E6%94%AF%E6%8C%81%E6%94%B9%E9%80%A0%E4%B8%8E%E7%BB%B4%E6%8A%A4%E6%8F%90%E7%A4%BA%E8%AF%8D.md)
 
 > 整理日期：2026-07-06 16:27｜日期依据：文件名日期
 

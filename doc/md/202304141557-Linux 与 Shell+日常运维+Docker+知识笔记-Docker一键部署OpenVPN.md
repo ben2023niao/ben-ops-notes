@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/08-运维技巧
 
 # Docker一键部署OpenVPN
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2BDocker%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-Docker%E4%B8%80%E9%94%AE%E9%83%A8%E7%BD%B2OpenVPN.md)
+
 以下是创建openvpn的脚本：
 
 **create_ovpn.sh**

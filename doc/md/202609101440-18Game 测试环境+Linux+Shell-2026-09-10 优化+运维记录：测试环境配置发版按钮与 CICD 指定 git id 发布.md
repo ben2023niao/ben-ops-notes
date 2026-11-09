@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 2026-09-10 优化+运维记录：测试环境配置发版按钮与 CICD 指定 git id 发布
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-09-10_1440-【优化+运维记录】测试环境配置发版按钮与CICD指定gitid发布.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609101440-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-2026-09-10%20%E4%BC%98%E5%8C%96%2B%E8%BF%90%E7%BB%B4%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%E5%8F%91%E7%89%88%E6%8C%89%E9%92%AE%E4%B8%8E%20CICD%20%E6%8C%87%E5%AE%9A%20git%20id%20%E5%8F%91%E5%B8%83.md)
 
 > 整理日期：2026-09-10 14:40｜日期依据：文件名日期
 

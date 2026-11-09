@@ -9,6 +9,8 @@ source: "01-Web安全/01-Web基础/网络协议/IPv6协议安全.md"
 
 # 0x00 引言
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BWindows%2BDNS-0x00%20%E5%BC%95%E8%A8%80.md)
+
 原文 by [阿里聚安全](https://zhuanlan.zhihu.com/p/31795470?group_id=922141315996553216)
 
 ## 0x00 引言

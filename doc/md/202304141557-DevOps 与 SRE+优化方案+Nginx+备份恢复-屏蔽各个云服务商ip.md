@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 屏蔽各个云服务商ip
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BNginx%2B%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D-%E5%B1%8F%E8%94%BD%E5%90%84%E4%B8%AA%E4%BA%91%E6%9C%8D%E5%8A%A1%E5%95%86ip.md)
+
 运行环境 需要 IPV6-COUNTRY.BIN 库文件  需要python3.6  pip3.6
 
 **程序目录结构** 展开源码

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 四个备案域名测试页面入口补全
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-04_2219-【运维记录+域名补全】四个备案域名测试页面入口补全.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608042219-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BNginx-%E5%9B%9B%E4%B8%AA%E5%A4%87%E6%A1%88%E5%9F%9F%E5%90%8D%E6%B5%8B%E8%AF%95%E9%A1%B5%E9%9D%A2%E5%85%A5%E5%8F%A3%E8%A1%A5%E5%85%A8.md)
 
 > 整理日期：2026-08-04 22:19｜日期依据：文件名日期
 

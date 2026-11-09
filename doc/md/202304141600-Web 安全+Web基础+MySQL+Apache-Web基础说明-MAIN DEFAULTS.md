@@ -9,6 +9,8 @@ source: "01-Web安全/01-Web基础/htaccess文件利用.md"
 
 # MAIN DEFAULTS
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BMySQL%2BApache-Web%E5%9F%BA%E7%A1%80%E8%AF%B4%E6%98%8E-MAIN%20DEFAULTS.md)
+
 原文 by [看雪学院](https://mp.weixin.qq.com/s?__biz=MjM5NTc2MDYxMw==&mid=2458286843&idx=1&sn=15e3d1aa8ae418cc5ed6010b390388b6&chksm=b1814a7186f6c367a24033a297edc3fe2275334f45fd0b944bb606dc449e027beb1b4bc6997d&scene=0#rd)
 
 这是关于使用htaccess进行开发的两部分系列的第一部分。我将在这里介绍一些基本的、众所周知的方法，还有一些鲜为人知的方法。在第2部分中，我将通过使用htaccess来开发更高级的开发方法。

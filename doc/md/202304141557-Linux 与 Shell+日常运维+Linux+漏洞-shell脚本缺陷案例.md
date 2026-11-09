@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/08-运维技巧
 
 # shell脚本缺陷案例
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2BLinux%2B%E6%BC%8F%E6%B4%9E-shell%E8%84%9A%E6%9C%AC%E7%BC%BA%E9%99%B7%E6%A1%88%E4%BE%8B.md)
+
 ```bash
 ◇ 将保留字或特殊字符声明为变量名.
 

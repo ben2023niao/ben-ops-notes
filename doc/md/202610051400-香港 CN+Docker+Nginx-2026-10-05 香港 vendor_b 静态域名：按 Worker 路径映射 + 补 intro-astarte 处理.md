@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-10-05-1400-【架构改造】香港vendor_b静态域名按Worker路径映射并补intro-astarte处理.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610051400-%E9%A6%99%E6%B8%AF%20CN%2BDocker%2BNginx-2026-10-05%20%E9%A6%99%E6%B8%AF%20vendor_b%20%E9%9D%99%E6%80%81%E5%9F%9F%E5%90%8D%EF%BC%9A%E6%8C%89%20Worker%20%E8%B7%AF%E5%BE%84%E6%98%A0%E5%B0%84%20%2B%20%E8%A1%A5%20intro-astarte%20%E5%A4%84%E7%90%86.md)
 
 > 整理日期：2026-10-05 14:00｜日期依据：文件名日期
 

@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/08-运维技巧
 
 # shell + python脚本监控gitlab ci停滞任务数
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2BRedis%2BPHP-shell%20%2B%20python%E8%84%9A%E6%9C%AC%E7%9B%91%E6%8E%A7gitlab%20ci%E5%81%9C%E6%BB%9E%E4%BB%BB%E5%8A%A1%E6%95%B0.md)
+
 ****查看效果****
 
 ****![文档配图](../media/d1c3de1a5d9c48de3b.png)****

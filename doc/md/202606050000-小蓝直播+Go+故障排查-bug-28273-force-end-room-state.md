@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # bug-28273-force-end-room-state
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-06-05-bug-28273-force-end-room-state.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606050000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2B%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5-bug-28273-force-end-room-state.md)
 
 > 整理日期：2026-06-05 00:00｜日期依据：文件名日期
 

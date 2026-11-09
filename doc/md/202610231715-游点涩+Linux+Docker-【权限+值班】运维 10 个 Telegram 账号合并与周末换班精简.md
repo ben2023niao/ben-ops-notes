@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【权限+值班】运维 10 个 Telegram 账号合并与周末换班精简
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-23-1715-【权限+值班】运维十账号合并与周末换班精简.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610231715-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BDocker-%E3%80%90%E6%9D%83%E9%99%90%2B%E5%80%BC%E7%8F%AD%E3%80%91%E8%BF%90%E7%BB%B4%2010%20%E4%B8%AA%20Telegram%20%E8%B4%A6%E5%8F%B7%E5%90%88%E5%B9%B6%E4%B8%8E%E5%91%A8%E6%9C%AB%E6%8D%A2%E7%8F%AD%E7%B2%BE%E7%AE%80.md)
 
 > 整理日期：2026-10-23 17:15｜日期依据：文件名日期
 

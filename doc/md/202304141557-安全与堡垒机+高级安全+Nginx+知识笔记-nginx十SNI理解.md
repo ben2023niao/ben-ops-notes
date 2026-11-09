@@ -9,4 +9,6 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # nginx十SNI理解
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BNginx%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-nginx%E5%8D%81SNI%E7%90%86%E8%A7%A3.md)
+
 ## <https://blog.csdn.net/wzj_110/article/details/110149984>

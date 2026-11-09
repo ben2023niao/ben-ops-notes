@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # SEO异常验证异常验证 canonical 指向 pc 测试域名 紧急修复与全量验证
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-14_1540-【紧急修复+验证记录】SEO canonical指向pc测试域名修复与全量验证.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608141540-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-SEO%E5%BC%82%E5%B8%B8%E9%AA%8C%E8%AF%81%20canonical%20%E6%8C%87%E5%90%91%20pc%20%E6%B5%8B%E8%AF%95%E5%9F%9F%E5%90%8D%20%E7%B4%A7%E6%80%A5%E4%BF%AE%E5%A4%8D%E4%B8%8E%E5%85%A8%E9%87%8F%E9%AA%8C%E8%AF%81.md)
 
 > 整理日期：2026-08-14 15:40｜日期依据：文件名日期
 

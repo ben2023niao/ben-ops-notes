@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/08-运维技巧
 
 # bash 将文本内容插入数据库
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2BMySQL%2BSQL%E6%B3%A8%E5%85%A5-bash%20%E5%B0%86%E6%96%87%E6%9C%AC%E5%86%85%E5%AE%B9%E6%8F%92%E5%85%A5%E6%95%B0%E6%8D%AE%E5%BA%93.md)
+
 一般来说可以通过 sql 语句执行插入，但如果要插入一个文本特定的内容或者需要过滤等处理的内容就需要通过 shell 来操作了
 
 例如：将 id 大于 1014 的数据插入特定表中

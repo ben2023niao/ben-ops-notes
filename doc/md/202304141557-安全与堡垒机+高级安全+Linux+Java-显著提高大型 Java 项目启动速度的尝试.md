@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # 显著提高大型 Java 项目启动速度的尝试
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2BJava-%E6%98%BE%E8%91%97%E6%8F%90%E9%AB%98%E5%A4%A7%E5%9E%8B%20Java%20%E9%A1%B9%E7%9B%AE%E5%90%AF%E5%8A%A8%E9%80%9F%E5%BA%A6%E7%9A%84%E5%B0%9D%E8%AF%95.md)
+
 原文地址 <https://juejin.cn/post/7117815437559070734>
 
 线上的业务 jar 包基本上普遍比较庞大，动不动一个 jar 包上百 M，启动时间在分钟级，拖慢了我们在故障时快速扩容的响应。于是做了一些分析，看看 Java 程序启动慢到底慢在哪里，如何去优化，目前的效果是大部分大型应用启动时间可以缩短 30%~50%

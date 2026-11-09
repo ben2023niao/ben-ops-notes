@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Agent 工作日志 — 全项目 review 修复(A/B/C/D 共 12 批)
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-25-review-batch3-fix.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605250000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BPython-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%20%E2%80%94%20%E5%85%A8%E9%A1%B9%E7%9B%AE%20review%20%E4%BF%AE%E5%A4%8D%28A-B-C-D%20%E5%85%B1%2012%20%E6%89%B9%29.md)
 
 > 整理日期：2026-05-25 00:00｜日期依据：文件名日期
 

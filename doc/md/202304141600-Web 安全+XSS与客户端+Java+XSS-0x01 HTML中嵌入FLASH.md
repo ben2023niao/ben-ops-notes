@@ -9,6 +9,8 @@ source: "01-Web安全/03-XSS与客户端/Flash安全/Flash XSS.md"
 
 # 0x01 HTML中嵌入FLASH
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BXSS%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%2BJava%2BXSS-0x01%20HTML%E4%B8%AD%E5%B5%8C%E5%85%A5FLASH.md)
+
 原文 by MayIKissYou
 
 ## 0x01 HTML中嵌入FLASH

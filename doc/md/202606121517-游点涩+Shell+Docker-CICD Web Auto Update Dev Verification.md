@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # CICD Web Auto Update Dev Verification
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-06-12-1517-【运维记录】测试环境CICD-Web自动更新dev分支验证记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606121517-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-CICD%20Web%20Auto%20Update%20Dev%20Verification.md)
 
 > 整理日期：2026-06-12 15:17｜日期依据：文件名日期
 

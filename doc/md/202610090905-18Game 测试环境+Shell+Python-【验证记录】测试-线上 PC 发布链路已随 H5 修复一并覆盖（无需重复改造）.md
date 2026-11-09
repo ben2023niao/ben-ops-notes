@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【验证记录】测试/线上 PC 发布链路已随 H5 修复一并覆盖（无需重复改造）
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-10-09_0905-【验证记录】PC发布链路与H5共用同一套构建模板（无需重复改造）.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610090905-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E3%80%90%E9%AA%8C%E8%AF%81%E8%AE%B0%E5%BD%95%E3%80%91%E6%B5%8B%E8%AF%95-%E7%BA%BF%E4%B8%8A%20PC%20%E5%8F%91%E5%B8%83%E9%93%BE%E8%B7%AF%E5%B7%B2%E9%9A%8F%20H5%20%E4%BF%AE%E5%A4%8D%E4%B8%80%E5%B9%B6%E8%A6%86%E7%9B%96%EF%BC%88%E6%97%A0%E9%9C%80%E9%87%8D%E5%A4%8D%E6%94%B9%E9%80%A0%EF%BC%89.md)
 
 > 整理日期：2026-10-09 09:05｜日期依据：文件名日期
 

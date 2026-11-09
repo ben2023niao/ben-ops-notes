@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # ADR-0016： Public API / WebSocket / Worker 进程拆分
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/decisions/ADR-0016-api-ws-worker-process-split.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606070000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BLinux%2BShell-ADR-0016%EF%BC%9A%20Public%20API%20-%20WebSocket%20-%20Worker%20%E8%BF%9B%E7%A8%8B%E6%8B%86%E5%88%86.md)
 
 > 整理日期：2026-06-07 00:00｜日期依据：正文日期
 

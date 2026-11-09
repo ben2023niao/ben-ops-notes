@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 线上网关 nginx 日志压缩与 S3 归档自动化
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-24_1915-【配置+自动化】线上网关nginx日志压缩与S3归档.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608241915-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E7%BA%BF%E4%B8%8A%E7%BD%91%E5%85%B3%20nginx%20%E6%97%A5%E5%BF%97%E5%8E%8B%E7%BC%A9%E4%B8%8E%20S3%20%E5%BD%92%E6%A1%A3%E8%87%AA%E5%8A%A8%E5%8C%96.md)
 
 > 整理日期：2026-08-24 19:15｜日期依据：文件名日期
 

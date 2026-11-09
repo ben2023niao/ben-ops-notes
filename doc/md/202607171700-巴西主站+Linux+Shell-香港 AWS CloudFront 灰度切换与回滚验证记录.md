@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/hongkong/cn/2026-07-17-1700-【网络调整】香港AWS-CloudFront灰度切换与回滚验证记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607171700-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E9%A6%99%E6%B8%AF%20AWS%20CloudFront%20%E7%81%B0%E5%BA%A6%E5%88%87%E6%8D%A2%E4%B8%8E%E5%9B%9E%E6%BB%9A%E9%AA%8C%E8%AF%81%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-17 17:00｜日期依据：文件名日期
 

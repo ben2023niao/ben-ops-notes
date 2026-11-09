@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # ADR-0010： 支付通道方案 — v1 大白鲨聚合通道 + Channel 抽象层落地
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/decisions/ADR-0010-payment-channels.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605230000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-ADR-0010%EF%BC%9A%20%E6%94%AF%E4%BB%98%E9%80%9A%E9%81%93%E6%96%B9%E6%A1%88%20%E2%80%94%20v1%20%E5%A4%A7%E7%99%BD%E9%B2%A8%E8%81%9A%E5%90%88%E9%80%9A%E9%81%93%20%2B%20Channel%20%E6%8A%BD%E8%B1%A1%E5%B1%82%E8%90%BD%E5%9C%B0.md)
 
 > 整理日期：2026-05-23 00:00｜日期依据：正文日期
 

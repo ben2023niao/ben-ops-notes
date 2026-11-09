@@ -9,6 +9,8 @@ source: "01-Web安全/03-XSS与客户端/XSS/反射XSS.md"
 
 # 一、什么是跨站脚本漏洞
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BXSS%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%2BPHP%2BJava-%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E8%B7%A8%E7%AB%99%E8%84%9A%E6%9C%AC%E6%BC%8F%E6%B4%9E.md)
+
 ## 一、什么是跨站脚本漏洞
 
 跨站脚本漏洞（Cross Site Scripting，常简写作XSS）是Web应用程序在将数据输出到网页的时候存在问题，导致攻击者可以将构造的恶意数据显示在页面的漏洞。跟大多数Web 漏洞一样，此类漏洞的产生的原因也是没有处理好用户的输入。根据类型的不同，可以分为反射型 XSS，存储型 XSS，DOM 型 XSS，这篇先来讲讲反射型 XSS。

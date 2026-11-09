@@ -12,6 +12,8 @@ sourceHtmlSha256: "10033895bd36b84fd534abe6a8e82b424ada08b192acc499a1d14b0f248ef
 
 # SHELL命令完成信息推送
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202112271716-%E9%80%9A%E7%9F%A5%E4%B8%8E%E9%9B%86%E6%88%90%2BTelegram%2BShell-SHELL%E5%91%BD%E4%BB%A4%E5%AE%8C%E6%88%90%E4%BF%A1%E6%81%AF%E6%8E%A8%E9%80%81.md)
+
 > 原文：[SHELL命令完成信息推送](https://xn--6o0a585a.gitbook.io/devops/telegram-ji-qi-ren/shell-ming-ling-wan-cheng-xin-xi-tui-song.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2021-12-27 17:16｜日期依据：GitBook 页面更新时间

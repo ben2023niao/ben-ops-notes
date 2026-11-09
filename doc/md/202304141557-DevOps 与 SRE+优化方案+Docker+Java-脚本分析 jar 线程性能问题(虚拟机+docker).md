@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 脚本分析 jar 线程性能问题(虚拟机+docker)
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BDocker%2BJava-%E8%84%9A%E6%9C%AC%E5%88%86%E6%9E%90%20jar%20%E7%BA%BF%E7%A8%8B%E6%80%A7%E8%83%BD%E9%97%AE%E9%A2%98%28%E8%99%9A%E6%8B%9F%E6%9C%BA%2Bdocker%29.md)
+
 ![文档配图](../media/cdabaf177c956a7ce4.png)
 
 **jar-check.sh**

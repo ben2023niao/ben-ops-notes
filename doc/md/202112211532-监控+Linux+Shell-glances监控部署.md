@@ -12,6 +12,8 @@ sourceHtmlSha256: "8a6a7c7334702cac6aa6b497f050eab0b8d155215e20ecda6ef319ffb62d8
 
 # glances监控部署
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202112211532-%E7%9B%91%E6%8E%A7%2BLinux%2BShell-glances%E7%9B%91%E6%8E%A7%E9%83%A8%E7%BD%B2.md)
+
 > 原文：[glances监控部署](https://xn--6o0a585a.gitbook.io/devops/jian-kong/glances-jian-kong-bu-shu.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2021-12-21 15:32｜日期依据：GitBook 页面更新时间

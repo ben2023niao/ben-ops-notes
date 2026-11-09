@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 线上前端发版入口分支修正（新 PC 入口 dev → main）
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-18_2105-【运维记录】线上前端发版入口分支修正-新pc改main.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608182105-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E7%BA%BF%E4%B8%8A%E5%89%8D%E7%AB%AF%E5%8F%91%E7%89%88%E5%85%A5%E5%8F%A3%E5%88%86%E6%94%AF%E4%BF%AE%E6%AD%A3%EF%BC%88%E6%96%B0%20PC%20%E5%85%A5%E5%8F%A3%20dev%20%E2%86%92%20main%EF%BC%89.md)
 
 > 整理日期：2026-08-18 21:05｜日期依据：文件名日期
 

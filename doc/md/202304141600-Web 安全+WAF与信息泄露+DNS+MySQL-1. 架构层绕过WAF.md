@@ -9,6 +9,8 @@ source: "01-Web安全/07-WAF与信息泄露/Bypass-WAF/bypass waf（四个层次
 
 # 1. 架构层绕过WAF
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWAF%E4%B8%8E%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%2BDNS%2BMySQL-1.%20%E6%9E%B6%E6%9E%84%E5%B1%82%E7%BB%95%E8%BF%87WAF.md)
+
 原文 by [破-见](https://weibo.com/ttarticle/p/show?id=2309404007261092631700&sudaref=www.google.com.hk&display=0&retcode=6102)
 
 绕过WAF的相关技术研究是WAF攻防研究非常重要的一部分，也是最有趣的部分，所以我在写WAF攻防时先写攻击部分。还是那句老话“不知攻焉知防”，如果连绕过WAF方法都不知道，怎么保证WAF能保护后端服务的安全。在我看来，WAF的绕过技术的研究将不断驱动防御水平提高。

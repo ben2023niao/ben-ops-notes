@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 服务器配置巡检与升级建议清单
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-18_2130-【运维记录】服务器配置巡检与升级建议清单.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608182130-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BPython-%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%85%8D%E7%BD%AE%E5%B7%A1%E6%A3%80%E4%B8%8E%E5%8D%87%E7%BA%A7%E5%BB%BA%E8%AE%AE%E6%B8%85%E5%8D%95.md)
 
 > 整理日期：2026-08-18 21:30｜日期依据：文件名日期
 

@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-08-29-1930-【架构改造】静态域名黄云GCS回源与Argo开通评估记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608291930-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BDocker-%E3%80%90%E6%9E%B6%E6%9E%84%E6%94%B9%E9%80%A0%E3%80%91%E9%9D%99%E6%80%81%E5%9F%9F%E5%90%8D%E9%BB%84%E4%BA%91%20GCS%20%E5%9B%9E%E6%BA%90%20%2B%20Argo%20Smart%20Routing%20%E8%AF%84%E4%BC%B0%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-29 19:30｜日期依据：文件名日期
 

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 线上前置 H5/PC 发版按钮授权前端组
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-07_2056-【权限授权+运维记录】线上前置H5-PC发版按钮授权前端组.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608072056-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BPython-%E7%BA%BF%E4%B8%8A%E5%89%8D%E7%BD%AE%20H5-PC%20%E5%8F%91%E7%89%88%E6%8C%89%E9%92%AE%E6%8E%88%E6%9D%83%E5%89%8D%E7%AB%AF%E7%BB%84.md)
 
 > 整理日期：2026-08-07 20:56｜日期依据：文件名日期
 

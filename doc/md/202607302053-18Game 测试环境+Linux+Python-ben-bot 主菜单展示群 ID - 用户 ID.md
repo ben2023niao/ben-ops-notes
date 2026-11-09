@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # ben-bot 主菜单展示群 ID / 用户 ID
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-30_2053-【优化+运维记录】ben-bot主菜单展示群ID用户ID.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607302053-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BPython-ben-bot%20%E4%B8%BB%E8%8F%9C%E5%8D%95%E5%B1%95%E7%A4%BA%E7%BE%A4%20ID%20-%20%E7%94%A8%E6%88%B7%20ID.md)
 
 > 整理日期：2026-07-30 20:53｜日期依据：文件名日期
 

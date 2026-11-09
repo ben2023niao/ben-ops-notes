@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/hongkong/cn/2026-07-17-1900-【架构改造+网络调整】香港CN五厂商收口与vendor_b-AWS接入完整记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607171900-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BDocker-%E9%A6%99%E6%B8%AF%20CN%20%E4%BA%94%E5%8E%82%E5%95%86%E6%94%B6%E5%8F%A3%E4%B8%8E%20vendor_b%20AWS%20%E6%8E%A5%E5%85%A5%E5%AE%8C%E6%95%B4%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-17 19:00｜日期依据：文件名日期
 

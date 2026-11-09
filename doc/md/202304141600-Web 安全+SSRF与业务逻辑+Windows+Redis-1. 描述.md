@@ -9,6 +9,8 @@ source: "01-Web安全/05-SSRF与业务逻辑/SSRF/SSRF 利用.md"
 
 # 1. 描述
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BSSRF%E4%B8%8E%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%2BWindows%2BRedis-1.%20%E6%8F%8F%E8%BF%B0.md)
+
 原文 by ringzero
 
 ## 1. 描述

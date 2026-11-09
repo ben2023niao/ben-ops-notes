@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 游点涩正式/测试环境配置与服务器 hosts 盘点
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-21-1600-【配置清单】游点涩正式测试环境配置与服务器hosts及环境变量盘点.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610211600-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BDocker-%E6%B8%B8%E7%82%B9%E6%B6%A9%E6%AD%A3%E5%BC%8F-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%20hosts%20%E7%9B%98%E7%82%B9.md)
 
 > 整理日期：2026-10-21 16:00｜日期依据：文件名日期
 

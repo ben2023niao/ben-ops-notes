@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Ghome P7 · Redirects 管理 + Audit Log 展示 + 30 天 Click 聚合任务 Implementation Plan
 
-> 来源文件：`~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-09-ghome-p7-redirects-audit-aggregate.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605090000-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BShell-Ghome%20P7%20%C2%B7%20Redirects%20%E7%AE%A1%E7%90%86%20%2B%20Audit%20Log%20%E5%B1%95%E7%A4%BA%20%2B%2030%20%E5%A4%A9%20Click%20%E8%81%9A%E5%90%88%E4%BB%BB%E5%8A%A1%20Implementation%20Plan.md)
 
 > 整理日期：2026-05-09 00:00｜日期依据：文件名日期
 

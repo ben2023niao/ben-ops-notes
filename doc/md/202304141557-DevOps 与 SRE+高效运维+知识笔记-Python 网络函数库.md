@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/11-高效运维
 
 # Python 网络函数库
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E9%AB%98%E6%95%88%E8%BF%90%E7%BB%B4%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-Python%20%E7%BD%91%E7%BB%9C%E5%87%BD%E6%95%B0%E5%BA%93.md)
+
 ## socket()函数
 
 Python 中，我们用 socket（）函数来创建套接字，语法格式如下：

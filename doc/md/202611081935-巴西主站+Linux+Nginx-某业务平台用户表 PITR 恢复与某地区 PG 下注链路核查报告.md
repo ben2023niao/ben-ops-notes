@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-11-08-1935-【恢复+核验】某业务平台用户表PITR恢复与香港PG下注链路核查报告.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202611081935-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BNginx-%E6%9F%90%E4%B8%9A%E5%8A%A1%E5%B9%B3%E5%8F%B0%E7%94%A8%E6%88%B7%E8%A1%A8%20PITR%20%E6%81%A2%E5%A4%8D%E4%B8%8E%E6%9F%90%E5%9C%B0%E5%8C%BA%20PG%20%E4%B8%8B%E6%B3%A8%E9%93%BE%E8%B7%AF%E6%A0%B8%E6%9F%A5%E6%8A%A5%E5%91%8A.md)
 
 > 整理日期：2026-11-08 19:35｜日期依据：文件名日期
 

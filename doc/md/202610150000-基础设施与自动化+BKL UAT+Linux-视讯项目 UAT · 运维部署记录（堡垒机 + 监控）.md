@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 视讯项目 UAT · 运维部署记录（堡垒机 + 监控）
 
-> 来源文件：`~/Projects/work/ops/devops/devops-bkl/doc/2026年10月15日-堡垒机与监控部署/2026年10月15日-堡垒机与监控部署-完整记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610150000-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BLinux-%E8%A7%86%E8%AE%AF%E9%A1%B9%E7%9B%AE%20UAT%20%C2%B7%20%E8%BF%90%E7%BB%B4%E9%83%A8%E7%BD%B2%E8%AE%B0%E5%BD%95%EF%BC%88%E5%A0%A1%E5%9E%92%E6%9C%BA%20%2B%20%E7%9B%91%E6%8E%A7%EF%BC%89.md)
 
 > 整理日期：2026-10-15 00:00｜日期依据：文件名日期
 

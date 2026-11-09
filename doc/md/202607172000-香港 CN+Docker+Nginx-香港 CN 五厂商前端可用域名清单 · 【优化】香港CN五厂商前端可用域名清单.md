@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-07-17-2000-【优化】香港CN五厂商前端可用域名清单.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607172000-%E9%A6%99%E6%B8%AF%20CN%2BDocker%2BNginx-%E9%A6%99%E6%B8%AF%20CN%20%E4%BA%94%E5%8E%82%E5%95%86%E5%89%8D%E7%AB%AF%E5%8F%AF%E7%94%A8%E5%9F%9F%E5%90%8D%E6%B8%85%E5%8D%95%20%C2%B7%20%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E9%A6%99%E6%B8%AFCN%E4%BA%94%E5%8E%82%E5%95%86%E5%89%8D%E7%AB%AF%E5%8F%AF%E7%94%A8%E5%9F%9F%E5%90%8D%E6%B8%85%E5%8D%95.md)
 
 > 整理日期：2026-07-17 20:00｜日期依据：文件名日期
 

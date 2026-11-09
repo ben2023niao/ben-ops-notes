@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Nuxt 4 + Tailwind CSS v4 Web 技术栈
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/architecture/web-stack-nuxt-tailwind.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-Nuxt%204%20%2B%20Tailwind%20CSS%20v4%20Web%20%E6%8A%80%E6%9C%AF%E6%A0%88.md)
 
 > 整理日期：2026-06-04 01:09｜日期依据：文件创建/修改时间
 

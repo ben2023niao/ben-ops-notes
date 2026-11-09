@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试环境新增大数据上报 SDK 与 tesdk 配置
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-08-06-1748-【运维记录】测试环境新增大数据上报SDK与te-sdk配置.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608061748-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BDocker%2BNginx-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E6%96%B0%E5%A2%9E%E5%A4%A7%E6%95%B0%E6%8D%AE%E4%B8%8A%E6%8A%A5%20SDK%20%E4%B8%8E%20tesdk%20%E9%85%8D%E7%BD%AE.md)
 
 > 整理日期：2026-08-06 17:48｜日期依据：文件名日期
 

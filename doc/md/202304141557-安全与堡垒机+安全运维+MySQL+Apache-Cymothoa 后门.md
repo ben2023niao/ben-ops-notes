@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/04-安全运维
 
 # Cymothoa 后门
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BMySQL%2BApache-Cymothoa%20%E5%90%8E%E9%97%A8.md)
+
 ## 【false】Cymothoa
 
 cymothoa 是一个后门工具，利用代码 shellcode 会被注入到进程中，只要进程存在，后门就会有效，所以一般选择一些自启服务的进程来注入，例如 web 服务 mysql，apache 等。其后门所拥有的权限和注入的进程权限是相同的。当拿下目标 shell 后就可以使用 cymothoa 添加后门了。

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试 H5/PC 前端静态资源与后端图片域名最终链路
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-29_2212-【运维记录】测试H5-PC前端静态资源与后端图片域名最终链路.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607292212-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%B5%8B%E8%AF%95%20H5-PC%20%E5%89%8D%E7%AB%AF%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E4%B8%8E%E5%90%8E%E7%AB%AF%E5%9B%BE%E7%89%87%E5%9F%9F%E5%90%8D%E6%9C%80%E7%BB%88%E9%93%BE%E8%B7%AF.md)
 
 > 整理日期：2026-07-29 22:12｜日期依据：文件名日期
 

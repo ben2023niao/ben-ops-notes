@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/08-运维技巧
 
 # shootback
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2BLinux%2BWindows-%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%E8%AF%B4%E6%98%8E-shootback.md)
+
 <https://github.com/aploium/shootback>
 
 shotback 是一个反向 TCP 隧道让你访问目标后面或防火墙后面的 TCP 通道，访问 NAT 或防火墙

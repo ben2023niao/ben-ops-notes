@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 时时监控命令行操作 文件变化 登录行为 加密切片备份到飞机群
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BRedis%2BMySQL-%E6%97%B6%E6%97%B6%E7%9B%91%E6%8E%A7%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%93%8D%E4%BD%9C%20%E6%96%87%E4%BB%B6%E5%8F%98%E5%8C%96%20%E7%99%BB%E5%BD%95%E8%A1%8C%E4%B8%BA%20%E5%8A%A0%E5%AF%86%E5%88%87%E7%89%87%E5%A4%87%E4%BB%BD%E5%88%B0%E9%A3%9E%E6%9C%BA%E7%BE%A4.md)
+
 ![文档配图](../media/0c5cdb0c5c48e52782.png)![文档配图](../media/dbbdc80d8d12aa414a.png)
 
 **check_cron.sh 定时任务监控脚本** 展开源码

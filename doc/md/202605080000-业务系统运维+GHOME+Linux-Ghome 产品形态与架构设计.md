@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Ghome 产品形态与架构设计
 
-> 来源文件：`~/Projects/work/game/ghome/docs/superpowers/specs/2026-05-08-ghome-product-shape-design.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605080000-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BLinux-Ghome%20%E4%BA%A7%E5%93%81%E5%BD%A2%E6%80%81%E4%B8%8E%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1.md)
 
 > 整理日期：2026-05-08 00:00｜日期依据：文件名日期
 

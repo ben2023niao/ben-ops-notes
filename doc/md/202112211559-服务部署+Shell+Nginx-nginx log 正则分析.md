@@ -12,6 +12,8 @@ sourceHtmlSha256: "ad40734fbc2b85676b26635b92a62edf66f8e07d7210008837f1ec5ea3b98
 
 # nginx log 正则分析
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202112211559-%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%2BShell%2BNginx-nginx%20log%20%E6%AD%A3%E5%88%99%E5%88%86%E6%9E%90.md)
+
 > 原文：[nginx log 正则分析](https://xn--6o0a585a.gitbook.io/devops/fu-wu/nginx/nginx-log-zheng-ze-fen-xi.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2021-12-21 15:59｜日期依据：GitBook 页面更新时间

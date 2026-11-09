@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-09-02-1658-【网络调整】香港静态域名CORS预检修复与git直连同步协同记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609021658-%E9%A6%99%E6%B8%AF%20CN%2BShell%2BDocker-2026-09-02%20%E9%A6%99%E6%B8%AF%E9%9D%99%E6%80%81%E5%9F%9F%E5%90%8D%20CORS%20%E9%A2%84%E6%A3%80%E4%BF%AE%E5%A4%8D%20%2B%20git%E2%86%92GCS%20%E7%9B%B4%E8%BF%9E%E5%90%8C%E6%AD%A5%E5%8D%8F%E5%90%8C%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-09-02 16:58｜日期依据：文件名日期
 

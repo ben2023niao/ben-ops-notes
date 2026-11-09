@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【问题排查】线上环境 CPU 持续高位容量瓶颈排查记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-20-2355-【问题排查】线上环境CPU持续高位容量瓶颈排查记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608202355-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BDocker%2BNginx-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20CPU%20%E6%8C%81%E7%BB%AD%E9%AB%98%E4%BD%8D%E5%AE%B9%E9%87%8F%E7%93%B6%E9%A2%88%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-20 23:55｜日期依据：文件名日期
 

@@ -9,6 +9,8 @@ source: "01-Web安全/05-SSRF与业务逻辑/SSRF/SSRF 基础.md"
 
 # 一、定义
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BSSRF%E4%B8%8E%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%2BDNS%2BPHP-%E4%B8%80%E3%80%81%E5%AE%9A%E4%B9%89.md)
+
 ## 一、定义
 
 SSRF(Server-Side Request Forgery:服务器端请求伪造) 是一种由攻击者构造形成由服务端发起请求的一个安全漏洞。一般情况下，SSRF攻击的目标是从外网无法访问的内部系统。（正是因为它是由服务端发起的，所以它能够请求到与它相连而与外网隔离的内部系统）

@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 五 传统方式 Mongodb读写分离
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BMongoDB%2B%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D-%E4%BA%94%20%E4%BC%A0%E7%BB%9F%E6%96%B9%E5%BC%8F%20Mongodb%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB.md)
+
 目前来看。Mongodb副本集可以完美支持故障转移。至于主节点的读写压力过大如何解决？常见的解决方案是读写分离。
 
 ```python

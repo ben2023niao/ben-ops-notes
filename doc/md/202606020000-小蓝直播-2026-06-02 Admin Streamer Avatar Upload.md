@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 2026-06-02 Admin Streamer Avatar Upload
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-06-02-admin-streamer-avatar-upload.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606020000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD-2026-06-02%20Admin%20Streamer%20Avatar%20Upload.md)
 
 > 整理日期：2026-06-02 00:00｜日期依据：文件名日期
 

@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # Nginx+GeoIP2模块编译
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BDocker%2BNginx-Nginx%2BGeoIP2%E6%A8%A1%E5%9D%97%E7%BC%96%E8%AF%91.md)
+
 ```bash
 sudo docker run -it --name nginxgeoip2 docker.io/centos:7 /bin/bash
 yum -y install git

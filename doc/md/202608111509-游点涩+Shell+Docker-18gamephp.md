@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 18gamephp
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/src/youdianse-php/doc/developer_rules.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608111509-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-18gamephp.md)
 
 > 整理日期：2026-08-11 15:09｜日期依据：文件创建/修改时间
 

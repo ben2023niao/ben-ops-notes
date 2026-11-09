@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/07-监控技巧
 
 # 分布式监控系统Zabbix学习一
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%2B%E7%9B%91%E6%8E%A7%2BLinux%2BWindows-%E5%88%86%E5%B8%83%E5%BC%8F%E7%9B%91%E6%8E%A7%E7%B3%BB%E7%BB%9FZabbix%E5%AD%A6%E4%B9%A0%E4%B8%80.md)
+
 ## Zabbix [[官网](http://www.zabbix.com/)]
 
 > "Our aims are to develop an exceptional monitoring solution and to provide responsive and dependable support to resolve any issues regarding its installation, operation and use..." --Zabbix Team

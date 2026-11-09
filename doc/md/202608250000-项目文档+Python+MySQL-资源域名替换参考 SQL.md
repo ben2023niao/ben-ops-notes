@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 资源域名替换参考 SQL
 
-> 来源文件：`~/Projects/work/ops/aiwork/2026_devops/devops/python/ben-bot/doc/资源域名替换参考-SQL.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608250000-%E9%A1%B9%E7%9B%AE%E6%96%87%E6%A1%A3%2BPython%2BMySQL-%E8%B5%84%E6%BA%90%E5%9F%9F%E5%90%8D%E6%9B%BF%E6%8D%A2%E5%8F%82%E8%80%83%20SQL.md)
 
 > 整理日期：2026-08-25 00:00｜日期依据：正文日期
 

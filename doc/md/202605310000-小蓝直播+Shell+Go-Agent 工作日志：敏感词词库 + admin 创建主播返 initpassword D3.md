@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Agent 工作日志：敏感词词库 + admin 创建主播返 initpassword D3
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-31-streamer-forbidden-d3.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605310000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%EF%BC%9A%E6%95%8F%E6%84%9F%E8%AF%8D%E8%AF%8D%E5%BA%93%20%2B%20admin%20%E5%88%9B%E5%BB%BA%E4%B8%BB%E6%92%AD%E8%BF%94%20initpassword%20D3.md)
 
 > 整理日期：2026-05-31 00:00｜日期依据：文件名日期
 

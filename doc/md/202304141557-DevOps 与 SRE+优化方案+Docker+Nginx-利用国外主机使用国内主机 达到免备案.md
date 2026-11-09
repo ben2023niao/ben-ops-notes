@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 利用国外主机使用国内主机 达到免备案
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BDocker%2BNginx-%E5%88%A9%E7%94%A8%E5%9B%BD%E5%A4%96%E4%B8%BB%E6%9C%BA%E4%BD%BF%E7%94%A8%E5%9B%BD%E5%86%85%E4%B8%BB%E6%9C%BA%20%E8%BE%BE%E5%88%B0%E5%85%8D%E5%A4%87%E6%A1%88.md)
+
 ```nginx
 条件
 需要：国外主机 + 国内主机 + 无备案域名适用：不想备案又想使用国内主机配置以我例子说明

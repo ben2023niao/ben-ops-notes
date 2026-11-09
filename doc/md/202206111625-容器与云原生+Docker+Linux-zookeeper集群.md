@@ -12,6 +12,8 @@ sourceHtmlSha256: "998dd04caae22a636af237110041b53694865339af56ac5650e610886e73c
 
 # zookeeper集群
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206111625-%E5%AE%B9%E5%99%A8%E4%B8%8E%E4%BA%91%E5%8E%9F%E7%94%9F%2BDocker%2BLinux-zookeeper%E9%9B%86%E7%BE%A4.md)
+
 > 原文：[zookeeper集群](https://xn--6o0a585a.gitbook.io/devops/docker/centos7/da-jian-zookeeper/zookeeper-ji-qun.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-11 16:25｜日期依据：GitBook 页面更新时间

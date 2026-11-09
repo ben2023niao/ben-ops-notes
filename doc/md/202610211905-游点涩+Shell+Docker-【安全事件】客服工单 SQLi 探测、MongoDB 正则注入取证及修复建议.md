@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【安全事件】客服工单 SQLi 探测、MongoDB 正则注入取证及修复建议
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-21-1905-【安全事件】客服工单SQLi探测-MongoDB正则注入取证及修复建议.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610211905-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%E3%80%91%E5%AE%A2%E6%9C%8D%E5%B7%A5%E5%8D%95%20SQLi%20%E6%8E%A2%E6%B5%8B%E3%80%81MongoDB%20%E6%AD%A3%E5%88%99%E6%B3%A8%E5%85%A5%E5%8F%96%E8%AF%81%E5%8F%8A%E4%BF%AE%E5%A4%8D%E5%BB%BA%E8%AE%AE.md)
 
 > 整理日期：2026-10-21 19:05｜日期依据：文件名日期
 

@@ -12,6 +12,8 @@ sourceHtmlSha256: "07db4a516336589b8387fbf9e16ca71385e753f0eaba6976f56d2cff83525
 
 # 搭建Mysql
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206111622-%E5%AE%B9%E5%99%A8%E4%B8%8E%E4%BA%91%E5%8E%9F%E7%94%9F%2BDocker%2BShell-%E6%90%AD%E5%BB%BAMysql.md)
+
 > 原文：[搭建Mysql](https://xn--6o0a585a.gitbook.io/devops/docker/centos7/da-jian-mysql.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-11 16:22｜日期依据：GitBook 页面更新时间

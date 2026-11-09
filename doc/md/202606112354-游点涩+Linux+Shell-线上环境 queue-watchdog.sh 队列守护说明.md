@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 线上环境 queue-watchdog.sh 队列守护说明
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-06-11-2354-【运维记录】线上环境queue-watchdog队列守护说明.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606112354-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20queue-watchdog.sh%20%E9%98%9F%E5%88%97%E5%AE%88%E6%8A%A4%E8%AF%B4%E6%98%8E.md)
 
 > 整理日期：2026-06-11 23:54｜日期依据：文件名日期
 

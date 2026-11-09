@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【问题排查】线上环境网关 nginx 日志打满磁盘导致 SSL Monitor 连环告警处置记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-26-0227-【问题排查】线上环境网关nginx日志打满磁盘导致SSL Monitor连环告警处置记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609260227-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E7%BD%91%E5%85%B3%20nginx%20%E6%97%A5%E5%BF%97%E6%89%93%E6%BB%A1%E7%A3%81%E7%9B%98%E5%AF%BC%E8%87%B4%20SSL%20Monitor%20%E8%BF%9E%E7%8E%AF%E5%91%8A%E8%AD%A6%E5%A4%84%E7%BD%AE%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-09-26 02:27｜日期依据：文件名日期
 

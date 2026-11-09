@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 运维值班表仅周末显示通知与值班通知收口上线群
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-07_2112-【优化+运维记录】运维值班表仅周末显示通知与值班通知收口上线群.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608072112-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BPython-%E8%BF%90%E7%BB%B4%E5%80%BC%E7%8F%AD%E8%A1%A8%E4%BB%85%E5%91%A8%E6%9C%AB%E6%98%BE%E7%A4%BA%E9%80%9A%E7%9F%A5%E4%B8%8E%E5%80%BC%E7%8F%AD%E9%80%9A%E7%9F%A5%E6%94%B6%E5%8F%A3%E4%B8%8A%E7%BA%BF%E7%BE%A4.md)
 
 > 整理日期：2026-08-07 21:12｜日期依据：文件名日期
 

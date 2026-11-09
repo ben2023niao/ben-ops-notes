@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 监控服务器文件变化
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BRedis%2BMySQL-%E7%9B%91%E6%8E%A7%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%96%87%E4%BB%B6%E5%8F%98%E5%8C%96.md)
+
  inotifywait∶可监控*modify*(修改)、*create*(创建)、move(移动)、*delete*(删除)、*attrib*(属性更改)等各种事件,一有变动立即输出结果
 ![文档配图](../media/51896362a3c65d0e25.png)![文档配图](../media/c001ce9960ba659e7d.png)
 

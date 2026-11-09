@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # albwhite 反复丢失根因与只读挂载永久修复
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-21-1240-【事故复盘】alb_white反复丢失根因与只读挂载永久修复.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610211240-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-albwhite%20%E5%8F%8D%E5%A4%8D%E4%B8%A2%E5%A4%B1%E6%A0%B9%E5%9B%A0%E4%B8%8E%E5%8F%AA%E8%AF%BB%E6%8C%82%E8%BD%BD%E6%B0%B8%E4%B9%85%E4%BF%AE%E5%A4%8D.md)
 
 > 整理日期：2026-10-21 12:40｜日期依据：文件名日期
 

@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # HTTP GET与POST对比
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BPHP%2BCSRF-HTTP%20GET%E4%B8%8EPOST%E5%AF%B9%E6%AF%94.md)
+
 ## HTTP GET与POST对比
 
 **[HTTP](https://haicoder.net/http/http-tutorial.html)** 中的 **[GET](https://haicoder.net/http/http-get.html)** 一般用于获取/查询资源信息，也就是从指定的资源请求数据。 而 **[POST](https://haicoder.net/http/http-post.html)** 一般用于向指定的资源提交要被处理的数据，也就是更新资源信息。

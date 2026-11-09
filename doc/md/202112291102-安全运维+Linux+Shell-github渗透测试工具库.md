@@ -12,6 +12,8 @@ sourceHtmlSha256: "b78e6e73da587883ecb6a10db304b2807914dd21f925a6356c4a69ba2b80e
 
 # github渗透测试工具库
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202112291102-%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BLinux%2BShell-github%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7%E5%BA%93.md)
+
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
 > 原文：[github渗透测试工具库](https://xn--6o0a585a.gitbook.io/devops/an-quan/github-shen-tou-ce-shi-gong-ju-ku.html)

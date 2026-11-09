@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 线上 H5 全链路 502 与 MongoDB 从库别名故障复盘
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-20-2310-【事故复盘】线上H5全链路502与MongoDB从库别名故障.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610202310-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E7%BA%BF%E4%B8%8A%20H5%20%E5%85%A8%E9%93%BE%E8%B7%AF%20502%20%E4%B8%8E%20MongoDB%20%E4%BB%8E%E5%BA%93%E5%88%AB%E5%90%8D%E6%95%85%E9%9A%9C%E5%A4%8D%E7%9B%98.md)
 
 > 整理日期：2026-10-20 23:10｜日期依据：文件名日期
 

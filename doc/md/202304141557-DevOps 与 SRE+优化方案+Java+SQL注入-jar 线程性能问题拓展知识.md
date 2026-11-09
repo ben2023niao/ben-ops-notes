@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # jar 线程性能问题拓展知识
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BJava%2BSQL%E6%B3%A8%E5%85%A5-jar%20%E7%BA%BF%E7%A8%8B%E6%80%A7%E8%83%BD%E9%97%AE%E9%A2%98%E6%8B%93%E5%B1%95%E7%9F%A5%E8%AF%86.md)
+
 ![文档配图](../media/5a0f7f15eb32629751.png)
 
 系统线程状态 (Native Thread Status)

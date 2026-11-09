@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试环境 Redis 巡检与优化建议
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-08-25-1550-【运维记录】测试环境Redis巡检与优化建议.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608251550-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20Redis%20%E5%B7%A1%E6%A3%80%E4%B8%8E%E4%BC%98%E5%8C%96%E5%BB%BA%E8%AE%AE.md)
 
 > 整理日期：2026-08-25 15:50｜日期依据：文件名日期
 

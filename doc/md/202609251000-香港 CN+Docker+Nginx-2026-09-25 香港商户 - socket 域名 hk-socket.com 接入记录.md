@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-09-25-1000-【架构改造】香港商户socket域名hk-socket.com接入记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609251000-%E9%A6%99%E6%B8%AF%20CN%2BDocker%2BNginx-2026-09-25%20%E9%A6%99%E6%B8%AF%E5%95%86%E6%88%B7%20-%20socket%20%E5%9F%9F%E5%90%8D%20hk-socket.com%20%E6%8E%A5%E5%85%A5%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-09-25 10:00｜日期依据：文件名日期
 

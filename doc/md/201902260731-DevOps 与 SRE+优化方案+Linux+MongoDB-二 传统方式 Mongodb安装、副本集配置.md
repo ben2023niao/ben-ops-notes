@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 二 传统方式 Mongodb安装、副本集配置
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/201902260731-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BLinux%2BMongoDB-%E4%BA%8C%20%E4%BC%A0%E7%BB%9F%E6%96%B9%E5%BC%8F%20Mongodb%E5%AE%89%E8%A3%85%E3%80%81%E5%89%AF%E6%9C%AC%E9%9B%86%E9%85%8D%E7%BD%AE.md)
+
 ```
 1) 在三个节点机上建立mongodb副本集测试文件夹，用于存放整个副本集文件
 [root@mongodb-master01 ~]# mkdir -p /data/mongodb/data/replset/

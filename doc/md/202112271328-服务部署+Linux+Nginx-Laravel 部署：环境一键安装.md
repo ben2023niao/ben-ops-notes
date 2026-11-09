@@ -12,6 +12,8 @@ sourceHtmlSha256: "a79d3247b48e7393b637ef9ee63fc05925f78434cc1ef61b5d487cc7c9eb4
 
 # Laravel 部署：环境一键安装
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202112271328-%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%2BLinux%2BNginx-Laravel%20%E9%83%A8%E7%BD%B2%EF%BC%9A%E7%8E%AF%E5%A2%83%E4%B8%80%E9%94%AE%E5%AE%89%E8%A3%85.md)
+
 > 原文：[Laravel 部署：环境一键安装](https://xn--6o0a585a.gitbook.io/devops/fu-wu/laravel-bu-shu/laravel-bu-shu-huan-jing-yi-jian-an-zhuang.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2021-12-27 13:28｜日期依据：GitBook 页面更新时间

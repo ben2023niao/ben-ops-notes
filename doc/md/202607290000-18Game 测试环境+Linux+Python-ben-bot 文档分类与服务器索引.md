@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # ben-bot 文档分类与服务器索引
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/【运维记录】ben-bot文档分类与服务器索引.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607290000-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BPython-ben-bot%20%E6%96%87%E6%A1%A3%E5%88%86%E7%B1%BB%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%B4%A2%E5%BC%95.md)
 
 > 整理日期：2026-07-29 00:00｜日期依据：正文日期
 

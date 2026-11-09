@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 备案域名前端静态资源 COS 绑定域名直连关系
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-04_1702-【运维规划+链路改造】备案域名前端静态资源COS绑定域名直连关系.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608041702-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E5%A4%87%E6%A1%88%E5%9F%9F%E5%90%8D%E5%89%8D%E7%AB%AF%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20COS%20%E7%BB%91%E5%AE%9A%E5%9F%9F%E5%90%8D%E7%9B%B4%E8%BF%9E%E5%85%B3%E7%B3%BB.md)
 
 > 整理日期：2026-08-04 17:02｜日期依据：文件名日期
 

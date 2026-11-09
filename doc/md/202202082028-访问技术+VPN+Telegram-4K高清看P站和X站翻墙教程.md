@@ -12,6 +12,8 @@ sourceHtmlSha256: "8e96ffb17bbc1ecbd223fa5c9a7e4939e59181996c44b90fd99c2a181c000
 
 # 4K高清看P站和X站翻墙教程
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202202082028-%E8%AE%BF%E9%97%AE%E6%8A%80%E6%9C%AF%2BVPN%2BTelegram-4K%E9%AB%98%E6%B8%85%E7%9C%8BP%E7%AB%99%E5%92%8CX%E7%AB%99%E7%BF%BB%E5%A2%99%E6%95%99%E7%A8%8B.md)
+
 > 原文：[4K高清看P站和X站翻墙教程](https://xn--6o0a585a.gitbook.io/devops/fan-qiang/4k-gao-qing-kanpzhan-hexzhan-fan-qiang-jiao-cheng.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-02-08 20:28｜日期依据：GitBook 页面更新时间

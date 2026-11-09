@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【运维记录】DevOps 文档包发送迷境运维中台大群记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-24-1849-【运维记录】DevOps文档包发送迷境运维中台大群记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608241849-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BDocker-%E3%80%90%E8%BF%90%E7%BB%B4%E8%AE%B0%E5%BD%95%E3%80%91DevOps%20%E6%96%87%E6%A1%A3%E5%8C%85%E5%8F%91%E9%80%81%E8%BF%B7%E5%A2%83%E8%BF%90%E7%BB%B4%E4%B8%AD%E5%8F%B0%E5%A4%A7%E7%BE%A4%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-24 18:49｜日期依据：文件名日期
 

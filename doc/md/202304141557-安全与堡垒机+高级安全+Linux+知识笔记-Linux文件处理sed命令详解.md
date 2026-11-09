@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # Linux文件处理sed命令详解
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-Linux%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86sed%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3.md)
+
 ## Linux文件处理sed命令详解教程
 
 **[Linux](https://haicoder.net/linux/linux-tutorial.html)** 中的 sed 是一种流编编器，用来对文本进行过滤与替换操作，同时，sed 命令能够完美的配合正则表达式使用。

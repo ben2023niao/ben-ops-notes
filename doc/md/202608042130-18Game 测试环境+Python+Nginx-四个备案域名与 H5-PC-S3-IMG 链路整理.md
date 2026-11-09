@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 四个备案域名与 H5/PC/S3/IMG 链路整理
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-04_2130-【运维规划+域名关系】四个备案域名与H5-PC-S3-IMG链路整理.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608042130-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BNginx-%E5%9B%9B%E4%B8%AA%E5%A4%87%E6%A1%88%E5%9F%9F%E5%90%8D%E4%B8%8E%20H5-PC-S3-IMG%20%E9%93%BE%E8%B7%AF%E6%95%B4%E7%90%86.md)
 
 > 整理日期：2026-08-04 21:30｜日期依据：文件名日期
 

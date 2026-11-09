@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/hongkong/live/2026-08-06-1142-【补静态资源+数据维护】香港vendor_c与PG资源同步记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608061142-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-2026-08-06%20%E9%A6%99%E6%B8%AF%20vendor_c%20%E4%B8%8E%20PG%20%E8%B5%84%E6%BA%90%E5%90%8C%E6%AD%A5%E8%AE%B0%E5%BD%95%20%C2%B7%20%E3%80%90%E8%A1%A5%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%2B%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%E3%80%91%E9%A6%99%E6%B8%AFvendor_c%E4%B8%8EPG%E8%B5%84%E6%BA%90%E5%90%8C%E6%AD%A5%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-06 11:42｜日期依据：文件名日期
 

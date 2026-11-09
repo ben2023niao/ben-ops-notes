@@ -12,6 +12,8 @@ sourceHtmlSha256: "3dcdc707ae3b801684cb6cab323bbd24246e31388583629ed21d4f55f61f8
 
 # 新华报业后台getshell https://xhby.net
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202409191621-%E5%AE%89%E5%85%A8%E7%AB%9E%E8%B5%9B%E5%A4%8D%E7%9B%98%2BShell%2BTelegram-%E6%9F%90%E5%AA%92%E4%BD%93%E5%B9%B3%E5%8F%B0%E5%90%8E%E5%8F%B0%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E9%A3%8E%E9%99%A9%E9%AA%8C%E8%AF%81%20https%EF%BC%9A-%E6%9F%90%E5%AA%92%E4%BD%93%E5%B9%B3%E5%8F%B0.md)
+
 > 原文：[新华报业后台getshell https://xhby.net](https://ji-shu-jian-li.gitbook.io/ben_bird/xin-hua-bao-ye-hou-tai-getshell-httpsxhby.net.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2024-09-19 16:21｜日期依据：GitBook 页面更新时间

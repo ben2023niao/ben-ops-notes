@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/04-安全运维
 
 # 骚批代码触发编译器 BUG
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BLinux%2BWindows-%E9%AA%9A%E6%89%B9%E4%BB%A3%E7%A0%81%E8%A7%A6%E5%8F%91%E7%BC%96%E8%AF%91%E5%99%A8%20BUG.md)
+
 编译器BUG ， 函数定义原则上是需要 ( ) 来包裹 ， main 直接变成了"变量"形式了
 所以病毒可以通过函数注入实现
 

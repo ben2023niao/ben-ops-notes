@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/08-运维技巧
 
 # Shell脚本重复调用命令行
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2B%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-Shell%E8%84%9A%E6%9C%AC%E9%87%8D%E5%A4%8D%E8%B0%83%E7%94%A8%E5%91%BD%E4%BB%A4%E8%A1%8C.md)
+
 - **生产实践：**
 
     使用shell重复调用命令行

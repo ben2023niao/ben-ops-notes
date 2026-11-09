@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【配置维护】线上环境腾讯CDN ql-boss域名env新增与误删段恢复记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-08-1826-【配置维护】线上环境腾讯CDN ql-boss域名env新增与误删段恢复记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609081826-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E3%80%90%E9%85%8D%E7%BD%AE%E7%BB%B4%E6%8A%A4%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E8%85%BE%E8%AE%AFCDN%20ql-boss%E5%9F%9F%E5%90%8Denv%E6%96%B0%E5%A2%9E%E4%B8%8E%E8%AF%AF%E5%88%A0%E6%AE%B5%E6%81%A2%E5%A4%8D%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-09-08 18:26｜日期依据：文件名日期
 

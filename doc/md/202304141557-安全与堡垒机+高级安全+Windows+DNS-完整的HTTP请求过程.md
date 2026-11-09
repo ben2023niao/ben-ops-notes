@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # 完整的HTTP请求过程
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BWindows%2BDNS-%E5%AE%8C%E6%95%B4%E7%9A%84HTTP%E8%AF%B7%E6%B1%82%E8%BF%87%E7%A8%8B.md)
+
 当我们在浏览器栏输入一个网址，比如 `[www.haicoder.net](http://www.haicoder.net)` 的时候，具体发生了什么呢？这个请求是怎么到达服务器及返回结果的呢？
 
 ## 概述

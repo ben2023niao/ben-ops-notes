@@ -9,6 +9,8 @@ source: "02-主机与渗透/02-Windows/Windows 渗透测试.md"
 
 # 域环境搭建
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2BWindows%2BLinux%2BDNS-%E5%9F%9F%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA.md)
+
 Team:Syclover
 Author:L3m0n
 Email:[邮箱已脱敏]

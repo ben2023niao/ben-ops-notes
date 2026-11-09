@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # ben-bot doc 环境标签索引
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-30_2118-【运维记录】ben-bot-doc环境标签索引.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607302118-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2B%E7%9B%91%E6%8E%A7%E5%91%8A%E8%AD%A6-ben-bot%20doc%20%E7%8E%AF%E5%A2%83%E6%A0%87%E7%AD%BE%E7%B4%A2%E5%BC%95.md)
 
 > 整理日期：2026-07-30 21:18｜日期依据：文件名日期
 

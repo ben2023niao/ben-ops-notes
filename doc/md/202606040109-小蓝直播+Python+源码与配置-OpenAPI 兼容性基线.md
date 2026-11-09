@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # OpenAPI 兼容性基线
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/api/openapi-baseline.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BPython%2B%E6%BA%90%E7%A0%81%E4%B8%8E%E9%85%8D%E7%BD%AE-OpenAPI%20%E5%85%BC%E5%AE%B9%E6%80%A7%E5%9F%BA%E7%BA%BF.md)
 
 > 整理日期：2026-06-04 01:09｜日期依据：文件创建/修改时间
 

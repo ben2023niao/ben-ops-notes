@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # Nginx优缺点
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2BWindows-Nginx%E4%BC%98%E7%BC%BA%E7%82%B9.md)
+
 ## Nginx优缺点
 
 **[Nginx](https://haicoder.net/nginx/nginx-tutorial.html)** (engine x) 是一个高性能的 **[HTTP](https://haicoder.net/http/http-tutorial.html)** 和反向代理服务，也是一个 IMAP/POP3/SMTP 服务。Nginx 是由伊戈尔·赛索耶夫为俄罗斯访问量第二的 [Rambler.ru](http://Rambler.ru) 站点(俄文:Рамблер)开发的，第一个公开版本 0.1.0 发布于 2004 年10 月 4 日。

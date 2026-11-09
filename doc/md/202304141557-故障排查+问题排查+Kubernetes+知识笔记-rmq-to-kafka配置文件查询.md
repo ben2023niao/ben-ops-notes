@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/10-问题排查
 
 # rmq-to-kafka配置文件查询
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5%2B%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%2BKubernetes%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-rmq-to-kafka%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E6%9F%A5%E8%AF%A2.md)
+
 反馈人  hsWilliam
 
 问题描述

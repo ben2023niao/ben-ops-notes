@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试环境 albwhite 本地维护与发布覆盖修复记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-07-30-1614-【修复Bug】测试环境alb_white本地维护与发布覆盖修复记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607301614-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20albwhite%20%E6%9C%AC%E5%9C%B0%E7%BB%B4%E6%8A%A4%E4%B8%8E%E5%8F%91%E5%B8%83%E8%A6%86%E7%9B%96%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-30 16:14｜日期依据：文件名日期
 

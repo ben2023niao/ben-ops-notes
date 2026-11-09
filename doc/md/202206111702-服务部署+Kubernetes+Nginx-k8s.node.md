@@ -12,6 +12,8 @@ sourceHtmlSha256: "46eaed65e181f68a3c7c2a96710f62aa518459f9556dca40f1a36b1d59ec7
 
 # k8s.node
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206111702-%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%2BKubernetes%2BNginx-k8s.node.md)
+
 > 原文：[k8s.node](https://xn--6o0a585a.gitbook.io/devops/fu-wu/node-install.sh/k8s.node.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-11 17:02｜日期依据：GitBook 页面更新时间

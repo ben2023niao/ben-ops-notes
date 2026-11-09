@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/08-运维技巧
 
 # Shell脚本初始化服务配置
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2BDocker%2B%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D-Shell%E8%84%9A%E6%9C%AC%E5%88%9D%E5%A7%8B%E5%8C%96%E6%9C%8D%E5%8A%A1%E9%85%8D%E7%BD%AE.md)
+
 - **生产实践：**
 
     使用shell针对服务进行个性化配置

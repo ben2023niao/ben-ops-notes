@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-10-05-1320-【故障处理】香港vendor_b游戏资源403定位与vendor_a前缀兜底修复.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610051320-%E9%A6%99%E6%B8%AF%20CN%2BDocker%2BNginx-2026-10-05%20%E9%A6%99%E6%B8%AF%20vendor_b%20%E6%B8%B8%E6%88%8F%E6%89%93%E4%B8%8D%E5%BC%80%EF%BC%9A%E8%B5%84%E6%BA%90%20403%20%E5%AE%9A%E4%BD%8D%20%2B%20%E5%9B%9E%E9%80%80%E8%80%81%20vendor_a%20%E5%89%8D%E7%BC%80%E4%BF%AE%E5%A4%8D.md)
 
 > 整理日期：2026-10-05 13:20｜日期依据：文件名日期
 

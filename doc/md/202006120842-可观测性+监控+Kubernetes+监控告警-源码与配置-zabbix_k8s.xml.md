@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/07-监控技巧
 
 # zabbix_k8s.xml
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202006120842-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%2B%E7%9B%91%E6%8E%A7%2BKubernetes%2B%E7%9B%91%E6%8E%A7%E5%91%8A%E8%AD%A6-%E6%BA%90%E7%A0%81%E4%B8%8E%E9%85%8D%E7%BD%AE-zabbix_k8s.xml.md)
+
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>

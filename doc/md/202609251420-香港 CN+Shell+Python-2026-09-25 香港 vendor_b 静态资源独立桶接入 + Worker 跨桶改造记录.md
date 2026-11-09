@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-09-25-1420-【架构改造】香港vendor_b静态资源独立桶接入与Worker跨桶改造记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609251420-%E9%A6%99%E6%B8%AF%20CN%2BShell%2BPython-2026-09-25%20%E9%A6%99%E6%B8%AF%20vendor_b%20%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E7%8B%AC%E7%AB%8B%E6%A1%B6%E6%8E%A5%E5%85%A5%20%2B%20Worker%20%E8%B7%A8%E6%A1%B6%E6%94%B9%E9%80%A0%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-09-25 14:20｜日期依据：文件名日期
 

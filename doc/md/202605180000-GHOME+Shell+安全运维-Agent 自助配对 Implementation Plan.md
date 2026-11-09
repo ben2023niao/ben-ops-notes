@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Agent 自助配对 Implementation Plan
 
-> 来源文件：`~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-18-agent-self-pairing.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605180000-GHOME%2BShell%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4-Agent%20%E8%87%AA%E5%8A%A9%E9%85%8D%E5%AF%B9%20Implementation%20Plan.md)
 
 > 整理日期：2026-05-18 00:00｜日期依据：文件名日期
 

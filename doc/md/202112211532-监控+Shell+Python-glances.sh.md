@@ -12,6 +12,8 @@ sourceHtmlSha256: "99d5bcb0886292e808de3fe65d94b9c1826e6b61b5fafec8bc2d8d0ee9c57
 
 # glances.sh
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202112211532-%E7%9B%91%E6%8E%A7%2BShell%2BPython-glances.sh.md)
+
 > 原文：[glances.sh](https://xn--6o0a585a.gitbook.io/devops/jian-kong/glances-jian-kong-bu-shu/glances.sh.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2021-12-21 15:32｜日期依据：GitBook 页面更新时间

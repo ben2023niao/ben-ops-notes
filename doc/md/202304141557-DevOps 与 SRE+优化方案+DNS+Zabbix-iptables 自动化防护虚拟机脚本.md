@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # iptables 自动化防护虚拟机脚本
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BDNS%2BZabbix-iptables%20%E8%87%AA%E5%8A%A8%E5%8C%96%E9%98%B2%E6%8A%A4%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%84%9A%E6%9C%AC.md)
+
 **iptables.sh** 展开源码
 
 ```bash

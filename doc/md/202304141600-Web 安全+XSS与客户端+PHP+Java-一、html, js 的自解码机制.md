@@ -9,6 +9,8 @@ source: "01-Web安全/03-XSS与客户端/XSS/解码顺序.md"
 
 # 一、html, js 的自解码机制
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BXSS%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%2BPHP%2BJava-%E4%B8%80%E3%80%81html%2C%20js%20%E7%9A%84%E8%87%AA%E8%A7%A3%E7%A0%81%E6%9C%BA%E5%88%B6.md)
+
 ## 一、html, js 的自解码机制
 
 html 的解析顺序：html parser --> css parser -->javascript parser

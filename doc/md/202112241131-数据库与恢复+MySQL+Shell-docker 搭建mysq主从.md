@@ -12,6 +12,8 @@ sourceHtmlSha256: "e469d2c9abe367d8bfb14b65ec8f180b973eacfb79105285f2e1fe1181ce9
 
 # docker 搭建mysq主从
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202112241131-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%81%A2%E5%A4%8D%2BMySQL%2BShell-docker%20%E6%90%AD%E5%BB%BAmysq%E4%B8%BB%E4%BB%8E.md)
+
 > 原文：[docker 搭建mysq主从](https://xn--6o0a585a.gitbook.io/devops/shu-ju-ku/docker-da-jian-mysq-zhu-cong.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2021-12-24 11:31｜日期依据：GitBook 页面更新时间

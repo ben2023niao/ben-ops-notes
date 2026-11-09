@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # Nginx IO模型
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2BNginx-Nginx%20IO%E6%A8%A1%E5%9E%8B.md)
+
 **[Nginx](https://haicoder.net/nginx/nginx-tutorial.html)** 支持多种并发模型，并发模型的具体实现根据系统平台而有所不同。在支持多种并发模型的平台上，Nginx 自动选择最高效的模型。但我们也可以使用 use 指令在配置文件中显式地定义某个并发模型。
 
 ## Nginx中支持的并发模型

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Agent 工作日志：主播端开播/下播 + Zego webhook D2
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-31-streamer-live-d2.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605310000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%EF%BC%9A%E4%B8%BB%E6%92%AD%E7%AB%AF%E5%BC%80%E6%92%AD-%E4%B8%8B%E6%92%AD%20%2B%20Zego%20webhook%20D2.md)
 
 > 整理日期：2026-05-31 00:00｜日期依据：文件名日期
 

@@ -9,6 +9,8 @@ source: "03-安全运营与应急/03-安全配置与访问控制/某业务公司
 
 # 香港动态接口与静态资源 CORS 边界记录
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202611081702-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%2BMySQL%2BNginx-%E9%A6%99%E6%B8%AF%E5%8A%A8%E6%80%81%E6%8E%A5%E5%8F%A3%E4%B8%8E%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20CORS%20%E8%BE%B9%E7%95%8C%E8%AE%B0%E5%BD%95.md)
+
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
 > 来源：本地项目文档 `game/pgserver/master/docs/history/2026-11-08-1702-【核对】香港动态接口与静态资源CORS边界记录.md`

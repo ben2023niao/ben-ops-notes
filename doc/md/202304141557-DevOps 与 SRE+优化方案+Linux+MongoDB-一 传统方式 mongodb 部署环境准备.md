@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 一 传统方式 mongodb 部署环境准备
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BLinux%2BMongoDB-%E4%B8%80%20%E4%BC%A0%E7%BB%9F%E6%96%B9%E5%BC%8F%20mongodb%20%E9%83%A8%E7%BD%B2%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87.md)
+
 ```
 ip地址                    主机名                               角色
 203.0.113.1      mongodb-master01                        副本集主节点

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试前端 H5/PC 备案域名与 S3 链路索引
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-29_1806-【运维记录】测试前端H5-PC备案域名与S3链路索引.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607291806-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BNginx-%E6%B5%8B%E8%AF%95%E5%89%8D%E7%AB%AF%20H5-PC%20%E5%A4%87%E6%A1%88%E5%9F%9F%E5%90%8D%E4%B8%8E%20S3%20%E9%93%BE%E8%B7%AF%E7%B4%A2%E5%BC%95.md)
 
 > 整理日期：2026-07-29 18:06｜日期依据：文件名日期
 

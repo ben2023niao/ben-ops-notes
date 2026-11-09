@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Kickoff（小蓝看夜场） · 产品总览 PRD
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/prd/product-prd.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605210000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BRedis%2B%E7%9B%91%E6%8E%A7%E5%91%8A%E8%AD%A6-Kickoff%EF%BC%88%E5%B0%8F%E8%93%9D%E7%9C%8B%E5%A4%9C%E5%9C%BA%EF%BC%89%20%C2%B7%20%E4%BA%A7%E5%93%81%E6%80%BB%E8%A7%88%20PRD.md)
 
 > 整理日期：2026-05-21 00:00｜日期依据：正文日期
 

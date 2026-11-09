@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 线上环境 PHP-FPM 调参发布记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-07-23-1631-【优化】线上环境PHP-FPM调参发布记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607231631-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20PHP-FPM%20%E8%B0%83%E5%8F%82%E5%8F%91%E5%B8%83%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-23 16:31｜日期依据：文件名日期
 

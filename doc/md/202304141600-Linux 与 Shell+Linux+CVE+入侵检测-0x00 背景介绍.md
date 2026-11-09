@@ -9,6 +9,8 @@ source: "02-主机与渗透/01-Linux/Linux执行命令监控.md"
 
 # 0x00 背景介绍
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Linux%20%E4%B8%8E%20Shell%2BLinux%2BCVE%2B%E5%85%A5%E4%BE%B5%E6%A3%80%E6%B5%8B-0x00%20%E8%83%8C%E6%99%AF%E4%BB%8B%E7%BB%8D.md)
+
 原文 by [ysrc](https://mp.weixin.qq.com/s?__biz=MzI4MzI4MDg1NA==&mid=2247483953&idx=1&sn=1c34aba130041bc6f4c6afdaf19eb1c7&chksm=eb8c5688dcfbdf9eb69dcdfb852a1f54b2d6cd02b813dcd8986dbf6731be12dfe22e95b5550e&mpshare=1&scene=1&srcid=0403WX9YzCe0lAeBvICb3pb7#rd)
 
 ## 0x00 背景介绍

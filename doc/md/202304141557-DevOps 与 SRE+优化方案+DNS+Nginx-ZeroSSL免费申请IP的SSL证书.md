@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # ZeroSSL免费申请IP的SSL证书
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BDNS%2BNginx-ZeroSSL%E5%85%8D%E8%B4%B9%E7%94%B3%E8%AF%B7IP%E7%9A%84SSL%E8%AF%81%E4%B9%A6.md)
+
 一般来说，我们使用域名访问给域名加上SSL证书是建站的常规操作，但是有一些应用可能不需要使用域名访问，或者是不想绑定域名，而只是想用单纯的IP来实现访问。在现在全网都是HTTPS加密访问的背景下，有没有可能给IP地址也加上SSL证书实现访问呢？
 
 有。但大多数面对IP的SSL证书都是收费的。而zeroSSL提供[免费SSL证书](https://wzfou.com/tag/mianfei-ssl/)是支持纯IP颁发的，本篇文章就来分享一下[zeroSSL](https://wzfou.com/tag/zerossl/)免费的纯IP SSL证书申请以及如何在自己的服务器（[宝塔面板](https://wzfou.com/tag/baota-mianban/)或者Nginx）安装配置zeroSSL免费SSL证书。更多的免费SSL请参考专题页面：[免费SSL证书收集整理汇总](https://wzfou.com/mianfei-ssl/)。

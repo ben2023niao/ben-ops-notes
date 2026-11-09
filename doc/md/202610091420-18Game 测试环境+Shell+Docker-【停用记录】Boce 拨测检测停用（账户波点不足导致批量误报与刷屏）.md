@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【停用记录】Boce 拨测检测停用（账户波点不足导致批量误报与刷屏）
 
-> 来源文件：`~/Desktop/18game_devops/devops/php/doc/2026-10-09_1420-【停用记录】Boce检测停用（波点不足导致批量误报刷屏）.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610091420-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BDocker-%E3%80%90%E5%81%9C%E7%94%A8%E8%AE%B0%E5%BD%95%E3%80%91Boce%20%E6%8B%A8%E6%B5%8B%E6%A3%80%E6%B5%8B%E5%81%9C%E7%94%A8%EF%BC%88%E8%B4%A6%E6%88%B7%E6%B3%A2%E7%82%B9%E4%B8%8D%E8%B6%B3%E5%AF%BC%E8%87%B4%E6%89%B9%E9%87%8F%E8%AF%AF%E6%8A%A5%E4%B8%8E%E5%88%B7%E5%B1%8F%EF%BC%89.md)
 
 > 整理日期：2026-10-09 14:20｜日期依据：文件名日期
 

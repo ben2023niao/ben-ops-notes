@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 18game 网关 CC 误报与 Meta 高频爬虫处置
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-23-2355-【安全事件】18game网关CC误报与Meta爬虫高频抓取处置.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610232355-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-18game%20%E7%BD%91%E5%85%B3%20CC%20%E8%AF%AF%E6%8A%A5%E4%B8%8E%20Meta%20%E9%AB%98%E9%A2%91%E7%88%AC%E8%99%AB%E5%A4%84%E7%BD%AE.md)
 
 > 整理日期：2026-10-23 23:55｜日期依据：文件名日期
 

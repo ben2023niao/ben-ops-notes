@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-03-2150-【运维记录】CF分域名费用查询脚本与账单报告.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609032150-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-%E3%80%90%E8%BF%90%E7%BB%B4%E8%AE%B0%E5%BD%95%E3%80%91CF%20%E5%88%86%E5%9F%9F%E5%90%8D%E8%B4%B9%E7%94%A8%E6%9F%A5%E8%AF%A2%E8%84%9A%E6%9C%AC%E4%B8%8E%E8%B4%A6%E5%8D%95%E6%8A%A5%E5%91%8A.md)
 
 > 整理日期：2026-09-03 21:50｜日期依据：文件名日期
 

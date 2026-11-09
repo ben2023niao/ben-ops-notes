@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【问题排查】线上环境-游点涩-新h5-发版失败：corepack 自动拉取最新版 pnpm 12.x 与 corepack 0.34 不兼容
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-10-07_1245-【问题排查】线上环境新h5发版失败-pnpm12与corepack0.34不兼容.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610071245-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83-%E6%B8%B8%E7%82%B9%E6%B6%A9-%E6%96%B0h5-%E5%8F%91%E7%89%88%E5%A4%B1%E8%B4%A5%EF%BC%9Acorepack%20%E8%87%AA%E5%8A%A8%E6%8B%89%E5%8F%96%E6%9C%80%E6%96%B0%E7%89%88%20pnpm%2012.x%20%E4%B8%8E%20corepack%200.34%20%E4%B8%8D%E5%85%BC%E5%AE%B9.md)
 
 > 整理日期：2026-10-07 12:45｜日期依据：文件名日期
 

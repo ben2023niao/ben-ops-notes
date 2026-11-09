@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【优化】线上环境游戏登录故障修复：新网关 nginx 连接打满处置记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-20-0259-【优化】线上环境游戏登录故障修复-新网关nginx连接打满处置记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608200259-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E6%B8%B8%E6%88%8F%E7%99%BB%E5%BD%95%E6%95%85%E9%9A%9C%E4%BF%AE%E5%A4%8D%EF%BC%9A%E6%96%B0%E7%BD%91%E5%85%B3%20nginx%20%E8%BF%9E%E6%8E%A5%E6%89%93%E6%BB%A1%E5%A4%84%E7%BD%AE%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-20 02:59｜日期依据：文件名日期
 

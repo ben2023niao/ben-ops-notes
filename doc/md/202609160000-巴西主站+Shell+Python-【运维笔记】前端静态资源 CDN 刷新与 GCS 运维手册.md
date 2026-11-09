@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/【运维笔记】静态资源CDN刷新与GCS运维手册.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609160000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-%E3%80%90%E8%BF%90%E7%BB%B4%E7%AC%94%E8%AE%B0%E3%80%91%E5%89%8D%E7%AB%AF%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20CDN%20%E5%88%B7%E6%96%B0%E4%B8%8E%20GCS%20%E8%BF%90%E7%BB%B4%E6%89%8B%E5%86%8C.md)
 
 > 整理日期：2026-09-16 00:00｜日期依据：正文日期
 

@@ -12,6 +12,8 @@ sourceHtmlSha256: "f253bb91ff1f7cec7246f4054e65d6998fac804df61e7f270bd2a3e25bd55
 
 # nginx+GeoIP2模块编译
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202005190000-%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%2BLinux%2BShell-nginx%2BGeoIP2%E6%A8%A1%E5%9D%97%E7%BC%96%E8%AF%91.md)
+
 > 原文：[nginx+GeoIP2模块编译](https://xn--6o0a585a.gitbook.io/devops/fu-wu/nginx/nginx+geoip2-mo-kuai-bian-yi.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2020-05-19 00:00｜日期依据：正文原始日期

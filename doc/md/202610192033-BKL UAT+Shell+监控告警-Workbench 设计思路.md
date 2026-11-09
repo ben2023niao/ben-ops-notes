@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Workbench 设计思路
 
-> 来源文件：`~/Projects/work/ops/devops/devops-bkl/workbench-kit-通用AI工作台/docs/01-设计思路.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610192033-BKL%20UAT%2BShell%2B%E7%9B%91%E6%8E%A7%E5%91%8A%E8%AD%A6-Workbench%20%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF.md)
 
 > 整理日期：2026-10-19 20:33｜日期依据：文件创建/修改时间
 

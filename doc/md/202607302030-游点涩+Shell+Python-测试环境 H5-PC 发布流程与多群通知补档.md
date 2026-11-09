@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试环境 H5/PC 发布流程与多群通知补档
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-07-30-2030-【运维记录】测试环境H5-PC发布流程与多群通知补档.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607302030-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20H5-PC%20%E5%8F%91%E5%B8%83%E6%B5%81%E7%A8%8B%E4%B8%8E%E5%A4%9A%E7%BE%A4%E9%80%9A%E7%9F%A5%E8%A1%A5%E6%A1%A3.md)
 
 > 整理日期：2026-07-30 20:30｜日期依据：文件名日期
 

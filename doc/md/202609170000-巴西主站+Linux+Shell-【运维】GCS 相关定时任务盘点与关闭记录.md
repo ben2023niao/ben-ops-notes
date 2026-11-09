@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-17-【运维】GCS相关定时任务盘点与关闭记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609170000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91GCS%20%E7%9B%B8%E5%85%B3%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E7%9B%98%E7%82%B9%E4%B8%8E%E5%85%B3%E9%97%AD%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-09-17 00:00｜日期依据：文件名日期
 

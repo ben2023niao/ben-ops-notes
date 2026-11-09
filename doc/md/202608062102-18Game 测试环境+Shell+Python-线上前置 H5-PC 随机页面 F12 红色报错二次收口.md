@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 线上前置 H5/PC 随机页面 F12 红色报错二次收口
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-06_2102-【修复Bug+验证记录】线上前置H5-PC随机页面F12红色报错二次收口.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608062102-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E7%BA%BF%E4%B8%8A%E5%89%8D%E7%BD%AE%20H5-PC%20%E9%9A%8F%E6%9C%BA%E9%A1%B5%E9%9D%A2%20F12%20%E7%BA%A2%E8%89%B2%E6%8A%A5%E9%94%99%E4%BA%8C%E6%AC%A1%E6%94%B6%E5%8F%A3.md)
 
 > 整理日期：2026-08-06 21:02｜日期依据：文件名日期
 

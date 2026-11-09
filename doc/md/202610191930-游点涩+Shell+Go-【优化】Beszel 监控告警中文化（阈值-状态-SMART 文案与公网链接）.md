@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【优化】Beszel 监控告警中文化（阈值/状态/SMART 文案与公网链接）
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-19-1930-【优化】Beszel监控告警中文化（阈值-状态-SMART-公网链接）.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610191930-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BGo-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91Beszel%20%E7%9B%91%E6%8E%A7%E5%91%8A%E8%AD%A6%E4%B8%AD%E6%96%87%E5%8C%96%EF%BC%88%E9%98%88%E5%80%BC-%E7%8A%B6%E6%80%81-SMART%20%E6%96%87%E6%A1%88%E4%B8%8E%E5%85%AC%E7%BD%91%E9%93%BE%E6%8E%A5%EF%BC%89.md)
 
 > 整理日期：2026-10-19 19:30｜日期依据：文件名日期
 

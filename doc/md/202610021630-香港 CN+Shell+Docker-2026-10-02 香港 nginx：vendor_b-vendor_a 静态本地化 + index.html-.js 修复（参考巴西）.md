@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-10-02-1630-【架构改造】香港nginx的vendor_b-vendor_a静态本地化与index-js修复.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610021630-%E9%A6%99%E6%B8%AF%20CN%2BShell%2BDocker-2026-10-02%20%E9%A6%99%E6%B8%AF%20nginx%EF%BC%9Avendor_b-vendor_a%20%E9%9D%99%E6%80%81%E6%9C%AC%E5%9C%B0%E5%8C%96%20%2B%20index.html-.js%20%E4%BF%AE%E5%A4%8D%EF%BC%88%E5%8F%82%E8%80%83%E5%B7%B4%E8%A5%BF%EF%BC%89.md)
 
 > 整理日期：2026-10-02 16:30｜日期依据：文件名日期
 

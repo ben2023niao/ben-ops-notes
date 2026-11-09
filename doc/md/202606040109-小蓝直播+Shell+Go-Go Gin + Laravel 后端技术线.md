@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Go Gin + Laravel 后端技术线
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/architecture/backend-stack-go-gin-laravel.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-Go%20Gin%20%2B%20Laravel%20%E5%90%8E%E7%AB%AF%E6%8A%80%E6%9C%AF%E7%BA%BF.md)
 
 > 整理日期：2026-06-04 01:09｜日期依据：文件创建/修改时间
 

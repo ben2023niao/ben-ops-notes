@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试后端 uploads 图片签名 URL 准备态记录
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-29_2320-【安全优化+架构改造】测试后端uploads图片签名URL准备态记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607292320-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BDocker-%E6%B5%8B%E8%AF%95%E5%90%8E%E7%AB%AF%20uploads%20%E5%9B%BE%E7%89%87%E7%AD%BE%E5%90%8D%20URL%20%E5%87%86%E5%A4%87%E6%80%81%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-29 23:20｜日期依据：文件名日期
 

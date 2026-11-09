@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # nginx 按类型合并 conf 与新增域名指引
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-12_1549-【优化+运维记录】nginx按类型合并conf与新增域名指引.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608121549-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-nginx%20%E6%8C%89%E7%B1%BB%E5%9E%8B%E5%90%88%E5%B9%B6%20conf%20%E4%B8%8E%E6%96%B0%E5%A2%9E%E5%9F%9F%E5%90%8D%E6%8C%87%E5%BC%95.md)
 
 > 整理日期：2026-08-12 15:49｜日期依据：文件名日期
 

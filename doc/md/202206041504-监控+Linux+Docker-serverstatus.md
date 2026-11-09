@@ -12,6 +12,8 @@ sourceHtmlSha256: "b6fccc875511ae1192e6eedecafb5ac4a557f6600f8d302ee87248274345b
 
 # serverstatus
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206041504-%E7%9B%91%E6%8E%A7%2BLinux%2BDocker-serverstatus.md)
+
 > 原文：[serverstatus](https://xn--6o0a585a.gitbook.io/devops/jian-kong/serverstatus.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-04 15:04｜日期依据：GitBook 页面更新时间

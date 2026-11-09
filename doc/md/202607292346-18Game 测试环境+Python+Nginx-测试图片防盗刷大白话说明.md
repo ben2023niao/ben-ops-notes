@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试图片防盗刷大白话说明
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-29_2346-【运维记录】测试图片防盗刷大白话说明.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607292346-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BNginx-%E6%B5%8B%E8%AF%95%E5%9B%BE%E7%89%87%E9%98%B2%E7%9B%97%E5%88%B7%E5%A4%A7%E7%99%BD%E8%AF%9D%E8%AF%B4%E6%98%8E.md)
 
 > 整理日期：2026-07-29 23:46｜日期依据：文件名日期
 

@@ -12,6 +12,8 @@ sourceHtmlSha256: "75621269140643197dfd5e767ad442cd7c620f926ca26a6244c9a79883db2
 
 # Laravel 部署：Nginx 配置
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202112271328-%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%2BNginx%2BTelegram-Laravel%20%E9%83%A8%E7%BD%B2%EF%BC%9ANginx%20%E9%85%8D%E7%BD%AE.md)
+
 > 原文：[Laravel 部署：Nginx 配置](https://xn--6o0a585a.gitbook.io/devops/fu-wu/laravel-bu-shu/laravel-bu-shu-nginx-pei-zhi.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2021-12-27 13:28｜日期依据：GitBook 页面更新时间

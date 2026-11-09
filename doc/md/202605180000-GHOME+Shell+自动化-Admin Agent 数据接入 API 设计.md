@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Admin Agent 数据接入 API 设计
 
-> 来源文件：`~/Projects/work/game/ghome/docs/superpowers/specs/2026-05-18-admin-agent-data-api-design.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605180000-GHOME%2BShell%2B%E8%87%AA%E5%8A%A8%E5%8C%96-Admin%20Agent%20%E6%95%B0%E6%8D%AE%E6%8E%A5%E5%85%A5%20API%20%E8%AE%BE%E8%AE%A1.md)
 
 > 整理日期：2026-05-18 00:00｜日期依据：文件名日期
 

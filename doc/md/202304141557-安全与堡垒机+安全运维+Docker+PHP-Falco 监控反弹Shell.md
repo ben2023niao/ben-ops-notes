@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/04-安全运维
 
 # Falco 监控反弹Shell
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BDocker%2BPHP-Falco%20%E7%9B%91%E6%8E%A7%E5%8F%8D%E5%BC%B9Shell.md)
+
 网络对抗愈加激烈，各种攻击手法层出不穷，在安全左移的同时，如何做到快速的应急响应，也是攻防中的一大重点。本文将以Falco为例，来达到反弹Shell的监控。
 
 要监控反弹Shell的行为，就要分析对应的行为特征，先看看进程有啥特性或者共性：

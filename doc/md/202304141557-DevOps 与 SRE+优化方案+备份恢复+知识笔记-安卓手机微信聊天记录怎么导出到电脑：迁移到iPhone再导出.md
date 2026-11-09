@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 安卓手机微信聊天记录怎么导出到电脑：迁移到iPhone再导出
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2B%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E5%AE%89%E5%8D%93%E6%89%8B%E6%9C%BA%E5%BE%AE%E4%BF%A1%E8%81%8A%E5%A4%A9%E8%AE%B0%E5%BD%95%E6%80%8E%E4%B9%88%E5%AF%BC%E5%87%BA%E5%88%B0%E7%94%B5%E8%84%91%EF%BC%9A%E8%BF%81%E7%A7%BB%E5%88%B0iPhone%E5%86%8D%E5%AF%BC%E5%87%BA.md)
+
 安卓手机品牌众多，不同安卓手机微信聊天记录导出到电脑的方法完全不一样，不同品牌的安卓手机，有不同的导出方法。以下是国内流行的四种安卓手机微信聊天记录的导出方法：
 1, [华为手机微信聊天记录导出电脑(免ROOT)](https://louyue.com/huaweiwechat.htm)
 2, [OPPO手机微信聊天记录导出电脑(免ROOT)](https://louyue.com/oppowechat.htm)

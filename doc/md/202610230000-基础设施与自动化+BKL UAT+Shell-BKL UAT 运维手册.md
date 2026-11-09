@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # BKL UAT 运维手册
 
-> 来源文件：`~/Projects/work/ops/devops/devops-bkl/doc/2026年10月23日-bkl运维手册/2026年10月23日-bkl运维手册.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610230000-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BShell-BKL%20UAT%20%E8%BF%90%E7%BB%B4%E6%89%8B%E5%86%8C.md)
 
 > 整理日期：2026-10-23 00:00｜日期依据：文件名日期
 

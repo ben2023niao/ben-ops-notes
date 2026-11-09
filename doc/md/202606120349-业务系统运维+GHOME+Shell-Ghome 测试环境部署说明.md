@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Ghome 测试环境部署说明
 
-> 来源文件：`~/Projects/work/game/ghome/docs/deployment/test-environment-deploy.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606120349-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BShell-Ghome%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E9%83%A8%E7%BD%B2%E8%AF%B4%E6%98%8E.md)
 
 > 整理日期：2026-06-12 03:49｜日期依据：文件创建/修改时间
 

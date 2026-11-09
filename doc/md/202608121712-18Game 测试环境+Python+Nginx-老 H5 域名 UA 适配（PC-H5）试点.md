@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 老 H5 域名 UA 适配（PC/H5）试点
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-12_1712-【配置部署+验证记录】老H5域名UA适配PC-H5试点.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608121712-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BNginx-%E8%80%81%20H5%20%E5%9F%9F%E5%90%8D%20UA%20%E9%80%82%E9%85%8D%EF%BC%88PC-H5%EF%BC%89%E8%AF%95%E7%82%B9.md)
 
 > 整理日期：2026-08-12 17:12｜日期依据：文件名日期
 

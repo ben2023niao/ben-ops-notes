@@ -9,6 +9,8 @@ source: "03-安全运营与应急/01-安全事件与取证/某业务公司-恢�
 
 # 某业务平台用户表 PITR 恢复与某地区 PG 下注链路核查报告
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202611081935-%E4%BA%8B%E4%BB%B6%E5%93%8D%E5%BA%94%E4%B8%8E%E5%8F%96%E8%AF%81%2B%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%2BRedis%2BMySQL-%E6%9F%90%E4%B8%9A%E5%8A%A1%E5%B9%B3%E5%8F%B0%E7%94%A8%E6%88%B7%E8%A1%A8%20PITR%20%E6%81%A2%E5%A4%8D%E4%B8%8E%E6%9F%90%E5%9C%B0%E5%8C%BA%20PG%20%E4%B8%8B%E6%B3%A8%E9%93%BE%E8%B7%AF%E6%A0%B8%E6%9F%A5%E6%8A%A5%E5%91%8A.md)
+
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
 > 来源：本地项目文档 `game/pgserver/master/docs/history/2026-11-08-1935-【恢复+核验】某业务平台用户表PITR恢复与香港PG下注链路核查报告.md`

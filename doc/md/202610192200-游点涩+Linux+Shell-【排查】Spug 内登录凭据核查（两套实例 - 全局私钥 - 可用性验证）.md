@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【排查】Spug 内登录凭据核查（两套实例 / 全局私钥 / 可用性验证）
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-19-2200-【排查】Spug 内凭据核查（两套实例、全局私钥、可用性验证）.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610192200-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E3%80%90%E6%8E%92%E6%9F%A5%E3%80%91Spug%20%E5%86%85%E7%99%BB%E5%BD%95%E5%87%AD%E6%8D%AE%E6%A0%B8%E6%9F%A5%EF%BC%88%E4%B8%A4%E5%A5%97%E5%AE%9E%E4%BE%8B%20-%20%E5%85%A8%E5%B1%80%E7%A7%81%E9%92%A5%20-%20%E5%8F%AF%E7%94%A8%E6%80%A7%E9%AA%8C%E8%AF%81%EF%BC%89.md)
 
 > 整理日期：2026-10-19 22:00｜日期依据：文件名日期
 

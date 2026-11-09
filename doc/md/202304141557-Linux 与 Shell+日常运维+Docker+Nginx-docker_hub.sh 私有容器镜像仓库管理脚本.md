@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/08-运维技巧
 
 # docker_hub.sh 私有容器镜像仓库管理脚本
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2BDocker%2BNginx-docker_hub.sh%20%E7%A7%81%E6%9C%89%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93%E7%AE%A1%E7%90%86%E8%84%9A%E6%9C%AC.md)
+
 将脚本内容的HUB=203.0.113.1:5000 修改为你的docker镜像仓库的IP
 
 ```

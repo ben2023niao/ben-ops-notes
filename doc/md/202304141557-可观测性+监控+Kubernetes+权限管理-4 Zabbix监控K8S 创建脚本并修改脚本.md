@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/07-监控技巧
 
 # 4 Zabbix监控K8S 创建脚本并修改脚本
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%2B%E7%9B%91%E6%8E%A7%2BKubernetes%2B%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86-4%20Zabbix%E7%9B%91%E6%8E%A7K8S%20%E5%88%9B%E5%BB%BA%E8%84%9A%E6%9C%AC%E5%B9%B6%E4%BF%AE%E6%94%B9%E8%84%9A%E6%9C%AC.md)
+
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
 ## 1、创建目录和脚本

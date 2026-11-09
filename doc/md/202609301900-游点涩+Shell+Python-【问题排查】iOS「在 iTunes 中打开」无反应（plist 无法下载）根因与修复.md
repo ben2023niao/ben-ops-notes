@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【问题排查】iOS「在 iTunes 中打开」无反应（plist 无法下载）根因与修复
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-30-1900-【问题排查】iOS plist 无法下载根因与修复-UA真实性规则误拦Apple客户端.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609301900-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91iOS%E3%80%8C%E5%9C%A8%20iTunes%20%E4%B8%AD%E6%89%93%E5%BC%80%E3%80%8D%E6%97%A0%E5%8F%8D%E5%BA%94%EF%BC%88plist%20%E6%97%A0%E6%B3%95%E4%B8%8B%E8%BD%BD%EF%BC%89%E6%A0%B9%E5%9B%A0%E4%B8%8E%E4%BF%AE%E5%A4%8D.md)
 
 > 整理日期：2026-09-30 19:00｜日期依据：文件名日期
 

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 线上环境 PHP-FPM 参数与服务器性能分析
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-07-23-1613-【优化】线上环境PHP-FPM参数与服务器性能分析.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607231613-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20PHP-FPM%20%E5%8F%82%E6%95%B0%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90.md)
 
 > 整理日期：2026-07-23 16:13｜日期依据：文件名日期
 

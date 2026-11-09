@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 2026-09-30 EdgeOne 全托管给 AI 的能力边界与落地方案
 
-> 来源文件：`~/Projects/work/game/pgserver/cn/docker/doc/2026-09-30-1225-【运维记录】EdgeOne全托管给AI的能力边界与落地方案.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609301225-%E9%A6%99%E6%B8%AF%20CN%2BShell%2BDocker-2026-09-30%20EdgeOne%20%E5%85%A8%E6%89%98%E7%AE%A1%E7%BB%99%20AI%20%E7%9A%84%E8%83%BD%E5%8A%9B%E8%BE%B9%E7%95%8C%E4%B8%8E%E8%90%BD%E5%9C%B0%E6%96%B9%E6%A1%88.md)
 
 > 整理日期：2026-09-30 12:25｜日期依据：文件名日期
 

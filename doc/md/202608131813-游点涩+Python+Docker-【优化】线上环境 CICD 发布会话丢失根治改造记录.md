@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【优化】线上环境 CICD 发布会话丢失根治改造记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-13-1813-【优化】线上环境CICD发布会话丢失根治改造记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608131813-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BPython%2BDocker-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20CICD%20%E5%8F%91%E5%B8%83%E4%BC%9A%E8%AF%9D%E4%B8%A2%E5%A4%B1%E6%A0%B9%E6%B2%BB%E6%94%B9%E9%80%A0%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-13 18:13｜日期依据：文件名日期
 

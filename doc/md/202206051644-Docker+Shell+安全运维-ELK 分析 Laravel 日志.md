@@ -12,6 +12,8 @@ sourceHtmlSha256: "c98eb45ad33a203b8ebad3f0f25e221319630ee76e645e0301ee2557fbf78
 
 # ELK 分析 Laravel 日志
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206051644-Docker%2BShell%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4-ELK%20%E5%88%86%E6%9E%90%20Laravel%20%E6%97%A5%E5%BF%97.md)
+
 > 原文：[ELK 分析 Laravel 日志](https://xn--6o0a585a.gitbook.io/devops/docker/centos7/bu-shu-es/elk-fen-xi-laravel-ri-zhi.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-05 16:44｜日期依据：GitBook 页面更新时间

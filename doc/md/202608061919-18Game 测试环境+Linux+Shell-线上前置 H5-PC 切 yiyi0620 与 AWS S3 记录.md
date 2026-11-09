@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 线上前置 H5/PC 切 yiyi0620 与 AWS S3 记录
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-06_1919-【配置部署+阻塞记录】线上前置H5-PC切yiyi0620与AWS-S3.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608061919-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E7%BA%BF%E4%B8%8A%E5%89%8D%E7%BD%AE%20H5-PC%20%E5%88%87%20yiyi0620%20%E4%B8%8E%20AWS%20S3%20%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-06 19:19｜日期依据：文件名日期
 

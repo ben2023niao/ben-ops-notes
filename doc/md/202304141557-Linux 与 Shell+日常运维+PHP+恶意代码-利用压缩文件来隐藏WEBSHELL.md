@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/08-运维技巧
 
 # 利用压缩文件来隐藏WEBSHELL
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2BPHP%2B%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81-%E5%88%A9%E7%94%A8%E5%8E%8B%E7%BC%A9%E6%96%87%E4%BB%B6%E6%9D%A5%E9%9A%90%E8%97%8FWEBSHELL.md)
+
 分享几个用来隐藏WEBSHELL的小技巧。
 把一句话木马压缩成a.zip文件
 ![文档配图](../media/d5194e6a77ef8560da.png)

@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/11-高效运维
 
 # Rancher CLI（命令行界面）
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E9%AB%98%E6%95%88%E8%BF%90%E7%BB%B4%2BLinux%2BWindows-Rancher%20CLI%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%95%8C%E9%9D%A2%EF%BC%89.md)
+
 ## 下载 Rancher CLI
 
 Rancher 提供了 Windows、Mac 和 Linux 的 Rancher CLI 二进制文件下载链接，该链接位于 Rancher UI 的右下角，单击链接可以下载 Rancher CLI 二进制文件。除此之外，您还可以访问 Rancher 的 GitHub 页面，导航到[CLI 发行页面](https://github.com/rancher/cli/releases)，下载该二进制文件。

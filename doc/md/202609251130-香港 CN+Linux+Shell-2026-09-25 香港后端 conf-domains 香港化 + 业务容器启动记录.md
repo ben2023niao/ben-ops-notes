@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-09-25-1130-【架构改造】香港后端conf-domains香港化与业务容器启动记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609251130-%E9%A6%99%E6%B8%AF%20CN%2BLinux%2BShell-2026-09-25%20%E9%A6%99%E6%B8%AF%E5%90%8E%E7%AB%AF%20conf-domains%20%E9%A6%99%E6%B8%AF%E5%8C%96%20%2B%20%E4%B8%9A%E5%8A%A1%E5%AE%B9%E5%99%A8%E5%90%AF%E5%8A%A8%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-09-25 11:30｜日期依据：文件名日期
 

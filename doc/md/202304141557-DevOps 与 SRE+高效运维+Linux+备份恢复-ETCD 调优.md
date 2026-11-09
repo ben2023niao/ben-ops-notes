@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/11-高效运维
 
 # ETCD 调优
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E9%AB%98%E6%95%88%E8%BF%90%E7%BB%B4%2BLinux%2B%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D-ETCD%20%E8%B0%83%E4%BC%98.md)
+
 ## 修改磁盘 IOPS
 
 etcd 对磁盘写入延迟非常敏感，通常需要 50 顺序写入 IOPS(例如: 7200RPM 磁盘)。对于负载较重的集群，建议使用 500 顺序写入 IOPS(例如，典型的本地 SSD 或高性能虚拟化块设备)。请注意，大多数云服务器或者云存储提供并发 IOPS 而不是顺序 IOPS，提供的并发 IOPS 可能比顺序 IOPS 大 10 倍。为了测量实际的顺序 IOPS，建议使用磁盘基准测试工具，如[diskbench](https://github.com/ongardie/diskbenchmark)或[fio](https://github.com/axboe/fio)。

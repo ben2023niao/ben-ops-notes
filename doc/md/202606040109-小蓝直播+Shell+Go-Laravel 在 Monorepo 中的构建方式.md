@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Laravel 在 Monorepo 中的构建方式
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/architecture/laravel-monorepo-structure.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-Laravel%20%E5%9C%A8%20Monorepo%20%E4%B8%AD%E7%9A%84%E6%9E%84%E5%BB%BA%E6%96%B9%E5%BC%8F.md)
 
 > 整理日期：2026-06-04 01:09｜日期依据：文件创建/修改时间
 

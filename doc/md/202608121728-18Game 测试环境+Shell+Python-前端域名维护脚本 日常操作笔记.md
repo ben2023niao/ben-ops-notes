@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 前端域名维护脚本 日常操作笔记
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-12_1728-【操作笔记】前端域名维护脚本日常使用.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608121728-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E5%89%8D%E7%AB%AF%E5%9F%9F%E5%90%8D%E7%BB%B4%E6%8A%A4%E8%84%9A%E6%9C%AC%20%E6%97%A5%E5%B8%B8%E6%93%8D%E4%BD%9C%E7%AC%94%E8%AE%B0.md)
 
 > 整理日期：2026-08-12 17:28｜日期依据：文件名日期
 

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # ben-bot 运维任务编排按钮修复与双 Vaultwarden 任务（v1.0.6）
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-26-【机器人功能】运维任务编排按钮与全局Task看板.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610260000-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-ben-bot%20%E8%BF%90%E7%BB%B4%E4%BB%BB%E5%8A%A1%E7%BC%96%E6%8E%92%E6%8C%89%E9%92%AE%E4%BF%AE%E5%A4%8D%E4%B8%8E%E5%8F%8C%20Vaultwarden%20%E4%BB%BB%E5%8A%A1%EF%BC%88v1.0.6%EF%BC%89.md)
 
 > 整理日期：2026-10-26 00:00｜日期依据：文件名日期
 

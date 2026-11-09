@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【优化】18game-定时任务机 内存过高处置（回收 2GB 大页预留 + 补 swap）
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-19-2030-【优化】定时任务机内存过高处置（2GB大页预留回收+加swap）.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610192030-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%9118game-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E6%9C%BA%20%E5%86%85%E5%AD%98%E8%BF%87%E9%AB%98%E5%A4%84%E7%BD%AE%EF%BC%88%E5%9B%9E%E6%94%B6%202GB%20%E5%A4%A7%E9%A1%B5%E9%A2%84%E7%95%99%20%2B%20%E8%A1%A5%20swap%EF%BC%89.md)
 
 > 整理日期：2026-10-19 20:30｜日期依据：文件名日期
 

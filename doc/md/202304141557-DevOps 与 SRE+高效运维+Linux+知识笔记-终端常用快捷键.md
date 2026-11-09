@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/11-高效运维
 
 # 终端常用快捷键
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E9%AB%98%E6%95%88%E8%BF%90%E7%BB%B4%2BLinux%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E7%BB%88%E7%AB%AF%E5%B8%B8%E7%94%A8%E5%BF%AB%E6%8D%B7%E9%94%AE.md)
+
 ## 终端常用快捷键归纳
 
 我感觉用的多的还是tab、Ctrl+C/Z、Ctrl+A/E/U/W、Ctrl+R

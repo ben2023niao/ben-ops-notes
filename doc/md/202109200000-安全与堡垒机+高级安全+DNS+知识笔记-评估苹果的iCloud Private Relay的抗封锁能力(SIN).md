@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # 评估苹果的iCloud Private Relay的抗封锁能力(SIN)
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202109200000-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BDNS%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E8%AF%84%E4%BC%B0%E8%8B%B9%E6%9E%9C%E7%9A%84iCloud%20Private%20Relay%E7%9A%84%E6%8A%97%E5%B0%81%E9%94%81%E8%83%BD%E5%8A%9B%28SIN%29.md)
+
 苹果公司于2021年9月20日，发布了一项名为[iCloud Private Relay](https://support.apple.com/en-us/HT212614) ([archive](https://web.archive.org/web/20210921182126/https://support.apple.com/en-us/HT212614))的新服务，包含在iOS 15， iPadOS 15和macOS Monterey中。
 
 尽管苹果公司没有将它的翻墙功能作为卖点，在这篇报告中，我们试图理解iCloud Private Relay的翻墙价值。首先，基于我们的测量和对苹果文档的理解，我们介绍Private Relay的工作原理。接着我们通过在中国进行的测量实验实证性地评估Private Relay的抗封锁能力。截止2021年9月23日，我们尚未发现Private Relay被防火长城审查的迹象。我们还将讨论Private Relay面对常见的审查方式（如DNS劫持，SNI过滤，IP封锁，主动探测，和自我审查）时的抗封锁能力。最后，我们将提出一些关于Private Relay的重要但还未解决的问题。

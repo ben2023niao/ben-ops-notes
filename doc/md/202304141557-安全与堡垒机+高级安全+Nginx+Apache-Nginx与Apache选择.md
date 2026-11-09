@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # Nginx与Apache选择
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BNginx%2BApache-Nginx%E4%B8%8EApache%E9%80%89%E6%8B%A9.md)
+
 ## Apache
 
 ●　apache 的 rewrite 比 **[nginx](https://haicoder.net/nginx/nginx-tutorial.html)** 强大，在 rewrite 频繁的情况下，用 apache

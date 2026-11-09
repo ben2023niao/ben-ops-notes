@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Agent 工作日志：LIVE-101 D 阶段 smoke + 修两个落库 bug
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-31-streamer-d-smoke.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605310000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%EF%BC%9ALIVE-101%20D%20%E9%98%B6%E6%AE%B5%20smoke%20%2B%20%E4%BF%AE%E4%B8%A4%E4%B8%AA%E8%90%BD%E5%BA%93%20bug.md)
 
 > 整理日期：2026-05-31 00:00｜日期依据：文件名日期
 

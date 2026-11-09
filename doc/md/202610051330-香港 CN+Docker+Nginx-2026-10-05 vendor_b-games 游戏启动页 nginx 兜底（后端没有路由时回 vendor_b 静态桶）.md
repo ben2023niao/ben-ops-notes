@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-10-05-1330-【架构改造】香港vendor_b-games游戏启动页nginx兜底（后端无路由回vendor_b静态桶）.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610051330-%E9%A6%99%E6%B8%AF%20CN%2BDocker%2BNginx-2026-10-05%20vendor_b-games%20%E6%B8%B8%E6%88%8F%E5%90%AF%E5%8A%A8%E9%A1%B5%20nginx%20%E5%85%9C%E5%BA%95%EF%BC%88%E5%90%8E%E7%AB%AF%E6%B2%A1%E6%9C%89%E8%B7%AF%E7%94%B1%E6%97%B6%E5%9B%9E%20vendor_b%20%E9%9D%99%E6%80%81%E6%A1%B6%EF%BC%89.md)
 
 > 整理日期：2026-10-05 13:30｜日期依据：文件名日期
 

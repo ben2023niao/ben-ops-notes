@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【优化】线上环境网关（游点涩-pc-nginx）nginx 日志切割 + S3 归档加固记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-30-1940-【优化】线上环境网关pc-nginx日志切割与S3归档加固记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609301940-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E7%BD%91%E5%85%B3%EF%BC%88%E6%B8%B8%E7%82%B9%E6%B6%A9-pc-nginx%EF%BC%89nginx%20%E6%97%A5%E5%BF%97%E5%88%87%E5%89%B2%20%2B%20S3%20%E5%BD%92%E6%A1%A3%E5%8A%A0%E5%9B%BA%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-09-30 19:40｜日期依据：文件名日期
 

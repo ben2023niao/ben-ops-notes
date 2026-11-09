@@ -9,6 +9,8 @@ source: "03-安全运营与应急/03-安全配置与访问控制/游点涩-网�
 
 # 【权限+值班】运维 10 个 Telegram 账号合并与周末换班精简
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610231715-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%2BDocker%2BPHP-%E3%80%90%E6%9D%83%E9%99%90%2B%E5%80%BC%E7%8F%AD%E3%80%91%E8%BF%90%E7%BB%B4%2010%20%E4%B8%AA%20Telegram%20%E8%B4%A6%E5%8F%B7%E5%90%88%E5%B9%B6%E4%B8%8E%E5%91%A8%E6%9C%AB%E6%8D%A2%E7%8F%AD%E7%B2%BE%E7%AE%80.md)
+
 > 来源：本地项目文档 `game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-23-1715-【权限+值班】运维十账号合并与周末换班精简.md`
 > 整理：2026-11-09。仅复制到知识库，未改动原项目文件；敏感凭据已脱敏。
 

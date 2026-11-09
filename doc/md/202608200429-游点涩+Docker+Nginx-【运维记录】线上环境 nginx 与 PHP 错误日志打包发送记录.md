@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【运维记录】线上环境 nginx 与 PHP 错误日志打包发送记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-20-0429-【运维记录】线上环境nginx与PHP错误日志打包发送记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608200429-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BDocker%2BNginx-%E3%80%90%E8%BF%90%E7%BB%B4%E8%AE%B0%E5%BD%95%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20nginx%20%E4%B8%8E%20PHP%20%E9%94%99%E8%AF%AF%E6%97%A5%E5%BF%97%E6%89%93%E5%8C%85%E5%8F%91%E9%80%81%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-20 04:29｜日期依据：文件名日期
 

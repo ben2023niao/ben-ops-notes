@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-16-vendor_a失败游戏-线上真实启动URL.txt`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609160000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BCDN-%E9%AA%B0%E5%AD%90%E4%B8%8E%E6%8E%89%E8%90%BD%20Dice%20and%20Roll%20gameID%3D595.md)
 
 > 整理日期：2026-09-16 00:00｜日期依据：文件名日期
 

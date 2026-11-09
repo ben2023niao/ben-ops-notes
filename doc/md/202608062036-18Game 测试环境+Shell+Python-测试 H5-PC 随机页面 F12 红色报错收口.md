@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试 H5/PC 随机页面 F12 红色报错收口
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-06_2036-【修复Bug+验证记录】测试H5-PC随机页面F12红色报错收口.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608062036-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%B5%8B%E8%AF%95%20H5-PC%20%E9%9A%8F%E6%9C%BA%E9%A1%B5%E9%9D%A2%20F12%20%E7%BA%A2%E8%89%B2%E6%8A%A5%E9%94%99%E6%94%B6%E5%8F%A3.md)
 
 > 整理日期：2026-08-06 20:36｜日期依据：文件名日期
 

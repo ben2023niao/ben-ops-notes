@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 工作导航页
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BKubernetes%2B%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90-%E5%B7%A5%E4%BD%9C%E5%AF%BC%E8%88%AA%E9%A1%B5.md)
+
 ![文档配图](../media/4c75c52332f41dbf87.png)
 
 **work.sh** 展开源码

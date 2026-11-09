@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 游点涩前端预发布备用回源服务器初始化
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-03_2205-【运维记录+环境初始化】游点涩前端预发布备用回源服务器初始化.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608032205-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BPython-%E6%B8%B8%E7%82%B9%E6%B6%A9%E5%89%8D%E7%AB%AF%E9%A2%84%E5%8F%91%E5%B8%83%E5%A4%87%E7%94%A8%E5%9B%9E%E6%BA%90%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%9D%E5%A7%8B%E5%8C%96.md)
 
 > 整理日期：2026-08-03 22:05｜日期依据：文件名日期
 

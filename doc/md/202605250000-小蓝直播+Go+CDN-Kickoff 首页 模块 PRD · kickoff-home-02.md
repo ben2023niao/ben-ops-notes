@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Kickoff 首页 模块 PRD · kickoff-home
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/main/docs/prd/modules/kickoff-home.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605250000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2BCDN-Kickoff%20%E9%A6%96%E9%A1%B5%20%E6%A8%A1%E5%9D%97%20PRD%20%C2%B7%20kickoff-home-02.md)
 
 > 整理日期：2026-05-25 00:00｜日期依据：正文日期
 

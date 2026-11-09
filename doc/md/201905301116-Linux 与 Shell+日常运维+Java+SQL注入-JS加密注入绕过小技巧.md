@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/08-运维技巧
 
 # JS加密注入绕过小技巧
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/201905301116-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2BJava%2BSQL%E6%B3%A8%E5%85%A5-JS%E5%8A%A0%E5%AF%86%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87%E5%B0%8F%E6%8A%80%E5%B7%A7.md)
+
 在日常渗透工作中遇到网站相关参数使用了自实现的加密。
 ![文档配图](../media/385b42252f188a89c1.png)
 

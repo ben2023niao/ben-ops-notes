@@ -16,6 +16,8 @@ archiveBytes: 49896
 
 # 某支付平台数据库恢复脚本与工具说明
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202611100445-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E6%81%A2%E5%A4%8D%2BMySQL%2BXtraBackup%2BShell%2BPython-%E6%9F%90%E6%94%AF%E4%BB%98%E5%B9%B3%E5%8F%B0%E6%95%B0%E6%8D%AE%E5%BA%93%E6%81%A2%E5%A4%8D%E8%84%9A%E6%9C%AC%E4%B8%8E%E5%B7%A5%E5%85%B7%E8%AF%B4%E6%98%8E.md)
+
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
 > 平台：某支付平台  

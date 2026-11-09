@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # Nginx动态添加模块
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BNginx%2BApache-Nginx%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0%E6%A8%A1%E5%9D%97.md)
+
 很多时候，我们根据当时的项目情况和业务需求安装完 **[Nginx](https://haicoder.net/nginx/nginx-tutorial.html)** 后，后续随着业务的发展，往往会给安装好的 Nginx 添加其他的功能模块。在为 Nginx 添加功能模块时，要求 Nginx 不停机。
 
 这就涉及到如何为已安装的 Nginx 动态添加模块的问题。本文，就和小伙伴们一起探讨如何为已安装的 Nginx 动态添加模块的问题。

@@ -9,6 +9,8 @@ source: "01-Web安全/01-Web基础/后端基础.md"
 
 # 一、服务器的配置
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BDNS%2BNginx-%E4%B8%80%E3%80%81%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E9%85%8D%E7%BD%AE.md)
+
 ## 一、服务器的配置
 
 1. Apache 可以配置将PHP解释器作为CGI脚本(mod_cgi)，或者作为Apache本身的一个模块(mod_php)，还有就是FastCGI模式来运行。

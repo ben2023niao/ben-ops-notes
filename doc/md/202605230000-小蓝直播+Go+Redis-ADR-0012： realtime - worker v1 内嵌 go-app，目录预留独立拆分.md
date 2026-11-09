@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # ADR-0012： realtime / worker v1 内嵌 go-app，目录预留独立拆分
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/decisions/ADR-0012-realtime-worker-embedded-in-go-app.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605230000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2BRedis-ADR-0012%EF%BC%9A%20realtime%20-%20worker%20v1%20%E5%86%85%E5%B5%8C%20go-app%EF%BC%8C%E7%9B%AE%E5%BD%95%E9%A2%84%E7%95%99%E7%8B%AC%E7%AB%8B%E6%8B%86%E5%88%86.md)
 
 > 整理日期：2026-05-23 00:00｜日期依据：正文日期
 

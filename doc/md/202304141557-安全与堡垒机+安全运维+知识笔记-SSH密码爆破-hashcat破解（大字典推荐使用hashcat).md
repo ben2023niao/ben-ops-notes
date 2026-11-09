@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/04-安全运维
 
 # SSH密码爆破-hashcat破解（大字典推荐使用hashcat)
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-SSH%E5%AF%86%E7%A0%81%E7%88%86%E7%A0%B4-hashcat%E7%A0%B4%E8%A7%A3%EF%BC%88%E5%A4%A7%E5%AD%97%E5%85%B8%E6%8E%A8%E8%8D%90%E4%BD%BF%E7%94%A8hashcat%29.md)
+
 > hashcat的使用可以看这篇文章<https://xz.aliyun.com/t/4008>
 
 将/etc/shadow文件，提取密码字段保存hash.txt

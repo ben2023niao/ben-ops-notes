@@ -9,6 +9,8 @@ source: "02-主机与渗透/03-代理与端口转发/代理知识.md"
 
 # 问题一：Web反向代理
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-%E7%BD%91%E7%BB%9C%E5%B7%A5%E7%A8%8B%2B%E4%BB%A3%E7%90%86%E4%B8%8E%E9%9A%A7%E9%81%93%2BLinux%2BNginx-%E9%97%AE%E9%A2%98%E4%B8%80%EF%BC%9AWeb%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86.md)
+
 原文 by [一些关于代理的知识](http://foreversong.cn/archives/774)
 
 关于代理，可能我了解的就是简单的web代理，再加上渗透时需要用到的内网转发，最后可能就是上次去了解的nginx反向代理，下面问题是微信群里一大佬的面试题，本着学习的态度，还是来好好学习下各方面的代理知识。

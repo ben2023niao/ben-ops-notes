@@ -12,6 +12,8 @@ sourceHtmlSha256: "822c3343268fe25bba7c97baa6d4f5cbe635e6fdbfb33109bbe5eaecf5e74
 
 # node-install.sh
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206111659-%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%2BLinux%2BShell-node-install.sh.md)
+
 > 原文：[node-install.sh](https://xn--6o0a585a.gitbook.io/devops/fu-wu/node-install.sh.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-11 16:59｜日期依据：GitBook 页面更新时间

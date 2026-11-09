@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Kickoff 技术架构文档集（v1 生产版）
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/architecture/README.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605210000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2BDocker-Kickoff%20%E6%8A%80%E6%9C%AF%E6%9E%B6%E6%9E%84%E6%96%87%E6%A1%A3%E9%9B%86%EF%BC%88v1%20%E7%94%9F%E4%BA%A7%E7%89%88%EF%BC%89.md)
 
 > 整理日期：2026-05-21 00:00｜日期依据：正文日期
 

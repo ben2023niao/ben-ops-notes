@@ -12,6 +12,8 @@ sourceHtmlSha256: "7d0a915d63e741023d78bf9a3dedb666365efac60b887bdc9b7a64d867acd
 
 # shell实现多线程
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/201509020000-%E8%BF%9B%E9%98%B6%E6%8A%80%E6%9C%AF%2BLinux%2BShell-shell%E5%AE%9E%E7%8E%B0%E5%A4%9A%E7%BA%BF%E7%A8%8B.md)
+
 > 原文：[shell实现多线程](https://xn--6o0a585a.gitbook.io/devops/jin-jie-ji-shu/shell-shi-xian-duo-xian-cheng.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2015-09-02 00:00｜日期依据：正文原始日期

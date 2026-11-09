@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # ben-bot 后台 S3 同步入口下线记录
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-30_1857-【优化+运维记录】ben-bot后台S3同步入口下线记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607301857-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-ben-bot%20%E5%90%8E%E5%8F%B0%20S3%20%E5%90%8C%E6%AD%A5%E5%85%A5%E5%8F%A3%E4%B8%8B%E7%BA%BF%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-30 18:57｜日期依据：文件名日期
 

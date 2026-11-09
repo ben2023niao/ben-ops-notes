@@ -12,6 +12,8 @@ sourceHtmlSha256: "ac50ada402e23d8b88ce0451ac39cff2813604dff0947003afceb0861ae4d
 
 # nginx-install.sh
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206111703-%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%2BShell%2BNginx-nginx-install.sh.md)
+
 > 原文：[nginx-install.sh](https://xn--6o0a585a.gitbook.io/devops/fu-wu/nginx-install.sh.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-11 17:03｜日期依据：GitBook 页面更新时间

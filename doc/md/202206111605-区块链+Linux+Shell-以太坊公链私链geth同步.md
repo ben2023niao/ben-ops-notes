@@ -12,6 +12,8 @@ sourceHtmlSha256: "71ef09204059ff76c97507df29a629499d21c6b7db871bc9f7b24f1f5eff8
 
 # 以太坊公链私链geth同步
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206111605-%E5%8C%BA%E5%9D%97%E9%93%BE%2BLinux%2BShell-%E4%BB%A5%E5%A4%AA%E5%9D%8A%E5%85%AC%E9%93%BE%E7%A7%81%E9%93%BEgeth%E5%90%8C%E6%AD%A5.md)
+
 > 原文：[以太坊公链私链geth同步](https://xn--6o0a585a.gitbook.io/devops/qu-kuai-lian/yi-tai-fang-gong-lian-si-lian-geth-tong-bu.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-11 16:05｜日期依据：GitBook 页面更新时间

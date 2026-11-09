@@ -12,6 +12,8 @@ sourceHtmlSha256: "94cd32578fcc630ae0d025c6c6b8ccf973d64cdf53bc9a6d1a0e4c563295a
 
 # ELK 分析nginx日志
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206051501-%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%2BDocker%2BNginx-ELK%20%E5%88%86%E6%9E%90nginx%E6%97%A5%E5%BF%97.md)
+
 > 原文：[ELK 分析nginx日志](https://xn--6o0a585a.gitbook.io/devops/fu-wu/elk-fen-xi-nginx-ri-zhi.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-05 15:01｜日期依据：GitBook 页面更新时间

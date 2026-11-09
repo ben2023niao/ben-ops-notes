@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【网络调整】线上环境老 SDK 域名 api.18h.game / sdk.18h.game 恢复解析方案
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-20-0316-【网络调整】线上环境老SDK域名api.18h.game与sdk.18h.game恢复解析方案.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608200316-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BDocker%2BNginx-%E3%80%90%E7%BD%91%E7%BB%9C%E8%B0%83%E6%95%B4%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E8%80%81%20SDK%20%E5%9F%9F%E5%90%8D%20api.18h.game%20-%20sdk.18h.game%20%E6%81%A2%E5%A4%8D%E8%A7%A3%E6%9E%90%E6%96%B9%E6%A1%88.md)
 
 > 整理日期：2026-08-20 03:16｜日期依据：文件名日期
 

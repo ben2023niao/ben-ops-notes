@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【问题排查】线上环境蜜桃与欲女梦工厂登录失败根因：正式包打入测试 SDK 域名
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-20-0348-【问题排查】线上环境蜜桃与欲女梦工厂登录失败根因-正式包打入测试SDK域名.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608200348-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BDocker%2BNginx-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E8%9C%9C%E6%A1%83%E4%B8%8E%E6%AC%B2%E5%A5%B3%E6%A2%A6%E5%B7%A5%E5%8E%82%E7%99%BB%E5%BD%95%E5%A4%B1%E8%B4%A5%E6%A0%B9%E5%9B%A0%EF%BC%9A%E6%AD%A3%E5%BC%8F%E5%8C%85%E6%89%93%E5%85%A5%E6%B5%8B%E8%AF%95%20SDK%20%E5%9F%9F%E5%90%8D.md)
 
 > 整理日期：2026-08-20 03:48｜日期依据：文件名日期
 

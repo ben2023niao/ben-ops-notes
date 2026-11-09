@@ -9,6 +9,8 @@ source: "01-Web安全/01-Web基础/apache安全配置.md"
 
 # 0x00 测试环境
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BApache%2BPHP-0x00%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83.md)
+
 原文 by wooyun
 
 ## 0x00 测试环境

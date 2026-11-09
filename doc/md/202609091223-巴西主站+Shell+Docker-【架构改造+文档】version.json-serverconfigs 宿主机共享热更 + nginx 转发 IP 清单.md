@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-09-1223-【架构改造+文档】version.json与server_configs宿主机共享热更及nginx转发IP清单记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609091223-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BDocker-%E3%80%90%E6%9E%B6%E6%9E%84%E6%94%B9%E9%80%A0%2B%E6%96%87%E6%A1%A3%E3%80%91version.json-serverconfigs%20%E5%AE%BF%E4%B8%BB%E6%9C%BA%E5%85%B1%E4%BA%AB%E7%83%AD%E6%9B%B4%20%2B%20nginx%20%E8%BD%AC%E5%8F%91%20IP%20%E6%B8%85%E5%8D%95.md)
 
 > 整理日期：2026-09-09 12:23｜日期依据：文件名日期
 

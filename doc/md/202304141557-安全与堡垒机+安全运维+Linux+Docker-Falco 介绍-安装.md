@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/04-安全运维
 
 # Falco 介绍/安装
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BLinux%2BDocker-Falco%20%E4%BB%8B%E7%BB%8D-%E5%AE%89%E8%A3%85.md)
+
 Falco 可以监测调用 [Linux 系统调用](http://man7.org/linux/man-pages/man2/syscalls.2.html)的行为，并根据其不同的调用、参数及调用进程的属性发出警告。例如，Falco 可轻松检测：
 
 - 容器内运行的 Shell

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Beszel 巡检与针对性维护
 
-> 来源文件：`~/Projects/work/ops/devops/devops-bkl/doc/2026年10月25日-Beszel巡检与维护/2026年10月25日-Beszel巡检与维护.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610250000-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BShell-Beszel%20%E5%B7%A1%E6%A3%80%E4%B8%8E%E9%92%88%E5%AF%B9%E6%80%A7%E7%BB%B4%E6%8A%A4.md)
 
 > 整理日期：2026-10-25 00:00｜日期依据：文件名日期
 

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【监控】用 Spug 密钥补接监控：新增 3 台，7 台仍不可达
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-19-2220-【监控】用 Spug 密钥补接监控（新增3台，7台仍不可达）.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610192220-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BDocker-%E3%80%90%E7%9B%91%E6%8E%A7%E3%80%91%E7%94%A8%20Spug%20%E5%AF%86%E9%92%A5%E8%A1%A5%E6%8E%A5%E7%9B%91%E6%8E%A7%EF%BC%9A%E6%96%B0%E5%A2%9E%203%20%E5%8F%B0%EF%BC%8C7%20%E5%8F%B0%E4%BB%8D%E4%B8%8D%E5%8F%AF%E8%BE%BE.md)
 
 > 整理日期：2026-10-19 22:20｜日期依据：文件名日期
 

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试 PC 静态资源 CORS 与图片大小写兼容修复
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-04_1529-【修复Bug+根因汇总】测试PC静态资源CORS与图片大小写兼容修复.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608041529-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BPython-%E6%B5%8B%E8%AF%95%20PC%20%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20CORS%20%E4%B8%8E%E5%9B%BE%E7%89%87%E5%A4%A7%E5%B0%8F%E5%86%99%E5%85%BC%E5%AE%B9%E4%BF%AE%E5%A4%8D.md)
 
 > 整理日期：2026-08-04 15:29｜日期依据：文件名日期
 

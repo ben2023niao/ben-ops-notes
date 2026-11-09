@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试 H5/PC 静态资源恢复 AWS 老 S3
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-06_1800-【架构调整+回退】测试H5-PC静态资源恢复AWS老S3.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608061800-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E6%B5%8B%E8%AF%95%20H5-PC%20%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E6%81%A2%E5%A4%8D%20AWS%20%E8%80%81%20S3.md)
 
 > 整理日期：2026-08-06 18:00｜日期依据：文件名日期
 

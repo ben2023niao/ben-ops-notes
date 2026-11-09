@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 周末值班排班知会 @ HR 与 SSC 行政
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-07_2136-【优化+运维记录】周末值班排班知会@HR与SSC行政.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608072136-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BPython-%E5%91%A8%E6%9C%AB%E5%80%BC%E7%8F%AD%E6%8E%92%E7%8F%AD%E7%9F%A5%E4%BC%9A%20%40%20HR%20%E4%B8%8E%20SSC%20%E8%A1%8C%E6%94%BF.md)
 
 > 整理日期：2026-08-07 21:36｜日期依据：文件名日期
 

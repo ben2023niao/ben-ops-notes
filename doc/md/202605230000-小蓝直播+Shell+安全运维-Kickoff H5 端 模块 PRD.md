@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Kickoff H5 端 模块 PRD
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/prd/modules/kickoff-h5.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605230000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4-Kickoff%20H5%20%E7%AB%AF%20%E6%A8%A1%E5%9D%97%20PRD.md)
 
 > 整理日期：2026-05-23 00:00｜日期依据：正文日期
 

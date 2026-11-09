@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # work.youdianse.com 目录 AI 接手维护 Prompt
 
-> 来源文件：`~/Desktop/18game_devops/devops/work.youdianse.com/doc/prompt.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610272254-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-work.youdianse.com%20%E7%9B%AE%E5%BD%95%20AI%20%E6%8E%A5%E6%89%8B%E7%BB%B4%E6%8A%A4%20Prompt.md)
 
 > 整理日期：2026-10-27 22:54｜日期依据：文件创建/修改时间
 

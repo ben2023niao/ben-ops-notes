@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【配置维护】线上环境 youdianse.com 的 user-info 页面 noindex 改造记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-21-1535-【配置维护】线上环境youdianse.com的user-info页面noindex改造记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608211535-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BDocker%2BNginx-%E3%80%90%E9%85%8D%E7%BD%AE%E7%BB%B4%E6%8A%A4%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20youdianse.com%20%E7%9A%84%20user-info%20%E9%A1%B5%E9%9D%A2%20noindex%20%E6%94%B9%E9%80%A0%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-21 15:35｜日期依据：文件名日期
 

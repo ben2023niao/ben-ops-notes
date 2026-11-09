@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # UAT 部署架构摘要（提取自 视讯项目UAT部署.xmind）
 
-> 来源文件：`~/Projects/work/ops/devops/devops-bkl/doc/2026年10月15日-原始资料/UAT架构摘要.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610151510-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BDocker-UAT%20%E9%83%A8%E7%BD%B2%E6%9E%B6%E6%9E%84%E6%91%98%E8%A6%81%EF%BC%88%E6%8F%90%E5%8F%96%E8%87%AA%20%E8%A7%86%E8%AE%AF%E9%A1%B9%E7%9B%AEUAT%E9%83%A8%E7%BD%B2.xmind%EF%BC%89.md)
 
 > 整理日期：2026-10-15 15:10｜日期依据：文件创建/修改时间
 

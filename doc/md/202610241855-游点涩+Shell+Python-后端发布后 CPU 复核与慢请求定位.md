@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 后端发布后 CPU 复核与慢请求定位
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-24-1855-【排查分析】后端发布后CPU复核与慢请求定位.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610241855-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E5%90%8E%E7%AB%AF%E5%8F%91%E5%B8%83%E5%90%8E%20CPU%20%E5%A4%8D%E6%A0%B8%E4%B8%8E%E6%85%A2%E8%AF%B7%E6%B1%82%E5%AE%9A%E4%BD%8D.md)
 
 > 整理日期：2026-10-24 18:55｜日期依据：文件名日期
 

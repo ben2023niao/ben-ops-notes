@@ -9,6 +9,8 @@ source: "02-主机与渗透/01-Linux/Linux 提权.md"
 
 # 实验一：利用Linux内核漏洞提权
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Linux%20%E4%B8%8E%20Shell%2BLinux%2B%E6%BC%8F%E6%B4%9E%2B%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86-%E5%AE%9E%E9%AA%8C%E4%B8%80%EF%BC%9A%E5%88%A9%E7%94%A8Linux%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E%E6%8F%90%E6%9D%83.md)
+
 原文 by 安全客
 
 在渗透测试或者漏洞评估的过程中，提权是非常重要的一步，在这一步，黑客和安全研究人员常常通过exploit,bug,错误配置来提升权限。本文的例子都是在虚拟机里测试的，不同的虚拟机可以从Vulnhub下载。

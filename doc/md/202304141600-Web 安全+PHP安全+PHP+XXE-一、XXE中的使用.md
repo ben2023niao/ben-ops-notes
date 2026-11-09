@@ -9,6 +9,8 @@ source: "01-Web安全/06-PHP安全/php filter.md"
 
 # 一、XXE中的使用
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BPHP%2BXXE-%E4%B8%80%E3%80%81XXE%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8.md)
+
 原文 by PHITH0N
 
 ## 一、XXE中的使用

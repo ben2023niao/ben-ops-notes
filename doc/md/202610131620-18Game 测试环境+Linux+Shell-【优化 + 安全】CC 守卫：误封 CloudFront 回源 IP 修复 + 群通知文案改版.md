@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【优化 + 安全】CC 守卫：误封 CloudFront 回源 IP 修复 + 群通知文案改版
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-10-13_1620-【优化+安全】CC守卫误封CloudFront回源IP修复与群通知文案改版.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610131620-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E3%80%90%E4%BC%98%E5%8C%96%20%2B%20%E5%AE%89%E5%85%A8%E3%80%91CC%20%E5%AE%88%E5%8D%AB%EF%BC%9A%E8%AF%AF%E5%B0%81%20CloudFront%20%E5%9B%9E%E6%BA%90%20IP%20%E4%BF%AE%E5%A4%8D%20%2B%20%E7%BE%A4%E9%80%9A%E7%9F%A5%E6%96%87%E6%A1%88%E6%94%B9%E7%89%88.md)
 
 > 整理日期：2026-10-13 16:20｜日期依据：文件名日期
 

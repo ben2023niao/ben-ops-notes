@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【日志包】线上异常日志分类清单（nginx / PHP / MongoDB / Redis）
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-17-0215-【日志包】异常日志分类清单（nginx-PHP-MongoDB-Redis）.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610170215-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E6%97%A5%E5%BF%97%E5%8C%85%E3%80%91%E7%BA%BF%E4%B8%8A%E5%BC%82%E5%B8%B8%E6%97%A5%E5%BF%97%E5%88%86%E7%B1%BB%E6%B8%85%E5%8D%95%EF%BC%88nginx%20-%20PHP%20-%20MongoDB%20-%20Redis%EF%BC%89.md)
 
 > 整理日期：2026-10-17 02:15｜日期依据：文件名日期
 

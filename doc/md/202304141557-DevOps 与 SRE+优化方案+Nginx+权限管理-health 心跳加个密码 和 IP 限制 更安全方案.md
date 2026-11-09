@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # health 心跳加个密码 和 IP 限制 更安全方案
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BNginx%2B%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86-health%20%E5%BF%83%E8%B7%B3%E5%8A%A0%E4%B8%AA%E5%AF%86%E7%A0%81%20%E5%92%8C%20IP%20%E9%99%90%E5%88%B6%20%E6%9B%B4%E5%AE%89%E5%85%A8%E6%96%B9%E6%A1%88.md)
+
 health 加个密码 和 IP 限制 更安全
 
 参考源文 <https://zzzmh.cn/single?id=71>

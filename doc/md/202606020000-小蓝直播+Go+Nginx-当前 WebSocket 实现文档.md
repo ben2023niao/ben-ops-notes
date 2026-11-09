@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 当前 WebSocket 实现文档
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/api/websocket-current.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606020000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2BNginx-%E5%BD%93%E5%89%8D%20WebSocket%20%E5%AE%9E%E7%8E%B0%E6%96%87%E6%A1%A3.md)
 
 > 整理日期：2026-06-02 00:00｜日期依据：正文日期
 

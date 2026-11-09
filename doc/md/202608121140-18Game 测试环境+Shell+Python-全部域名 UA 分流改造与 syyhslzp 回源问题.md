@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 全部域名 UA 分流改造与 syyhslzp 回源问题
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-12_1140-【配置变更+验证记录】全部域名UA分流与syyhslzp回源问题.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608121140-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E5%85%A8%E9%83%A8%E5%9F%9F%E5%90%8D%20UA%20%E5%88%86%E6%B5%81%E6%94%B9%E9%80%A0%E4%B8%8E%20syyhslzp%20%E5%9B%9E%E6%BA%90%E9%97%AE%E9%A2%98.md)
 
 > 整理日期：2026-08-12 11:40｜日期依据：文件名日期
 

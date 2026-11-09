@@ -9,6 +9,8 @@ source: "01-Web安全/01-Web基础/同源策略.md"
 
 # 一、 什么是同源策略
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BPHP%2BJava-%E4%B8%80%E3%80%81%20%E4%BB%80%E4%B9%88%E6%98%AF%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5.md)
+
 ## 一、 什么是同源策略
 
 同源策略是浏览器上为安全性考虑实施的非常重要的安全策略，理解跨域首先必须要了解同源策略。

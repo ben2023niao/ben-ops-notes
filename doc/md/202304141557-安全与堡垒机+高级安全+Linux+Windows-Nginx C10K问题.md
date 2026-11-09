@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # Nginx C10K问题
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2BWindows-Nginx%20C10K%E9%97%AE%E9%A2%98.md)
+
 ## 什么是C10K问题
 
 所谓 c10k 问题，指的是服务器如何支持 10k 个并发连接，也就是 concurrent 10000 connection（这也是 c10k 这个名字的由来）。

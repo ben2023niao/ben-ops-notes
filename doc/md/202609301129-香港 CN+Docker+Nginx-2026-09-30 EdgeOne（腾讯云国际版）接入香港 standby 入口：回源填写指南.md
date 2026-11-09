@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-09-30-1129-【架构改造】EdgeOne接入香港standby入口回源填写指南.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609301129-%E9%A6%99%E6%B8%AF%20CN%2BDocker%2BNginx-2026-09-30%20EdgeOne%EF%BC%88%E8%85%BE%E8%AE%AF%E4%BA%91%E5%9B%BD%E9%99%85%E7%89%88%EF%BC%89%E6%8E%A5%E5%85%A5%E9%A6%99%E6%B8%AF%20standby%20%E5%85%A5%E5%8F%A3%EF%BC%9A%E5%9B%9E%E6%BA%90%E5%A1%AB%E5%86%99%E6%8C%87%E5%8D%97.md)
 
 > 整理日期：2026-09-30 11:29｜日期依据：文件名日期
 

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # env / 白名单 改 → 提交 → 发布 → 验证（测试 & 线上）
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-09-10_1545-【操作指南】测试与线上环境env白名单修改提交发布验证.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609101545-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-env%20-%20%E7%99%BD%E5%90%8D%E5%8D%95%20%E6%94%B9%20%E2%86%92%20%E6%8F%90%E4%BA%A4%20%E2%86%92%20%E5%8F%91%E5%B8%83%20%E2%86%92%20%E9%AA%8C%E8%AF%81%EF%BC%88%E6%B5%8B%E8%AF%95%20%26%20%E7%BA%BF%E4%B8%8A%EF%BC%89.md)
 
 > 整理日期：2026-09-10 15:45｜日期依据：文件名日期
 

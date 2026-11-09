@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试 H5/PC 页面入口切回 youdianse-test 子域
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-06_1837-【配置调整+域名回退】测试H5-PC页面入口切回youdianse-test子域.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608061837-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BPython-%E6%B5%8B%E8%AF%95%20H5-PC%20%E9%A1%B5%E9%9D%A2%E5%85%A5%E5%8F%A3%E5%88%87%E5%9B%9E%20youdianse-test%20%E5%AD%90%E5%9F%9F.md)
 
 > 整理日期：2026-08-06 18:37｜日期依据：文件名日期
 

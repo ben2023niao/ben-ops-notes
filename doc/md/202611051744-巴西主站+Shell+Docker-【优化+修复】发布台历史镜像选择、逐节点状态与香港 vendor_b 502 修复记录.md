@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-11-05-1744-【优化+修复】发布台历史镜像选择逐节点状态与香港vendor_b502修复记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202611051744-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BDocker-%E3%80%90%E4%BC%98%E5%8C%96%2B%E4%BF%AE%E5%A4%8D%E3%80%91%E5%8F%91%E5%B8%83%E5%8F%B0%E5%8E%86%E5%8F%B2%E9%95%9C%E5%83%8F%E9%80%89%E6%8B%A9%E3%80%81%E9%80%90%E8%8A%82%E7%82%B9%E7%8A%B6%E6%80%81%E4%B8%8E%E9%A6%99%E6%B8%AF%20vendor_b%20502%20%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-11-05 17:44｜日期依据：文件名日期
 

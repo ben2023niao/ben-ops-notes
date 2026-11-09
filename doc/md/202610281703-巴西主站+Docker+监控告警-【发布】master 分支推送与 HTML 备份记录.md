@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【发布】master 分支推送与 HTML 备份记录
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/2026-10-28-1703-【发布】master分支推送与HTML备份记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610281703-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BDocker%2B%E7%9B%91%E6%8E%A7%E5%91%8A%E8%AD%A6-%E3%80%90%E5%8F%91%E5%B8%83%E3%80%91master%20%E5%88%86%E6%94%AF%E6%8E%A8%E9%80%81%E4%B8%8E%20HTML%20%E5%A4%87%E4%BB%BD%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-10-28 17:03｜日期依据：文件名日期
 

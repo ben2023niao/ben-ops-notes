@@ -9,6 +9,8 @@ source: "01-Web安全/01-Web基础/常见函数.md"
 
 # 一、php: addslashes()、mysqlescapestring()
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BMySQL%2BPHP-%E4%B8%80%E3%80%81php-%20addslashes%28%29%E3%80%81mysqlescapestring%28%29.md)
+
 ## 一、php: addslashes()、mysql_escape_string()
 
 SQL注入攻击是黑客攻击网站最常用的手段。如果你的站点没有使用严格的用户输入检验，那么常容易遭到SQL注入攻击。

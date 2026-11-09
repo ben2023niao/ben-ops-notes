@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # ben-bot 发布期间“挂起”根因：长发布阻塞主线程（已修复）
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-27_0622-【排查+修复】ben-bot发布期间挂起根因-长发布阻塞主线程.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608270622-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2B%E8%87%AA%E5%8A%A8%E5%8C%96-ben-bot%20%E5%8F%91%E5%B8%83%E6%9C%9F%E9%97%B4%E2%80%9C%E6%8C%82%E8%B5%B7%E2%80%9D%E6%A0%B9%E5%9B%A0%EF%BC%9A%E9%95%BF%E5%8F%91%E5%B8%83%E9%98%BB%E5%A1%9E%E4%B8%BB%E7%BA%BF%E7%A8%8B%EF%BC%88%E5%B7%B2%E4%BF%AE%E5%A4%8D%EF%BC%89.md)
 
 > 整理日期：2026-08-27 06:22｜日期依据：文件名日期
 

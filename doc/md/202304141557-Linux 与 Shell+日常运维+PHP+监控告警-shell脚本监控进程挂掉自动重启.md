@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/08-运维技巧
 
 # shell脚本监控进程挂掉自动重启
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2BPHP%2B%E7%9B%91%E6%8E%A7%E5%91%8A%E8%AD%A6-shell%E8%84%9A%E6%9C%AC%E7%9B%91%E6%8E%A7%E8%BF%9B%E7%A8%8B%E6%8C%82%E6%8E%89%E8%87%AA%E5%8A%A8%E9%87%8D%E5%90%AF.md)
+
 ****查看效果****
 
 **![文档配图](../media/555c5c10d337d65893.png)**

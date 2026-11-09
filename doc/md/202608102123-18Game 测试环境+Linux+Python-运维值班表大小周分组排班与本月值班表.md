@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 运维值班表大小周分组排班与本月值班表
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-10_2123-【优化+运维记录】运维值班表大小周分组排班与本月值班表.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608102123-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BPython-%E8%BF%90%E7%BB%B4%E5%80%BC%E7%8F%AD%E8%A1%A8%E5%A4%A7%E5%B0%8F%E5%91%A8%E5%88%86%E7%BB%84%E6%8E%92%E7%8F%AD%E4%B8%8E%E6%9C%AC%E6%9C%88%E5%80%BC%E7%8F%AD%E8%A1%A8.md)
 
 > 整理日期：2026-08-10 21:23｜日期依据：文件名日期
 

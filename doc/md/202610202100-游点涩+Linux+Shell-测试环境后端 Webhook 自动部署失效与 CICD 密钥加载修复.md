@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试环境后端 Webhook 自动部署失效与 CICD 密钥加载修复
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-20-2100-【问题排查】测试环境后端Webhook自动部署失效与CICD密钥加载修复.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610202100-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E5%90%8E%E7%AB%AF%20Webhook%20%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2%E5%A4%B1%E6%95%88%E4%B8%8E%20CICD%20%E5%AF%86%E9%92%A5%E5%8A%A0%E8%BD%BD%E4%BF%AE%E5%A4%8D.md)
 
 > 整理日期：2026-10-20 21:00｜日期依据：文件名日期
 

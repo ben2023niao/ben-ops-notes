@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试环境 PC 前端 SSR 用户 IP 未生效：nitro SWR 缓存根因
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-19_1530-【排查记录】测试PC前端SSR用户IP未生效-nitroSWR缓存根因.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608191530-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BNginx-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20PC%20%E5%89%8D%E7%AB%AF%20SSR%20%E7%94%A8%E6%88%B7%20IP%20%E6%9C%AA%E7%94%9F%E6%95%88%EF%BC%9Anitro%20SWR%20%E7%BC%93%E5%AD%98%E6%A0%B9%E5%9B%A0.md)
 
 > 整理日期：2026-08-19 15:30｜日期依据：文件名日期
 

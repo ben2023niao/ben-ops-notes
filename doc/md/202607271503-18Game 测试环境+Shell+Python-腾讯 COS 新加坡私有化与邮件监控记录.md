@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 腾讯 COS 新加坡私有化与邮件监控记录
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-27_1503-【架构改造+网络调整】腾讯COS新加坡私有化与邮件监控.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607271503-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E8%85%BE%E8%AE%AF%20COS%20%E6%96%B0%E5%8A%A0%E5%9D%A1%E7%A7%81%E6%9C%89%E5%8C%96%E4%B8%8E%E9%82%AE%E4%BB%B6%E7%9B%91%E6%8E%A7%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-27 15:03｜日期依据：文件名日期
 

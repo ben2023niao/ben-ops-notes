@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/07-监控技巧
 
 # linux 文件变动监控 python
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%2B%E7%9B%91%E6%8E%A7%2BLinux%2BWindows-linux%20%E6%96%87%E4%BB%B6%E5%8F%98%E5%8A%A8%E7%9B%91%E6%8E%A7%20python.md)
+
 在linux中可以使用命令 find 来查看文件短时间内的文件修改情况，Windows中也提供了相应的api可以对相应的文件和目录进行监控。
 
 在python中，这里介绍一个库，可作为文件监控的工具。

@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/04-安全运维
 
 # Linux内网渗透
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BCVE%2BLinux-Linux%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F.md)
+
 Linux虽然没有域环境，但是当我们拿到一台Linux 系统权限，难道只进行一下提权，捕获一下敏感信息就结束了吗？显然不只是这样的。本片文章将从**拿到一个Linux shell**开始，介绍Linux内网渗透技术，分为容器逃逸、Linux提权、Linux信息收集、Linux隧道技术、Linux横向移动、Linux权限维持、Linux痕迹清理几个部分。
 
 ## 容器逃逸

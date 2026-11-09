@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 香港 cn 分支导入说明
 
-> 来源文件：`~/Projects/work/game/pgserver/master/docs/history/hongkong/cn/SOURCE.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610240000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BDocker%2BNginx-%E9%A6%99%E6%B8%AF%20cn%20%E5%88%86%E6%94%AF%E5%AF%BC%E5%85%A5%E8%AF%B4%E6%98%8E.md)
 
 > 整理日期：2026-10-24 00:00｜日期依据：正文日期
 

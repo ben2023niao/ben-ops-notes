@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试 PC 前端媒体资源 Token 鉴权落地验证记录
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-29_1932-【安全优化+架构改造】测试PC前端媒体资源Token鉴权落地验证记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607291932-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%B5%8B%E8%AF%95%20PC%20%E5%89%8D%E7%AB%AF%E5%AA%92%E4%BD%93%E8%B5%84%E6%BA%90%20Token%20%E9%89%B4%E6%9D%83%E8%90%BD%E5%9C%B0%E9%AA%8C%E8%AF%81%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-29 19:32｜日期依据：文件名日期
 

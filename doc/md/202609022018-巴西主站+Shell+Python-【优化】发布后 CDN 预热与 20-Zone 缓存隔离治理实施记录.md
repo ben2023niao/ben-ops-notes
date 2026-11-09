@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-02-2018-【优化】发布后CDN预热与20Zone缓存隔离治理实施记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609022018-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E5%8F%91%E5%B8%83%E5%90%8E%20CDN%20%E9%A2%84%E7%83%AD%E4%B8%8E%2020-Zone%20%E7%BC%93%E5%AD%98%E9%9A%94%E7%A6%BB%E6%B2%BB%E7%90%86%E5%AE%9E%E6%96%BD%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-09-02 20:18｜日期依据：文件名日期
 

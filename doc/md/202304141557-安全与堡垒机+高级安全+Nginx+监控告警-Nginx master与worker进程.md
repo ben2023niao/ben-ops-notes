@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # Nginx master与worker进程
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BNginx%2B%E7%9B%91%E6%8E%A7%E5%91%8A%E8%AD%A6-Nginx%20master%E4%B8%8Eworker%E8%BF%9B%E7%A8%8B.md)
+
 ## 工作模式
 
 1. **[Nginx](https://haicoder.net/nginx/nginx-tutorial.html)** 启动后，会产生一个 master 主进程，主进程执行一系列的工作后会产生一个或者多个工作进程 worker。

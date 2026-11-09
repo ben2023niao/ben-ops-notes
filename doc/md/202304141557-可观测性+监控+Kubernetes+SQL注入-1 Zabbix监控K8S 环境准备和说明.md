@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/07-监控技巧
 
 # 1 Zabbix监控K8S 环境准备和说明
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%2B%E7%9B%91%E6%8E%A7%2BKubernetes%2BSQL%E6%B3%A8%E5%85%A5-1%20Zabbix%E7%9B%91%E6%8E%A7K8S%20%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87%E5%92%8C%E8%AF%B4%E6%98%8E.md)
+
 首先你确保已经部署好了一套[K8S](https://www.dqzboy.com/tag/k8s "View all posts in K8S")集群，然后我们需要在`[zabbix](https://www.dqzboy.com/tag/zabbix "View all posts in zabbix")-server`端安装部署`python3`，默认Cent OS系统中使用的python2，在监控服务端节点上安装`python3`
 
 ```

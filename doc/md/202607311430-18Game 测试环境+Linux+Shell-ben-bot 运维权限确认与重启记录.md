@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # ben-bot 运维权限确认与重启记录
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-31_1430-【优化+运维记录】ben-bot运维权限确认与重启记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607311430-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-ben-bot%20%E8%BF%90%E7%BB%B4%E6%9D%83%E9%99%90%E7%A1%AE%E8%AE%A4%E4%B8%8E%E9%87%8D%E5%90%AF%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-31 14:30｜日期依据：文件名日期
 

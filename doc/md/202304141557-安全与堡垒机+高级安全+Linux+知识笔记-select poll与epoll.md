@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # select poll与epoll
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-select%20poll%E4%B8%8Eepoll.md)
+
 ## 同步I/O
 
 在操作系统中，程序运行的空间分为内核空间和用户空间，用户空间所有对 io 操作的代码（如文件的读写、socket 的收发等）都会通过系统调用进入内核空间完成实际的操作。

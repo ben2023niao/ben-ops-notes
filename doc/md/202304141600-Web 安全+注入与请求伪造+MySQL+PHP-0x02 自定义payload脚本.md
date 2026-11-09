@@ -9,6 +9,8 @@ source: "01-Web安全/02-注入与请求伪造/SQL注入/sqlmap 进阶.md"
 
 # 0x02 自定义payload脚本
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2B%E6%B3%A8%E5%85%A5%E4%B8%8E%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%2BMySQL%2BPHP-0x02%20%E8%87%AA%E5%AE%9A%E4%B9%89payload%E8%84%9A%E6%9C%AC.md)
+
 原文 by MayIKissYou
 
 ## 0x02 自定义payload脚本

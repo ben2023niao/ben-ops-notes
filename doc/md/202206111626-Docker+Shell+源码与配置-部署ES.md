@@ -12,6 +12,8 @@ sourceHtmlSha256: "30566755270b2621dac32d560ec5d038c9f77da2268e27746fe9a60f8f8a5
 
 # 部署ES
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206111626-Docker%2BShell%2B%E6%BA%90%E7%A0%81%E4%B8%8E%E9%85%8D%E7%BD%AE-%E9%83%A8%E7%BD%B2ES.md)
+
 > 原文：[部署ES](https://xn--6o0a585a.gitbook.io/devops/docker/centos7/bu-shu-es.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-11 16:26｜日期依据：GitBook 页面更新时间

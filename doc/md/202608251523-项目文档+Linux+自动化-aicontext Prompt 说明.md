@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # aicontext Prompt 说明
 
-> 来源文件：`~/Projects/work/ops/aiwork/2026_devops/devops/ai_context/doc/prompt.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608251523-%E9%A1%B9%E7%9B%AE%E6%96%87%E6%A1%A3%2BLinux%2B%E8%87%AA%E5%8A%A8%E5%8C%96-aicontext%20Prompt%20%E8%AF%B4%E6%98%8E.md)
 
 > 整理日期：2026-08-25 15:23｜日期依据：文件创建/修改时间
 

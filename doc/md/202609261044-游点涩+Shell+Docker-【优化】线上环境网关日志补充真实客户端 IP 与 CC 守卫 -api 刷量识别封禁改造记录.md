@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【优化】线上环境网关日志补充真实客户端 IP 与 CC 守卫 /api 刷量识别封禁改造记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-26-1044-【优化】线上环境网关日志补充真实客户端IP与CC守卫API刷量识别封禁改造记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609261044-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E7%BD%91%E5%85%B3%E6%97%A5%E5%BF%97%E8%A1%A5%E5%85%85%E7%9C%9F%E5%AE%9E%E5%AE%A2%E6%88%B7%E7%AB%AF%20IP%20%E4%B8%8E%20CC%20%E5%AE%88%E5%8D%AB%20-api%20%E5%88%B7%E9%87%8F%E8%AF%86%E5%88%AB%E5%B0%81%E7%A6%81%E6%94%B9%E9%80%A0%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-09-26 10:44｜日期依据：文件名日期
 

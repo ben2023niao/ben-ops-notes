@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Beszel 全机队磁盘、内存与异常处置
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-24-1530-【巡检维护】Beszel全机队磁盘内存与异常处置.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610241530-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-Beszel%20%E5%85%A8%E6%9C%BA%E9%98%9F%E7%A3%81%E7%9B%98%E3%80%81%E5%86%85%E5%AD%98%E4%B8%8E%E5%BC%82%E5%B8%B8%E5%A4%84%E7%BD%AE.md)
 
 > 整理日期：2026-10-24 15:30｜日期依据：文件名日期
 

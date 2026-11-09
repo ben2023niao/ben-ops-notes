@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-02-2057-【优化】全量厂家CDN预热与机器人发布预热按钮上线记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609022057-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E5%85%A8%E9%87%8F%E5%8E%82%E5%AE%B6%20CDN%20%E9%A2%84%E7%83%AD%E4%B8%8E%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%8F%91%E5%B8%83%E9%A2%84%E7%83%AD%E6%8C%89%E9%92%AE%E4%B8%8A%E7%BA%BF%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-09-02 20:57｜日期依据：文件名日期
 

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # ADR-0013： 快速验证阶段 — 两机协作部署(GitLab build runner + 部署机 deploy runner)
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/decisions/ADR-0013-quickstart-single-machine-gitlab-ci.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605250000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BLinux%2BShell-ADR-0013%EF%BC%9A%20%E5%BF%AB%E9%80%9F%E9%AA%8C%E8%AF%81%E9%98%B6%E6%AE%B5%20%E2%80%94%20%E4%B8%A4%E6%9C%BA%E5%8D%8F%E4%BD%9C%E9%83%A8%E7%BD%B2%28GitLab%20build%20runner%20%2B%20%E9%83%A8%E7%BD%B2%E6%9C%BA%20deploy%20runner%29.md)
 
 > 整理日期：2026-05-25 00:00｜日期依据：正文日期
 

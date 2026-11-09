@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/11-高效运维
 
 # spug-安全工作
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E9%AB%98%E6%95%88%E8%BF%90%E7%BB%B4%2BDocker%2BNginx-spug-%E5%AE%89%E5%85%A8%E5%B7%A5%E4%BD%9C.md)
+
 ## 安全性实践指南
 
 写在前面，没有绝对的安全，如果环境允许的话尽量把 `Spug` 部署在内网且禁止公网访问，如果必须通过公网访问则尽可能通过防火墙等手段限制指定 IP 访问。

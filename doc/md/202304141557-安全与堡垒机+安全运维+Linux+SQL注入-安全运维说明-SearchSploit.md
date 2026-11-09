@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/04-安全运维
 
 # SearchSploit
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BLinux%2BSQL%E6%B3%A8%E5%85%A5-%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%E8%AF%B4%E6%98%8E-SearchSploit.md)
+
 用kali自带的searchsploit来搜索exploitdb中的漏洞利用代码
 
 > SearchSploit是一个**Exploit-DB**的命令行搜索工具，它还允许随身携带漏洞利用数据库的副本。

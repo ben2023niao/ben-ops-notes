@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # 如何使用 curl 和 openssl 命令简单测试域名被 SNI 阻断
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BDNS%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8%20curl%20%E5%92%8C%20openssl%20%E5%91%BD%E4%BB%A4%E7%AE%80%E5%8D%95%E6%B5%8B%E8%AF%95%E5%9F%9F%E5%90%8D%E8%A2%AB%20SNI%20%E9%98%BB%E6%96%AD.md)
+
 惊闻泉州已部署域名白名单，看到有人买域名买服务器来测试，其实用不着，还有人拿墙内的 IP 来测试，方法就错了
 
 分享下使用 curl 和 openssl 进行简单测试的命令

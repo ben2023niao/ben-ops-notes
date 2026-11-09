@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/04-安全运维
 
 # vim python 扩展后门
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BLinux%2B%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81-vim%20python%20%E6%89%A9%E5%B1%95%E5%90%8E%E9%97%A8.md)
+
 适用于安装了vim且安装了python扩展(绝大版本默认安装)的linux系统
 
 **vim --version**可以看到vim支持python3

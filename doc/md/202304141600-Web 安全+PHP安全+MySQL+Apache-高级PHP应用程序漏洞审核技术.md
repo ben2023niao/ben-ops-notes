@@ -9,6 +9,8 @@ source: "01-Web安全/06-PHP安全/php 高级代码审计.md"
 
 # 高级PHP应用程序漏洞审核技术
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BMySQL%2BApache-%E9%AB%98%E7%BA%A7PHP%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E6%BC%8F%E6%B4%9E%E5%AE%A1%E6%A0%B8%E6%8A%80%E6%9C%AF.md)
+
 原文 by 80vul
 
 ## 高级PHP应用程序漏洞审核技术

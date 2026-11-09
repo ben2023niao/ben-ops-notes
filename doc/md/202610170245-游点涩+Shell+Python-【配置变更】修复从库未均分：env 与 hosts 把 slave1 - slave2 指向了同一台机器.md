@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【配置变更】修复从库未均分：env 与 hosts 把 slave1 / slave2 指向了同一台机器
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-17-0245-【配置变更】修复从库未均分（env 与 hosts 分离 slave1-slave2）.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610170245-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E3%80%90%E9%85%8D%E7%BD%AE%E5%8F%98%E6%9B%B4%E3%80%91%E4%BF%AE%E5%A4%8D%E4%BB%8E%E5%BA%93%E6%9C%AA%E5%9D%87%E5%88%86%EF%BC%9Aenv%20%E4%B8%8E%20hosts%20%E6%8A%8A%20slave1%20-%20slave2%20%E6%8C%87%E5%90%91%E4%BA%86%E5%90%8C%E4%B8%80%E5%8F%B0%E6%9C%BA%E5%99%A8.md)
 
 > 整理日期：2026-10-17 02:45｜日期依据：文件名日期
 

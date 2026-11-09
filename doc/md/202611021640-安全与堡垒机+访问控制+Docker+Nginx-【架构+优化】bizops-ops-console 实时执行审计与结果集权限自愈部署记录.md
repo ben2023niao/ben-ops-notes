@@ -9,6 +9,8 @@ source: "03-安全运营与应急/03-安全配置与访问控制/某业务公司
 
 # 【架构+优化】bizops-ops-console 实时执行审计与结果集权限自愈部署记录
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202611021640-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%2BDocker%2BNginx-%E3%80%90%E6%9E%B6%E6%9E%84%2B%E4%BC%98%E5%8C%96%E3%80%91bizops-ops-console%20%E5%AE%9E%E6%97%B6%E6%89%A7%E8%A1%8C%E5%AE%A1%E8%AE%A1%E4%B8%8E%E7%BB%93%E6%9E%9C%E9%9B%86%E6%9D%83%E9%99%90%E8%87%AA%E6%84%88%E9%83%A8%E7%BD%B2%E8%AE%B0%E5%BD%95.md)
+
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
 > 来源：本地项目文档 `game/pgserver/master/docs/history/2026-11-02-1640-【架构+优化】bizops-ops-console实时执行审计与结果集权限自愈部署记录.md`

@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-03_2003-【验证记录+安全优化】测试环境H5-PC加密视频网页播放验证.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608032003-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20H5-PC%20%E5%8A%A0%E5%AF%86%E8%A7%86%E9%A2%91%E7%BD%91%E9%A1%B5%E6%92%AD%E6%94%BE%E9%AA%8C%E8%AF%81%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-03 20:03｜日期依据：文件名日期
 

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 运维值班表按钮输出本月加班/调休排班
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-10_2133-【优化+运维记录】运维值班表按钮输出本月加班调休排班.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608102133-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BPython-%E8%BF%90%E7%BB%B4%E5%80%BC%E7%8F%AD%E8%A1%A8%E6%8C%89%E9%92%AE%E8%BE%93%E5%87%BA%E6%9C%AC%E6%9C%88%E5%8A%A0%E7%8F%AD-%E8%B0%83%E4%BC%91%E6%8E%92%E7%8F%AD.md)
 
 > 整理日期：2026-08-10 21:33｜日期依据：文件名日期
 

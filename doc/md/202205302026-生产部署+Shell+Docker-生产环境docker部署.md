@@ -12,6 +12,8 @@ sourceHtmlSha256: "852a96dfeaaa26561cb4719dcd9403624d79aaf757e162981649639799a19
 
 # 生产环境docker部署
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202205302026-%E7%94%9F%E4%BA%A7%E9%83%A8%E7%BD%B2%2BShell%2BDocker-%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83docker%E9%83%A8%E7%BD%B2.md)
+
 > 原文：[生产环境docker部署](https://xn--6o0a585a.gitbook.io/devops/sheng-chan-huan-jing-docker-bu-shu.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-05-30 20:26｜日期依据：GitBook 页面更新时间

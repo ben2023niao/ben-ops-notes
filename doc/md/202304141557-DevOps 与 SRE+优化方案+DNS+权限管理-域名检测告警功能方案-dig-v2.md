@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 域名检测告警功能方案-dig-v2
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BDNS%2B%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86-%E5%9F%9F%E5%90%8D%E6%A3%80%E6%B5%8B%E5%91%8A%E8%AD%A6%E5%8A%9F%E8%83%BD%E6%96%B9%E6%A1%88-dig-v2.md)
+
 ## 轮询指定 DNS 服务器解析域名并更新 hosts 绑定脚本流程：指定 DNS 服务器解析目标域名，将结果储存到临时文件 -> 判断解析是否成功再继续 -> 当解析成功，将最新解析 IP 替换之前 hosts 里绑定的 IP -> 当解析失败，删除临时文件。
 
 ```bash

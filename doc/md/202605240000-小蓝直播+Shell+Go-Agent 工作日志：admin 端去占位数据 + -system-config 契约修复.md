@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Agent 工作日志：admin 端去占位数据 + /system/config 契约修复
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-24-strip-placeholder-data.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605240000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%EF%BC%9Aadmin%20%E7%AB%AF%E5%8E%BB%E5%8D%A0%E4%BD%8D%E6%95%B0%E6%8D%AE%20%2B%20-system-config%20%E5%A5%91%E7%BA%A6%E4%BF%AE%E5%A4%8D.md)
 
 > 整理日期：2026-05-24 00:00｜日期依据：文件名日期
 

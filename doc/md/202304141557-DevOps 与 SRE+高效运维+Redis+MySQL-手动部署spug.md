@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/11-高效运维
 
 # 手动部署spug
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E9%AB%98%E6%95%88%E8%BF%90%E7%BB%B4%2BRedis%2BMySQL-%E6%89%8B%E5%8A%A8%E9%83%A8%E7%BD%B2spug.md)
+
 ## 注意
 
 我们推荐你使用 [Docker安装](https://spug.cc/docs/install-docker) 来确保体验的一致性。

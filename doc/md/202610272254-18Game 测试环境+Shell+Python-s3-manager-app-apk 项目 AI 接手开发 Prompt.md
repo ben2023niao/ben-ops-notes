@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # s3-manager-app-apk 项目 AI 接手开发 Prompt
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/s3-manager-app-apk/doc/prompt.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610272254-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-s3-manager-app-apk%20%E9%A1%B9%E7%9B%AE%20AI%20%E6%8E%A5%E6%89%8B%E5%BC%80%E5%8F%91%20Prompt.md)
 
 > 整理日期：2026-10-27 22:54｜日期依据：文件创建/修改时间
 

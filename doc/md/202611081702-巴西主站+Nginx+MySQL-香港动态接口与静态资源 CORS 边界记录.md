@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-11-08-1702-【核对】香港动态接口与静态资源CORS边界记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202611081702-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BNginx%2BMySQL-%E9%A6%99%E6%B8%AF%E5%8A%A8%E6%80%81%E6%8E%A5%E5%8F%A3%E4%B8%8E%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%20CORS%20%E8%BE%B9%E7%95%8C%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-11-08 17:02｜日期依据：文件名日期
 

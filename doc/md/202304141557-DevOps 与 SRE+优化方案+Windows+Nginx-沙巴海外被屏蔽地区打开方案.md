@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 沙巴海外被屏蔽地区打开方案
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BWindows%2BNginx-%E6%B2%99%E5%B7%B4%E6%B5%B7%E5%A4%96%E8%A2%AB%E5%B1%8F%E8%94%BD%E5%9C%B0%E5%8C%BA%E6%89%93%E5%BC%80%E6%96%B9%E6%A1%88.md)
+
 1 外网VDI登录 <https://cloud.google.com/> 制作模板服务器
 ![文档配图](../media/9c38f8e84c84ba7e1f.png)
 ![文档配图](../media/e265996d7f4d440548.png)![文档配图](../media/49fecc5eaff6fd1bba.png)

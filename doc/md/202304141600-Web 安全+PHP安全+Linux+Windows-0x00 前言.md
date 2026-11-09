@@ -9,6 +9,8 @@ source: "01-Web安全/06-PHP安全/php open_basedir.md"
 
 # 0x00 前言
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BLinux%2BWindows-0x00%20%E5%89%8D%E8%A8%80.md)
+
 原文 by PHITH0N
 
 ## 0x00 前言

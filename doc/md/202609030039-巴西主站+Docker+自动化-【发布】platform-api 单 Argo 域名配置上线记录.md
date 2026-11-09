@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-03-0039-【发布】platform-api单Argo域名配置上线记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609030039-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BDocker%2B%E8%87%AA%E5%8A%A8%E5%8C%96-%E3%80%90%E5%8F%91%E5%B8%83%E3%80%91platform-api%20%E5%8D%95%20Argo%20%E5%9F%9F%E5%90%8D%E9%85%8D%E7%BD%AE%E4%B8%8A%E7%BA%BF%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-09-03 00:39｜日期依据：文件名日期
 

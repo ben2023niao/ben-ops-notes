@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Agent 配对改短码 + owner 登录态确认 Implementation Plan
 
-> 来源文件：`~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-18-agent-pairing-owner-confirm.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605180000-GHOME%2BShell%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4-Agent%20%E9%85%8D%E5%AF%B9%E6%94%B9%E7%9F%AD%E7%A0%81%20%2B%20owner%20%E7%99%BB%E5%BD%95%E6%80%81%E7%A1%AE%E8%AE%A4%20Implementation%20Plan.md)
 
 > 整理日期：2026-05-18 00:00｜日期依据：文件名日期
 

@@ -9,6 +9,8 @@ source: "02-主机与渗透/01-Linux/Linux 入侵检测.md"
 
 # 审计命令
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Linux%20%E4%B8%8E%20Shell%2BLinux%2BWindows%2BPHP-%E5%AE%A1%E8%AE%A1%E5%91%BD%E4%BB%A4.md)
+
 原文 by http://thief.one/
 
 最近遇到了很多服务器被入侵的例子，为了方便日后入侵检测以及排查取证，我查询了一些linux服务器入侵取证的相关资料，并在此总结分享，以便日后查询。

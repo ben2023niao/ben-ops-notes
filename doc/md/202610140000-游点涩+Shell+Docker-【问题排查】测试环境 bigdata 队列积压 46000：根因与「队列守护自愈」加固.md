@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【问题排查】测试环境 bigdata 队列积压 46000：根因与「队列守护自愈」加固
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-14-【问题排查】测试环境big_data队列积压实测根因与队列守护自愈.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610140000-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20bigdata%20%E9%98%9F%E5%88%97%E7%A7%AF%E5%8E%8B%2046000%EF%BC%9A%E6%A0%B9%E5%9B%A0%E4%B8%8E%E3%80%8C%E9%98%9F%E5%88%97%E5%AE%88%E6%8A%A4%E8%87%AA%E6%84%88%E3%80%8D%E5%8A%A0%E5%9B%BA.md)
 
 > 整理日期：2026-10-14 00:00｜日期依据：文件名日期
 

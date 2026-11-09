@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 线上 PC 发布失败修复：端口 3004 被旧 dev 容器占用
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-18_2115-【修复记录】线上PC发布失败-端口3004被旧dev容器占用.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608182115-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E7%BA%BF%E4%B8%8A%20PC%20%E5%8F%91%E5%B8%83%E5%A4%B1%E8%B4%A5%E4%BF%AE%E5%A4%8D%EF%BC%9A%E7%AB%AF%E5%8F%A3%203004%20%E8%A2%AB%E6%97%A7%20dev%20%E5%AE%B9%E5%99%A8%E5%8D%A0%E7%94%A8.md)
 
 > 整理日期：2026-08-18 21:15｜日期依据：文件名日期
 

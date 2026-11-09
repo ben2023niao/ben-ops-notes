@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 2026-06-06 zego cloud player force rebuild
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-06-06-zego-cloud-player-force-rebuild.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606060000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BPython-2026-06-06%20zego%20cloud%20player%20force%20rebuild.md)
 
 > 整理日期：2026-06-06 00:00｜日期依据：文件名日期
 

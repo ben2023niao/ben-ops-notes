@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # TCP KeepAlive
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2BJava-%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%E8%AF%B4%E6%98%8E-TCP%20KeepAlive.md)
+
 ## TCP Keepalive的起源
 
 TCP 协议中有长连接和短连接之分。短连接环境下，数据交互完毕后，主动释放连接。

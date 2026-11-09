@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试环境 env 新增 EEP 测试 APK CDN 配置记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-07-30-1628-【运维记录】测试环境env新增EEP测试APK-CDN配置记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607301628-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20env%20%E6%96%B0%E5%A2%9E%20EEP%20%E6%B5%8B%E8%AF%95%20APK%20CDN%20%E9%85%8D%E7%BD%AE%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-30 16:28｜日期依据：文件名日期
 

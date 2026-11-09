@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【监控】内网服务器监控核对：内网 IP 与公网 IP 映射（全部已纳管）
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-19-2100-【监控】内网服务器监控核对（内网IP与公网IP映射，全部已纳管）.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610192100-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E3%80%90%E7%9B%91%E6%8E%A7%E3%80%91%E5%86%85%E7%BD%91%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9B%91%E6%8E%A7%E6%A0%B8%E5%AF%B9%EF%BC%9A%E5%86%85%E7%BD%91%20IP%20%E4%B8%8E%E5%85%AC%E7%BD%91%20IP%20%E6%98%A0%E5%B0%84%EF%BC%88%E5%85%A8%E9%83%A8%E5%B7%B2%E7%BA%B3%E7%AE%A1%EF%BC%89.md)
 
 > 整理日期：2026-10-19 21:00｜日期依据：文件名日期
 

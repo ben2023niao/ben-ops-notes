@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【安全加固】封禁登录撞库来源 + CC 守卫新增「登录失败按 IP 封禁」
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-10-09_1800-【安全加固】封禁登录撞库IP与CC守卫新增低速率撞库识别.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610091800-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E3%80%90%E5%AE%89%E5%85%A8%E5%8A%A0%E5%9B%BA%E3%80%91%E5%B0%81%E7%A6%81%E7%99%BB%E5%BD%95%E6%92%9E%E5%BA%93%E6%9D%A5%E6%BA%90%20%2B%20CC%20%E5%AE%88%E5%8D%AB%E6%96%B0%E5%A2%9E%E3%80%8C%E7%99%BB%E5%BD%95%E5%A4%B1%E8%B4%A5%E6%8C%89%20IP%20%E5%B0%81%E7%A6%81%E3%80%8D.md)
 
 > 整理日期：2026-10-09 18:00｜日期依据：文件名日期
 

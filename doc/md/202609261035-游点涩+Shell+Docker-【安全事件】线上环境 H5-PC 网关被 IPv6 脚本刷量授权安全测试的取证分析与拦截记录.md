@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【安全事件】线上环境 H5/PC 网关被 IPv6 脚本刷量授权安全测试的取证分析与拦截记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-26-1035-【安全事件】线上环境H5PC网关被IPv6脚本刷量攻击取证分析与拦截记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609261035-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BDocker-%E3%80%90%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20H5-PC%20%E7%BD%91%E5%85%B3%E8%A2%AB%20IPv6%20%E8%84%9A%E6%9C%AC%E5%88%B7%E9%87%8F%E6%8E%88%E6%9D%83%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95%E7%9A%84%E5%8F%96%E8%AF%81%E5%88%86%E6%9E%90%E4%B8%8E%E6%8B%A6%E6%88%AA%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-09-26 10:35｜日期依据：文件名日期
 

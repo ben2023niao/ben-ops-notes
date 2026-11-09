@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # docker 分布式多机部署mongo分片集群
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BLinux%2BDocker-docker%20%E5%88%86%E5%B8%83%E5%BC%8F%E5%A4%9A%E6%9C%BA%E9%83%A8%E7%BD%B2mongo%E5%88%86%E7%89%87%E9%9B%86%E7%BE%A4.md)
+
 路由服 203.0.113.1 public-zaneperfor-mongo
 路由服端口 27011
 

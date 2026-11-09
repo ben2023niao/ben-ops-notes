@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Agent 工作日志：Code Review Batch #2 修复（C2/C3/H2/H3/H5/H6）
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-24-code-review-batch2-fixes.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605240000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%EF%BC%9ACode%20Review%20Batch%20-2%20%E4%BF%AE%E5%A4%8D%EF%BC%88C2-C3-H2-H3-H5-H6%EF%BC%89.md)
 
 > 整理日期：2026-05-24 00:00｜日期依据：文件名日期
 

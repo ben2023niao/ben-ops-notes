@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 游点涩 / 18game 运维现状盘点 · 高级运维 JD · 24 小时值班方案
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-24_0900-【招聘+值班+中台】运维现状盘点与高级运维JD-内部材料.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608240900-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E6%B8%B8%E7%82%B9%E6%B6%A9%20-%2018game%20%E8%BF%90%E7%BB%B4%E7%8E%B0%E7%8A%B6%E7%9B%98%E7%82%B9%20%C2%B7%20%E9%AB%98%E7%BA%A7%E8%BF%90%E7%BB%B4%20JD%20%C2%B7%2024%20%E5%B0%8F%E6%97%B6%E5%80%BC%E7%8F%AD%E6%96%B9%E6%A1%88.md)
 
 > 整理日期：2026-08-24 09:00｜日期依据：文件名日期
 

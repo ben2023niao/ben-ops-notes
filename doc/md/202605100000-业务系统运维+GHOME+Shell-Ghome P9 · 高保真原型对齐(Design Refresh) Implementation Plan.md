@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Ghome P9 · 高保真原型对齐(Design Refresh) Implementation Plan
 
-> 来源文件：`~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-10-ghome-p9-design-refresh.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605100000-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BShell-Ghome%20P9%20%C2%B7%20%E9%AB%98%E4%BF%9D%E7%9C%9F%E5%8E%9F%E5%9E%8B%E5%AF%B9%E9%BD%90%28Design%20Refresh%29%20Implementation%20Plan.md)
 
 > 整理日期：2026-05-10 00:00｜日期依据：文件名日期
 

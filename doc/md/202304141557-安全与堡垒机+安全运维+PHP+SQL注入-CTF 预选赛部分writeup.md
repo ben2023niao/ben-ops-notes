@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/04-安全运维
 
 # CTF 预选赛部分writeup
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BPHP%2BSQL%E6%B3%A8%E5%85%A5-CTF%20%E9%A2%84%E9%80%89%E8%B5%9B%E9%83%A8%E5%88%86writeup.md)
+
 绕过看门狗
 一开始拿到链接尝试用and 1=1 来检测注入点，发现有过滤。
 ![文档配图](../media/97f99a4eb79a37fdf3.png)

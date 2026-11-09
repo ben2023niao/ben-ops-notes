@@ -12,6 +12,8 @@ sourceHtmlSha256: "f9c5468544635c0e790b41cbf809723f6c5d971c89e3cab5fb5b199fa7653
 
 # 启动gitlab
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206111632-Docker%2BShell%2B%E6%BA%90%E7%A0%81%E4%B8%8E%E9%85%8D%E7%BD%AE-%E5%90%AF%E5%8A%A8gitlab.md)
+
 > 原文：[启动gitlab](https://xn--6o0a585a.gitbook.io/devops/docker/docker-compose/qi-dong-gitlab.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-11 16:32｜日期依据：GitBook 页面更新时间

@@ -9,6 +9,8 @@ source: "01-Web安全/README.md"
 
 # 01-Web安全
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BMySQL%2BNginx%2BApache-01-Web%E5%AE%89%E5%85%A8.md)
+
 按 Web 基础、注入、客户端漏洞、文件执行、业务逻辑、PHP、WAF 七个方向组织。
 
 ## 01-Web基础

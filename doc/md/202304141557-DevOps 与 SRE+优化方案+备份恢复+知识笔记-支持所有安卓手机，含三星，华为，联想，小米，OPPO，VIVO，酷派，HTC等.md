@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 支持所有安卓手机，含三星，华为，联想，小米，OPPO，VIVO，酷派，HTC等
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2B%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E6%94%AF%E6%8C%81%E6%89%80%E6%9C%89%E5%AE%89%E5%8D%93%E6%89%8B%E6%9C%BA%EF%BC%8C%E5%90%AB%E4%B8%89%E6%98%9F%EF%BC%8C%E5%8D%8E%E4%B8%BA%EF%BC%8C%E8%81%94%E6%83%B3%EF%BC%8C%E5%B0%8F%E7%B1%B3%EF%BC%8COPPO%EF%BC%8CVIVO%EF%BC%8C%E9%85%B7%E6%B4%BE%EF%BC%8CHTC%E7%AD%89.md)
+
 安卓手机。安卓手机QQ聊天记录在哪个文件夹，如何导出查看并恢复已删除内容
 楼月手机QQ聊天记录导出恢复软件下载地址：[本地下载1](https://louyue.com/down/louyueshoujiqq.rar)
 

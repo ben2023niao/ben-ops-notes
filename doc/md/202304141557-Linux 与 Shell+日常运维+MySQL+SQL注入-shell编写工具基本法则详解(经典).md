@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/08-运维技巧
 
 # shell编写工具基本法则详解(经典)
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2BMySQL%2BSQL%E6%B3%A8%E5%85%A5-shell%E7%BC%96%E5%86%99%E5%B7%A5%E5%85%B7%E5%9F%BA%E6%9C%AC%E6%B3%95%E5%88%99%E8%AF%A6%E8%A7%A3%28%E7%BB%8F%E5%85%B8%29.md)
+
 ## **1. 文件处理工具**
 
  展开源码

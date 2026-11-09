@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试图片加密防盗刷多域名签名配置优化记录
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-30_1828-【安全优化+后端改造】测试图片加密防盗刷多域名签名配置优化记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607301828-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%B5%8B%E8%AF%95%E5%9B%BE%E7%89%87%E5%8A%A0%E5%AF%86%E9%98%B2%E7%9B%97%E5%88%B7%E5%A4%9A%E5%9F%9F%E5%90%8D%E7%AD%BE%E5%90%8D%E9%85%8D%E7%BD%AE%E4%BC%98%E5%8C%96%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-30 18:28｜日期依据：文件名日期
 

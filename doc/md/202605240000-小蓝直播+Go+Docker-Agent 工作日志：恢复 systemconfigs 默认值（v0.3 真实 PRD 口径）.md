@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Agent 工作日志：恢复 systemconfigs 默认值（v0.3 真实 PRD 口径）
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/agents/logs/2026-05-24-restore-system-configs-defaults.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605240000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2BDocker-Agent%20%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97%EF%BC%9A%E6%81%A2%E5%A4%8D%20systemconfigs%20%E9%BB%98%E8%AE%A4%E5%80%BC%EF%BC%88v0.3%20%E7%9C%9F%E5%AE%9E%20PRD%20%E5%8F%A3%E5%BE%84%EF%BC%89.md)
 
 > 整理日期：2026-05-24 00:00｜日期依据：文件名日期
 

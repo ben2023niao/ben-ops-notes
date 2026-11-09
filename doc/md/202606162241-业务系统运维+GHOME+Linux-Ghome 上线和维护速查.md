@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Ghome 上线和维护速查
 
-> 来源文件：`~/Projects/work/game/ghome/docs/deployment/production-deploy.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606162241-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BLinux-Ghome%20%E4%B8%8A%E7%BA%BF%E5%92%8C%E7%BB%B4%E6%8A%A4%E9%80%9F%E6%9F%A5.md)
 
 > 整理日期：2026-06-16 22:41｜日期依据：文件创建/修改时间
 

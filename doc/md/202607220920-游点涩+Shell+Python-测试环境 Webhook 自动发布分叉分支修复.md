@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试环境 Webhook 自动发布分叉分支修复
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-07-22-0920-【修复Bug】测试环境Webhook自动发布分叉分支修复.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607220920-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20Webhook%20%E8%87%AA%E5%8A%A8%E5%8F%91%E5%B8%83%E5%88%86%E5%8F%89%E5%88%86%E6%94%AF%E4%BF%AE%E5%A4%8D.md)
 
 > 整理日期：2026-07-22 09:20｜日期依据：文件名日期
 

@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-24-1715-【问题排查】02的vendor_a容器消失原因定位-常驻会话手动stop记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609241715-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%9102%20%E7%9A%84%20vendor_a%20%E5%AE%B9%E5%99%A8%E4%B8%BA%E4%BB%80%E4%B9%88%E6%B6%88%E5%A4%B1%EF%BC%88game-service-vendor_a-prod%20-%209096%EF%BC%89.md)
 
 > 整理日期：2026-09-24 17:15｜日期依据：文件名日期
 

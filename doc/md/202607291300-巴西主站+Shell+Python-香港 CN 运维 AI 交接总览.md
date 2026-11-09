@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/hongkong/cn/2026-07-29-1300-【运维记录】某业务公司运维AI交接总览.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607291300-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BPython-%E9%A6%99%E6%B8%AF%20CN%20%E8%BF%90%E7%BB%B4%20AI%20%E4%BA%A4%E6%8E%A5%E6%80%BB%E8%A7%88.md)
 
 > 整理日期：2026-07-29 13:00｜日期依据：文件名日期
 

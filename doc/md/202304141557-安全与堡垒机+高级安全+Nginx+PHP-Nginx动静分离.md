@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # Nginx动静分离
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BNginx%2BPHP-Nginx%E5%8A%A8%E9%9D%99%E5%88%86%E7%A6%BB.md)
+
 ## 动静分离
 
 动静分离是让动态网站里的动态网页根据一定规则把不变的资源和经常变的资源区分开来，动静资源做好了拆分以后，我们就可以根据静态资源的特点将其做缓存操作，这就是网站静态化处理的核心思路，实际上，何谓动？何谓静呢？拿我们 **[Java](https://haicoder.net/java/java-development.html)** 来说 jsp、servlet 等就是动，因为他们离开我们的 web 服务器的支持就会无法正常工作。而 js、css 等文件就是静了。因为离开 web 服务器他一样能正常的工作。

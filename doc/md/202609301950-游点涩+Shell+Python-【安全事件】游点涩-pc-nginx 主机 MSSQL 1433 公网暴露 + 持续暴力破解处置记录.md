@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【安全事件】游点涩-pc-nginx 主机 MSSQL 1433 公网暴露 + 持续暴力破解处置记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-09-30-1950-【安全事件】pc-nginx主机MSSQL1433公网暴露与暴力破解处置记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609301950-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E3%80%90%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%E3%80%91%E6%B8%B8%E7%82%B9%E6%B6%A9-pc-nginx%20%E4%B8%BB%E6%9C%BA%20MSSQL%201433%20%E5%85%AC%E7%BD%91%E6%9A%B4%E9%9C%B2%20%2B%20%E6%8C%81%E7%BB%AD%E6%9A%B4%E5%8A%9B%E7%A0%B4%E8%A7%A3%E5%A4%84%E7%BD%AE%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-09-30 19:50｜日期依据：文件名日期
 

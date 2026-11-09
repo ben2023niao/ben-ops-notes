@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试环境 H5/PC 发布后强制清理 CDN 缓存规则
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-07-31-1606-【运维记录】测试环境H5-PC发布后强制清理CDN缓存规则.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607311606-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20H5-PC%20%E5%8F%91%E5%B8%83%E5%90%8E%E5%BC%BA%E5%88%B6%E6%B8%85%E7%90%86%20CDN%20%E7%BC%93%E5%AD%98%E8%A7%84%E5%88%99.md)
 
 > 整理日期：2026-07-31 16:06｜日期依据：文件名日期
 

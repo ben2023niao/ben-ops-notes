@@ -12,6 +12,8 @@ sourceHtmlSha256: "f2a1ccfe635c5e0328b10cdcd119f7dbd4928491a6de222f46f034d1b90b7
 
 # Javacript创建信息推送页面
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202112271711-%E9%80%9A%E7%9F%A5%E4%B8%8E%E9%9B%86%E6%88%90%2BTelegram%2BShell-Javacript%E5%88%9B%E5%BB%BA%E4%BF%A1%E6%81%AF%E6%8E%A8%E9%80%81%E9%A1%B5%E9%9D%A2.md)
+
 > 原文：[Javacript创建信息推送页面](https://xn--6o0a585a.gitbook.io/devops/telegram-ji-qi-ren/javacript-chuang-jian-xin-xi-tui-song-ye-mian.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2021-12-27 17:11｜日期依据：GitBook 页面更新时间

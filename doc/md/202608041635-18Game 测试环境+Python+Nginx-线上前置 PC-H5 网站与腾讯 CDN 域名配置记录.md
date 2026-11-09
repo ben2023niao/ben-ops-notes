@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 线上前置 PC/H5 网站与腾讯 CDN 域名配置记录
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-04_1635-【运维记录+配置部署】线上前置PC-H5网站与腾讯CDN域名配置.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608041635-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BNginx-%E7%BA%BF%E4%B8%8A%E5%89%8D%E7%BD%AE%20PC-H5%20%E7%BD%91%E7%AB%99%E4%B8%8E%E8%85%BE%E8%AE%AF%20CDN%20%E5%9F%9F%E5%90%8D%E9%85%8D%E7%BD%AE%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-04 16:35｜日期依据：文件名日期
 

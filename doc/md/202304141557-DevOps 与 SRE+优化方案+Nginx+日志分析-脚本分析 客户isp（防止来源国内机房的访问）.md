@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 脚本分析 客户isp（防止来源国内机房的访问）
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BNginx%2B%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90-%E8%84%9A%E6%9C%AC%E5%88%86%E6%9E%90%20%E5%AE%A2%E6%88%B7isp%EF%BC%88%E9%98%B2%E6%AD%A2%E6%9D%A5%E6%BA%90%E5%9B%BD%E5%86%85%E6%9C%BA%E6%88%BF%E7%9A%84%E8%AE%BF%E9%97%AE%EF%BC%89.md)
+
 ![文档配图](../media/e3cc673128c14db4f2.png)
 
 **REDME**

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【优化】线上环境发布成功通知增加步骤 5 API 测试提醒
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-18-1723-【优化】线上环境发布成功通知增加步骤5API测试提醒.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608181723-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BPython%2BDocker-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E5%8F%91%E5%B8%83%E6%88%90%E5%8A%9F%E9%80%9A%E7%9F%A5%E5%A2%9E%E5%8A%A0%E6%AD%A5%E9%AA%A4%205%20API%20%E6%B5%8B%E8%AF%95%E6%8F%90%E9%86%92.md)
 
 > 整理日期：2026-08-18 17:23｜日期依据：文件名日期
 

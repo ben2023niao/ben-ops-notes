@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/04-安全运维
 
 # Falco 之 Docker 入侵检测
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BCVE%2BDocker-Falco%20%E4%B9%8B%20Docker%20%E5%85%A5%E4%BE%B5%E6%A3%80%E6%B5%8B.md)
+
 启动falco
 ![文档配图](../media/e2406da475000ed553.png)
 

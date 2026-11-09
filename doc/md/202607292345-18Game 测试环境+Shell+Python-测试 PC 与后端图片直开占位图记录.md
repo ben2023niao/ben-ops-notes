@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试 PC 与后端图片直开占位图记录
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-29_2345-【安全优化+网络调整】测试PC静态图片直开Token门槛记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607292345-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%B5%8B%E8%AF%95%20PC%20%E4%B8%8E%E5%90%8E%E7%AB%AF%E5%9B%BE%E7%89%87%E7%9B%B4%E5%BC%80%E5%8D%A0%E4%BD%8D%E5%9B%BE%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-29 23:45｜日期依据：文件名日期
 

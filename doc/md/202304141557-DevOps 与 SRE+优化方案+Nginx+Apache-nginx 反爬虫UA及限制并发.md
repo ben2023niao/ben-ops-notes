@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # nginx 反爬虫UA及限制并发
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BNginx%2BApache-nginx%20%E5%8F%8D%E7%88%AC%E8%99%ABUA%E5%8F%8A%E9%99%90%E5%88%B6%E5%B9%B6%E5%8F%91.md)
+
 处理请求头文件agent-deny.conf
 
  展开源码

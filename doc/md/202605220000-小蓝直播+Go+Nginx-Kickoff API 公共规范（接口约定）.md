@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Kickoff API 公共规范（接口约定）
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/api/conventions.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605220000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BGo%2BNginx-Kickoff%20API%20%E5%85%AC%E5%85%B1%E8%A7%84%E8%8C%83%EF%BC%88%E6%8E%A5%E5%8F%A3%E7%BA%A6%E5%AE%9A%EF%BC%89.md)
 
 > 整理日期：2026-05-22 00:00｜日期依据：正文日期
 

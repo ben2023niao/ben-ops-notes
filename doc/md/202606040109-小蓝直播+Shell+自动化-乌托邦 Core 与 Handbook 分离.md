@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 乌托邦 Core 与 Handbook 分离
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/architecture/handbook-separation.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2B%E8%87%AA%E5%8A%A8%E5%8C%96-%E4%B9%8C%E6%89%98%E9%82%A6%20Core%20%E4%B8%8E%20Handbook%20%E5%88%86%E7%A6%BB.md)
 
 > 整理日期：2026-06-04 01:09｜日期依据：文件创建/修改时间
 

@@ -12,6 +12,8 @@ sourceHtmlSha256: "2a498ebad80f703e6ead408bde9058c48f5e19fa2780329af8499da905edf
 
 # 搭建PHP环境
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206111623-%E5%AE%B9%E5%99%A8%E4%B8%8E%E4%BA%91%E5%8E%9F%E7%94%9F%2BDocker%2BShell-%E6%90%AD%E5%BB%BAPHP%E7%8E%AF%E5%A2%83.md)
+
 > 原文：[搭建PHP环境](https://xn--6o0a585a.gitbook.io/devops/docker/centos7/da-jian-php-huan-jing.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-11 16:23｜日期依据：GitBook 页面更新时间

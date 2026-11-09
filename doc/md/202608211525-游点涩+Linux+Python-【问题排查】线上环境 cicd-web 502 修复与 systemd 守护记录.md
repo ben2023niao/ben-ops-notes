@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【问题排查】线上环境 cicd-web 502 修复与 systemd 守护记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-21-1525-【问题排查】线上环境cicd-web502修复与systemd守护记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608211525-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20cicd-web%20502%20%E4%BF%AE%E5%A4%8D%E4%B8%8E%20systemd%20%E5%AE%88%E6%8A%A4%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-21 15:25｜日期依据：文件名日期
 

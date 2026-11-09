@@ -12,6 +12,8 @@ sourceHtmlSha256: "bf49cbeb18b331c3ac2ca20823f5f22e6cffa5e966b3a11239b733b4db21e
 
 # Nginx根据用户ip返回对应地区语言
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202205202334-%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%2BNginx%2BCDN-Nginx%E6%A0%B9%E6%8D%AE%E7%94%A8%E6%88%B7ip%E8%BF%94%E5%9B%9E%E5%AF%B9%E5%BA%94%E5%9C%B0%E5%8C%BA%E8%AF%AD%E8%A8%80.md)
+
 > 原文：[Nginx根据用户ip返回对应地区语言](https://xn--6o0a585a.gitbook.io/devops/fu-wu/nginx/nginx-gen-ju-yong-hu-ip-fan-hui-dui-ying-di-qu-yu-yan.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-05-20 23:34｜日期依据：GitBook 页面更新时间

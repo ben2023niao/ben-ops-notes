@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 小米手机QQ聊天记录如何导出到电脑Word文档查看：免Root
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2B%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E5%B0%8F%E7%B1%B3%E6%89%8B%E6%9C%BAQQ%E8%81%8A%E5%A4%A9%E8%AE%B0%E5%BD%95%E5%A6%82%E4%BD%95%E5%AF%BC%E5%87%BA%E5%88%B0%E7%94%B5%E8%84%91Word%E6%96%87%E6%A1%A3%E6%9F%A5%E7%9C%8B%EF%BC%9A%E5%85%8DRoot.md)
+
 小米手机QQ聊天记录可通过手机系统自带的备份功能，导出到电脑上（手机无需Root），与好友的文字聊天记录可导出到电脑上的Word文档中，语音消息则可导出为wav格式外部音频文件。
 
 **小米手机QQ聊天记录导出电脑视频教程：<https://louyue.com/video/xiaomiqq.mp4>**

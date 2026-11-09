@@ -12,6 +12,8 @@ sourceHtmlSha256: "7eac65fa25e12ead83efcfe9328579784872823242ee4155ca2a6dd4a9c66
 
 # 自建越南/巴西地区cdn总控
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202409252012-%E5%AE%89%E5%85%A8%E7%AB%9E%E8%B5%9B%E5%A4%8D%E7%9B%98%2BMySQL%2BRedis-%E8%87%AA%E5%BB%BA%E8%B6%8A%E5%8D%97-%E5%B7%B4%E8%A5%BF%E5%9C%B0%E5%8C%BAcdn%E6%80%BB%E6%8E%A7.md)
+
 > 原文：[自建越南/巴西地区cdn总控](https://ji-shu-jian-li.gitbook.io/ben_bird/zi-jian-yue-nan-ba-xi-di-qu-cdn-zong-kong.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2024-09-25 20:12｜日期依据：GitBook 页面更新时间

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 2026-09-09 测试环境 CDN 刷新 NoSuchDistribution：AWS 手动操作步骤
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-09-09-1730-【运维记录】测试环境CDN刷新NoSuchDistribution-AWS手动操作步骤.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609091730-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BDocker-2026-09-09%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20CDN%20%E5%88%B7%E6%96%B0%20NoSuchDistribution%EF%BC%9AAWS%20%E6%89%8B%E5%8A%A8%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4.md)
 
 > 整理日期：2026-09-09 17:30｜日期依据：文件名日期
 

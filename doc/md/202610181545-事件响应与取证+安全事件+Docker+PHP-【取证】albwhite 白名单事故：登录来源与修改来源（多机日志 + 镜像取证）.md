@@ -9,6 +9,8 @@ source: "03-安全运营与应急/01-安全事件与取证/游点涩-主机与�
 
 # 【取证】albwhite 白名单事故：登录来源与修改来源（多机日志 + 镜像取证）
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610181545-%E4%BA%8B%E4%BB%B6%E5%93%8D%E5%BA%94%E4%B8%8E%E5%8F%96%E8%AF%81%2B%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%2BDocker%2BPHP-%E3%80%90%E5%8F%96%E8%AF%81%E3%80%91albwhite%20%E7%99%BD%E5%90%8D%E5%8D%95%E4%BA%8B%E6%95%85%EF%BC%9A%E7%99%BB%E5%BD%95%E6%9D%A5%E6%BA%90%E4%B8%8E%E4%BF%AE%E6%94%B9%E6%9D%A5%E6%BA%90%EF%BC%88%E5%A4%9A%E6%9C%BA%E6%97%A5%E5%BF%97%20%2B%20%E9%95%9C%E5%83%8F%E5%8F%96%E8%AF%81%EF%BC%89.md)
+
 > 来源：本地项目文档 `game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-18-1545-【取证】alb_white 事故登录与修改来源（多机日志+镜像取证）.md`
 > 整理：2026-11-09。仅复制到知识库，未改动原项目文件；敏感凭据已脱敏。
 

@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-10-02-1820-【架构改造】关键容器api-pp-pg严禁重启监控上线记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610021820-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E6%9E%B6%E6%9E%84%E6%94%B9%E9%80%A0%E3%80%91%E5%85%B3%E9%94%AE%E5%AE%B9%E5%99%A8%E3%80%8C%E4%B8%A5%E7%A6%81%E9%87%8D%E5%90%AF%E3%80%8D%E7%9B%91%E6%8E%A7%E4%B8%8A%E7%BA%BF%EF%BC%88api%20-%20pp%20-%20pg%EF%BC%89.md)
 
 > 整理日期：2026-10-02 18:20｜日期依据：文件名日期
 

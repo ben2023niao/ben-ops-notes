@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试前端发布完成通知补备案域名记录
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-29_1755-【优化】测试前端发布完成通知补备案域名记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607291755-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E6%B5%8B%E8%AF%95%E5%89%8D%E7%AB%AF%E5%8F%91%E5%B8%83%E5%AE%8C%E6%88%90%E9%80%9A%E7%9F%A5%E8%A1%A5%E5%A4%87%E6%A1%88%E5%9F%9F%E5%90%8D%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-29 17:55｜日期依据：文件名日期
 

@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-11-0030-【方案】前端代码迁移AWS-S3-桶与厂家目录对照.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609110030-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E6%96%B9%E6%A1%88%E3%80%91%E5%89%8D%E7%AB%AF%E4%BB%A3%E7%A0%81%E8%BF%81%E7%A7%BB%20AWS%20S3%EF%BC%9A%E6%A1%B6%E4%B8%8E%E5%8E%82%E5%AE%B6%E7%9B%AE%E5%BD%95%E5%AF%B9%E7%85%A7.md)
 
 > 整理日期：2026-09-11 00:30｜日期依据：文件名日期
 

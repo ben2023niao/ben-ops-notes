@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试图片加密防止检测防盗刷完整汇总说明
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-29_2350-【安全优化+运维记录】测试图片加密防止检测防盗刷完整汇总说明.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607292350-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BDocker-%E6%B5%8B%E8%AF%95%E5%9B%BE%E7%89%87%E5%8A%A0%E5%AF%86%E9%98%B2%E6%AD%A2%E6%A3%80%E6%B5%8B%E9%98%B2%E7%9B%97%E5%88%B7%E5%AE%8C%E6%95%B4%E6%B1%87%E6%80%BB%E8%AF%B4%E6%98%8E.md)
 
 > 整理日期：2026-07-29 23:50｜日期依据：文件名日期
 

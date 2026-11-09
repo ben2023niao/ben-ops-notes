@@ -9,6 +9,8 @@ source: "01-Web安全/06-PHP安全/php 弱类型问题.md"
 
 # PHP弱类型简介
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BMySQL%2BPHP-PHP%E5%BC%B1%E7%B1%BB%E5%9E%8B%E7%AE%80%E4%BB%8B.md)
+
 原文 by 乘物游心
 
 ## PHP弱类型简介

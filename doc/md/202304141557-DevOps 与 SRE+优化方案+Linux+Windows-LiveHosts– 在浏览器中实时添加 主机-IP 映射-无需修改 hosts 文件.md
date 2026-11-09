@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # LiveHosts– 在浏览器中实时添加 主机/IP 映射-无需修改 hosts 文件
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BLinux%2BWindows-LiveHosts%E2%80%93%20%E5%9C%A8%E6%B5%8F%E8%A7%88%E5%99%A8%E4%B8%AD%E5%AE%9E%E6%97%B6%E6%B7%BB%E5%8A%A0%20%E4%B8%BB%E6%9C%BA-IP%20%E6%98%A0%E5%B0%84-%E6%97%A0%E9%9C%80%E4%BF%AE%E6%94%B9%20hosts%20%E6%96%87%E4%BB%B6.md)
+
 **LiveHosts** 是一款可以在 Chrome、Firefox 浏览器中实时添加 主机/IP 映射，无需修改 hosts 文件的开发者工具，纯跳转方式，方便进行网络测试。
 
 ![文档配图](../media/b612be9df44af7f1fe.png)

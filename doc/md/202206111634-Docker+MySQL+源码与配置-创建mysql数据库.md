@@ -12,6 +12,8 @@ sourceHtmlSha256: "d9a8b66a6e1a890fac659a376c6de87d47f39d959ee0f4892861f798a370e
 
 # 创建mysql数据库
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206111634-Docker%2BMySQL%2B%E6%BA%90%E7%A0%81%E4%B8%8E%E9%85%8D%E7%BD%AE-%E5%88%9B%E5%BB%BAmysql%E6%95%B0%E6%8D%AE%E5%BA%93.md)
+
 > 原文：[创建mysql数据库](https://xn--6o0a585a.gitbook.io/devops/docker/docker-compose/chuang-jian-mysql-shu-ju-ku.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-11 16:34｜日期依据：GitBook 页面更新时间

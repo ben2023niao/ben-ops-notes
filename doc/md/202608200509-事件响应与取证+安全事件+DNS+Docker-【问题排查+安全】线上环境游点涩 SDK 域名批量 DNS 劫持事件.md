@@ -9,6 +9,8 @@ source: "03-安全运营与应急/01-安全事件与取证/游点涩-域名与�
 
 # 【问题排查+安全】线上环境游点涩 SDK 域名批量 DNS 劫持事件
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608200509-%E4%BA%8B%E4%BB%B6%E5%93%8D%E5%BA%94%E4%B8%8E%E5%8F%96%E8%AF%81%2B%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%2BDNS%2BDocker-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%2B%E5%AE%89%E5%85%A8%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E6%B8%B8%E7%82%B9%E6%B6%A9%20SDK%20%E5%9F%9F%E5%90%8D%E6%89%B9%E9%87%8F%20DNS%20%E5%8A%AB%E6%8C%81%E4%BA%8B%E4%BB%B6.md)
+
 > 来源：本地项目文档 `game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-20-0509-【问题排查+安全】线上环境游点涩SDK域名批量DNS劫持事件.md`
 > 整理：2026-11-09。仅复制到知识库，未改动原项目文件；敏感凭据已脱敏。
 

@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-16-vendor_a失败游戏URL清单.txt`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609160000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BCDN%2BDNS-%E7%9C%8B%E8%87%AA%E5%B7%B1%E5%87%BA%E5%8F%A3%E5%9B%BD%E5%AE%B6%EF%BC%88loc%20%E4%B8%8D%E6%98%AF%20BR-SG-HK-AE%20%E5%B0%B1%E4%BC%9A%E8%A2%AB%20Worker%20%E5%9B%BD%E5%AE%B6%E7%99%BD%E5%90%8D%E5%8D%95%20403%EF%BC%89.md)
 
 > 整理日期：2026-09-16 00:00｜日期依据：文件名日期
 

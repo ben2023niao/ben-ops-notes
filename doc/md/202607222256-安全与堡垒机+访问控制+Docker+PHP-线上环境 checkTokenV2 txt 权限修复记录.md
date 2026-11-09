@@ -9,6 +9,8 @@ source: "03-安全运营与应急/03-安全配置与访问控制/游点涩-网�
 
 # 线上环境 checkTokenV2 txt 权限修复记录
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607222256-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%2BDocker%2BPHP-%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20checkTokenV2%20txt%20%E6%9D%83%E9%99%90%E4%BF%AE%E5%A4%8D%E8%AE%B0%E5%BD%95.md)
+
 > 来源：本地项目文档 `game/youdianse-docker/main/docker-youdianse-php/docs/2026-07-22-2256-【修复Bug】线上环境checkTokenV2-txt权限修复.md`
 > 整理：2026-11-09。仅复制到知识库，未改动原项目文件；敏感凭据已脱敏。
 

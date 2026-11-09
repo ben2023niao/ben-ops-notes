@@ -12,6 +12,8 @@ sourceHtmlSha256: "13fbd3f6db7eb9dd6a427c7c6814fa83da1ab836afd1e5c0e6012b0c7b9b7
 
 # bash 中使用索引数组
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202409191822-%E5%AE%89%E5%85%A8%E7%AB%9E%E8%B5%9B%E5%A4%8D%E7%9B%98%2BShell%2BTelegram-bash%20%E4%B8%AD%E4%BD%BF%E7%94%A8%E7%B4%A2%E5%BC%95%E6%95%B0%E7%BB%84.md)
+
 > 原文：[bash 中使用索引数组](https://ji-shu-jian-li.gitbook.io/ben_bird/bash-zhong-shi-yong-suo-yin-shu-zu.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2024-09-19 18:22｜日期依据：GitBook 页面更新时间

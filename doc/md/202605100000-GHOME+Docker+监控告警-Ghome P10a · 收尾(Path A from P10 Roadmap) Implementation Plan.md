@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-10-ghome-p10a-finishing.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605100000-GHOME%2BDocker%2B%E7%9B%91%E6%8E%A7%E5%91%8A%E8%AD%A6-Ghome%20P10a%20%C2%B7%20%E6%94%B6%E5%B0%BE%28Path%20A%20from%20P10%20Roadmap%29%20Implementation%20Plan.md)
 
 > 整理日期：2026-05-10 00:00｜日期依据：文件名日期
 

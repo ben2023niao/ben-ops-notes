@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【运维记录】线上环境服务器 nginx 性能与卡点探测报告
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-20-0359-【运维记录】线上环境服务器nginx性能与卡点探测报告.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608200359-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BDocker%2BNginx-%E3%80%90%E8%BF%90%E7%BB%B4%E8%AE%B0%E5%BD%95%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E6%9C%8D%E5%8A%A1%E5%99%A8%20nginx%20%E6%80%A7%E8%83%BD%E4%B8%8E%E5%8D%A1%E7%82%B9%E6%8E%A2%E6%B5%8B%E6%8A%A5%E5%91%8A.md)
 
 > 整理日期：2026-08-20 03:59｜日期依据：文件名日期
 

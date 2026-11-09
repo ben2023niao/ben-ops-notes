@@ -9,6 +9,8 @@ source: "02-主机与渗透/02-Windows/Windows 入侵排查.md"
 
 # 0x00 前言
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2BWindows%2BCVE%2BLinux-0x00%20%E5%89%8D%E8%A8%80.md)
+
 原文 by [bypass](https://mp.weixin.qq.com/s/17L_fQJ1qjSvt8UL7VSemg)
 
 ## 0x00 前言

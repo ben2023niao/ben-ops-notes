@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 线上环境 PHP 错误日志持久化、小时轮转与 20G 告警改造
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-07-18-1457-【优化+架构改造】线上环境PHP全量日志持久化与20G告警改造.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607181457-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20PHP%20%E9%94%99%E8%AF%AF%E6%97%A5%E5%BF%97%E6%8C%81%E4%B9%85%E5%8C%96%E3%80%81%E5%B0%8F%E6%97%B6%E8%BD%AE%E8%BD%AC%E4%B8%8E%2020G%20%E5%91%8A%E8%AD%A6%E6%94%B9%E9%80%A0.md)
 
 > 整理日期：2026-07-18 14:57｜日期依据：文件名日期
 

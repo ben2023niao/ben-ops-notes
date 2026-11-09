@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # inode节点
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2BWindows-inode%E8%8A%82%E7%82%B9.md)
+
 操作系统的文件数据除了实际内容之外，通常含有非常多的属性，例如 **[Linux](https://haicoder.net/linux/linux-tutorial.html)** 操作系统的文件权限与文件属性。文件系统通常会将这两部分内容分别存放在 inode 和 block 中。
 
 ## inode和block概述

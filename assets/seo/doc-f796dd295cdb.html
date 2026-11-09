@@ -105,6 +105,9 @@ border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-te
     <div class="layout">
       <article class="article" itemscope itemtype="https://schema.org/TechArticle">
         
+<blockquote>
+<p>GitHub 仓库源文件：<a href="https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BNginx%2BPHP-1%20%E8%83%8C%E6%99%AF%E6%A6%82%E8%BF%B0.md" rel="noopener noreferrer">点击打开网页渲染版</a></p>
+</blockquote>
 <p>原文 by <a href="https://security.tencent.com/index.php/blog/msg/57" rel="noopener noreferrer">tsrc 博客</a></p>
 <h2 id="1-背景概述">1 背景概述</h2>
 <p>WEB应用漏洞导致的入侵时有发生，扫描器和WAF并不能解决所有的问题，于是尝试在主机侧针对PHP环境做了一个防御方案。很荣幸的邀请到TSRC部分白帽子做了一次对抗演习，本文主要分享一下防御思路。</p>
@@ -166,7 +169,7 @@ return ZEND_USER_OPCODE_DISPATCH;
 <p>2) PHP SPL提供的一些类库有文件管理的功能，也需要禁止，比如<code>DirectoryIterator</code>（不过好像没有白帽子使用过SPL）</p>
 <h3 id="4-2-对抗变形">4.2 对抗变形</h3>
 <p>PHP使用<code>assert</code>或 <code>preg_replace /e</code>执行代码，调用<code>zend_get_executed_filename</code> 获取的PHP脚本名中会带有辨别标识，assert对应的是<code>assert code</code>，<code>preg_replace</code> 对应的是<code>regexp code</code>；当发现这些特殊的脚本执行了<code>system</code> 等4.1中提高的高危函数直接阻断。以下图的<code>nonalphanumeric -webshell</code>举例：</p>
-<p>变形webshell解析后的形式和<code>$_GET[1]($_GET[2])</code>类似，比如传入<code>1=assert&amp;2=system(whoami)</code>执行代码，PHP扩展层监控到system函数执行，并且发现PHP脚本名带regexp code标识，清晰的知道是preg_replace的代码执行了调用了system，阻断system。Assert函数同理。总结：扩展并不关注在静态层如何编码运算或加密，扩展只监控最后的行为，所以可以很好的解决目前的变形难题。
+<p>变形webshell解析后的形式和<code>$_GET[1](%24_GET%5B2%5D)</code>类似，比如传入<code>1=assert&amp;2=system(whoami)</code>执行代码，PHP扩展层监控到system函数执行，并且发现PHP脚本名带regexp code标识，清晰的知道是preg_replace的代码执行了调用了system，阻断system。Assert函数同理。总结：扩展并不关注在静态层如何编码运算或加密，扩展只监控最后的行为，所以可以很好的解决目前的变形难题。
 <img alt="1 背景概述" decoding="async" loading="lazy" src="https://ben2023niao.github.io/ben-ops-notes/doc/media/eb428afb0d508c7ee7.png"/></p>
 <h3 id="4-3-减少误杀">4.3 减少误杀</h3>
 <p>有时正常的PHP脚本也需要用到命令执行的功能，如何保证其正常运行，不被我们的防御策略阻断呢？这里提供三种思路：</p>

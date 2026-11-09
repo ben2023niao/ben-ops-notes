@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # 实现快三彩票程序 (python)
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BWindows%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E5%AE%9E%E7%8E%B0%E5%BF%AB%E4%B8%89%E5%BD%A9%E7%A5%A8%E7%A8%8B%E5%BA%8F%20%28python%29.md)
+
 【开发该软件的操作系统】：windows10
 
 【软件开发环境/开发工具】：PyCharm

@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/04-安全运维
 
 # SSH横向（linux）
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BLinux%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-SSH%E6%A8%AA%E5%90%91%EF%BC%88linux%EF%BC%89.md)
+
 **这个是Linux横向的重点，获取linux账号的明文密码作用很大，因为内网环境管理员可能就那么几个，不同服务器所设置的密码也有可能相同**。
 
 ## SSH私钥泄露

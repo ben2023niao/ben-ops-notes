@@ -9,6 +9,8 @@ source: "03-安全运营与应急/09-work归档原样/README.md"
 
 # work 归档原样
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-%E7%9F%A5%E8%AF%86%E5%BD%92%E6%A1%A3%2B%E5%8E%9F%E5%A7%8B%E8%B5%84%E6%96%99%2BMongoDB%2BDocker-work%20%E5%BD%92%E6%A1%A3%E5%8E%9F%E6%A0%B7.md)
+
 本目录完整保留用户提供的 `work.zip` 及其全部展开内容。
 
 - **[大附件未纳入 GitHub：6a3be94bd2eb3e6d46.zip]**

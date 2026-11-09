@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Agent 接入引导卡重做 Implementation Plan
 
-> 来源文件：`~/Projects/work/game/ghome/docs/superpowers/plans/2026-06-10-agent-onboarding-card-redesign.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606100000-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BShell-Agent%20%E6%8E%A5%E5%85%A5%E5%BC%95%E5%AF%BC%E5%8D%A1%E9%87%8D%E5%81%9A%20Implementation%20Plan.md)
 
 > 整理日期：2026-06-10 00:00｜日期依据：文件名日期
 

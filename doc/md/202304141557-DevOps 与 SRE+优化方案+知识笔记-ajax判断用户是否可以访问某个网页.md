@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # ajax判断用户是否可以访问某个网页
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-ajax%E5%88%A4%E6%96%AD%E7%94%A8%E6%88%B7%E6%98%AF%E5%90%A6%E5%8F%AF%E4%BB%A5%E8%AE%BF%E9%97%AE%E6%9F%90%E4%B8%AA%E7%BD%91%E9%A1%B5.md)
+
 ## 需求
 
 这阵子接到个任务：如果用户没有连接vpn，那么他无法正常访问需要连接vpn的网站。需求是在访问该网站之前判断用户是否连接了vpn，如果没有，就给一个友好的提示。

@@ -12,6 +12,8 @@ sourceHtmlSha256: "cf026bb5a44dd88362bc6cd9e6ae77cb60b51d1acc54b9e032b514177521a
 
 # zabbix监控部署
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202112211530-%E7%9B%91%E6%8E%A7%2BShell%2BDocker-zabbix%E7%9B%91%E6%8E%A7%E9%83%A8%E7%BD%B2.md)
+
 > 原文：[zabbix监控部署](https://xn--6o0a585a.gitbook.io/devops/jian-kong/zabbix-jian-kong-bu-shu.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2021-12-21 15:30｜日期依据：GitBook 页面更新时间

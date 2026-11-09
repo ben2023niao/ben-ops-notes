@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-10-20-0910-【运维】Beszel告警汉化上线与日志保留期调整.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610200910-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-Beszel%20%E5%91%8A%E8%AD%A6%E6%B1%89%E5%8C%96%E4%B8%8A%E7%BA%BF%E4%B8%8E%E6%97%A5%E5%BF%97%E4%BF%9D%E7%95%99%E6%9C%9F%E8%B0%83%E6%95%B4.md)
 
 > 整理日期：2026-10-20 09:10｜日期依据：文件名日期
 

@@ -12,6 +12,8 @@ sourceHtmlSha256: "43067541a5550106491b5ca497c658681a73d977e50e0625b1810e8c5406d
 
 # 搭建Nginx
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206111619-%E5%AE%B9%E5%99%A8%E4%B8%8E%E4%BA%91%E5%8E%9F%E7%94%9F%2BDocker%2BShell-%E6%90%AD%E5%BB%BANginx.md)
+
 > 原文：[搭建Nginx](https://xn--6o0a585a.gitbook.io/devops/docker/centos7/da-jian-nginx.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-11 16:19｜日期依据：GitBook 页面更新时间

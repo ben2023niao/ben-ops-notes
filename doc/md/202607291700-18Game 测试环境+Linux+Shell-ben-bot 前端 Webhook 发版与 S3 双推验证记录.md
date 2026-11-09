@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # ben-bot 前端 Webhook 发版与 S3 双推验证记录
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-07-29_1700-【优化+架构改造+问题排查】ben-bot前端Webhook发版与S3双推验证记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202607291700-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-ben-bot%20%E5%89%8D%E7%AB%AF%20Webhook%20%E5%8F%91%E7%89%88%E4%B8%8E%20S3%20%E5%8F%8C%E6%8E%A8%E9%AA%8C%E8%AF%81%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-07-29 17:00｜日期依据：文件名日期
 

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 2026-09-09 测试环境 CDN 刷新 NoSuchDistribution 诊断与待办
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/dev/docker-youdianse-php/docs/2026-09-09-1721-【修复Bug】测试环境CDN刷新NoSuchDistribution诊断与待办.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609091721-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BDocker%2B%E8%87%AA%E5%8A%A8%E5%8C%96-2026-09-09%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20CDN%20%E5%88%B7%E6%96%B0%20NoSuchDistribution%20%E8%AF%8A%E6%96%AD%E4%B8%8E%E5%BE%85%E5%8A%9E.md)
 
 > 整理日期：2026-09-09 17:21｜日期依据：文件名日期
 

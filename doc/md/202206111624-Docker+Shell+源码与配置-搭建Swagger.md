@@ -12,6 +12,8 @@ sourceHtmlSha256: "99611294fd9b9ce2f75c8e81f83759d641fe1d274123f203fb621258a9b21
 
 # 搭建Swagger
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206111624-Docker%2BShell%2B%E6%BA%90%E7%A0%81%E4%B8%8E%E9%85%8D%E7%BD%AE-%E6%90%AD%E5%BB%BASwagger.md)
+
 > 原文：[搭建Swagger](https://xn--6o0a585a.gitbook.io/devops/docker/centos7/da-jian-swagger.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-11 16:24｜日期依据：GitBook 页面更新时间

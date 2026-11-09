@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/04-安全运维
 
 # Linux限制指定用户或IP地址登录SSH
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BLinux%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-Linux%E9%99%90%E5%88%B6%E6%8C%87%E5%AE%9A%E7%94%A8%E6%88%B7%E6%88%96IP%E5%9C%B0%E5%9D%80%E7%99%BB%E5%BD%95SSH.md)
+
 ## 限制用户通过SSH登录
 
 编辑/etc/ssh/sshd_config配置文件，增加类似如下的Deny Users选项，拒绝指定用户通过SSH登录。然后重启SSH服务即可。

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # ben-bot 挂起排查与重启
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-25_1047-【排查+运维记录】ben-bot挂起排查与重启.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608251047-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BDocker-ben-bot%20%E6%8C%82%E8%B5%B7%E6%8E%92%E6%9F%A5%E4%B8%8E%E9%87%8D%E5%90%AF.md)
 
 > 整理日期：2026-08-25 10:47｜日期依据：文件名日期
 

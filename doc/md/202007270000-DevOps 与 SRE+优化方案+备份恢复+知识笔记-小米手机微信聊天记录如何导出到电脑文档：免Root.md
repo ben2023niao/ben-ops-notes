@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 小米手机微信聊天记录如何导出到电脑文档：免Root
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202007270000-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2B%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E5%B0%8F%E7%B1%B3%E6%89%8B%E6%9C%BA%E5%BE%AE%E4%BF%A1%E8%81%8A%E5%A4%A9%E8%AE%B0%E5%BD%95%E5%A6%82%E4%BD%95%E5%AF%BC%E5%87%BA%E5%88%B0%E7%94%B5%E8%84%91%E6%96%87%E6%A1%A3%EF%BC%9A%E5%85%8DRoot.md)
+
 小米手机微信聊天记录导出到电脑的问题困扰了很多微信用户，其实小米手机app产生的数据，都可以通过系统自带的备份功能，将其导出到电脑上。微信app产生的聊天记录当然也不例外，接下来我来教大家如何把小米手机上的微信聊天记录保存到电脑上（含文字，图片，语音，视频等）。
 
 小米手机微信聊天记录导出到电脑视频教程：<https://louyue.com/video/xiaomiwechat.mp4>

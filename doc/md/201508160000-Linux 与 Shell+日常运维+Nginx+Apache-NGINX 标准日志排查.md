@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/08-运维技巧
 
 # NGINX 标准日志排查
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/201508160000-Linux%20%E4%B8%8E%20Shell%2B%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%2BNginx%2BApache-NGINX%20%E6%A0%87%E5%87%86%E6%97%A5%E5%BF%97%E6%8E%92%E6%9F%A5.md)
+
 ```
 echo "完整请求链路统计"
 awk -F ',' '{a["客户ip："$3" =>"$6" ["$4"] ""{"$7"}"" 耗时:"$10" <=upstream=> 后端响应:"$28"["$25"]"" {"$29"}"" 耗时:"$34" =>"$1 ]++}END{for(i in a)print a[i],i|"uniq|sort -k1 -nr|head -n10"}' lbhyapi.log

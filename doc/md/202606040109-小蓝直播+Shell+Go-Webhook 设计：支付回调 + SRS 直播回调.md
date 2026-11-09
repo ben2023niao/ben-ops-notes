@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Webhook 设计：支付回调 + SRS 直播回调
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/architecture/webhook-design.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606040109-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BShell%2BGo-Webhook%20%E8%AE%BE%E8%AE%A1%EF%BC%9A%E6%94%AF%E4%BB%98%E5%9B%9E%E8%B0%83%20%2B%20SRS%20%E7%9B%B4%E6%92%AD%E5%9B%9E%E8%B0%83.md)
 
 > 整理日期：2026-06-04 01:09｜日期依据：文件创建/修改时间
 

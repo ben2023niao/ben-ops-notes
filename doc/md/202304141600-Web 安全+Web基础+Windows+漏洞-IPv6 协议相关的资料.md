@@ -9,6 +9,8 @@ source: "01-Web安全/01-Web基础/网络协议/IPv6协议相关.md"
 
 # IPv6 协议相关的资料
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWeb%E5%9F%BA%E7%A1%80%2BWindows%2B%E6%BC%8F%E6%B4%9E-IPv6%20%E5%8D%8F%E8%AE%AE%E7%9B%B8%E5%85%B3%E7%9A%84%E8%B5%84%E6%96%99.md)
+
 ## IPv6 协议相关的资料
 
 1）IPv6 数据包构造与安全测试框架 - Chiron

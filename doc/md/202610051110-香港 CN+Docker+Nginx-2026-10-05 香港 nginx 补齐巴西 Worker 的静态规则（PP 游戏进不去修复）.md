@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-10-05-1110-【架构改造】香港nginx补齐巴西Worker静态规则（PP进不去修复）.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610051110-%E9%A6%99%E6%B8%AF%20CN%2BDocker%2BNginx-2026-10-05%20%E9%A6%99%E6%B8%AF%20nginx%20%E8%A1%A5%E9%BD%90%E5%B7%B4%E8%A5%BF%20Worker%20%E7%9A%84%E9%9D%99%E6%80%81%E8%A7%84%E5%88%99%EF%BC%88PP%20%E6%B8%B8%E6%88%8F%E8%BF%9B%E4%B8%8D%E5%8E%BB%E4%BF%AE%E5%A4%8D%EF%BC%89.md)
 
 > 整理日期：2026-10-05 11:10｜日期依据：文件名日期
 

@@ -9,6 +9,8 @@ source: "01-Web安全/07-WAF与信息泄露/Bypass-WAF/bypass sqli.md"
 
 # 0x01 WAF的常见特征
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BWAF%E4%B8%8E%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%2BMySQL%2BPHP-0x01%20WAF%E7%9A%84%E5%B8%B8%E8%A7%81%E7%89%B9%E5%BE%81.md)
+
 原文 by r00tgrok
 
 ## 0x01 WAF的常见特征

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【问题排查】albwhite.txt / albwhitesecret.txt 缺失导致新游戏回调被拒（线上 + 测试环境已修复）
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-18-1515-【问题排查】alb_white 白名单缺失导致游戏回调被拒（线上+测试环境已修复）.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610181515-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91albwhite.txt%20-%20albwhitesecret.txt%20%E7%BC%BA%E5%A4%B1%E5%AF%BC%E8%87%B4%E6%96%B0%E6%B8%B8%E6%88%8F%E5%9B%9E%E8%B0%83%E8%A2%AB%E6%8B%92%EF%BC%88%E7%BA%BF%E4%B8%8A%20%2B%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E5%B7%B2%E4%BF%AE%E5%A4%8D%EF%BC%89.md)
 
 > 整理日期：2026-10-18 15:15｜日期依据：文件名日期
 

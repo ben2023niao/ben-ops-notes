@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【运维记录】运维组新增成员 @fyb99：值班表排班 + 各类通知 @ 名单更新
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-10-10_1330-【运维记录】运维组新增成员fyb99-值班表与通知名单更新.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610101330-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E3%80%90%E8%BF%90%E7%BB%B4%E8%AE%B0%E5%BD%95%E3%80%91%E8%BF%90%E7%BB%B4%E7%BB%84%E6%96%B0%E5%A2%9E%E6%88%90%E5%91%98%20%40fyb99%EF%BC%9A%E5%80%BC%E7%8F%AD%E8%A1%A8%E6%8E%92%E7%8F%AD%20%2B%20%E5%90%84%E7%B1%BB%E9%80%9A%E7%9F%A5%20%40%20%E5%90%8D%E5%8D%95%E6%9B%B4%E6%96%B0.md)
 
 > 整理日期：2026-10-10 13:30｜日期依据：文件名日期
 

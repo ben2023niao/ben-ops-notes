@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/cn/docker/doc/2026-10-08-1450-【故障处理】静态域名目录跳转被写成http-absolute_redirect-off修复.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610081450-%E9%A6%99%E6%B8%AF%20CN%2BDocker%2BNginx-2026-10-08%20%E9%9D%99%E6%80%81%E5%9F%9F%E5%90%8D%E7%9B%AE%E5%BD%95%E8%B7%B3%E8%BD%AC%E5%8F%98%E6%88%90%20http%EF%BC%9A-%EF%BC%88%E6%B8%B8%E6%88%8F%20iframe%20%E8%A2%AB%E6%8B%A6%EF%BC%89%E4%BF%AE%E5%A4%8D.md)
 
 > 整理日期：2026-10-08 14:50｜日期依据：文件名日期
 

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 测试环境前端 PC/H5 问题巡检记录
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-17_1930-【巡检记录】测试环境前端PC-H5问题诊断.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608171930-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BPython%2BCDN-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E5%89%8D%E7%AB%AF%20PC-H5%20%E9%97%AE%E9%A2%98%E5%B7%A1%E6%A3%80%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-17 19:30｜日期依据：文件名日期
 

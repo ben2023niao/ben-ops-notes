@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/05-拓展/birdb
 
 # TCP backlog参数
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E9%AB%98%E7%BA%A7%E5%AE%89%E5%85%A8%2BLinux%2BRedis-TCP%20backlog%E5%8F%82%E6%95%B0.md)
+
 backlog 参数主要用于底层方法 int listen(int sockfd, int backlog)， 在解释 backlog 参数之前，我们先了解下 tcp 在内核的请求过程，其实就是 tcp 的三次握手：
 ![文档配图](../media/24a124aad185f59137.png)
 

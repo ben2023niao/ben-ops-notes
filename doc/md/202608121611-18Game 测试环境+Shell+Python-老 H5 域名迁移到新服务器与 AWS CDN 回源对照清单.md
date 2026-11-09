@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 老 H5 域名迁移到新服务器与 AWS CDN 回源对照清单
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-12_1611-【迁移+验证记录】老H5域名迁移到新服务器与AWS-CDN回源对照清单.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608121611-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E8%80%81%20H5%20%E5%9F%9F%E5%90%8D%E8%BF%81%E7%A7%BB%E5%88%B0%E6%96%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8E%20AWS%20CDN%20%E5%9B%9E%E6%BA%90%E5%AF%B9%E7%85%A7%E6%B8%85%E5%8D%95.md)
 
 > 整理日期：2026-08-12 16:11｜日期依据：文件名日期
 

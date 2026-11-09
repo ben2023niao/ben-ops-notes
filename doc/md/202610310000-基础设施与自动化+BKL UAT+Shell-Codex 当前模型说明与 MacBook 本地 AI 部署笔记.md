@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Codex 当前模型说明与 MacBook 本地 AI 部署笔记
 
-> 来源文件：`~/Projects/work/ops/devops/devops-bkl/doc/2026年10月31日-Codex模型说明与Mac本地AI部署/2026年10月31日-Codex模型说明与Mac本地AI部署.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610310000-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%2BBKL%20UAT%2BShell-Codex%20%E5%BD%93%E5%89%8D%E6%A8%A1%E5%9E%8B%E8%AF%B4%E6%98%8E%E4%B8%8E%20MacBook%20%E6%9C%AC%E5%9C%B0%20AI%20%E9%83%A8%E7%BD%B2%E7%AC%94%E8%AE%B0.md)
 
 > 整理日期：2026-10-31 00:00｜日期依据：文件名日期
 

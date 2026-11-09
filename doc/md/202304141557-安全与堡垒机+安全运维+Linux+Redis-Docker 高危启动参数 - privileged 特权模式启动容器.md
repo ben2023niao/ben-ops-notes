@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/04-安全运维
 
 # Docker 高危启动参数 -- privileged 特权模式启动容器
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2B%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BLinux%2BRedis-Docker%20%E9%AB%98%E5%8D%B1%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0%20-%20privileged%20%E7%89%B9%E6%9D%83%E6%A8%A1%E5%BC%8F%E5%90%AF%E5%8A%A8%E5%AE%B9%E5%99%A8.md)
+
 ## ⭐Docker 高危启动参数 -- privileged 特权模式启动容器
 
 特权模式逃逸是一种最简单有效的逃逸方法，使用特权模式启动的容器时，docker管理员可通过mount命令将外部宿主机磁盘设备挂载进容器内部，获取对整个宿主机的文件读写权限，可直接通过chroot切换根目录、写ssh公钥和crontab计划任何等getshell。

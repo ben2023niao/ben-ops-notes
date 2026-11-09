@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【安全事件】线上环境游点涩 SDK 域名批量链路风险验证事件报告
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-20-1525-【安全事件】线上环境游点涩SDK域名批量劫持事件报告.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608201525-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BDocker%2BNginx-%E3%80%90%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E6%B8%B8%E7%82%B9%E6%B6%A9%20SDK%20%E5%9F%9F%E5%90%8D%E6%89%B9%E9%87%8F%E9%93%BE%E8%B7%AF%E9%A3%8E%E9%99%A9%E9%AA%8C%E8%AF%81%E4%BA%8B%E4%BB%B6%E6%8A%A5%E5%91%8A.md)
 
 > 整理日期：2026-08-20 15:25｜日期依据：文件名日期
 

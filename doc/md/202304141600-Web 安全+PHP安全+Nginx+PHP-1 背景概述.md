@@ -9,6 +9,8 @@ source: "01-Web安全/06-PHP安全/php 防getshell思路.md"
 
 # 1 背景概述
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141600-Web%20%E5%AE%89%E5%85%A8%2BPHP%E5%AE%89%E5%85%A8%2BNginx%2BPHP-1%20%E8%83%8C%E6%99%AF%E6%A6%82%E8%BF%B0.md)
+
 原文 by [tsrc 博客](https://security.tencent.com/index.php/blog/msg/57)
 
 ## 1 背景概述

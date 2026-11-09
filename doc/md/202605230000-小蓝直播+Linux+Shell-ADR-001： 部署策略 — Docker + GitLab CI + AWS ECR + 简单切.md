@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # ADR-001： 部署策略 — Docker + GitLab CI + AWS ECR + 简单切
 
-> 来源文件：`~/Projects/work/game/xiaolan-watches/dev/docs/decisions/ADR-001-deployment-strategy.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605230000-%E5%B0%8F%E8%93%9D%E7%9B%B4%E6%92%AD%2BLinux%2BShell-ADR-001%EF%BC%9A%20%E9%83%A8%E7%BD%B2%E7%AD%96%E7%95%A5%20%E2%80%94%20Docker%20%2B%20GitLab%20CI%20%2B%20AWS%20ECR%20%2B%20%E7%AE%80%E5%8D%95%E5%88%87.md)
 
 > 整理日期：2026-05-23 00:00｜日期依据：正文日期
 

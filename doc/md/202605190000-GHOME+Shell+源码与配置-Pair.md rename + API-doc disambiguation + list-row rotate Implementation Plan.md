@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # Pair.md rename + API-doc disambiguation + list-row rotate Implementation Plan
 
-> 来源文件：`~/Projects/work/game/ghome/docs/superpowers/plans/2026-05-19-pair-md-rename-and-list-rotate.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202605190000-GHOME%2BShell%2B%E6%BA%90%E7%A0%81%E4%B8%8E%E9%85%8D%E7%BD%AE-Pair.md%20rename%20%2B%20API-doc%20disambiguation%20%2B%20list-row%20rotate%20Implementation%20Plan.md)
 
 > 整理日期：2026-05-19 00:00｜日期依据：文件名日期
 

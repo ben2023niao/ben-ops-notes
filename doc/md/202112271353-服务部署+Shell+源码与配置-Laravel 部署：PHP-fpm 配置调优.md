@@ -12,6 +12,8 @@ sourceHtmlSha256: "765eb7c5224f9558bea3f22e23bdc0c2801c6a388b00c164520e78b59b35d
 
 # Laravel 部署：PHP-fpm 配置调优
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202112271353-%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%2BShell%2B%E6%BA%90%E7%A0%81%E4%B8%8E%E9%85%8D%E7%BD%AE-Laravel%20%E9%83%A8%E7%BD%B2%EF%BC%9APHP-fpm%20%E9%85%8D%E7%BD%AE%E8%B0%83%E4%BC%98.md)
+
 > 原文：[Laravel 部署：PHP-fpm 配置调优](https://xn--6o0a585a.gitbook.io/devops/fu-wu/laravel-bu-shu/laravel-bu-shu-phpfpm-pei-zhi-tiao-you.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2021-12-27 13:53｜日期依据：GitBook 页面更新时间

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【问题排查】测试环境 H5 发版失败：前端 preinstall 依赖校验脚本未进镜像
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-10-09_0830-【问题排查】测试环境h5发版失败-preinstall依赖校验脚本未进镜像.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610090830-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BShell%2BPython-%E3%80%90%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E3%80%91%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%20H5%20%E5%8F%91%E7%89%88%E5%A4%B1%E8%B4%A5%EF%BC%9A%E5%89%8D%E7%AB%AF%20preinstall%20%E4%BE%9D%E8%B5%96%E6%A0%A1%E9%AA%8C%E8%84%9A%E6%9C%AC%E6%9C%AA%E8%BF%9B%E9%95%9C%E5%83%8F.md)
 
 > 整理日期：2026-10-09 08:30｜日期依据：文件名日期
 

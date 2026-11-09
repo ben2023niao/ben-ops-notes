@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-08-30-0140-【资源优化】大JS与字体与JSON审计记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608300140-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BDocker-%E3%80%90%E8%B5%84%E6%BA%90%E4%BC%98%E5%8C%96%E3%80%91%E5%A4%A7%20JS%20-%20%E5%AD%97%E4%BD%93%20-%20JSON%20%E5%AE%A1%E8%AE%A1%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-30 01:40｜日期依据：文件名日期
 

@@ -12,6 +12,8 @@ sourceHtmlSha256: "f3251f90fa9d29aa52d1ad94f3979e65542cd6679b4e4d61115d9d3131269
 
 # 部署etcd节点
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206111630-%E5%AE%B9%E5%99%A8%E4%B8%8E%E4%BA%91%E5%8E%9F%E7%94%9F%2BDocker%2BLinux-%E9%83%A8%E7%BD%B2etcd%E8%8A%82%E7%82%B9.md)
+
 > 原文：[部署etcd节点](https://xn--6o0a585a.gitbook.io/devops/docker/centos7/bu-shu-etcd-jie-dian.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-11 16:30｜日期依据：GitBook 页面更新时间

@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【取证】albwhite 白名单事故：登录来源与修改来源（多机日志 + 镜像取证）
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-10-18-1545-【取证】alb_white 事故登录与修改来源（多机日志+镜像取证）.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610181545-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BLinux%2BShell-%E3%80%90%E5%8F%96%E8%AF%81%E3%80%91albwhite%20%E7%99%BD%E5%90%8D%E5%8D%95%E4%BA%8B%E6%95%85%EF%BC%9A%E7%99%BB%E5%BD%95%E6%9D%A5%E6%BA%90%E4%B8%8E%E4%BF%AE%E6%94%B9%E6%9D%A5%E6%BA%90%EF%BC%88%E5%A4%9A%E6%9C%BA%E6%97%A5%E5%BF%97%20%2B%20%E9%95%9C%E5%83%8F%E5%8F%96%E8%AF%81%EF%BC%89.md)
 
 > 整理日期：2026-10-18 15:45｜日期依据：文件名日期
 

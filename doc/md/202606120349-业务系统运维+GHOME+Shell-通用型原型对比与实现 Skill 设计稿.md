@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 通用型原型对比与实现 Skill 设计稿
 
-> 来源文件：`~/Projects/work/game/ghome/docs/prototype-diff-implementation-skill-design.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202606120349-%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%2BGHOME%2BShell-%E9%80%9A%E7%94%A8%E5%9E%8B%E5%8E%9F%E5%9E%8B%E5%AF%B9%E6%AF%94%E4%B8%8E%E5%AE%9E%E7%8E%B0%20Skill%20%E8%AE%BE%E8%AE%A1%E7%A8%BF.md)
 
 > 整理日期：2026-06-12 03:49｜日期依据：文件创建/修改时间
 

@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # vivo手机微信聊天记录如何导出电脑查看：免ROOT
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202007270000-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2B%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-vivo%E6%89%8B%E6%9C%BA%E5%BE%AE%E4%BF%A1%E8%81%8A%E5%A4%A9%E8%AE%B0%E5%BD%95%E5%A6%82%E4%BD%95%E5%AF%BC%E5%87%BA%E7%94%B5%E8%84%91%E6%9F%A5%E7%9C%8B%EF%BC%9A%E5%85%8DROOT.md)
+
 现如今绝大部份的vivo手机都完全无法ROOT，于是以前的那种ROOT后导出微信聊天记录的方法显然已经行不通了。那么现在VIVO手机无法ROOT该如何导出查看微信聊天记录呢？下面小编就给大家介绍一下免ROOT查看VIVO手机微信聊天记录的方法。
 
 **vivo手机微信聊天记录导出到电脑视频教程：<https://louyue.com/video/vivowechat.mp4>**

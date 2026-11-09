@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 线上前置日本服务器替换与备案域名 COS 直连关系
 
-> 来源文件：`~/Desktop/18game_devops/devops/python/ben-bot/doc/2026-08-04_2012-【运维记录+链路改造】线上前置日本服务器替换与备案域名COS直连关系.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608042012-18Game%20%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%2BLinux%2BShell-%E7%BA%BF%E4%B8%8A%E5%89%8D%E7%BD%AE%E6%97%A5%E6%9C%AC%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%9B%BF%E6%8D%A2%E4%B8%8E%E5%A4%87%E6%A1%88%E5%9F%9F%E5%90%8D%20COS%20%E7%9B%B4%E8%BF%9E%E5%85%B3%E7%B3%BB.md)
 
 > 整理日期：2026-08-04 20:12｜日期依据：文件名日期
 

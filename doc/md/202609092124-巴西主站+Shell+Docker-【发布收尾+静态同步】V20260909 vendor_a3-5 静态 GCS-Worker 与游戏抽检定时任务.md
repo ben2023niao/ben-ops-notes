@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-09-2124-【发布收尾+静态同步】V20260909 vendor_a3-5静态GCS/Worker与游戏抽检定时任务上线记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609092124-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BShell%2BDocker-%E3%80%90%E5%8F%91%E5%B8%83%E6%94%B6%E5%B0%BE%2B%E9%9D%99%E6%80%81%E5%90%8C%E6%AD%A5%E3%80%91V20260909%20vendor_a3-5%20%E9%9D%99%E6%80%81%20GCS-Worker%20%E4%B8%8E%E6%B8%B8%E6%88%8F%E6%8A%BD%E6%A3%80%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1.md)
 
 > 整理日期：2026-09-09 21:24｜日期依据：正文日期
 

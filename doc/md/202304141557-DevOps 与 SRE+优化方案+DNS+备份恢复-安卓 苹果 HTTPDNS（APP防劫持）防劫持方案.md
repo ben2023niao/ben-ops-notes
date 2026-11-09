@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 安卓 苹果 HTTPDNS（APP防劫持）防劫持方案
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BDNS%2B%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D-%E5%AE%89%E5%8D%93%20%E8%8B%B9%E6%9E%9C%20HTTPDNS%EF%BC%88APP%E9%98%B2%E5%8A%AB%E6%8C%81%EF%BC%89%E9%98%B2%E5%8A%AB%E6%8C%81%E6%96%B9%E6%A1%88.md)
+
 <https://defense.yunaq.com/httpdns/>
 <https://www.wangsu.com/document/476/481>
 

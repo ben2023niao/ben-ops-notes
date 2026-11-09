@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-10-12-1530-【运维】vendor_d一周日志(北京时间)导出并上传S3交付记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202610121530-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BShell-%E3%80%90%E8%BF%90%E7%BB%B4%E3%80%91vendor_d%20%E4%B8%80%E5%91%A8%E6%97%A5%E5%BF%97%EF%BC%88%E5%8C%97%E4%BA%AC%E6%97%B6%E9%97%B4%EF%BC%89%E5%AF%BC%E5%87%BA%20%2B%20%E4%B8%8A%E4%BC%A0%20S3%20%E4%BA%A4%E4%BB%98.md)
 
 > 整理日期：2026-10-12 15:30｜日期依据：文件名日期
 

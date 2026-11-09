@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-09-16-【排查】vendor_a部分游戏加载不出来-可人工打开的链接清单.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202609160000-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BCDN%2BDNS-vendor_a%20%E9%83%A8%E5%88%86%E6%B8%B8%E6%88%8F%E5%8A%A0%E8%BD%BD%E4%B8%8D%E5%87%BA%E6%9D%A5%EF%BC%9A%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95%E4%B8%8E%E5%8F%AF%E4%BA%BA%E5%B7%A5%E6%89%93%E5%BC%80%E7%9A%84%E9%93%BE%E6%8E%A5%E6%B8%85%E5%8D%95.md)
 
 > 整理日期：2026-09-16 00:00｜日期依据：文件名日期
 

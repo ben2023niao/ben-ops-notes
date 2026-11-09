@@ -9,6 +9,8 @@ source: "03-安全运营与应急/07-工作运维离线知识库/03-优化方案
 
 # 三 传统方式 测试Mongodb副本集数据复制功能
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202304141557-DevOps%20%E4%B8%8E%20SRE%2B%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%2BMongoDB%2B%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0-%E4%B8%89%20%E4%BC%A0%E7%BB%9F%E6%96%B9%E5%BC%8F%20%E6%B5%8B%E8%AF%95Mongodb%E5%89%AF%E6%9C%AC%E9%9B%86%E6%95%B0%E6%8D%AE%E5%A4%8D%E5%88%B6%E5%8A%9F%E8%83%BD.md)
+
 **<mongodb默认是从主节点读写数据的，副本节点上不允许读，需要设置副本节点可以读>**
 
 ```

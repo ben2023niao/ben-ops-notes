@@ -13,7 +13,7 @@ sourceSystem: "project-doc"
 
 # 【优化】线上环境 CICD 发布新增 bigDataJob 队列强制校验记录
 
-> 来源文件：`~/Projects/work/game/youdianse-docker/main/docker-youdianse-php/docs/2026-08-20-2215-【优化】线上环境CICD发布新增bigDataJob队列强制校验记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202608202215-%E6%B8%B8%E7%82%B9%E6%B6%A9%2BShell%2BPython-%E3%80%90%E4%BC%98%E5%8C%96%E3%80%91%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%20CICD%20%E5%8F%91%E5%B8%83%E6%96%B0%E5%A2%9E%20bigDataJob%20%E9%98%9F%E5%88%97%E5%BC%BA%E5%88%B6%E6%A0%A1%E9%AA%8C%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-08-20 22:15｜日期依据：文件名日期
 

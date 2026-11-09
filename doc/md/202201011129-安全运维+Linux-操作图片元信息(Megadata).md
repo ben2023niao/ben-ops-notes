@@ -12,6 +12,8 @@ sourceHtmlSha256: "953c78e703e041e2e7d5c5a1d6c01fffa96d2a7f7c16dc26e8b74124e9481
 
 # 操作图片元信息(Megadata)
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202201011129-%E5%AE%89%E5%85%A8%E8%BF%90%E7%BB%B4%2BLinux-%E6%93%8D%E4%BD%9C%E5%9B%BE%E7%89%87%E5%85%83%E4%BF%A1%E6%81%AF%28Megadata%29.md)
+
 > 原文：[操作图片元信息(Megadata)](https://xn--6o0a585a.gitbook.io/devops/an-quan/cao-zuo-tu-pian-yuan-xin-xi-megadata.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-01-01 11:29｜日期依据：GitBook 页面更新时间

@@ -12,6 +12,8 @@ sourceHtmlSha256: "ad0b4768d91eca79b616528664be70d27647c7e07d5183d85af2263e712c1
 
 # zabbix-install.sh
 
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202206111658-%E7%9B%91%E6%8E%A7%2BShell%2BDocker-zabbix-install.sh.md)
+
 > 原文：[zabbix-install.sh](https://xn--6o0a585a.gitbook.io/devops/jian-kong/zabbix-jian-kong-bu-shu/zabbix-install.sh.html)
 
 > 来源：GitBook 网页 HTML｜页面时间：2022-06-11 16:58｜日期依据：GitBook 页面更新时间

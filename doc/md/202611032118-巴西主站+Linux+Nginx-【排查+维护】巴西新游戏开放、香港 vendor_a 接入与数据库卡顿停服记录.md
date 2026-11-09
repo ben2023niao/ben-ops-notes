@@ -15,7 +15,7 @@ sourceSystem: "project-doc"
 
 > 公开版脱敏说明：公司、平台、节点、账号、地址和业务对象均已替换为示例标识；替换后的名称仅用于公开复盘。
 
-> 来源文件：`~/Projects/ops/private-notes/master/docs/history/2026-11-03-2118-【排查+维护】巴西新游戏开放香港vendor_a接入与数据库卡顿停服记录.md`
+> GitHub 仓库源文件：[点击打开网页渲染版](https://github.com/ben2023niao/ben-ops-notes/blob/main/doc/md/202611032118-%E5%B7%B4%E8%A5%BF%E4%B8%BB%E7%AB%99%2BLinux%2BNginx-%E3%80%90%E6%8E%92%E6%9F%A5%2B%E7%BB%B4%E6%8A%A4%E3%80%91%E5%B7%B4%E8%A5%BF%E6%96%B0%E6%B8%B8%E6%88%8F%E5%BC%80%E6%94%BE%E3%80%81%E9%A6%99%E6%B8%AF%20vendor_a%20%E6%8E%A5%E5%85%A5%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8D%A1%E9%A1%BF%E5%81%9C%E6%9C%8D%E8%AE%B0%E5%BD%95.md)
 
 > 整理日期：2026-11-03 21:18｜日期依据：文件名日期
 
