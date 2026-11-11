@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>789Bingo Android 3.0.11 客户端静态安全审计｜安全与堡垒机｜BEN.OPS</title>
+  <meta name="description" content="789Bingo Android 3.0.11 客户端静态安全审计。本文属于安全与堡垒机，公开版整理说明：本次只对官方 APK 做静态检查，没有运行客户端、登录账号或读取真实 Token、聊天、KYC 与支付数据。文中不提供可直接复用的攻击步骤、硬编码秘密值或完整源码片段。 审计对象为 789Bingo Andr…">
+  <meta name="keywords" content="789Bingo，Android，Flutter，KYC，Token安全，客户端安全，安全与堡垒机，789Bingo Android 3.0.11 客户端静态安全审计，范围，样本与签名，正向控制，主要风险，1. KYC 回跳缺少完整 Origin 绑定，2. 供应商参数可能属于长期秘密">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-77b4544ac7f9.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-77b4544ac7f9.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202611101945-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2BAndroid-789Bingo%20Android%203.0.11%20%E9%9D%99%E6%80%81%E5%AE%89%E5%85%A8%E5%AE%A1%E8%AE%A1.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="789Bingo Android 3.0.11 客户端静态安全审计">
+  <meta property="og:description" content="789Bingo Android 3.0.11 客户端静态安全审计。本文属于安全与堡垒机，公开版整理说明：本次只对官方 APK 做静态检查，没有运行客户端、登录账号或读取真实 Token、聊天、KYC 与支付数据。文中不提供可直接复用的攻击步骤、硬编码秘密值或完整源码片段。 审计对象为 789Bingo Andr…">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-77b4544ac7f9.html">
+  <meta property="article:published_time" content="2026-11-10T19:45:00+08:00">
+  <meta property="article:modified_time" content="2026-11-10 19:45">
+  <meta property="article:section" content="安全与堡垒机">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="789Bingo Android 3.0.11 客户端静态安全审计">
+  <meta name="twitter:description" content="789Bingo Android 3.0.11 客户端静态安全审计。本文属于安全与堡垒机，公开版整理说明：本次只对官方 APK 做静态检查，没有运行客户端、登录账号或读取真实 Token、聊天、KYC 与支付数据。文中不提供可直接复用的攻击步骤、硬编码秘密值或完整源码片段。 审计对象为 789Bingo Andr…">
+
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-77b4544ac7f9.html#article","headline":"789Bingo Android 3.0.11 客户端静态安全审计","description":"789Bingo Android 3.0.11 客户端静态安全审计。本文属于安全与堡垒机，公开版整理说明：本次只对官方 APK 做静态检查，没有运行客户端、登录账号或读取真实 Token、聊天、KYC 与支付数据。文中不提供可直接复用的攻击步骤、硬编码秘密值或完整源码片段。 审计对象为 789Bingo Andr…","datePublished":"2026-11-10T19:45:00+08:00","dateModified":"2026-11-10 19:45","inLanguage":"zh-CN","articleSection":["安全与堡垒机"],"keywords":["789Bingo","Android","Flutter","KYC","Token安全","客户端安全","安全与堡垒机","789Bingo Android 3.0.11 客户端静态安全审计","范围","样本与签名","正向控制","主要风险","1. KYC 回跳缺少完整 Origin 绑定","2. 供应商参数可能属于长期秘密"],"wordCount":2290,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-77b4544ac7f9.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-77b4544ac7f9.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"789Bingo Android 3.0.11 客户端静态安全审计","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-77b4544ac7f9.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机</span> › <span>789Bingo Android 3.0.11 客户端静态安全审计</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机</div>
+      <h1>789Bingo Android 3.0.11 客户端静态安全审计</h1>
+      <p class="lede">789Bingo Android 3.0.11 客户端静态安全审计。本文属于安全与堡垒机，公开版整理说明：本次只对官方 APK 做静态检查，没有运行客户端、登录账号或读取真实 Token、聊天、KYC 与支付数据。文中不提供可直接复用的攻击步骤、硬编码秘密值或完整源码片段。 审计对象为 789Bingo Andr…</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-11-10T19:45:00+08:00">发布于 2026-11-10</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">2,290 字</span>
+        <span class="badge">7 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+
+<blockquote>
+<p>公开版整理说明：本次只对官方 APK 做静态检查，没有运行客户端、登录账号或读取真实 Token、聊天、KYC 与支付数据。文中不提供可直接复用的攻击步骤、硬编码秘密值或完整源码片段。</p>
+</blockquote>
+<h2 id="范围">范围</h2>
+<p>审计对象为 789Bingo Android 3.0.11，只检查 APK、DEX、Manifest、资源、原生库元数据和 Flutter AOT 产物。样本 SHA256 为 <code>da4e09695176458d01f869fb96033afb07ceceb3f517a7ae068922a9d6864410</code>。</p>
+<p>静态检查关注登录与会话、H5 Bridge、KYC 回跳、聊天 Token、自更新、网络安全配置、敏感字符串、日志和隐私保护。没有对生产后端做主动利用测试。</p>
+<h2 id="样本与签名">样本与签名</h2>
+<ul>
+<li>包名为 <code>com.betbingo.game</code>，版本为 3.0.11。</li>
+<li>APK v2 签名有效，不是 Android Debug 证书。</li>
+<li>官方 App Links 声明的包名和证书与 APK 一致。</li>
+<li><code>allowBackup=false</code>。</li>
+<li>业务逻辑主要在 Flutter AOT 生成的 <code>libapp.so</code> 中。</li>
+<li>应用包含 Firebase、Adjust、EngageLab、Facebook、WebView、生物识别和 KYC 组件。</li>
+</ul>
+<p>签名和 App Links 一致，说明官方应用归属链完整；这不代表客户端内部逻辑不存在风险。</p>
+<h2 id="正向控制">正向控制</h2>
+<p>客户端具备以下安全设计：</p>
+<ul>
+<li>生产环境固定，API、H5、上传和 WebSocket 使用 HTTPS/WSS。</li>
+<li>默认只有少数登录与公开配置接口不附加认证。</li>
+<li>401 处理会区分已登出、静默请求和 Token 已更新等状态。</li>
+<li>Refresh 流程串行化，避免并发刷新覆盖新会话。</li>
+<li>H5 Bridge 要求 HTTPS，并校验当前页面精确 host。</li>
+<li>外部网页深链只允许主域及其子域，HTTP 会升级为 HTTPS。</li>
+<li>WebView 拒绝 <code>javascript:</code>、<code>file:</code>、<code>data:</code> 和 <code>intent:</code> 等危险导航。</li>
+<li>未发现证书错误绕过回调。</li>
+<li>遥测具备 Token、密码、手机号、证件号和 Session 的脱敏逻辑。</li>
+<li>未发现 AWS 主账号密钥、私钥或公开 source map。</li>
+</ul>
+<h2 id="主要风险">主要风险</h2>
+<h3 id="1-KYC-回跳缺少完整-Origin-绑定">1. KYC 回跳缺少完整 Origin 绑定</h3>
+<p>身份认证 WebView 判断流程完成时，主要依赖 URL 路径片段，之后会把平台会话凭据附加到当前回调地址并重新加载。该实现没有同时绑定精确 scheme 和 host。</p>
+<p>只有在供应商页面出现 XSS、开放重定向、恶意导航或第三方脚本被篡改时，该缺陷才可能发展为跨源会话泄露。因此应把它定位为“高危、带前置条件”的静态审计问题，不能表述成已经可远程利用。</p>
+<p>建议：</p>
+<ul>
+<li>回跳地址只接受精确的 HTTPS 主站 Origin 和精确页面路径。</li>
+<li>不把长期 Access Token 放进 URL 查询参数。</li>
+<li>使用一次性、短时、绑定 KYC Session 的回跳码。</li>
+<li>App 用回跳码换取认证结果后立即作废。</li>
+<li>供应商页面和第三方资源使用严格的 CSP、脚本清单和供应链监控。</li>
+</ul>
+<h3 id="2-供应商参数可能属于长期秘密">2. 供应商参数可能属于长期秘密</h3>
+<p>KYC 供应商地址中有客户端硬编码的模板标识和额外的供应商参数。当前只能确认这些值存在，不能仅凭静态代码判断其是否为公开模板标识、短期签名或长期共享密钥。</p>
+<p>若供应商参数具有签名或授权能力，应视为客户端不可安全保存的秘密。处理方式是向供应商确认权限后立即轮换，并把签发逻辑迁到服务端，客户端只保留公开模板 ID 和短期 Session。</p>
+<h3 id="3-Token-存储保护不足">3. Token 存储保护不足</h3>
+<p>Access Token、Refresh Token、Session、用户 ID 和过期信息会序列化后写入普通 SharedPreferences，没有使用 Android Keystore、EncryptedSharedPreferences 或等价加密存储。</p>
+<p>普通非 Root 设备仍受应用沙箱保护，<code>allowBackup=false</code> 也降低了备份提取风险。但 Root、调试、取证镜像或设备解锁可以读取完整会话材料，Refresh Token 长期存在会扩大影响周期。</p>
+<p>建议把会话材料迁到 Keystore 支持的加密存储，并在服务端为 Refresh Token 增加设备绑定、单会话撤销和轮换检测。</p>
+<h3 id="4-自更新缺少内容完整性校验">4. 自更新缺少内容完整性校验</h3>
+<p>更新接口响应可以直接把下载地址传给 Android <code>DownloadManager</code>。客户端没有校验 APK SHA256、版本响应签名、下载域名白名单或独立更新清单。</p>
+<p>Android 安装器仍会检查包名与签名一致性，因此不能安装不同签名的普通替换包；但更新链路仍缺少供应链完整性和可审计性。</p>
+<p>建议固定下载域，版本响应同时下发 SHA256、<code>versionCode</code> 和签名清单；下载完成后先在应用私有目录验证，再交给安装器。</p>
+<h3 id="5-全局允许明文-HTTP">5. 全局允许明文 HTTP</h3>
+<p>网络安全配置全局允许明文流量。当前主要业务地址使用 HTTPS，但系统不会阻止未来误配置的 HTTP API、更新地址或 WebView 页面。</p>
+<p>生产构建应默认关闭明文流量。确需开发例外时，只对明确域名建立临时 <code>domain-config</code>，并确保生产包不包含 QA/UAT/dev 例外。</p>
+<h3 id="6-H5-Bridge-Token-权限范围偏大">6. H5 Bridge Token 权限范围偏大</h3>
+<p>Bridge 的 host 校验能阻止普通第三方页面调用，但已授权主域页面可以请求平台 Access Token。任何主域页面注入、第三方脚本被篡改或危险 H5 路由都可能扩大 Token 暴露面。</p>
+<p>建议把 Bridge 授权收窄到明确路径，并使用短期、单用途 Bridge Token；同时为 H5 引入 CSP、Trusted Types、第三方脚本清单和 SRI。</p>
+<h3 id="7-KYC-与资金页面缺少截屏保护">7. KYC 与资金页面缺少截屏保护</h3>
+<p>未发现用于阻止截屏和录屏的安全窗口标志。身份证、人脸、银行卡、提现明细等页面可能被系统截屏、录屏或具备屏幕采集能力的应用捕获。</p>
+<p>建议对敏感页面启用 <code>FLAG_SECURE</code>，在任务切换时遮挡内容，并要求敏感页面退出后不进入普通最近任务缩略图。</p>
+<h3 id="8-其他收口项">8. 其他收口项</h3>
+<ul>
+<li>GIPHY Key 硬编码在客户端，应确认供应商配额和域限制，或改由后端代理。</li>
+<li>生产包保留 QA/UAT/dev 深链及测试地址，增加误配置和攻击面。</li>
+<li>本地随机 UUID 被用作“设备指纹”，不能独立承担反欺诈或设备可信判断。</li>
+<li>符号和构建路径未有效裁剪，降低逆向成本，但不直接等于凭据泄露。</li>
+</ul>
+<h2 id="风险分级">风险分级</h2>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>问题</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>高，条件触发</td>
+<td>KYC 回跳未绑定精确 Origin</td>
+<td>需供应商页被篡改或发生恶意导航，可能导致会话泄露</td>
+</tr>
+<tr>
+<td>高，待供应商确认</td>
+<td>KYC 供应商参数可能为长期秘密</td>
+<td>需确认权限并在必要时轮换</td>
+</tr>
+<tr>
+<td>中</td>
+<td>Token 明文存于 SharedPreferences</td>
+<td>需本地文件读取能力，Refresh Token 生命周期较长</td>
+</tr>
+<tr>
+<td>中</td>
+<td>自更新缺少哈希和签名清单</td>
+<td>系统签名校验仍在，但供应链完整性不足</td>
+</tr>
+<tr>
+<td>中</td>
+<td>全局允许明文流量</td>
+<td>缺少系统级误配置防线</td>
+</tr>
+<tr>
+<td>中</td>
+<td>Bridge 可向主域页面下发 Access Token</td>
+<td>依赖主域内容安全</td>
+</tr>
+<tr>
+<td>低至中</td>
+<td>KYC 和资金页面未禁止截屏</td>
+<td>本地隐私保护不足</td>
+</tr>
+<tr>
+<td>低</td>
+<td>生产包残留测试深链、第三方 Key 和调试信息</td>
+<td>攻击面和逆向便利性增加</td>
+</tr>
+</tbody>
+</table>
+<h2 id="整改优先级">整改优先级</h2>
+<h3 id="P0">P0</h3>
+<ol>
+<li>修复 KYC 回跳 Origin 绑定，改用一次性短时回跳码。</li>
+<li>向供应商确认客户端参数权限；若属于秘密，立即轮换。</li>
+</ol>
+<h3 id="P1">P1</h3>
+<ol start="3">
+<li>会话材料迁入 Android Keystore 支持的安全存储。</li>
+<li>更新链路增加固定域、SHA256、<code>versionCode</code> 和签名清单。</li>
+<li>关闭全局明文 HTTP。</li>
+<li>Bridge 收窄到路径白名单并使用短期凭据。</li>
+</ol>
+<h3 id="P2">P2</h3>
+<ol start="7">
+<li>对 KYC、银行卡和提现页面启用截屏保护。</li>
+<li>轮换并限制第三方 API Key。</li>
+<li>移除生产包中的测试深链和调试能力。</li>
+<li>裁剪符号与构建路径，修复更新接口异常。</li>
+</ol>
+<h2 id="复测标准">复测标准</h2>
+<ul>
+<li>非预期 Origin 无法获得 Access Token。</li>
+<li>KYC 回跳凭据一次性、短时并绑定 Session。</li>
+<li>普通文件和普通备份无法直接恢复 Refresh Token。</li>
+<li>更新包哈希、版本或来源异常时必须拒绝安装。</li>
+<li>生产客户端不允许任意明文 HTTP。</li>
+<li>KYC 页面无法被系统截屏或录屏。</li>
+<li>Bridge 来源、路径、动作和返回数据均有白名单和审计。</li>
+</ul>
+<h2 id="结论">结论</h2>
+<p>789Bingo 3.0.11 的 APK 签名、App Links 归属链和生产网络地址固定等基础控制有效，没有发现可直接匿名利用的高危 CVE、服务端主密钥、私钥或存量用户 Token。</p>
+<p>最优先处理的是 KYC 回跳 Origin 校验和供应商参数权限，其次是 Token 安全存储、自更新完整性和 H5 Bridge 权限范围。静态审计的“未发现”不等于运行时一定不存在，真实存储、网络和认证逻辑仍需在授权窗口中复测。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#范围">范围</a></li><li style="margin-left:0.0rem"><a href="#样本与签名">样本与签名</a></li><li style="margin-left:0.0rem"><a href="#正向控制">正向控制</a></li><li style="margin-left:0.0rem"><a href="#主要风险">主要风险</a></li><li style="margin-left:0.8rem"><a href="#1-KYC-回跳缺少完整-Origin-绑定">1. KYC 回跳缺少完整 Origin 绑定</a></li><li style="margin-left:0.8rem"><a href="#2-供应商参数可能属于长期秘密">2. 供应商参数可能属于长期秘密</a></li><li style="margin-left:0.8rem"><a href="#3-Token-存储保护不足">3. Token 存储保护不足</a></li><li style="margin-left:0.8rem"><a href="#4-自更新缺少内容完整性校验">4. 自更新缺少内容完整性校验</a></li><li style="margin-left:0.8rem"><a href="#5-全局允许明文-HTTP">5. 全局允许明文 HTTP</a></li><li style="margin-left:0.8rem"><a href="#6-H5-Bridge-Token-权限范围偏大">6. H5 Bridge Token 权限范围偏大</a></li><li style="margin-left:0.8rem"><a href="#7-KYC-与资金页面缺少截屏保护">7. KYC 与资金页面缺少截屏保护</a></li><li style="margin-left:0.8rem"><a href="#8-其他收口项">8. 其他收口项</a></li><li style="margin-left:0.0rem"><a href="#风险分级">风险分级</a></li><li style="margin-left:0.0rem"><a href="#整改优先级">整改优先级</a></li><li style="margin-left:0.8rem"><a href="#P0">P0</a></li><li style="margin-left:0.8rem"><a href="#P1">P1</a></li><li style="margin-left:0.8rem"><a href="#P2">P2</a></li><li style="margin-left:0.0rem"><a href="#复测标准">复测标准</a></li><li style="margin-left:0.0rem"><a href="#结论">结论</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机</li>
+          <li>日期：2026-11-10</li>
+          <li>标签：<span class="tag">789Bingo</span><span class="tag">Android</span><span class="tag">Flutter</span><span class="tag">KYC</span><span class="tag">Token安全</span><span class="tag">客户端安全</span></li>
+          <li><span>来源：渗透分析/789Bingo-Android-v3.0.11-静态安全审计.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202611101945-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2BAndroid-789Bingo%20Android%203.0.11%20%E9%9D%99%E6%80%81%E5%AE%89%E5%85%A8%E5%AE%A1%E8%AE%A1.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>789Bingo Android 3.0.11 客户端静态安全审计。本文属于安全与堡垒机，公开版整理说明：本次只对官方 APK 做静态检查，没有运行客户端、登录账号或读取真实 Token、聊天、KYC 与支付数据。文中不提供可直接复用的攻击步骤、硬编码秘密值或完整源码片段。 审计对象为 789Bingo Andr…</p>
+      <p>关键词：789Bingo、Android、Flutter、KYC、Token安全、客户端安全、安全与堡垒机、789Bingo Android 3.0.11 客户端静态安全审计、范围、样本与签名、正向控制、主要风险、1. KYC 回跳缺少完整 Origin 绑定、2. 供应商参数可能属于长期秘密</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-07440681e6b6.html"><small>上一篇</small>789Bingo 子域与接口暴露面分析</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-d1d5a12a42c6.html"><small>下一篇</small>789Bingo 源站暴露与聊天鉴权排查</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-77b4544ac7f9.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>

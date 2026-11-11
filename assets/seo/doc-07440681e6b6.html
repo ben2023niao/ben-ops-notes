@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>789Bingo 子域与接口暴露面分析｜安全与堡垒机｜BEN.OPS</title>
+  <meta name="description" content="789Bingo 子域与接口暴露面分析。本文属于安全与堡垒机，公开版只保留分类化结论和修复建议，不展开完整子域清单、精确接口路径及可复用的探测请求。评估过程中未执行端口扫描、目录爆破、口令尝试、用户登录、上传写入、支付或 KYC 操作。 评估覆盖一组公开和被动 DNS 中发现的主机名，分别检查：">
+  <meta name="keywords" content="789Bingo，攻击面分析，CORS，WebSocket，上传安全，Cloudflare，安全与堡垒机，789Bingo 子域与接口暴露面分析，检查方法，暴露面概况，重点发现，1. UAT 环境公开可达，2. 支付专用域返回完整主站应用，3. CORS Origin 固定为 HTTP">
+  <meta name="author" content="BEN">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="baiduspider" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="canonical" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-07440681e6b6.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-07440681e6b6.html">
+  <link rel="alternate" type="text/markdown" href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202611101931-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2BWeb%E5%AE%89%E5%85%A8-789Bingo%20%E5%AD%90%E5%9F%9F%E4%B8%8E%E6%8E%A5%E5%8F%A3%E6%9A%B4%E9%9C%B2%E9%9D%A2%E5%88%86%E6%9E%90.md">
+  <link rel="alternate" type="application/rss+xml" title="BEN.OPS RSS" href="https://ben2023niao.github.io/ben-ops-notes/assets/rss.xml">
+  <link rel="alternate" type="application/xml" title="BEN.OPS Sitemap" href="https://ben2023niao.github.io/ben-ops-notes/assets/sitemap.xml">
+  <link rel="author" href="https://t.me/Ben_Bird">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="BEN.OPS 工程笔记">
+  <meta property="og:title" content="789Bingo 子域与接口暴露面分析">
+  <meta property="og:description" content="789Bingo 子域与接口暴露面分析。本文属于安全与堡垒机，公开版只保留分类化结论和修复建议，不展开完整子域清单、精确接口路径及可复用的探测请求。评估过程中未执行端口扫描、目录爆破、口令尝试、用户登录、上传写入、支付或 KYC 操作。 评估覆盖一组公开和被动 DNS 中发现的主机名，分别检查：">
+  <meta property="og:url" content="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-07440681e6b6.html">
+  <meta property="article:published_time" content="2026-11-10T19:31:00+08:00">
+  <meta property="article:modified_time" content="2026-11-10 19:31">
+  <meta property="article:section" content="安全与堡垒机">
+  <meta property="article:author" content="https://t.me/Ben_Bird">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="789Bingo 子域与接口暴露面分析">
+  <meta name="twitter:description" content="789Bingo 子域与接口暴露面分析。本文属于安全与堡垒机，公开版只保留分类化结论和修复建议，不展开完整子域清单、精确接口路径及可复用的探测请求。评估过程中未执行端口扫描、目录爆破、口令尝试、用户登录、上传写入、支付或 KYC 操作。 评估覆盖一组公开和被动 DNS 中发现的主机名，分别检查：">
+
+  <style>:root{color-scheme:light dark;--bg:#f4f0e8;--panel:#fffdf8;--bg2:#e8e1d6;--fg:#202621;--muted:#66736b;
+--line:#d4cbbd;--accent:#176b55;--accent2:#0b6094;--code:#17211d;--codefg:#d8f0e4;--warn:#9b5c12;
+--max:1120px}@media(prefers-color-scheme:dark){:root{--bg:#111713;--panel:#18201b;--bg2:#202b24;
+--fg:#dce9df;--muted:#9aad9f;--line:#314238;--accent:#67d4ad;--accent2:#76b9df;--code:#0a100d;
+--codefg:#cceadd;--warn:#f0b35c}}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 8%,transparent),transparent 32rem),var(--bg);
+color:var(--fg);font:16px/1.82 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-underline-offset:.22em}a:hover{color:var(--accent2)}.shell{width:min(var(--max),calc(100% - 32px));margin:auto}
+.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+backdrop-filter:blur(14px)}.topbar .shell{min-height:62px;display:flex;align-items:center;gap:18px}.brand{font:700 1rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--fg);text-decoration:none;letter-spacing:.04em}.brand b{color:var(--accent)}.topbar nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+main{padding:34px 0 64px}.crumbs{font-size:.84rem;color:var(--muted);margin-bottom:18px}.hero{border:1px solid var(--line);background:var(--panel);
+border-radius:16px;padding:clamp(20px,4vw,42px);box-shadow:0 16px 50px #0000000a}.eyebrow{font:700 .74rem/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(1.8rem,4.4vw,3.2rem);line-height:1.2;margin:.55rem 0 1rem;
+letter-spacing:-.025em;overflow-wrap:anywhere}.lede{font-size:1.04rem;color:var(--muted);max-width:75ch;margin:0 0 18px}.meta{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.22rem .68rem;background:var(--bg2);
+font-size:.78rem;color:var(--fg);text-decoration:none}.layout{margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.article,.aside-box,.seo-summary{border:1px solid var(--line);background:var(--panel);border-radius:14px}.article{padding:clamp(20px,4vw,48px);min-width:0}
+.article h1,.article h2,.article h3,.article h4{line-height:1.35;letter-spacing:-.012em;scroll-margin-top:80px}.article h2{margin-top:2.2em;padding-top:.6em;
+border-top:1px solid var(--line)}.article h1{display:none}.article img{display:block;max-width:100%;height:auto;margin:1.4rem auto;border-radius:8px}
+.article pre{overflow:auto;background:var(--code);color:var(--codefg);padding:16px;border-radius:9px;line-height:1.6}
+.article code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}.article :not(pre)>code{background:var(--bg2);padding:.12em .34em;border-radius:4px}
+.article table{display:block;max-width:100%;overflow:auto;border-collapse:collapse}.article th,.article td{border:1px solid var(--line);padding:.45rem .65rem}
+.article blockquote{margin:1.4rem 0;padding:.4rem 1rem;border-left:4px solid var(--accent);background:var(--bg2);color:var(--muted)}
+.article hr{border:0;border-top:1px solid var(--line);margin:2rem 0}.aside{position:sticky;top:82px;display:grid;gap:14px}
+.aside-box{padding:16px}.aside-box h2{font-size:.83rem;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.aside-box ol,.aside-box ul{margin:0;padding-left:1.15rem}.aside-box li{margin:.5rem 0;font-size:.9rem}.aside-box a{text-decoration:none}
+.seo-summary{margin-top:24px;padding:20px 24px}.seo-summary h2{font-size:1rem;margin:0 0 .65rem}.seo-summary p{margin:0;color:var(--muted)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.pager a{border:1px solid var(--line);border-radius:12px;
+padding:14px 16px;background:var(--panel);text-decoration:none}.pager a:last-child{text-align:right}.pager small{display:block;color:var(--muted)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}footer .shell{display:flex;gap:16px;flex-wrap:wrap}
+.index-hero h1{font-size:clamp(2.1rem,6vw,4.4rem)}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.stat{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:12px}.stat strong{display:block;font:700 1.35rem/1.2 ui-monospace,monospace}
+.stat span{font-size:.78rem;color:var(--muted)}.year{margin-top:34px}.year>h2{position:sticky;top:62px;z-index:2;margin:0;padding:12px 0;
+background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);font:700 1.25rem/1.2 ui-monospace,monospace}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h3{font-size:1.02rem;line-height:1.45;margin:.35rem 0 .55rem}.card h3 a{text-decoration:none}.card p{margin:.45rem 0;color:var(--muted);font-size:.87rem}
+.card .date{font:600 .77rem/1 ui-monospace,monospace;color:var(--accent)}.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);
+border-radius:99px;padding:.12rem .48rem}@media(max-width:860px){.layout{grid-template-columns:1fr}.aside{position:static;grid-row:1}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){body{font-size:15px}.shell{width:min(100% - 22px,var(--max))}.topbar nav{gap:10px;font-size:.8rem}.hero,.article{padding:18px}
+.meta{gap:6px}.stat-grid{grid-template-columns:repeat(2,1fr)}.pager{grid-template-columns:1fr}.pager a:last-child{text-align:left}}
+@media print{.topbar,.aside,.pager,footer{display:none}.shell{width:100%}.article,.hero{border:0;box-shadow:none;padding:0}}</style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","@id":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-07440681e6b6.html#article","headline":"789Bingo 子域与接口暴露面分析","description":"789Bingo 子域与接口暴露面分析。本文属于安全与堡垒机，公开版只保留分类化结论和修复建议，不展开完整子域清单、精确接口路径及可复用的探测请求。评估过程中未执行端口扫描、目录爆破、口令尝试、用户登录、上传写入、支付或 KYC 操作。 评估覆盖一组公开和被动 DNS 中发现的主机名，分别检查：","datePublished":"2026-11-10T19:31:00+08:00","dateModified":"2026-11-10 19:31","inLanguage":"zh-CN","articleSection":["安全与堡垒机"],"keywords":["789Bingo","攻击面分析","CORS","WebSocket","上传安全","Cloudflare","安全与堡垒机","789Bingo 子域与接口暴露面分析","检查方法","暴露面概况","重点发现","1. UAT 环境公开可达","2. 支付专用域返回完整主站应用","3. CORS Origin 固定为 HTTP"],"wordCount":1799,"mainEntityOfPage":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-07440681e6b6.html","url":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-07440681e6b6.html","author":{"@type":"Person","name":"BEN","url":"https://t.me/Ben_Bird"},"publisher":{"@type":"Organization","name":"BEN.OPS 工程笔记","url":"https://ben2023niao.github.io/ben-ops-notes/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"BEN.OPS 工程笔记","item":"https://ben2023niao.github.io/ben-ops-notes/"},{"@type":"ListItem","position":2,"name":"安全与堡垒机","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html"},{"@type":"ListItem","position":3,"name":"789Bingo 子域与接口暴露面分析","item":"https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-07440681e6b6.html"}]}]}</script>
+</head>
+<body>
+  <header class="topbar"><div class="shell">
+    <a class="brand" href="https://ben2023niao.github.io/ben-ops-notes/"><b>$_</b> BEN.OPS</a>
+    <nav aria-label="站点导航">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">交互知识库</a>
+      <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">静态文章索引</a>
+      <a href="https://t.me/Ben_Bird">@Ben_Bird</a>
+    </nav>
+  </div></header>
+  <main class="shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="https://ben2023niao.github.io/ben-ops-notes/">首页</a> › <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/index.html">工程笔记</a>
+      › <span>安全与堡垒机</span> › <span>789Bingo 子域与接口暴露面分析</span>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">安全与堡垒机</div>
+      <h1>789Bingo 子域与接口暴露面分析</h1>
+      <p class="lede">789Bingo 子域与接口暴露面分析。本文属于安全与堡垒机，公开版只保留分类化结论和修复建议，不展开完整子域清单、精确接口路径及可复用的探测请求。评估过程中未执行端口扫描、目录爆破、口令尝试、用户登录、上传写入、支付或 KYC 操作。 评估覆盖一组公开和被动 DNS 中发现的主机名，分别检查：</p>
+      <div class="meta">
+        <time class="badge" datetime="2026-11-10T19:31:00+08:00">发布于 2026-11-10</time>
+        <span class="badge">作者 BEN</span>
+        <span class="badge">1,799 字</span>
+        <span class="badge">6 分钟阅读</span>
+      </div>
+    </header>
+    <div class="layout">
+      <article class="article" itemscope itemtype="https://schema.org/TechArticle">
+
+<blockquote>
+<p>公开版只保留分类化结论和修复建议，不展开完整子域清单、精确接口路径及可复用的探测请求。评估过程中未执行端口扫描、目录爆破、口令尝试、用户登录、上传写入、支付或 KYC 操作。</p>
+</blockquote>
+<h2 id="检查方法">检查方法</h2>
+<p>评估覆盖一组公开和被动 DNS 中发现的主机名，分别检查：</p>
+<ul>
+<li>DNS 与 HTTPS 可达性。</li>
+<li>根路径状态、跳转、内容类型和页面标题。</li>
+<li>TLS 证书与协议。</li>
+<li>HSTS、CSP、nosniff、Referrer Policy 和 Permissions Policy。</li>
+<li>正常 CORS 与预检响应。</li>
+<li>公开 JavaScript 中的接口和第三方配置指纹。</li>
+<li>WebSocket 握手及 Origin 处理。</li>
+</ul>
+<p>这类检查只能说明公开面可观察行为。握手成功、预检成功或匿名接口可读，都必须在服务端鉴权、请求体和业务权限层面继续确认。</p>
+<h2 id="暴露面概况">暴露面概况</h2>
+<p>多数 QA 主机由 Cloudflare 拦截，未直接暴露页面。可解析资产可以归纳为生产站、下载页、图片 CDN、上传 API、WebSocket、支付专用域和测试环境。</p>
+<p>主要关注点不是服务数量本身，而是不同业务域共享了统一前端、Cookie 作用域或公开 CDN 配置，导致测试环境、支付域和用户会话边界不够清晰。</p>
+<h2 id="重点发现">重点发现</h2>
+<h3 id="1-UAT-环境公开可达">1. UAT 环境公开可达</h3>
+<p>UAT 站点可以在没有额外身份代理的情况下打开完整单页应用，匿名业务接口仍返回未认证状态，没有发现未授权业务数据。</p>
+<p>风险在于测试账号、测试数据和调试配置会长期暴露给公网，未来测试环境出现鉴权回归时容易被直接利用。</p>
+<p>建议将 UAT 放到 Cloudflare Access、VPN 或固定 IP 白名单之后，并禁止测试环境使用生产支付、短信、KYC 和第三方回调凭据。</p>
+<h3 id="2-支付专用域返回完整主站应用">2. 支付专用域返回完整主站应用</h3>
+<p>支付域当前会回退到主站单页应用。统一前端路由可能是有意设计，但支付域应只开放二维码、回调、状态查询和健康检查等必要能力。</p>
+<p>需要重点确认：</p>
+<ul>
+<li>认证 Cookie 不应以整域父域形式暴露给全部子域。</li>
+<li>支付域不应继承主站全部路由。</li>
+<li>支付回调签名、日志和密钥应与主站前端配置分离。</li>
+<li>支付域的 WAF、CSP 和访问日志应独立管理。</li>
+</ul>
+<h3 id="3-CORS-Origin-固定为-HTTP">3. CORS Origin 固定为 HTTP</h3>
+<p>部分前端 API 的预检响应固定返回 HTTP 主站 Origin，并允许携带凭证。未知 HTTPS Origin 没有在本轮响应中得到对应的 ACAO，因此没有确认跨域读取漏洞。</p>
+<p>该配置仍属于不规范的边界设计。CORS 应由服务端动态判断请求 Origin，只返回精确匹配的 HTTPS 白名单，并正确设置 <code>Vary: Origin</code>。不能把协议或来源写死为 HTTP。</p>
+<h3 id="4-WebSocket-Origin-未校验">4. WebSocket Origin 未校验</h3>
+<p>公开 WebSocket 入口允许完成握手，响应没有因未知 Origin 而直接拒绝。本轮没有发送认证帧，也没有读取消息，因此不能据此认定聊天鉴权缺失。</p>
+<p>应确认首帧或订阅动作必须携带不可伪造的用户凭据，服务端将 Token 与用户、会话、房间和权限绑定，并在连接断开后立即失效。若只依赖 Cookie 自动认证，必须校验 Origin，或改用短时一次性连接票据。</p>
+<h3 id="5-上传接口是重点写入口">5. 上传接口是重点写入口</h3>
+<p>上传域存在允许凭证的 CORS 预检，业务自身仍可能要求上传 Token。由于没有执行写入，本轮不能判断文件上传是否存在未授权访问。</p>
+<p>上传接口需要分层校验：</p>
+<ul>
+<li>CORS 不是鉴权，POST/PUT 必须独立验证用户和会话。</li>
+<li>MIME、扩展名、文件大小、图片解码和对象路径都要由服务端校验。</li>
+<li>存储桶不能回源执行 HTML、SVG 或 JavaScript。</li>
+<li>临时上传 Token 必须短时、单用途，并绑定用户和文件哈希。</li>
+<li>上传后的对象访问权限应与业务数据权限一致。</li>
+</ul>
+<h3 id="6-图片-CDN-与对象存储">6. 图片 CDN 与对象存储</h3>
+<p>图片 CDN 根路径返回对象存储 <code>AccessDenied</code> XML，没有目录列表；公开图片使用宽松 CORS，这对静态内容通常是正常设计。</p>
+<p>仍需确认桶内不存在备份、日志、用户上传原件或其他私有对象。CDN 缓存时间也要与内容类型匹配，敏感文件不应进入公开缓存。</p>
+<h3 id="7-安全头覆盖不一致">7. 安全头覆盖不一致</h3>
+<p>主站安全头较完整，但测试域、支付域和部分接口域覆盖不一致。多个主机缺少 <code>nosniff</code>、统一 Referrer Policy 或 CSP。</p>
+<p>建议按资产类别建立统一基线：生产页面优先，支付和 KYC 页面更严格；静态对象使用独立策略，避免复制页面级 CSP 导致资源失效。</p>
+<h3 id="8-生产前端包含开发环境配置">8. 生产前端包含开发环境配置</h3>
+<p>生产前端静态资源中出现开发 Firebase 项目的公开 Web 配置。Web API Key 通常允许公开，但必须限制允许的 API、应用包名、站点来源和配额。</p>
+<p>必须同时确认 Firebase Security Rules 没有开放读写，避免把“公开配置”扩大成真实数据访问。</p>
+<h2 id="风险汇总">风险汇总</h2>
+<table>
+<thead>
+<tr>
+<th>风险项</th>
+<th>当前证据</th>
+<th style="text-align: right;">建议优先级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UAT 公网可达</td>
+<td>页面可打开，业务接口仍要求认证</td>
+<td style="text-align: right;">P1</td>
+</tr>
+<tr>
+<td>支付域路由过宽</td>
+<td>返回完整主站 SPA</td>
+<td style="text-align: right;">P1</td>
+</tr>
+<tr>
+<td>CORS 固定 HTTP Origin</td>
+<td>已观察预检响应，未知来源未获得匹配 ACAO</td>
+<td style="text-align: right;">P1</td>
+</tr>
+<tr>
+<td>WebSocket Origin 宽松</td>
+<td>可握手的入口未拒绝外部 Origin，认证状态未知</td>
+<td style="text-align: right;">P1</td>
+</tr>
+<tr>
+<td>上传写入口边界</td>
+<td>CORS 允许凭证，实际鉴权未测试</td>
+<td style="text-align: right;">P1</td>
+</tr>
+<tr>
+<td>安全头覆盖不一致</td>
+<td>不同子域策略不同</td>
+<td style="text-align: right;">P2</td>
+</tr>
+<tr>
+<td>开发 Firebase 配置出现在生产包</td>
+<td>静态资源可读，Rules 未验证</td>
+<td style="text-align: right;">P2</td>
+</tr>
+<tr>
+<td>公开 CDN 桶权限</td>
+<td>根路径无列表，桶内对象范围未枚举</td>
+<td style="text-align: right;">P2</td>
+</tr>
+</tbody>
+</table>
+<h2 id="优先处置顺序">优先处置顺序</h2>
+<ol>
+<li>给 UAT 增加统一身份代理或网络白名单。</li>
+<li>将支付域限制到最小路由集合，并拆分 Cookie 和签名密钥。</li>
+<li>把 CORS 改为精确 HTTPS Origin 动态白名单。</li>
+<li>复核 WebSocket 首帧 Token、Origin 和频道订阅权限。</li>
+<li>对上传接口做双账号写入、MIME、路径、对象权限和重放测试。</li>
+<li>统一不同资产类别的安全响应头。</li>
+<li>验证 Firebase API Key 限制和 Security Rules。</li>
+<li>检查 CDN 桶是否包含非公开对象。</li>
+</ol>
+<h2 id="结论">结论</h2>
+<p>本轮没有确认公开目录列表、源码映射、调试接口、未授权业务数据或可直接利用的高危 CVE。Cloudflare 对大部分 QA 环境提供了有效拦截，主站和聊天接口的基础认证表现正常。</p>
+<p>最值得继续跟进的是公开 UAT、支付域路由、CORS、WebSocket Token/Origin、上传写入口和 CDN 对象权限。</p>
+      </article>
+      <aside class="aside">
+        <aside class="aside-box"><h2>本页目录</h2><ol><li style="margin-left:0.0rem"><a href="#检查方法">检查方法</a></li><li style="margin-left:0.0rem"><a href="#暴露面概况">暴露面概况</a></li><li style="margin-left:0.0rem"><a href="#重点发现">重点发现</a></li><li style="margin-left:0.8rem"><a href="#1-UAT-环境公开可达">1. UAT 环境公开可达</a></li><li style="margin-left:0.8rem"><a href="#2-支付专用域返回完整主站应用">2. 支付专用域返回完整主站应用</a></li><li style="margin-left:0.8rem"><a href="#3-CORS-Origin-固定为-HTTP">3. CORS Origin 固定为 HTTP</a></li><li style="margin-left:0.8rem"><a href="#4-WebSocket-Origin-未校验">4. WebSocket Origin 未校验</a></li><li style="margin-left:0.8rem"><a href="#5-上传接口是重点写入口">5. 上传接口是重点写入口</a></li><li style="margin-left:0.8rem"><a href="#6-图片-CDN-与对象存储">6. 图片 CDN 与对象存储</a></li><li style="margin-left:0.8rem"><a href="#7-安全头覆盖不一致">7. 安全头覆盖不一致</a></li><li style="margin-left:0.8rem"><a href="#8-生产前端包含开发环境配置">8. 生产前端包含开发环境配置</a></li><li style="margin-left:0.0rem"><a href="#风险汇总">风险汇总</a></li><li style="margin-left:0.0rem"><a href="#优先处置顺序">优先处置顺序</a></li><li style="margin-left:0.0rem"><a href="#结论">结论</a></li></ol></aside>
+        <div class="aside-box"><h2>文章信息</h2><ul>
+          <li>分类：安全与堡垒机</li>
+          <li>日期：2026-11-10</li>
+          <li>标签：<span class="tag">789Bingo</span><span class="tag">攻击面分析</span><span class="tag">CORS</span><span class="tag">WebSocket</span><span class="tag">上传安全</span><span class="tag">Cloudflare</span></li>
+          <li><span>来源：渗透分析/789bingo.com-子域攻击面分析-20261110.md</span></li><li><a href="https://ben2023niao.github.io/ben-ops-notes/doc/md/202611101931-%E5%AE%89%E5%85%A8%E4%B8%8E%E5%A0%A1%E5%9E%92%E6%9C%BA%2BWeb%E5%AE%89%E5%85%A8-789Bingo%20%E5%AD%90%E5%9F%9F%E4%B8%8E%E6%8E%A5%E5%8F%A3%E6%9A%B4%E9%9C%B2%E9%9D%A2%E5%88%86%E6%9E%90.md" type="text/markdown">查看 Markdown 原文</a></li>
+        </ul></div>
+        <div class="aside-box"><h2>作者</h2>
+          <p><a href="https://t.me/Ben_Bird">@Ben_Bird</a></p>
+          <p>Linux / DevOps / SRE / 云平台 / 安全运维</p>
+        </div>
+      </aside>
+    </div>
+    <section class="seo-summary" aria-labelledby="seo-summary-title">
+      <h2 id="seo-summary-title">文章摘要</h2>
+      <p>789Bingo 子域与接口暴露面分析。本文属于安全与堡垒机，公开版只保留分类化结论和修复建议，不展开完整子域清单、精确接口路径及可复用的探测请求。评估过程中未执行端口扫描、目录爆破、口令尝试、用户登录、上传写入、支付或 KYC 操作。 评估覆盖一组公开和被动 DNS 中发现的主机名，分别检查：</p>
+      <p>关键词：789Bingo、攻击面分析、CORS、WebSocket、上传安全、Cloudflare、安全与堡垒机、789Bingo 子域与接口暴露面分析、检查方法、暴露面概况、重点发现、1. UAT 环境公开可达、2. 支付专用域返回完整主站应用、3. CORS Origin 固定为 HTTP</p>
+    </section>
+    <nav class="pager" aria-label="文章翻页"><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-88cfeacbd458.html"><small>上一篇</small>789Bingo 公开资产与基础安全基线核验</a><a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-77b4544ac7f9.html"><small>下一篇</small>789Bingo Android 3.0.11 客户端静态安全审计</a></nav>
+  </main>
+  <footer><div class="shell">
+    <span>© 2026 BEN.OPS</span>
+    <a href="https://github.com/ben2023niao/ben-ops-notes">GitHub</a>
+    <a href="https://t.me/Ben_Bird">Telegram @Ben_Bird</a>
+    <a href="https://ben2023niao.github.io/ben-ops-notes/assets/seo/doc-07440681e6b6.html">本页永久链接</a>
+  </div></footer>
+</body>
+</html>
